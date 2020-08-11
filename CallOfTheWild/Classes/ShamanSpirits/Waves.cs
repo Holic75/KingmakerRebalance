@@ -186,7 +186,7 @@ namespace CallOfTheWild
 
                 crashing_waves = hex_engine.createCrashingWaves(prefix + "CrashingWaves",
                                                                 "Crashing Waves",
-                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the cold descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts cold spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
+                                                                "The force of a waves shaman’s water spells can bring even the mightiest of foes to the ground. When the shaman casts a spell with the water descriptor, she does so at 1 caster level higher. If that spell deals damage, the target must succeed at a Fortitude saving throw or be knocked prone. At 8th level, the shaman casts cold spells at 2 caster levels higher. At 16th level, her ability to knock creatures prone extends to any spell that deals damage."
                                                                 );
 
                 mists_shroud = hex_engine.createMistsShroud(prefix + "MistsShroud",
@@ -334,15 +334,15 @@ namespace CallOfTheWild
             {
                 manifestation = Helpers.CreateFeature(prefix + "WavesManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of water. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of water. The shaman gains cold resistance 30. She can also apply any one of the following feats to any cold or water spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
                                                       library.Get<BlueprintProgression>("7c692e90592257a4e901d12ae6ec1e41").Icon, //cold wall
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Cold));
 
-                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Cold, "", "");
+                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water, "", "");
                 extend.Group = ActivatableAbilityGroupExtension.ShamanWavesMetamagic.ToActivatableAbilityGroup();
-                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Cold, "", "");
+                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water, "", "");
                 reach.Group = ActivatableAbilityGroupExtension.ShamanWavesMetamagic.ToActivatableAbilityGroup();
                 manifestation.AddComponent(Helpers.CreateAddFacts(extend, reach));
             }

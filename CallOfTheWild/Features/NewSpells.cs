@@ -860,6 +860,12 @@ namespace CallOfTheWild
                 mental_barrier[i].AvailableMetamagic = Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
                 Helpers.AddSpell(mental_barrier[i]);
             }
+
+            for (int i = 1; i < mental_barrier.Length; i++)
+            {
+                mental_barrier[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = mental_barrier.Take(i).ToArray()));
+                mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
+            }
         }
 
 
@@ -897,6 +903,13 @@ namespace CallOfTheWild
                 thought_shield[i].setMiscAbilityParametersSelfOnly();
                 thought_shield[i].AvailableMetamagic = Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
                 Helpers.AddSpell(thought_shield[i]);
+
+            }
+
+            for (int i = 1; i < thought_shield.Length; i++)
+            {
+                thought_shield[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = thought_shield.Take(i).ToArray()));
+                thought_shield[i].SetDescription(thought_shield[i].Description + "\nThis spell can be undercast.");
             }
         }
 
@@ -1069,6 +1082,12 @@ namespace CallOfTheWild
             mind_thrust[5].SpellResistance = true;
             mind_thrust[5].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
             Helpers.AddSpell(mind_thrust[5]);
+
+            for (int i = 1; i < mind_thrust.Length; i++)
+            {
+                mind_thrust[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = mind_thrust.Take(i).ToArray()));
+                mind_thrust[i].SetDescription(mind_thrust[i].Description + "\nThis spell can be undercast.");
+            }
         }
 
 
@@ -2520,7 +2539,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, Helpers.CreateConditionalSaved(new GameAction[0], new GameAction[] { knock_out, move })),
                                                 Helpers.CreateContextRankConfig(progression: ContextRankProgression.Div2, max: 10),
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration),
-                                                deliver_projectile
+                                                deliver_projectile,
+                                                Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water)
                                                 );
             tidal_surge.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
             tidal_surge.setMiscAbilityParametersRangedDirectional();
@@ -5581,7 +5601,7 @@ namespace CallOfTheWild
                                                   Helpers.savingThrowNone,
                                                   Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)),
                                                   Helpers.CreateSpellComponent(SpellSchool.Conjuration),
-                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water),
                                                   Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
                                                   );
 
@@ -6182,6 +6202,7 @@ namespace CallOfTheWild
             var cold_cone30 = library.Get<BlueprintProjectile>("72b45860bdfb81f4284aa005c04594dd");
             flurry_of_snowballs.ReplaceComponent<AbilityDeliverProjectile>(a => { a.Projectiles = new BlueprintProjectile[] { cold_cone30 }; a.Length = 30.Feet(); });
             flurry_of_snowballs.AvailableMetamagic = Metamagic.Quicken | Metamagic.Empower | Metamagic.Reach | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            flurry_of_snowballs.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water);
 
             flurry_of_snowballs.AddToSpellList(Helpers.magusSpellList, 2);
             flurry_of_snowballs.AddToSpellList(Helpers.druidSpellList, 2);

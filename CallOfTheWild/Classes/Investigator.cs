@@ -126,6 +126,8 @@ namespace CallOfTheWild
         static public BlueprintFeature minds_eye;
         static public BlueprintFeature overpowering_mind;
         static public BlueprintFeature will_of_the_dead;
+        static public BlueprintFeature relentness_casting;
+        static public BlueprintFeature undercast_surge;
 
         static public BlueprintArchetype cryptid_schoolar;
         static public BlueprintFeature intuitive_monster_lore;
@@ -542,7 +544,8 @@ namespace CallOfTheWild
             overpowering_mind = phrenic_amplifications_engine.createOverpoweringMind();
             will_of_the_dead = phrenic_amplifications_engine.createWillOfTheDead();
             ongoing_defense = phrenic_amplifications_engine.createOngoingDefense();
-
+            relentness_casting = phrenic_amplifications_engine.createRelentnessCasting();
+            undercast_surge = phrenic_amplifications_engine.createUndercastSurge();
             phrenic_dabbler.AllFeatures = new BlueprintFeature[]
             {
                 biokinetic_healing,
@@ -552,7 +555,9 @@ namespace CallOfTheWild
                 minds_eye,
                 overpowering_mind,
                 will_of_the_dead,
-                ongoing_defense
+                ongoing_defense,
+                relentness_casting,
+                undercast_surge
             };
 
         }
@@ -756,6 +761,7 @@ namespace CallOfTheWild
             psychic_detective_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.PsychicSpellbook>());
 
             psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_detective_spellbook));
+            psychic_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = psychic_detective_spellbook));
             psychic_spellcasting.AddComponents(Common.createCantrips(investigator_class, StatType.Intelligence, psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
             psychic_spellcasting.AddComponents(Helpers.CreateAddFacts(psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }

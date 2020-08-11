@@ -2865,7 +2865,7 @@ namespace CallOfTheWild
                 }
             }
 
-            if (domain_progression.AssetGuid != "881b2137a1779294c8956fe5b497cc35" && domain_progression.AssetGuid != "c85c8791ee13d4c4ea10d93c97a19afc")
+            if (domain_progression.AssetGuid != "881b2137a1779294c8956fe5b497cc35")
             {
                 return;
             }

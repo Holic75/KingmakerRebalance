@@ -77,7 +77,8 @@ namespace CallOfTheWild
             ExtraRoundDuration = 0x00010000,
             ImprovedSpellSharing = 0x00008000,
             BypassUndeadMindAffectingImmunity = 0x00004000,
-            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | BypassUndeadMindAffectingImmunity,
+            RollSpellResistanceTwice = 0x00002000,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | BypassUndeadMindAffectingImmunity | RollSpellResistanceTwice,
         }
 
         static public bool test_mode = false;
@@ -921,12 +922,22 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
+                var tr = Harmony12.Traverse.Create(__instance);
                 if (context2.SourceAbility.IsSpell &&
                     (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Piercing) != 0)
                 {
-                    var tr = Harmony12.Traverse.Create(__instance);
                     tr.Property("SpellResistance").SetValue(Math.Max(0, __instance.SpellResistance - 5));
+                }
+
+                if (context2.SourceAbility.IsSpell &&
+                        (context2.Params.Metamagic & (Metamagic)MetamagicExtender.RollSpellResistanceTwice) != 0)
+                {
+                    var d20 = RulebookEvent.Dice.D20;
+                    Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " rerolls: " + $"({__instance.Roll}  >>  {d20}, retains best)");
+                    if (d20 > __instance.Roll)
+                    {
+                        tr.Property("Roll").SetValue(d20);
+                    }                    
                 }
             }
         }

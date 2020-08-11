@@ -44,6 +44,7 @@ using Kingmaker.Visual.Animation.Kingmaker.Actions;
 using Harmony12;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
+using Kingmaker.UI.Common;
 
 namespace CallOfTheWild
 {
@@ -146,6 +147,35 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("740d943e42b60f64a8de74926ba6ddf7").ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | SpellDescriptor.Compulsion);
             //descriptor to boggard terrifying croak
             library.Get<BlueprintAbility>("d7ab3a110325b174e90ae6c7b4e96bb9").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken | SpellDescriptor.Emotion));
+
+
+            //water descriptor to certain spells
+            var water_spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("d8144161e352ca846a73cf90e85bf9ac"), //tsunami
+                library.Get<BlueprintAbility>("9f10909f0be1f5141bf1c102041f93d9"), //snowball
+                library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //seamantle
+                library.Get<BlueprintAbility>("d8d451ed3c919a4438cde74cd145b981") //tidal wave
+            };
+
+            foreach (var ws in water_spells)
+            {
+                var comp = ws.GetComponent<SpellDescriptorComponent>();
+                if (comp == null)
+                {
+                    ws.AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water));
+                }
+                else
+                {
+                    comp.Descriptor = comp.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water;
+                }
+            }
+
+
+            //add descriptor text to spells 
+            var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetSpellDescriptor");
+            var patch = Harmony12.AccessTools.Method(typeof(AdditionalSpellDescriptors.UIUtilityTexts_GetSpellDescriptor_Patch), "Postfix");
+            Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
         }
 
         internal static void fixFeyStalkerSummonBuff()
@@ -412,7 +442,7 @@ namespace CallOfTheWild
             tristian_companion.Wisdom = 17;
             tristian_companion.Charisma = 14;
             var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
-            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc");//sun as primary
+            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
             tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
@@ -420,10 +450,10 @@ namespace CallOfTheWild
             tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
             tristian_level.Levels = 1;
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
-            harrim_companion.Strength = 16;
+            harrim_companion.Strength = 17;
             harrim_companion.Constitution = 12;
             harrim_companion.Charisma = 10;
-            harrim_companion.Wisdom = 17;
+            harrim_companion.Wisdom = 16;
             harrim_companion.Dexterity = 10;
             harrim_companion.Body.PrimaryHandAlternative1 = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("7f7c8e1e4fdd99e438b30ed9622e9e3f");//heavy flail
 
@@ -672,6 +702,28 @@ namespace CallOfTheWild
             //weather
             //add missing druid scaling to Storm Burst
             library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9").ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", domain_classes_and_druid));
+
+            //fix luck domain
+            var luck_domain_greater_resource = library.Get<BlueprintAbilityResource>("b209ca75fbea5144c9d73ecb29055a08");
+            var luck_domain_greater_ability = library.Get<BlueprintAbility>("0e0668a703fbfcf499d9aa9d918b71ea");
+            luck_domain_greater_ability.AddComponent(luck_domain_greater_resource.CreateResourceLogic());
+
+            //fix strength surge to work on allies
+            var strenght_surge = library.Get<BlueprintAbility>("6e3cbd10e50c6774e869ff8e20f2b352");
+            strenght_surge.CanTargetEnemies = false;
+            strenght_surge.CanTargetFriends = true;
+            strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetEnemies = false;
+            strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetFriends = true;
+            //fix toggle actions
+            var toggles = new BlueprintActivatableAbility[]
+            {
+                library.Get<BlueprintActivatableAbility>("cb5652d2e74cac14498c2793b1bca857")
+            };
+
+            foreach (var t in toggles)
+            {
+                t.AddComponent(Common.createActivatableAbilityUnitCommand(UnitCommand.CommandType.Standard));
+            }
 
             //protection domain
             /*var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,

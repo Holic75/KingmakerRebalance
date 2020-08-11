@@ -1187,14 +1187,14 @@ namespace CallOfTheWild
 
             var final_revelation = Helpers.CreateFeature("FinalRevelationWavesMystery",
                                                          "Final Revelation",
-                                                         "Upon reaching 20th level, you become a master of cold. You can apply any one of the following feats to any cold spell without increasing the level or casting time: Reach Spell or Extend Spell.",
+                                                         "Upon reaching 20th level, you become a master of cold. You can apply any one of the following feats to any cold or water spell without increasing the level or casting time: Reach Spell or Extend Spell.",
                                                           "",
                                                           null,
                                                           FeatureGroup.None);
 
-            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Cold, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
             extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Cold, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Cold)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water, "", "", library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon);
             reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
             final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
 

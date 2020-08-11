@@ -5,6 +5,7 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -20,7 +21,6 @@ namespace CallOfTheWild
     {
         static LibraryScriptableObject library => Main.library;
         //intense focus ?
-        //ongoing defense
         //relentness casting
 
         BlueprintAbilityResource resource;
@@ -61,6 +61,33 @@ namespace CallOfTheWild
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             var feature =  Common.ActivatableAbilityToFeature(toggle, false);
             feature.AddComponent(Helpers.Create<OnCastMechanics.ForceFocusSpellDamageDiceIncrease>(s => { s.spellbook = spellbook; s.SpellDescriptor = SpellDescriptor.Force; }));
+            return feature;
+        }
+
+
+        public BlueprintFeature createRelentnessCasting()
+        {
+            var buff = Helpers.CreateBuff(name_prefix + "RelentnessCastingBuff",
+                                          "Relentness Casting",
+                                          "The psychic can spend 1 point from her phrenic pool to roll twice on any caster level checks to overcome spell resistance required for the linked spell and take the better result. Because she must decide to spend points from her phrenic pool when she starts casting a spell, the psychic must decide to use this ability before the GM calls for the caster level check.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/PiercingSpell.png"),
+                                          null,
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.amount = 1;
+                                                m.resource = resource;
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.RollSpellResistanceTwice;
+                                                m.spellbook = spellbook;
+                                            })
+                                          );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             );
+            toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = 1; }));
+            toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
             return feature;
         }
 
@@ -198,6 +225,59 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createUndercastSurge()
+        {
+            var toggles = new BlueprintActivatableAbility[4];
+
+            for (int i = 0; i < toggles.Length; i++)
+            {
+                var buff = Helpers.CreateBuff(name_prefix + $"UndercastSurge{i + 1}Buff",
+                                                      "Undercast Surge " + Common.roman_id[i + 1],
+                                                      "When the psychic undercasts a spell, she can spend points from her phrenic pool to increase the spell’s effective level, essentially using up a lower-level spell slot to cast a higher-level version of the spell. This costs 2 points per spell level increased. She can’t use this ability to cast a version higher than the version she knows. For instance, a psychic who knows mind thrust III but not mind thrust IV could cast mind thrust II and spend 2 points to treat it as mind thrust III, but couldn’t spend 4 points to treat it as mind thrust IV. This amplification can be linked only to spells that can be undercast.",
+                                                      "",
+                                                      Helpers.GetIcon("c3a8f31778c3980498d8f00c980be5f5"), //guidance
+                                                      null,
+                                                      Helpers.Create<SpellManipulationMechanics.SpendLowerLevelSpellSlot>(s =>
+                                                                                                                          {
+                                                                                                                              s.amount = (i + 1) * 2;
+                                                                                                                              s.spell_slot_decrease = (i + 1);
+                                                                                                                              s.undercast_only = true;
+                                                                                                                              s.resource = resource;
+                                                                                                                          }
+                                                                                                                        )
+                                                      );
+
+                var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                                 resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                 );
+                toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+                toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = 2 * (i + 1); }));
+                toggles[i] = toggle;
+            }
+            var feature = Helpers.CreateFeature(name_prefix + "UndercastSurgeFeature",
+                                                "Undercast Surge",
+                                                toggles[0].Description,
+                                                "",
+                                                toggles[0].Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFacts(toggles)
+                                                );
+            for (int i = 0; i < toggles.Length; i++)
+            {
+                for (int j = 0; j < toggles.Length; j++)
+                {
+                    if (j == i)
+                    {
+                        continue;
+                    }
+                    toggles[i].AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = toggles[j].Buff; r.Not = true; }));
+                }
+            }
+
+            return feature;
+        }
+
+
 
 
 
@@ -235,6 +315,19 @@ namespace CallOfTheWild
                     toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = 2; }));
                 }
                 toggles[i] = toggle;
+            }
+
+
+            for (int i = 0; i < toggles.Length; i++)
+            {
+                for (int j = 0; j < toggles.Length; j++)
+                {
+                    if (j == i)
+                    {
+                        continue;
+                    }
+                    toggles[i].AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = toggles[j].Buff; r.Not = true; }));
+                }
             }
             var feature = Helpers.CreateFeature(name_prefix + "DefensivePrognosticationFeature",
                                                 "Defensive Prognostication",

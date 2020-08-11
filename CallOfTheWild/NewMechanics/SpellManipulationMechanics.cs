@@ -1026,7 +1026,90 @@ namespace CallOfTheWild
 
 
 
-        
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class SpendLowerLevelSpellSlot : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
+        {
+            public BlueprintAbilityResource resource;
+            public int amount;
+            public int spell_slot_decrease = 0;
+            public bool undercast_only;
+
+            private BlueprintAbility current_spell = null;
+            private int spell_level = -1;
+
+
+            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
+                {
+                    spell_level = -1;
+                    return;
+                }
+            }
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                spell_level = -1;
+
+                if (undercast_only)
+                {
+                    var comp = evt.Spell.GetComponent<SpellbookMechanics.SpellUndercast>();
+                    if (comp == null || comp.getRank() < spell_slot_decrease)
+                    {
+                        return;
+                    }
+                }
+                if (evt.SpellLevel <= spell_slot_decrease)
+                {
+                    return;
+                }
+
+                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < amount)
+                {
+                    return;
+                }
+                if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
+                {
+                    return;
+                }
+
+                if (evt.Spellbook.GetSpontaneousSlots(evt.SpellLevel - spell_slot_decrease) == 0)
+                {
+                    return;
+                }
+
+                current_spell = evt.Spell;
+                spell_level = evt.SpellLevel;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+
+            public override void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                if (spell_level == -1)
+                {
+                    return;
+                }
+                if (evt.Spell.Blueprint != current_spell)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend(this.resource, amount);
+
+                evt.Spell.Caster.Ensure<SpellbookMechanics.UnitPartDoNotSpendNextSpell>().active = true;
+                evt.Spell.Spellbook.RestoreSpontaneousSlots(spell_level - spell_slot_decrease, -1);
+                current_spell = null;
+                spell_level = -1;
+            }
+        }
+
+
+
+
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class MagicalSupremacy : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
         {

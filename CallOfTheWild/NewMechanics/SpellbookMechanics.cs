@@ -401,6 +401,56 @@ namespace CallOfTheWild.SpellbookMechanics
     }
 
 
+    public class SpellUndercast: BlueprintComponent
+    {
+        public BlueprintAbility[] undercast_abilities = new BlueprintAbility[0];
+        public int getRank()
+        {
+            return undercast_abilities.Length;
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AddUndercastSpells : OwnedGameLogicComponent<UnitDescriptor>, ILearnSpellHandler, IGlobalSubscriber
+    {
+        public BlueprintSpellbook spellbook;
+        private bool in_action = false;
+
+        public void HandleLearnSpell()
+        {
+            var sb = this.Owner.GetSpellbook(spellbook);
+            if (sb == null)
+            {
+                return;
+            }
+            if (in_action)
+            {//avoid running multiple instances
+                return;
+            }
+            in_action = true;
+            foreach (var s in sb.GetAllKnownSpells().ToArray())
+            {
+                var comp = s?.Blueprint.GetComponent<SpellUndercast>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                var undercast_spells = comp.undercast_abilities;
+                foreach (var us in undercast_spells)
+                {
+                    var sl = sb.Blueprint.SpellList.GetLevel(us);
+                    if (!sb.IsKnown(us) && sl > 0)
+                    {                       
+                        sb.AddKnown(sl, us, false);
+                    }
+                }
+            }
+            in_action = false;
+        }
+    }
+
     public static class Helpers
     {
         //used to extract arcanist spontaneous spellbook from his memorization spellbook, for any other kind of spellbooks return spellbook argument
