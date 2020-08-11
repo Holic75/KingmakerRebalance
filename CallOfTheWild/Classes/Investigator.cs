@@ -130,6 +130,8 @@ namespace CallOfTheWild
         static public BlueprintFeature undercast_surge;
         static public BlueprintFeature psychofeedback;
 
+        static public BlueprintFeature center_self;
+
         static public BlueprintArchetype cryptid_schoolar;
         static public BlueprintFeature intuitive_monster_lore;
         static public BlueprintFeature opportune_advice;
@@ -732,6 +734,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.mental_barrier[3].AssetGuid, 5),
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
+                new Common.SpellId( NewSpells.synapse_overload.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
@@ -765,8 +768,33 @@ namespace CallOfTheWild
 
             psychic_detective_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.PsychicSpellbook>());
 
+            var center_self_buff = Helpers.CreateBuff("CenterSelfBuff",
+                                                  "Center Self",
+                                                  "A psychic spellcaster casting a spell with a thought component can take a move action before beginning to cast the spell to center herself; she can then use the normal concentration DC instead of the increased DC.",
+                                                  "",
+                                                  Helpers.GetIcon("00369aa0a76141a479382e360b1f3dd7"),
+                                                  null,
+                                                  Helpers.Create<SpellFailureMechanics.CenterSelf>()
+                                                  );
+            center_self_buff.Stacking = StackingType.Replace;
+            var center_self_ability = Helpers.CreateAbility("CenterSelfAbility",
+                                                            center_self_buff.Name,
+                                                            center_self_buff.Description,
+                                                            "",
+                                                            center_self_buff.Icon,
+                                                            AbilityType.Special,
+                                                            CommandType.Move,
+                                                            AbilityRange.Personal,
+                                                            Helpers.oneRoundDuration,
+                                                            "",
+                                                            Helpers.CreateRunActions(Common.createContextActionApplyBuff(center_self_buff, Helpers.CreateContextDuration(1), dispellable: false))
+                                                            );
+            center_self_ability.setMiscAbilityParametersSelfOnly();
+            center_self = Common.AbilityToFeature(center_self_ability);
+
             psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_detective_spellbook));
             psychic_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = psychic_detective_spellbook));
+            psychic_spellcasting.AddComponent(Helpers.CreateAddFact(center_self));
             psychic_spellcasting.AddComponents(Common.createCantrips(investigator_class, StatType.Intelligence, psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
             psychic_spellcasting.AddComponents(Helpers.CreateAddFacts(psychic_detective_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }

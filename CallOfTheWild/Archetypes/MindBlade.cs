@@ -171,7 +171,8 @@ namespace CallOfTheWild.Archetypes
                                                          Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),//mind fog
                                                          FeatureGroup.None,
                                                          Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = spellbook),
-                                                         Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = spellbook)
+                                                         Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = spellbook),
+                                                         Helpers.CreateAddFact(Investigator.center_self)
                                                          );
             //disallow prestige classes
             var prestige_spellbooks = new BlueprintFeature[]

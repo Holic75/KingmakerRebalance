@@ -114,12 +114,9 @@ namespace CallOfTheWild
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
             var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
             Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
-
-
-            setFreeMetamagicFlags();
         }
 
-        static void setFreeMetamagicFlags()
+        public static void setFreeMetamagicFlags()
         {
             //force focus
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && (b.SpellDescriptor & SpellDescriptor.Force) != 0).ToArray();
@@ -156,6 +153,17 @@ namespace CallOfTheWild
                 if (s.Parent != null)
                 {
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RangedAttackRollBonus;
+                }
+            }
+
+            var sr_spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && ((b.AvailableMetamagic & (Metamagic)MetamagicExtender.Piercing) != 0)).ToArray();
+
+            foreach (var s in sr_spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RollSpellResistanceTwice;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RollSpellResistanceTwice;
                 }
             }
         }

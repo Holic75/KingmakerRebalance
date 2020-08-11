@@ -333,6 +333,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
                     CallOfTheWild.NewFeats.createPreferredSpell();
+                    CallOfTheWild.MetamagicFeats.setFreeMetamagicFlags();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();

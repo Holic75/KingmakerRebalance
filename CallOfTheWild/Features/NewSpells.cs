@@ -223,6 +223,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility burst_of_adrenaline;
         static public BlueprintAbility burst_of_insight;
+        static public BlueprintAbility synapse_overload;
 
 
         static public void load()
@@ -365,6 +366,40 @@ namespace CallOfTheWild
 
             createBurstOfAdrenaline();
             createBurstOfInsight();
+            createSynapseOverload();
+        }
+
+        
+        static void createSynapseOverload()
+        {
+            var stagger = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+
+            var synapse_overload_touch = Helpers.CreateAbility("SynapseOverloadAbility",
+                                                             "Synapse Overload",
+                                                             "You cause the target’s mind to unleash a vast overflowing torrent of information throughout the target’s body, causing the target’s synapses to violently trigger. The target takes 1d6 points of electrical damage per caster level (maximum 15d6) and is staggered for 1 minute. A successful Fortitude saving throw doesn’t reduce the damage, but it negates the staggered effect.",
+                                                             "",
+                                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/TemporalStasis.png"),
+                                                             AbilityType.Spell,
+                                                             UnitCommand.CommandType.Standard,
+                                                             AbilityRange.Touch,
+                                                             Helpers.oneMinuteDuration,
+                                                             "Fortitude partial",
+                                                             Helpers.CreateRunActions(SavingThrowType.Fortitude,
+                                                                                       Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, false),
+                                                                                       Helpers.CreateConditionalSaved(null,
+                                                                                                                      Common.createContextActionApplyBuff(stagger, Helpers.CreateContextDuration(1, DurationRate.Minutes))
+                                                                                                                      )
+                                                                                       ),
+                                                             Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                             Helpers.CreateDeliverTouch(),
+                                                             Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                             Helpers.CreateContextRankConfig(max: 15)
+                                                             );
+            synapse_overload_touch.setMiscAbilityParametersTouchHarmful();
+            synapse_overload_touch.SpellResistance = true;
+            synapse_overload_touch.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            synapse_overload = Helpers.CreateTouchSpellCast(synapse_overload_touch);
+           
         }
 
 
