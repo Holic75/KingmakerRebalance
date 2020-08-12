@@ -467,6 +467,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
             public BlueprintSpellbook spellbook = null;
+            public bool limit_spell_level;
 
             private int calculate_cost(UnitEntityData caster)
             {
@@ -509,6 +510,12 @@ namespace CallOfTheWild
 
                 int cost = calculate_cost(this.Owner.Unit);
                 if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
+                {
+                    return false;
+                }
+
+
+                if (limit_spell_level && data.Spellbook.MaxSpellLevel < data.SpellLevel + Metamagic.DefaultCost())
                 {
                     return false;
                 }

@@ -42,7 +42,7 @@ namespace CallOfTheWild.PrerequisiteMechanics
         }
     }
 
-        [AllowMultipleComponents]
+    [AllowMultipleComponents]
     public class PrerequsiteOrAlternative : Prerequisite
     {        
         public Prerequisite base_prerequsite, alternative_prerequsite;

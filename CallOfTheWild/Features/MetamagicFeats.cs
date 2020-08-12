@@ -76,9 +76,10 @@ namespace CallOfTheWild
             RangedAttackRollBonus = 0x00020000,
             ExtraRoundDuration = 0x00010000,
             ImprovedSpellSharing = 0x00008000,
-            BypassUndeadMindAffectingImmunity = 0x00004000,
-            RollSpellResistanceTwice = 0x00002000,
-            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | BypassUndeadMindAffectingImmunity | RollSpellResistanceTwice,
+            RollSpellResistanceTwice = 0x00004000,
+            ThrenodicSpell = 0x00002000,
+            VerdantSpell = 0x00001000,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | RollSpellResistanceTwice,
         }
 
         static public bool test_mode = false;
@@ -91,6 +92,7 @@ namespace CallOfTheWild
         static public BlueprintFeature persistent_metamagic;
         static public BlueprintFeature selective_metamagic;
         static public BlueprintFeature piercing_metamagic;
+        static public BlueprintFeature threnodic_metamagic;
         static public Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>  elemental_metamagic = new Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>();
 
         static readonly int[][] metamagic_rod_costs = new int[][] {
@@ -109,14 +111,14 @@ namespace CallOfTheWild
             createPersistentSpell();
             createSelectiveSpell();
             createElementalMetamagic();
-
+            createThrenodicSpell();
             //add metamagic text to spells 
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
             var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
             Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
         }
 
-        public static void setFreeMetamagicFlags()
+        public static void setMetamagicFlags()
         {
             //force focus
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && (b.SpellDescriptor & SpellDescriptor.Force) != 0).ToArray();
@@ -164,6 +166,18 @@ namespace CallOfTheWild
                 if (s.Parent != null)
                 {
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.RollSpellResistanceTwice;
+                }
+            }
+
+
+            var mind_affecting_spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.SpellDescriptor.Intersects(SpellDescriptor.MindAffecting)).ToArray();
+
+            foreach (var s in mind_affecting_spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.ThrenodicSpell;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.ThrenodicSpell;
                 }
             }
         }
@@ -217,6 +231,20 @@ namespace CallOfTheWild
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Piercing;
                 }
             }
+        }
+
+
+        static void createThrenodicSpell()
+        {
+            threnodic_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "ThrenodicSpellFeature", "");
+            threnodic_metamagic.SetNameDescriptionIcon("Metamagic (Threnodic Spell)",
+                                                        "A threnodic spell affects undead creatures(even mindless undead) as if they weren’t immune to mind-affecting effects, but has no effect on living creatures.\n"
+                                                        + "Level Increase: +2 (a threnodic spell uses up a spell slot two levels higher than the spell’s actual level.)\n",
+                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/ThrenodicSpell.png")
+                                                        );
+
+            threnodic_metamagic.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.ThrenodicSpell);
+            AddMetamagicToFeatSelection(threnodic_metamagic);
         }
 
 
@@ -534,6 +562,7 @@ namespace CallOfTheWild
             {
                 case MetamagicExtender.Dazing:
                     return 3;
+                case MetamagicExtender.ThrenodicSpell:
                 case MetamagicExtender.Persistent:
                     return 2;
                 case MetamagicExtender.Rime:
@@ -562,6 +591,7 @@ namespace CallOfTheWild
                     case MetamagicExtender.Dazing:
                         __result = 3;
                         return false;
+                    case MetamagicExtender.ThrenodicSpell:
                     case MetamagicExtender.Persistent:
                         __result = 2;
                         return false;
@@ -595,6 +625,7 @@ namespace CallOfTheWild
                     case MetamagicExtender.Dazing:
                     case MetamagicExtender.Toppling:
                     case MetamagicExtender.Selective:
+                    case MetamagicExtender.ThrenodicSpell:
                         __result = UIRoot.Instance.SpellBookColors.MetamagicReach;
                         return false;
                     case MetamagicExtender.Rime:
@@ -875,6 +906,10 @@ namespace CallOfTheWild
                 {
                     extra_metamagic += "Selective, ";
                 }
+                if ((mask & (Metamagic)MetamagicExtender.ThrenodicSpell) != 0)
+                {
+                    extra_metamagic += "Threnodic, ";
+                }
                 if ((mask & (Metamagic)MetamagicExtender.Dazing) != 0)
                 {
                     extra_metamagic += "Dazing, ";
@@ -970,12 +1005,21 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("IsImmune", Harmony12.MethodType.Normal)]
         static class BuffDescriptorImmunity_IsImmune_Patch
         {
-            static BlueprintFeature undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            static Dictionary<BlueprintFeature, Metamagic>
+                bypass_metamagic_dict = new Dictionary<BlueprintFeature, Metamagic>
+                {
+                    { Common.undead_arcana_hidden, (Metamagic)MetamagicExtender.ThrenodicSpell },
+                   // { Common.undead_arcana_hidden, (Metamagic)MetamagicExtender.VerdantSpell },
+                };
             internal static void Postfix(BuffDescriptorImmunity __instance, MechanicsContext context, ref bool __result)
             {
-                if (__instance.IgnoreFeature == undead_arcana && context.HasMetamagic((Metamagic)MetamagicExtender.BypassUndeadMindAffectingImmunity))
+                foreach (var kv in bypass_metamagic_dict)
                 {
-                    __result = false;
+                    if (__instance.IgnoreFeature == kv.Key && context.HasMetamagic(kv.Value))
+                    {
+                        __result = false;
+                        return;
+                    }
                 }
             }
         }
@@ -985,12 +1029,21 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("CanApply", Harmony12.MethodType.Normal)]
         static class SpellImmunity_CanApply_Patch
         {
-            static BlueprintFeature undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            static Dictionary<BlueprintFeature, Metamagic>
+                bypass_metamagic_dict = new Dictionary<BlueprintFeature, Metamagic>
+                {
+                    { Common.undead_arcana_hidden, (Metamagic)MetamagicExtender.ThrenodicSpell },
+                   // { library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c"), (Metamagic)MetamagicExtender.VerdantSpell },
+                };
             internal static void Postfix(UnitPartSpellResistance.SpellImmunity __instance, MechanicsContext context, ref bool __result)
             {
-                if (__instance.CasterIgnoreImmunityFact == undead_arcana && context.HasMetamagic((Metamagic)MetamagicExtender.BypassUndeadMindAffectingImmunity)) 
+                foreach (var kv in bypass_metamagic_dict)
                 {
-                    __result = false;
+                    if (__instance.CasterIgnoreImmunityFact == kv.Key && context.HasMetamagic(kv.Value))
+                    {
+                        __result = true;
+                        return;
+                    }
                 }
             }
         }

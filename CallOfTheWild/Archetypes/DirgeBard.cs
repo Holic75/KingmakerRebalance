@@ -192,8 +192,6 @@ namespace CallOfTheWild.Archetypes
 
         static void createSecretsOfTheGrave()
         {
-            var bloodline_undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
-
             var wizard = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             var bard = archetype.GetParentClass();
             var spell_list = Common.combineSpellLists("DirgeBardBonusNecromancySpellsList", bard.Spellbook.SpellList, Witch.witch_class.Spellbook.SpellList, wizard.Spellbook.SpellList);
@@ -211,7 +209,7 @@ namespace CallOfTheWild.Archetypes
             spell_selection.SpellcasterClass = archetype.GetParentClass();
 
             secrets_of_the_grave = Common.featureToSelection(spell_selection);
-            secrets_of_the_grave.AddComponent(Helpers.CreateAddFact(bloodline_undead_arcana));
+            secrets_of_the_grave.AddComponent(Helpers.CreateAddFact(Common.undead_arcana_hidden));
         }
 
 

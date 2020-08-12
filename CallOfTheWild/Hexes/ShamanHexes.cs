@@ -1938,7 +1938,7 @@ namespace CallOfTheWild
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
                                                 "",
-                                                "Fortitude Half",
+                                                "Fortitude half",
                                                 Helpers.CreateRunActions(apply_cooldown, action),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_classes, progression: ContextRankProgression.Div2, min: 1),
                                                 Common.createAbilityCasterHasNoFacts(cooldown_buff),

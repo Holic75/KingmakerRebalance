@@ -186,7 +186,7 @@ namespace CallOfTheWild
                                            CommandType.Standard,
                                            AbilityRange.Medium,
                                            "",
-                                           "Fortitude Half",
+                                           "Fortitude half",
                                            Helpers.CreateRunActions(SavingThrowType.Fortitude, dmg, apply_deafened),
                                            createClassScalingConfig(),
                                            Helpers.CreateResourceLogic(resource),

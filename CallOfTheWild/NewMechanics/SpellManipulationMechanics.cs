@@ -1955,6 +1955,7 @@ namespace CallOfTheWild
         {
             public ActionList actions;
             public bool check_caster;
+            public SpellDescriptorWrapper descriptor;
 
             public void OnAbilityEffectApplied(AbilityExecutionContext context)
             {
@@ -1968,6 +1969,10 @@ namespace CallOfTheWild
                     return;
                 }
 
+                if (descriptor != SpellDescriptor.None && !context.SpellDescriptor.Intersects(descriptor))
+                {
+                    return;
+                }
                 if (check_caster && context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
                 {
                     return;

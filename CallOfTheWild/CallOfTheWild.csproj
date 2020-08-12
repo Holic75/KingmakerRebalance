@@ -184,6 +184,7 @@
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
+    <Compile Include="Classes\Psychic.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="Archetypes\UndeadLord.cs" />
     <Compile Include="ClassToProgression.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
+    <Compile Include="NewMechanics\BuffMechanics.cs" />
     <Compile Include="NewMechanics\ChargenMechanincs.cs" />
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />

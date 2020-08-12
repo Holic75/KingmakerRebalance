@@ -2,15 +2,21 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,15 +28,15 @@ namespace CallOfTheWild
     public class PhrenicAmplificationsEngine
     {
         static LibraryScriptableObject library => Main.library;
-        //dual amplification
-        //mimic metamagic
-        //space rending spell
-        //synaptic shock
 
         BlueprintAbilityResource resource;
         BlueprintSpellbook spellbook;
         BlueprintCharacterClass character_class;
+        static BlueprintFeature dual_amplification;
         string name_prefix;
+        
+        //subordinate spell
+        //dispelling pulse
 
         public PhrenicAmplificationsEngine(BlueprintAbilityResource pool_resource, BlueprintSpellbook linked_spellbook, BlueprintCharacterClass linked_class, string asset_prefix)
         {
@@ -41,6 +47,214 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature[] createMimicMetamagic()
+        {
+            var metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
+
+            var metamagic_selection = Helpers.CreateFeatureSelection(name_prefix + "MimicMetamagicSelection",
+                                                                     "Mimic Metamagic",
+                                                                     "When the psychic gains this amplification, she chooses two metamagic feats; she need not have these feats to select them. When she casts a spell, she can spend points from her phrenic pool to apply one of the chosen feats to the linked spell without increasing the spell’s level or casting time. She must spend a number of points equal to double the number of levels by which the feat normally increases a spell’s level (minimum 2 points). If the metamagic feat alters the spell’s casting time in a different way than the standard rules for a spontaneous caster using a metamagic feat (as in the case of Quicken Spell), it changes the casting time accordingly. The psychic can still apply metamagic feats she knows to the spell while using this amplification, increasing the casting time and spell level as normal. This amplification can be applied only to a spell that the chosen metamagic feat could normally affect, and only if the spellcaster can cast spells of a high enough level that she would be able to apply the metamagic feat in question to the linked spell. For example, an 11th-level psychic could spend 8 points to quicken a 1st-level spell, but couldn’t quicken a 2nd-level spell because she’s unable to cast 6th-level spells. This ability doesn’t require her to have any free spell slots in the relevant level, however, so the psychic in the example could quicken a 1st-level spell even if she had cast all her 5th-level spells for the day. A psychic can select this amplification multiple times, adding two additional options to the list of metamagic feats she can apply using this amplification each time.",
+                                                                     "",
+                                                                     null,
+                                                                     FeatureGroup.None);
+
+            foreach (var m in metamagics)
+            {
+                var metamagic_enum = m.GetComponent<AddMetamagicFeat>().Metamagic;
+                var feature = Helpers.CreateFeature(name_prefix + m.name,
+                                                   "Mimic Metamagic: " + m.Name,
+                                                   metamagic_selection.Description + "\n" + m.Name + ": " + m.Description,
+                                                   "",
+                                                   m.Icon,
+                                                   FeatureGroup.None);
+
+                var buff = Helpers.CreateBuff(name_prefix + m.name + "Buff",
+                                              feature.Name,
+                                              feature.Description,
+                                              "",
+                                              feature.Icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(mm =>
+                                              {
+                                                  mm.Metamagic = metamagic_enum;
+                                                  mm.limit_spell_level = true;
+                                                  mm.resource = resource;
+                                                  mm.amount = metamagic_enum.DefaultCost() * 2;
+                                                  mm.spellbook = spellbook;
+                                              })
+                                              );
+                var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                                 resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                 );
+                toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+                toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = metamagic_enum.DefaultCost() * 2; }));
+                feature.AddComponent(Helpers.CreateAddFact(toggle));
+                metamagic_selection.AllFeatures = metamagic_selection.AllFeatures.AddToArray(feature);
+            }
+
+
+            var amplifications = new BlueprintFeature[metamagics.Length / 2];
+
+            for (int i = 0; i < amplifications.Length; i++)
+            {
+                amplifications[i] = Helpers.CreateFeature(name_prefix + $"{i + 1}MimicMetamagicFeature",
+                                                          metamagic_selection.Name + " " + Common.roman_id[i],
+                                                          metamagic_selection.Description,
+                                                          "",
+                                                          metamagic_selection.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = metamagic_selection)
+                                                          );
+                if (i > 0)
+                {
+                    amplifications[i].AddComponent(Helpers.PrerequisiteFeature(amplifications[i - 1]));
+                }
+            }
+
+            return amplifications;
+        }
+
+        public BlueprintFeature createDualAmplification()
+        {
+            if (dual_amplification != null)
+            {
+                return dual_amplification;
+            }
+
+            dual_amplification = Helpers.CreateFeature(name_prefix + "DualAmplificationFeature",
+                                                       "DualAmplification",
+                                                       "When the psychic uses this major amplification, she chooses two other amplifications or major amplifications she knows to apply to the same linked spell. She can’t apply the same amplification to the linked spell more than once, even if she can use that amplification for multiple different effects.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.None,
+                                                       Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup())
+                                                       );
+            return dual_amplification;
+        }
+
+
+        public BlueprintFeature createSpaceRendingSpell()
+        {
+            var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
+
+            var actions = new ActionList[10];
+            var buffs = new BlueprintBuff[9];
+            var abilities = new BlueprintAbility[9];
+
+            for (int i = 0; i< 9; i++)
+            {
+                buffs[i] = Helpers.CreateBuff(name_prefix + $"{i + 1}SpaceRendingSpellBuff",
+                                            "Space-rending Spell " + Common.roman_id[i+1],
+                                            "The psychic can warp space with her mind, teleporting herself as she casts her linked spell. She teleports herself 10 feet per point she spends from her phrenic pool (as dimension door). The maximum number of points she can spend in this way is equal to the linked spell’s level.",
+                                            "",
+                                            dimension_door.Icon,
+                                            null);
+
+                abilities[i] = Helpers.CreateAbility(name_prefix + $"{i + 1}SpaceRendingSpellAbility",
+                                                     buffs[i].Name,
+                                                     buffs[i].Description,
+                                                     "",
+                                                     buffs[i].Icon,
+                                                     AbilityType.Supernatural,
+                                                     UnitCommand.CommandType.Free,
+                                                     AbilityRange.Custom,
+                                                     "",
+                                                     "",
+                                                     resource.CreateResourceLogic(amount: i + 1),
+                                                     Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door))
+                                                     );
+                abilities[i].CustomRange = ((i + 1) * 10).Feet();
+                abilities[i].setMiscAbilityParametersRangedDirectional();
+                actions[i+1] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(1), dispellable: false));
+            }
+
+            for (int i = 0; i < 9; i++)
+            {
+                abilities[i].AddComponent(Common.createAbilityCasterHasFacts(buffs.Take(9 - i).ToArray()));
+                var remove_buffs = Common.createContextActionOnContextCaster(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs));
+                abilities[i].ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = a.Actions.Actions.AddToArray(remove_buffs));
+            }
+
+            var ability = Common.createVariantWrapper(name_prefix + "SpaceRendingSpellAbility", "", abilities);
+            ability.SetName("Space-rending Spell");
+
+            var buff = Helpers.CreateBuff(name_prefix + "SpaceRendingSpellBuff",
+                                                ability.Name,
+                                                ability.Description,
+                                                "",
+                                                ability.Icon,
+                                                null,
+                                                Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r => { r.spellbook = spellbook; r.actions = actions; })                                                     
+                                                );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             );
+            toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(Helpers.CreateAddFact(ability));
+            return feature;
+        }
+
+
+        public BlueprintFeature createSynapticShock()
+        {
+            var target_buff = Helpers.CreateBuff(name_prefix + "SynapticShockTargetBuff",
+                                                 "Synaptic Shock Target",
+                                                 "The psychic manipulates an enemy’s mind with brute force, causing mental harm beyond that done by her linked spell. She can spend 1 point from her phrenic pool when casting a mind-affecting linked spell to select one of the spell’s targets. If the target is affected by the linked spell, that target is confused for 1 round. This amplification can be applied only to a mind-affecting spell that can affect a number of targets or that has an area. It has no effect on creatures that are immune to mind-affecting effects, unless the linked spell is able to affect such creatures (such as a spell that has both will of the dead and synaptic shock applied to it via dual amplification).",
+                                                 "",
+                                                 Helpers.GetIcon("cf6c901fb7acc904e85c63b342e9c949"), //confusion
+                                                 null,
+                                                 Helpers.Create<UniqueBuff>()
+                                                 );
+            target_buff.Stacking = StackingType.Stack;
+            var ability = Helpers.CreateAbility(name_prefix + "SynapticShockTargetAbility",
+                                                target_buff.Name,
+                                                target_buff.Description,
+                                                "",
+                                                target_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                UnitCommand.CommandType.Free,
+                                                AbilityRange.Long,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(target_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true))
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            var confusion_buff = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
+            var action = Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => { c.resource = resource; c.on_caster = true; }),
+                                                   new GameAction[]{Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => c.resource = resource),
+                                                                    Common.createContextActionApplyBuff(confusion_buff, Helpers.CreateContextDuration(1)),
+                                                                    Common.createContextActionRemoveBuffFromCaster(target_buff)
+                                                                   }
+                                                  );
+
+            var cond_action = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(target_buff), action);
+            var buff = Helpers.CreateBuff(name_prefix + "SynapticShockCasterBuff",
+                                                "Synaptic Shock",
+                                                target_buff.Description,
+                                                "",
+                                                target_buff.Icon,
+                                                null,
+                                                Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveUniqueBuff>(r => r.buff = target_buff)),
+                                                Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyTarget>(a =>
+                                                                                                        {
+                                                                                                            a.descriptor = SpellDescriptor.MindAffecting;
+                                                                                                            a.check_caster = true;
+                                                                                                            a.actions = Helpers.CreateActionList(cond_action);
+                                                                                                        }
+                                                                                                        )
+                                                );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             );
+            toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(Helpers.CreateAddFact(ability));
+            return feature;
+        }
 
         public BlueprintFeature createFocusedForce()
         {
@@ -148,7 +362,7 @@ namespace CallOfTheWild
                                           "Relentness Casting",
                                           "The psychic can spend 1 point from her phrenic pool to roll twice on any caster level checks to overcome spell resistance required for the linked spell and take the better result. Because she must decide to spend points from her phrenic pool when she starts casting a spell, the psychic must decide to use this ability before the GM calls for the caster level check.",
                                           "",
-                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/PiercingSpell.png"),
+                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/Metamixing.png"),
                                           null,
                                             Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
                                             {
@@ -206,9 +420,14 @@ namespace CallOfTheWild
                                           "",
                                           will_of_the_dead.Icon,
                                           null,
-                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spell_descriptor = SpellDescriptor.MindAffecting; s.amount = 2; }),
-                                          Helpers.CreateAddFact(will_of_the_dead),
-                                          Helpers.Create<AutoMetamagic>(a => { a.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.BypassUndeadMindAffectingImmunity; a.Descriptor = SpellDescriptor.MindAffecting; })
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.Descriptor = SpellDescriptor.MindAffecting;
+                                                m.amount = 2;
+                                                m.resource = resource;
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ThrenodicSpell;
+                                                m.spellbook = spellbook;
+                                            })
                                           );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,

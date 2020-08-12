@@ -64,6 +64,57 @@ using Kingmaker.Blueprints.Root.Strings;
 
 namespace CallOfTheWild.OnCastMechanics
 {
+
+    [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+    public class RunActionAfterSpellCastBasedOnLevel : RuleInitiatorLogicComponent<RuleCastSpell>
+    {
+        public BlueprintSpellbook spellbook;
+        public SpellSchool school = SpellSchool.None;
+        public ActionList[] actions = new ActionList[0];
+
+        public override void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+
+        }
+
+        public override void OnEventDidTrigger(RuleCastSpell evt)
+        {
+            if (!evt.Success)
+            {
+                return;
+            }
+            var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
+            if (spellbook_blueprint == null)
+            {
+                return;
+            }
+
+            if (evt.Spell.StickyTouch != null)
+            {
+                return;
+            }
+
+            if (spellbook != null && spellbook_blueprint != spellbook)
+            {
+                return;
+            }
+
+            if (school != SpellSchool.None && evt.Spell.Blueprint.School != school)
+            {
+                return;
+            }
+
+            int lvl = evt.Context.SpellLevel;
+            if (lvl < 0 || lvl > actions.Length || actions[lvl] == null)
+            {
+                return;
+            }
+
+            (this.Fact as IFactContextOwner).RunActionInContext(actions[lvl], this.Owner.Unit);
+        }
+    }
+
+
     [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
     public class HealAfterSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
     {

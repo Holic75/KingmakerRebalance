@@ -175,6 +175,7 @@ namespace CallOfTheWild.ResourceMechanics
     {
         public BlueprintAbilityResource resource;
         public int amount = 1;
+        public bool on_caster = false;
 
         protected override string GetConditionCaption()
         {
@@ -183,7 +184,7 @@ namespace CallOfTheWild.ResourceMechanics
 
         protected override bool CheckCondition()
         {
-            var unit = this.Target?.Unit;
+            var unit = on_caster ? this.Context.MaybeCaster : this.Target?.Unit;
             if (unit == null)
             {
                 return false;

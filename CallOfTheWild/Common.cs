@@ -132,6 +132,9 @@ namespace CallOfTheWild
                                                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Daze)
                                                                                 );
 
+
+        public static BlueprintFeature undead_arcana_hidden;
+
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
         static readonly Type ContextActionSavingThrow_ConditionalDCIncrease = Harmony12.AccessTools.Inner(typeof(ContextActionSavingThrow), "ConditionalDCIncrease");
 
@@ -3438,6 +3441,23 @@ namespace CallOfTheWild
             var data_array = Array.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease, 1);
 
             data_array.SetValue(data, 0);
+            Helpers.SetField(context_action_savingthrow, "m_ConditionalDCIncrease", data_array);
+        }
+
+
+
+        public static void addConditionalDCIncrease(ContextActionSavingThrow context_action_savingthrow, ConditionsChecker[] condition, ContextValue value)
+        {
+            var data_array = Array.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease, condition.Length);
+
+            for (int i = 0; i < condition.Length; i++)
+            {
+                var data = Activator.CreateInstance(ContextActionSavingThrow_ConditionalDCIncrease);
+                Helpers.SetField(data, "Condition", condition[i]);
+                Helpers.SetField(data, "Value", value);
+                data_array.SetValue(data, i);
+            }
+
             Helpers.SetField(context_action_savingthrow, "m_ConditionalDCIncrease", data_array);
         }
 

@@ -2930,21 +2930,7 @@ namespace CallOfTheWild
         static void createMetarage()
         {
             BlueprintFeature[] metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
-            /*BlueprintFeature[] metamagics =   new BlueprintFeature[] {library.Get<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e"), //empower
-                                                                    library.Get<BlueprintFeature>("46fad72f54a33dc4692d3b62eca7bb78"), //reach
-                                                                    library.Get<BlueprintFeature>("7f2b282626862e345935bbea5e66424b"), //maximize
-                                                                    library.Get<BlueprintFeature>("ef7ece7bb5bb66a41b256976b27f424e"), //quicken
-                                                                    library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef"), //extend
-                                                                    MetamagicFeats.dazing_metamagic,
-                                                                    MetamagicFeats.intensified_metamagic,
-                                                                    MetamagicFeats.persistent_metamagic,
-                                                                    MetamagicFeats.selective_metamagic,
-                                                                    MetamagicFeats.toppling_metamagic
-                                                                  };
-            foreach (var m in MetamagicFeats.elemental_metamagic.Values)
-            {
-                metamagics = metamagics.AddToArray(m.Item3);
-            }*/
+
             BlueprintFeature[] metarager_metamagics = new BlueprintFeature[metamagics.Length];
             for (int i = 0; i < metamagics.Length; i++)
             {

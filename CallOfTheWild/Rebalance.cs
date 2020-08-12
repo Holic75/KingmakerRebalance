@@ -1537,11 +1537,62 @@ namespace CallOfTheWild
 
         static internal void fixUndeadImmunity()
         {
-            //add missing immunity to stun  and recalcualte fort saves on cha change
+            Common.undead_arcana_hidden = Helpers.CreateFeature("BypassUndeadImmunity",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None);
+            Common.undead_arcana_hidden.HideInCharacterSheetAndLevelUp = true;
+            Common.undead_arcana_hidden.HideInUI = true;
+
+            var undead_arcana = library.Get<BlueprintFeature>("1a5e7191279e7cd479b17a6ca438498c");
+            undead_arcana.AddComponent(Helpers.CreateAddFact(Common.undead_arcana_hidden));
+
+            //add missing immunity to stun, remove immunity to fear/shaken/charm/daze  and recalcualte fort saves on cha change
             var undead_immunity = library.Get<BlueprintFeature>("8a75eb16bfff86949a4ddcb3dd2f83ae");
-            undead_immunity.ReplaceComponent<BuffDescriptorImmunity>(b => b.Descriptor = b.Descriptor | SpellDescriptor.Stun);
-            undead_immunity.ReplaceComponent<SpellImmunityToSpellDescriptor>(s => s.Descriptor = s.Descriptor | SpellDescriptor.Stun);
+            undead_immunity.RemoveComponents<BuffDescriptorImmunity>();
+            undead_immunity.RemoveComponents<SpellImmunityToSpellDescriptor>();
+
+            SpellDescriptor always_immune = SpellDescriptor.Poison | SpellDescriptor.Disease | SpellDescriptor.Sickened | SpellDescriptor.Paralysis
+                                            | SpellDescriptor.Nauseated | SpellDescriptor.Fatigue | SpellDescriptor.Exhausted | SpellDescriptor.Bleed
+                                            | SpellDescriptor.VilderavnBleed | SpellDescriptor.Death | SpellDescriptor.Stun | SpellDescriptor.Stun;
+
+
+            undead_immunity.AddComponent(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = always_immune; }));
+            undead_immunity.AddComponent(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = SpellDescriptor.MindAffecting; b.IgnoreFeature = Common.undead_arcana_hidden; }));
+            undead_immunity.AddComponent(Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = always_immune; }));
+            undead_immunity.AddComponent(Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = SpellDescriptor.MindAffecting; b.CasterIgnoreImmunityFact = Common.undead_arcana_hidden; }));
+
             undead_immunity.AddComponent(Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma));
+
+
+            var abilities = library.GetAllBlueprints().OfType<BlueprintAbility>();
+
+            foreach (var a in abilities)
+            {
+                a.RemoveComponents<AbilityTargetHasNoFactUnless>(u => u.UnlessFact == undead_arcana);
+                var actions = a.GetComponent<AbilityEffectRunAction>();
+                if (actions?.Actions == null)
+                {
+                    continue;
+                }
+                var extracted_actions = Common.extractActions<Conditional>(actions.Actions.Actions);
+                foreach (var ea in extracted_actions)
+                {
+                    if (ea.ConditionsChecker == null)
+                    {
+                        var cond_to_remove = ea.ConditionsChecker.Conditions.OfType<ContextConditionCasterHasFact>().Where(ccc => ccc.Fact == undead_arcana).ToArray();
+                        foreach (var ctr in cond_to_remove)
+                        {
+                            ea.ConditionsChecker.Conditions = ea.ConditionsChecker.Conditions.RemoveFromArray(ctr);
+                        }
+                    }
+                }
+            }
+
+            var mummification = library.Get<BlueprintFeature>("daf854d84d442e941aa3a2fdc041b37c");
+            mummification.GetComponent<BuffDescriptorImmunity>().IgnoreFeature = null;
         }
 
 

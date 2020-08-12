@@ -668,6 +668,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
 
+                new Common.SpellId( "0a2f7c6aa81bc6548ac7780d8b70bcbc", 3), //battering blast (it seems it should be on the list since all force spells are there)
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
@@ -716,6 +717,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.thought_shield[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 4),
 
+                new Common.SpellId( NewSpells.burst_of_force.AssetGuid, 5),
                 new Common.SpellId( NewSpells.command_greater.AssetGuid, 5),
                 new Common.SpellId( "95f7cdcec94e293489a85afdf5af1fd7", 5), //dismissal
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
@@ -732,6 +734,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.mental_barrier[3].AssetGuid, 5),
+                new Common.SpellId( NewSpells.psychic_crush[0].AssetGuid, 5),
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( NewSpells.synapse_overload.AssetGuid, 5),
@@ -756,6 +759,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.mind_thrust[5].AssetGuid, 6),
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
+                new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
             };

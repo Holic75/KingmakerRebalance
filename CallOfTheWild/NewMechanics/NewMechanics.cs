@@ -6046,7 +6046,6 @@ namespace CallOfTheWild
             }
         }
 
-
         public class ConsumeMoveAction : ContextAction
         {
             public override string GetCaption()
@@ -8196,15 +8195,11 @@ namespace CallOfTheWild
                 if (selectionState != null && checked_feature != null && selectionState.IsSelectedInChildren(this.checked_feature))
                     return false;
                 var feat = unit.Progression.Features.GetFact(this.Feature);
+                var checked_feat = unit.Progression.Features.GetFact(this.checked_feature);
 
-                if (feat == null)
-                {
-                    return not;
-                }
-                else
-                {
-                    return (((feat.GetRank() + 1) % divisor) == 0) != not;
-                }
+                int rank = (feat == null ? 0 : feat.GetRank()) + ((checked_feat == null || checked_feature == Feature) ? 0 : checked_feat.GetRank());
+
+                return (((rank + 1) % divisor) == 0) != not;
             }
 
             public override string GetUIText()
@@ -8212,7 +8207,7 @@ namespace CallOfTheWild
                 StringBuilder stringBuilder = new StringBuilder();
                 if ((UnityEngine.Object)this.Feature == (UnityEngine.Object)null)
                 {
-                    UberDebug.LogError((object)("Empty Feature fild in prerequisite component: " + this.name), (object[])Array.Empty<object>());
+                    UberDebug.LogError((object)("Empty Feature field in prerequisite component: " + this.name), (object[])Array.Empty<object>());
                 }
                 else
                 {
