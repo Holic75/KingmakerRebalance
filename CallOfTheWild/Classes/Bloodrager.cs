@@ -511,6 +511,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.keen_edge.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
                 new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 3),
+                new Common.SpellId( NewSpells.pain_strike.AssetGuid, 3),
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),

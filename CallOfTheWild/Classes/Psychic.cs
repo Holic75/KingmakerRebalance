@@ -72,13 +72,15 @@ namespace CallOfTheWild
         static public BlueprintFeature relentness_casting;
         static public BlueprintFeature undercast_surge;
         static public BlueprintFeature psychofeedback;
-
-        static public BlueprintFeature phrenic_amplification;
-        static public BlueprintFeature major_amplification;
         static public BlueprintFeature synaptic_shock;
         static public BlueprintFeature space_rending_spell;
         static public BlueprintFeature[] mimic_metamagic;
         static public BlueprintFeature dual_amplification;
+
+        static public BlueprintFeature phrenic_pool;
+        static public BlueprintFeatureSelection phrenic_amplification;
+        static public BlueprintFeature major_amplification;
+
 
         static public BlueprintArchetype magaambyan_telepath;
         static public BlueprintArchetype mutation_mind;
@@ -131,12 +133,169 @@ namespace CallOfTheWild
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("e8308a74821762e49bc3211358e81016"), //s. mage armor
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("f79c3fd5012a3534c8ab36dc18e85fb1") //s. sleep
                                                                                        };
-            //createPsychicProgression();
+            createPsychicProgression();
             psychic_class.Progression = psychic_progression;
            
             psychic_class.Archetypes = new BlueprintArchetype[] { };
             Helpers.RegisterClass(psychic_class);
             //createPsychicFeats
+        }
+
+
+        static BlueprintCharacterClass[] getPsychicArray()
+        {
+            return new BlueprintCharacterClass[] { psychic_class };
+        }
+
+
+        static void createPsychicProgression()
+        {
+            createPsychicProficiencies();
+            createPhrenicAmplification();
+           // createPsychicDisiciplines();
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+            psychic_progression = Helpers.CreateProgression("PsychicProgression",
+                                                            psychic_class.Name,
+                                                            psychic_class.Description,
+                                                            "",
+                                                            psychic_class.Icon,
+                                                            FeatureGroup.None);
+            psychic_progression.Classes = getPsychicArray();
+
+            psychic_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, psychic_proficiencies, detect_magic,
+                                                                                        psychic_discipline,
+                                                                                        phrenic_amplification,
+                                                                                        psychic_spellcasting,
+                                                                                        phrenic_pool,
+                                                                                        library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
+                                                                                        library.Get<BlueprintFeature>("9fc9813f569e2e5448ddc435abf774b3"), //full caster feature
+                                                                                        library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                        library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")),  // touch calculate feature};
+                                                                    Helpers.LevelEntry(2),
+                                                                    Helpers.LevelEntry(3, phrenic_amplification),
+                                                                    Helpers.LevelEntry(4),
+                                                                    Helpers.LevelEntry(5),
+                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(7, phrenic_amplification),
+                                                                    Helpers.LevelEntry(8),
+                                                                    Helpers.LevelEntry(9),
+                                                                    Helpers.LevelEntry(10),
+                                                                    Helpers.LevelEntry(11, major_amplification, phrenic_amplification),
+                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(13),
+                                                                    Helpers.LevelEntry(14),
+                                                                    Helpers.LevelEntry(15, phrenic_amplification),
+                                                                    Helpers.LevelEntry(16),
+                                                                    Helpers.LevelEntry(17),
+                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(19, phrenic_amplification),
+                                                                    Helpers.LevelEntry(20, phrenic_mastery)
+                                                                    };
+
+            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies};
+            psychic_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(phrenic_pool, major_amplification, phrenic_mastery),
+                                                          };
+        }
+
+
+        static void createPsychicProficiencies()
+        {
+            psychic_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", //sorcerer proficiencies
+                                                                            "PsychicProficiencies",
+                                                                            "");
+            psychic_proficiencies.SetName("Psychic Proficiencies");
+            psychic_proficiencies.SetDescription("A psychic is proficient with all simple weapons, but not with any type of armor or shield.");
+        }
+
+
+        static void createPhrenicAmplification()
+        {
+            phrenic_pool_resource = Helpers.CreateAbilityResource("PsychicDetectivePhrenicPoolResource", "", "", "", null);
+            phrenic_pool_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, getPsychicArray());
+
+            phrenic_pool = Helpers.CreateFeature("PhrenicPoolFeature",
+                                                           "Phrenic Pool",
+                                                           "A psychic has a pool of supernatural mental energy that she can draw upon to manipulate psychic spells as she casts them. The maximum number of points in a psychic’s phrenic pool is equal to 1/2 her psychic level + her Wisdom or Charisma modifier, as determined by her psychic discipline. The phrenic pool is replenished each morning after 8 hours of rest or meditation; these hours don’t need to be consecutive. The psychic might be able to recharge points in her phrenic pool in additional circumstances dictated by her psychic discipline. Points gained in excess of the pool’s maximum are lost.",
+                                                           "",
+                                                           Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"), //mind fog
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddAbilityResource(phrenic_pool_resource)
+                                                           );
+
+            phrenic_amplification = Helpers.CreateFeatureSelection("PhrenicAmplificationsFeatureSelection",
+                                                                   "Phrenic Amplifications",
+                                                                   "A psychic develops particular techniques to empower her spellcasting, called phrenic amplifications. The psychic can activate a phrenic amplification only while casting a spell using psychic magic, and the amplification modifies either the spell’s effects or the process of casting it. The spell being cast is called the linked spell. The psychic can activate only one amplification each time she casts a spell, and doing so is part of the action used to cast the spell. She can use any amplification she knows with any psychic spell, unless the amplification’s description states that it can be linked only to certain types of spells. A psychic learns one phrenic amplification at 1st level, selected from the list below. At 3rd level and every 4 levels thereafter, the psychic learns a new phrenic amplification.",
+                                                                   "",
+                                                                   null,
+                                                                   FeatureGroup.None
+                                                                   );
+
+            major_amplification = Helpers.CreateFeature("PhrenicPoolFeature",
+                                                   "Phrenic Pool",
+                                                   "A psychic has a pool of supernatural mental energy that she can draw upon to manipulate psychic spells as she casts them. The maximum number of points in a psychic’s phrenic pool is equal to 1/2 her psychic level + her Wisdom or Charisma modifier, as determined by her psychic discipline. The phrenic pool is replenished each morning after 8 hours of rest or meditation; these hours don’t need to be consecutive. The psychic might be able to recharge points in her phrenic pool in additional circumstances dictated by her psychic discipline. Points gained in excess of the pool’s maximum are lost.",
+                                                   "",
+                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                                   FeatureGroup.None,
+                                                   Helpers.CreateAddAbilityResource(phrenic_pool_resource)
+                                                   );
+
+
+            var phrenic_amplifications_engine = new PhrenicAmplificationsEngine(phrenic_pool_resource, psychic_class.Spellbook, psychic_class, "Psychic");
+
+            focused_force = phrenic_amplifications_engine.createFocusedForce();
+            biokinetic_healing = phrenic_amplifications_engine.createBiokineticHealing();
+            conjured_armor = phrenic_amplifications_engine.createConjuredArmor();
+            defensive_prognostication = phrenic_amplifications_engine.createDefensivePrognostication();
+            minds_eye = phrenic_amplifications_engine.createMindsEye();
+            overpowering_mind = phrenic_amplifications_engine.createOverpoweringMind();
+            will_of_the_dead = phrenic_amplifications_engine.createWillOfTheDead();
+            ongoing_defense = phrenic_amplifications_engine.createOngoingDefense();
+            relentness_casting = phrenic_amplifications_engine.createRelentnessCasting();
+            undercast_surge = phrenic_amplifications_engine.createUndercastSurge();
+            psychofeedback = phrenic_amplifications_engine.createPsychofeedback();
+
+            synaptic_shock = phrenic_amplifications_engine.createSynapticShock();
+            space_rending_spell = phrenic_amplifications_engine.createSpaceRendingSpell();
+            dual_amplification = phrenic_amplifications_engine.createDualAmplification();
+            mimic_metamagic = phrenic_amplifications_engine.createMimicMetamagic();
+
+            synaptic_shock.AddComponent(Helpers.PrerequisiteFeature(major_amplification));
+            space_rending_spell.AddComponent(Helpers.PrerequisiteFeature(major_amplification));
+            dual_amplification.AddComponent(Helpers.PrerequisiteFeature(major_amplification));
+
+            foreach (var mm in mimic_metamagic)
+            {
+                mm.AddComponent(Helpers.PrerequisiteFeature(major_amplification));
+            }
+            phrenic_amplification.AllFeatures = new BlueprintFeature[]
+            {
+                biokinetic_healing,
+                conjured_armor,
+                defensive_prognostication,
+                focused_force,
+                minds_eye,
+                overpowering_mind,
+                will_of_the_dead,
+                ongoing_defense,
+                relentness_casting,
+                undercast_surge,
+                psychofeedback,
+                synaptic_shock,
+                space_rending_spell,
+                dual_amplification
+            }.AddToArray(mimic_metamagic);
+
+            phrenic_mastery = Helpers.CreateFeature("PhrenicMasteryFeature",
+                                                    "Phrenic Mastery",
+                                                    "At 20th level, the psychic’s mind is a legendary weapon in its own right. The psychic’s phrenic pool increases by 6, and she gains two new phrenic amplifications.",
+                                                    "",
+                                                    Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"), //greater restoration
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = phrenic_pool_resource; i.Value = 6; }),
+                                                    Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phrenic_amplification),
+                                                    Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phrenic_amplification)
+                                                    );
         }
 
 
@@ -217,10 +376,12 @@ namespace CallOfTheWild
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "41bab342089c0254ca222eb918e98cd4", 2), //hold animal
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 2),
+                new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
                 new Common.SpellId( NewSpells.mental_barrier[0].AssetGuid, 2),
                 new Common.SpellId( NewSpells.mind_thrust[1].AssetGuid, 2),
                 new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
+                new Common.SpellId( NewSpells.pain_strike.AssetGuid, 2),
                 new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
@@ -248,6 +409,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
+                new Common.SpellId( NewSpells.synesthesia.AssetGuid, 3),
                 new Common.SpellId( NewSpells.thought_shield[1].AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
                 new Common.SpellId( NewSpells.wall_of_nausea.AssetGuid, 3),
@@ -269,6 +431,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.mental_barrier[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.mind_thrust[3].AssetGuid, 4),
                 new Common.SpellId( "dd2918e4a77c50044acba1ac93494c36", 4), //overwhelming grief
+                new Common.SpellId( NewSpells.pain_strike_mass.AssetGuid, 4),
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "76a629d019275b94184a1a8733cac45e", 4), //protection from energy communal
                 new Common.SpellId( "4b8265132f9c8174f87ce7fa6d0fe47b", 4), //rainbow pattern
@@ -315,18 +478,20 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.fluid_form.AssetGuid, 6),
                 new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
+                new Common.SpellId( NewSpells.inflict_pain_mass.AssetGuid, 6),
                 new Common.SpellId( "15a04c40f84545949abeedef7279751a", 6), //joyful rapture
                 new Common.SpellId( NewSpells.mental_barrier[4].AssetGuid, 6),
                 new Common.SpellId( NewSpells.mind_thrust[5].AssetGuid, 6),
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
+                new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 9), //divide mind
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
+                
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
 
 
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 7), //banishment
-                //ectoplasmic eruption
                 new Common.SpellId( "6f1dcf6cfa92d1948a740195707c0dbe", 7), //finger of death
                 new Common.SpellId( NewSpells.fly_mass.AssetGuid, 7),
                 new Common.SpellId( NewSpells.hold_person_mass.AssetGuid, 7),
@@ -339,20 +504,20 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.psychic_crush[2].AssetGuid, 7),
                 new Common.SpellId( "df7d13c967bce6a40bec3ba7c9f0e64c", 7), //resonating word
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //sm 7
-                //synestehsia mass
+                new Common.SpellId( NewSpells.synesthesia_mass.AssetGuid, 7),
                 new Common.SpellId( "1e2d1489781b10a45a3b70192bba9be3", 7), //waves of ectasy
                 new Common.SpellId( "3e4d3b9a5bd03734d9b053b9067c2f38", 7), //waves of exhaustion
 
-                //bilocation
+                //bilocation ?
                 new Common.SpellId( "a5c56f0f699daec44b7aedd8b273b08a", 8), //brilliant inspiration
                 new Common.SpellId( "c3d2294a6740bc147870fff652f3ced5", 8), //death clutch
                 new Common.SpellId( "740d943e42b60f64a8de74926ba6ddf7", 8), //euphoric tranquility
                 new Common.SpellId( "e788b02f8d21014488067bdd3ba7b325", 8), //frightful aspect
-                //glimpse of the akashic
-                //iron body
+                //glimpse of the akashic ?
+                new Common.SpellId( NewSpells.iron_body.AssetGuid, 8),
                 new Common.SpellId( NewSpells.irresistible_dance.AssetGuid, 8),
                 new Common.SpellId( "87a29febd010993419f2a4a9bee11cfc", 8), //mind blank communal
-                //orb of the void
+                new Common.SpellId( NewSpells.orb_of_the_void.AssetGuid, 8),
                 new Common.SpellId( "f958ef62eea5050418fb92dfa944c631", 8), //power word stun
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 8), //prediction of failure
                 new Common.SpellId( "42aa71adc7343714fa92e471baa98d42", 8), //protection from spells
@@ -361,8 +526,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 8), //sm 8
                 new Common.SpellId( NewSpells.temporal_stasis.AssetGuid, 8),
 
-                //akashic form
-                //divide mind
+                new Common.SpellId( NewSpells.akashic_form.AssetGuid, 9), 
+                new Common.SpellId( NewSpells.divide_mind.AssetGuid, 9), //divide mind
                 new Common.SpellId( "3c17035ec4717674cae2e841a190e757", 9), //dominate monster
                 new Common.SpellId( "1f01a098d737ec6419aedc4e7ad61fdd", 9), //foresight
                 new Common.SpellId( "43740dab07286fe4aa00a6ee104ce7c1", 9), //heroic invocation
@@ -372,7 +537,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.psychic_crush[4].AssetGuid, 9),
                 new Common.SpellId( NewSpells.mass_suffocation.AssetGuid, 9),
                 new Common.SpellId( "52b5df2a97df18242aec67610616ded0", 9), //sm9
-                //telekinetic storm
+                new Common.SpellId( NewSpells.telekinetic_storm.AssetGuid, 9),
                 new Common.SpellId( NewSpells.time_stop.AssetGuid, 9),
                 new Common.SpellId( "b24583190f36a8442b212e45226c54fc", 9), //wail of banshee
                 new Common.SpellId( "870af83be6572594d84d276d7fc583e0", 9), //weird
@@ -383,6 +548,22 @@ namespace CallOfTheWild
                 var spell = library.Get<BlueprintAbility>(spell_id.guid);
                 spell.AddToSpellList(psychic_spellbook.SpellList, spell_id.level);
             }
+
+            psychic_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.PsychicSpellbook>());
+
+            psychic_spellcasting = Helpers.CreateFeature("PsychichSpellCasting",
+                                             "Psychic Magic",
+                                             "A psychic can cast any spell she knows without preparing it ahead of time. To learn or cast a spell, a psychic must have an Intelligence score equal to at least 10 + the spell’s level. The saving throw DC against a psychic’s spell is 10 + the spell’s level + the psychic detective’s Intelligence modifier.\n"
+                                             + "Psychic spells are not subject to arcane spell failure due to armor, but they require a more significant effort, compared to classic magic and thus the DC of all concentration checks required as a part of casting a psychic spell is increased by 10, additionaly psychic magic can not be used at all if caster is under the influence of fear or negative emotion effects.",
+                                             "",
+                                             null,
+                                             FeatureGroup.None);
+
+            psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_spellbook));
+            psychic_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = psychic_spellbook));
+            psychic_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
+            psychic_spellcasting.AddComponents(Common.createCantrips(psychic_class, StatType.Intelligence, psychic_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            psychic_spellcasting.AddComponents(Helpers.CreateAddFacts(psychic_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return psychic_spellbook;
         }

@@ -326,6 +326,7 @@ namespace CallOfTheWild
         public class MetamagicUpToSpellLevel : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public int max_level = 10;
+            public bool except_fullround_action;
 
             public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
             {
@@ -342,6 +343,10 @@ namespace CallOfTheWild
                     return false;
                 }
 
+                if (ability.IsFullRoundAction && except_fullround_action)
+                {
+                    return false;
+                }
                 return true;
             }
 
