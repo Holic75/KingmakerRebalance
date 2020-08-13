@@ -90,6 +90,9 @@ namespace CallOfTheWild
         static public BlueprintFeature phrenic_mastery;
 
 
+        static Dictionary<string, BlueprintProgression> psychic_disiciplines_map;
+
+
         internal static void createPsychicClass()
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
@@ -152,7 +155,7 @@ namespace CallOfTheWild
         {
             createPsychicProficiencies();
             createPhrenicAmplification();
-           // createPsychicDisiciplines();
+            createPsychicDisiciplines();
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
             psychic_progression = Helpers.CreateProgression("PsychicProgression",
@@ -196,6 +199,19 @@ namespace CallOfTheWild
             psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies};
             psychic_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(phrenic_pool, major_amplification, phrenic_mastery),
                                                           };
+        }
+
+
+        static void createPsychicDisiciplines()
+        {
+            psychic_discipline = Helpers.CreateFeatureSelection("PsychicDisciplineFeatureSelection",
+                                                                "Psychic Discipline",
+                                                                "Each psychic accesses and improves her mental powers through a particular method, such as rigorous study or attaining a particular mental state.\n"
+                                                                + "This is called her psychic discipline. She gains additional spells known based on her selected discipline. The choice of discipline must be made at 1st level; once made, it can’t be changed. Each psychic discipline gives the psychic a number of discipline powers (at 1st, 5th, and 13th levels), and grants her additional spells known. In addition, the discipline determines which ability score the psychic uses for her phrenic pool and phrenic amplifications abilities. The DC of a saving throw against a psychic discipline ability equals 10 + 1/2 the psychic’s level + the psychic’s Intelligence modifier.\n"
+                                                                + "At 1st level, a psychic learns an additional spell determined by her discipline. She learns another additional spell at 4th level and every 2 levels thereafter, until learning the final one at 18th level. These spells are in addition to the number of spells given. Spells learned from a discipline can’t be exchanged for different spells at higher levels.",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None);
         }
 
 
@@ -566,6 +582,38 @@ namespace CallOfTheWild
             psychic_spellcasting.AddComponents(Helpers.CreateAddFacts(psychic_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return psychic_spellbook;
+        }
+
+
+        static void createPsychicDiscipline(string name, string display_name, string description, UnityEngine.Sprite icon, StatType stat, BlueprintAbility[] spells,
+                                            BlueprintFeature feature1, BlueprintFeature feature5, BlueprintFeature feature13)
+        {
+            var progression = Helpers.CreateProgression(name + "Progression",
+                                                         display_name,
+                                                         description + "\nPhrenic Pool Ability: " + stat.ToString(),
+                                                         "",
+                                                         icon,
+                                                         FeatureGroup.None,
+                                                         Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = phrenic_pool_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: stat),
+                                                         Helpers.Create<RecalculateOnStatChange>(r => r.Stat = stat)
+                                                         );
+
+            var extr_spell_list = new Common.ExtraSpellList(spells);
+            
+            progression.LevelEntries = extr_spell_list.createLearnSpellLevelEntries(name + "DisiciplineSpell",
+                                                                                description,
+                                                                                progression.AssetGuid,
+                                                                                new int[] { 1, 4, 6, 8, 10, 12, 14, 16, 18 },
+                                                                                psychic_class);
+
+            progression.LevelEntries = progression.LevelEntries.AddToArray(Helpers.LevelEntry(1, feature1), Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13));
+            progression.UIGroups = Helpers.CreateUIGroups(feature1, feature5, feature13);
+            progression.UIDeterminatorsGroup = new BlueprintFeatureBase[0];
+            progression.Classes = getPsychicArray();
+
+            psychic_discipline.AllFeatures = psychic_discipline.AllFeatures.AddToArray(progression);
+            psychic_disiciplines_map.Add(name, progression);
         }
     }
 }
