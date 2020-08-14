@@ -271,7 +271,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Investigator.createInvestigatorClass();
 
                     CallOfTheWild.Archetypes.StormDruid.create();
-                    CallOfTheWild.Shaman.createShamanClass();                   
+                    CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Psychic.createPsychicClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.BloodlinesFix.load();
                     CallOfTheWild.Archetypes.PrimalSorcerer.create();

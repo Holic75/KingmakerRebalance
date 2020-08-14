@@ -98,7 +98,7 @@ namespace CallOfTheWild
             for (int i = 0; i < amplifications.Length; i++)
             {
                 amplifications[i] = Helpers.CreateFeature(name_prefix + $"{i + 1}MimicMetamagicFeature",
-                                                          metamagic_selection.Name + " " + Common.roman_id[i],
+                                                          metamagic_selection.Name + " " + Common.roman_id[i+1],
                                                           metamagic_selection.Description,
                                                           "",
                                                           metamagic_selection.Icon,

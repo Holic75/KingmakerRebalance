@@ -33,6 +33,7 @@ using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Conditions;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -90,7 +91,7 @@ namespace CallOfTheWild
         static public BlueprintFeature phrenic_mastery;
 
 
-        static Dictionary<string, BlueprintProgression> psychic_disiciplines_map;
+        static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
 
 
         internal static void createPsychicClass()
@@ -148,6 +149,7 @@ namespace CallOfTheWild
         static BlueprintCharacterClass[] getPsychicArray()
         {
             return new BlueprintCharacterClass[] { psychic_class };
+
         }
 
 
@@ -196,7 +198,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20, phrenic_mastery)
                                                                     };
 
-            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies};
+            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies, psychic_discipline};
             psychic_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(phrenic_pool, major_amplification, phrenic_mastery),
                                                           };
         }
@@ -212,6 +214,201 @@ namespace CallOfTheWild
                                                                 "",
                                                                 null,
                                                                 FeatureGroup.None);
+            createAbominationDiscipline();
+        }
+
+
+        static void createAbominationDiscipline()
+        {
+            var morphic_form = Helpers.CreateFeature("MorphicForFeature",
+                                                     "Morphic Form",
+                                                     "At 5th level, while manifesting your dark half, you gain DR 5. This damage reduction can be overcome by a random type of damage each time you manifest your dark half (either bludgeoning, cold iron or magic).",
+                                                     "",
+                                                     Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                                     FeatureGroup.None
+                                                     );
+
+            var morphic_form_buff1 = Helpers.CreateBuff("MorphicFormBludgeoningBuff",
+                                                         morphic_form.Name + ": DR 5/Bludgeoning",
+                                                        morphic_form.Description,
+                                                         "",
+                                                         Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                                         null,
+                                                         Common.createContextFormDR(5, PhysicalDamageForm.Bludgeoning)
+                                                         );
+            var morphic_form_buff2 = Helpers.CreateBuff("MorphicFormColdIronBuff",
+                                             morphic_form.Name + ": DR 5/Cold Iron",
+                                             morphic_form.Description,
+                                             "",
+                                             Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                             null,
+                                             Common.createMatrerialDR(5, PhysicalDamageMaterial.ColdIron)
+                                             );
+            var morphic_form_buff3 = Helpers.CreateBuff("MorphicFormMagicBuff",
+                                             morphic_form.Name + ": DR 5/Magic",
+                                             morphic_form.Description,
+                                             "",
+                                             Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                             null,
+                                             Common.createMagicDR(5)
+                                             );
+            var apply_morphic_form_buff1 = Common.createContextActionApplyBuff(morphic_form_buff1, Helpers.CreateContextDuration(), dispellable: false, is_child: true, is_permanent: true);
+            var apply_morphic_form_buff2 = Common.createContextActionApplyBuff(morphic_form_buff2, Helpers.CreateContextDuration(), dispellable: false, is_child: true, is_permanent: true);
+            var apply_morphic_form_buff3 = Common.createContextActionApplyBuff(morphic_form_buff3, Helpers.CreateContextDuration(), dispellable: false, is_child: true, is_permanent: true);
+
+            var psychic_safeguard = Helpers.CreateFeature("PsychicSafeGuardFeature",
+                                                          "Psychic Safeguard",
+                                                          "At 13th level, you project constant mental defenses, gaining spell resistance equal to 8 + your caster level. While manifesting your dark half, this spell resistance increases to 16 + your caster level.",
+                                                          "",
+                                                          Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"),
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<AddSpellResistance>(a => a.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                                          progression: ContextRankProgression.BonusValue,
+                                                                                          stepLevel: 8)
+                                                          );
+
+            var psychic_safeguard_buff = Helpers.CreateBuff("PsychicSafeGuardBuff",
+                                                              psychic_safeguard.Name,
+                                                              psychic_safeguard.Description,
+                                                              "",
+                                                              psychic_safeguard.Icon,
+                                                              null,
+                                                              Helpers.Create<AddSpellResistance>(a => a.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                                              progression: ContextRankProgression.BonusValue,
+                                                                                              stepLevel: 16)
+                                                              );
+
+            var apply_psychic_safeguard_buff = Common.createContextActionApplyBuff(psychic_safeguard_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
+            var resource = Helpers.CreateAbilityResource("DarkHalfResource", "", "", "", null);
+            resource.SetIncreasedByStat(0, StatType.Charisma);
+            resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getPsychicArray());
+
+
+            var bleed1d6 = library.Get<BlueprintBuff>("75039846c3d85d940aa96c249b97e562");
+
+            var bleed_buff = Helpers.CreateBuff("DarkHalfBleedBuff",
+                                         "Dark Half: Bleed",
+                                         "This creature takes 1 point of bleed damage per turn. The amount of bleed damage increases to 2 points at 5th level and to 3 points at 13th level. Bleeding can be stopped through the application of any spell that cures hit point damage (even if the bleed is ability damage).",
+                                         "",
+                                         bleed1d6.Icon,
+                                         null,
+                                         Helpers.Create<BleedMechanics.BleedBuff>(b => b.dice_value = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default))),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                         progression: ContextRankProgression.Custom,
+                                                                         customProgression: new (int, int)[] { (4, 1), (12, 2), (20, 3) }
+                                                                         ),
+                                         bleed1d6.GetComponent<CombatStateTrigger>(),
+                                         bleed1d6.GetComponent<AddHealTrigger>()
+                                         );
+
+            var buff = Helpers.CreateBuff("DarkHalfBuff",
+                                          "Dark Half",
+                                          "By allowing the dark forces to overcome you, You can enter a state of instinctual cruelty as a swift action.\n"
+                                          + "While you’re manifesting your dark half, you increase the DCs of your psychic spells by 1, gain a +2 morale bonus on Will saves, and become immune to fear effects. Whenever you cast a spell that deals damage while manifesting your dark half, you can cause any creature that took damage from the spell to also take 1 point of bleed damage. The amount of bleed damage increases to 2 points at 5th level and to 3 points at 13th level. While manifesting your dark half, You can’t use any Charisma-, Dexterity-, or Intelligence-based skills (except Mobility and Intimidate) or any ability that requires patience or concentration other than casting spells using psychic magic, using phrenic amplifications, or attempting to return to normal. You can attempt to return to your normal self as a free action, but must succeed at an Intelligence check with a DC equal to 10. If you fail, you continue to manifest your dark half and can’t attempt to change back for 1 round.\n"
+                                          + "You can manifest your dark half for a number of rounds per day equal to 3 + 1/2 your psychic level + your Charisma modifier; when these rounds are expended, you return to your normal self without requiring a concentration check.",
+                                          "",
+                                          Helpers.GetIcon("da8ce41ac3cd74742b80984ccc3c9613"), //rage
+                                          Common.createPrefabLink("53c86872d2be80b48afc218af1b204d7"), //rage
+                                          Helpers.CreateAddStatBonus(StatType.SaveWill, 2, ModifierDescriptor.Morale),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Fear | SpellDescriptor.Shaken),
+                                          Common.createBuffDescriptorImmunity(SpellDescriptor.Fear | SpellDescriptor.Shaken),
+                                          Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(a => { a.specific_class = psychic_class; a.Value = 1; }),
+                                          Helpers.CreateAddStatBonus(StatType.SkillThievery, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.SkillUseMagicDevice, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.CheckDiplomacy, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.CheckBluff, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.SkillKnowledgeArcana, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateAddStatBonus(StatType.SkillKnowledgeWorld, -20, ModifierDescriptor.UntypedStackable),
+                                          Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
+                                            {
+                                                a.descriptor = SpellDescriptor.None;
+                                                a.use_energy = false;
+                                                a.action = Helpers.CreateActionList(Common.createContextActionApplyBuff(bleed_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true));
+                                            }),
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] {Common.createContextActionRandomize(apply_morphic_form_buff1, apply_morphic_form_buff2, apply_morphic_form_buff3),
+                                                                                                           apply_psychic_safeguard_buff},
+                                                                              newRound: new GameAction[] {Helpers.CreateConditional(Helpers.Create<BuffConditionCheckRoundNumber>(b => b.RoundNumber = 1),
+                                                                                                                                    null,
+                                                                                                                                    Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
+                                                                                                                                                              Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = resource),
+                                                                                                                                                              Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                                                              )
+                                                                                                                                    )
+                                                                                                          }
+                                                                              ),
+                                          resource.CreateResourceLogic()
+                                          );
+
+            var deactivate_buff = Helpers.CreateBuff("DeactivateDarkHalfBuff",
+                                                     "Deactivate Dark Half Cooldown",
+                                                     buff.Description,
+                                                     "",
+                                                     Helpers.GetIcon("d316d3d94d20c674db2c24d7de96f6a7"), //serenity
+                                                     null);
+
+            var activate_dark_half = Helpers.CreateAbility("DarkHalfAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Swift,
+                                                           AbilityRange.Personal,
+                                                           "",
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
+                                                           Common.createAbilityCasterHasNoFacts(buff, deactivate_buff)
+                                                           );
+            activate_dark_half.setMiscAbilityParametersSelfOnly();
+
+            var deactivate_dark_half = Helpers.CreateAbility("DeactivateDarkHalfAbility",
+                                                             "Deactivate Dark Half",
+                                                               buff.Description,
+                                                               "",
+                                                               deactivate_buff.Icon,
+                                                               AbilityType.Supernatural,
+                                                               CommandType.Free,
+                                                               AbilityRange.Personal,
+                                                               "",
+                                                               "",
+                                                               Helpers.CreateRunActions(Common.createContextActionSkillCheck(StatType.Intelligence, 
+                                                                                                                             Common.createContextActionRemoveBuff(buff),
+                                                                                                                             Common.createContextActionApplyBuff(deactivate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false),
+                                                                                                                             10
+                                                                                                                             )
+                                                                                        ),
+                                                               Common.createAbilityCasterHasNoFacts(deactivate_buff),
+                                                               Common.createAbilityCasterHasFacts(buff)
+                                                               );
+            deactivate_dark_half.setMiscAbilityParametersSelfOnly();
+
+            var wrapper = Common.createVariantWrapper("DarkHalfWrapperAbility", "", activate_dark_half, deactivate_dark_half);
+
+            var dark_half = Common.AbilityToFeature(wrapper, false);
+
+            createPsychicDiscipline("Abomination",
+                                    "Abomination",
+                                    "Your mind is impure, tainted by outside forces. These might be monstrous ancestors whose blood still flows within you, or powerful and unknowable psychic forces that intrude upon your mind. Like a psychic disease, this influence consumes part of your brain, creating a dark counterpart to your normal self. Every time you call forth a psychic spell, You’re drawing on this dangerous force—and potentially giving it a greater hold on you. This malign influence might stem from creatures like rakshasas and aboleths, or perhaps malign entities that dwell in the voids between the stars.",
+                                    dark_half.Icon,
+                                    StatType.Charisma,
+                                    new BlueprintAbility[]
+                                    {
+                                        library.Get<BlueprintAbility>("450af0402422b0b4980d9c2175869612"), //ray of enfeeblement
+                                        library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1"), //blur
+                                        NewSpells.ray_of_exhaustion,
+                                        library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949"), //confusion
+                                        NewSpells.burst_of_force,
+                                        NewSpells.mental_barrier[4],
+                                        library.Get<BlueprintAbility>("2b044152b3620c841badb090e01ed9de"), //insanity
+                                        NewSpells.orb_of_the_void,
+                                        NewSpells.telekinetic_storm
+                                    },
+                                    dark_half,
+                                    morphic_form,
+                                    psychic_safeguard
+                                    );
         }
 
 
@@ -227,7 +424,7 @@ namespace CallOfTheWild
 
         static void createPhrenicAmplification()
         {
-            phrenic_pool_resource = Helpers.CreateAbilityResource("PsychicDetectivePhrenicPoolResource", "", "", "", null);
+            phrenic_pool_resource = Helpers.CreateAbilityResource("PsychicPhrenicPoolResource", "", "", "", null);
             phrenic_pool_resource.SetIncreasedByLevelStartPlusDivStep(0, 2, 1, 2, 1, 0, 0.0f, getPsychicArray());
 
             phrenic_pool = Helpers.CreateFeature("PhrenicPoolFeature",
@@ -247,9 +444,9 @@ namespace CallOfTheWild
                                                                    FeatureGroup.None
                                                                    );
 
-            major_amplification = Helpers.CreateFeature("PhrenicPoolFeature",
-                                                   "Phrenic Pool",
-                                                   "A psychic has a pool of supernatural mental energy that she can draw upon to manipulate psychic spells as she casts them. The maximum number of points in a psychic’s phrenic pool is equal to 1/2 her psychic level + her Wisdom or Charisma modifier, as determined by her psychic discipline. The phrenic pool is replenished each morning after 8 hours of rest or meditation; these hours don’t need to be consecutive. The psychic might be able to recharge points in her phrenic pool in additional circumstances dictated by her psychic discipline. Points gained in excess of the pool’s maximum are lost.",
+            major_amplification = Helpers.CreateFeature("MajorAmplificationFeature",
+                                                   "Major Amplifications",
+                                                   "Starting from 11th level, psychic can choose a major amplificaiton instead of a phrenic amplification.",
                                                    "",
                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
                                                    FeatureGroup.None,
@@ -501,9 +698,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
-                new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 9), //divide mind
+                new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 6),
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
-                
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
 
 
@@ -602,13 +798,14 @@ namespace CallOfTheWild
             var extr_spell_list = new Common.ExtraSpellList(spells);
             
             progression.LevelEntries = extr_spell_list.createLearnSpellLevelEntries(name + "DisiciplineSpell",
-                                                                                description,
+                                                                                "At 1st level, a psychic learns an additional spell determined by her discipline. She learns another additional spell at 4th level and every 2 levels thereafter, until learning the final one at 18th level.",
                                                                                 progression.AssetGuid,
                                                                                 new int[] { 1, 4, 6, 8, 10, 12, 14, 16, 18 },
                                                                                 psychic_class);
-
+            var learn_spell_features = progression.LevelEntries.Select(le => le.Features[0]).ToArray();
             progression.LevelEntries = progression.LevelEntries.AddToArray(Helpers.LevelEntry(1, feature1), Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13));
-            progression.UIGroups = Helpers.CreateUIGroups(feature1, feature5, feature13);
+            progression.UIGroups = new UIGroup[]{Helpers.CreateUIGroup(feature1, feature5, feature13),
+                                                 Helpers.CreateUIGroup(learn_spell_features) };
             progression.UIDeterminatorsGroup = new BlueprintFeatureBase[0];
             progression.Classes = getPsychicArray();
 

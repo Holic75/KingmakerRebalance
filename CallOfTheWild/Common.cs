@@ -551,7 +551,19 @@ namespace CallOfTheWild
         }
 
 
-        static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRandomize createContextActionRandomize(params GameAction[] actions)
+        {
+            var action_lists = new ActionList[actions.Length];
+            for (int i = 0; i < action_lists.Length; i++)
+            {
+                action_lists[i] = Helpers.CreateActionList(actions[i]);
+            }
+
+            return createContextActionRandomize(action_lists);
+        }
+
+
+            static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
             var b = Helpers.Create<BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
@@ -3416,11 +3428,16 @@ namespace CallOfTheWild
             c.Failure = failure == null ? Helpers.CreateActionList() : failure;
             c.Stat = skill;
             return c;
-
         }
 
 
-        public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
+        public static ContextActionSkillCheck createContextActionSkillCheck(StatType skill, GameAction success = null, GameAction failure = null, ContextValue custom_dc = null)
+        {
+            return createContextActionSkillCheck(skill, success == null ? null : Helpers.CreateActionList(success), failure == null ? null : Helpers.CreateActionList(failure), custom_dc);
+        }
+
+
+            public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
         {
             return Helpers.Create<ContextActionSpawnAreaEffect>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; });
         }

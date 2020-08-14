@@ -7509,6 +7509,7 @@ namespace CallOfTheWild
         {
             public ContextValue Value;
             public BlueprintSpellbook spellbook;
+            public BlueprintCharacterClass specific_class;
             private MechanicsContext Context
             {
                 get
@@ -7522,10 +7523,17 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                if (evt.Spellbook?.Blueprint != spellbook)
+                if (spellbook != null && evt.Spellbook?.Blueprint != spellbook)
                 {
                     return;
                 }
+
+                var class_spellbook = specific_class == null ? null : evt.Initiator.Descriptor.GetSpellbook(specific_class);
+                if (specific_class != null && (class_spellbook == null || evt.Spellbook != evt.Initiator.Descriptor.GetSpellbook(specific_class)))
+                {
+                    return;
+                }
+
                 evt.AddBonusDC(this.Value.Calculate(this.Context));
             }
 
