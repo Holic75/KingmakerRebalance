@@ -58,6 +58,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature psychic_proficiencies;
         static public BlueprintFeatureSelection psychic_discipline;
+        static public BlueprintFeatureSelection psychic_discipline_no_spells;
 
         static public BlueprintFeature psychic_spellcasting;
         static public BlueprintFeature extra_phrenic_pool;
@@ -86,11 +87,14 @@ namespace CallOfTheWild
 
 
         static public BlueprintArchetype magaambyan_telepath;
-        static public BlueprintArchetype mutation_mind;
+        static public BlueprintArchetype starseeker;
         static public BlueprintArchetype psychic_marauder;
         static public BlueprintArchetype terror_weaver;
         static public BlueprintArchetype amnesiac;
         static public BlueprintFeature phrenic_mastery;
+
+        static public BlueprintFeature natures_command;
+        static public BlueprintFeatureSelection[] primal_magic = new BlueprintFeatureSelection[9];
 
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -142,9 +146,93 @@ namespace CallOfTheWild
             createPsychicProgression();
             psychic_class.Progression = psychic_progression;
 
-            psychic_class.Archetypes = new BlueprintArchetype[] { };
+            createMagaambyanTelepath();
+            psychic_class.Archetypes = new BlueprintArchetype[] {magaambyan_telepath };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
+        }
+
+
+        static void createMagaambyanTelepath()
+        {
+            //nature's command
+            var buff = Helpers.CreateBuff("NaturesCommandBuff",
+                                          "Nature’s Command",
+                                          "The Magaambyan telepath’s mind-affecting spells can affect even plant creatures. When she casts a mind-affecting spell, the Magaambyan telepath can spend 2 points from her phrenic pool to overcome a plant creature’s immunity to mind-affecting effects for the purposes of that spell. This ability functions even on mindless plant creatures.",
+                                          "",
+                                          Helpers.GetIcon("0fd00984a2c0e0a429cf1a911b4ec5ca"),
+                                          null,
+                                            Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                            {
+                                                m.Descriptor = SpellDescriptor.MindAffecting;
+                                                m.amount = 2;
+                                                m.resource = phrenic_pool_resource;
+                                                m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.VerdantSpell;
+                                                m.specific_class = psychic_class;
+                                            })
+                                          );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             phrenic_pool_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                             Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = phrenic_pool_resource; r.amount = 2; })
+                                             );
+            toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
+            natures_command =  Common.ActivatableAbilityToFeature(toggle, false);
+
+            //primal spells
+            var drudi_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
+           
+            var combined_spell_list = Common.combineSpellLists("MagaambyanTelepathPrimalMagicSpellList", drudi_spell_list);
+            Common.excludeSpellsFromList(combined_spell_list, psychic_class.Spellbook.SpellList);
+
+            for (int i = 1; i <= 9; i++)
+            {
+                primal_magic[i - 1] = Helpers.CreateFeatureSelection($"MagaambyanTelepathPrimalMagic{i}FeatureSelection",
+                                                "Primal Spells " + $"(level {i})",
+                                                "A Magaambyan telepath adds one 1st-level spell from the druid spell list to the psychic spell list and her spells known. Each time a Magaambyan telepath gains the ability to cast a new level of spell, she can add one spell of that level from the druid spell list to both the psychic spell list and her spells known. She casts these spells as psychic spells, and once the spells are selected these choices cannot be changed.\n"
+                                                + "A Magaambyan telepath does not gain discipline spells.",
+                                                "",
+                                                null,
+                                                FeatureGroup.None);
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"MagaambyanTelepathPrimalMagic{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = psychic_class;
+                learn_spell.SpellList = combined_spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = combined_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = psychic_class; });
+                learn_spell.SetName(Helpers.CreateString($"MagaambyanTelepathPrimalMagic{i}ParametrizedFeature.Name", "Primal Spells " + $"(level {i})"));
+                learn_spell.SetDescription(primal_magic[i - 1].Description);
+                learn_spell.SetIcon(primal_magic[i - 1].Icon);
+                primal_magic[i - 1].AllFeatures = new BlueprintFeature[] { learn_spell };
+            }
+
+
+            magaambyan_telepath = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "MagaambyanTelepathArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Magaambyan Telepath");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While most students of the Magaambya in the Mwangi Expanse focus on the blending of arcane and divine magic, followers of Old-Mage Jatembe’s more esoteric wisdom instead focus on the occult connection between all living creatures and the resonance between the natural and supernatural world. These Magaambyan telepaths hone their mental abilities to detect such spiritual and eldritch bonds, and attempt to commune with the mind of the jungle or the hearts of its wild inhabitants. Whether seeking information that only nature knows or attempting to impose their will upon the natural world, these psychics employ techniques that few outside of the Magaambya understand.");
+            });
+            Helpers.SetField(magaambyan_telepath, "m_ParentClass", psychic_class);
+            library.AddAsset(magaambyan_telepath, "");
+
+            magaambyan_telepath.RemoveFeatures = new LevelEntry[] {
+                                                                   Helpers.LevelEntry(1, psychic_discipline, phrenic_amplification),
+                                                                   Helpers.LevelEntry(11, phrenic_amplification)
+                                                                };
+            magaambyan_telepath.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, psychic_discipline_no_spells, natures_command, primal_magic[0]),
+                                                               Helpers.LevelEntry(4, primal_magic[1]),
+                                                               Helpers.LevelEntry(6, primal_magic[2]),
+                                                               Helpers.LevelEntry(8, primal_magic[3]),
+                                                               Helpers.LevelEntry(10, primal_magic[4]),
+                                                               Helpers.LevelEntry(12, primal_magic[5]),
+                                                               Helpers.LevelEntry(14, primal_magic[6]),
+                                                               Helpers.LevelEntry(16, primal_magic[7]),
+                                                               Helpers.LevelEntry(18, primal_magic[8])
+                                                             };
+            psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_magic));
+            
         }
 
 
@@ -226,7 +314,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20, phrenic_mastery)
                                                                     };
 
-            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies, psychic_discipline };
+            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies, psychic_discipline, psychic_discipline_no_spells };
             psychic_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(phrenic_pool, major_amplification, phrenic_mastery),
                                                           };
         }
@@ -242,6 +330,7 @@ namespace CallOfTheWild
                                                                 "",
                                                                 null,
                                                                 FeatureGroup.None);
+            psychic_discipline_no_spells = library.CopyAndAdd(psychic_discipline, "NoSpells" + psychic_discipline.name, "");
             createAbominationDiscipline();
             createFaithDisicipline();
             createPsychedeliaDisicipline();
@@ -1377,6 +1466,7 @@ namespace CallOfTheWild
             progression_no_spells.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(1, feature1), Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13) };
 
             psychic_discipline.AllFeatures = psychic_discipline.AllFeatures.AddToArray(progression);
+            psychic_discipline_no_spells.AllFeatures = psychic_discipline_no_spells.AllFeatures.AddToArray(progression_no_spells);
             psychic_disiciplines_map.Add(name, progression);
             no_spells_psychic_disiciplines_map.Add(name, progression_no_spells);
         }
