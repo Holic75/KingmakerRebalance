@@ -1905,6 +1905,24 @@ namespace CallOfTheWild
             }
         }
 
+
+        public static bool checkSpellbook(BlueprintSpellbook spellbook_blueprint, BlueprintCharacterClass blueprint_class, 
+                                          Spellbook spellbook,  UnitDescriptor unit_descriptor)
+        {
+            if (spellbook_blueprint != null && spellbook_blueprint != spellbook?.Blueprint)
+            {
+                return false;
+            }
+
+            var class_spellbook = blueprint_class == null ? null : unit_descriptor.GetSpellbook(blueprint_class);
+
+            if (blueprint_class != null && (class_spellbook == null || spellbook != class_spellbook))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static void ReplaceContextRankConfig(this BlueprintScriptableObject obj, ContextRankConfig newConfig)
         {
             obj.ReplaceComponent<ContextRankConfig>(newConfig);
@@ -2224,6 +2242,12 @@ namespace CallOfTheWild
                 DiceCountValue = diceCount ?? Helpers.CreateContextValueRank(),
                 BonusValue = bonus ?? 0
             };
+        }
+
+
+        public static ContextDiceValue CreateContextDiceValueFromSharedValue(AbilitySharedValue value_type)
+        {
+            return CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(value_type));
         }
 
         public static ContextCalculateSharedValue CreateCalculateSharedValue(ContextDiceValue value, AbilitySharedValue sharedValue = AbilitySharedValue.Damage, double modifier = 1.0)

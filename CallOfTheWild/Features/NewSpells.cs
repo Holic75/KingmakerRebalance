@@ -238,6 +238,8 @@ namespace CallOfTheWild
         static public BlueprintAbility divide_mind;
         static public BlueprintAbility telekinetic_storm;
 
+        static public BlueprintBuff nauseted_non_poison;
+
         static public void load()
         {
             createImmunityToWind();
@@ -2924,6 +2926,8 @@ namespace CallOfTheWild
             wall_of_nausea.AddToSpellList(Helpers.wizardSpellList, 3);
             wall_of_nausea.AddToSpellList(Helpers.bardSpellList, 3);
             wall_of_nausea.AddSpellAndScroll("70239ec6d83b5064388e64d309fef942");
+
+            nauseted_non_poison = nauseted;
         }
 
 

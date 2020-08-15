@@ -13,6 +13,7 @@ using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -33,6 +34,7 @@ using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Buffs.Conditions;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -139,7 +141,7 @@ namespace CallOfTheWild
                                                                                        };
             createPsychicProgression();
             psychic_class.Progression = psychic_progression;
-           
+
             psychic_class.Archetypes = new BlueprintArchetype[] { };
             Helpers.RegisterClass(psychic_class);
             //createPsychicFeats
@@ -198,7 +200,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20, phrenic_mastery)
                                                                     };
 
-            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies, psychic_discipline};
+            psychic_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { psychic_spellcasting, psychic_proficiencies, psychic_discipline };
             psychic_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(phrenic_pool, major_amplification, phrenic_mastery),
                                                           };
         }
@@ -215,6 +217,535 @@ namespace CallOfTheWild
                                                                 null,
                                                                 FeatureGroup.None);
             createAbominationDiscipline();
+            createFaithDisicipline();
+            createPsychedeliaDisicipline();
+            createPainDiscipline();
+            //rebirth
+            //self perfeciton
+            //ferocity
+            //rivethun ?
+        }
+
+
+        static void createPainDiscipline()
+        {
+            var painful_reminder_resource = Helpers.CreateAbilityResource("PainfulReminderResource", "", "", "", null);
+            painful_reminder_resource.SetIncreasedByStat(3, StatType.Charisma);
+            var painful_reminder_buff = Helpers.CreateBuff("PainfulReminderBuff",
+                                                           "Painful Reminder Allowed",
+                                                           "As a swift action, you can cause an enemy to take 1d6 points of nonlethal damage if you dealt damage to that enemy with a spell since the start of your previous turn. You can use this ability a number of times per day equal to 3 + your Charisma modifier. This damage increases to 2d6 at 8th level and to 3d6 at 15th level.\n"
+                                                           + "If your painful reminder deals at least 5 points of damage, you regain 1 point in your phrenic pool.",
+                                                           "",
+                                                           Helpers.GetIcon("55f14bc84d7c85446b07a1b5dd6b2b4c"), //daze
+                                                           null);
+            painful_reminder_buff.Stacking = StackingType.Stack;
+
+            var painful_reminder_ability = Helpers.CreateAbility("PainfulReminderAbility",
+                                                                 "Painful Reminder",
+                                                                 painful_reminder_buff.Description,
+                                                                 "",
+                                                                 painful_reminder_buff.Icon,
+                                                                 AbilityType.Supernatural,
+                                                                 CommandType.Swift,
+                                                                 AbilityRange.Unlimited,
+                                                                 "",
+                                                                 "",
+                                                                 Common.createAbilityTargetHasFact(false, painful_reminder_buff),
+                                                                 Helpers.CreateRunActions(Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValueFromSharedValue(AbilitySharedValue.Damage)),
+                                                                                          Helpers.CreateConditional(Helpers.Create<ContextConditionSharedValueHigher>(c =>
+                                                                                                                      {
+                                                                                                                          c.SharedValue = AbilitySharedValue.Damage;
+                                                                                                                          c.HigherOrEqual = 5;
+                                                                                                                      }),
+                                                                                                                      Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = painful_reminder_resource))
+                                                                                                                     )
+                                                                                          ),
+                                                                 Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0)),
+                                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(), progression: ContextRankProgression.Custom,
+                                                                                                 customProgression: new (int, int)[] { (7, 1), (14, 2), (20, 3) })
+                                                                 );
+            painful_reminder_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            var painful_reminder_action = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(painful_reminder_buff),
+                                                                   Common.createContextActionApplyBuff(painful_reminder_buff, Helpers.CreateContextDuration(2), dispellable: false)
+                                                                   );
+
+            var painful_reminder = Helpers.CreateFeature("PainfulReminderFeature",
+                                                         painful_reminder_ability.Name,
+                                                         painful_reminder_ability.Description,
+                                                         "",
+                                                         painful_reminder_ability.Icon,
+                                                         FeatureGroup.None,
+                                                         Helpers.CreateAddFact(painful_reminder_ability),
+                                                         painful_reminder_resource.CreateAddAbilityResource(),
+                                                         Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
+                                                                                                         {
+                                                                                                             a.action = painful_reminder_action;
+                                                                                                         }
+                                                                                                         )
+                                                         );
+
+            var live_on_resource = Helpers.CreateAbilityResource("LiveOnResource", "", "", "", null);
+            live_on_resource.SetIncreasedByStat(0, StatType.Charisma);
+            live_on_resource.SetIncreasedByLevelStartPlusDivStep(0, 3, 0, 2, 1, 0, 0.0f, getPsychicArray());
+            var live_on_ability = library.CopyAndAdd<BlueprintAbility>("8d6073201e5395d458b8251386d72df1", "LiveOnAbility", "");
+            live_on_ability.RemoveComponents<AbilityCasterAlignment>();
+            live_on_ability.RemoveComponents<AbilityResourceLogic>();
+            live_on_ability.RemoveComponents<ContextRankConfig>();
+            live_on_ability.AddComponents(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                         progression: ContextRankProgression.StartPlusDivStep, startLevel: 5, stepLevel: 2),
+                                          live_on_resource.CreateResourceLogic());
+
+            live_on_ability.SetNameDescription("Live On",
+                                               "At 5th level, you can use lay on hands as though you were a paladin of 3 levels lower than your psychic level.\n"
+                                               + "You also gain access to mercies as though you were a paladin of 3 levels lower than your psychic level. You can target only yourself with lay on hands or mercies gained from this discipline.");
+
+            var live_on_progression = Helpers.CreateProgression("LiveOnProgression",
+                                                                live_on_ability.Name,
+                                                                live_on_ability.Description,
+                                                                "",
+                                                                live_on_ability.Icon,
+                                                                FeatureGroup.None,
+                                                                live_on_resource.CreateAddAbilityResource(),
+                                                                Helpers.CreateAddFact(live_on_ability),
+                                                                Helpers.Create<ReplaceCasterLevelOfAbility>(r =>
+                                                                                                            {
+                                                                                                                r.Class = psychic_class;
+                                                                                                                r.Spell = live_on_ability;
+                                                                                                            }
+                                                                                                            )
+                                                                );
+
+            live_on_progression.Classes = getPsychicArray();
+
+            var mercy_selection = library.CopyAndAdd<BlueprintFeatureSelection>("02b187038a8dce545bb34bbfb346428d", "LiveOnMercyFeatureSelection", "");
+            mercy_selection.SetDescription(live_on_ability.Description);
+
+            foreach (var f in mercy_selection.AllFeatures)
+            {
+                var comp = f.GetComponent<PrerequisiteClassLevel>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                comp.Group = Prerequisite.GroupType.Any;
+                f.AddComponent(Helpers.Create<PrerequisiteMechanics.CompoundPrerequisite>(c =>
+                                                                                            {
+                                                                                                c.prerequisite1 = Helpers.PrerequisiteClassLevel(psychic_class, comp.Level + 3);
+                                                                                                c.prerequisite2 = Helpers.PrerequisiteFeature(live_on_progression);
+                                                                                                c.Group = Prerequisite.GroupType.Any;
+                                                                                            }
+                                                                                          )
+                              );
+            }
+            live_on_progression.LevelEntries = new LevelEntry[0];
+            for (int i = 6; i <= 20; i+=3)
+            {
+                live_on_progression.LevelEntries = live_on_progression.LevelEntries.AddToArray(Helpers.LevelEntry(i, mercy_selection));
+            }
+
+            var agonizing_wound_resource = Helpers.CreateAbilityResource("AgonizingWoundResource", "", "", "", null);
+            agonizing_wound_resource.SetIncreasedByStat(3, StatType.Charisma);
+            var agonizing_wound = Helpers.CreateFeature("AgonizingWoundFeature",
+                                                        "Agonizing Wound",
+                                                        "At 13th level, whenever you cast a spell that deals damage to a creature, you can also make that creature frightened or sickened (your choice) for one round. If you expend two uses of this ability, you can instead have the creature become dazed, nauseated, or panicked for 1 round. The creature can attempt a Will saving throw to negate this effect. You can use this ability a number of times per day equal to 3 + your Charisma modifier. This is a mind-affecting pain effect.",
+                                                        "",
+                                                        Helpers.GetIcon("137af566f68fd9b428e2e12da43c1482"),//harm
+                                                        FeatureGroup.None,
+                                                        agonizing_wound_resource.CreateAddAbilityResource());
+
+            var agonizing_wound_buff = Helpers.CreateBuff("AgonizingWoundSelectBuff",
+                                                          agonizing_wound.Name + " Target",
+                                                          agonizing_wound.Description,
+                                                          "",
+                                                          agonizing_wound.Icon,
+                                                          null,
+                                                          Helpers.Create<BuffMechanics.StoreBuff>(),
+                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                                          );
+            agonizing_wound_buff.Stacking = StackingType.Stack;
+
+            var agonizng_wound_ability = Helpers.CreateAbility("AgonizingWoundSelectAbility",
+                                                               agonizing_wound_buff.Name,
+                                                               agonizing_wound_buff.Description,
+                                                               "",
+                                                               agonizing_wound.Icon,
+                                                               AbilityType.Supernatural,
+                                                               CommandType.Free,
+                                                               AbilityRange.Unlimited,
+                                                               Helpers.oneRoundDuration,
+                                                               "",
+                                                               Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(agonizing_wound_buff),
+                                                                                         Common.createContextActionApplyBuff(agonizing_wound_buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                               Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                                               );
+
+            agonizng_wound_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            agonizing_wound.AddComponent(Helpers.CreateAddFact(agonizng_wound_ability));
+
+            var buff_cost_pairs = new (BlueprintBuff, int)[]
+            {
+                (library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323"), 1),
+                (library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf"), 1),
+                (NewSpells.nauseted_non_poison, 2),
+                (Common.dazed_non_mind_affecting, 2),
+            };
+
+            foreach (var bcp in buff_cost_pairs)
+            {
+                var action_on_dmg = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasBuffFromCaster(agonizing_wound_buff),
+                                                                                                 Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c =>
+                                                                                                                                                                         {
+                                                                                                                                                                             c.resource = agonizing_wound_resource;
+                                                                                                                                                                             c.amount = bcp.Item2;
+                                                                                                                                                                             c.on_caster = true;
+                                                                                                                                                                         })
+                                                                                                 ),
+                                                                                                 new GameAction[]{Common.createContextActionApplyBuff(bcp.Item1, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                                                                  Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => {c.resource = agonizing_wound_resource; c.amount = bcp.Item2; })
+                                                                                                                 }
+                                                            );
+                var buff = Helpers.CreateBuff("AgonizingWound" + bcp.Item1.name + "Buff",
+                                              "Agonizing Wound: " + bcp.Item1.Name,
+                                              agonizing_wound.Description,
+                                              "",
+                                              bcp.Item1.Icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.ActionOnSpellDamage>(a =>
+                                                                                                  {
+                                                                                                      a.save_type = SavingThrowType.Will;
+                                                                                                      a.action = Helpers.CreateActionList(action_on_dmg);
+                                                                                                  }
+                                                                                               ),
+                                              Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveStoredBuffs>(r => r.buff = agonizing_wound_buff))
+                                              );
+
+                var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                                 agonizing_wound_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                                 Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = agonizing_wound_resource; r.amount = bcp.Item2; })
+                                                );
+                toggle.Group = ActivatableAbilityGroupExtension.AgonizingWound.ToActivatableAbilityGroup();
+                agonizing_wound.AddComponent(Helpers.CreateAddFact(toggle));
+            }
+
+
+            createPsychicDiscipline("Pain",
+                                    "Pain",
+                                    "Mental blocks prevent your immense inborn psychic energies from flowing freely. They are unleashed only when you suffer pain.\n"
+                                    + "Discipline Powers: Your powers allow you to cause and endure pain.",
+                                    agonizing_wound.Icon,
+                                    StatType.Charisma,
+                                    new BlueprintAbility[]
+                                    {
+                                        library.Get<BlueprintAbility>("fa3078b9976a5b24caf92e20ee9c0f54"), //ray of sicikening
+                                        NewSpells.pain_strike,
+                                        library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampyric touch
+                                        NewSpells.pain_strike_mass,
+                                        NewSpells.synapse_overload,
+                                        NewSpells.inflict_pain_mass,
+                                        library.Get<BlueprintAbility>("3e4d3b9a5bd03734d9b053b9067c2f38"), //waves of exhaustion
+                                        library.Get<BlueprintAbility>("08323922485f7e246acb3d2276515526"), //horrid wilting
+                                        NewSpells.mass_suffocation
+                                    },
+                                    painful_reminder,
+                                    live_on_progression,
+                                    agonizing_wound
+                                    );
+        }
+
+
+        static void createPsychedeliaDisicipline()
+        {
+            var cognatogen_alchemist = library.Get<BlueprintFeature>("e3f460ea61fcc504183c7d6818bbbf7a");
+            var cognatogen = Helpers.CreateFeature("PsychedeliaCognatogen",
+                                                   "Cognatogen",
+                                                   "Once per day, you can create a cognatogen, a mutagen-like mixture that heightens one mental ability score at the expense of a physical ability score. When you imbibe a cognatogen, you gain a +2 natural armor bonus and a +4 alchemical bonus to the selected ability score for 1 minute per psychic level. In addition, while the cognatogen is in effect, you take a –2 penalty to one of your physical ability scores. If the cognatogen enhances your Intelligence, it applies a penalty to your Strength. If it enhances your Wisdom, it applies a penalty to your Dexterity.\n"
+                                                   + "If it enhances your Charisma, it applies a penalty to your Constitution. Otherwise, this ability works just like the alchemist’s mutagen ability. When the effect of the cognatogen ends, you take 2 points of ability damage to the ability score penalized by the cognatogen. If you have both alchemist and psychic levels, these levels stack to determine the duration of your cognatogen and the DC of the save a non-alchemist must attempt if he drinks your cognatogen. If you gain discoveries, You can take the grand cognatogen and greater cognatogen discoveries to improve your cognatogen. The infuse mutagen discovery and the persistent mutagen class ability apply to cognatogens. However, even if you have alchemist levels, the duration of your cognatogen remains 1 minute per level (instead of 10 minutes per level).",
+                                                   "",
+                                                   cognatogen_alchemist.Icon,
+                                                   FeatureGroup.None,
+                                                   Helpers.CreateAddFact(cognatogen_alchemist),
+                                                   Helpers.CreateAddAbilityResource(library.Get<BlueprintAbilityResource>("3b163587f010382408142fc8a97852b6"))
+                                                   );
+            
+            var spell_level_comps = cognatogen_alchemist.GetComponents<SpellLevelByClassLevel>().ToArray();
+            cognatogen_alchemist.RemoveComponents<SpellLevelByClassLevel>();
+            foreach (var slc in spell_level_comps)
+            {
+                cognatogen_alchemist.AddComponent(Helpers.Create<NewMechanics.SpellLevelByClassLevel>(s =>
+                {
+                    s.Ability = slc.Ability;
+                    s.Class = slc.Class;
+                    s.ExtraClass = psychic_class;
+                    s.ExtraFeatureToCheck = cognatogen;
+                }));
+
+                var buff = Common.extractActions<ContextActionApplyBuff>(slc.Ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff;
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
+                var actions = Common.extractActions<Conditional>(slc.Ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault();
+                actions.IfFalse = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(cognatogen),
+                                                                                     new GameAction[] { apply_buff },
+                                                                                     actions.IfFalse.Actions));
+            }
+
+
+            var apply_nauseted = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                 Helpers.CreateConditionalSaved(null,
+                                                                                                Common.createContextActionApplyBuff(NewSpells.nauseted_non_poison, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                                               )
+                                                                );
+            var wrapped_brain = Helpers.CreateFeature("WarpedBrainFeature",
+                                                      "Warped Brain",
+                                                      "At 5th level, your mind becomes difficult to comprehend. When another creature uses a mind-affecting spell or ability against you, that creature must attempt a Will save. If it fails, it becomes nauseated for 1 round. This ability triggers even if you succeed at your save (or are otherwise unaffected by the spell or ability), but doesn’t apply if you’re a willing subject of the spell. This is a mind-affecting effect.",
+                                                      "",
+                                                      Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
+                                                      FeatureGroup.None,
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
+                                                      Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyOnSpellCaster>(a =>
+                                                                                                      {
+                                                                                                          a.descriptor = SpellDescriptor.MindAffecting;
+                                                                                                          a.only_enemies = !test_mode;
+                                                                                                          a.actions = Helpers.CreateActionList(apply_nauseted);
+                                                                                                      }
+                                                                                                     )
+                                                      );
+
+            var confused = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
+            var cooldown = Helpers.CreateBuff("HallucinogenicAuraCooldownBuff",
+                                               "Hallucinogenic Aura Cooldown",
+                                               "At 13th level, a mental field emanates from you, touching the minds of those nearby.\n"
+                                               + "Any creature within 30 feet of you must succeed at a Will save or be confused for 1d4 rounds. A creature that succeeds at its saving throw is immune to your hallucinogenic aura for 24 hours. A creature that fails its save doesn’t need to continue making saves while it’s confused by this aura, and becomes immune for 24 hours once its confusion ends.\n"
+                                               + "This is a mind-affecting effect. You’re immune to your own hallucinogenic aura, as well as your allies.\n",
+                                               "",
+                                               confused.Icon,
+                                               null);
+            cooldown.Stacking = StackingType.Stack;
+            var apply_confused = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(cooldown),
+                                                          null,
+                                                          new GameAction[]{ Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                                                            Helpers.CreateConditionalSaved(null,
+                                                                                                                                           Common.createContextActionApplyBuff(confused, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1), dispellable: false)
+                                                                                                                                           )
+                                                                                                           ),
+                                                                            Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false)
+                                                                           }
+                                                          );
+
+            var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: apply_confused);
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "HallucinogenicAuraArea", "");
+            area.Size = 30.Feet();
+            area.ComponentsArray = new BlueprintComponent[] {area_effect,
+                                                             Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
+                                                             Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                                            };
+
+            var aura_buff = Helpers.CreateBuff("HallucinogenicAuraAreaBuff",
+                                               "Hallucinogenic Aura",
+                                               cooldown.Description,
+                                               "",
+                                               cooldown.Icon,
+                                               null,
+                                               Common.createAddAreaEffect(area),
+                                               Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence)
+                                               );
+
+            var hallucinogenic_aura_feature = Helpers.CreateFeature("HallucinogenicAuraFeature",
+                                                                    aura_buff.Name,
+                                                                    aura_buff.Description,
+                                                                    "",
+                                                                    aura_buff.Icon,
+                                                                    FeatureGroup.None,
+                                                                    Common.createAuraFeatureComponent(aura_buff)
+                                                                    );
+
+
+            createPsychicDiscipline("Psychedelia",
+                                    "Psychedelia",
+                                    "You ingest hallucinogens to expand your mind. Experimentation and study show you which ones will have the greatest effect. Your psychedelic forays put you into a different mental space from others, and normal people don’t really understand you.\n"
+                                    + "Discipline Powers: You distort your own mind and perceptions, and can impress your altered states onto others.",
+                                    cognatogen.Icon,
+                                    StatType.Wisdom,
+                                    new BlueprintAbility[]
+                                    {
+                                                        library.Get<BlueprintAbility>("40ec382849b60504d88946df46a10f2d"), //haze of dreams
+                                                        library.Get<BlueprintAbility>("fd4d9fd7f87575d47aafe2a64a6e2d8d"), //hideous laughter
+                                                        NewSpells.synesthesia,
+                                                        library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949"), //confusion
+                                                        library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a"), //phantasmal web
+                                                        library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+                                                        library.Get<BlueprintAbility>("1e2d1489781b10a45a3b70192bba9be3"), //waves of ecstasy
+                                                        library.Get<BlueprintAbility>("740d943e42b60f64a8de74926ba6ddf7"), //euphoric tranquility
+                                                        NewSpells.divide_mind
+                                    },
+                                    cognatogen,
+                                    wrapped_brain,
+                                    hallucinogenic_aura_feature
+                                    );
+        }
+
+
+        static void createFaithDisicipline()
+        {
+            var cleric_spontnaeous_inflict = library.Get<BlueprintFeature>("5ba6b9cc18acafd45b6293d1e03221ac");
+            var cleric_spontaneous_cure = library.Get<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916");
+            var inflict_spells = cleric_spontnaeous_inflict.GetComponent<SpontaneousSpellConversion>().SpellsByLevel.ToArray();
+            var cure_spells = cleric_spontaneous_cure.GetComponent<SpontaneousSpellConversion>().SpellsByLevel.ToArray();
+
+            var divine_energy_resource = Helpers.CreateAbilityResource("PsychicDivineEnergyResource", "", "", "", null);
+            divine_energy_resource.SetIncreasedByStat(0, StatType.Wisdom);
+            var restore_phrenic_pool = Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = phrenic_pool_resource);
+            var effect_on_spell_cast = Helpers.CreateActionList(restore_phrenic_pool);
+
+            var divine_energy_cure = Helpers.CreateFeature("FaithDivineEnergyCureFeature",
+                                                           "Spontaneous Healing",
+                                                           "You can channel spell energy into cure or inflict spells. This ability functions similarly to the cleric’s ability to spontaneously cast cure or inflict spells, and the type of spells you can convert depends on your alignment in the same way.The cure or inflict spells don’t count as being on your psychic spell list for the purposes of any other effects. Each time you use this ability to convert a spell, you regain 1 point in your phrenic pool.\n"
+                                                           + "You can use this ability a number of times per day equal to your Wisdom modifier",
+                                                           "",
+                                                           cleric_spontaneous_cure.Icon,
+                                                           FeatureGroup.None,
+                                                           divine_energy_resource.CreateAddAbilityResource(),
+                                                           Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("8c769102f3996684fb6e09a2c4e7e5b9"))); //channel positive allowed
+
+
+            for (int i = 1; i < cure_spells.Length; i++)
+            {
+                var duplicate_spell = library.CopyAndAdd(inflict_spells[i], $"DivineEnrgyConversionCureSpell{i + 1}Ability", "");
+                cure_spells[i] = duplicate_spell;
+                duplicate_spell.AddComponent(divine_energy_resource.CreateResourceLogic());
+            }
+
+            divine_energy_cure.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
+                                                                                                                {
+                                                                                                                    r.actions = new ActionList[] { effect_on_spell_cast };
+                                                                                                                    r.allow_sticky_touch = true;
+                                                                                                                    r.specific_abilities = cure_spells;
+                                                                                                                    r.specific_class = psychic_class;
+                                                                                                                })
+                                           );
+
+
+            var divine_energy_inflict = Helpers.CreateFeature("FaithDivineEnergyInflictFeature",
+                                               "Spontaneous Wounding",
+                                               divine_energy_cure.Description,
+                                               "",
+                                               cleric_spontnaeous_inflict.Icon,
+                                               FeatureGroup.None,
+                                               divine_energy_resource.CreateAddAbilityResource(),
+                                               Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6"))); //channel negative allowed
+
+
+            for (int i = 1; i < inflict_spells.Length; i++)
+            {
+                var duplicate_spell = library.CopyAndAdd(inflict_spells[i], $"DivineEnrgyConversionInflictSpell{i + 1}Ability", "");
+                inflict_spells[i] = duplicate_spell;
+                duplicate_spell.AddComponent(divine_energy_resource.CreateResourceLogic());
+            }
+
+            divine_energy_inflict.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
+                                                                                                                {
+                                                                                                                    r.actions = new ActionList[] { effect_on_spell_cast };
+                                                                                                                    r.allow_sticky_touch = true;
+                                                                                                                    r.specific_abilities = inflict_spells;
+                                                                                                                    r.specific_class = psychic_class;
+                                                                                                                })
+                                           );
+
+            var divine_energy = Helpers.CreateFeatureSelection("DivineEnergyPsychicFeatureSelection",
+                                                               "Divine Energy",
+                                                               divine_energy_cure.Description,
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.None
+                                                               );
+            divine_energy.AllFeatures = new BlueprintFeature[] { divine_energy_cure, divine_energy_inflict };
+
+
+            var resilence_of_the_faithful = Helpers.CreateFeature("ResilenceOfTheFaithfulFeature",
+                                                                  "Resilience of the Faithful",
+                                                                  "At 5th level, you gain a +2 resistance bonus on all saving throws. This bonus increases by 1 for every 5 levels you possess beyond 5th.",
+                                                                  "",
+                                                                  Helpers.GetIcon("a05a8959c594daa40a1c5add79566566"),
+                                                                  FeatureGroup.None,
+                                                                  Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance),
+                                                                  Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance),
+                                                                  Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance),
+                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                                                  progression: ContextRankProgression.OnePlusDivStep,
+                                                                                                  stepLevel: 5)
+                                                                  );
+            resilence_of_the_faithful.ReapplyOnLevelUp = true;
+
+
+            var prayer_buff = library.Get<BlueprintBuff>("789bae3802e7b6b4c8097aaf566a1cf5");
+            var prayer_debuff = library.Get<BlueprintBuff>("890182fa30a5f724c86ce41f237cf95f");
+            var prayer_debuff2 = library.CopyAndAdd(prayer_debuff, "PrayerAuraAlignmentDifferenceDebuff", "");
+            prayer_debuff2.SetName("Prayer(Enemies, Alignment Difference)");
+
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "PrayerAuraAreaEffect", "");
+            area_effect.Size = 30.Feet();
+            area_effect.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AbilityAreaEffectBuff>(a =>
+                {
+                    a.Buff = prayer_buff;
+                    a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>());
+                }
+                ),
+                Helpers.Create<AbilityAreaEffectBuff>(a =>
+                {
+                    a.Buff = prayer_debuff;
+                    a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>());
+                }
+                ),
+                Helpers.Create<AbilityAreaEffectBuff>(a =>
+                {
+                    a.Buff = prayer_debuff2;
+                    a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>(), Helpers.Create<NewMechanics.ContextConditionStrictAlignmentDifference>());
+                }
+                )
+            };
+            area_effect.Fx = Common.createPrefabLink("6b75812d8c3b0d34f9bc204d6babc2a1");//enchantment aoe
+            var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AreaPrayerAuraBuff", "");
+            area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area_effect);
+
+            area_buff.SetNameDescriptionIcon("Prayer Aura",
+                                             "At 13th level, as a free action, you can extend an aura around you to bolster your allies and make your enemies less effective. You can use this aura for a number of rounds per day equal to your psychic level. These rounds don’t need to be consecutive. This functions as the prayer spell, granting your allies a +1 luck bonus on attack rolls, weapon damage rolls, saves, and skill checks and imposing a –1 penalty on your enemies’ rolls of those types. If you are chaotic, lawful, good, or evil, the penalty from your aura changes to –2 against creatures of an opposing alignment. The penalty doesn’t change further for a creature that opposes you on two alignment axes (such as a chaotic evil creature fighting a lawful good psychic).",
+                                             prayer_buff.Icon);
+
+            var prayer_aura_resource = Helpers.CreateAbilityResource("PsychicPrayerAuraResource", "", "", "", null);
+            prayer_aura_resource.SetIncreasedByLevel(0, 1, getPsychicArray());
+
+            var prayer_aura_toggle = Common.buffToToggle(area_buff, UnitCommand.CommandType.Free, true,
+                                             prayer_aura_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             );
+            prayer_aura_toggle.DeactivateIfCombatEnded = !test_mode;
+            var prayer_aura_feature = Common.ActivatableAbilityToFeature(prayer_aura_toggle, false);
+
+            prayer_aura_toggle.AddComponent(prayer_aura_resource.CreateAddAbilityResource());
+
+            createPsychicDiscipline("Faith",
+                                    "Faith",
+                                    "Your belief in a higher power fuels your psychic abilities. Whether your mental abilities truly come to you as a divine gift or are simply enhanced by the power of your belief, none can say. In many ways, you resemble a divine caster, and prayers often factor into your casting of psychic spells."
+                                    + "Discipline Powers: Your powers serve to protect or cure you and your allies.",
+                                    prayer_buff.Icon,
+                                    StatType.Wisdom,
+                                    new BlueprintAbility[]
+                                    {
+                                            library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                                            NewSpells.force_sword,
+                                            library.Get<BlueprintAbility>("2d4263d80f5136b4296d6eb43a221d7d"), //magical vestement
+                                            library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830"), //restoration
+                                            library.Get<BlueprintAbility>("1bc83efec9f8c4b42a46162d72cbf494"), //burst of glory
+                                            NewSpells.psychic_surgery,
+                                            library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //restoration greater
+                                            library.Get<BlueprintAbility>("ab167fd8203c1314bac6568932f1752f"), //summon monster VII
+                                            library.Get<BlueprintAbility>("867524328b54f25488d371214eea0d90"), //heal mass
+                                    },
+                                    divine_energy,
+                                    resilence_of_the_faithful,
+                                    prayer_aura_feature
+                                    );
         }
 
 
@@ -267,7 +798,7 @@ namespace CallOfTheWild
                                                                                           progression: ContextRankProgression.BonusValue,
                                                                                           stepLevel: 8)
                                                           );
-
+            psychic_safeguard.ReapplyOnLevelUp = true;
             var psychic_safeguard_buff = Helpers.CreateBuff("PsychicSafeGuardBuff",
                                                               psychic_safeguard.Name,
                                                               psychic_safeguard.Description,
@@ -327,8 +858,14 @@ namespace CallOfTheWild
                                                 a.use_energy = false;
                                                 a.action = Helpers.CreateActionList(Common.createContextActionApplyBuff(bleed_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true));
                                             }),
-                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] {Common.createContextActionRandomize(apply_morphic_form_buff1, apply_morphic_form_buff2, apply_morphic_form_buff3),
-                                                                                                           apply_psychic_safeguard_buff},
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] {Helpers.CreateConditional(Common.createContextConditionCasterHasFact(morphic_form),
+                                                                                                                                     Common.createContextActionRandomize(apply_morphic_form_buff1, 
+                                                                                                                                                                         apply_morphic_form_buff2, 
+                                                                                                                                                                         apply_morphic_form_buff3)
+                                                                                                                                     ),
+                                                                                                           Helpers.CreateConditional(Common.createContextConditionCasterHasFact(psychic_safeguard),
+                                                                                                                                     apply_psychic_safeguard_buff)
+                                                                                                           },
                                                                               newRound: new GameAction[] {Helpers.CreateConditional(Helpers.Create<BuffConditionCheckRoundNumber>(b => b.RoundNumber = 1),
                                                                                                                                     null,
                                                                                                                                     Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
@@ -390,7 +927,8 @@ namespace CallOfTheWild
 
             createPsychicDiscipline("Abomination",
                                     "Abomination",
-                                    "Your mind is impure, tainted by outside forces. These might be monstrous ancestors whose blood still flows within you, or powerful and unknowable psychic forces that intrude upon your mind. Like a psychic disease, this influence consumes part of your brain, creating a dark counterpart to your normal self. Every time you call forth a psychic spell, You’re drawing on this dangerous force—and potentially giving it a greater hold on you. This malign influence might stem from creatures like rakshasas and aboleths, or perhaps malign entities that dwell in the voids between the stars.",
+                                    "Your mind is impure, tainted by outside forces. These might be monstrous ancestors whose blood still flows within you, or powerful and unknowable psychic forces that intrude upon your mind. Like a psychic disease, this influence consumes part of your brain, creating a dark counterpart to your normal self. Every time you call forth a psychic spell, You’re drawing on this dangerous force—and potentially giving it a greater hold on you. This malign influence might stem from creatures like rakshasas and aboleths, or perhaps malign entities that dwell in the voids between the stars.\n"
+                                    + "Discipline Powers: Your powers allow the dark influences to take over, and it can be difficult to come back from the brink.",
                                     dark_half.Icon,
                                     StatType.Charisma,
                                     new BlueprintAbility[]

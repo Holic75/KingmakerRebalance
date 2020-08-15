@@ -2598,6 +2598,65 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Replace caster level with class level")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class SpellLevelByClassLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public BlueprintAbility Ability;
+            public BlueprintCharacterClass Class;
+            public BlueprintCharacterClass ExtraClass;
+            public BlueprintFeature ExtraFeatureToCheck;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                int classLevel = this.Owner.Progression.GetClassLevel(this.Class);
+                if (ExtraClass != null && evt.Initiator.Descriptor.HasFact(ExtraFeatureToCheck))
+                {
+                    classLevel += this.Owner.Progression.GetClassLevel(this.ExtraClass);
+                }
+                if (!(evt.Spell == this.Ability))
+                    return;
+                evt.ReplaceCasterLevel = new int?(classLevel <= 0 ? 1 : classLevel);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
+        public class ContextConditionStrictAlignmentDifference : ContextCondition
+        {
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check Strict Alignment Difference");
+            }
+
+            protected override bool CheckCondition()
+            {
+                if (this.Target.Unit == null)
+                {
+                    UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                    return false;
+                }
+                if (this.Context.MaybeCaster != null)
+                {
+                    var caster_goodness = Context.MaybeCaster.Descriptor.Alignment.Value.GetGoodness();
+                    var caster_lawfulness = Context.MaybeCaster.Descriptor.Alignment.Value.GetLawfulness();
+
+                    var target_goodness = this.Target.Unit.Descriptor.Alignment.Value.GetGoodness();
+                    var target_lawfulness = this.Target.Unit.Descriptor.Alignment.Value.GetLawfulness();
+
+                    return Math.Max(Math.Abs(caster_goodness - target_goodness), Math.Abs(caster_lawfulness - target_lawfulness)) == 2;
+                }
+                   
+                UberDebug.LogError((object)"Caster is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
         [ComponentName("spend resource")]
         [AllowMultipleComponents]
         [PlayerUpgraderAllowed]

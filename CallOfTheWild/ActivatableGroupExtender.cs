@@ -45,6 +45,7 @@ namespace CallOfTheWild
             VersatileEvocation,
             ElementalManipulation,
             Familiar,
+            AgonizingWound,
 
             ExtraGroup1,
             ExtraGroup2,

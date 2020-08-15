@@ -1988,6 +1988,47 @@ namespace CallOfTheWild
         }
 
 
+        public class ExtraEffectOnSpellApplyOnSpellCaster : OwnedGameLogicComponent<UnitDescriptor>, IApplyAbilityEffectHandler, IGlobalSubscriber
+        {
+            public ActionList actions;
+            public SpellDescriptorWrapper descriptor;
+            public bool only_enemies;
+
+            public void OnAbilityEffectApplied(AbilityExecutionContext context)
+            {
+
+            }
+
+            public void OnAbilityEffectAppliedToTarget(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (target.Unit?.Descriptor != this.Owner)
+                {
+                    return;
+                }
+
+                if (context.MaybeCaster == null)
+                {
+                    return;
+                }
+                if (descriptor != SpellDescriptor.None && !context.SpellDescriptor.Intersects(descriptor))
+                {
+                    return;
+                }
+
+                if (only_enemies && !this.Owner.Unit.IsEnemy(context.MaybeCaster))
+                {
+                    return;
+                }
+                (this.Fact as IFactContextOwner).RunActionInContext(actions, context.MaybeCaster);
+            }
+
+            public void OnTryToApplyAbilityEffect(AbilityExecutionContext context, TargetWrapper target)
+            {
+
+            }
+        }
+
+
         public class ExtraEffectOnSpellApplyCaster : OwnedGameLogicComponent<UnitDescriptor>, IApplyAbilityEffectHandler, IGlobalSubscriber
         {
             public ActionList actions;

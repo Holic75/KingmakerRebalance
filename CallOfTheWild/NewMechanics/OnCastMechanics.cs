@@ -69,8 +69,11 @@ namespace CallOfTheWild.OnCastMechanics
     public class RunActionAfterSpellCastBasedOnLevel : RuleInitiatorLogicComponent<RuleCastSpell>
     {
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public SpellSchool school = SpellSchool.None;
         public ActionList[] actions = new ActionList[0];
+        public BlueprintAbility[] specific_abilities = new BlueprintAbility[0];
+        public bool allow_sticky_touch = false;
 
         public override void OnEventAboutToTrigger(RuleCastSpell evt)
         {
@@ -89,15 +92,22 @@ namespace CallOfTheWild.OnCastMechanics
                 return;
             }
 
-            if (evt.Spell.StickyTouch != null)
+            if (evt.Spell.StickyTouch != null && !allow_sticky_touch)
             {
                 return;
             }
 
-            if (spellbook != null && spellbook_blueprint != spellbook)
+            if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spell?.Spellbook, evt.Initiator.Descriptor))
             {
                 return;
             }
+
+
+            if (!specific_abilities.Empty() && !specific_abilities.Contains(evt.Spell.Blueprint))
+            {
+                return;
+            }
+
 
             if (school != SpellSchool.None && evt.Spell.Blueprint.School != school)
             {
@@ -105,7 +115,12 @@ namespace CallOfTheWild.OnCastMechanics
             }
 
             int lvl = evt.Context.SpellLevel;
-            if (lvl < 0 || lvl > actions.Length || actions[lvl] == null)
+            if (lvl > actions.Length)
+            {
+                lvl = actions.Length - 1;
+            }
+
+            if (lvl < 0 || actions[lvl] == null)
             {
                 return;
             }
