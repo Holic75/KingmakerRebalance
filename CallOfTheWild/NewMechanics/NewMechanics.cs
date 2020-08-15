@@ -341,6 +341,7 @@ namespace CallOfTheWild
         {            
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
+            public BlueprintCharacterClass specific_class;
             public int amount = 1;
             public SpellSchool school;
             public BlueprintAbility[] spell_list = new BlueprintAbility[0];
@@ -363,7 +364,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (spellbook != null && spellbook_blueprint != spellbook)
+                if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spell?.Spellbook, evt.Initiator.Descriptor))
                 {
                     return;
                 }
@@ -891,6 +892,7 @@ namespace CallOfTheWild
             public ContextValue Value;
             public SpellDescriptorWrapper Descriptor;
             public BlueprintSpellbook spellbook = null;
+            public BlueprintCharacterClass specific_class = null;
             public bool only_spells = true;
 
             private MechanicsContext Context
@@ -906,10 +908,16 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                if (spellbook != null && evt.Spellbook?.Blueprint != spellbook)
+                if (evt.Initiator == null)
                 {
                     return;
                 }
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+
                 if (evt.Spellbook?.Blueprint == null && only_spells)
                 {
                     return;

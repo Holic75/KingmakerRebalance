@@ -49,7 +49,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class Psychic
+    public class Psychic
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;
@@ -94,7 +94,7 @@ namespace CallOfTheWild
 
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
-
+        static Dictionary<string, BlueprintProgression> no_spells_psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
 
         internal static void createPsychicClass()
         {
@@ -144,7 +144,33 @@ namespace CallOfTheWild
 
             psychic_class.Archetypes = new BlueprintArchetype[] { };
             Helpers.RegisterClass(psychic_class);
-            //createPsychicFeats
+            createPsychicFeats();
+        }
+
+
+        static void createPsychicFeats()
+        {
+            extra_phrenic_pool = Helpers.CreateFeature("PsychicExtraPhrenicPoolFeature",
+                                                       "Expanded Phrenic Pool",
+                                                       "Your phrenic pool total increases by 2 points.",
+                                                       "",
+                                                       Helpers.GetIcon("42f96fc8d6c80784194262e51b0a1d25"), //extra arcana
+                                                       FeatureGroup.Feat,
+                                                       Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = phrenic_pool_resource; i.Value = 2; }),
+                                                       Helpers.PrerequisiteFeature(phrenic_pool)
+                                                       );
+
+            extra_phrenic_amplification = Helpers.CreateFeatureSelection("PsychicExtraPhrenicAmplificationFeatureSelection",
+                                                                           "Extra Phrenic Amplification (Psychic)",
+                                                                           "You gain one additional phrenic amplification.",
+                                                                           "",
+                                                                           null,
+                                                                           FeatureGroup.Feat,
+                                                                           Helpers.PrerequisiteFeature(phrenic_amplification)
+                                                                           );
+            extra_phrenic_amplification.AllFeatures = phrenic_amplification.AllFeatures;
+
+            library.AddFeats(extra_phrenic_pool, extra_phrenic_amplification);
         }
 
 
@@ -1347,8 +1373,12 @@ namespace CallOfTheWild
             progression.UIDeterminatorsGroup = new BlueprintFeatureBase[0];
             progression.Classes = getPsychicArray();
 
+            var progression_no_spells = library.CopyAndAdd(progression, "NoSpells" + progression.name, "");
+            progression_no_spells.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(1, feature1), Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13) };
+
             psychic_discipline.AllFeatures = psychic_discipline.AllFeatures.AddToArray(progression);
             psychic_disiciplines_map.Add(name, progression);
+            no_spells_psychic_disiciplines_map.Add(name, progression_no_spells);
         }
     }
 }

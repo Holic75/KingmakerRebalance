@@ -472,6 +472,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
             private int cost_to_pay;
             public BlueprintSpellbook spellbook = null;
+            public BlueprintCharacterClass specific_class = null;
             public bool limit_spell_level;
 
             private int calculate_cost(UnitEntityData caster)
@@ -498,7 +499,7 @@ namespace CallOfTheWild
                     return false;
                 }
               
-                if (spellbook != null && data?.Spellbook?.Blueprint != spellbook)
+                if (!Helpers.checkSpellbook(spellbook, specific_class, data?.Spellbook, this.Owner))
                 {
                     return false;
                 }

@@ -1956,6 +1956,8 @@ namespace CallOfTheWild
             public ActionList actions;
             public bool check_caster;
             public SpellDescriptorWrapper descriptor;
+            public BlueprintCharacterClass specific_class;
+            public BlueprintSpellbook spellbook;
 
             public void OnAbilityEffectApplied(AbilityExecutionContext context)
             {
@@ -1974,6 +1976,12 @@ namespace CallOfTheWild
                     return;
                 }
                 if (check_caster && context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
+                {
+                    return;
+                }
+
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, context.Ability?.Spellbook, context.MaybeCaster?.Descriptor))
                 {
                     return;
                 }

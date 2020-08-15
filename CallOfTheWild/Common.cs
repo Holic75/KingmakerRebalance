@@ -134,6 +134,7 @@ namespace CallOfTheWild
 
 
         public static BlueprintFeature undead_arcana_hidden;
+        public static BlueprintFeature plant_arcana_hidden;
 
         static readonly Type ParametrizedFeatureData = Harmony12.AccessTools.Inner(typeof(AddParametrizedFeatures), "Data");
         static readonly Type ContextActionSavingThrow_ConditionalDCIncrease = Harmony12.AccessTools.Inner(typeof(ContextActionSavingThrow), "ConditionalDCIncrease");
@@ -2418,6 +2419,16 @@ namespace CallOfTheWild
             p.Feature = feature;
             p.ParameterType = FeatureParameterType.WeaponCategory;
             p.WeaponCategory = category;
+            p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
+            return p;
+        }
+
+        static public PrerequisiteParametrizedFeature createPrerequisiteParametrizedFeatureSchool(BlueprintParametrizedFeature feature, SpellSchool school, bool any = false)
+        {
+            var p = Helpers.Create<PrerequisiteParametrizedFeature>();
+            p.Feature = feature;
+            p.ParameterType = FeatureParameterType.SpellSchool;
+            p.SpellSchool = school;
             p.Group = any ? Prerequisite.GroupType.Any : Prerequisite.GroupType.All;
             return p;
         }

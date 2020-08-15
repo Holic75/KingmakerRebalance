@@ -550,7 +550,7 @@ namespace CallOfTheWild
 
         static void createOrbOfTheVoid()
         {
-            var icon = Helpers.GetIcon("e9450978cc9feeb468fb8ee3a90607e3"); //necromancy
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png");
 
             var orb_fx_buff = library.CopyAndAdd<BlueprintBuff>("1eb1c1aab1b319c43b06b40c4800f16c", "OrbOfTheVoidFxBuff", "");
             orb_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
@@ -581,7 +581,7 @@ namespace CallOfTheWild
             area.SpellResistance = true;
 
             var caster_buff = Helpers.CreateBuff("OrbOfTheVoidCasterBuff",
-                                                  "Aggressive Thundercloud",
+                                                  "OrbOfTheVoid",
                                                   "You create a small weightless sphere of pure negative energy. As a move action, you can move it up to any place within close range. Any creature passing through or ending its turn in the space occupied by the sphere gains one negative level (Fortitude negates). Twenty-four hours after gaining a negative level from the sphere, the subject must make a Fortitude saving throw (the DC of this save is equal to the DC of this spell) for each negative level. If the save succeeds, that negative level is removed. If it fails, that negative level becomes permanent.\n"
                                                   + "An undead creature that passes through or ends its turn in the space occupied by the orb gains 2d4 × 5 temporary hit points for 1 hour.",
                                                   "",
@@ -788,7 +788,7 @@ namespace CallOfTheWild
             inflict_pain.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             inflict_pain.SpellResistance = true;
             inflict_pain.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            inflict_pain_mass = library.CopyAndAdd(pain_strike, "InflictPainMassAbility", "");
+            inflict_pain_mass = library.CopyAndAdd(inflict_pain, "InflictPainMassAbility", "");
             inflict_pain_mass.SetNameDescription("Inflcit Pain, Mass",
                                                 "This spell functions like inflict pain except as noted above.\n" + inflict_pain.Name + ": " + inflict_pain.Description
                                                 );
@@ -845,7 +845,7 @@ namespace CallOfTheWild
             synesthesia.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             synesthesia.SpellResistance = true;
             synesthesia.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            synesthesia_mass = library.CopyAndAdd(pain_strike, "SynesthesiaMassAbility", "");
+            synesthesia_mass = library.CopyAndAdd(synesthesia, "SynesthesiaMassAbility", "");
             synesthesia_mass.SetNameDescription("Synesthesia, Mass",
                                                 "This spell functions like synesthesia, except as noted above.\n" + synesthesia.Name + ": " + synesthesia.Description
                                                 );
@@ -1914,7 +1914,7 @@ namespace CallOfTheWild
 
             mind_thrust[5] = Helpers.CreateAbility("MindThrust6Ability",
                            "Mind Thrust VI",
-                           "This functions as mind thrust IV, but the target takes 1d8 points of damage per caster level (maximum 20d8) and is exhausted and stunned for 1 round if it fails its save.",
+                           "This functions as mind thrust V, but the target takes 1d8 points of damage per caster level (maximum 20d8) and is exhausted and stunned for 1 round if it fails its save.",
                            "",
                            icon,
                            AbilityType.Spell,

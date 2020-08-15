@@ -134,6 +134,7 @@ namespace CallOfTheWild.OnCastMechanics
     public class HealAfterSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
     {
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public SpellSchool school = SpellSchool.None;
         public ContextValue multiplier;
 
@@ -154,12 +155,18 @@ namespace CallOfTheWild.OnCastMechanics
                 return;
             }
 
+            if (evt.Context?.MaybeCaster == null)
+            {
+                return;
+            }
+
+
             if (evt.Spell.StickyTouch != null)
             {
                 return;
             }
 
-            if (spellbook != null && spellbook_blueprint != spellbook)
+            if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spell?.Spellbook, evt.Context.MaybeCaster.Descriptor))
             {
                 return;
             }
@@ -180,6 +187,7 @@ namespace CallOfTheWild.OnCastMechanics
     public class ApplyBuffAfterSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
     {
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public SpellSchool school = SpellSchool.None;
         public DurationRate rate = DurationRate.Rounds;
         public BlueprintBuff buff;
@@ -206,7 +214,11 @@ namespace CallOfTheWild.OnCastMechanics
                 return;
             }
 
-            if (spellbook != null && spellbook_blueprint != spellbook)
+            if (evt.Context?.MaybeCaster == null)
+            {
+                return;
+            }
+            if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spell?.Spellbook, evt.Context.MaybeCaster.Descriptor))
             {
                 return;
             }
@@ -234,6 +246,7 @@ namespace CallOfTheWild.OnCastMechanics
         [HideIf("IsInfinity")]
         public ContextDurationValue duration_value;
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public SpellSchool school = SpellSchool.None;
 
         public override void OnEventAboutToTrigger(RuleSummonUnit evt)
@@ -242,7 +255,11 @@ namespace CallOfTheWild.OnCastMechanics
 
         public override void OnEventDidTrigger(RuleSummonUnit evt)
         {
-            if (spellbook != null && evt.Context?.SourceAbilityContext?.Ability?.Spellbook?.Blueprint != spellbook)
+            if (evt.Context?.MaybeCaster == null)
+            {
+                return;
+            }
+            if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Context?.SourceAbilityContext?.Ability?.Spellbook, evt.Context.MaybeCaster.Descriptor))
             {
                 return;
             }

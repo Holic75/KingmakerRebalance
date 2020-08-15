@@ -80,7 +80,7 @@ namespace CallOfTheWild
                                                   mm.limit_spell_level = true;
                                                   mm.resource = resource;
                                                   mm.amount = metamagic_enum.DefaultCost() * 2;
-                                                  mm.spellbook = spellbook;
+                                                  mm.specific_class = character_class;
                                               })
                                               );
                 var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -184,7 +184,7 @@ namespace CallOfTheWild
                                                 "",
                                                 ability.Icon,
                                                 null,
-                                                Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r => { r.spellbook = spellbook; r.actions = actions; })                                                     
+                                                Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r => { r.specific_class = character_class; r.actions = actions; })                                                     
                                                 );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -240,6 +240,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveUniqueBuff>(r => r.buff = target_buff)),
                                                 Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyTarget>(a =>
                                                                                                         {
+                                                                                                            a.specific_class = character_class;
                                                                                                             a.descriptor = SpellDescriptor.MindAffecting;
                                                                                                             a.check_caster = true;
                                                                                                             a.actions = Helpers.CreateActionList(cond_action);
@@ -270,7 +271,7 @@ namespace CallOfTheWild
                                                 m.resource = resource;
                                                 m.spell_descriptor = SpellDescriptor.Force;
                                                 m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ForceFocus;
-                                                m.spellbook = spellbook;
+                                                m.specific_class = character_class;
                                             })                                        
                                           );
 
@@ -369,7 +370,7 @@ namespace CallOfTheWild
                                                 m.amount = 1;
                                                 m.resource = resource;
                                                 m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.RollSpellResistanceTwice;
-                                                m.spellbook = spellbook;
+                                                m.specific_class = character_class;
                                             })
                                           );
 
@@ -397,7 +398,7 @@ namespace CallOfTheWild
                                                 m.resource = resource;
                                                 m.Abilities = NewSpells.mental_barrier.AddToArray(NewSpells.thought_shield).AddToArray(NewSpells.intellect_fortress).ToList();
                                                 m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ExtraRoundDuration;
-                                                m.spellbook = spellbook;
+                                                m.specific_class = character_class;
                                             })
                                           );
 
@@ -426,7 +427,7 @@ namespace CallOfTheWild
                                                 m.amount = 2;
                                                 m.resource = resource;
                                                 m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.ThrenodicSpell;
-                                                m.spellbook = spellbook;
+                                                m.specific_class = character_class;
                                             })
                                           );
 
@@ -452,7 +453,7 @@ namespace CallOfTheWild
                                                 m.amount = 2;
                                                 m.resource = resource;
                                                 m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.RangedAttackRollBonus;
-                                                m.spellbook = spellbook;
+                                                m.specific_class = character_class;
                                             })
                                           );
 
@@ -488,8 +489,8 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //armor
                                           null,
-                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.amount = 1; }),
-                                          Helpers.Create<OnCastMechanics.OnSpawnBuff>(s => { s.spellbook = spellbook; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.buff = effect_buff; s.duration_value = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)); }),
+                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.specific_class = character_class; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.amount = 1; }),
+                                          Helpers.Create<OnCastMechanics.OnSpawnBuff>(s => { s.specific_class = character_class; s.school = SpellSchool.Conjuration; s.spell_descriptor = SpellDescriptor.Summoning; s.buff = effect_buff; s.duration_value = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)); }),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { character_class })
                                           );
 
@@ -509,8 +510,8 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.GetIcon("8d6073201e5395d458b8251386d72df1"), //lay on hands self
                                           null,
-                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.school = SpellSchool.Transmutation; s.amount = 1; }),
-                                          Helpers.Create<OnCastMechanics.HealAfterSpellCast>(s => { s.spellbook = spellbook; s.school = SpellSchool.Transmutation; s.multiplier = 2; })
+                                          Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.specific_class = character_class; s.school = SpellSchool.Transmutation; s.amount = 1; }),
+                                          Helpers.Create<OnCastMechanics.HealAfterSpellCast>(s => { s.specific_class = character_class; s.school = SpellSchool.Transmutation; s.multiplier = 2; })
                                           );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -598,8 +599,8 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"), //shield
                                               null,
-                                              Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.school = SpellSchool.Divination; s.amount = i+1; }),
-                                              Helpers.Create<OnCastMechanics.ApplyBuffAfterSpellCast>(s => { s.spellbook = spellbook; s.school = SpellSchool.Divination; s.buff = effect_buff; })
+                                              Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.specific_class = character_class; s.school = SpellSchool.Divination; s.amount = i+1; }),
+                                              Helpers.Create<OnCastMechanics.ApplyBuffAfterSpellCast>(s => { s.specific_class = character_class; s.school = SpellSchool.Divination; s.buff = effect_buff; })
                                               );
 
                 var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
@@ -654,8 +655,8 @@ namespace CallOfTheWild
                                               "",
                                               feature.Icon,
                                               null,
-                                              Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.spellbook = spellbook; s.spell_descriptor = SpellDescriptor.MindAffecting; s.amount = 2*(i+1); }),
-                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.spellbook = spellbook; c.Descriptor = SpellDescriptor.MindAffecting; c.Value = i + 1; })
+                                              Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s => { s.resource = resource; s.specific_class = character_class; s.spell_descriptor = SpellDescriptor.MindAffecting; s.amount = 2*(i+1); }),
+                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.specific_class = character_class; c.Descriptor = SpellDescriptor.MindAffecting; c.Value = i + 1; })
                                               );
 
                 var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
