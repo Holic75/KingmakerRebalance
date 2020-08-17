@@ -404,7 +404,10 @@ namespace CallOfTheWild
                                "",
                                Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
                                null,
-                               Common.createDeathActions(Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true)))
+                               Common.createDeathActions(Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true),
+                                                                                  Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1000))
+                                                                                  )
+                                                        )
                                );
 
             buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.RemoveOnResurrect);
@@ -424,7 +427,8 @@ namespace CallOfTheWild
                                                  Common.createAbilitySpawnFx("e93261ee4c3ea474e923f6a645a3384f", anchor: AbilitySpawnFxAnchor.ClickedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
                                                  );
             akashic_form.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
-            akashic_form.setMiscAbilityParametersSelfOnly();                                    
+            akashic_form.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(akashic_form);
         }
 
 
@@ -437,8 +441,8 @@ namespace CallOfTheWild
             dmg.DamageType.Type = DamageType.Force;
 
             var effect = Helpers.CreateConditionalSaved(null,
-                                                        new GameAction[] {Common.createContextActionApplyBuff(dazed, Helpers.CreateContextDuration(1, DurationRate.Minutes), is_from_spell: true),
-                                                                          Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1, DurationRate.Minutes), is_from_spell: true)
+                                                        new GameAction[] {Common.createContextActionApplyBuff(dazed, Helpers.CreateContextDuration(1, DurationRate.Rounds), is_from_spell: true),
+                                                                          Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1, DurationRate.Rounds), is_from_spell: true)
                                                                          }
                                                         );
 
@@ -457,10 +461,9 @@ namespace CallOfTheWild
                                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                       Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                       Helpers.CreateAbilityTargetsAround(40.Feet(), TargetType.Enemy),
-                                                      Common.createAbilitySpawnFxTime("c03cb019d6a200f43bf0f8a64caa51e3",
-                                                                                       AbilitySpawnFxTime.OnStart,
-                                                                                       position_anchor: AbilitySpawnFxAnchor.None,
-                                                                                       orientation_anchor: AbilitySpawnFxAnchor.None
+                                                      Common.createAbilitySpawnFx("503b78b507366cc4da0f462cb40131f6",
+                                                                                       anchor: AbilitySpawnFxAnchor.SelectedTarget,
+                                                                                       position_anchor: AbilitySpawnFxAnchor.SelectedTarget
                                                                                        ),
                                                       Helpers.Create<SharedSpells.CannotBeShared>(),
                                                       Helpers.CreateContextRankConfig(max: 20)
@@ -576,12 +579,12 @@ namespace CallOfTheWild
                                                                                             }
                                                                                       ),
                 Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = thunder_cloud_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = orb_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
             };
             area.SpellResistance = true;
 
             var caster_buff = Helpers.CreateBuff("OrbOfTheVoidCasterBuff",
-                                                  "OrbOfTheVoid",
+                                                  "Orb of the Void",
                                                   "You create a small weightless sphere of pure negative energy. As a move action, you can move it up to any place within close range. Any creature passing through or ending its turn in the space occupied by the sphere gains one negative level (Fortitude negates). Twenty-four hours after gaining a negative level from the sphere, the subject must make a Fortitude saving throw (the DC of this save is equal to the DC of this spell) for each negative level. If the save succeeds, that negative level is removed. If it fails, that negative level becomes permanent.\n"
                                                   + "An undead creature that passes through or ends its turn in the space occupied by the orb gains 2d4 × 5 temporary hit points for 1 hour.",
                                                   "",
@@ -887,6 +890,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Helpers.CreateContextRankConfig(),
+                                                     Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                      check_intelligent
                                                      );
             psychic_crush[0].SpellResistance = true;
@@ -923,6 +927,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Helpers.CreateContextRankConfig(),
+                                                     Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                      check_intelligent
                                                      );
             psychic_crush[1].SpellResistance = true;
@@ -957,6 +962,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Helpers.CreateContextRankConfig(),
+                                                     Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                      check_intelligent
                                                      );
             psychic_crush[2].SpellResistance = true;
@@ -992,6 +998,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Helpers.CreateContextRankConfig(),
+                                                     Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                      check_intelligent
                                                      );
             psychic_crush[3].SpellResistance = true;
@@ -1036,6 +1043,7 @@ namespace CallOfTheWild
                                                      Helpers.CreateSpellComponent(SpellSchool.Necromancy),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Helpers.CreateContextRankConfig(),
+                                                     Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                      check_intelligent
                                                      );
             psychic_crush[4].SpellResistance = true;
@@ -1081,8 +1089,8 @@ namespace CallOfTheWild
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                     Helpers.Create<SharedSpells.CannotBeShared>(),
-                                                    Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any, spreadSpeed: 14.Feet()),
-                                                    Common.createAbilitySpawnFxDestroyOnCast("b3acbaa70e97c3649992e8f1e4bfe8dd", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                                    Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any),
+                                                    Common.createAbilitySpawnFxDestroyOnCast("859a6d74aedf5f349a470ab14afb47d3", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                    );
             burst_of_force.setMiscAbilityParametersSelfOnly();
             burst_of_force.EffectOnAlly = AbilityEffectOnUnit.Harmful;
@@ -1803,7 +1811,7 @@ namespace CallOfTheWild
                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                             ),
                                                    Helpers.CreateContextRankConfig(max: 5),
-                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
                                                    check_intelligent
@@ -1828,7 +1836,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                 ),
                                        Helpers.CreateContextRankConfig(max: 5),
-                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                        Helpers.CreateSpellComponent(SpellSchool.Divination),
                                        check_intelligent
@@ -1852,7 +1860,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                     ),
                            Helpers.CreateContextRankConfig(max: 10),
-                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                            Helpers.CreateSpellComponent(SpellSchool.Divination),
                            check_intelligent
@@ -1877,7 +1885,7 @@ namespace CallOfTheWild
                                                                             Helpers.CreateConditionalSaved(null, apply_fatigued)                                                                            
                                                                             ),
                                                    Helpers.CreateContextRankConfig(max: 15),
-                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                                   Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
                                                    check_intelligent
@@ -1902,7 +1910,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateConditionalSaved(apply_fatigued, apply_exhausted)
                                                                 ),
                                        Helpers.CreateContextRankConfig(max: 15),
-                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                                       Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                        Helpers.CreateSpellComponent(SpellSchool.Divination),
                                        check_intelligent
@@ -1927,7 +1935,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateConditionalSaved(new GameAction[] { apply_fatigued }, new GameAction[] { apply_stunned, apply_exhausted })
                                                     ),
                            Helpers.CreateContextRankConfig(max: 20),
-                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba"),
+                           Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                            Helpers.CreateSpellComponent(SpellSchool.Divination),
                            check_intelligent

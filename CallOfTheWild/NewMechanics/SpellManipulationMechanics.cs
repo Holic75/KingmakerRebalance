@@ -1966,26 +1966,31 @@ namespace CallOfTheWild
 
             public void OnAbilityEffectAppliedToTarget(AbilityExecutionContext context, TargetWrapper target)
             {
+                Main.logger.Log("Called: " + target.Unit?.CharacterName + "::" + this.Owner.CharacterName);
                 if (target.Unit?.Descriptor != this.Owner)
                 {
                     return;
                 }
 
+                Main.logger.Log("Target ok");
                 if (descriptor != SpellDescriptor.None && !context.SpellDescriptor.Intersects(descriptor))
                 {
                     return;
                 }
+
+                Main.logger.Log("descriptor ok");
                 if (check_caster && context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
                 {
                     return;
                 }
 
-
+                Main.logger.Log("caster ok");
                 if (!Helpers.checkSpellbook(spellbook, specific_class, context.Ability?.Spellbook, context.MaybeCaster?.Descriptor))
                 {
                     return;
                 }
 
+                Main.logger.Log("spellbook ok");
                 (this.Fact as IFactContextOwner).RunActionInContext(actions, this.Owner.Unit);
             }
 

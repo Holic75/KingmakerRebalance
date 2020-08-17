@@ -103,6 +103,7 @@ namespace CallOfTheWild
                                                           "",
                                                           metamagic_selection.Icon,
                                                           FeatureGroup.None,
+                                                          Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = metamagic_selection),
                                                           Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = metamagic_selection)
                                                           );
                 if (i > 0)
@@ -170,7 +171,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < 9; i++)
             {
-                abilities[i].AddComponent(Common.createAbilityCasterHasFacts(buffs.Take(9 - i).ToArray()));
+                abilities[i].AddComponent(Common.createAbilityCasterHasFacts(buffs.Skip(i).ToArray()));
                 var remove_buffs = Common.createContextActionOnContextCaster(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs));
                 abilities[i].ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = a.Actions.Actions.AddToArray(remove_buffs));
             }
@@ -237,16 +238,17 @@ namespace CallOfTheWild
                                                 "",
                                                 target_buff.Icon,
                                                 null,
-                                                Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveUniqueBuff>(r => r.buff = target_buff)),
-                                                Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyTarget>(a =>
-                                                                                                        {
-                                                                                                            a.specific_class = character_class;
-                                                                                                            a.descriptor = SpellDescriptor.MindAffecting;
-                                                                                                            a.check_caster = true;
-                                                                                                            a.actions = Helpers.CreateActionList(cond_action);
-                                                                                                        }
-                                                                                                        )
+                                                Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveUniqueBuff>(r => r.buff = target_buff))
                                                 );
+            target_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyTarget>(a =>
+                                    {
+                                        a.specific_class = character_class;
+                                        a.descriptor = SpellDescriptor.MindAffecting;
+                                        a.check_caster = true;
+                                        a.actions = Helpers.CreateActionList(cond_action);
+                                    }
+                                    )
+                                    );
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
                                              resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)

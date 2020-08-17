@@ -1594,9 +1594,17 @@ namespace CallOfTheWild
 
             var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(hurtful), Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>() },
                                                    Common.createContextActionApplyBuff(hurtful_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 3));
+
+            var shatter_confidence = library.Get<BlueprintFeature>("51f5a63f1a0cb9047acdad77fc437312");
+
             var displays = new ActionList[]{ library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions,
                                                    library.Get<BlueprintAbility>("7d2233c3b7a0b984ba058a83b736e6ac").GetComponent<AbilityEffectRunAction>().Actions,
                                                    (library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional).IfTrue ,
+                                                   (shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(0).Action.Actions[0] as Conditional).IfTrue,
+                                                   (shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(1).Action.Actions[0] as Conditional).IfTrue,
+                                                   (shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(2).Action.Actions[0] as Conditional).IfTrue,
+                                                   shatter_confidence.GetComponents<AddInitiatorAttackWithWeaponTrigger>().ElementAt(0).Action,
+                                                   (shatter_confidence.GetComponents<AddInitiatorAttackWithWeaponTrigger>().ElementAt(1).Action.Actions[0] as Conditional).IfTrue,
                                                  };
             //no need to fix dreadful carnage since it uses dazzling display
             //no need to fix warpriest glory blessing demoralize since it will be automatically picked from cornugon smash

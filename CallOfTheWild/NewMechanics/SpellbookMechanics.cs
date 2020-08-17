@@ -14,9 +14,12 @@ using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -318,7 +321,75 @@ namespace CallOfTheWild.SpellbookMechanics
 
     public class PsychicSpellbook: BlueprintComponent
     {
-    
+
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class TemporaryAddKnownSpell : BuffLogic, IGlobalSubscriber, LevelUpMechanics.ILevelUpStartHandler
+
+    {
+        [NotNull]
+        public BlueprintCharacterClass character_class;
+        public int spell_level;
+        [NotNull]
+        public BlueprintAbility spell;
+        [JsonProperty]
+        private bool added = false;
+
+        public override void OnFactActivate()
+        {
+            if (added)
+            {
+                return;
+            }
+            added = false;
+            var spellbook = this.Owner.GetSpellbook(character_class);
+            if (spellbook == null || spellbook.IsKnown(spell))
+            {
+                return;
+            }
+            spellbook.AddKnown(spell_level, spell, false);
+            
+            var ability_data = spellbook.GetKnownSpells(spell_level).Where(a => a.Blueprint == spell).FirstOrDefault();
+            if (ability_data != null)
+            {
+                EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.AddSpellHandler(ability_data)));
+            }
+            added = true;
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            if (!added)
+            {
+                return;
+            }
+            var spellbook = this.Owner.GetSpellbook(character_class);
+            if (spellbook == null)
+            {
+                return;
+            }
+            var ability_datas = spellbook.GetAllKnownSpells().Where(a => a.Blueprint == spell).ToArray();
+            spellbook.RemoveSpell(spell);
+
+            foreach (var a in ability_datas)
+            {
+                EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.RemoveSpellHandler(a)));
+            }
+
+            added = false;
+        }
+
+        public void HandleLevelUpStart(UnitDescriptor unit)
+        {
+            if (unit == this.Owner)
+            {
+                this.Buff.Remove();
+            }
+        }
     }
 
 

@@ -646,6 +646,7 @@ namespace CallOfTheWild
                         __result = 3;
                         return false;
                     case MetamagicExtender.ThrenodicSpell:
+                    case MetamagicExtender.VerdantSpell:
                     case MetamagicExtender.Persistent:
                         __result = 2;
                         return false;

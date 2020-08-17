@@ -96,6 +96,9 @@ namespace CallOfTheWild
         static public BlueprintFeature natures_command;
         static public BlueprintFeatureSelection[] primal_magic = new BlueprintFeatureSelection[9];
 
+        static public BlueprintAbility written_in_stars_ability;
+        static public BlueprintAbilityResource written_in_stars_resource;
+        static public BlueprintFeature written_in_stars;
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
         static Dictionary<string, BlueprintProgression> no_spells_psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -147,7 +150,8 @@ namespace CallOfTheWild
             psychic_class.Progression = psychic_progression;
 
             createMagaambyanTelepath();
-            psychic_class.Archetypes = new BlueprintArchetype[] {magaambyan_telepath };
+            createEsotericStarseeker();
+            psychic_class.Archetypes = new BlueprintArchetype[] {magaambyan_telepath, starseeker };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
         }
@@ -232,7 +236,216 @@ namespace CallOfTheWild
                                                                Helpers.LevelEntry(18, primal_magic[8])
                                                              };
             psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(primal_magic));
-            
+        }
+
+        static void createEsotericStarseeker()
+        {
+            createEsotericStarseekerWrittenInTheStars();
+            starseeker = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "EsptericStarseekerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Esoteric Starseeker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The celestial bodies travel through the sky in fixed patterns, and knowledgeable astrologers rely on these stellar constants to make accurate predictions, but the constellations can also be a source of power. An esoteric starseeker is a psychic who focuses her studies on uncovering the secrets of the sky and the constellations of the Cosmic Caravan, able to read the stars as well as she can read minds.");
+            });
+            Helpers.SetField(starseeker, "m_ParentClass", psychic_class);
+            library.AddAsset(starseeker, "");
+
+            starseeker.RemoveFeatures = new LevelEntry[] {
+                                                            Helpers.LevelEntry(1, psychic_discipline, phrenic_amplification),
+                                                            Helpers.LevelEntry(11, phrenic_amplification)
+                                                         };
+            starseeker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, psychic_discipline_no_spells, written_in_stars),
+                                                      };
+            psychic_class.Progression.UIDeterminatorsGroup = psychic_class.Progression.UIDeterminatorsGroup.AddToArray(written_in_stars);
+        }
+
+
+        static void createEsotericStarseekerWrittenInTheStars()
+        {
+            written_in_stars_resource = Helpers.CreateAbilityResource("WrittenInStarsResource", "", "", "", null);
+            written_in_stars_resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 100, 0, 0, 0.0f, getPsychicArray());
+
+            written_in_stars_ability = Helpers.CreateAbility("WrittenInStarsBaseAbility",
+                                                             "Written in the Stars",
+                                                             "An esoteric starseeker can attune herself to a constellation of the Cosmic Caravan, gaining knowledge of new spells from it. She gains one bonus constellation spell slot for each spell level she can cast, and she can prepare a spell associated with her attuned constellation into that slot. At 11th level, she can attune herself to two constellations, choosing between the spells offered by both constellations when she prepares her constellation spells."
+                                                             + "She can change her attuned constellations in the beggining of the day.  The Cosmic Caravan and their associated spells are as follows:\n",
+                                                             "",
+                                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/Starburn.png"),
+                                                             AbilityType.Supernatural,
+                                                             CommandType.Standard,
+                                                             AbilityRange.Personal,
+                                                             "",
+                                                             ""
+                                                             );
+            written_in_stars_ability.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(written_in_stars_ability) };
+            written_in_stars_ability.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(written_in_stars_ability);
+
+
+            var lantern_bearer_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("4d9bf81b7939b304185d58a09960f589"), //faerie fire
+                library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9"), //glitterdust
+                library.Get<BlueprintAbility>("bf0accce250381a44b857d4af6c8e10d"), //searing light
+                library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow pattern
+                library.Get<BlueprintAbility>("4cf3d0fae3239ec478f51e86f49161cb"), //true seeing
+                library.Get<BlueprintAbility>("f8cea58227f59c64399044a82c9735c4"), //chains of light
+                library.Get<BlueprintAbility>("b22fd434bdb60fb4ba1068206402c4cf"), //prismatic spray
+                library.Get<BlueprintAbility>("e96424f70ff884947b06f41a765b7658"), //sunburst
+                NewSpells.meteor_swarm
+            };
+
+            var newlyweds_spell_list = new BlueprintAbility[]
+            {
+                NewSpells.command,
+                library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e"), //hold person
+                NewSpells.synesthesia,
+                library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8"), //break enchantment
+                library.Get<BlueprintAbility>("a0fc99f0933d01643b2b8fe570caa4c5"), //raise dead
+                library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+                NewSpells.synesthesia_mass,
+                library.Get<BlueprintAbility>("f958ef62eea5050418fb92dfa944c631"), //power word stun
+                library.Get<BlueprintAbility>("41cf93453b027b94886901dbfc680cb9"), //overwhelming presence
+            };
+
+
+            var daughter_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                NewSpells.hypnotic_pattern,
+                library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf"), //freedom of movement
+                library.Get<BlueprintAbility>("d38aaf487e29c3d43a3bffa4a4a55f8f"), //song of discord
+                library.Get<BlueprintAbility>("7f71a70d822af94458dc1a235507e972"), //cloak of dreams
+                library.Get<BlueprintAbility>("1e2d1489781b10a45a3b70192bba9be3"), //waves of ecstasy
+                NewSpells.irresistible_dance,
+                library.Get<BlueprintAbility>("43740dab07286fe4aa00a6ee104ce7c1"), //heroic invocation
+            };
+
+
+            var rider_spell_list = new BlueprintAbility[]
+            {
+                NewSpells.burst_of_adrenaline,
+                library.Get<BlueprintAbility>("4709274b2080b6444a3c11c6ebbe2404"), //find traps
+                library.Get<BlueprintAbility>("2d4263d80f5136b4296d6eb43a221d7d"), //magic vestement
+                library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162"), //shout
+                library.Get<BlueprintAbility>("20b548bf09bb3ea4bafea78dcb4f3db6"), //echolocation
+                library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74"), //blade  barrier
+                library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28"), //legendary proprtions
+                library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
+                library.Get<BlueprintAbility>("1f01a098d737ec6419aedc4e7ad61fdd"), //foresight
+            };
+
+
+            var wagon_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379"), //expeditious retreat
+                library.Get<BlueprintAbility>("464a7193519429f48b4d190acb753cf0"), //grace
+                library.Get<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98"), //haste
+                library.Get<BlueprintAbility>("4a648b57935a59547b7a2ee86fb4f26a"), //dimension door
+                library.Get<BlueprintAbility>("41e8a952da7a5c247b3ec1c2dbb73018"), //hold monster
+                NewSpells.fluid_form,
+                NewSpells.particulate_form,
+                NewSpells.temporal_stasis,
+                NewSpells.time_stop
+            };
+
+
+
+            var mother_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0"), //aid
+                NewSpells.invisibility_purge,
+                library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b"), //stone skin
+                library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
+                NewSpells.contingency,
+                library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                library.Get<BlueprintAbility>("7ef49f184922063499b8f1346fb7f521"), //sea mantle
+                NewSpells.akashic_form
+            };
+
+
+            var follower_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485"), //doom
+                NewSpells.howling_agony,
+                NewSpells.ray_of_exhaustion,
+                library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f"), //enervation
+                library.Get<BlueprintAbility>("8878d0c46dfbd564e9d5756349d5e439"), //faves of fatigue
+                library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf"), //circle of death
+                library.Get<BlueprintAbility>("d361391f645db984bbf58907711a146a"), //banishment
+                library.Get<BlueprintAbility>("3b646e1db3403b940bf620e01d2ce0c7"), //destruction
+                library.Get<BlueprintAbility>("37302f72b06ced1408bf5bb965766d46"), //energy drain
+            };
+
+            addConstellationToWrittenInStarsAbility(lantern_bearer_spell_list, "LanternBearer", "The Lantern Bearer");
+            addConstellationToWrittenInStarsAbility(newlyweds_spell_list, "Newlyweds", "The Newlyweds");
+            addConstellationToWrittenInStarsAbility(daughter_spell_list, "Daughter", "The Daughter");
+            addConstellationToWrittenInStarsAbility(rider_spell_list, "Rider", "The Rider");
+            addConstellationToWrittenInStarsAbility(wagon_spell_list, "Wagon", "The Wagon");
+            addConstellationToWrittenInStarsAbility(mother_spell_list, "Mother", "The Mother");
+            addConstellationToWrittenInStarsAbility(follower_spell_list, "Follower", "The Follower");
+
+            written_in_stars = Common.AbilityToFeature(written_in_stars_ability, false);
+            written_in_stars.AddComponent(written_in_stars_resource.CreateAddAbilityResource());
+            written_in_stars.SetDescription(written_in_stars.Description + "Esoteric Starseeker does not gain discipline spells.");
+        }
+
+
+
+        static void addConstellationToWrittenInStarsAbility(BlueprintAbility[] spells, string name, string display_name)
+        {
+            var spells_description = "";
+
+            for (int i = 0; i < spells.Length; i++)
+            {
+                var s = spells[i];
+                spells_description += s.Name + " (" + (i+1).ToString() + Common.getNumExtension(i+1) +")";
+                if (s == spells.Last())
+                {
+                    spells_description += ".";
+                }
+                else
+                {
+                    spells_description += ", ";
+                }
+            }
+
+            var buff = Helpers.CreateBuff("WrittenInStars" + name + "Buff",
+                                          "Written in the Stars: " + display_name,
+                                          "Constellation spells: " + spells_description,
+                                          "",
+                                          written_in_stars_ability.Icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = written_in_stars_resource))
+                                         );
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
+            for (int i = 0; i < spells.Length; i++)
+            {
+                buff.AddComponent(Helpers.Create<SpellbookMechanics.TemporaryAddKnownSpell>(t => { t.spell = spells[i]; t.spell_level = i + 1; t.character_class = psychic_class; }));
+            }
+
+            var ability = Helpers.CreateAbility("WrittenInStars" + name + "Ability",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "Unitl rest",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)),
+                                                written_in_stars_resource.CreateResourceLogic(),
+                                                Common.createAbilityCasterHasNoFacts(buff)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(ability);
+
+            var comp = written_in_stars_ability.GetComponent<AbilityVariants>();
+            comp.Variants = comp.Variants.AddToArray(ability);
+            written_in_stars_ability.SetDescription(written_in_stars_ability.Description + display_name + ": " + spells_description + "\n");
         }
 
 
@@ -372,12 +585,13 @@ namespace CallOfTheWild
                                                                                                                           c.SharedValue = AbilitySharedValue.Damage;
                                                                                                                           c.HigherOrEqual = 5;
                                                                                                                       }),
-                                                                                                                      Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = painful_reminder_resource))
+                                                                                                                      Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = phrenic_pool_resource))
                                                                                                                      )
                                                                                           ),
                                                                  Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0)),
                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(), progression: ContextRankProgression.Custom,
-                                                                                                 customProgression: new (int, int)[] { (7, 1), (14, 2), (20, 3) })
+                                                                                                 customProgression: new (int, int)[] { (7, 1), (14, 2), (20, 3) }),
+                                                                 painful_reminder_resource.CreateResourceLogic()
                                                                  );
             painful_reminder_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
@@ -517,7 +731,8 @@ namespace CallOfTheWild
                                                                                                                                                                          })
                                                                                                  ),
                                                                                                  new GameAction[]{Common.createContextActionApplyBuff(bcp.Item1, Helpers.CreateContextDuration(1), dispellable: false),
-                                                                                                                  Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => {c.resource = agonizing_wound_resource; c.amount = bcp.Item2; })
+                                                                                                                  Helpers.Create<ResourceMechanics.ContextActionSpendResourceFromCaster>(c => {c.resource = agonizing_wound_resource; c.amount = bcp.Item2; }),
+                                                                                                                  Common.createContextActionRemoveBuffFromCaster(agonizing_wound_buff)
                                                                                                                  }
                                                             );
                 var buff = Helpers.CreateBuff("AgonizingWound" + bcp.Item1.name + "Buff",
@@ -1102,9 +1317,11 @@ namespace CallOfTheWild
                                                    "Starting from 11th level, psychic can choose a major amplificaiton instead of a phrenic amplification.",
                                                    "",
                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
-                                                   FeatureGroup.None,
-                                                   Helpers.CreateAddAbilityResource(phrenic_pool_resource)
+                                                   FeatureGroup.None
                                                    );
+
+
+
 
 
             var phrenic_amplifications_engine = new PhrenicAmplificationsEngine(phrenic_pool_resource, psychic_class.Spellbook, psychic_class, "Psychic");

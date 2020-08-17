@@ -1,4 +1,5 @@
-﻿using Kingmaker;
+﻿using JetBrains.Annotations;
+using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -12,6 +13,7 @@ using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +52,23 @@ namespace CallOfTheWild.LevelUpMechanics
         }
     }
 
+
+    public interface ILevelUpStartHandler : IGlobalSubscriber
+    {
+        void HandleLevelUpStart(UnitDescriptor unit);
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(LevelUpController))]
+    [Harmony12.HarmonyPatch("StartPreviewThread", Harmony12.MethodType.Normal)]
+    class LevelUpController__StartPreviewThread__Patch
+    {
+        static bool Prefix(LevelUpController __instance, [CanBeNull] JToken unitJson)
+        {
+            EventBus.RaiseEvent<ILevelUpStartHandler>((Action<ILevelUpStartHandler>)(h => h.HandleLevelUpStart(__instance.Unit)));
+            return true;
+        }
+    }
 
 
     [ComponentName("Add feature on class level range")]
