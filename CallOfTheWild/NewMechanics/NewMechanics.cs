@@ -2100,6 +2100,31 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
+        public class AbilityCasterKnowsSpell : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool not;
+            public BlueprintSpellbook spellbook;
+            public BlueprintAbility spell;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var sb = caster?.Descriptor?.GetSpellbook(spellbook);
+                if (sb == null)
+                {
+                    return not;
+                }
+
+                return sb.IsKnown(spell) != not;
+            }
+
+            public string GetReason()
+            {
+                return "Spell " + spell.Name + " is " + (not ? " already known" : " unknown");
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
         public class AbilityCasterMoved : BlueprintComponent, IAbilityCasterChecker
         {
             public bool not;
@@ -4613,6 +4638,27 @@ namespace CallOfTheWild
                 }
                 return !any;
             }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityShowIfCasterKnowsSpell : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public bool not;
+            public BlueprintSpellbook spellbook;
+            public BlueprintAbility spell;
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                var sb = ability?.Caster?.GetSpellbook(spellbook);
+                if (sb == null)
+                {
+                    return not;
+                }
+
+                return sb.IsKnown(spell) != not;
+            }
+
         }
 
 

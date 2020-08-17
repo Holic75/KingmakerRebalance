@@ -33,6 +33,7 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Buffs.Conditions;
@@ -91,6 +92,7 @@ namespace CallOfTheWild
         static public BlueprintArchetype psychic_marauder;
         static public BlueprintArchetype terror_weaver;
         static public BlueprintArchetype amnesiac;
+
         static public BlueprintFeature phrenic_mastery;
 
         static public BlueprintFeature natures_command;
@@ -99,6 +101,11 @@ namespace CallOfTheWild
         static public BlueprintAbility written_in_stars_ability;
         static public BlueprintAbilityResource written_in_stars_resource;
         static public BlueprintFeature written_in_stars;
+
+        static public BlueprintSpellbook amnesiac_spellbook;
+        static public BlueprintFeature amnesiac_spell_casting;
+        static public BlueprintFeature spell_recollection;
+
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
         static Dictionary<string, BlueprintProgression> no_spells_psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -151,9 +158,191 @@ namespace CallOfTheWild
 
             createMagaambyanTelepath();
             createEsotericStarseeker();
-            psychic_class.Archetypes = new BlueprintArchetype[] {magaambyan_telepath, starseeker };
+            createAmnesiac();
+            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
+        }
+
+
+        static void createAmnesiac()
+        {
+            amnesiac = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "AmnesiacArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Amnesiac");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The amnesiac once possessed great psychic power, but mental blocks—resulting from either a traumatic event or intentional implantation—have caused her to forget what she knew before. The amnesiac’s struggle to control her psychic magic leads to wild and unpredictable results.");
+            });
+            Helpers.SetField(amnesiac, "m_ParentClass", psychic_class);
+            library.AddAsset(amnesiac, "");
+            createAmnesiacSpellbook();
+            createAmnesiacSpellcasting();
+            amnesiac.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, psychic_spellcasting)};
+            amnesiac.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, amnesiac_spell_casting, spell_recollection)
+                                                    };
+            
+            amnesiac.ReplaceSpellbook = amnesiac_spellbook;
+            psychic_class.Progression.UIDeterminatorsGroup = psychic_class.Progression.UIDeterminatorsGroup.AddToArray(amnesiac_spell_casting, spell_recollection);
+        }
+
+
+        static void createAmnesiacSpellcasting()
+        {
+            amnesiac_spell_casting = Helpers.CreateFeature("AmnesiacSpellcastingFeature",
+                                                           "Amnesiac Spellcasting",
+                                                           "An amnesiac’s ability to cast psychic spells is the same as that of the psychic class, with the following exceptions.\n"
+                                                           + "An amnesiac’s faulty memory makes remembering and casting spells difficult, but the increased flexibility can be a great benefit. Instead of choosing a number of spells known as psychic, an amnesiac accesses spells she knew the previous day from the recesses of her mind.\n"
+                                                           + "For each spell level the amnesiac can cast, she retains a number of spells known equal to half the usual number for psychic spells known. The remainder of her spells known  become amnesia slots, which the amnesiac can use with her spell recollection ability.\n"
+                                                           + "This change to spells doesn’t apply to knacks (0-level spells) or discipline spells, which function the same way they do for a normal psychic. When the amnesiac gains access to 3rd-level spells, she gains full recall of her 1st-level spells and no longer gains 1st-level amnesia slots, instead gaining the full number of 1st-level spells known and casting them as a normal psychic. When this happens, the amnesiac replaces all her corresponding amnesia slots with any level-appropriate spells from the psychic spell list as her spells known, even if they were never among the spells she prepared or recalled; once selected, these spells can no longer be changed, as with a normal psychic. ach time the psychic gains access to a new level of spells, she gains full memory of spells 2 levels lower in the same way.",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None);
+            amnesiac_spell_casting.ComponentsArray = psychic_spellcasting.ComponentsArray.ToList().ToArray();
+            amnesiac_spell_casting.ReplaceComponent<SpellbookMechanics.AddUndercastSpells>(a => a.spellbook = amnesiac_spellbook);
+
+            spell_recollection = Helpers.CreateFeature("SpellRecollectionFeature",
+                                                       "Spell Recollection",
+                                                       "Once per hour as a swift action, an amnesiac can attempt to remember any spell from the psychic spell list of her choice from either of the 2 highest spell levels she can cast. When she does, she rolls on d100 to determine the result. Because the mental stress of combat brings memories to the surface more easily, the amnesiac adds 1d10 to this roll’s result if she’s in combat when she attempts to recall a spell. Regardless of the result, the amnesiac expends an amnesia slot of the appropriate level for the spell she is attempting to remember.\n"
+                                                       + "Once a spell has been remembered in this way, the amnesiac can cast it as one of her spells known for the rest of the day (even if she failed to cast the spell during the round in which she remembered it).\n"
+                                                       + "Spell Recollection d100 effects:\n"
+                                                       + "01-10: The amnesiac is unable to cast spells this round.\n"
+                                                       + "11-35: The amnesiac can’t remember the new spell (but can still cast spells this round).\n"
+                                                       + "36+  : The amnesiac remembers and can cast the new spell.",
+                                                       "",
+                                                       Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"),
+                                                       FeatureGroup.None);
+
+            var forbid_spellcasting_buff = Helpers.CreateBuff("SpellRecollectionSpellcastingForbiddenBuff",
+                                                              spell_recollection.Name + ": Unable to Cast Spells",
+                                                              "You are unable to cast spells until the end of the round.",
+                                                              "",
+                                                              spell_recollection.Icon,
+                                                              null
+                                                              );
+
+            var apply_spellcsting_forbidden_buff = Common.createContextActionApplyBuff(forbid_spellcasting_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
+
+            for (int i = 1; i <= 9; i++)
+            {
+                var spell_recollection_ability = Helpers.CreateAbility($"SpellRecollection{i}BaseAbility",
+                                                       spell_recollection.Name + " " + Common.roman_id[i],
+                                                       spell_recollection.Description,
+                                                       "",
+                                                       spell_recollection.Icon,
+                                                       AbilityType.Extraordinary,
+                                                       CommandType.Swift,
+                                                       AbilityRange.Personal,
+                                                       "",
+                                                       "");
+                spell_recollection_ability.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(spell_recollection_ability) };
+                spell_recollection_ability.setMiscAbilityParametersSelfOnly();
+
+                var resource = Helpers.CreateAbilityResource($"SpellRecollection{i}Resource", "", "", "", null);
+                if (i == 1)
+                {
+                    resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 100, 0, 0, 0.0f, getPsychicArray());
+                }
+                else
+                {
+                    resource.SetFixedResource(1);
+                }
+                var allowed_feature = Helpers.CreateFeature($"SpellRecollection{i}Feature",
+                                                            "", "", "", null, FeatureGroup.None,
+                                                            resource.CreateAddAbilityResource(),
+                                                            Helpers.CreateAddFact(spell_recollection_ability));
+                allowed_feature.HideInCharacterSheetAndLevelUp = true;
+                allowed_feature.HideInUI = true;
+                
+                var spells = psychic_class.Spellbook.SpellList.SpellsByLevel[i].Spells;
+
+                foreach (var s in spells)
+                {
+                    var buff = Helpers.CreateBuff($"SpellRecollection{i}" + s.name + "Buff",
+                                                  "",
+                                                  "",
+                                                  "",
+                                                  null,
+                                                  null,
+                                                  Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource)),
+                                                  Helpers.Create<SpellbookMechanics.TemporaryAddKnownSpell>(t => { t.spell = s; t.spell_level = i; t.character_class = psychic_class; })
+                                                 );
+                    buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
+
+                    var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+
+
+                    var ability = Helpers.CreateAbility($"SpellRecollection{i}" + s.name,
+                                                         spell_recollection_ability.Name + " (" + s.Name + ")",
+                                                         s.Description,
+                                                         "",
+                                                         s.Icon,
+                                                         AbilityType.Extraordinary,
+                                                         CommandType.Swift,
+                                                         AbilityRange.Personal,
+                                                         "",
+                                                         "",
+                                                         resource.CreateResourceLogic(),
+                                                         Helpers.Create<NewMechanics.AbilityCasterKnowsSpell>(a => { a.spellbook = amnesiac_spellbook; a.spell = s; a.not = true; }),
+                                                         Helpers.Create<NewMechanics.AbilityShowIfCasterKnowsSpell>(a => { a.spellbook = amnesiac_spellbook; a.spell = s; a.not = true; }),
+                                                         Helpers.CreateRunActions(Helpers.Create<RandomMechanics.RunActionDependingOnD100>(r =>
+                                                                                 {
+                                                                                     r.actions = new ActionList[]
+                                                                                     {
+                                                                                         Helpers.CreateActionList(apply_spellcsting_forbidden_buff),
+                                                                                         null,
+                                                                                         Helpers.CreateActionList(apply_buff)
+                                                                                     };
+                                                                                     r.thresholds = new int[] { 10, 36, 1000 };
+                                                                                 })
+                                                                                 )
+                                                         );
+                    ability.setMiscAbilityParametersSelfOnly();
+                    spell_recollection_ability.addToAbilityVariants(ability);
+                }
+                spell_recollection.AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                                                {
+                                                    a.classes = getPsychicArray();
+                                                    a.min_level = (i == 1) ? 0 : i * 2 + 1;
+                                                    a.max_level = (i == 1) ? 5 : (i == 9 ? 20 : i * 2 + 3);
+                                                    a.Feature = allowed_feature;
+                                                })
+                );
+            }
+        }
+
+       static void createAmnesiacSpellbook()
+       {
+            amnesiac_spellbook = library.CopyAndAdd(psychic_class.Spellbook, "AmnesiacSpellbook", "");
+            amnesiac_spellbook.SpellsKnown = createAmnesiacSpellsKnownTable();
+            amnesiac_spellbook.Name = amnesiac.LocalizedName;
+       }
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createAmnesiacSpellsKnownTable()
+        {
+            return Common.createSpellsTable("AmnesiacSpellsKnownTable", "",
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(0, 1/*+1*/),  //1
+                                       Common.createSpellsLevelEntry(0, 1/*+1*/),  //2
+                                       Common.createSpellsLevelEntry(0, 2/*+1*/),  //3
+                                       Common.createSpellsLevelEntry(0, 2/*+1*/, 1),  //4
+                                       Common.createSpellsLevelEntry(0, 2/*+2*/, 1/*+1*/), //5
+                                       Common.createSpellsLevelEntry(0, 4,       1/*+1*/, 1), //6
+                                       Common.createSpellsLevelEntry(0, 5,       2/*+1*/, 1/*+1*/), //7
+                                       Common.createSpellsLevelEntry(0, 5,       3,       1/*+1*/, 1), //8
+                                       Common.createSpellsLevelEntry(0, 5,       4,       2/*+1*/, 1/*+1*/), //9
+                                       Common.createSpellsLevelEntry(0, 5,       4,       3,       1/*+1*/, 1), //10
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       2/*+1*/, 1/*+1*/), //11
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       3,       1/*+1*/, 1), //12
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       2/*+1*/, 1/*+1*/), //13
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       3,       1/*+1*/, 1), //14
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       2/*+1*/, 1/*+1*/), //15
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       3,       1/*+1*/, 1), //16
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       3,       2/*+1*/, 1/*+1*/), //17
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       3,       3,       1/*+1*/, 1), //18
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       3,       3,       2/*+1*/, 1/*+1*/), //19
+                                       Common.createSpellsLevelEntry(0, 5,       5,       4,       4,       4,       3,       3,       2/*+1*/, 2/*+1*/) //20
+                                       );
         }
 
 
@@ -252,9 +441,10 @@ namespace CallOfTheWild
 
             starseeker.RemoveFeatures = new LevelEntry[] {
                                                             Helpers.LevelEntry(1, psychic_discipline, phrenic_amplification),
-                                                            Helpers.LevelEntry(11, phrenic_amplification)
+                                                            Helpers.LevelEntry(11, phrenic_amplification, major_amplification)
                                                          };
             starseeker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, psychic_discipline_no_spells, written_in_stars),
+                                                        Helpers.LevelEntry(15, major_amplification)
                                                       };
             psychic_class.Progression.UIDeterminatorsGroup = psychic_class.Progression.UIDeterminatorsGroup.AddToArray(written_in_stars);
         }
@@ -297,7 +487,7 @@ namespace CallOfTheWild
 
             var newlyweds_spell_list = new BlueprintAbility[]
             {
-                NewSpells.command,
+                library.Get<BlueprintAbility>("88367310478c10b47903463c5d0152b0"), //hypnotism
                 library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e"), //hold person
                 NewSpells.synesthesia,
                 library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8"), //break enchantment
@@ -337,6 +527,20 @@ namespace CallOfTheWild
             };
 
 
+            var patriarch_spell_list = new BlueprintAbility[]
+            {
+                NewSpells.command,
+                NewSpells.force_sword,
+                library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a"), //dispel magic
+                library.Get<BlueprintAbility>("76a629d019275b94184a1a8733cac45e"), //protection from energy comminal
+                NewSpells.burst_of_force,
+                library.Get<BlueprintAbility>("f0f761b808dc4b149b08eaf44b99f633"), //dispel magic greater
+                NewSpells.fly_mass,
+                library.Get<BlueprintAbility>("a5c56f0f699daec44b7aedd8b273b08a"), //brilliant inspiration
+                library.Get<BlueprintAbility>("52b5df2a97df18242aec67610616ded0"), //foresight
+            };
+
+
             var wagon_spell_list = new BlueprintAbility[]
             {
                 library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379"), //expeditious retreat
@@ -350,6 +554,19 @@ namespace CallOfTheWild
                 NewSpells.time_stop
             };
 
+
+            var pack_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("7bdb6a9fb6b37614e96f155748ae50c6"), //aspect of the falcon
+                library.Get<BlueprintAbility>("a4ad1b8fa11e7c347a608c004efce9d5"), //aspect of the bear
+                library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), //rage
+                library.Get<BlueprintAbility>("7ed74a3ec8c458d4fb50b192fd7be6ef"), //summon monster IV
+                library.Get<BlueprintAbility>("630c8b85d9f07a64f917d79cb5905741"), //summon monster V
+                library.Get<BlueprintAbility>("f6bcea6db14f0814d99b54856e918b92"), //mass bear endurance
+                library.Get<BlueprintAbility>("ab167fd8203c1314bac6568932f1752f"), //summon monster VII
+                library.Get<BlueprintAbility>("d3ac756a229830243a72e84f3ab050d0"), //summon monster VIII
+                Wildshape.shapechange
+            };
 
 
             var mother_spell_list = new BlueprintAbility[]
@@ -365,6 +582,19 @@ namespace CallOfTheWild
                 NewSpells.akashic_form
             };
 
+
+            var stranger_spell_list = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("f001c73999fb5a543a199f890108d936"), //vanish
+                library.Get<BlueprintAbility>("89940cde01689fb46946b2f8cd7b66b7"), //invisibility
+                library.Get<BlueprintAbility>("903092f6488f9ce45a80943923576ab3"), //displacement
+                library.Get<BlueprintAbility>("ecaa0def35b38f949bd1976a6c9539e0"), //improved invisibility
+                library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a"), //phantasmal web
+                library.Get<BlueprintAbility>("1f2e6019ece86d64baa5effa15e81ecc"), //phantasmal putrefaction
+                library.Get<BlueprintAbility>("98310a099009bbd4dbdf66bcef58b4cd"), //invisibility mass
+                library.Get<BlueprintAbility>("0e67fa8f011662c43934d486acc50253"), //prediciton of failure
+                NewSpells.divide_mind
+            };
 
             var follower_spell_list = new BlueprintAbility[]
             {
@@ -383,8 +613,11 @@ namespace CallOfTheWild
             addConstellationToWrittenInStarsAbility(newlyweds_spell_list, "Newlyweds", "The Newlyweds");
             addConstellationToWrittenInStarsAbility(daughter_spell_list, "Daughter", "The Daughter");
             addConstellationToWrittenInStarsAbility(rider_spell_list, "Rider", "The Rider");
+            addConstellationToWrittenInStarsAbility(patriarch_spell_list, "Patriarch", "The Patriarch");
             addConstellationToWrittenInStarsAbility(wagon_spell_list, "Wagon", "The Wagon");
+            addConstellationToWrittenInStarsAbility(wagon_spell_list, "Pack", "The Pack");
             addConstellationToWrittenInStarsAbility(mother_spell_list, "Mother", "The Mother");
+            addConstellationToWrittenInStarsAbility(stranger_spell_list, "Stranger", "The Stranger");
             addConstellationToWrittenInStarsAbility(follower_spell_list, "Follower", "The Follower");
 
             written_in_stars = Common.AbilityToFeature(written_in_stars_ability, false);
@@ -443,8 +676,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(ability);
 
-            var comp = written_in_stars_ability.GetComponent<AbilityVariants>();
-            comp.Variants = comp.Variants.AddToArray(ability);
+            written_in_stars_ability.addToAbilityVariants(ability);
             written_in_stars_ability.SetDescription(written_in_stars_ability.Description + display_name + ": " + spells_description + "\n");
         }
 
@@ -1076,6 +1308,9 @@ namespace CallOfTheWild
                                     resilence_of_the_faithful,
                                     prayer_aura_feature
                                     );
+            var atheism = library.Get<BlueprintFeature>("92c0d2da0a836ce418a267093c09ca54");
+            psychic_disiciplines_map["Faith"].AddComponent(Helpers.PrerequisiteNoFeature(atheism));
+            no_spells_psychic_disiciplines_map["Faith"].AddComponent(Helpers.PrerequisiteNoFeature(atheism));
         }
 
 
@@ -1164,6 +1399,10 @@ namespace CallOfTheWild
                                          bleed1d6.GetComponent<AddHealTrigger>()
                                          );
 
+            var spend_resource = Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
+                                                                                                                                    Helpers.Create<NewMechanics.ContextActionSpendResource>(c => { c.resource = resource; c.amount = 1; }),
+                                                                                                                                    Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                                    );
             var buff = Helpers.CreateBuff("DarkHalfBuff",
                                           "Dark Half",
                                           "By allowing the dark forces to overcome you, You can enter a state of instinctual cruelty as a swift action.\n"
@@ -1194,66 +1433,54 @@ namespace CallOfTheWild
                                                                                                                                                                          apply_morphic_form_buff3)
                                                                                                                                      ),
                                                                                                            Helpers.CreateConditional(Common.createContextConditionCasterHasFact(psychic_safeguard),
-                                                                                                                                     apply_psychic_safeguard_buff)
+                                                                                                                                     apply_psychic_safeguard_buff),
+                                                                                                           spend_resource
                                                                                                            },
-                                                                              newRound: new GameAction[] {Helpers.CreateConditional(Helpers.Create<BuffConditionCheckRoundNumber>(b => b.RoundNumber = 1),
-                                                                                                                                    null,
-                                                                                                                                    Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),
-                                                                                                                                                              Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = resource),
-                                                                                                                                                              Helpers.Create<ContextActionRemoveSelf>()
-                                                                                                                                                              )
-                                                                                                                                    )
+                                                                              newRound: new GameAction[] {spend_resource
                                                                                                           }
                                                                               ),
                                           resource.CreateResourceLogic()
                                           );
 
+            var remove_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(buff),
+                                                          Common.createContextActionSkillCheck(StatType.Intelligence,
+                                                                                               Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff),
+                                                                                                                        Helpers.Create<ContextActionRemoveSelf>()
+                                                                                                                       ),
+                                                                                               custom_dc: 10
+                                                                                              ),
+                                                          Helpers.Create<ContextActionRemoveSelf>()
+                                                          );
+
             var deactivate_buff = Helpers.CreateBuff("DeactivateDarkHalfBuff",
-                                                     "Deactivate Dark Half Cooldown",
+                                                     "Dark Half Deactivate Attempt",
                                                      buff.Description,
                                                      "",
                                                      Helpers.GetIcon("d316d3d94d20c674db2c24d7de96f6a7"), //serenity
-                                                     null);
+                                                     null,
+                                                     Helpers.CreateAddFactContextActions(activated: remove_action, newRound: remove_action)
+                                                     );
 
-            var activate_dark_half = Helpers.CreateAbility("DarkHalfAbility",
-                                                           buff.Name,
-                                                           buff.Description,
-                                                           "",
-                                                           buff.Icon,
-                                                           AbilityType.Supernatural,
-                                                           CommandType.Swift,
-                                                           AbilityRange.Personal,
-                                                           "",
-                                                           "",
-                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
-                                                           Common.createAbilityCasterHasNoFacts(buff, deactivate_buff)
-                                                           );
-            activate_dark_half.setMiscAbilityParametersSelfOnly();
+            var toggle_buff = Helpers.CreateBuff("DarkHalfToggleBuff",
+                                                 "",
+                                                 "",
+                                                 "",
+                                                 null,
+                                                 null,
+                                                 Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
+                                                                                     deactivated: Common.createContextActionApplyBuff(deactivate_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
+                                                                                     )
+                                                 );
+            toggle_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var dark_half_toggle = Common.buffToToggle(toggle_buff, test_mode ? CommandType.Free : CommandType.Swift, true,
+                                                 resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                                 Helpers.Create<RestrictionHasFact>(a => { a.Feature = deactivate_buff; a.Not = true; })
+                                                 );
+            dark_half_toggle.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            
 
-            var deactivate_dark_half = Helpers.CreateAbility("DeactivateDarkHalfAbility",
-                                                             "Deactivate Dark Half",
-                                                               buff.Description,
-                                                               "",
-                                                               deactivate_buff.Icon,
-                                                               AbilityType.Supernatural,
-                                                               CommandType.Free,
-                                                               AbilityRange.Personal,
-                                                               "",
-                                                               "",
-                                                               Helpers.CreateRunActions(Common.createContextActionSkillCheck(StatType.Intelligence, 
-                                                                                                                             Common.createContextActionRemoveBuff(buff),
-                                                                                                                             Common.createContextActionApplyBuff(deactivate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false),
-                                                                                                                             10
-                                                                                                                             )
-                                                                                        ),
-                                                               Common.createAbilityCasterHasNoFacts(deactivate_buff),
-                                                               Common.createAbilityCasterHasFacts(buff)
-                                                               );
-            deactivate_dark_half.setMiscAbilityParametersSelfOnly();
-
-            var wrapper = Common.createVariantWrapper("DarkHalfWrapperAbility", "", activate_dark_half, deactivate_dark_half);
-
-            var dark_half = Common.AbilityToFeature(wrapper, false);
+            var dark_half = Common.ActivatableAbilityToFeature(dark_half_toggle, false);
+            dark_half.AddComponent(resource.CreateAddAbilityResource());
 
             createPsychicDiscipline("Abomination",
                                     "Abomination",
@@ -1673,7 +1900,8 @@ namespace CallOfTheWild
                                                                                 new int[] { 1, 4, 6, 8, 10, 12, 14, 16, 18 },
                                                                                 psychic_class);
             var learn_spell_features = progression.LevelEntries.Select(le => le.Features[0]).ToArray();
-            progression.LevelEntries = progression.LevelEntries.AddToArray(Helpers.LevelEntry(1, feature1), Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13));
+            progression.LevelEntries[0].Features.Add(feature1);
+            progression.LevelEntries = progression.LevelEntries.AddToArray(Helpers.LevelEntry(5, feature5), Helpers.LevelEntry(13, feature13));
             progression.UIGroups = new UIGroup[]{Helpers.CreateUIGroup(feature1, feature5, feature13),
                                                  Helpers.CreateUIGroup(learn_spell_features) };
             progression.UIDeterminatorsGroup = new BlueprintFeatureBase[0];

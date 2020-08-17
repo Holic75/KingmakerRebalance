@@ -239,6 +239,7 @@
     <Compile Include="NewMechanics\BuffMechanics.cs" />
     <Compile Include="NewMechanics\ChargenMechanincs.cs" />
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
+    <Compile Include="NewMechanics\RandomMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />
     <Compile Include="ContextRankConfigExtender.cs" />
     <Compile Include="Features\FeralCombatTraining.cs" />

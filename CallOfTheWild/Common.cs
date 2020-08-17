@@ -2224,6 +2224,25 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintFeature AbilityToFeatureNoCheck(BlueprintAbility ability, bool hide = true, string guid = "")
+        {
+            var feature = Helpers.CreateFeature(ability.name + "Feature",
+                                                     ability.Name,
+                                                     ability.Description,
+                                                     guid,
+                                                     ability.Icon,
+                                                     FeatureGroup.None
+                                                     );
+            feature.AddComponent(Helpers.CreateAddFact(ability));
+            if (hide)
+            {
+                feature.HideInCharacterSheetAndLevelUp = true;
+                feature.HideInUI = true;
+            }
+            return feature;
+        }
+
+
         static public BlueprintFeature AbilityToFeatureMaybeReuseGuid(BlueprintAbility ability, bool hide = true, string guid = "")
         {
             var feature = Helpers.CreateFeature(ability.name + "Feature",
@@ -3448,7 +3467,7 @@ namespace CallOfTheWild
         }
 
 
-            public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
+        public static ContextActionSpawnAreaEffect createContextActionSpawnAreaEffect(BlueprintAbilityAreaEffect area_effect, ContextDurationValue duration)
         {
             return Helpers.Create<ContextActionSpawnAreaEffect>(c => { c.AreaEffect = area_effect; c.DurationValue = duration; });
         }

@@ -337,6 +337,8 @@ namespace CallOfTheWild.SpellbookMechanics
         public BlueprintAbility spell;
         [JsonProperty]
         private bool added = false;
+        [JsonProperty]
+        List<BlueprintAbility> undercast_versions = new List<BlueprintAbility>();
 
         public override void OnFactActivate()
         {
@@ -350,8 +352,23 @@ namespace CallOfTheWild.SpellbookMechanics
             {
                 return;
             }
+
+            undercast_versions = new List<BlueprintAbility>();
+
+            var comp = spell.GetComponent<SpellbookMechanics.SpellUndercast>();
+            if (comp != null)
+            {
+                foreach (var s in comp.undercast_abilities)
+                {
+                    if (!spellbook.IsKnown(s))
+                    {
+                        undercast_versions.Add(s);
+                    }
+                }
+            }
             spellbook.AddKnown(spell_level, spell, false);
-            
+
+
             var ability_data = spellbook.GetKnownSpells(spell_level).Where(a => a.Blueprint == spell).FirstOrDefault();
             if (ability_data != null)
             {
@@ -359,6 +376,9 @@ namespace CallOfTheWild.SpellbookMechanics
             }
             added = true;
         }
+
+
+
 
 
         public override void OnFactDeactivate()
@@ -372,15 +392,32 @@ namespace CallOfTheWild.SpellbookMechanics
             {
                 return;
             }
-            var ability_datas = spellbook.GetAllKnownSpells().Where(a => a.Blueprint == spell).ToArray();
-            spellbook.RemoveSpell(spell);
+
+            removeSpell(spell, spellbook);
+
+            if (undercast_versions != null)
+            {
+                foreach (var s in undercast_versions)
+                {
+                    removeSpell(s, spellbook);
+                }
+                undercast_versions.Clear();
+            }
+
+            
+            added = false;
+        }
+
+
+        static void removeSpell(BlueprintAbility s, Spellbook sb)
+        {
+            var ability_datas = sb.GetAllKnownSpells().Where(a => a.Blueprint == s).ToArray();
+            sb.RemoveSpell(s);
 
             foreach (var a in ability_datas)
             {
                 EventBus.RaiseEvent<ISpellBookCustomSpell>((Action<ISpellBookCustomSpell>)(h => h.RemoveSpellHandler(a)));
             }
-
-            added = false;
         }
 
         public void HandleLevelUpStart(UnitDescriptor unit)
@@ -508,6 +545,7 @@ namespace CallOfTheWild.SpellbookMechanics
                 {
                     continue;
                 }
+
                 var undercast_spells = comp.undercast_abilities;
                 foreach (var us in undercast_spells)
                 {
