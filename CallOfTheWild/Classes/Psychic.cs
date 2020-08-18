@@ -1043,7 +1043,7 @@ namespace CallOfTheWild
                 }));
 
                 var buff = Common.extractActions<ContextActionApplyBuff>(slc.Ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff;
-                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
                 var actions = Common.extractActions<Conditional>(slc.Ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault();
                 actions.IfFalse = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(cognatogen),
                                                                                      new GameAction[] { apply_buff },
@@ -1092,11 +1092,12 @@ namespace CallOfTheWild
                                                                             Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false)
                                                                            }
                                                           );
-
+            apply_confused = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), apply_confused);
             var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: apply_confused);
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "HallucinogenicAuraArea", "");
             area.Size = 30.Feet();
+            area.SpellResistance = false;
             area.ComponentsArray = new BlueprintComponent[] {area_effect,
                                                              Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)

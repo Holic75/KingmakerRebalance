@@ -676,7 +676,8 @@ namespace CallOfTheWild
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Acid, 0.5f),
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Fire, 0.5f),
                                           Helpers.Create<ArcaneSpellFailureIncrease>(a => a.Bonus = 35),
-                                          Helpers.Create<ArmorCheckPenaltyIncrease>(a => a.Bonus = -6)
+                                          Helpers.Create<ArmorCheckPenaltyIncrease>(a => a.Bonus = -6),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
