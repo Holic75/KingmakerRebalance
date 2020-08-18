@@ -1156,7 +1156,7 @@ namespace CallOfTheWild
 
             var divine_energy_resource = Helpers.CreateAbilityResource("PsychicDivineEnergyResource", "", "", "", null);
             divine_energy_resource.SetIncreasedByStat(0, StatType.Wisdom);
-            var restore_phrenic_pool = Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = phrenic_pool_resource);
+            var restore_phrenic_pool = Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.Resource = phrenic_pool_resource; c.amount = 1; });
             var effect_on_spell_cast = Helpers.CreateActionList(restore_phrenic_pool);
 
             var divine_energy_cure = Helpers.CreateFeature("FaithDivineEnergyCureFeature",
@@ -1172,12 +1172,13 @@ namespace CallOfTheWild
 
             for (int i = 1; i < cure_spells.Length; i++)
             {
-                var duplicate_spell = library.CopyAndAdd(inflict_spells[i], $"DivineEnrgyConversionCureSpell{i + 1}Ability", "");
+                var duplicate_spell = library.CopyAndAdd(cure_spells[i], $"DivineEnrgyConversionCureSpell{i + 1}Ability", "");
                 cure_spells[i] = duplicate_spell;
                 duplicate_spell.AddComponent(divine_energy_resource.CreateResourceLogic());
             }
 
-            divine_energy_cure.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
+            divine_energy_cure.AddComponents(Common.createSpontaneousSpellConversion(psychic_class, cure_spells),
+                                              Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
                                                                                                                 {
                                                                                                                     r.actions = new ActionList[] { effect_on_spell_cast };
                                                                                                                     r.allow_sticky_touch = true;
@@ -1204,7 +1205,8 @@ namespace CallOfTheWild
                 duplicate_spell.AddComponent(divine_energy_resource.CreateResourceLogic());
             }
 
-            divine_energy_inflict.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
+            divine_energy_inflict.AddComponents(Common.createSpontaneousSpellConversion(psychic_class, inflict_spells),
+                                                Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
                                                                                                                 {
                                                                                                                     r.actions = new ActionList[] { effect_on_spell_cast };
                                                                                                                     r.allow_sticky_touch = true;
@@ -1279,7 +1281,7 @@ namespace CallOfTheWild
             prayer_aura_resource.SetIncreasedByLevel(0, 1, getPsychicArray());
 
             var prayer_aura_toggle = Common.buffToToggle(area_buff, UnitCommand.CommandType.Free, true,
-                                             prayer_aura_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                             prayer_aura_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.NewRound)
                                              );
             prayer_aura_toggle.DeactivateIfCombatEnded = !test_mode;
             var prayer_aura_feature = Common.ActivatableAbilityToFeature(prayer_aura_toggle, false);

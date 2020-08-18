@@ -123,7 +123,7 @@ namespace CallOfTheWild
             }
 
             dual_amplification = Helpers.CreateFeature(name_prefix + "DualAmplificationFeature",
-                                                       "DualAmplification",
+                                                       "Dual Amplification",
                                                        "When the psychic uses this major amplification, she chooses two other amplifications or major amplifications she knows to apply to the same linked spell. She can’t apply the same amplification to the linked spell more than once, even if she can use that amplification for multiple different effects.",
                                                        "",
                                                        null,

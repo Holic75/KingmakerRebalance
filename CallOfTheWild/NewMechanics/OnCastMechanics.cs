@@ -86,6 +86,7 @@ namespace CallOfTheWild.OnCastMechanics
             {
                 return;
             }
+
             var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
             if (spellbook_blueprint == null)
             {
@@ -115,7 +116,8 @@ namespace CallOfTheWild.OnCastMechanics
             }
 
             int lvl = evt.Context.SpellLevel;
-            if (lvl > actions.Length)
+
+            if (lvl >= actions.Length)
             {
                 lvl = actions.Length - 1;
             }
