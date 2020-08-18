@@ -742,10 +742,10 @@ namespace CallOfTheWild
 
         internal static void fixDispellingStrikeCL()
         {
-            var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
+            //var slayer = library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             var dispelling_attack = library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c");
-            dispelling_attack.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(slayer)));
-            dispelling_attack.ReplaceComponent<ReplaceCasterLevelOfFeature>(Helpers.Create<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>(r =>
+           // dispelling_attack.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(slayer)));
+            dispelling_attack.ReplaceComponent<ContextSetAbilityParams>(Helpers.Create<NewMechanics.ReplaceCasterLevelOfFactWithContextValue>(r =>
                                                                                                                                                     {
                                                                                                                                                         r.Feature = dispelling_attack;
                                                                                                                                                         r.value = Helpers.CreateContextValue(AbilityRankType.Default);

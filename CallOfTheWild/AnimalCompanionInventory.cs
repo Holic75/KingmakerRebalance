@@ -108,9 +108,12 @@ namespace CallOfTheWild
                         }
                     }                                      
                 }
-                if (tr.Property("Room").GetValue() != null)
-                    tr.Property("Room").Method("SetupInfo", player).GetValue();
-                if (tr.Property("DollWeaponSets").GetValue() == null)
+                var room = tr.Property("Room").GetValue<DollRoom>();
+                if (room != null)
+                    room.SetupInfo(player);
+
+                var doll_weapon_sets = Helpers.GetField<DollWeaponSets>(__instance, "m_DollWeaponSets");
+                if (doll_weapon_sets == null)
                 {
                     return false;
                 }
@@ -123,7 +126,7 @@ namespace CallOfTheWild
                     }
                 }
 
-                tr.Field("m_DollWeaponSets").Method("SetupInfo", player.Body).GetValue();
+                doll_weapon_sets.SetupInfo(player);
 
                 return false;
             }

@@ -290,15 +290,16 @@ namespace CallOfTheWild.UnitViewMechanics
             {
                 var desc = new RendererDescription();
                 desc.Mesh = renderer.sharedMesh;
+                desc.Mesh.UploadMeshData(true);
                 var bonesNames = renderer.bones.Select(t => t.name).ToArray();
-                desc.Textures = new List<CharacterTextureDescription>()
+                /*desc.Textures = new List<CharacterTextureDescription>()
                     {
                         new CharacterTextureDescription(CharacterTextureChannel.Diffuse, renderer.material.mainTexture as Texture2D)
                     };
                 desc.Material = renderer.sharedMaterial;
                 desc.RootBone = "Pelvis";
                 desc.Bones = bonesNames;
-                desc.Name = renderer.name;
+                desc.Name = renderer.name;*/
                 descriptions.Add(desc);
             }
             var bakedCharacter = ScriptableObject.CreateInstance<BakedCharacter>();

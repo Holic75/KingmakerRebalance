@@ -91,11 +91,11 @@ namespace CallOfTheWild
                 harmony = Harmony12.HarmonyInstance.Create(modEntry.Info.Id);
                 harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-                if (settings.swap_weapon_sets_as_move_action)
+                /*if (settings.swap_weapon_sets_as_move_action)
                 {
                     Main.logger.Log("Changing weapons will take move action.");
                     NewMechanics.WeaponSetSwapPatch.Run();
-                }
+                }*/
             }
             catch (Exception ex)
             {

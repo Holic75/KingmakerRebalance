@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    [Harmony12.HarmonyPatch(typeof(RuleRollD20))]
+    /*[Harmony12.HarmonyPatch(typeof(RuleRollD20))]
     [Harmony12.HarmonyPatch("Roll", Harmony12.MethodType.Normal)]
     class RuleRollD20__Roll__Patch
     {
@@ -27,6 +27,6 @@ namespace CallOfTheWild
             __result = val1;
             return false;
         }
-    }
+    }*/
 
 }

@@ -1883,12 +1883,11 @@ namespace CallOfTheWild
         }
 
 
-        public static void AddBattleLogMessage(string message, object tooltip = null, Color? color = null)
+        public static void AddBattleLogMessage(string message, string tooltip = null, Color? color = null)
         {
-            var data = new LogDataManager.LogItemData(message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, PrefixIcon.None);
             if (Game.Instance.UI.BattleLogManager)
             {
-                Game.Instance.UI.BattleLogManager.LogView.AddLogEntry(data);
+                Game.Instance.UI.BattleLogManager.LogView.AddLogEntry(message, color ?? GameLogStrings.Instance.DefaultColor, tooltip, PrefixIcon.None);
             }
         }
 
