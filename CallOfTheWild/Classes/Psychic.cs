@@ -729,11 +729,13 @@ namespace CallOfTheWild
                                                             FeatureGroup.None);
             psychic_progression.Classes = getPsychicArray();
 
+            var deity = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
             psychic_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, psychic_proficiencies, detect_magic,
                                                                                         psychic_discipline,
                                                                                         phrenic_amplification,
                                                                                         psychic_spellcasting,
                                                                                         phrenic_pool,
+                                                                                        deity,
                                                                                         library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                                                         library.Get<BlueprintFeature>("9fc9813f569e2e5448ddc435abf774b3"), //full caster feature
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature

@@ -118,13 +118,15 @@ namespace CallOfTheWild.WildArmorMechanics
             var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
             if (primary_hand != null 
                 && (!primary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
-                && (primary_hand.MaybeItem?.Blueprint != thundering_claw))
+                && (primary_hand.MaybeItem?.Blueprint != thundering_claw)
+                && primary_hand.Disabled)//?????
             {
                 primary_hand.ReleaseDeactivateFlag();
             }
             if (secondary_hand != null 
                 && (!secondary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
-                && (secondary_hand.MaybeItem?.Blueprint != thundering_claw))
+                && (secondary_hand.MaybeItem?.Blueprint != thundering_claw)
+                && secondary_hand.Disabled)//????
             {
                 secondary_hand.ReleaseDeactivateFlag();
             }

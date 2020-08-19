@@ -257,6 +257,7 @@ namespace CallOfTheWild
             vindicative_smite_area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = vindicative_smite_trigger_area);
             smite_resource = library.Get<BlueprintAbilityResource>("b4274c5bb0bf2ad4190eb7c44859048b");//smite_evil_resource
 
+            var aura_of_courage_buff = library.Get<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4");
             vindicative_smite = Helpers.CreateFeature("VindicativeSmiteFeature",
                                                        vindicative_smite_ability.Name,
                                                        vindicative_smite_ability.Description,

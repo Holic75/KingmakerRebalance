@@ -4915,6 +4915,23 @@ namespace CallOfTheWild
         }
 
 
+        public class PrintMessageOnApply: OwnedGameLogicComponent<UnitDescriptor>
+        {
+
+            public override void OnFactActivate()
+            {
+                Main.logger.Log(this.Fact.Blueprint.name + " applied");
+                Main.logger.Log(this.Owner.CharacterName);
+            }
+
+            public override void OnFactDeactivate()
+            {
+                Main.logger.Log(this.Fact.Blueprint.name + " removed");
+                Main.logger.Log(this.Owner.CharacterName);
+            }
+        }
+
+
         public class AddIncomingDamageTriggerOnAttacker : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, ITargetRulebookHandler<RuleDealStatDamage>, ITargetRulebookHandler<RuleDrainEnergy>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber, IRulebookHandler<RuleDealStatDamage>, IRulebookHandler<RuleDrainEnergy>
         {
             public ActionList Actions;
@@ -4927,11 +4944,15 @@ namespace CallOfTheWild
             public bool only_from_spell = false;
             public bool consider_damage_type = false;
 
-            public DamageEnergyType[] energy_types;
-            public PhysicalDamageForm[] physical_types;
+            public DamageEnergyType[] energy_types = new DamageEnergyType[0];
+            public PhysicalDamageForm[] physical_types = new PhysicalDamageForm[0];
 
-            private void RunAction(TargetWrapper target)
+            private void RunAction(UnitEntityData target)
             {
+                if (target == null)
+                {
+                    return;
+                }
                 if (!this.Actions.HasActions)
                     return;
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, target);
@@ -4943,7 +4964,7 @@ namespace CallOfTheWild
 
             public void OnEventDidTrigger(RuleDealDamage evt)
             {
-                var spellbook = Helpers.GetMechanicsContext()?.SourceAbilityContext?.Ability.Spellbook;
+                var spellbook = Helpers.GetMechanicsContext()?.SourceAbilityContext?.Ability?.Spellbook;
                 if (only_from_spell && spellbook == null)
                 {
                     return;

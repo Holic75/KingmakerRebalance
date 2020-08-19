@@ -1843,8 +1843,8 @@ namespace CallOfTheWild
                 return;
             }
 
-            var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
-            if (summoner != null)
+            var summoner = unit?.Get<UnitPartSummonedMonster>()?.Summoner;
+            if (summoner != null && __instance != null)
             {
                 __result = !__instance.IsEnemy(unit) && __instance.IsAlly(summoner);
             }
@@ -1896,7 +1896,11 @@ namespace CallOfTheWild
     {
         static void Postfix(UnitEntityData __instance)
         {
-            var keys = RulePrepareDamage_OnTrigger.spell_target_map.Keys.ToArray();
+            var keys = RulePrepareDamage_OnTrigger.spell_target_map?.Keys?.ToArray();
+            if (keys == null)
+            {
+                return;
+            }
             foreach (var k in keys)
             {
                 if (k.Item1?.MaybeCaster == __instance
