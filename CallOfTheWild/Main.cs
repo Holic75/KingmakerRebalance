@@ -76,8 +76,17 @@ namespace CallOfTheWild
         [System.Diagnostics.Conditional("DEBUG")]
         internal static void DebugLog(string msg)
         {
-            if (logger != null) logger.Log(msg);
+            if (logger != null)
+                logger.Log(msg);
         }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        internal static void TraceLog()
+        {
+            MethodBase m = MethodBase.GetCurrentMethod();
+            logger.Log("Executing {m.ReflectedType.Name}.{m.Name}");
+        }
+
         internal static void DebugError(Exception ex)
         {
             if (logger != null) logger.Log(ex.ToString() + "\n" + ex.StackTrace);
