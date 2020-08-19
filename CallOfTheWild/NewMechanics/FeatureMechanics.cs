@@ -48,6 +48,7 @@ namespace CallOfTheWild.FeatureMechanics
     {
         static bool Prefix(RuleAttackWithWeapon __instance, BlueprintProjectile[] projectiles)
         {
+            Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
             foreach (BlueprintProjectile projectile in projectiles)
             {
@@ -89,6 +90,7 @@ namespace CallOfTheWild.FeatureMechanics
 
         static private Kingmaker.UnitLogic.Feature maybeAddFact(UnitDescriptor descriptor,  BlueprintUnitFact feature, MechanicsContext context, FeatureParam param)
         {
+            Main.TraceLog();
             if (descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(a => a.Param == param))
             {
                 return null;

@@ -813,6 +813,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(AutoMetamagic __instance, BlueprintAbility ability, AbilityData data, ref bool __result)
             {
+                Main.TraceLog();
                 if (__instance is AutoMetamagicExtender)
                 {                   
                     __result = ((AutoMetamagicExtender)__instance).CanBeUsedOn(ability, data);

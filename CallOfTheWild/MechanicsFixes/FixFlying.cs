@@ -40,6 +40,7 @@ namespace CallOfTheWild
     {
         static bool Prefix(RuleCalculateAC __instance, RulebookEventContext context)
         {
+            Main.TraceLog();
             if (__instance.AttackType == Kingmaker.RuleSystem.AttackType.Melee || __instance.AttackType == Kingmaker.RuleSystem.AttackType.Touch)
             {
                 var state = __instance.Target.Descriptor.State;

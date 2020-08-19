@@ -22,6 +22,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(Inventory __instance)
             {
+                Main.TraceLog();
                 UnitEntityData currentCharacter = GroupController.Instance.GetCurrentCharacter();
                 __instance.Placeholder.gameObject.SetActive(currentCharacter.Body.IsPolymorphed);
                 __instance.Sheet.SetCharacter(currentCharacter.Descriptor);
@@ -56,6 +57,7 @@ namespace CallOfTheWild
    
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
+                Main.TraceLog();
                 var tr = Harmony12.Traverse.Create(__instance);
                 tr.Property("CurrentUnit").SetValue(player);
                 if (__instance.CurrentUnit == null)

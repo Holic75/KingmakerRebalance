@@ -61,6 +61,7 @@ namespace CallOfTheWild.StickyTouchMechnics
     {
         static bool Prefix(TouchSpellsController __instance, AbilityExecutionContext context)
         {
+            Main.TraceLog();
             UnitEntityData maybeCaster = context.MaybeCaster;
             if (maybeCaster == null)
                 return false;
@@ -95,6 +96,7 @@ namespace CallOfTheWild.StickyTouchMechnics
     {
         static void Postfix(UnitPartTouch __instance)
         {
+            Main.TraceLog();
             var charges_part = __instance.Owner.Get<UnitPartTouchMultipleCharges>();
             if (charges_part == null)
             {
@@ -111,6 +113,7 @@ namespace CallOfTheWild.StickyTouchMechnics
     {
         static void Postfix(UnitPartTouch __instance, BlueprintAbility ability, AbilityData source, AbilityExecutionContext context)
         {
+            Main.TraceLog();
             var multiple_charges = source.Blueprint.GetComponent<AbilityEffectStickyTouchMultiple>();
             if (multiple_charges != null)
             {

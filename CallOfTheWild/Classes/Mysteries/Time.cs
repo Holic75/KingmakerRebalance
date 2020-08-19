@@ -368,7 +368,7 @@ namespace CallOfTheWild
                                                                 "1 round/ 2 levels",
                                                                 Helpers.fortNegates,
                                                                 Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
-                                                                createClassScalingConfig(progression: ContextRankProgression.Div2),
+                                                                createClassScalingConfig(progression: ContextRankProgression.Div2, min: 1),
                                                                 Helpers.CreateDeliverTouch(),
                                                                 Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat)
                                                                 );

@@ -544,6 +544,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(AddSpecialSpellList __instance)
             {
+                Main.TraceLog();
                 if (__instance.Owner.GetSpellbook(__instance.CharacterClass) == null)
                 {
                     return false;
@@ -560,6 +561,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(AddOppositionSchool __instance)
             {
+                Main.TraceLog();
                 if (__instance.Owner.GetSpellbook(__instance.CharacterClass) == null)
                 {
                     return false;

@@ -245,6 +245,7 @@ namespace CallOfTheWild.ResourceMechanics
     {
         static bool Prefix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, int amount, bool restoreFull, UnitDescriptor ___m_Owner)
         {
+            Main.TraceLog();
             UnitAbilityResource resource = Harmony12.Traverse.Create(__instance).Method("GetResource", blueprint).GetValue<UnitAbilityResource>();
             if (resource == null)
             {
@@ -272,6 +273,7 @@ namespace CallOfTheWild.ResourceMechanics
     {
         static void Postfix(BlueprintAbilityResource __instance, UnitDescriptor unit, ref int __result)
         {
+            Main.TraceLog();
             var min_resource_component = __instance.GetComponent<MinResourceAmount>();
 
             if (min_resource_component == null)

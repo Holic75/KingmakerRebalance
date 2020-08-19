@@ -97,6 +97,7 @@ namespace CallOfTheWild
 
             static void Postfix(UnitPartActivatableAbility __instance)
             {
+                Main.TraceLog();
                 increaseGroupSizeIfNeeded(__instance);
             }
         }

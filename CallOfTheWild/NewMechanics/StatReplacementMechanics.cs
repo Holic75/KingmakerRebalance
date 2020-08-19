@@ -166,6 +166,7 @@ namespace CallOfTheWild.StatReplacementMechanics
 
         static private ModifiableValueAttributeStat getAcStat(CharacterStats character_stats)
         {
+            Main.TraceLog();
             var repalce_ac_part = character_stats.Owner?.Get<UnitPartRplaceACStat>();
 
             if (repalce_ac_part == null || !repalce_ac_part.active())

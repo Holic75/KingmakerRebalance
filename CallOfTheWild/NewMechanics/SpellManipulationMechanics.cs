@@ -554,6 +554,7 @@ namespace CallOfTheWild
         {
             static void Postfix(AbilityData __instance, ref bool __result)
             {
+                Main.TraceLog();
                 if (__result == false)
                 {
                     if (__instance.Blueprint.GetComponent<InferIsFullRoundFromParamSpellSlot>() != null
@@ -1182,6 +1183,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(ActionBarGroupSlot __instance, ref List<AbilityData> ___Conversion, ref ButtonPF ___ToggleAdditionalSpells, AbilityData spell)
             {
+                Main.TraceLog();
                 Spellbook spellBook = spell.Spellbook;
                 if (spellBook == null)
                     return false;
@@ -1365,6 +1367,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(DescriptionTemplatesAbility __instance,  bool isTooltip, DescriptionBricksBox box, AbilityData abilityData)
             {
+                Main.TraceLog();
                 if (abilityData.ParamSpellSlot == null || abilityData.Blueprint.GetComponent<AbilityStoreSpellInFact>() == null)
                 {
                     return true;
@@ -1398,6 +1401,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(TooltipData data, DescriptionBody body, bool isTooltip)
             {
+                Main.TraceLog();
                 if (data.Buff != null)
                 {
                     var stored_spell_caption = data.Buff.Blueprint.GetComponent<AddStoredSpellToCaption>();
@@ -2079,6 +2083,7 @@ namespace CallOfTheWild
         {
             internal static bool Prefix(ModifiableValue __instance , ModifiableValue.Modifier mod)
             {
+                Main.TraceLog();
                 EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierAdd(__instance, mod)));
 
                 return true;

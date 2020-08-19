@@ -729,6 +729,7 @@ namespace CallOfTheWild
     {
         static bool Prefix(UnitPartKineticist __instance, ref AddKineticistPart ___m_Settings)
         {
+            Main.TraceLog();
             if (__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff))
             {
                 return false;
@@ -769,6 +770,7 @@ namespace CallOfTheWild
 
         private static bool shouldReturnToQueue(UnitPartKineticist kineticist, UnitCommand cmd)
         {
+            Main.TraceLog();
             return kineticist.IsActivatingBladeNow || kineticist.Owner.Unit.CombatState.HasCooldownForCommand(cmd);
         }
     }

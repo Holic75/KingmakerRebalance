@@ -34,6 +34,7 @@ namespace CallOfTheWild.WeatherMechanics
     {
         static public void Postfix(UnitEntityData __instance, ref float __result)
         {
+            Main.TraceLog();
             if (Game.Instance.CurrentlyLoadedArea.IsCapital)
             {
                 return;

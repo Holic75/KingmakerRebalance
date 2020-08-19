@@ -224,6 +224,7 @@ namespace CallOfTheWild
         {
             static void Postfix(UnitPartMagus __instance, AbilityData spell, ref bool __result)
             {
+                Main.TraceLog();
                 if (__result == true)
                 {
                     return;

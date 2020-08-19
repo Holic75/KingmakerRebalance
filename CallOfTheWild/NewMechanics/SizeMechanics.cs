@@ -173,6 +173,7 @@ namespace CallOfTheWild.SizeMechanics
     {
         static void Postfix(UnitPartSizeModifier __instance, List<Fact> ___m_SizeChangeFacts)
         {
+            Main.TraceLog();
             Fact fact = ___m_SizeChangeFacts?.LastItem<Fact>();
             var part = __instance?.Owner?.Get<UnitPartSizeOverride>();
             if (fact == null && part != null)
@@ -188,6 +189,7 @@ namespace CallOfTheWild.SizeMechanics
     {
         static void Postfix(ChangeUnitSize __instance, ref Size __result)
         {
+            Main.TraceLog();
             var change_type = Helpers.GetField<int>(__instance, "m_Type");
             var part = __instance?.Owner?.Get<UnitPartSizeOverride>();
             if (change_type == 0 && part != null)
@@ -229,6 +231,7 @@ namespace CallOfTheWild.SizeMechanics
     {
         static bool Prefix(RuleCalculateWeaponStats __instance, RulebookEventContext context)
         {
+            Main.TraceLog();
             __instance.Initiator?.Get<UnitPartDoubleWeaponSize>()?.maybeApply(__instance);
             return true;
         }

@@ -1756,6 +1756,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     {
         static bool Prefix(UnitViewHandsEquipment __instance, HandSlot slot, ItemEntity previousItem)
         {
+            Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
 
             if ( !tr.Property("Active").GetValue<bool>() || tr.Method("GetSlotData", slot).GetValue<UnitViewHandSlotData>() == null)
@@ -1784,6 +1785,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     {
         static void Postfix(ItemEntityWeapon __instance, UnitDescriptor owner, ref bool __result)
         {
+            Main.TraceLog();
             if (__result)
             {
                 return;

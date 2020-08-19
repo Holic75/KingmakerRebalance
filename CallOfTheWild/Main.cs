@@ -78,6 +78,16 @@ namespace CallOfTheWild
         {
             if (logger != null) logger.Log(msg);
         }
+
+        [System.Diagnostics.Conditional("DEBUG")]
+        internal static void TraceLog()
+        {
+            /*if (logger != null)
+            {
+                logger.Log("StackTrace:" + Environment.StackTrace);
+            }*/
+        }
+
         internal static void DebugError(Exception ex)
         {
             if (logger != null) logger.Log(ex.ToString() + "\n" + ex.StackTrace);

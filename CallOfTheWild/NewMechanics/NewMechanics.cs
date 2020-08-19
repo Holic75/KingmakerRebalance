@@ -2493,6 +2493,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(AbilityData __instance, ref bool __state, ref int __result)
             {
+                Main.TraceLog();
                 __state = false;
 
                 if (__instance.StickyTouch != null)
@@ -6796,6 +6797,7 @@ namespace CallOfTheWild
         {
             static void Postfix(FactCollection __instance, ref bool __result, BlueprintFact blueprint)
             {
+                Main.TraceLog();
                 if (!__result)
                 {
                     foreach (var c in blueprint.GetComponents<FeatureReplacement>())

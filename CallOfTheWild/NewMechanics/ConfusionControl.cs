@@ -121,6 +121,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(UnitConfusionController __instance, UnitEntityData unit)
             {
+                Main.TraceLog();
                 var allowed_states = new ConfusionState[0];
                 if (unit.Descriptor.State.HasCondition(UnitCondition.AttackNearest))
                 {

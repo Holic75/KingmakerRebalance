@@ -1039,6 +1039,7 @@ namespace CallOfTheWild
     {
         static public void Postfix(RuleSpellResistanceCheck __instance, ref bool __result)
         {
+            Main.TraceLog();
             if (__result == false && __instance.Target.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff))
             {
                 __result = (__instance.Ability != null) && (__instance.Ability.IsSpell || __instance.Ability.Type == AbilityType.Supernatural);
@@ -1068,6 +1069,7 @@ namespace CallOfTheWild
 
         static private bool hasSr(BlueprintAbilityAreaEffect area, UnitEntityData unit)
         {
+            Main.TraceLog();
             if (unit == null || area == null)
             {
                 return false;

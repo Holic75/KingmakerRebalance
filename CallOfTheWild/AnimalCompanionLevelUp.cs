@@ -27,6 +27,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         internal static bool Prefix(UnitDescriptor __instance, UnitPartsManager ___m_Parts, Dictionary<BlueprintSpellbook, Spellbook> ___m_Spellbooks)
         {
+            Main.TraceLog();
             __instance.Abilities.Dispose();
             __instance.ActivatableAbilities.Dispose();
             __instance.Logic.Dispose();
@@ -51,6 +52,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         internal static bool Prefix(UnitDescriptor __instance, UnitEntityData master, ref UnitReference ___m_Pet)
         {
+            Main.TraceLog();
             if (__instance.Master == null || master == null || __instance.Master == (UnitEntityData)new UnitReference())
             {
                 return true;
@@ -67,6 +69,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         internal static bool Prefix(AddPet __instance, ref int __result)
         {
+            Main.TraceLog();
             var custom_level = __instance.Fact.Blueprint.GetComponent<CompanionMechanics.CustomLevelProgression>();
             if (custom_level == null)
             {
@@ -89,6 +92,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                                                                                         };
         internal static bool Prefix(AddPet __instance)
         {
+            Main.TraceLog();
             if (!__instance.Owner.IsPlayerFaction)
             {
                 return true;

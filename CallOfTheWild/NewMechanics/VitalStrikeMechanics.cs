@@ -136,6 +136,7 @@ namespace CallOfTheWild.VitalStrikeMechanics
     {
         static bool Prefix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
+            Main.TraceLog();
             //allow it to work with elemental damage (?)
             DamageDescription damageDescription = evt.DamageDescription.FirstItem<DamageDescription>();
 
@@ -170,6 +171,7 @@ namespace CallOfTheWild.VitalStrikeMechanics
     {
         static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
+            Main.TraceLog();
             if (evt.AttackWithWeapon != null)
             {
                 evt.AttackWithWeapon.IsFirstAttack = true;

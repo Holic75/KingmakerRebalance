@@ -61,6 +61,7 @@ namespace CallOfTheWild.SkillMechanics
     {
         static bool Prefix(RulePartySkillCheck __instance, bool isTrigger, ref int ___m_D20, ref int ___m_StatValue, StatType ___m_StatType, int ___m_DifficultyClass)
         {
+            Main.TraceLog();
             ___m_StatValue = int.MinValue;
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("Roller").SetValue(null);

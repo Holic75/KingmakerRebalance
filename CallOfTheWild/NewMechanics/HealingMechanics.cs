@@ -282,6 +282,7 @@ namespace CallOfTheWild.HealingMechanics
     {
         static public bool Prefix(ContextActionHealTarget __instance)
         {
+            Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
             var context = tr.Property("Context").GetValue<MechanicsContext>();
             var target = tr.Property("Target").GetValue<TargetWrapper>().Unit;
@@ -363,6 +364,7 @@ namespace CallOfTheWild.HealingMechanics
     {
         static public void Postfix(ContextActionBreathOfLife __instance)
         {
+            Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
             var context = tr.Property("Context").GetValue<MechanicsContext>();
             var target = tr.Property("Target").GetValue<TargetWrapper>().Unit;

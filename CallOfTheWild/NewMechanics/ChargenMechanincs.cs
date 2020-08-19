@@ -25,6 +25,7 @@ namespace CallOfTheWild.ChargenMechanics
 
         static public bool isCustomCompanionAlwaysFalse(UnitDescriptor unit)
         {
+            Main.TraceLog();
             return false;
         }
     }

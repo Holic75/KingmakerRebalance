@@ -35,6 +35,7 @@ namespace CallOfTheWild.UnitViewMechanics
     {
         static bool Prefix(Character originalAvatar, string dollName, DollRoom __instance, ref Character __result, Transform ___m_CharacterPlaceholder)
         {
+            Main.TraceLog();
             try
             {
                 Character character = new GameObject(string.Format("Doll [{0}]", dollName)).AddComponent<Character>();
@@ -82,6 +83,7 @@ namespace CallOfTheWild.UnitViewMechanics
     {
         static void Postfix(EntityDataBase __instance, EntityViewBase view)
         {
+            Main.TraceLog();
             if (view != null)
             {
                 return;

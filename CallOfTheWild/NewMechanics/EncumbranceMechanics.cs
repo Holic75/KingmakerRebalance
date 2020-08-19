@@ -38,6 +38,7 @@ namespace CallOfTheWild.EncumbranceMechanics
     {
         static void Postfix(UnitDescriptor owner, Encumbrance encumbrance, ref int __result)
         {
+            Main.TraceLog();
             if (__result < 0 && owner.Get<UnitPartIgnoreEncumbrance>()?.active() == true)
             {
                 __result = 0;

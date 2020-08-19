@@ -63,6 +63,7 @@ namespace CallOfTheWild.TravelMap
     {
         static void Postfix(ref float __result)
         {
+            Main.TraceLog();
             float max_speed_multiplier = 0.0f;
             foreach (var u in Game.Instance.Player.PartyCharacters)
             {

@@ -162,6 +162,7 @@ namespace CallOfTheWild.SpellFailureMechanics
     {
         static bool Prefix(AbilityData __instance, ref SpellSource __result)
         {
+            Main.TraceLog();
             SpellTypeOverride component = __instance.Blueprint.GetComponent<SpellTypeOverride>();
             if ((bool)((UnityEngine.Object)component))
             {

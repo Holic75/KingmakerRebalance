@@ -33,14 +33,13 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
         static void Postfix(ItemEntityWeapon __instance, ref bool __result)
         {
+            Main.TraceLog();
             bool spell_combat = false;
             UnitPartMagus unit_part_magus = __instance.Wielder?.Get<UnitPartMagus>();
             if ((bool)(unit_part_magus) && unit_part_magus.SpellCombat.Active)
             {
                 spell_combat = true;
             }
-
-
 
             if (__instance.Blueprint.IsTwoHanded
                 || (__instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands && __result == false))
@@ -78,6 +77,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static bool Prefix(HandSlot __instance)
         {
+            Main.TraceLog();
             var unit_part = __instance.Owner?.Get<UnitPartCanHold2hWeaponIn1h>();
 
             if (unit_part == null)
@@ -509,6 +509,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static void Postfix(UnitDescriptor unit, ref bool __result)
         {
+            Main.TraceLog();
             if (__result == false)
             {//check buckler with unhindering shield
                 __result = unit.Body.SecondaryHand.HasItem && Helpers.hasFreeHand(unit.Body.SecondaryHand);
@@ -543,6 +544,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static bool Prefix(MonkNoArmorFeatureUnlock __instance)
         {
+            Main.TraceLog();
             if (!Helpers.hasShield2(__instance.Owner.Body.SecondaryHand) && (!__instance.Owner.Body.Armor.HasArmor || !__instance.Owner.Body.Armor.Armor.Blueprint.IsArmor))
             {
                 __instance.AddFact();
@@ -632,6 +634,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static bool Prefix(RestrictionCanGatherPower __instance, ref bool __result)
         {
+            Main.TraceLog();
             __result = getResult(__instance);
             return false;
         }
@@ -670,6 +673,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static void Postfix(ItemEntityWeapon __instance, bool forDollRoom, ref WeaponAnimationStyle __result)
         {
+            Main.TraceLog();
             if (__instance == null)
             {
                 return;
@@ -721,6 +725,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static bool Prefix(UnitViewHandsEquipment __instance)
         {
+            Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
 
             if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
@@ -740,6 +745,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
         //signal weapon set change to notify that weapons could have been changed
         static void Postfix(UnitBody __instance, BlueprintItemWeapon weapon)
         {
+            Main.TraceLog();
             UnitBody__SetEmptyHandWeapon__Patch.no_animation_action = true;
             EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
             UnitBody__SetEmptyHandWeapon__Patch.no_animation_action = false;

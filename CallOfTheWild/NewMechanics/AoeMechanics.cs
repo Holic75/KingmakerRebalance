@@ -58,7 +58,8 @@ namespace CallOfTheWild.AoeMechanics
     class AbilityData__WouldCurrentlyTarget__Patch
     {
         static void Postfix(AbilityData __instance, Vector3 targetPos, UnitEntityData unit, ref bool __result)
-        {         
+        {
+            Main.TraceLog();
             if (!__result)
             {
                 return;
@@ -78,6 +79,7 @@ namespace CallOfTheWild.AoeMechanics
     {
         static void Postfix(AbilityAoERange __instance, ref bool __result, Ability ___Ability)
         {
+            Main.TraceLog();
             //Disable AbilityAoERange for wall spells
             if (___Ability != null && ___Ability.Blueprint.GetComponent<AbilityRectangularAoeVisualizer>() != null)
             {

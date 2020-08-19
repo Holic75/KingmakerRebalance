@@ -28,12 +28,14 @@ namespace CallOfTheWild.AttackReplacementMechanics
     {
         static bool Prefix(UnitAttack __instance)
         {
+            Main.TraceLog();
             __instance.Executor.Descriptor.Ensure<FullAttackWatcherUnitPart>().is_full_attack = true;
             return true;
         }
 
         static void Postfix(UnitAttack __instance)
         {
+            Main.TraceLog();
             __instance.Executor.Descriptor.Ensure<FullAttackWatcherUnitPart>().is_full_attack = false;
         }
     }

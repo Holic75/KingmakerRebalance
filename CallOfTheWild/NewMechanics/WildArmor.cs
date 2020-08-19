@@ -47,6 +47,7 @@ namespace CallOfTheWild.WildArmorMechanics
         static public BlueprintItem thundering_claw = Main.library.Get<BlueprintItem>("e5b46c4b36c2ca74d8a30f68a93bc77c");
         static public void Postfix(UnitBody __instance)
         {
+            Main.TraceLog();
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
             {
                 if (__instance.Armor.HasArmor && hasWildEnchant(__instance.Armor.Armor))
@@ -102,6 +103,7 @@ namespace CallOfTheWild.WildArmorMechanics
         static public BlueprintItem thundering_claw = Main.library.Get<BlueprintItem>("e5b46c4b36c2ca74d8a30f68a93bc77c");
         static public void Prefix(UnitBody __instance)
         {
+            Main.TraceLog();
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
             {
                 if (__instance.Armor.HasArmor && Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(__instance.Armor.Armor))

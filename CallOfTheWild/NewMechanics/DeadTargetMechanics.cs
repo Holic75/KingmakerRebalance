@@ -281,6 +281,7 @@ namespace CallOfTheWild.DeadTargetMechanics
     {
         static void Postfix(BlueprintAbility __instance, ref bool __result)
         {
+            Main.TraceLog();
             __result = __result || __instance.GetComponent<AbilityTargetRecentlyDead>() != null || __instance.GetComponent<AbilityTargetCanBeAnimated>();
         }
     }

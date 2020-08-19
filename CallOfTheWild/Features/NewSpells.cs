@@ -8209,6 +8209,7 @@ namespace CallOfTheWild
         {
             static bool Prefix(SpellLevelList __instance)
             {
+                Main.TraceLog();
                 var tr = Harmony12.Traverse.Create(__instance);
                 tr.Field("m_SpellsFiltered").SetValue(null).GetValue();
                 return true;
