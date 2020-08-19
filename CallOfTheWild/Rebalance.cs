@@ -1844,6 +1844,10 @@ namespace CallOfTheWild
             }
 
             var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+            if (summoner == unit)
+            {
+                return;
+            }
             if (summoner != null)
             {
                 __result = !__instance.IsEnemy(unit) && __instance.IsAlly(summoner);

@@ -207,7 +207,8 @@ namespace CallOfTheWild
                                                        + "Spell Recollection d100 effects:\n"
                                                        + "01-10: The amnesiac is unable to cast spells this round.\n"
                                                        + "11-35: The amnesiac can’t remember the new spell (but can still cast spells this round).\n"
-                                                       + "36+  : The amnesiac remembers and can cast the new spell.",
+                                                       + "36-95: The amnesiac remembers and can cast the new spell.\n"
+                                                       + "96+  : As 36-95, but amnesia slot is not expended.",
                                                        "",
                                                        Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"),
                                                        FeatureGroup.None);
@@ -222,7 +223,13 @@ namespace CallOfTheWild
 
             var apply_spellcsting_forbidden_buff = Common.createContextActionApplyBuff(forbid_spellcasting_buff, Helpers.CreateContextDuration(1), dispellable: false);
 
-
+            var amnesiac_cooldown_buff = Helpers.CreateBuff("SpellRecollectionCooldownBuff",
+                                                            "Spell Recollection Cooldown",
+                                                            spell_recollection.Description,
+                                                            "6a8651389c6348bb819b41b8ecdfe9fe",
+                                                            spell_recollection.Icon,
+                                                            null);
+            var apply_cooldown = Common.createContextActionApplyBuff(amnesiac_cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             for (int i = 1; i <= 9; i++)
             {
                 var spell_recollection_ability = Helpers.CreateAbility($"SpellRecollection{i}BaseAbility",
@@ -289,13 +296,19 @@ namespace CallOfTheWild
                                                                                  {
                                                                                      r.actions = new ActionList[]
                                                                                      {
-                                                                                         Helpers.CreateActionList(apply_spellcsting_forbidden_buff),
-                                                                                         null,
-                                                                                         Helpers.CreateActionList(apply_buff)
+                                                                                         Helpers.CreateActionList(apply_spellcsting_forbidden_buff, apply_cooldown),
+                                                                                          Helpers.CreateActionList(apply_cooldown),
+                                                                                         Helpers.CreateActionList(apply_buff, apply_cooldown),
+                                                                                         Helpers.CreateActionList(apply_buff,
+                                                                                                                  Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource),
+                                                                                                                  apply_cooldown
+                                                                                                                 )
                                                                                      };
-                                                                                     r.thresholds = new int[] { 10, 36, 1000 };
+                                                                                     r.thresholds = new int[] { 10, 35, 95, 1000 };
+                                                                                     r.in_combat_bonus = Helpers.CreateContextDiceValue(DiceType.D10, 1, 0);
                                                                                  })
-                                                                                 )
+                                                                                 ),
+                                                         Common.createAbilityCasterHasNoFacts(amnesiac_cooldown_buff)
                                                          );
                     ability.setMiscAbilityParametersSelfOnly();
                     spell_recollection_ability.addToAbilityVariants(ability);
