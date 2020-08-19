@@ -383,10 +383,21 @@ namespace CallOfTheWild
             skilled_half_orc.SetDescription("Half-orcs gain an additional skill rank at every even level.");
         }
 
-        internal static void fixCompanions()
+        internal static void fixCompanionsEkun()
         {
-            //change stats of certain companions
-            //Valerie 
+            var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
+            ekun_companion.Strength = 14;
+            ekun_companion.Constitution = 12;
+            ekun_companion.Dexterity = 17;
+            ekun_companion.Wisdom = 14;
+            ekun_companion.Charisma = 10;
+            var ekun_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0bc6dc9b6648a744899752508addae8c");
+            var ekun_class_level = ekun_feature.GetComponent<AddClassLevels>();
+            ekun_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;            
+        }
+
+        internal static void fixCompanionsValerie() 
+        {
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
             valerie_companion.Strength = 16;//+2
             valerie_companion.Dexterity = 10;
@@ -417,8 +428,11 @@ namespace CallOfTheWild
                     }
                 }
             };
-            SaveGameFix.save_game_actions.Add(fix_action2);
-            //change amiri stats
+            SaveGameFix.save_game_actions.Add(fix_action2);           
+        }
+
+        internal static void fixCompanionsAmiri()
+        {
             var amiri_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b3f29faef0a82b941af04f08ceb47fa2");
             amiri_companion.Strength = 17;//+2
             amiri_companion.Dexterity = 12;
@@ -432,8 +446,11 @@ namespace CallOfTheWild
             amiri_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Strength;
             amiri_class_level.Selections[0].Features[1] = library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5");
             //amiri_class_level.Selections[0].Features[1] = NewFeats.furious_focus;
-            amiri_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreNature };
-            //change tristian stats
+            amiri_class_level.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillAthletics, StatType.SkillLoreNature };            
+        }
+
+        internal static void fixCompanionsTristian()
+        {
             var tristian_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f6c23e93512e1b54dba11560446a9e02");
             tristian_companion.Strength = 10;
             tristian_companion.Dexterity = 14;
@@ -449,6 +466,10 @@ namespace CallOfTheWild
             tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
             tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
             tristian_level.Levels = 1;
+        }
+
+        internal static void fixCompanionsHarrim()
+        {
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
             harrim_companion.Strength = 17;
             harrim_companion.Constitution = 12;
@@ -504,8 +525,10 @@ namespace CallOfTheWild
 
             harrim_feature.GetComponent<AddFacts>().Facts = harrim_feature.GetComponent<AddFacts>().Facts.Take(1).ToArray();
             //harrim_class_level.Selections[3].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("9ebe166b9b901c746b1858029f13a2c5"); //madness domain instead of chaos
+        }
 
-            //change linzi
+        internal static void fixCompanionsLinzi()
+        {
             var linzi_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("77c11edb92ce0fd408ad96b40fd27121");
             linzi_companion.Dexterity = 15;
             linzi_companion.Charisma = 16;
@@ -515,7 +538,10 @@ namespace CallOfTheWild
             var linzi_class_levels = linzi_feature.GetComponent<AddClassLevels>();
             linzi_class_levels.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillThievery, StatType.SkillKnowledgeArcana, StatType.SkillMobility };
             linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extra performance
-            //change octavia
+        }
+
+        internal static void fixCompanionsOctavia()
+        {
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
             octavia_companion.Intelligence = 17;
@@ -563,8 +589,11 @@ namespace CallOfTheWild
                     buff.Remove();
                 }
             };
-            SaveGameFix.save_game_actions.Add(fix_action);
-            //change regongar
+            SaveGameFix.save_game_actions.Add(fix_action);        
+        }
+
+        internal static void fixCompanionsRegongar()
+        {
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
             var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
@@ -580,31 +609,29 @@ namespace CallOfTheWild
                                                                                     Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
                                                                                 }
                                                                               );
+        }
 
-            //change ekun
-            var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
-            ekun_companion.Strength = 14;
-            ekun_companion.Constitution = 12;
-            ekun_companion.Dexterity = 17;
-            ekun_companion.Wisdom = 14;
-            ekun_companion.Charisma = 10;
-            var ekun_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0bc6dc9b6648a744899752508addae8c");
-            var ekun_class_level = ekun_feature.GetComponent<AddClassLevels>();
-            ekun_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
-            //change jubilost
+        internal static void fixCompanionsJubilost()
+        {
             var jubilost_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("3f5777b51d301524c9b912812955ee1e");
             jubilost_companion.Dexterity = 16;
             jubilost_companion.Wisdom = 10;
             jubilost_companion.Intelligence = 17;
             jubilost_companion.Constitution = 12;
-            //change nok-nok
+        }
+
+        internal static void fixCompanionsNokNok()
+        {
             var noknok_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9417988783876044b76f918f8636455");
             noknok_companion.Strength = 11;
             noknok_companion.Constitution = 14;
             noknok_companion.Wisdom = 10;
             noknok_companion.GetComponent<AddClassLevels>().Levels = 1;
             noknok_companion.GetComponent<AddClassLevels>().Skills = new StatType[] { StatType.SkillMobility, StatType.SkillThievery, StatType.SkillPerception, StatType.SkillStealth, StatType.SkillUseMagicDevice, StatType.SkillLoreNature, StatType.SkillAthletics };
-            //change jaethal to archer
+        }
+
+        internal static void fixCompanionsJaethal()
+        {
             var jaethal_feature_list = library.Get<BlueprintFeature>("34280596dd550074ca55bd15285451b3");
             var jaethal_selections = jaethal_feature_list.GetComponent<AddClassLevels>();
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
@@ -620,6 +647,43 @@ namespace CallOfTheWild
             jaethal_unit.Constitution = 12;
             jaethal_selections.LevelsStat = StatType.Dexterity;
             jaethal_unit.Body.PrimaryHandAlternative1 = library.Get<BlueprintItemWeapon>("7998cd1409fe1194583b64180df4f216"); //composite longbow
+        }
+
+        internal static void fixCompanions()
+        {
+            //change stats of certain companions
+            //Valerie 
+            fixCompanionsValerie();
+
+            //change amiri stats
+            fixCompanionsAmiri();
+
+            //change tristian stats
+            fixCompanionsTristian();
+
+            //change harrim stats
+            fixCompanionsHarrim();
+
+            //change linzi
+            fixCompanionsLinzi();
+
+            //change octavia
+            fixCompanionsOctavia();
+
+            //change regongar
+            fixCompanionsRegongar();
+
+            //change ekun
+            fixCompanionsEkun();
+
+            //change jubilost
+            fixCompanionsJubilost();
+
+            //change nok-nok
+            fixCompanionsNokNok();
+
+            //change jaethal to archer
+            fixCompanionsJaethal();
 
             var varn_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e83a03d50fedd35449042ce73f1b6908");
             var varn_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("2babd2d4687b5ee428966322eccfe4b6");

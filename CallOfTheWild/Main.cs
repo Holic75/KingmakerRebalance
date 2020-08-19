@@ -23,6 +23,17 @@ namespace CallOfTheWild
         internal class Settings
         {
             internal bool update_companions { get; }
+            internal bool update_companions_amiri { get; }
+            internal bool update_companions_ekun { get; }
+            internal bool update_companions_harrim { get; }
+            internal bool update_companions_jaethal { get; }
+            internal bool update_companions_jubilost { get; }
+            internal bool update_companions_linzi { get; }
+            internal bool update_companions_nok_nok { get; }
+            internal bool update_companions_octavia { get; }
+            internal bool update_companions_regongar { get; }
+            internal bool update_companions_tristian { get; }
+            internal bool update_companions_valerie { get; }
             internal bool nerf_animal_companion { get; }
             internal bool reduce_skill_points { get; }
             internal bool sacred_huntsmaster_animal_focus { get; }
@@ -46,6 +57,17 @@ namespace CallOfTheWild
                 {
                     JObject jo = (JObject)JToken.ReadFrom(reader);
                     update_companions = (bool)jo["update_companions"];
+                    update_companions_amiri = (bool)jo["update_companions_amiri"];
+                    update_companions_ekun = (bool)jo["update_companions_ekun"];
+                    update_companions_harrim = (bool)jo["update_companions_harrim"];
+                    update_companions_jaethal = (bool)jo["update_companions_jaethal"]
+                    update_companions_jubilost = (bool)jo["update_companions_jubilost"]
+                    update_companions_linzi = (bool)jo["update_companions_linzi"];
+                    update_companions_nok_nok = (bool)jo["update_companions_nok_nok"];
+                    update_companions_octavia = (bool)jo["update_companions_octavia"];
+                    update_companions_regongar = (bool)jo["update_companions_regongar"];
+                    update_companions_tristian = (bool)jo["update_companions_tristian"];
+                    update_companions_valerie = (bool)jo["update_companions_valerie"];
                     //nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
@@ -343,8 +365,64 @@ namespace CallOfTheWild
 
                     if (settings.update_companions)
                     {
-                        Main.logger.Log("Updating companion stats.");
+                        Main.logger.Log("Updating ALL companion stats.");
                         CallOfTheWild.Rebalance.fixCompanions();
+                    } else {
+                        if (settings.update_companions_valerie)
+                        {
+                            Main.logger.Log("Updating companion stats for: Valerie.");
+                            CallOfTheWild.Rebalance.fixCompanionsValerie();
+                        }
+                        if (settings.update_companions_amiri)
+                        {
+                            Main.logger.Log("Updating companion stats for: Amiri.");
+                            CallOfTheWild.Rebalance.fixCompanionsAmiri();
+                        }
+                        if (settings.update_companions_tristian)
+                        {
+                            Main.logger.Log("Updating companion stats for: Tristian.");
+                            CallOfTheWild.Rebalance.fixCompanionsTristian();
+                        }
+                        if (settings.update_companions_harrim)
+                        {
+                            Main.logger.Log("Updating companion stats for: Harrim.");
+                            CallOfTheWild.Rebalance.fixCompanionsHarrim();
+                        }
+                        if (settings.update_companions_linzi)
+                        {
+                            Main.logger.Log("Updating companion stats for: Linzi.");
+                            CallOfTheWild.Rebalance.fixCompanionsLinzi();
+                        }
+                        if (settings.update_companions_octavia)
+                        {
+                            Main.logger.Log("Updating companion stats for: Octavia.");
+                            CallOfTheWild.Rebalance.fixCompanionsOctavia();
+                        }
+                        if (settings.update_companions_regongar)
+                        {
+                            Main.logger.Log("Updating companion stats for: Regongar.");
+                            CallOfTheWild.Rebalance.fixCompanionsRegongar();
+                        }
+                        if (settings.update_companions_ekun)
+                        {
+                            Main.logger.Log("Updating companion stats for: Ekun.");
+                            CallOfTheWild.Rebalance.fixCompanionsEkun();
+                        }
+                        if (settings.update_companions_jubilost)
+                        {
+                            Main.logger.Log("Updating companion stats for: Jubilost.");
+                            CallOfTheWild.Rebalance.fixCompanionsJubilost();
+                        }
+                        if (settings.update_companions_nok_nok)
+                        {
+                            Main.logger.Log("Updating companion stats for: Nok-Nok.");
+                            CallOfTheWild.Rebalance.fixCompanionsNokNok();
+                        }
+                        if (settings.update_companions_jaethal)
+                        {
+                            Main.logger.Log("Updating companion stats for: Jaethal.");
+                            CallOfTheWild.Rebalance.fixCompanionsJaethal();
+                        }
                     }
 
                     Main.logger.Log("metamagic_for_spontaneous_spell_conversion:" +settings.metamagic_for_spontaneous_spell_conversion.ToString());
