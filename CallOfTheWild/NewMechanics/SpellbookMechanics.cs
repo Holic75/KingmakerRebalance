@@ -358,7 +358,7 @@ namespace CallOfTheWild.SpellbookMechanics
             var comp = spell.GetComponent<SpellbookMechanics.SpellUndercast>();
             if (comp != null)
             {
-                foreach (var s in comp.undercast_abilities)
+                foreach (var s in comp.getExtraAbilities())
                 {
                     if (!spellbook.IsKnown(s))
                     {
@@ -512,6 +512,14 @@ namespace CallOfTheWild.SpellbookMechanics
     public class SpellUndercast: BlueprintComponent
     {
         public BlueprintAbility[] undercast_abilities = new BlueprintAbility[0];
+        public BlueprintAbility[] overcast_abilities = new BlueprintAbility[0];
+
+        public BlueprintAbility[] getExtraAbilities()
+        {
+            return undercast_abilities.AddToArray(overcast_abilities);
+        }
+
+
         public int getRank()
         {
             return undercast_abilities.Length;
@@ -546,7 +554,7 @@ namespace CallOfTheWild.SpellbookMechanics
                     continue;
                 }
 
-                var undercast_spells = comp.undercast_abilities;
+                var undercast_spells = comp.getExtraAbilities();
                 foreach (var us in undercast_spells)
                 {
                     var sl = sb.Blueprint.SpellList.GetLevel(us);
