@@ -101,7 +101,7 @@ namespace CallOfTheWild
                                                                                     (14, 10),
                                                                                     (20, 20)
                                                                                 }),
-                                                Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, ContextValueType.Rank),
+                                                Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
                                                 Helpers.Create<AddDamageResistanceEnergy>(a =>
                                                 {
                                                     a.Type = energy;

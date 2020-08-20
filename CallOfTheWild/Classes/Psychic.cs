@@ -138,14 +138,14 @@ namespace CallOfTheWild
             psychic_class.IsDivineCaster = false;
             psychic_class.IsArcaneCaster = false;
             psychic_class.StartingGold = wizard_class.StartingGold;
-            psychic_class.PrimaryColor = sorceror_class.PrimaryColor;
-            psychic_class.SecondaryColor = sorceror_class.SecondaryColor;
+            psychic_class.PrimaryColor = wizard_class.PrimaryColor;
+            psychic_class.SecondaryColor = wizard_class.SecondaryColor;
             psychic_class.RecommendedAttributes = wizard_class.RecommendedAttributes;
             psychic_class.NotRecommendedAttributes = wizard_class.NotRecommendedAttributes;
-            psychic_class.EquipmentEntities = sorceror_class.EquipmentEntities;
-            psychic_class.MaleEquipmentEntities = sorceror_class.MaleEquipmentEntities;
-            psychic_class.FemaleEquipmentEntities = sorceror_class.FemaleEquipmentEntities;
-            psychic_class.ComponentsArray = wizard_class.ComponentsArray;
+            psychic_class.EquipmentEntities = wizard_class.EquipmentEntities;
+            psychic_class.MaleEquipmentEntities = wizard_class.MaleEquipmentEntities;
+            psychic_class.FemaleEquipmentEntities = wizard_class.FemaleEquipmentEntities;
+            psychic_class.ComponentsArray = sorceror_class.ComponentsArray;
             psychic_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("63caf94a780472b448f50d0bc183c38f"), //s. magic missile
@@ -207,7 +207,8 @@ namespace CallOfTheWild
                                                        + "Spell Recollection d100 effects:\n"
                                                        + "01-10: The amnesiac is unable to cast spells this round.\n"
                                                        + "11-35: The amnesiac can’t remember the new spell (but can still cast spells this round).\n"
-                                                       + "36+  : The amnesiac remembers and can cast the new spell.",
+                                                       + "36-95: The amnesiac remembers and can cast the new spell.\n"
+                                                       + "96+  : As 36-95, but amnesia slot is not expended.",
                                                        "",
                                                        Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"),
                                                        FeatureGroup.None);
@@ -222,7 +223,13 @@ namespace CallOfTheWild
 
             var apply_spellcsting_forbidden_buff = Common.createContextActionApplyBuff(forbid_spellcasting_buff, Helpers.CreateContextDuration(1), dispellable: false);
 
-
+            var amnesiac_cooldown_buff = Helpers.CreateBuff("SpellRecollectionCooldownBuff",
+                                                            "Spell Recollection Cooldown",
+                                                            spell_recollection.Description,
+                                                            "6a8651389c6348bb819b41b8ecdfe9fe",
+                                                            spell_recollection.Icon,
+                                                            null);
+            var apply_cooldown = Common.createContextActionApplyBuff(amnesiac_cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             for (int i = 1; i <= 9; i++)
             {
                 var spell_recollection_ability = Helpers.CreateAbility($"SpellRecollection{i}BaseAbility",
@@ -289,13 +296,19 @@ namespace CallOfTheWild
                                                                                  {
                                                                                      r.actions = new ActionList[]
                                                                                      {
-                                                                                         Helpers.CreateActionList(apply_spellcsting_forbidden_buff),
-                                                                                         null,
-                                                                                         Helpers.CreateActionList(apply_buff)
+                                                                                         Helpers.CreateActionList(apply_spellcsting_forbidden_buff, apply_cooldown),
+                                                                                          Helpers.CreateActionList(apply_cooldown),
+                                                                                         Helpers.CreateActionList(apply_buff, apply_cooldown),
+                                                                                         Helpers.CreateActionList(apply_buff,
+                                                                                                                  Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource),
+                                                                                                                  apply_cooldown
+                                                                                                                 )
                                                                                      };
-                                                                                     r.thresholds = new int[] { 10, 36, 1000 };
+                                                                                     r.thresholds = new int[] { 10, 35, 95, 1000 };
+                                                                                     r.in_combat_bonus = Helpers.CreateContextDiceValue(DiceType.D10, 1, 0);
                                                                                  })
-                                                                                 )
+                                                                                 ),
+                                                         Common.createAbilityCasterHasNoFacts(amnesiac_cooldown_buff)
                                                          );
                     ability.setMiscAbilityParametersSelfOnly();
                     spell_recollection_ability.addToAbilityVariants(ability);
@@ -716,6 +729,7 @@ namespace CallOfTheWild
 
         static void createPsychicProgression()
         {
+            var deity = Main.library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
             createPsychicProficiencies();
             createPhrenicAmplification();
             createPsychicDisiciplines();
@@ -735,7 +749,6 @@ namespace CallOfTheWild
                                                                                         phrenic_amplification,
                                                                                         psychic_spellcasting,
                                                                                         phrenic_pool,
-                                                                                        deity,
                                                                                         library.Get<BlueprintFeature>("0aeba56961779e54a8a0f6dedef081ee"), //inside the storm
                                                                                         library.Get<BlueprintFeature>("9fc9813f569e2e5448ddc435abf774b3"), //full caster feature
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature

@@ -41,12 +41,12 @@ namespace CallOfTheWild
             if (archetype == null)
             {
                 return Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression, type, min, max, startLevel, stepLevel, false,
-                                                      StatType.Unknown, null, classes, null);
+                                                      StatType.Unknown, null, classes, null, customProgression: customProgression);
             }
             else
             {
                 return Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype, progression, type, min, max, startLevel, stepLevel, false,
-                                      StatType.Unknown, null, classes, archetype);
+                                      StatType.Unknown, null, classes, archetype, customProgression: customProgression);
             }
         }
 

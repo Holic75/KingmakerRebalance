@@ -1846,12 +1846,12 @@ namespace CallOfTheWild
                 return;
             }
 
-            var summoner = unit?.Get<UnitPartSummonedMonster>()?.Summoner;
+            var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
             if (summoner == unit)
             {
                 return;
             }
-            if (summoner != null && __instance != null)
+            if (summoner != null)
             {
                 __result = !__instance.IsEnemy(unit) && __instance.IsAlly(summoner);
             }
