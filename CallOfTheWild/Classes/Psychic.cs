@@ -729,7 +729,6 @@ namespace CallOfTheWild
 
         static void createPsychicProgression()
         {
-            var deity = Main.library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
             createPsychicProficiencies();
             createPhrenicAmplification();
             createPsychicDisiciplines();

@@ -80,12 +80,6 @@ namespace CallOfTheWild
                 logger.Log(msg);
         }
 
-        [System.Diagnostics.Conditional("DEBUG")]
-        internal static void TraceLog()
-        {
-            MethodBase m = MethodBase.GetCurrentMethod();
-            logger.Log("Executing {m.ReflectedType.Name}.{m.Name}");
-        }
 
         [System.Diagnostics.Conditional("DEBUG")]
         internal static void TraceLog()
