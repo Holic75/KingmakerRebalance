@@ -267,7 +267,7 @@ namespace CallOfTheWild
                     var buff = Helpers.CreateBuff($"SpellRecollection{i}" + s.name + "Buff",
                                                   "",
                                                   "",
-                                                  "",
+                                                  Helpers.GuidStorage.hasStoredGuid($"SpellRecollection{i}" + s.name + "Buff") ? "" : Helpers.MergeIds("63c05fe75c4f4d79b71e4ffde4fa9752", s.AssetGuid),
                                                   null,
                                                   null,
                                                   Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = resource)),
@@ -281,7 +281,7 @@ namespace CallOfTheWild
                     var ability = Helpers.CreateAbility($"SpellRecollection{i}" + s.name,
                                                          spell_recollection_ability.Name + " (" + s.Name + ")",
                                                          s.Description,
-                                                         "",
+                                                         Helpers.GuidStorage.hasStoredGuid($"SpellRecollection{i}" + s.name) ? "" : Helpers.MergeIds("b82a9118725941b8b48a34b9cfff93f0", s.AssetGuid),
                                                          s.Icon,
                                                          AbilityType.Extraordinary,
                                                          CommandType.Swift,
@@ -1667,6 +1667,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.command.AssetGuid, 1),
                 new Common.SpellId( "8e7cfa5f213a90549aadd18f8f6f4664", 1), //ear-piercing scream
                 new Common.SpellId( "c60969e7f264e6d4b84a1499fdcf9039", 1), //enlarge person
+                new Common.SpellId( "4f8181e7a7f1d904fbaea64220e83379", 1), //expeditious retreat
                 new Common.SpellId( "39a602aa80cc96f4597778b6d4d49c0a", 1), //flare burst
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( Witch.ill_omen.AssetGuid, 1),
