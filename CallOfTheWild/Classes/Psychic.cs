@@ -89,8 +89,7 @@ namespace CallOfTheWild
 
         static public BlueprintArchetype magaambyan_telepath;
         static public BlueprintArchetype starseeker;
-        static public BlueprintArchetype psychic_marauder;
-        static public BlueprintArchetype terror_weaver;
+        static public BlueprintArchetype mutation_mind;
         static public BlueprintArchetype amnesiac;
 
         static public BlueprintFeature phrenic_mastery;
@@ -628,7 +627,7 @@ namespace CallOfTheWild
             addConstellationToWrittenInStarsAbility(rider_spell_list, "Rider", "The Rider");
             addConstellationToWrittenInStarsAbility(patriarch_spell_list, "Patriarch", "The Patriarch");
             addConstellationToWrittenInStarsAbility(wagon_spell_list, "Wagon", "The Wagon");
-            addConstellationToWrittenInStarsAbility(wagon_spell_list, "Pack", "The Pack");
+            addConstellationToWrittenInStarsAbility(pack_spell_list, "Pack", "The Pack");
             addConstellationToWrittenInStarsAbility(mother_spell_list, "Mother", "The Mother");
             addConstellationToWrittenInStarsAbility(stranger_spell_list, "Stranger", "The Stranger");
             addConstellationToWrittenInStarsAbility(follower_spell_list, "Follower", "The Follower");
@@ -794,10 +793,8 @@ namespace CallOfTheWild
             createFaithDisicipline();
             createPsychedeliaDisicipline();
             createPainDiscipline();
-            //rebirth
-            //self perfeciton
-            //ferocity
-            //rivethun ?
+            //pageantry
+            //ferocity?
         }
 
 
