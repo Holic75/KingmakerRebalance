@@ -138,14 +138,14 @@ namespace CallOfTheWild
             psychic_class.IsDivineCaster = false;
             psychic_class.IsArcaneCaster = false;
             psychic_class.StartingGold = wizard_class.StartingGold;
-            psychic_class.PrimaryColor = sorceror_class.PrimaryColor;
-            psychic_class.SecondaryColor = sorceror_class.SecondaryColor;
+            psychic_class.PrimaryColor = wizard_class.PrimaryColor;
+            psychic_class.SecondaryColor = wizard_class.SecondaryColor;
             psychic_class.RecommendedAttributes = wizard_class.RecommendedAttributes;
             psychic_class.NotRecommendedAttributes = wizard_class.NotRecommendedAttributes;
-            psychic_class.EquipmentEntities = sorceror_class.EquipmentEntities;
-            psychic_class.MaleEquipmentEntities = sorceror_class.MaleEquipmentEntities;
-            psychic_class.FemaleEquipmentEntities = sorceror_class.FemaleEquipmentEntities;
-            psychic_class.ComponentsArray = wizard_class.ComponentsArray;
+            psychic_class.EquipmentEntities = wizard_class.EquipmentEntities;
+            psychic_class.MaleEquipmentEntities = wizard_class.MaleEquipmentEntities;
+            psychic_class.FemaleEquipmentEntities = wizard_class.FemaleEquipmentEntities;
+            psychic_class.ComponentsArray = sorceror_class.ComponentsArray;
             psychic_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("63caf94a780472b448f50d0bc183c38f"), //s. magic missile
