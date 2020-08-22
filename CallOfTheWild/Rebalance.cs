@@ -452,9 +452,13 @@ namespace CallOfTheWild
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
             harrim_companion.Strength = 17;
             harrim_companion.Constitution = 12;
+            harrim_companion.Intelligence = 10;
             harrim_companion.Charisma = 10;
-            harrim_companion.Wisdom = 16;
-            harrim_companion.Dexterity = 10;
+            harrim_companion.Wisdom = 14;
+            harrim_companion.Dexterity = 14;
+            harrim_companion.Body.PrimaryHand = null;
+            harrim_companion.Body.SecondaryHand = null;
+            harrim_companion.Body.Armor = null;
             harrim_companion.Body.PrimaryHandAlternative1 = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Items.Weapons.BlueprintItemWeapon>("7f7c8e1e4fdd99e438b30ed9622e9e3f");//heavy flail
 
 
@@ -463,7 +467,10 @@ namespace CallOfTheWild
 
             var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
             harrim_class_level.CharacterClass = Warpriest.warpriest_class;
-            harrim_class_level.Selections[0].Features = new BlueprintFeature[] {NewFeats.weapon_of_the_chosen,
+            harrim_class_level.Archetypes = new BlueprintArchetype[] { Warpriest.sacred_fist_archetype };
+            harrim_class_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
+            harrim_class_level.Selections[0].Features = new BlueprintFeature[] { library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"),//wf
+                                                                                 NewFeats.weapon_of_the_chosen,
                                                                                  NewFeats.improved_weapon_of_the_chosen,
                                                                                  NewFeats.greater_weapon_of_the_chosen,
                                                                                  NewFeats.furious_focus,
@@ -478,7 +485,7 @@ namespace CallOfTheWild
             harrim_class_level.Selections[3].Selection = Warpriest.warpriest_blessings;
             harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["Chaos"], Warpriest.blessings_map["Destruction"] };
             harrim_class_level.Selections[4].Selection = Warpriest.fighter_feat;
-            harrim_class_level.Selections[4].Features = new BlueprintFeature[] { NewFeats.weapon_of_the_chosen,
+            harrim_class_level.Selections[4].Features = new BlueprintFeature[] {NewFeats.weapon_of_the_chosen,
                                                                                  NewFeats.improved_weapon_of_the_chosen,
                                                                                  NewFeats.greater_weapon_of_the_chosen,
                                                                                  library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
@@ -492,7 +499,7 @@ namespace CallOfTheWild
             harrim_class_level.Selections[5].Selection = Warpriest.weapon_focus_selection;
             harrim_class_level.Selections[5].Features = new BlueprintFeature[] { library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e") }; //wf
             harrim_class_level.Selections[6].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"); //wf
-            harrim_class_level.Selections[6].ParamWeaponCategory = WeaponCategory.HeavyFlail;
+            harrim_class_level.Selections[6].ParamWeaponCategory = WeaponCategory.UnarmedStrike;
             harrim_class_level.Selections[7].ParametrizedFeature = library.Get<BlueprintParametrizedFeature>("31470b17e8446ae4ea0dacd6c5817d86"); //ws
             harrim_class_level.Selections[7].ParamWeaponCategory = WeaponCategory.HeavyFlail;
             harrim_class_level.Selections[8].IsParametrizedFeature = false;
