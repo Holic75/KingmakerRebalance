@@ -1052,9 +1052,15 @@ namespace CallOfTheWild
             psychic_crush[4].AvailableMetamagic = psychic_crush[0].AvailableMetamagic;
 
 
-            for (int i = 1; i < psychic_crush.Length; i++)
+            for (int i = 0; i < psychic_crush.Length; i++)
             {
-                psychic_crush[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = psychic_crush.Take(i).ToArray()));
+                psychic_crush[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s =>
+                {
+                    s.undercast_abilities = psychic_crush.Take(i).ToArray();
+                    s.overcast_abilities = psychic_crush.Skip(i+1).ToArray();
+                })
+                );
+
                 psychic_crush[i].SetDescription(psychic_crush[i].Description + "\nThis spell can be undercast.");
             }
         }
@@ -1098,7 +1104,7 @@ namespace CallOfTheWild
             burst_of_force.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             burst_of_force.SpellResistance = true;
 
-            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
+            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
 
             burst_of_force.AddToSpellList(Helpers.wizardSpellList, 5);
             burst_of_force.AddSpellAndScroll("e029ec259c9a37249b113060df32a01d"); //stunning barrier
@@ -1732,10 +1738,15 @@ namespace CallOfTheWild
                 Helpers.AddSpell(mental_barrier[i]);
             }
 
-            for (int i = 1; i < mental_barrier.Length; i++)
+            for (int i = 0; i < mental_barrier.Length; i++)
             {
-                mental_barrier[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = mental_barrier.Take(i).ToArray()));
-                mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
+                mental_barrier[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s =>
+                {
+                    s.undercast_abilities = mental_barrier.Take(i).ToArray();
+                    s.overcast_abilities = mental_barrier.Skip(i + 1).ToArray();
+                })
+                );
+            mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
             }
         }
 
@@ -1777,9 +1788,14 @@ namespace CallOfTheWild
 
             }
 
-            for (int i = 1; i < thought_shield.Length; i++)
+            for (int i = 0; i < thought_shield.Length; i++)
             {
-                thought_shield[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = thought_shield.Take(i).ToArray()));
+                thought_shield[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s =>
+                {
+                    s.undercast_abilities = thought_shield.Take(i).ToArray();
+                    s.overcast_abilities = thought_shield.Skip(i + 1).ToArray();
+                })
+                );
                 thought_shield[i].SetDescription(thought_shield[i].Description + "\nThis spell can be undercast.");
             }
         }
@@ -1946,9 +1962,14 @@ namespace CallOfTheWild
             mind_thrust[5].AvailableMetamagic = mind_thrust[0].AvailableMetamagic;
             Helpers.AddSpell(mind_thrust[5]);
 
-            for (int i = 1; i < mind_thrust.Length; i++)
+            for (int i = 0; i < mind_thrust.Length; i++)
             {
-                mind_thrust[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s => s.undercast_abilities = mind_thrust.Take(i).ToArray()));
+                mind_thrust[i].AddComponent(Helpers.Create<SpellbookMechanics.SpellUndercast>(s =>
+                {
+                    s.undercast_abilities = mind_thrust.Take(i).ToArray();
+                    s.overcast_abilities = mind_thrust.Skip(i + 1).ToArray();
+                })
+                );
                 mind_thrust[i].SetDescription(mind_thrust[i].Description + "\nThis spell can be undercast.");
             }
         }
