@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using Kingmaker;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
@@ -242,6 +243,35 @@ namespace CallOfTheWild.CombatManeuverMechanics
 
         public override void OnEventDidTrigger(RuleCalculateCMB evt)
         {
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ViciousStomp : OwnedGameLogicComponent<UnitDescriptor>, IKnockOffHandler, IGlobalSubscriber
+    {
+        public void HandleKnockOff(UnitEntityData initiator, UnitEntityData target)
+        {
+            if (target == initiator || initiator == null || target == null)
+            {
+                return;
+            }
+
+            if (!this.Owner.Unit.CombatState.IsEngage(target))
+            {
+                return;
+            }
+
+            if (this.Owner.Body.PrimaryHand?.MaybeWeapon == null)
+            {
+                return;
+            }
+
+            if (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed
+                || FeralCombatTraining.checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon))
+            {
+                Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(Owner.Unit, target);
+            }
         }
     }
 

@@ -65,6 +65,7 @@ namespace CallOfTheWild.UnitViewMechanics
                 }
                 character.Start();
                 character.Animator.gameObject.AddComponent<UnitAnimationCallbackReceiver>();
+
                 character.Animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
                 if (character.AnimationManager)
                 {

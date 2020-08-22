@@ -133,6 +133,9 @@ namespace CallOfTheWild
 
         static public BlueprintFeature greater_spell_specialization;
         static public BlueprintFeatureSelection preferred_spell;
+
+        static public BlueprintFeature vicious_stomp;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -213,6 +216,26 @@ namespace CallOfTheWild
             createScalesAndSkin();
             createImprovedCombatExpertise();
             createGreaterSpellSpecialization();
+
+            createViciousStomp();
+        }
+
+
+        static void createViciousStomp()
+        {
+            vicious_stomp = Helpers.CreateFeature("ViciousStompFeature",
+                                                  "Vicious Stomp",
+                                                  "Whenever an opponent falls prone adjacent to you, that opponent provokes an attack of opportunity from you. This attack must be an unarmed strike.",
+                                                  "b51d5a2516964ec5b21e4583e768476b",
+                                                  LoadIcons.Image2Sprite.Create(@"FeatIcons/ViciousStomp.png"),
+                                                  FeatureGroup.CombatFeat,
+                                                  Helpers.Create<CombatManeuverMechanics.ViciousStomp>(),
+                                                  Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0f8939ae6f220984e8fb568abbdfba95")), //combat reflexes
+                                                  Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167")) //improved unarmed strike
+                                                  );
+
+            vicious_stomp.Groups = vicious_stomp.Groups.AddToArray(FeatureGroup.Feat);
+            library.AddCombatFeats(vicious_stomp);
         }
 
 

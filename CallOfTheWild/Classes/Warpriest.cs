@@ -2614,6 +2614,7 @@ namespace CallOfTheWild
                 Helpers.SetField(minor_activatable_ability, "m_ActivateWithUnitCommand", CommandType.Swift);
                 minor_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
             }
+            minor_activatable_ability.DeactivateImmediately = true;
 
             var major_buff = Helpers.CreateBuff("WarpriestHealingMajorBuff",
                                                 "Fast Healing",
