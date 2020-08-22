@@ -2149,8 +2149,6 @@ namespace CallOfTheWild
                                                                 weapon_components[i]
                                                               );
 
-
-
                 abilities[i] = Helpers.CreateActivatableAbility($"ImprovedWeaponOfChosen{names[i]}Ability",
                                                                 improved_buffs[i].Name,
                                                                 improved_buffs[i].Description,

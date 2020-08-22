@@ -373,8 +373,8 @@ namespace CallOfTheWild
                                                          Helpers.LevelEntry(18, hex_selection),
                                                          Helpers.LevelEntry(20, hex_selection)
                                                         };
-            havocker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, patron_element, kinetic_blast_progression),
-                                                      Helpers.LevelEntry(2, gather_power),
+            havocker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, patron_element, kinetic_blast_progression, gather_power),
+                                                      Helpers.LevelEntry(2),
                                                       Helpers.LevelEntry(4, infusion),
                                                       Helpers.LevelEntry(6, spellburn),
                                                       Helpers.LevelEntry(8, infusion),
@@ -472,7 +472,7 @@ namespace CallOfTheWild
                 a.ReplaceComponent(comp, Helpers.Create<NewMechanics.AbilityShowIfCasterHasFactsFromList>(f => f.UnitFacts = new BlueprintUnitFact[] { elemental_focus, patron_element }));
             }
 
-            //fix all sacling to account for havocker
+            //fix all scaling to account for havocker
             var scaling_objects = library.GetAllBlueprints().Where(a =>
                                                                             {
                                                                                 var comp = a.GetComponent<ContextCalculateAbilityParamsBasedOnClass>();
@@ -507,7 +507,7 @@ namespace CallOfTheWild
             infusion_specialization.SetDescription("At 10th level, whenever a havocker uses one or more infusions with a blast, she reduces the combined burn cost of the infusions by 1. This can't reduce the total cost of the infusions used below 0.\nShe reduces the burn cost by 1 additional point at 12th, 16th, and 20th levels.");
 
             gather_power = library.CopyAndAdd<BlueprintFeature>("71f526b1d4b50b94582b0b9cbe12b0e0", "HavockerGatherPowerFeature", "");
-            gather_power.SetDescription("At 2nd level a havocker gains a kineticist gather power ability.");
+            gather_power.SetDescription("At 1st level a havocker gains a kineticist gather power ability.");
             gather_power.HideInUI = false;
             gather_power.HideInCharacterSheetAndLevelUp = false;
         }
