@@ -106,7 +106,9 @@ namespace CallOfTheWild.SkillMechanics
                 }
                 else
                 {
-                    Game.Instance?.UI?.BattleLogManager?.HandleUnitSkillCheckRolled(selected_evt);
+                    selected_evt.Silent = false;
+                    EventBus.RaiseEvent<IRollSkillCheckHandler>((Action<IRollSkillCheckHandler>)(h => h.HandleOnRuleSkillCheck(selected_evt)));
+                    //Game.Instance?.UI?.BattleLogManager?.HandleUnitSkillCheckRolled(selected_evt);
                 }
                 ___m_D20 = selected_evt.D20;
             }
