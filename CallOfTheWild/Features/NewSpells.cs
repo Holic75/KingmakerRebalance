@@ -1104,7 +1104,7 @@ namespace CallOfTheWild
             burst_of_force.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             burst_of_force.SpellResistance = true;
 
-            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
+            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
 
             burst_of_force.AddToSpellList(Helpers.wizardSpellList, 5);
             burst_of_force.AddSpellAndScroll("e029ec259c9a37249b113060df32a01d"); //stunning barrier

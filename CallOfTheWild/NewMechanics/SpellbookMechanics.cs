@@ -516,7 +516,7 @@ namespace CallOfTheWild.SpellbookMechanics
 
         public BlueprintAbility[] getExtraAbilities()
         {
-            return undercast_abilities.AddToArray(overcast_abilities);
+            return undercast_abilities;//undercast_abilities.AddToArray(overcast_abilities);
         }
 
 

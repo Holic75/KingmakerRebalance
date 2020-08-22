@@ -4157,7 +4157,6 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(12, fighter_feat, warpriest_sacred_weapon_enhancement3),
                                                                     Helpers.LevelEntry(13, warpriest_sacred_armor3),
                                                                     Helpers.LevelEntry(14),
-                                                                    Helpers.LevelEntry(15, fighter_feat),
                                                                     Helpers.LevelEntry(16, warpriest_sacred_weapon_enhancement4, warpriest_sacred_armor4),
                                                                     Helpers.LevelEntry(17),
                                                                     Helpers.LevelEntry(18, fighter_feat),

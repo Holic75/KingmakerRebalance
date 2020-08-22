@@ -463,10 +463,9 @@ namespace CallOfTheWild
 
             var harrim_class_level = harrim_feature.GetComponent<AddClassLevels>();
             harrim_class_level.CharacterClass = Warpriest.warpriest_class;
-            harrim_class_level.Selections[0].Features = new BlueprintFeature[] { NewFeats.weapon_of_the_chosen,
+            harrim_class_level.Selections[0].Features = new BlueprintFeature[] {NewFeats.weapon_of_the_chosen,
                                                                                  NewFeats.improved_weapon_of_the_chosen,
                                                                                  NewFeats.greater_weapon_of_the_chosen,
-                                                                                 library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa
                                                                                  NewFeats.furious_focus,
                                                                                  library.Get<BlueprintFeature>("31470b17e8446ae4ea0dacd6c5817d86"), //ws
                                                                                  library.Get<BlueprintParametrizedFeature>("7cf5edc65e785a24f9cf93af987d66b3"), //gws
@@ -479,7 +478,7 @@ namespace CallOfTheWild
             harrim_class_level.Selections[3].Selection = Warpriest.warpriest_blessings;
             harrim_class_level.Selections[3].Features = new BlueprintFeature[] { Warpriest.blessings_map["Chaos"], Warpriest.blessings_map["Destruction"] };
             harrim_class_level.Selections[4].Selection = Warpriest.fighter_feat;
-            harrim_class_level.Selections[4].Features = new BlueprintFeature[] {  NewFeats.weapon_of_the_chosen,
+            harrim_class_level.Selections[4].Features = new BlueprintFeature[] { NewFeats.weapon_of_the_chosen,
                                                                                  NewFeats.improved_weapon_of_the_chosen,
                                                                                  NewFeats.greater_weapon_of_the_chosen,
                                                                                  library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"), //pa

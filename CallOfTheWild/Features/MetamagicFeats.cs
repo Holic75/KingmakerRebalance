@@ -488,6 +488,7 @@ namespace CallOfTheWild
                                                 {
                                                     library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2"), //magic missile
                                                     library.Get<BlueprintAbility>("0a2f7c6aa81bc6548ac7780d8b70bcbc"), //battering blast
+                                                    library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74"), //blade barrier
                                                 };
             foreach (var s in spells)
             {
