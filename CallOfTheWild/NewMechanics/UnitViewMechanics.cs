@@ -38,7 +38,15 @@ namespace CallOfTheWild.UnitViewMechanics
             Main.TraceLog();
             try
             {
-                Character character = new GameObject(string.Format("Doll [{0}]", dollName)).AddComponent<Character>();
+                Character character = null;
+                if (originalAvatar.BakedCharacter)
+                {
+                    var clone = UnityEngine.Object.Instantiate(originalAvatar.gameObject, Vector3.zero, Quaternion.identity);
+                    character = clone.GetComponent<Character>();
+                } else
+                {
+                    character = new GameObject(string.Format("Doll [{0}]", dollName)).AddComponent<Character>();
+                }
                 character.transform.localScale = originalAvatar.transform.localScale;
                 character.IsInDollRoom = true;
                 character.AnimatorPrefab = originalAvatar.AnimatorPrefab;
@@ -225,6 +233,7 @@ namespace CallOfTheWild.UnitViewMechanics
                 var character = newView.GetComponent<Character>();
                 if (character == null)
                 {
+                    Main.DebugLog($"Unit {Owner.CharacterName} has new character, creating new character");
                     character = newView.gameObject.AddComponent<Character>();
                     character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
                     character.BakedCharacter = CreateBakedCharacter(newView.gameObject);
@@ -232,6 +241,9 @@ namespace CallOfTheWild.UnitViewMechanics
                     /*var drow = ResourcesLibrary.TryGetResource<UnitEntityView>("a65d9da806faa8f4ca078dfe942bf458", true);
                     CloneMonobehaviour(drow.GetComponentInChildren<Character>(), character);
                     character.BakedCharacter = CreateBakedCharacter(newView.gameObject);*/
+                } else
+                {
+                    Main.DebugLog($"Unit {Owner.CharacterName} has character");
                 }
             }
             Owner.Unit.AttachToViewOnLoad(newView);
