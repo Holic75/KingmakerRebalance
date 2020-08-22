@@ -228,6 +228,7 @@ namespace CallOfTheWild.UnitViewMechanics
             newView.transform.rotation = oldView.transform.rotation;
             newView.DisableSizeScaling = false;
             newView.Blueprint = Owner.Blueprint;
+
             if (!use_master_view)
             {
                 var character = newView.GetComponent<Character>();
