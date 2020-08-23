@@ -1111,11 +1111,15 @@ namespace CallOfTheWild
             internal static void Postfix(UnitPartSpellResistance.SpellImmunity __instance, MechanicsContext context, ref bool __result)
             {
                 Main.TraceLog();
+                if (__instance.Type != SpellImmunityType.SpellDescriptor)
+                {
+                    return;
+                }
                 foreach (var kv in bypass_metamagic_dict)
                 {
                     if (__instance.CasterIgnoreImmunityFact == kv.Key && context.HasMetamagic(kv.Value))
                     {
-                        __result = true;
+                        __result = false;
                         return;
                     }
                 }
