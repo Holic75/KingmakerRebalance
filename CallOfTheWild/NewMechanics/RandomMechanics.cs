@@ -69,6 +69,7 @@ namespace CallOfTheWild.RandomMechanics
                     value += in_combat_bonus.Calculate(this.Context);
                 }
                 //Main.logger.Log("Rolled: " + value.ToString());
+                Common.AddBattleLogMessage(this.Target.Unit.CharacterName + " rolls " + value.ToString() + " on d100 for " + this.Context.Name);
                 for (int i = 0; i < actions.Length; i++)
                 {
                     if (thresholds[i] >= value)
