@@ -105,6 +105,7 @@ namespace CallOfTheWild
         public static BlueprintFeature aberration = library.Get<BlueprintFeature>("3bec99efd9a363242a6c8d9957b75e91");
         public static BlueprintFeature vermin = library.Get<BlueprintFeature>("09478937695300944a179530664e42ec");
         public static BlueprintFeature no_animate_feature;
+        public static BlueprintFeature ignore_spell_combat_penalty;
         public static BlueprintSummonPool animate_dead_summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "AnimateDeadSummonPool", "7c60aa48110c4eadbea799516452e816");
 
 

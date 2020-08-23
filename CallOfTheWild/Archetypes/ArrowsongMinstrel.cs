@@ -34,6 +34,7 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -62,6 +63,8 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeatureSelection arcane_achery_selection;
         static public BlueprintFeature arcane_achery;
         static public BlueprintFeature weapon_proficiency;
+
+        static public BlueprintFeature ray_spell_combat;
 
         static LibraryScriptableObject library => Main.library;
 
@@ -99,10 +102,11 @@ namespace CallOfTheWild.Archetypes
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, weapon_proficiency),
                                                        Helpers.LevelEntry(1, arcane_achery_selection),
                                                        Helpers.LevelEntry(2, precise_minstrel),
-                                                       Helpers.LevelEntry(6, arrowsong_strike)};
+                                                       Helpers.LevelEntry(6, arrowsong_strike),
+                                                       Helpers.LevelEntry(18, ray_spell_combat)};
 
             bard_class.Progression.UIDeterminatorsGroup = bard_class.Progression.UIDeterminatorsGroup.AddToArray(weapon_proficiency);
-            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike));
+            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike, ray_spell_combat));
             bard_class.Archetypes = bard_class.Archetypes.AddToArray(archetype);
 
 
@@ -218,7 +222,25 @@ namespace CallOfTheWild.Archetypes
             spellstrike.SetIcon(NewSpells.flame_arrow.Icon);
             arrowsong_strike = Common.ActivatableAbilityToFeature(spellstrike, false);
             arrowsong_strike.AddComponents(add_magus_part, add_eldritch_archer, add_spellstrike);
+
+            var spell_combat_buff = library.Get<BlueprintBuff>("91e4b45ab5f29574aa1fb41da4bbdcf2");
+            ray_spell_combat = Helpers.CreateFeature("RaySpellCombatFeature",
+                                                     "Arrowsong Strike II",
+                                                     "At 18th level, an arrowsong minstrel can make a full attack when using arrowsong strike.",
+                                                     "",
+                                                     LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(Common.ignore_spell_combat_penalty)
+                                                     );
+            var apply_spell_combat = Common.createContextActionApplyBuff(spell_combat_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false);
+            spellstrike.Buff.AddComponent(Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Common.createContextConditionHasFact(ray_spell_combat),
+                                                                                                        apply_spell_combat)
+                                                                             )
+                                         );
         }
+
+
+
 
 
         static void createPreciseMinstrel()
@@ -311,6 +333,27 @@ namespace CallOfTheWild.Archetypes
                 }
             }
 
+        }
+
+
+
+        //fix for reach spell strike
+        [Harmony12.HarmonyPatch(typeof(UnitPartMagus))]
+        [Harmony12.HarmonyPatch("IsSpellFromMagusSpellList", Harmony12.MethodType.Normal)]
+        public class Patch_UnitPartMagus_IsSpellFromMagusSpellList_Patch
+        {
+            static void Postfix(UnitPartMagus __instance, AbilityData spell, ref bool __result)
+            {
+                if (__result == false)
+                {
+                    return;
+                }
+
+                if (__instance.Owner.HasFact(ray_spell_combat))
+                {
+                    __result = __instance.IsSuitableForEldritchArcherSpellStrike(spell);
+                }
+            }
         }
     }
 }
