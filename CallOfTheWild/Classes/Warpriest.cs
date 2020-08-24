@@ -3430,6 +3430,8 @@ namespace CallOfTheWild
                 rune.SpellResistance = false;
                 rune.Type = AbilityType.Supernatural;
                 rune.RemoveComponents<AbilityResourceLogic>();
+                var area_action = (rune.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnAreaEffect);
+                var area = library.CopyAndAdd(area_action.AreaEffect, $"WarpriestRuneBlessingMinor{i + 1}Area", "");
                 foreach (var c in rune.GetComponents<ContextRankConfig>().ToArray())
                 {
                     var new_c = c.CreateCopy();
@@ -3438,6 +3440,8 @@ namespace CallOfTheWild
                     Helpers.SetField(new_c, "Archetype", Archetypes.DivineTracker.archetype);
                     rune.ReplaceComponent(c, new_c);
                 }
+                rune.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(area_action.CreateCopy(a => a.AreaEffect = area)));
+                area.AddComponent(rune.GetComponents<ContextRankConfig>().First());
                 
                 addBlessingResourceLogic("Rune", rune, quicken: true, parent: minor_ability);
                 rune.SetDescription(description);

@@ -712,7 +712,11 @@ namespace CallOfTheWild
             //fix luck domain
             var luck_domain_greater_resource = library.Get<BlueprintAbilityResource>("b209ca75fbea5144c9d73ecb29055a08");
             var luck_domain_greater_ability = library.Get<BlueprintAbility>("0e0668a703fbfcf499d9aa9d918b71ea");
-            luck_domain_greater_ability.AddComponent(luck_domain_greater_resource.CreateResourceLogic());
+
+            if (luck_domain_greater_ability.GetComponent<AbilityResourceLogic>() == null)
+            {
+                luck_domain_greater_ability.AddComponent(luck_domain_greater_resource.CreateResourceLogic());
+            }
 
             //fix strength surge to work on allies
             var strenght_surge = library.Get<BlueprintAbility>("6e3cbd10e50c6774e869ff8e20f2b352");
@@ -730,6 +734,7 @@ namespace CallOfTheWild
             {
                 t.AddComponent(Common.createActivatableAbilityUnitCommand(UnitCommand.CommandType.Standard));
             }
+
 
             //protection domain
             /*var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
