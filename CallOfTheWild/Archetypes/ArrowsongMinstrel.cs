@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Harmony12;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -13,6 +14,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Controllers;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -38,6 +40,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -337,22 +340,71 @@ namespace CallOfTheWild.Archetypes
 
 
 
-        //fix for reach spell strike
-        [Harmony12.HarmonyPatch(typeof(UnitPartMagus))]
-        [Harmony12.HarmonyPatch("IsSpellFromMagusSpellList", Harmony12.MethodType.Normal)]
-        public class Patch_UnitPartMagus_IsSpellFromMagusSpellList_Patch
-        {
-            static void Postfix(UnitPartMagus __instance, AbilityData spell, ref bool __result)
-            {
-                if (__result == false)
-                {
-                    return;
-                }
 
-                if (__instance.Owner.HasFact(ray_spell_combat))
+        [Harmony12.HarmonyPatch(typeof(MagusController))]
+        [Harmony12.HarmonyPatch("HandleUnitRunCommand", Harmony12.MethodType.Normal)]
+        public class MagusController_HandleUnitRunCommand_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
+            }
+
+
+            internal static bool canUseSpellForSpellCombat(UnitPartMagus unit_part_magus, AbilityData ability)
+            {
+                if (unit_part_magus.Owner.HasFact(ray_spell_combat))
                 {
-                    __result = __instance.IsSuitableForEldritchArcherSpellStrike(spell);
+                    return unit_part_magus.IsSuitableForEldritchArcherSpellStrike(ability);
                 }
+                else
+                {
+                    return unit_part_magus.IsSpellFromMagusSpellList(ability);
+                }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(UnitUseAbility))]
+        [Harmony12.HarmonyPatch("CreateCastCommand", Harmony12.MethodType.Normal)]
+        public class MagusController_CreateCastCommand_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(MagusController_HandleUnitRunCommand_Patch.canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
+            }
+
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(MagusController))]
+        [Harmony12.HarmonyPatch("HandleUnitCommandDidAct", Harmony12.MethodType.Normal)]
+        public class MagusController_HandleUnitCommandDidEnd_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(MagusController_HandleUnitRunCommand_Patch.canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
             }
         }
     }

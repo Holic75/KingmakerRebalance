@@ -217,7 +217,6 @@ namespace CallOfTheWild.Archetypes
                                                     );
             corpse_companion_selection.Group = FeatureGroup.AnimalCompanion;
             corpse_companion_selection.AllFeatures = corpse_companion_selection.AllFeatures.AddToArray(corpse_companion);
-
         }
 
 
