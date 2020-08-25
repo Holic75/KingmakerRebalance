@@ -4294,7 +4294,6 @@ namespace CallOfTheWild
         {
             public override bool IsAvailable()
             {
-
                 if (Owner.Body.IsPolymorphed)
                 {
                     return true;
@@ -4305,7 +4304,8 @@ namespace CallOfTheWild
                     return true;
                 }
 
-                if (Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.Light)
+                if (Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.Light 
+                    || Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.None)
                 {
                     return true;
                 }
