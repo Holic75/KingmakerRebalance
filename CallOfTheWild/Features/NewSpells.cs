@@ -1888,7 +1888,7 @@ namespace CallOfTheWild
             Helpers.AddSpell(mind_thrust[2]);
 
             mind_thrust[3] = Helpers.CreateAbility("MindThrust4Ability",
-                                                   "Mind Thrust VI",
+                                                   "Mind Thrust IV",
                                                    "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 15d8) and is fatigued for 1 round if it fails its save.",
                                                    "",
                                                    icon,

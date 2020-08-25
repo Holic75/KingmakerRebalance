@@ -118,7 +118,7 @@ namespace CallOfTheWild
         static public BlueprintAbility oracles_burden;
         static public BlueprintFeature fortune_revelation;
         static public BlueprintFeature misfortune_revelation;
-
+        static public BlueprintFeature extra_healers_way;
 
         static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_minor_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
         static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_hindrance_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
@@ -513,6 +513,13 @@ namespace CallOfTheWild
                                                             FeatureGroup.None,
                                                             Helpers.CreateAddFacts(toggles.ToArray())
                                                             );
+
+            extra_healers_way = library.CopyAndAdd<BlueprintFeature>("a2b2f20dfb4d3ed40b9198e22be82030", "ExtraHealersWay", "");
+            extra_healers_way.SetNameDescription("Extra Healer's Way",
+                                                 "You can use your healer's way ability two additional times per day.\nSpecial: You can gain Extra Healer's Way multiple times. Its effects stack.");
+            extra_healers_way.ReplaceComponent<IncreaseResourceAmount>(i => i.Resource = healers_way_resource);
+            extra_healers_way.ReplaceComponent<PrerequisiteFeature>(p => p.Feature = healers_way);
+            library.AddFeats(extra_healers_way);
         }
 
 
