@@ -704,7 +704,7 @@ namespace CallOfTheWild
                                                        Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = phrenic_pool_resource; i.Value = 2; }),
                                                        Helpers.PrerequisiteFeature(phrenic_pool)
                                                        );
-
+            extra_phrenic_pool.Ranks = 10;
             extra_phrenic_amplification = Helpers.CreateFeatureSelection("PsychicExtraPhrenicAmplificationFeatureSelection",
                                                                            "Extra Phrenic Amplification (Psychic)",
                                                                            "You gain one additional phrenic amplification.",
