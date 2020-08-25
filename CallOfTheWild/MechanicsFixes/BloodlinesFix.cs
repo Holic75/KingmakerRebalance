@@ -393,6 +393,7 @@ namespace CallOfTheWild
             var abyssal_bloodline = library.Get<BlueprintProgression>("d3a4cb7be97a6694290f0dcfbd147113");
             var demon_wings = library.Get<BlueprintFeature>("36db25d9e0848f04da604ff9e3d931af");
             replaceFeature(abyssal_bloodline, demon_wings, null);
+            convolveBloodlineFeatures(abyssal_bloodline, "ClawsFeatureAddLevel1", "ClawsFeatureAddLevel", sorcerer, magus);
             convolveBloodlineFeatures(abyssal_bloodline, "StrengthAbilityAddLevel1", "StrengthAbilityAddLevel", sorcerer, magus);
 
             var arcane_bloodline = library.Get<BlueprintProgression>("4d491cf9631f7e9429444f4aed629791");
