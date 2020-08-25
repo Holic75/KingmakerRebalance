@@ -103,7 +103,9 @@ namespace CallOfTheWild.AoeMechanics
         {
             if (!Initalized)
             {
-                var abilityTargetSelect = Game.Instance.UI.Common?.transform.Find("AbilityTargetSelect")?.gameObject;
+                var abilityTargetSelect = Game.Instance.IsControllerMouse ?
+                    Game.Instance.UI.Common?.transform.Find("CombatCursorPC")?.gameObject :
+                    Game.Instance.UI.Common?.transform.Find("Console_TargetSelect")?.gameObject;
                 var abilityLineRange = abilityTargetSelect?.GetComponent<AbilityLineRange>()?.Range;
                 if (abilityLineRange == null) throw new System.Exception("Could not find AbilityLineRange");
                 var lineRangeVisual = abilityLineRange.transform.Find("Pivot/Line")?.gameObject;
