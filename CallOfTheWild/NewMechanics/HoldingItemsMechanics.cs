@@ -730,7 +730,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
             {
-                tr.Method("ChangeEquipmentWithoutAnimation").GetValue();
+                //tr.Method("UpdateActiveWeaponSetImmediately").GetValue();
                 return false;
             }
 
