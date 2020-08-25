@@ -1938,6 +1938,17 @@ namespace CallOfTheWild
         }
 
 
+        public class ActivatableARestrictionCasterPolymorphed : ActivatableAbilityRestriction
+        {
+            public bool not = false;
+
+            public override bool IsAvailable()
+            {
+                return Owner.Body.IsPolymorphed != not;
+            }
+        }
+
+
         public class ActivatableAbilityMeleeWeaponRestriction : ActivatableAbilityRestriction
         {
             public override bool IsAvailable()

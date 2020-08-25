@@ -7105,10 +7105,9 @@ namespace CallOfTheWild
             slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
 
             var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
-            var failure_action = Common.createContextActionSkillCheck(StatType.SkillMobility, Helpers.CreateActionList(apply_prone));
             var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
                                                                 unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
-                                                                unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(failure_action), custom_dc: 10));
+                                                                unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(apply_prone), custom_dc: 10));
             slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
             slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
 

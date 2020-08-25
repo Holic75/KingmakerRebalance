@@ -767,7 +767,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
             foreach (var b in buffs)
             {
                 bool result = false;
-                b.CallComponents<CanUse2hWeaponAs1hBase>(c => result = c.canBeUsedOn(weapon));
+                b.CallComponents<ConsiderAsLightWeaponBase>(c => result = c.canBeUsedOn(weapon));
                 if (result)
                 {
                     return true;
@@ -805,7 +805,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 return false;
             }
 
-            return weapon.Blueprint.Category == WeaponCategory.SpikedHeavyShield || weapon.Blueprint.Category == WeaponCategory.WeaponHeavyShield;
+            return categories.Contains(weapon.Blueprint.Category);
         }
     }
 }

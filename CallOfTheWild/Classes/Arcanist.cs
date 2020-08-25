@@ -101,6 +101,7 @@ namespace CallOfTheWild
         static public BlueprintFeature greater_spell_resistance;
         static public BlueprintFeature wooden_flesh;
         static public BlueprintFeature swift_consume;
+        static public BlueprintFeature shift_caster;
 
         static public BlueprintFeature magical_supremacy;
         static public BlueprintBuff magical_supremacy_buff;
@@ -975,10 +976,11 @@ namespace CallOfTheWild
             createSonicBlast();
             createSpellResistanceAndSpellResistanceGreater();
             createWoodenFlesh();
+            createShiftCaster();
             
             arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
                                                                  flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing, sonic_blast, swift_consume,
-                                                                 spell_resistance, wooden_flesh,
+                                                                 spell_resistance, wooden_flesh, shift_caster,
                                                                  energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
                                                                  greater_spell_resistance};
 
@@ -990,7 +992,7 @@ namespace CallOfTheWild
                                                  FeatureGroup.None);
             arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
             {
-                quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
+                quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh
             };
         }
@@ -1061,6 +1063,29 @@ namespace CallOfTheWild
 
             //quick_study_wizard.AddComponent(Helpers.CreateAddFacts(relearn));
             quick_study_wizard.AddComponent(Common.createSpontaneousSpellConversion(wizard_class, new BlueprintAbility[] { null }.AddToArray(initiate)));
+        }
+
+
+        static void createShiftCaster()
+        {
+            var icon = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf").Icon; //natural spell
+
+            var buff = Helpers.CreateBuff("ShiftCasterExploitBuff",
+                                          "Shift Caster",
+                                          "The arcanist can expend 1 point from her arcane reservoir to cast a spell while under the effects of a polymorph spell. This ability works like Natural Spell, except the arcanist uses the ability to cast while under the effects of a spell instead of wild shape.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell),
+                                          Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(r => r.resource = arcane_reservoir_resource)
+                                          );
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                             arcane_reservoir_resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                             Helpers.Create<NewMechanics.ActivatableARestrictionCasterPolymorphed>()
+                                            );
+
+            shift_caster = Common.ActivatableAbilityToFeature(toggle, false);           
         }
 
 

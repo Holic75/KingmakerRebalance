@@ -712,7 +712,11 @@ namespace CallOfTheWild
             //fix luck domain
             var luck_domain_greater_resource = library.Get<BlueprintAbilityResource>("b209ca75fbea5144c9d73ecb29055a08");
             var luck_domain_greater_ability = library.Get<BlueprintAbility>("0e0668a703fbfcf499d9aa9d918b71ea");
-            luck_domain_greater_ability.AddComponent(luck_domain_greater_resource.CreateResourceLogic());
+
+            if (luck_domain_greater_ability.GetComponent<AbilityResourceLogic>() == null)
+            {
+                luck_domain_greater_ability.AddComponent(luck_domain_greater_resource.CreateResourceLogic());
+            }
 
             //fix strength surge to work on allies
             var strenght_surge = library.Get<BlueprintAbility>("6e3cbd10e50c6774e869ff8e20f2b352");
@@ -730,6 +734,7 @@ namespace CallOfTheWild
             {
                 t.AddComponent(Common.createActivatableAbilityUnitCommand(UnitCommand.CommandType.Standard));
             }
+
 
             //protection domain
             /*var protection_bonus_context_rank = Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep,
@@ -1540,7 +1545,61 @@ namespace CallOfTheWild
             //fix it to be swift action rather than standard since it is how it is supposed to be due to its pnp version
             var eaglesoul = library.Get<BlueprintAbility>("332ad68273db9704ab0e92518f2efd1c");
             eaglesoul.ActionType = UnitCommand.CommandType.Swift;
+        }
 
+
+        static internal void fixGrease()
+        {
+            var grease_spell = library.Get<BlueprintAbility>("95851f6e85fe87d4190675db0419d112");
+            var grease_area = library.Get<BlueprintAbilityAreaEffect>("d46313be45054b248a1f1656ddb38614");
+            var grease_buff = library.Get<BlueprintBuff>("5f9910ccdd124294e905b391d01b4ade");
+            grease_buff.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | SpellDescriptor.MovementImpairing),
+                Common.createAddCondition(UnitCondition.DifficultTerrain)
+            };
+
+            var fall = Helpers.CreateActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKnockdownTarget>()));
+            grease_spell.GetComponent<AbilityEffectRunAction>().Actions = Helpers.CreateActionList(fall);
+            var spawn_area = Common.createContextActionSpawnAreaEffect(grease_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+            grease_spell.AddComponent(Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_area)));
+
+            grease_spell.SetDescription("A grease spell covers a solid surface with a layer of slippery grease. Any creature in the area when the spell is cast must make a successful Reflex save or fall. A creature can walk within or through the area of grease at half normal speed with a DC 10 Mobility check, otherwise it falls. Creatures that do not move on their turn do not need to make this check and are not considered flat-footed.");
+            var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
+            var area_effect = Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a =>
+            {
+                a.UnitMove = Helpers.CreateActionList(Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(apply_prone), custom_dc: 10));
+            }
+            );
+            grease_spell.RemoveComponents<AbilityAoERadius>();
+            grease_spell.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any));
+            grease_area.AddComponents(area_effect);
+        }
+
+
+        public static void fixEldritchArcherPenalty()
+        {
+            Common.ignore_spell_combat_penalty = Helpers.CreateFeature("IgnoreSpellCombatPenaltyFeature",
+                                                                       "",
+                                                                       "",
+                                                                       "",
+                                                                       null,
+                                                                       FeatureGroup.None
+                                                                       );
+            Common.ignore_spell_combat_penalty.HideInUI = true;
+            Common.ignore_spell_combat_penalty.HideInCharacterSheetAndLevelUp = true;
+
+            var spellcombat_penalty_buff = library.Get<BlueprintBuff>("7b4cf64d3a49e3d45b1dbd2385f4eb6d");
+            spellcombat_penalty_buff.RemoveComponents<AttackTypeAttackBonus>();
+
+            var cmp = Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable);
+            spellcombat_penalty_buff.AddComponents(cmp,
+                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList,
+                                                                                  ContextRankProgression.BonusValue,
+                                                                                  stepLevel: -2,
+                                                                                  featureList: new BlueprintFeature[] {Common.ignore_spell_combat_penalty, Common.ignore_spell_combat_penalty })
+                                                  
+                                                  );
         }
 
         static internal void fixUndeadImmunity()

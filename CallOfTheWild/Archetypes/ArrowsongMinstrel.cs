@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Harmony12;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -13,6 +14,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Controllers;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -34,9 +36,11 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -62,6 +66,8 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeatureSelection arcane_achery_selection;
         static public BlueprintFeature arcane_achery;
         static public BlueprintFeature weapon_proficiency;
+
+        static public BlueprintFeature ray_spell_combat;
 
         static LibraryScriptableObject library => Main.library;
 
@@ -99,10 +105,11 @@ namespace CallOfTheWild.Archetypes
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, weapon_proficiency),
                                                        Helpers.LevelEntry(1, arcane_achery_selection),
                                                        Helpers.LevelEntry(2, precise_minstrel),
-                                                       Helpers.LevelEntry(6, arrowsong_strike)};
+                                                       Helpers.LevelEntry(6, arrowsong_strike),
+                                                       Helpers.LevelEntry(18, ray_spell_combat)};
 
             bard_class.Progression.UIDeterminatorsGroup = bard_class.Progression.UIDeterminatorsGroup.AddToArray(weapon_proficiency);
-            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike));
+            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike, ray_spell_combat));
             bard_class.Archetypes = bard_class.Archetypes.AddToArray(archetype);
 
 
@@ -218,7 +225,25 @@ namespace CallOfTheWild.Archetypes
             spellstrike.SetIcon(NewSpells.flame_arrow.Icon);
             arrowsong_strike = Common.ActivatableAbilityToFeature(spellstrike, false);
             arrowsong_strike.AddComponents(add_magus_part, add_eldritch_archer, add_spellstrike);
+
+            var spell_combat_buff = library.Get<BlueprintBuff>("91e4b45ab5f29574aa1fb41da4bbdcf2");
+            ray_spell_combat = Helpers.CreateFeature("RaySpellCombatFeature",
+                                                     "Arrowsong Strike II",
+                                                     "At 18th level, an arrowsong minstrel can make a full attack when using arrowsong strike.",
+                                                     "",
+                                                     LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(Common.ignore_spell_combat_penalty)
+                                                     );
+            var apply_spell_combat = Common.createContextActionApplyBuff(spell_combat_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false);
+            spellstrike.Buff.AddComponent(Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Common.createContextConditionHasFact(ray_spell_combat),
+                                                                                                        apply_spell_combat)
+                                                                             )
+                                         );
         }
+
+
+
 
 
         static void createPreciseMinstrel()
@@ -311,6 +336,76 @@ namespace CallOfTheWild.Archetypes
                 }
             }
 
+        }
+
+
+
+
+        [Harmony12.HarmonyPatch(typeof(MagusController))]
+        [Harmony12.HarmonyPatch("HandleUnitRunCommand", Harmony12.MethodType.Normal)]
+        public class MagusController_HandleUnitRunCommand_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
+            }
+
+
+            internal static bool canUseSpellForSpellCombat(UnitPartMagus unit_part_magus, AbilityData ability)
+            {
+                if (unit_part_magus.Owner.HasFact(ray_spell_combat))
+                {
+                    return unit_part_magus.IsSuitableForEldritchArcherSpellStrike(ability);
+                }
+                else
+                {
+                    return unit_part_magus.IsSpellFromMagusSpellList(ability);
+                }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(UnitUseAbility))]
+        [Harmony12.HarmonyPatch("CreateCastCommand", Harmony12.MethodType.Normal)]
+        public class MagusController_CreateCastCommand_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(MagusController_HandleUnitRunCommand_Patch.canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
+            }
+
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(MagusController))]
+        [Harmony12.HarmonyPatch("HandleUnitCommandDidAct", Harmony12.MethodType.Normal)]
+        public class MagusController_HandleUnitCommandDidEnd_Patch
+        {
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var codes = instructions.ToList();
+                var check_magus_spell_list = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsSpellFromMagusSpellList"));
+
+                codes[check_magus_spell_list] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<UnitPartMagus, AbilityData, bool>(MagusController_HandleUnitRunCommand_Patch.canUseSpellForSpellCombat).Method
+                                                                           );
+
+                return codes.AsEnumerable();
+            }
         }
     }
 }

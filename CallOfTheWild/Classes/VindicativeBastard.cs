@@ -171,19 +171,19 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(3, spiteful_tenacity, teamwork_feat),
                                                                     Helpers.LevelEntry(4, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(5, gang_up),
-                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(6, teamwork_feat),
                                                                     Helpers.LevelEntry(7, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(8),
                                                                     Helpers.LevelEntry(9, teamwork_feat),
                                                                     Helpers.LevelEntry(10, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(11, swift_justice),
-                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(12, teamwork_feat),
                                                                     Helpers.LevelEntry(13, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(14, stalwart),
                                                                     Helpers.LevelEntry(15, teamwork_feat),
                                                                     Helpers.LevelEntry(16, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(17, aura_of_self_righteousness),
-                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(18, teamwork_feat),
                                                                     Helpers.LevelEntry(19, add_vindicative_smite_use),
                                                                     Helpers.LevelEntry(20, ultimate_vindication)
                                                                     };
@@ -335,7 +335,7 @@ namespace CallOfTheWild
         static void createTeamworkFeat()
         {
             teamwork_feat = library.CopyAndAdd<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb", "VindicativeBastardTeamworkFeatSelection", "");
-            teamwork_feat.SetDescription("At 3rd level and every 6 levels thereafter, the vindictive bastard gains a bonus feat in addition to those gained from normal advancement. These bonus feats must be selected from those listed as teamwork feats.\n"
+            teamwork_feat.SetDescription("At 3rd level and every 3 levels thereafter, the vindictive bastard gains a bonus feat in addition to those gained from normal advancement. These bonus feats must be selected from those listed as teamwork feats.\n"
                                          +"The vindictive bastard must meet the prerequisites of the selected bonus feat.");
         }
 
