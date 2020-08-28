@@ -4295,7 +4295,6 @@ namespace CallOfTheWild
         {
             public override bool IsAvailable()
             {
-
                 if (Owner.Body.IsPolymorphed)
                 {
                     return true;
@@ -4306,7 +4305,8 @@ namespace CallOfTheWild
                     return true;
                 }
 
-                if (Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.Light)
+                if (Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.Light 
+                    || Owner.Body.Armor.Armor.Blueprint.ProficiencyGroup == ArmorProficiencyGroup.None)
                 {
                     return true;
                 }
@@ -5011,7 +5011,7 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (received_damage <= min_dmg)
+                if (received_damage < min_dmg)
                 {
                     return;
                 }
@@ -5113,7 +5113,7 @@ namespace CallOfTheWild
                     original_damage += (d.ValueWithoutReduction - d.FinalValue);
                 }
 
-                if (original_damage > min_dmg)
+                if (original_damage >= min_dmg)
                 {
                     (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
                 }
@@ -5145,7 +5145,7 @@ namespace CallOfTheWild
                     damage += (d.FinalValue);
                 }
 
-                if (damage > min_dmg)
+                if (damage >= min_dmg)
                 {
                     (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
                 }

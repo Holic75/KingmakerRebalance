@@ -893,7 +893,7 @@ namespace CallOfTheWild
             superstition_buff = Helpers.CreateBuff("SuperstitionEffectBuff",
                                                          "Superstition",
                                                          "The Barbarian gains spell resistance 5. It increases by 5 points at level 4 and every 4 levels therafter to a maximum of 30 at level 20.\n"
-                                                         + "This spell resistance applies both against harmful and friendly spells, spell-like and supernatural abilities.",
+                                                         + "This spell resistance applies both against harmful and friendly spells and spell-like abilities.",
                                                          "",
                                                          null,
                                                          null,
@@ -1042,7 +1042,7 @@ namespace CallOfTheWild
             Main.TraceLog();
             if (__result == false && __instance.Target.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff))
             {
-                __result = (__instance.Ability != null) && (__instance.Ability.IsSpell || __instance.Ability.Type == AbilityType.Supernatural);
+                __result = (__instance.Ability != null) && (__instance.Ability.IsSpell);
             }
         }
     }

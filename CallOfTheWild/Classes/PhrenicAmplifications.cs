@@ -282,7 +282,7 @@ namespace CallOfTheWild
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             var feature =  Common.ActivatableAbilityToFeature(toggle, false);
-            feature.AddComponent(Helpers.Create<OnCastMechanics.ForceFocusSpellDamageDiceIncrease>(s => { s.spellbook = spellbook; s.SpellDescriptor = SpellDescriptor.Force; }));
+            feature.AddComponent(Helpers.Create<OnCastMechanics.ForceFocusSpellDamageDiceIncrease>(s => { s.specific_class = character_class; s.SpellDescriptor = SpellDescriptor.Force; }));
             return feature;
         }
 
@@ -409,7 +409,7 @@ namespace CallOfTheWild
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             var feature = Common.ActivatableAbilityToFeature(toggle, false);
-            feature.AddComponent(Helpers.Create<OnCastMechanics.IncreaseDurationBy1RoundIfMetamagic>(s => { s.spellbook = spellbook;}));
+            feature.AddComponent(Helpers.Create<OnCastMechanics.IncreaseDurationBy1RoundIfMetamagic>(s => { s.specific_class = character_class;}));
             return feature;
         }
 
@@ -465,7 +465,7 @@ namespace CallOfTheWild
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             var feature =  Common.ActivatableAbilityToFeature(toggle, false);
-            feature.AddComponent(Helpers.Create<OnCastMechanics.RangedSpellAttackRollBonusRangeAttackRollMetamagic>(s => { s.spellbook = spellbook; s.bonus = 4; s.descriptor = ModifierDescriptor.UntypedStackable; }));
+            feature.AddComponent(Helpers.Create<OnCastMechanics.RangedSpellAttackRollBonusRangeAttackRollMetamagic>(s => { s.specific_class = character_class; s.bonus = 4; s.descriptor = ModifierDescriptor.UntypedStackable; }));
             return feature;
         }
 

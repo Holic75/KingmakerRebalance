@@ -164,6 +164,7 @@ namespace CallOfTheWild
                                          Helpers.GetIcon("810992c76efdde84db707a0444cf9a1c"), //telekinetic fist
                                          FeatureGroup.Feat,
                                          Helpers.CreateAddContextStatBonus(StatType.AdditionalCMB, ModifierDescriptor.UntypedStackable),
+                                         Helpers.CreateAddContextStatBonus(StatType.AdditionalCMD, ModifierDescriptor.UntypedStackable),
                                          Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default),
                                                                                                                  ModifierDescriptor.UntypedStackable, StatType.Strength),
                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, min: 0),
@@ -179,9 +180,25 @@ namespace CallOfTheWild
         {
             var alchemist_spells = library.Get<BlueprintSpellList>("f60d0cd93edc65c42ad31e34a905fb2f");
 
+            var spells = Common.getSpellsFromSpellList(alchemist_spells).Where(s => wizard.Spellbook.SpellList.GetLevel(s) > 0);
+
+            var description = "Affected spells:";
+            foreach (var s in spells)
+            {
+                description += " " + s.Name;
+                if (s == spells.Last())
+                {
+                    description += ".";
+                }
+                else
+                {
+                    description += ",";
+                }
+            }
+
             alchemical_affinity = Helpers.CreateFeature("AlchemicalAffinityWizardDiscoveryFeature",
                                                      "Alchemical Affinity",
-                                                     "Whenever you cast a spell that appears on both the wizard and alchemist spell lists, you treat your caster level as 1 higher than normal and the save DC of such spells increases by 1.",
+                                                     "Whenever you cast a spell that appears on both the wizard and alchemist spell lists, you treat your caster level as 1 higher than normal and the save DC of such spells increases by 1.\n" + description,
                                                      "",
                                                      Helpers.GetIcon("2a6eda8ef30379142a4b75448fb214a3"), //poison
                                                      FeatureGroup.Feat,
@@ -196,9 +213,24 @@ namespace CallOfTheWild
         {
             var druid_spells = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
 
+            var spells = Common.getSpellsFromSpellList(druid_spells).Where(s => wizard.Spellbook.SpellList.GetLevel(s) > 0);
+
+            var description = "Affected spells:";
+            foreach (var s in spells)
+            {
+                description += " " + s.Name;
+                if (s == spells.Last())
+                {
+                    description += ".";
+                }
+                else
+                {
+                    description += ",";
+                }
+            }
             forests_blessing = Helpers.CreateFeature("ForestsBlessingWizardDiscoveryFeature",
                                                      "Forest’s Blessing",
-                                                     "You cast any spells that appear on both the wizard and druid spell lists at +1 caster level and with +1 to the save DC.",
+                                                     "You cast any spells that appear on both the wizard and druid spell lists at +1 caster level and with +1 to the save DC.\n" + description,
                                                      "",
                                                      Helpers.GetIcon("0fd00984a2c0e0a429cf1a911b4ec5ca"), //entangle
                                                      FeatureGroup.Feat,

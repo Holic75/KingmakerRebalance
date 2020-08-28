@@ -173,13 +173,18 @@ namespace CallOfTheWild.Archetypes
         {
             improved_symbiosis = Helpers.CreateFeature("ImprovedSymbiosisNatureBondedMagusFeature",
                                                     "Improved Symbiosis",
-                                                    "At 11th level, a nature-bonded magus gains a +4 enhancement bonus to his Strength and Constitution.",
+                                                    "At 11th level, a nature-bonded magus gains a +4 enhancement bonus to his Strength and Constitution. This bonus increases to +6 at level 15 and to +8 at level 19.",
                                                     "",
                                                     Helpers.GetIcon("4c3d08935262b6544ae97599b3a9556d"), //bulls strength
                                                     FeatureGroup.None,
-                                                    Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Enhancement),
-                                                    Helpers.CreateAddStatBonus(StatType.Constitution, 4, ModifierDescriptor.Enhancement)
+                                                    Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Enhancement),
+                                                    Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Enhancement),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },
+                                                                                    progression: ContextRankProgression.Custom,
+                                                                                    customProgression: new (int, int)[] { (14, 4), (18, 6), (20, 8) }
+                                                                                    )
                                                     );
+            improved_symbiosis.ReapplyOnLevelUp = true;
         }
 
 
