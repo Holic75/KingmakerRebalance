@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TurnBased.Controllers;
 
 namespace CallOfTheWild.HoldingItemsMechanics
 {
@@ -730,7 +731,27 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
             {
+                //Main.logger.Log("Skipping Weapon change animation");
                 //tr.Method("UpdateActiveWeaponSetImmediately").GetValue();
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+
+    //make signal from created weapons no longer consume move action
+    [Harmony12.HarmonyPatch(typeof(TurnController))]
+    [Harmony12.HarmonyPatch("HandleUnitChangeActiveEquipmentSet", Harmony12.MethodType.Normal)]
+    class TurnController_HandleEquipmentSetChanged_Patch
+    {
+        static bool Prefix(TurnController __instance, UnitDescriptor unit)
+        {
+            Main.TraceLog();
+         
+            if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
+            {
                 return false;
             }
 
