@@ -286,6 +286,7 @@ namespace CallOfTheWild.OnCastMechanics
     public class RangedSpellAttackRollBonusRangeAttackRollMetamagic : RuleInitiatorLogicComponent<RuleAttackRoll>
     {
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public ContextValue bonus;
         public ModifierDescriptor descriptor;
 
@@ -298,7 +299,8 @@ namespace CallOfTheWild.OnCastMechanics
                 return;
             }
             var blueprint_spellbook = ability.Spellbook?.Blueprint;
-            if (spellbook != null && blueprint_spellbook != spellbook)
+
+            if (!Helpers.checkSpellbook(spellbook, specific_class, ability.Spellbook, ability.Caster))
             {
                 return;
             }
@@ -379,6 +381,7 @@ namespace CallOfTheWild.OnCastMechanics
     public class IncreaseDurationBy1RoundIfMetamagic : RuleInitiatorLogicComponent<RuleApplyBuff>
     {
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
         public override void OnEventAboutToTrigger(RuleApplyBuff evt)
         {
             var ability = evt.Context.SourceAbilityContext?.Ability;
@@ -386,7 +389,7 @@ namespace CallOfTheWild.OnCastMechanics
             {
                 return;
             }
-            if (spellbook != null && ability.Spellbook?.Blueprint != spellbook)
+            if (!Helpers.checkSpellbook(spellbook, specific_class, ability.Spellbook, ability.Caster))
             {
                 return;
             }
@@ -416,6 +419,7 @@ namespace CallOfTheWild.OnCastMechanics
     {
         public SpellDescriptorWrapper SpellDescriptor;
         public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
 
         public void OnEventAboutToTrigger(RuleCalculateDamage evt)
         {
@@ -423,7 +427,8 @@ namespace CallOfTheWild.OnCastMechanics
             if (context?.SourceAbility == null || !context.SpellDescriptor.HasAnyFlag((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor) || !context.SourceAbility.IsSpell)
                 return;
 
-            if (spellbook != null && context.SourceAbilityContext?.Ability?.Spellbook?.Blueprint != spellbook)
+
+            if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, context.MaybeCaster.Descriptor))
             {
                 return;
             }

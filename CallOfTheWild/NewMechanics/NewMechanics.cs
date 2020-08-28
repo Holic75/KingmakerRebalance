@@ -4989,7 +4989,7 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (received_damage <= min_dmg)
+                if (received_damage < min_dmg)
                 {
                     return;
                 }
@@ -5091,7 +5091,7 @@ namespace CallOfTheWild
                     original_damage += (d.ValueWithoutReduction - d.FinalValue);
                 }
 
-                if (original_damage > min_dmg)
+                if (original_damage >= min_dmg)
                 {
                     (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
                 }
@@ -5123,7 +5123,7 @@ namespace CallOfTheWild
                     damage += (d.FinalValue);
                 }
 
-                if (damage > min_dmg)
+                if (damage >= min_dmg)
                 {
                     (this.Fact as IFactContextOwner).RunActionInContext(action, evt.Target);
                 }

@@ -4033,7 +4033,7 @@ namespace CallOfTheWild
                 return;
             }
 
-            if (evt.Damage <= min_dmg)
+            if (evt.Damage < min_dmg)
             {
                 return;
             }
@@ -4041,7 +4041,7 @@ namespace CallOfTheWild
             if (use_energy)
             {
                 int dmg = evt.ResultDamage.Where(d => (d.Source.Type == DamageType.Energy) && (d.Source as EnergyDamage)?.EnergyType == energy).Aggregate(0, (s, next) => s += next.FinalValue);
-                if (dmg <= min_dmg)
+                if (dmg < min_dmg)
                 {
                     return;
                 }

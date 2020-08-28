@@ -218,6 +218,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixEaglesoul();
                     CallOfTheWild.Rebalance.fixGrease();
                     CallOfTheWild.Rebalance.fixEldritchArcherPenalty();
+                    CallOfTheWild.Rebalance.fixSpellRemoveFearBuff();
                     CallOfTheWild.MonkStunningFists.create();
                     CallOfTheWild.Rebalance.fixTactician();
                     CallOfTheWild.Rebalance.fixFeatsRequirements();

@@ -540,13 +540,13 @@ namespace CallOfTheWild
             //Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("BloodlineArcaneArcaneBondFeature"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"));
             octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillMobility };
             octavia_acl.Selections[4].Features[0] = library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30");// hare familiar
-            octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("f43ffc8e3f8ad8a43be2d44ad6e27914"); //umd
+            octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("6507d2da389ed55448e0e1e5b871c013"); //lore nature
             octavia_companion.Dexterity = 14;
             octavia_companion.Charisma = 14;
             octavia_companion.Strength = 10;
-            octavia_acl.Selections[0].Features[0] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");//sf;
+            octavia_acl.Selections[0].Features[0] = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
             octavia_acl.Selections[6].ParamSpellSchool = SpellSchool.Conjuration;
-            Common.addParametrizedFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"), SpellSchool.Illusion);
+            //Common.addParametrizedFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"), SpellSchool.Conjuration);
             /*octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillThievery, StatType.SkillPersuasion, StatType.SkillMobility };
             //octavia_acl.Selections[1].Features[1] = library.Get<BlueprintFeature>("875fff6feb84f5240bf4375cb497e395"); //opposition enchantment, necromancy
             octavia_acl.Selections[2].Features[0] = Subschools.admixture;
@@ -689,6 +689,12 @@ namespace CallOfTheWild
             library.Get<BlueprintSpellList>("becbcfeca9624b6469319209c2a6b7f1").SpellsByLevel[2].Spells.Remove(web);//remove from conjuration
         }
 
+
+        internal static void fixSpellRemoveFearBuff()
+        {
+            var buff = library.Get<BlueprintBuff>("c5c86809a1c834e42a2eb33133e90a28");
+            buff.AddComponent(Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Shaken | SpellDescriptor.Fear));
+        }
 
         internal static void fixJudgments()
         {
