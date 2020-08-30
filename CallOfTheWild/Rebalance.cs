@@ -443,6 +443,7 @@ namespace CallOfTheWild
             tristian_companion.Charisma = 14;
             var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
             tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
+            tristian_level.Selections[3].Features[0] = Subdomains.restoration_domain_secondary;
             tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
@@ -540,7 +541,7 @@ namespace CallOfTheWild
             //Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("BloodlineArcaneArcaneBondFeature"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"));
             octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillMobility };
             octavia_acl.Selections[4].Features[0] = library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30");// hare familiar
-            octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("6507d2da389ed55448e0e1e5b871c013"); //lore nature
+            octavia_acl.Selections[5].Features[0] = library.Get<BlueprintFeature>("f43ffc8e3f8ad8a43be2d44ad6e27914"); //umd
             octavia_companion.Dexterity = 14;
             octavia_companion.Charisma = 14;
             octavia_companion.Strength = 10;
@@ -1305,6 +1306,7 @@ namespace CallOfTheWild
 
         internal static void fixDomainSpells()
         {
+            //lvl 4 heling domain should be cure critical wounds
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 5, "WeatherDomain"); //ice storm
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 7, "WeatherDomain"); //fire storm
 
@@ -1314,6 +1316,8 @@ namespace CallOfTheWild
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("81bff1165d9468a44b2f815f7c26a373"), 6, "EvilDomain"); //create undead
             //lvl 4 death domain spell should be death ward
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("710d8c959e7036448b473ffa613cdeba"), library.Get<BlueprintAbility>("0413915f355a38146bc6ad40cdf27b3f"), 4);
+            //lvl 4 helaing domain spell should be cure critical wounds
+           // Common.replaceDomainSpell(library.Get<BlueprintProgression>("b0a26ee984b6b6945b884467aa2f1baa"), library.Get<BlueprintAbility>("41c9016596fe1de4faf67425ed691203"), 4);
         }
 
         internal static void fixStalwartDefender()

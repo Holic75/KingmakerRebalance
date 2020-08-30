@@ -184,7 +184,8 @@ The mod also adds following inquisitions that can be selected instead of domains
 Subdomains:
 - Undead,
 - Lightning,
-- Storms.
+- Storms,
+- Restoration.
 
 
 New Wild Talents:
