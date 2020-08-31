@@ -416,6 +416,29 @@ namespace CallOfTheWild
             }
 
             progression.UIGroups = ui_groups.ToArray();
+            //add domain spells
+            var f0 = progression.LevelEntries[0].Features[0];
+            var comp = f0.GetComponent<AddFeatureOnClassLevel>();
+            if (comp != null)
+            {
+                f0 = library.CopyAndAdd(f0, name + f0.name, "");
+                f0.RemoveComponent(comp);
+            }
+
+            var give_spells = Helpers.CreateFeature(name + "SpellListFeature",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.Create<AddSpecialSpellList>(a => { a.CharacterClass = cleric_class; a.SpellList = spell_list; })
+                                                );
+
+            give_spells.IsClassFeature = true;
+            give_spells.HideInUI = true;
+
+            f0.AddComponent(Helpers.CreateAddFeatureOnClassLevel(give_spells, 1, new BlueprintCharacterClass[] { cleric_class }));
+            progression.LevelEntries[0].Features[0] = f0;
 
             return progression;
         }
