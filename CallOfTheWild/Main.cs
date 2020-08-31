@@ -349,6 +349,7 @@ namespace CallOfTheWild
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
+                    CallOfTheWild.Rebalance.fixTristianAngelBuff();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();
 

@@ -442,7 +442,7 @@ namespace CallOfTheWild
             tristian_companion.Wisdom = 17;
             tristian_companion.Charisma = 14;
             var tristian_level = tristian_companion.GetComponent<AddClassLevels>();
-            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35");//fire as primary
+            tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc");//sun as primary
             tristian_level.Selections[3].Features[0] = Subdomains.restoration_domain_secondary;
             tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
             tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
@@ -1303,6 +1303,26 @@ namespace CallOfTheWild
             Helpers.SetField(sneak, "m_Weapon", 1);
         }
 
+
+        public static void fixTristianAngelBuff()
+        {
+            // replace fire domain spells with sun domain
+            //fix trisitian buff
+            var trisitan_fire_maximize = library.Get<BlueprintBuff>("f16954c5c8cb0834baace64a167aa3cb");
+            trisitan_fire_maximize.SetDescription("As a move action, Tristian can adopt his angelic form. All cure spells and spells from Sun domain he casts in this form are maximized, as if using Maximize Spell feat, and he gains immunity to fire. Also, in this form he has wings, which grant him immunity to ground based effects and +2 dodge bonus to AC against melee attacks.He can use this ability for up to 20 rounds per day. These rounds do not need to be consecutive.");
+
+            var sun_domain_spells = library.Get<BlueprintSpellList>("600ffed45d0c3ec43a75dc76bb9377b6");
+            var metamagic = trisitan_fire_maximize.GetComponent<AutoMetamagic>();
+
+            var spells = Common.getSpellsFromSpellList(sun_domain_spells).AddToArray(metamagic.Abilities.Take(8)).ToList();
+
+            foreach (var s in spells.ToArray())
+            {
+                spells.AddRange(SpellDuplicates.getDuplicates(s));
+            }
+            spells = spells.Distinct().ToList();
+            metamagic.Abilities = spells;
+        }
 
         internal static void fixDomainSpells()
         {
