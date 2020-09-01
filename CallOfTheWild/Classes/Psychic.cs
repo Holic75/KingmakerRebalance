@@ -12,6 +12,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Buffs;
@@ -90,6 +91,7 @@ namespace CallOfTheWild
         static public BlueprintArchetype magaambyan_telepath;
         static public BlueprintArchetype starseeker;
         static public BlueprintArchetype mutation_mind;
+        static public BlueprintArchetype psychic_maraudeur;
         static public BlueprintArchetype amnesiac;
 
         static public BlueprintFeature phrenic_mastery;
@@ -104,6 +106,24 @@ namespace CallOfTheWild
         static public BlueprintSpellbook amnesiac_spellbook;
         static public BlueprintFeature amnesiac_spell_casting;
         static public BlueprintFeature spell_recollection;
+
+        static public BlueprintBuff physical_mutation_buff;
+        static public BlueprintFeature physical_mutation;
+
+        static public BlueprintFeature bodily_mutations;
+        static public BlueprintFeature adhesive;
+        static public BlueprintFeature bite_attack;
+        static public BlueprintFeature claws;
+        static public BlueprintFeature elongated_legs;
+        static public BlueprintFeature elongated_torso;
+        static public BlueprintFeature rubbery;
+        static public BlueprintFeature slimy;
+
+        static public BlueprintFeature improved_bodily_mutations;
+        static public BlueprintFeature enlarged_body;
+        static public BlueprintFeature multiple_eyes;
+        static public BlueprintFeature recuperation;
+        static public BlueprintFeature wings;
 
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -158,9 +178,237 @@ namespace CallOfTheWild
             createMagaambyanTelepath();
             createEsotericStarseeker();
             createAmnesiac();
-            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker };
+            createMutationMind();
+            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker, mutation_mind };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
+        }
+
+
+        static void createMutationMind()
+        {
+            mutation_mind = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "MutationMindArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Mutation Mind");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Exposure to unintended spell effects, curses, or sources of radiation cause some to manifest psychic powers. When a mutation mind uses her psychic abilities, her physical body changes under the stress, and she risks losing control if she pushes too far.");
+            });
+            Helpers.SetField(mutation_mind, "m_ParentClass", psychic_class);
+            library.AddAsset(mutation_mind, "");
+            createPhysicalMutation();
+            createBodilyMutations();
+            createImprovedBodilyMutations();
+            mutation_mind.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, phrenic_amplification) };
+            mutation_mind.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, physical_mutation),
+                                                          Helpers.LevelEntry(3, bodily_mutations),
+                                                          Helpers.LevelEntry(11, improved_bodily_mutations)
+                                                        };
+            psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(physical_mutation, bodily_mutations, improved_bodily_mutations));
+        }
+
+
+        static void createBodilyMutations()
+        {
+            bodily_mutations = Helpers.CreateFeature("BodilyMutationsFeature",
+                                                     "Bodily Mutations",
+                                                     "Starting at 3rd level, whenever a mutation mind gains a phrenic amplification, she can select either a phrenic amplification or a bodily mutation. A bodily mutation grants its benefit only when the mutation mind is affected by her physical mutation. Each time she activates her physical mutation, she can activate any number of bodily mutations she possesses.",
+                                                     "",
+                                                     Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
+                                                     FeatureGroup.None);
+
+            adhesive = createBodilyMutation("Adhesive",
+                                             "Adhesive",
+                                             "The mutation mind’s skin becomes sticky, granting her a +4 bonus on disarm and grapple combat maneuver checks.",
+                                             Helpers.GetIcon("6b30813c3709fc44b92dc8fd8191f345"),
+                                             null,
+                                             false,
+                                             Helpers.Create<ManeuverBonus>(m => { m.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm; m.Bonus = 4; }),
+                                             Helpers.Create<ManeuverBonus>(m => { m.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Grapple; m.Bonus = 4; })
+                                             );
+
+            bite_attack = createBodilyMutation("BiteAttack",
+                                             "Bite Attack",
+                                             "The mutation mind’s mouth fills with sharp teeth, allowing her to make a bite attack as part of a full-attack action at her highest base attack bonus. This attack deals 1d4 points of damage (1d3 if Small) and counts as a primary attack unless combined with manufactured weapon attacks, as normal.",
+                                             Helpers.GetIcon("25954b1652bebc2409f9cb9d5728bceb"),
+                                             null,
+                                             false,
+                                             Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("8c01e7fccbb829947bc5894f63fb389a"))
+                                             );
+
+            claws = createBodilyMutation("Claws",
+                                         "Claws",
+                                         "The mutation mind’s hands turn into claws, allowing her to make two claw attacks as a full-attack action at her highest base attack bonus. Each of these attacks deals 1d4 points of damage (1d3 if Small) and counts as a primary attack unless combined with manufactured weapon attacks, as normal.",
+                                         Helpers.GetIcon("e17698ef77dc3174cbd0a42422c22441"),
+                                         null,
+                                         false,
+                                         Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("289c13ba102d0df43862a488dad8a5d5"))
+                                         );
+
+            elongated_legs = createBodilyMutation("ElongatedLegs",
+                                         "Elongated Legs",
+                                         "The mutation mind’s legs become long and spindly, increasing her base movement by 10 feet.",
+                                         Helpers.GetIcon("486eaff58293f6441a5c2759c4872f98"),
+                                         null,
+                                         false,
+                                         Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)
+                                         );
+
+            elongated_torso = createBodilyMutation("ElongatedTorso",
+                                                 "Elongated Torso",
+                                                 "The mutation mind’s torso enlarges disproportionately with the rest of her body, granting her a +2 natural armor bonus to AC.",
+                                                 Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
+                                                 null,
+                                                 false,
+                                                 Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                 );
+
+            rubbery = createBodilyMutation("Rubbery",
+                                     "Rubbery",
+                                     "The mutation mind’s body becomes soft and rubbery, granting her DR 2/—.",
+                                     NewSpells.resinous_skin.Icon,
+                                     null,
+                                     false,
+                                     Common.createPhysicalDR(2)
+                                     );
+
+            slimy = createBodilyMutation("Slimy",
+                                 "Slimy",
+                                 "The mutation mind’s skin becomes sticky, granting her a +4 bonus on disarm and grapple combat maneuver checks.",
+                                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/Slimy.png"),
+                                 null,
+                                 false,
+                                 Helpers.CreateAddStatBonus(StatType.AdditionalCMD, 4, ModifierDescriptor.UntypedStackable)
+                                 );
+
+        }
+
+
+        static void createImprovedBodilyMutations()
+        {
+            improved_bodily_mutations = Helpers.CreateFeature("ImprovedBodilyMutationsFeature",
+                                                     "Improved Bodily Mutations",
+                                                     "At 11th level, a mutation mind can select one of the improved bodily mutations instead of a phrenic amplification.",
+                                                     "",
+                                                     Helpers.GetIcon("93d9d74dac46b9b458d4d2ea7f4b1911"), //polymorph
+                                                     FeatureGroup.None);
+
+            enlarged_body = createBodilyMutation("EnlargedBody",
+                                                 "Enlarged Body",
+                                                 "The mutation mind’s body swells and stretches, enlarging her as the enlarge person spell but uby 2 size categories. Mutation mind receives + 4 size bonus to strength and -2 bonus to dexterity.",
+                                                 Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271"),
+                                                 null,
+                                                 true,
+                                                 Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
+                                                 Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Size),
+                                                 Helpers.Create<ChangeUnitSize>(c => c.SizeDelta  = 2) 
+                                                 );
+
+
+            multiple_eyes = createBodilyMutation("MultipleEyes",
+                                                 "Multiple Eyes",
+                                                 "Multiple eyes erupt all over the mutation mind’s body. She can’t be flanked and gains a +4 bonus on Perception checks.",
+                                                 NewSpells.countless_eyes.Icon,
+                                                 null,
+                                                 true,
+                                                 Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.CannotBeFlanked),
+                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, 4, ModifierDescriptor.UntypedStackable)
+                                                 );
+
+            recuperation = createBodilyMutation("Recuperation",
+                                                 "Recuperation",
+                                                 "The mutation mind heals quickly from physical wounds, gaining fast healing 5.",
+                                                 Helpers.GetIcon("aad496a7c9bee224cbd01a3cf8e42061"),
+                                                 null,
+                                                 true,
+                                                 Common.createAddContextEffectFastHealing(5)
+                                                 );
+
+
+            wings = createBodilyMutation("Wings",
+                                     "Wings",
+                                     "The mutation mind sprouts a pair of fleshy, batlike wings.",
+                                     Helpers.GetIcon("aad496a7c9bee224cbd01a3cf8e42061"),
+                                     Common.createPrefabLink("7662eda306be77a4ab8f57dbf1235cc9"),
+                                     true,
+                                     Helpers.CreateAddFact(FixFlying.airborne),
+                                     Common.createAddConditionImmunity(UnitCondition.DifficultTerrain),
+                                     Common.createBuffDescriptorImmunity(SpellDescriptor.Ground)
+                                     );
+        }
+
+
+        static BlueprintFeature createBodilyMutation(string name, string display_name, string description, UnityEngine.Sprite icon,
+                                         PrefabLink fx, bool is_improved, params BlueprintComponent[] components)
+        {
+            var feature = Helpers.CreateFeature(name + "BodilyMutationFeature",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.PrerequisiteFeature(bodily_mutations));
+
+            if (is_improved)
+            {
+                feature.AddComponent(Helpers.PrerequisiteFeature(improved_bodily_mutations));
+            }
+            phrenic_amplification.Features = phrenic_amplification.Features.AddToArray(feature);
+
+            var buff = Helpers.CreateBuff(name + "BodilyMutationBuff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          icon,
+                                          fx,
+                                          components);
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(physical_mutation_buff, buff, feature);
+
+            return feature;
+        }
+
+
+        static void createPhysicalMutation()
+        {
+            var resource = Helpers.CreateAbilityResource("PhysicalMutationResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, getPsychicArray());
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+
+            physical_mutation_buff = Helpers.CreateBuff("PhysicalMutationBuff",
+                                                        "Physical Mutation",
+                                                        "A mutation mind’s psychic powers warp her body, allowing her to physically mutate herself as a swift action, which grants her a +4 alchemical bonus to Strength and a –2 penalty to Intelligence. At 12th level, the bonus to Strength increases to +6, and at 16th level to +8. A mutation mind can assume her physically mutated form for a number of minutes per day equal to her psychic level. The minutes don’t have to be used consecutively, but must be used in 1-minute increments. After the mutation ends, the mutation mind is fatigued and can’t activate a physical mutation again for 1 round.",
+                                                        "",
+                                                        Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"),
+                                                        Common.createPrefabLink("3b42d149d55dfe5469d9967f22d7e020"), //bull strength
+                                                        Helpers.CreateAddStatBonus(StatType.Intelligence, -2, ModifierDescriptor.UntypedStackable),
+                                                        Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Alchemical),
+                                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(),
+                                                                                        progression: ContextRankProgression.Custom,
+                                                                                        customProgression: new (int, int)[] { (11, 4), (15, 6), (20, 8) }),
+                                                        Helpers.CreateAddFactContextActions(deactivated:
+                                                                                            Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                                            )
+                                                        );
+
+            var ability = Helpers.CreateAbility("PhysicalMutationAbility",
+                                                physical_mutation_buff.Name,
+                                                physical_mutation_buff.Description,
+                                                "",
+                                                physical_mutation_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(physical_mutation_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                Common.createAbilityCasterHasNoFacts(fatigued, exhausted, physical_mutation_buff),
+                                                resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            physical_mutation = Common.AbilityToFeature(ability, false);
+            physical_mutation.AddComponent(resource.CreateAddAbilityResource());
         }
 
 
