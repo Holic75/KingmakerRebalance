@@ -932,9 +932,12 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
-                if (!nullable.HasValue || !nullable.Value)
-                    return;
+                if (this.Descriptor != SpellDescriptor.None)
+                {
+                    bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                    if (!nullable.HasValue || !nullable.Value)
+                        return;
+                }
                 evt.AddBonusCasterLevel(this.Value.Calculate(this.Context));
             }
 
@@ -981,9 +984,12 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
-                if (!nullable.HasValue || !nullable.Value)
-                    return;
+                if (this.Descriptor != SpellDescriptor.None)
+                {
+                    bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                    if (!nullable.HasValue || !nullable.Value)
+                        return;
+                }
                 evt.AddBonusDC(this.Value.Calculate(this.Context));
             }
 

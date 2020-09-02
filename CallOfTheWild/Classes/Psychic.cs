@@ -466,11 +466,10 @@ namespace CallOfTheWild
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
-                                                     Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(r =>
+                                                     Helpers.Create<StatReplacementMechanics.ReplaceStatForSavingthrow>(r =>
                                                      {
-                                                         r.only_if_greater = false;
-                                                         r.StatTypeToReplaceBastStatFor = StatType.SaveWill;
-                                                         r.NewBaseStatType = StatType.Charisma;
+                                                         r.dependent_value = StatType.SaveWill;
+                                                         r.stat = StatType.Charisma;
                                                      })
                                                      );
         }
@@ -482,7 +481,7 @@ namespace CallOfTheWild
                                                      "Cracked Perspectives",
                                                      "At 9th level, a psychic marauder’s growing madness renders her immune to confusion and insanity effects.",
                                                      "",
-                                                     Helpers.GetIcon("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                                                     Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"), //mind fog
                                                      FeatureGroup.None,
                                                      Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Confusion),
                                                      Common.createBuffDescriptorImmunity(SpellDescriptor.Confusion),
@@ -497,7 +496,7 @@ namespace CallOfTheWild
                                                      "Unreal Understanding",
                                                      "At 20th level, a psychic marauder’s mindset becomes completely aberrant, to the point that no outside force can penetrate her psyche. Because of this, the psychic marauder becomes immune to all mind-affecting effects.",
                                                      "",
-                                                     Helpers.GetIcon("8c385a7610aa409468f3a6c0f904ac92"), //foresight
+                                                     Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
                                                      FeatureGroup.None,
                                                      Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.MindAffecting),
                                                      Common.createBuffDescriptorImmunity(SpellDescriptor.MindAffecting)
@@ -1574,7 +1573,7 @@ namespace CallOfTheWild
                                                                null,
                                                                Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s =>
                                                                {
-                                                                   s.amount = 1;
+                                                                   s.amount = 0;
                                                                    s.resource = phrenic_pool_resource;
                                                                    s.specific_class = psychic_class;
                                                                    s.remove_self = true;
