@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
@@ -125,6 +126,11 @@ namespace CallOfTheWild
         static public BlueprintFeature recuperation;
         static public BlueprintFeature wings;
 
+        static public BlueprintFeature[] aura_of_insanity = new BlueprintFeature[3];
+        static public BlueprintFeature skewed_mentality;
+        static public BlueprintFeature cracked_perspectives;
+        static public BlueprintFeature unreal_understanding;
+
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
         static Dictionary<string, BlueprintProgression> no_spells_psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -179,10 +185,326 @@ namespace CallOfTheWild
             createEsotericStarseeker();
             createAmnesiac();
             createMutationMind();
-            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker, mutation_mind };
+            createPsychicMaraudeur();
+            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker, mutation_mind, psychic_maraudeur };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
         }
+
+
+        static void createPsychicMaraudeur()
+        {
+            psychic_maraudeur = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PsychicMaraudeurArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Psychic Marauder");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "When one encounters aberrant creatures, it can unlock psychic potential within a person, though this experience is traumatic for those who endure it. The psychic marauder’s powers come hand in hand with madness, either from exposure to alien psyches or from terrifying glimpses into the cosmos that the psychic can’t suppress. But she does not crumble under the strain of this insanity; instead, she cordons it off to use as a shield against other psychic intrusions and harnesses it to unleash it upon the world around her.");
+            });
+            Helpers.SetField(psychic_maraudeur, "m_ParentClass", psychic_class);
+            library.AddAsset(psychic_maraudeur, "");
+
+            createSkewedMentality();
+            createAuraOfInsanity();
+            createCrackedPerspectives();
+            createUnrealUnderstanding();
+
+            psychic_maraudeur.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(3, phrenic_amplification),
+                                                              Helpers.LevelEntry(11, phrenic_amplification),
+                                                              Helpers.LevelEntry(19, phrenic_amplification),
+                                                              Helpers.LevelEntry(20, phrenic_mastery)};
+            psychic_maraudeur.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, skewed_mentality),
+                                                          Helpers.LevelEntry(3, aura_of_insanity[0]),
+                                                          Helpers.LevelEntry(9, cracked_perspectives),
+                                                          Helpers.LevelEntry(11, aura_of_insanity[1]),
+                                                          Helpers.LevelEntry(19, aura_of_insanity[2]),
+                                                          Helpers.LevelEntry(20, unreal_understanding),
+                                                        };
+            psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(aura_of_insanity.AddToArray(skewed_mentality, cracked_perspectives, unreal_understanding)));
+        }
+
+
+        static void createAuraOfInsanity()
+        {
+            var confusion_buff = library.Get<BlueprintBuff>("886c7407dc629dc499b9f1465ff382df");
+
+            aura_of_insanity[0] = Helpers.CreateFeature("AuraOfInsanityIFeature",
+                                                        "Aura of Insanity I",
+                                                        "At 3rd level, a psychic marauder’s madness begins to leak out. As a standard action, the psychic marauder can spend 1 point from her phrenic pool to manifest an aura of insanity, letting bits of her psyche penetrate the minds of those around her. The aura is centered on the psychic marauder and has a radius of 10 feet, increasing by 5 feet for every 3 class levels beyond 3rd. Any hostile creature starting its turn within the aura must succeed at a Will save (DC = 10 + half the psychic marauder’s level + the psychic marauder’s Intelligence modifier) or be confused for 1 round. The aura of insanity lasts for a number of rounds equal to the psychic marauder’s Charisma modifier. This is a mind-affecting effect.",
+                                                        "",
+                                                        confusion_buff.Icon,
+                                                        FeatureGroup.None
+                                                        );
+
+            aura_of_insanity[1] = Helpers.CreateFeature("AuraOfInsanityIIFeature",
+                                            "Aura of Insanity II",
+                                            "At 11th level, the psychic can decide to spend 1 extra phrenic pool point when using aura of insanity to force affected creatures to always reroll \'acts normally\' confused condition.",
+                                            "",
+                                            confusion_buff.Icon,
+                                            FeatureGroup.None
+                                            );
+
+            aura_of_insanity[2] = Helpers.CreateFeature("AuraOfInsanityIIIFeature",
+                                                        "Aura of Insanity III",
+                                                        "At 19th level, the psychic can decide to spend 2 extra phrenic pool points when using aura of insanity to select the result of the affected creatures’ confused condition without rolling.",
+                                                        "",
+                                                        confusion_buff.Icon,
+                                                        FeatureGroup.None
+                                                        );
+
+            var confused_states = new ConfusionState[] { ConfusionState.AttackNearest, ConfusionState.DoNothing, ConfusionState.SelfHarm };
+            var no_act_normally_buff = Helpers.CreateBuff("NoActNormallyConfusionBuff",
+                                                          "Reroll \'Acts Normally\' Confused Condition",
+                                                          "The creature under confusion effect will always reroll beahviour dice if it results in \'Acts normally\'.",
+                                                          "",
+                                                          confusion_buff.Icon,
+                                                          null,
+                                                          Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = confused_states)
+                                                          );
+            var apply_specific_confusion_buffs = new List<GameAction>();
+            var specific_confusion_buffs = new List<BlueprintBuff>();
+
+            foreach (var cs in confused_states)
+            {
+                var state_string = Regex.Replace(cs.ToString(), "([a-z])([A-Z])", "$1 $2");
+                var specific_buff = Helpers.CreateBuff(cs.ToString() + "ConfusionBuff",
+                                                       $"Enforce \'{state_string}\' Condition",
+                                                       "The creature under confusion effect will always roll enforced condition.",
+                                                       "",
+                                                       confusion_buff.Icon,
+                                                       null,
+                                                       Helpers.Create<ConfusionControl.ControlConfusionBuff>(c => c.allowed_states = new ConfusionState[] { cs })
+                                                       );
+                GameAction apply_confusion3 = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                          Helpers.CreateConditionalSaved(new GameAction[0],
+                                                                         new GameAction[]{Common.createContextActionApplyBuff(confusion_buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                                                      Common.createContextActionApplyBuff(specific_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                                         }
+                                                                        )
+                                         );
+                apply_confusion3 = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), apply_confusion3);
+                apply_specific_confusion_buffs.Add(apply_confusion3);
+                specific_confusion_buffs.Add(specific_buff);
+            }
+
+
+            GameAction apply_confusion = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                  Helpers.CreateConditionalSaved(null,
+                                                                                                 Common.createContextActionApplyBuff(confusion_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                                                )
+                                                                 );
+            apply_confusion = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), apply_confusion);
+            GameAction apply_confusion2 = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                      Helpers.CreateConditionalSaved(new GameAction[0],
+                                                                                     new GameAction[]{Common.createContextActionApplyBuff(confusion_buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                                                      Common.createContextActionApplyBuff(no_act_normally_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                                                     }
+                                                                                    )
+                                                     );
+            apply_confusion2 = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), apply_confusion2);
+
+            for (int i = 0; i < 6; i++)
+            {
+                var area1 = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7fc8dbff8ba688d4b864b1c1be45fe97", $"AuraOfInsanityI{i+1}Area", "");
+                area1.Size = (10 + i * 5).Feet();
+                area1.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.CreateAddFactContextActions(newRound: apply_confusion),
+                    Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
+                    Helpers.CreateSpellDescriptor(SpellDescriptor.Confusion | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting)
+                };
+
+                var buff1 = Helpers.CreateBuff($"AuraOfInsanityI{i + 1}Buff",
+                                               aura_of_insanity[0].Name,
+                                               aura_of_insanity[0].Description,
+                                               "",
+                                               aura_of_insanity[0].Icon,
+                                               null,
+                                               Common.createAddAreaEffect(area1)
+                                               );
+
+                var ability1 = Helpers.CreateAbility($"AuraOfInsanityI{i + 1}Ability",
+                                                       aura_of_insanity[0].Name,
+                                                       aura_of_insanity[0].Description,
+                                                       "",
+                                                       aura_of_insanity[0].Icon,
+                                                       AbilityType.Supernatural,
+                                                       CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       "Charisma modifier rounds",
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff1,
+                                                                                                                    Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                                    dispellable: false)
+                                                                               ),
+                                                       Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                       phrenic_pool_resource.CreateResourceLogic(),
+                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                                       );
+                ability1.setMiscAbilityParametersSelfOnly();
+
+                var feature1 = Common.AbilityToFeature(ability1);
+
+                var area2 = library.CopyAndAdd<BlueprintAbilityAreaEffect>(area1, $"AuraOfInsanityII{i + 1}Area", "");
+                area2.ComponentsArray = new BlueprintComponent[]
+                {
+                    Helpers.CreateAddFactContextActions(newRound: apply_confusion2),
+                    Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence)
+                };
+
+                var buff2 = Helpers.CreateBuff($"AuraOfInsanityII{i + 1}Buff",
+                               aura_of_insanity[1].Name,
+                               aura_of_insanity[1].Description,
+                               "",
+                               aura_of_insanity[1].Icon,
+                               null,
+                               Common.createAddAreaEffect(area2)
+                               );
+
+                var ability2 = Helpers.CreateAbility($"AuraOfInsanityII{i + 1}Ability",
+                                       aura_of_insanity[1].Name,
+                                       aura_of_insanity[1].Description,
+                                       "",
+                                       aura_of_insanity[1].Icon,
+                                       AbilityType.Supernatural,
+                                       CommandType.Standard,
+                                       AbilityRange.Personal,
+                                       "Charisma modifier rounds",
+                                       "",
+                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff2,
+                                                                                                    Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                    dispellable: false)
+                                                               ),
+                                       Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                       phrenic_pool_resource.CreateResourceLogic(amount: 2),
+                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                       );
+                ability2.setMiscAbilityParametersSelfOnly();
+
+                var feature2 = Common.AbilityToFeature(ability2);
+
+                List<BlueprintAbility> abilities3 = new List<BlueprintAbility>();
+
+                for (int j = 0; j < specific_confusion_buffs.Count; j++)
+                {
+                    var area3 = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7fc8dbff8ba688d4b864b1c1be45fe97", $"AuraOfInsanityIII{i + 1}{j+1}Area", "");
+                    area3.Size = (10 + i * 5).Feet();
+                    area3.ComponentsArray = new BlueprintComponent[]
+                    {
+                    Helpers.CreateAddFactContextActions(newRound: apply_specific_confusion_buffs[j]),
+                    Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
+                    Helpers.CreateSpellDescriptor(SpellDescriptor.Confusion | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting)
+                    };
+
+                    var buff3 = Helpers.CreateBuff($"AuraOfInsanityIII{i + 1}{j+1}Buff",
+                                                   aura_of_insanity[2].Name + "(" + specific_confusion_buffs[j].Name + ")",
+                                                   aura_of_insanity[2].Description,
+                                                   "",
+                                                   aura_of_insanity[2].Icon,
+                                                   null,
+                                                   Common.createAddAreaEffect(area3)
+                                                   );
+
+                    var ability3 = Helpers.CreateAbility($"AuraOfInsanityIII{i + 1}{j+1}Ability",
+                                                           buff3.Name,
+                                                           aura_of_insanity[2].Description,
+                                                           "",
+                                                           aura_of_insanity[2].Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Standard,
+                                                           AbilityRange.Personal,
+                                                           "Charisma modifier rounds",
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff3,
+                                                                                                                        Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                                        dispellable: false)
+                                                                                   ),
+                                                           Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                           phrenic_pool_resource.CreateResourceLogic(amount: 3),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                                           );
+                    ability3.setMiscAbilityParametersSelfOnly();
+                    abilities3.Add(ability3);
+                }
+
+                var wrapper3 = Common.createVariantWrapper($"AuraOfInsanityIII{i + 1}AbilityBase", "",  abilities3.ToArray());
+                wrapper3.SetName(aura_of_insanity[2].Name);
+
+                var feature3 = Common.AbilityToFeature(wrapper3);
+
+                aura_of_insanity[0].AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                {
+                    a.classes = getPsychicArray();
+                    a.Feature = feature1;
+                    a.min_level = (i + 1) * 3;
+                    a.max_level = i == 5 ? 100 : (i + 2) * 3 - 1;
+                }));
+
+                aura_of_insanity[1].AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                {
+                    a.classes = getPsychicArray();
+                    a.Feature = feature2;
+                    a.min_level = (i + 1) * 3;
+                    a.max_level = i == 5 ? 100 : (i + 2) * 3 - 1;
+                }));
+
+                aura_of_insanity[2].AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+                {
+                    a.classes = getPsychicArray();
+                    a.Feature = feature3;
+                    a.min_level = (i + 1) * 3;
+                    a.max_level = i == 5 ? 100 : (i + 2) * 3 - 1;
+                }));
+            }
+
+        }
+
+        static void createSkewedMentality()
+        {
+            skewed_mentality = Helpers.CreateFeature("SkewedMentalityFeature",
+                                                     "Skewed Mentality",
+                                                     "At 2nd level, a psychic marauder becomes alienated from reality as others perceive it. The psychic marauder uses her Charisma modifier on Will saves instead of her Wisdom modifier.",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(r =>
+                                                     {
+                                                         r.only_if_greater = false;
+                                                         r.StatTypeToReplaceBastStatFor = StatType.SaveWill;
+                                                         r.NewBaseStatType = StatType.Charisma;
+                                                     })
+                                                     );
+        }
+
+
+        static void createCrackedPerspectives()
+        {
+            cracked_perspectives = Helpers.CreateFeature("CrackedPerspectivesFeature",
+                                                     "Cracked Perspectives",
+                                                     "At 9th level, a psychic marauder’s growing madness renders her immune to confusion and insanity effects.",
+                                                     "",
+                                                     Helpers.GetIcon("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                                                     FeatureGroup.None,
+                                                     Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Confusion),
+                                                     Common.createBuffDescriptorImmunity(SpellDescriptor.Confusion),
+                                                     Common.createAddConditionImmunity(UnitCondition.Confusion)
+                                                     );
+        }
+
+
+        static void createUnrealUnderstanding()
+        {
+            unreal_understanding = Helpers.CreateFeature("UnrealUnderstandingFeature",
+                                                     "Unreal Understanding",
+                                                     "At 20th level, a psychic marauder’s mindset becomes completely aberrant, to the point that no outside force can penetrate her psyche. Because of this, the psychic marauder becomes immune to all mind-affecting effects.",
+                                                     "",
+                                                     Helpers.GetIcon("8c385a7610aa409468f3a6c0f904ac92"), //foresight
+                                                     FeatureGroup.None,
+                                                     Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                     Common.createBuffDescriptorImmunity(SpellDescriptor.MindAffecting)
+                                                     );
+        }
+
+
 
 
         static void createMutationMind()
@@ -402,7 +724,9 @@ namespace CallOfTheWild
                                                 Helpers.oneMinuteDuration,
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionApplyBuff(physical_mutation_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
-                                                Common.createAbilityCasterHasNoFacts(fatigued, exhausted, physical_mutation_buff),
+                                                Common.createAbilityCasterHasNoFacts(physical_mutation_buff),
+                                                Helpers.Create<NewMechanics.AbilityCasterHasCondition>(a => { a.Condition = UnitCondition.Fatigued; a.Not = true; }),
+                                                Helpers.Create<NewMechanics.AbilityCasterHasCondition>(a => { a.Condition = UnitCondition.Exhausted; a.Not = true; }),
                                                 resource.CreateResourceLogic()
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
@@ -1041,8 +1365,290 @@ namespace CallOfTheWild
             createFaithDisicipline();
             createPsychedeliaDisicipline();
             createPainDiscipline();
-            //pageantry
-            //ferocity?
+            createPageantryDiscipline();
+            createFerocityDiscipline();
+        }
+
+
+        static void createFerocityDiscipline()
+        {
+            var enhanced_senses_buff1 = Helpers.CreateBuff("EnhancedSenses1Buff",
+                                                           "Enhanced Senses: Blindsense",
+                                                           "Your mind can process sensory stimuli with exceptional efficiency, awakening you to a world most humanoids cannot comprehend. You can spend 1 point from your phrenic pool as a standard action to amplify your sense of smell, gaining blindsense with a range of 30 feet for 1 minute. At 11th level, your blindsense is continuously active, and you can spend 1 point from your phrenic pool as a standard action to gain blindsight with a range of 30 feet for 1 minute.",
+                                                           "",
+                                                           NewSpells.countless_eyes.Icon,
+                                                           null,
+                                                           Common.createBlindsense(30)
+                                                           );
+
+            var enhanced_senses1_ability = Helpers.CreateAbility("EnhancedSenses1Ability",
+                                                        enhanced_senses_buff1.Name,
+                                                        enhanced_senses_buff1.Description,
+                                                        "",
+                                                        enhanced_senses_buff1.Icon,
+                                                        AbilityType.Extraordinary,
+                                                        CommandType.Standard,
+                                                        AbilityRange.Personal,
+                                                        Helpers.oneMinuteDuration,
+                                                        "",
+                                                        Helpers.CreateRunActions(Common.createContextActionApplyBuff(enhanced_senses_buff1, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                        Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                        phrenic_pool_resource.CreateResourceLogic()
+                                                        );
+            enhanced_senses1_ability.setMiscAbilityParametersSelfOnly();
+            var enhanced_senses1_feature = Common.AbilityToFeature(enhanced_senses1_ability);
+
+            var enhanced_senses_buff2 = Helpers.CreateBuff("EnhancedSenses2Buff",
+                                               "Enhanced Senses: Blindsight",
+                                               enhanced_senses_buff1.Description,
+                                               "",
+                                               NewSpells.countless_eyes.Icon,
+                                               null,
+                                               Common.createBlindsight(30)
+                                               );
+            
+            var enhanced_senses2_ability = Helpers.CreateAbility("EnhancedSenses2Ability",
+                                            enhanced_senses_buff2.Name,
+                                            enhanced_senses_buff2.Description,
+                                            "",
+                                            enhanced_senses_buff2.Icon,
+                                            AbilityType.Extraordinary,
+                                            CommandType.Standard,
+                                            AbilityRange.Personal,
+                                            Helpers.oneMinuteDuration,
+                                            "",
+                                            Helpers.CreateRunActions(Common.createContextActionApplyBuff(enhanced_senses_buff2, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                            Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                            phrenic_pool_resource.CreateResourceLogic()
+                                            );
+            enhanced_senses2_ability.setMiscAbilityParametersSelfOnly();
+            var enhanced_senses2_feature = Common.AbilityToFeature(enhanced_senses2_ability);
+            enhanced_senses2_feature.AddComponent(Common.createBlindsense(30));
+
+            var enhanced_senses = Helpers.CreateFeature("EnhancedSensesFeature",
+                                                        "Enhanced Senses",
+                                                        enhanced_senses1_feature.Description,
+                                                        "",
+                                                        enhanced_senses1_feature.Icon,
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddFeatureOnClassLevel(enhanced_senses1_feature, 11, getPsychicArray(), before: true),
+                                                        Helpers.CreateAddFeatureOnClassLevel(enhanced_senses2_feature, 11, getPsychicArray())
+                                                        );
+
+            var ferocity_buff = Helpers.CreateBuff("FerocityAbilityBuff",
+                                                   "Ferocity",
+                                                   "At 5th level, you cling to life with increasing ferocity. You gain Diehard feat. Whenever you have less than 25% hit points, you gain a +4 morale bonus to your Strength and Dexterity, as well as a +2 morale bonus on Fortitude saves.",
+                                                   "",
+                                                   Helpers.GetIcon("97b991256e43bb140b263c326f690ce2"), //rage
+                                                   null,
+                                                   Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Morale),
+                                                   Helpers.CreateAddStatBonus(StatType.Dexterity, 4, ModifierDescriptor.Morale),
+                                                   Helpers.CreateAddStatBonus(StatType.SaveFortitude, 2, ModifierDescriptor.Morale)
+                                                   );
+
+            var dmg_trigger = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionCompareTargetHPPercent>(c => c.Value = 25),
+                                                        Common.createContextActionApplyBuff(ferocity_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                        );
+            var healing_trigger = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionCompareTargetHPPercent>(c => { c.Value = 25; c.Not = true; }),
+                                                            Common.createContextActionRemoveBuff(ferocity_buff)
+                                                           );
+
+            var ferocity_feature = Helpers.CreateFeature("FerocityAbilityFeature",
+                                                         ferocity_buff.Name,
+                                                         ferocity_buff.Description,
+                                                         "",
+                                                         ferocity_buff.Icon,
+                                                         FeatureGroup.None,
+                                                         Common.createAddFeatureIfHasFact(library.Get<BlueprintFeature>("c99f3405d1ef79049bd90678a666e1d7"),
+                                                                                          library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad"),
+                                                                                          not: true
+                                                                                          ),
+                                                         Common.createIncomingDamageTrigger(dmg_trigger),
+                                                         Common.createHealingTrigger(healing_trigger)
+                                                        );
+
+            var primal_fury_resource = Helpers.CreateAbilityResource("PrimalFuryFerocityResource", "", "", "", null);
+            primal_fury_resource.SetIncreasedByLevel(0, 1, getPsychicArray());
+            var primal_fury_buff = library.CopyAndAdd<BlueprintBuff>("287682389d2011b41b5a65195d9cbc84", "PrimalFuryFerocityBuff", "");
+
+            primal_fury_buff.SetNameDescription("Primal Fury",
+                                                "At 13th level, you can unleash a more primal version of yourself as a free action. This functions as transformation, with the following exceptions. You can use this ability for a number of rounds per day equal to your psychic level. These rounds do not need to be consecutive. You can end the effect as a free action. After using this ability, you are fatigued for one minute. You cannot enter a new primal fury while fatigued or exhausted. If you fall unconscious, your primal fury immediately ends."
+                                                );
+
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var apply_fatigued = Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
+            primal_fury_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: apply_fatigued));
+            var primal_fury_toggle = Common.buffToToggle(primal_fury_buff, CommandType.Free, true,
+                                                         Helpers.Create<RestrictionHasUnitCondition>(r => { r.Condition = UnitCondition.Fatigued; r.Invert = true; }),
+                                                         Helpers.Create<RestrictionHasUnitCondition>(r => { r.Condition = UnitCondition.Exhausted; r.Invert = true; }),
+                                                         primal_fury_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound)
+                                                         );
+            primal_fury_toggle.DeactivateIfOwnerDisabled = true;
+            primal_fury_toggle.DeactivateIfOwnerUnconscious = true;
+            var primal_fury_feature = Common.ActivatableAbilityToFeature(primal_fury_toggle, false);
+            primal_fury_feature.AddComponent(primal_fury_resource.CreateAddAbilityResource());
+
+            createPsychicDiscipline("Ferocity",
+                        "Ferocity",
+                        "You are in touch with the most primal part of your subconscious. Your training allows you to unlock animalistic senses and powers.\n"
+                        + "Discipline Powers: Through your psychic training, you can unleash the most animalistic portions of your subconscious, enhancing your senses and physical capabilities.",
+                        ferocity_feature.Icon,
+                        StatType.Wisdom,
+                        new BlueprintAbility[]
+                        {
+                                                    library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                                                    library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d"), //bull's strength
+                                                    library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                                                    library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e"), //freedom of movement
+                                                    library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b"), //stoneskin
+                                                    library.Get<BlueprintAbility>("27203d62eb3d4184c9aced94f22e1806"), //transformation
+                                                    library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                                                    library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
+                                                    library.Get<BlueprintAbility>("1f01a098d737ec6419aedc4e7ad61fdd"), //foresight
+                        },
+                        enhanced_senses,
+                        ferocity_feature,
+                        primal_fury_feature
+                        );
+        } 
+
+
+        static void createPageantryDiscipline()
+        {
+            //ritual unity
+            var skill_foci = library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a").AllFeatures;
+            var abilities = new BlueprintAbility[skill_foci.Length];
+            var ritual_unity_resource = Helpers.CreateAbilityResource("RitualUnityResource", "", "", "", null);
+            ritual_unity_resource.SetIncreasedByStat(0, StatType.Charisma);
+            for (int i = 0; i < skill_foci.Length; i++)
+            {
+
+                StatType stat = skill_foci[i].GetComponent<AddContextStatBonus>().Stat;
+                string name = LocalizedTexts.Instance.Stats.GetText(stat);
+
+                var buff = Helpers.CreateBuff(stat.ToString() + "RitualUnityBuff",
+                                              "Ritual Unity: " + name,
+                                              "You can use aid another action to assist an ally with a skill check and succeed at a DC 20 check, you impart a +4 bonus to your ally until the end of the round. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
+                                              + "You can use this ability a number of times per day equal to your Charisma modifier.",
+                                              "",
+                                              skill_foci[i].Icon,
+                                              null,
+                                              Helpers.CreateAddStatBonus(stat, 4, ModifierDescriptor.UntypedStackable)
+                                              );
+                var check = Helpers.Create<SkillMechanics.ContextActionCasterSkillCheck>(c =>
+                {
+                    c.CustomDC = 20;
+                    c.UseCustomDC = true;
+                    c.Success = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                         Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(r => r.Resource = phrenic_pool_resource)));
+                    c.Stat = stat;
+                });
+                abilities[i] = Helpers.CreateAbility(stat.ToString() + "RitualUnityAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Supernatural,
+                                                   CommandType.Standard,
+                                                   AbilityRange.Touch,
+                                                   Helpers.oneRoundDuration,
+                                                   "",
+                                                   Helpers.CreateRunActions(check),
+                                                   ritual_unity_resource.CreateResourceLogic()
+                                                   );
+                abilities[i].setMiscAbilityParametersTouchFriendly(works_on_self: false);
+            }
+
+            var ritual_unity_ability = Common.createVariantWrapper("RitualUnityBaseAbility", "", abilities);
+            ritual_unity_ability.SetName("Ritual Unity");
+            ritual_unity_ability.SetIcon(Helpers.GetIcon("c9629ef9eebb88b479b2fbc5e836656a"));//skill focus
+            var ritual_unity = Common.AbilityToFeature(ritual_unity_ability, false);
+            ritual_unity.AddComponent(ritual_unity_resource.CreateAddAbilityResource());
+
+            //power from pageantry
+            var power_from_pageantry_buff = Helpers.CreateBuff("PowerFromPageantryBuff",
+                                                               "Power from Pageantry",
+                                                               "Starting from 5th level, you can spend 1 point from your phrenic pool as a move action to increase caster level and saving throw DC by 2 for next spell you cast before the end of your turn.",
+                                                               "",
+                                                               Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96"),//good hope
+                                                               null,
+                                                               Helpers.Create<NewMechanics.SpendResourceOnSpecificSpellCast>(s =>
+                                                               {
+                                                                   s.amount = 1;
+                                                                   s.resource = phrenic_pool_resource;
+                                                                   s.specific_class = psychic_class;
+                                                                   s.remove_self = true;
+                                                               }),
+                                                               Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c =>
+                                                               {
+                                                                   c.specific_class = psychic_class;
+                                                                   c.Value = 2;
+                                                               }),
+                                                               Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellLevel>(c =>
+                                                               {
+                                                                   c.specific_class = psychic_class;
+                                                                   c.Value = 2;
+                                                               })
+                                                               );
+            var power_from_pageantry_ability = Helpers.CreateAbility("PowerFromPageantry",
+                                                                     power_from_pageantry_buff.Name,
+                                                                     power_from_pageantry_buff.Description,
+                                                                     "",
+                                                                     power_from_pageantry_buff.Icon,
+                                                                     AbilityType.Supernatural,
+                                                                     CommandType.Move,
+                                                                     AbilityRange.Personal,
+                                                                     Helpers.oneRoundDuration,
+                                                                     "",
+                                                                     Helpers.CreateRunActions(Common.createContextActionApplyBuff(power_from_pageantry_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 5)),
+                                                                     phrenic_pool_resource.CreateResourceLogic()
+                                                                     );
+            power_from_pageantry_ability.setMiscAbilityParametersSelfOnly();
+            var power_from_pageantry = Common.AbilityToFeature(power_from_pageantry_ability, false);
+
+            var unrivalaed_focus_buff = Helpers.CreateBuff("UnrivaledFocusBuff",
+                                                           "Unrivaled Focus",
+                                                           "At 13th level, your powers of concentration become unmatched. Whenever you attempt a concentration check, you can spend 1 point from your phrenic pool to treat the result of your die roll as a 20. You must choose to use this ability before rolling the check.",
+                                                           "",
+                                                           Helpers.GetIcon("06964d468fde1dc4aa71a92ea04d930d"),//combat casting
+                                                           null,
+                                                           Helpers.Create<NewMechanics.ModifyD20WithActions>(m =>
+                                                           {
+                                                               m.Rule = NewMechanics.ModifyD20WithActions.RuleType.Concentration;
+                                                               m.Roll = 20;
+                                                               m.Replace = true;
+                                                               m.actions = Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = phrenic_pool_resource));
+                                                           })
+                                                           );
+
+            var unrivaled_focus_toggle = Common.buffToToggle(unrivalaed_focus_buff, CommandType.Free, true,
+                                                            phrenic_pool_resource.CreateActivatableResourceLogic(ResourceSpendType.Never)
+                                                            );
+
+            var unrivaled_focus = Common.ActivatableAbilityToFeature(unrivaled_focus_toggle, false);
+
+
+            createPsychicDiscipline("Pageantry",
+                                    "Pageantry",
+                                    "The act of ritual, no matter how ostentatious, can be a route to mental strength. By engaging in esoteric and intricate routines, you have unlocked potent psychic power.",
+                                    power_from_pageantry.Icon,
+                                    StatType.Charisma,
+                                    new BlueprintAbility[]
+                                    {
+                                                    library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                                                    library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0"), //aid
+                                                    library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
+                                                    library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8"), //break enchantment
+                                                    library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a"), //phantasmal web
+                                                    library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31"), //heroism greater
+                                                    library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                                                    library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
+                                                    library.Get<BlueprintAbility>("43740dab07286fe4aa00a6ee104ce7c1"), //heroic invocation
+                                    },
+                                    ritual_unity,
+                                    power_from_pageantry,
+                                    unrivaled_focus
+                                    );
         }
 
 
@@ -1422,7 +2028,7 @@ namespace CallOfTheWild
             var divine_energy_cure = Helpers.CreateFeature("FaithDivineEnergyCureFeature",
                                                            "Spontaneous Healing",
                                                            "You can channel spell energy into cure or inflict spells. This ability functions similarly to the cleric’s ability to spontaneously cast cure or inflict spells, and the type of spells you can convert depends on your alignment in the same way.The cure or inflict spells don’t count as being on your psychic spell list for the purposes of any other effects. Each time you use this ability to convert a spell, you regain 1 point in your phrenic pool.\n"
-                                                           + "You can use this ability a number of times per day equal to your Wisdom modifier",
+                                                           + "You can use this ability a number of times per day equal to your Wisdom modifier.",
                                                            "",
                                                            cleric_spontaneous_cure.Icon,
                                                            FeatureGroup.None,
@@ -1671,7 +2277,7 @@ namespace CallOfTheWild
                                           + "While you’re manifesting your dark half, you increase the DCs of your psychic spells by 1, gain a +2 morale bonus on Will saves, and become immune to fear effects. Whenever you cast a spell that deals damage while manifesting your dark half, you can cause any creature that took damage from the spell to also take 1 point of bleed damage. The amount of bleed damage increases to 2 points at 5th level and to 3 points at 13th level. While manifesting your dark half, You can’t use any Charisma-, Dexterity-, or Intelligence-based skills (except Mobility and Intimidate) or any ability that requires patience or concentration other than casting spells using psychic magic, using phrenic amplifications, or attempting to return to normal. You can attempt to return to your normal self as a free action, but must succeed at an Intelligence check with a DC equal to 10. If you fail, you continue to manifest your dark half and can’t attempt to change back for 1 round.\n"
                                           + "You can manifest your dark half for a number of rounds per day equal to 3 + 1/2 your psychic level + your Charisma modifier; when these rounds are expended, you return to your normal self without requiring a concentration check.",
                                           "",
-                                          Helpers.GetIcon("da8ce41ac3cd74742b80984ccc3c9613"), //rage
+                                          Helpers.GetIcon("1d48ab2bded57a74dad8af3da07d313a"), //dirge of doom
                                           Common.createPrefabLink("53c86872d2be80b48afc218af1b204d7"), //rage
                                           Helpers.CreateAddStatBonus(StatType.SaveWill, 2, ModifierDescriptor.Morale),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Fear | SpellDescriptor.Shaken),

@@ -500,6 +500,18 @@ namespace CallOfTheWild
         }
 
 
+        public static AddHealTrigger createHealingTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
+        {
+            var c = Helpers.Create<AddHealTrigger>();
+            c.HealerAction = Helpers.CreateActionList();
+            c.OnHealDamage = true;
+            c.OnHealStatDamage = true;
+            c.OnHealEnergyDrain = true;
+            c.Action = Helpers.CreateActionList(actions);
+            return c;
+        }
+
+
         static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool dispellable = true,
                                                                                                                   int duration_seconds = 0)

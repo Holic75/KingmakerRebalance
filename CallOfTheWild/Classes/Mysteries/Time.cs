@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -263,7 +264,12 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersSelfOnly();
 
 
-            var rule_types = new RuleType[] { RuleType.AttackRoll, RuleType.Intiative, RuleType.Maneuver, RuleType.SavingThrow, RuleType.SkillCheck, RuleType.SpellResistance };
+            var rule_types = new ModifyD20WithActions.RuleType[] { ModifyD20WithActions.RuleType.AttackRoll,
+                                                                   ModifyD20WithActions.RuleType.Intiative,
+                                                                   ModifyD20WithActions.RuleType.Maneuver,
+                                                                   ModifyD20WithActions.RuleType.SavingThrow,
+                                                                   ModifyD20WithActions.RuleType.SkillCheck,
+                                                                   ModifyD20WithActions.RuleType.SpellResistance };
             var names = new string[] { "Attack Roll", "Initiative", "Combat Maneuver", "Saving Throw", "Skill", "Spell Resistance" };
             var abilities = new List<BlueprintActivatableAbility>();
             for (int i = 0; i < rule_types.Length; i++)
