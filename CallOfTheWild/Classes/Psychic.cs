@@ -595,7 +595,7 @@ namespace CallOfTheWild
 
             slimy = createBodilyMutation("Slimy",
                                  "Slimy",
-                                 "The mutation mind’s skin becomes sticky, granting her a +4 bonus on disarm and grapple combat maneuver checks.",
+                                 "The mutation mind exudes a thin layer of oily slime over her body, granting her a +4 bonus to CMD.",
                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/Slimy.png"),
                                  null,
                                  false,
@@ -649,7 +649,7 @@ namespace CallOfTheWild
             wings = createBodilyMutation("Wings",
                                      "Wings",
                                      "The mutation mind sprouts a pair of fleshy, batlike wings.",
-                                     Helpers.GetIcon("aad496a7c9bee224cbd01a3cf8e42061"),
+                                     Helpers.GetIcon("78197196e096c6e4eaed5c62fa108b52"),
                                      Common.createPrefabLink("7662eda306be77a4ab8f57dbf1235cc9"),
                                      true,
                                      Helpers.CreateAddFact(FixFlying.airborne),
@@ -674,7 +674,7 @@ namespace CallOfTheWild
             {
                 feature.AddComponent(Helpers.PrerequisiteFeature(improved_bodily_mutations));
             }
-            phrenic_amplification.Features = phrenic_amplification.Features.AddToArray(feature);
+            phrenic_amplification.AllFeatures = phrenic_amplification.AllFeatures.AddToArray(feature);
 
             var buff = Helpers.CreateBuff(name + "BodilyMutationBuff",
                                           display_name,

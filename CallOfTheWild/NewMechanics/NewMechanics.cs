@@ -5948,12 +5948,12 @@ namespace CallOfTheWild
         }
 
 
-        public class AbilityCasterHasCondition : BlueprintComponent, IAbilityTargetChecker
+        public class AbilityCasterHasCondition : BlueprintComponent, IAbilityCasterChecker
         {
             public UnitCondition Condition;
             public bool Not;
 
-            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            public bool CorrectCaster(UnitEntityData caster)
             {
                 if (caster == null)
                     return false;
@@ -5963,6 +5963,11 @@ namespace CallOfTheWild
                 if (this.Not)
                     return !flag;
                 return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.NoRequiredCondition;
             }
         }
 
