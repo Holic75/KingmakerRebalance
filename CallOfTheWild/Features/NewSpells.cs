@@ -793,7 +793,7 @@ namespace CallOfTheWild
             inflict_pain.SpellResistance = true;
             inflict_pain.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             inflict_pain_mass = library.CopyAndAdd(inflict_pain, "InflictPainMassAbility", "");
-            inflict_pain_mass.SetNameDescription("Inflcit Pain, Mass",
+            inflict_pain_mass.SetNameDescription("Inflict Pain, Mass",
                                                 "This spell functions like inflict pain except as noted above.\n" + inflict_pain.Name + ": " + inflict_pain.Description
                                                 );
             inflict_pain_mass.AddComponent(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy));

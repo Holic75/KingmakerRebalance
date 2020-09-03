@@ -120,7 +120,7 @@ namespace CallOfTheWild.StickyTouchMechnics
         }
     }
 
-    //fix spellstrike to work on spells with multiple variants
+    //fix spellstrike to work on spells with multiple variants and with reach metamagic
     [Harmony12.HarmonyPatch(typeof(UnitPartMagus))]
     [Harmony12.HarmonyPatch("IsSpellFromMagusSpellList", Harmony12.MethodType.Normal)]
     class UnitPartMagus__IsSpellFromMagusSpellList__Init__Patch
@@ -132,6 +132,12 @@ namespace CallOfTheWild.StickyTouchMechnics
             {
                 var blueprint = spell1.Blueprint.Parent;
                 __result = blueprint.IsInSpellList(__instance.Spellbook.Blueprint.SpellList) || __instance.Spellbook.IsKnown(blueprint);
+            }
+
+            if (__instance.Spellbook.Blueprint.SpellList.SpellsByLevel.Any(list =>
+                list.Spells.Any(item => item.StickyTouch?.TouchDeliveryAbility == spell.Blueprint)))
+            {
+                __result = true;
             }
         }
     }
