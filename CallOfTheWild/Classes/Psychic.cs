@@ -2155,7 +2155,7 @@ namespace CallOfTheWild
 
             createPsychicDiscipline("Faith",
                                     "Faith",
-                                    "Your belief in a higher power fuels your psychic abilities. Whether your mental abilities truly come to you as a divine gift or are simply enhanced by the power of your belief, none can say. In many ways, you resemble a divine caster, and prayers often factor into your casting of psychic spells."
+                                    "Your belief in a higher power fuels your psychic abilities. Whether your mental abilities truly come to you as a divine gift or are simply enhanced by the power of your belief, none can say. In many ways, you resemble a divine caster, and prayers often factor into your casting of psychic spells.\n"
                                     + "Discipline Powers: Your powers serve to protect or cure you and your allies.",
                                     prayer_buff.Icon,
                                     StatType.Wisdom,
