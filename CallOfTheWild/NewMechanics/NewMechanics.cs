@@ -275,20 +275,21 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
-        public class SpendResourceOnSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
+        public class SpendResourceOnSpellCast : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>
         {
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
             public int amount = 1;
             public bool used_for_reducing_metamagic_cast_time = false;
             public bool is_metamixing = false;
+            public bool remove_self = false;
 
-            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
 
             }
 
-            public override void OnEventDidTrigger(RuleCastSpell evt)
+            public void OnEventDidTrigger(RuleCastSpell evt)
             {
                 var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
                 if (spellbook_blueprint == null)
@@ -332,12 +333,17 @@ namespace CallOfTheWild
                 {
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
                 }
+
+                if (remove_self)
+                {
+                    this.Buff.Remove();
+                }
             }
         }
 
 
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
-        public class SpendResourceOnSpecificSpellCast : RuleInitiatorLogicComponent<RuleCastSpell>
+        public class SpendResourceOnSpecificSpellCast : BuffLogic, IInitiatorRulebookHandler<RuleCastSpell>
         {            
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
@@ -346,12 +352,13 @@ namespace CallOfTheWild
             public SpellSchool school;
             public BlueprintAbility[] spell_list = new BlueprintAbility[0];
             public SpellDescriptorWrapper spell_descriptor;
+            public bool remove_self = false;
 
-            public override void OnEventAboutToTrigger(RuleCastSpell evt)
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
             {
             }
 
-            public override void OnEventDidTrigger(RuleCastSpell evt)
+            public void OnEventDidTrigger(RuleCastSpell evt)
             {
                 var spellbook_blueprint = evt.Spell?.Spellbook?.Blueprint;
                 if (spellbook_blueprint == null)
@@ -385,6 +392,10 @@ namespace CallOfTheWild
                 }
 
                 this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                if (remove_self)
+                {
+                    this.Buff.Remove();
+                }
             }
         }
 
@@ -884,6 +895,57 @@ namespace CallOfTheWild
             }
         }
 
+        [ComponentName("Increase spell level by descriptor")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseDescriptorSpellLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public SpellDescriptorWrapper Descriptor;
+            public BlueprintSpellbook spellbook = null;
+            public BlueprintCharacterClass specific_class = null;
+            public bool only_spells = true;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Initiator == null)
+                {
+                    return;
+                }
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+
+                if (evt.Spellbook?.Blueprint == null && only_spells)
+                {
+                    return;
+                }
+                if (this.Descriptor != SpellDescriptor.None)
+                {
+                    bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                    if (!nullable.HasValue || !nullable.Value)
+                        return;
+                }
+                evt.AddBonusCasterLevel(this.Value.Calculate(this.Context));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
 
         [ComponentName("Increase context spells DC by descriptor")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -922,9 +984,12 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
-                if (!nullable.HasValue || !nullable.Value)
-                    return;
+                if (this.Descriptor != SpellDescriptor.None)
+                {
+                    bool? nullable = evt.Blueprint.GetComponent<SpellDescriptorComponent>()?.Descriptor.HasAnyFlag((SpellDescriptor)this.Descriptor);
+                    if (!nullable.HasValue || !nullable.Value)
+                        return;
+                }
                 evt.AddBonusDC(this.Value.Calculate(this.Context));
             }
 
@@ -5911,6 +5976,30 @@ namespace CallOfTheWild
         }
 
 
+        public class AbilityCasterHasCondition : BlueprintComponent, IAbilityCasterChecker
+        {
+            public UnitCondition Condition;
+            public bool Not;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster == null)
+                    return false;
+                bool flag = caster.Descriptor.State.HasCondition(this.Condition);
+                if (!this.Not & flag)
+                    return true;
+                if (this.Not)
+                    return !flag;
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.NoRequiredCondition;
+            }
+        }
+
+
         public class ContextConditionCompareTargetHPPercent : ContextCondition
         {
             public int Value;
@@ -6416,7 +6505,7 @@ namespace CallOfTheWild
             [EnumFlagsAsButtons(ColumnCount = 4)]
             ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
             [EnumFlagsAsButtons(ColumnCount = 3)]
-            public RuleType Rule;
+            public ModifyD20WithActions.RuleType Rule;
             public bool Replace;
             [HideIf("Replace")]
             public int RollsAmount;
@@ -6504,6 +6593,15 @@ namespace CallOfTheWild
                 }
             }
 
+
+            private bool IsConentrationCheck
+            {
+                get
+                {
+                    return (this.Rule & RuleType.Concentration) != (RuleType)0;
+                }
+            }
+
             public override void OnEventAboutToTrigger(RuleRollD20 evt)
             {
                 if (required_resource != null && this.Fact.MaybeContext.MaybeCaster.Descriptor.Resources.GetResourceAmount(required_resource) < 1)
@@ -6568,6 +6666,14 @@ namespace CallOfTheWild
                 {
                     return (evt as RuleSpellResistanceCheck).SpellResistance > (evt as RuleSpellResistanceCheck).SpellPenetration + roll;
                 }
+                else if (evt is RuleCheckConcentration)
+                {
+                    return (evt as RuleCheckConcentration).DC > (evt as RuleCheckConcentration).Concentration + roll;
+                }
+                else if (evt is RuleCheckCastingDefensively)
+                {
+                    return (evt as RuleCheckCastingDefensively).DC > (evt as RuleCheckCastingDefensively).Concentration + roll;
+                }
 
                 return false;
             }
@@ -6587,6 +6693,10 @@ namespace CallOfTheWild
             {
                 if (this.IsAttackRoll && rule is RuleAttackRoll || (this.IsSuitableSkillCheck(rule) || this.IsSuitableSavingThrow(rule)) || (this.IsSuitableCombatManeuver(rule) || this.IsInitiative && rule is RuleInitiativeRoll))
                     return true;
+                if (this.IsConentrationCheck && (rule is RuleCheckConcentration || rule is RuleCheckCastingDefensively))
+                {
+                    return true;
+                }
                 if (this.IsSpellResistanceCheck)
                     return rule is RuleSpellResistanceCheck;
                 return false;
@@ -6678,6 +6788,19 @@ namespace CallOfTheWild
                 Reflex = 2,
                 Will = 4,
                 All = Will | Reflex | Fortitude, // 0x00000007
+            }
+
+
+            [Flags]
+            public enum RuleType
+            {
+                AttackRoll = 1,
+                SkillCheck = 2,
+                SavingThrow = 4,
+                Intiative = 8,
+                Maneuver = 16,
+                SpellResistance = 32,
+                Concentration = 64,
             }
         }
 

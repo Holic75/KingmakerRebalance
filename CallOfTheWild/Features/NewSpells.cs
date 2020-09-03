@@ -793,7 +793,7 @@ namespace CallOfTheWild
             inflict_pain.SpellResistance = true;
             inflict_pain.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             inflict_pain_mass = library.CopyAndAdd(inflict_pain, "InflictPainMassAbility", "");
-            inflict_pain_mass.SetNameDescription("Inflcit Pain, Mass",
+            inflict_pain_mass.SetNameDescription("Inflict Pain, Mass",
                                                 "This spell functions like inflict pain except as noted above.\n" + inflict_pain.Name + ": " + inflict_pain.Description
                                                 );
             inflict_pain_mass.AddComponent(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy));
@@ -3695,13 +3695,14 @@ namespace CallOfTheWild
             accursed_glare.Type = AbilityType.Spell;
             accursed_glare.SetName("Accursed Glare");
             accursed_glare.LocalizedDuration = Helpers.CreateString("AccursedGlareAbility.Duration", "1 day/level");
-            accursed_glare.SetDescription("You channel a fell curse through your glare. If the target fails its saving throw, it begins to obsessively second guess its actions and attract bad luck.Whenever the target attempts an attack roll or saving throw while the curse lasts, it must roll twice and take the lower result.");
+            accursed_glare.SetDescription("You channel a fell curse through your glare. If the target fails its saving throw, it begins to obsessively second guess its actions and attract bad luck. Whenever the target attempts an attack roll or saving throw while the curse lasts, it must roll twice and take the lower result.");
             accursed_glare.Range = AbilityRange.Close;
             accursed_glare.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
             accursed_glare.AnimationStyle = Kingmaker.View.Animation.CastAnimationStyle.CastActionPoint;
             accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityDeliverTouch>());
             accursed_glare.RemoveComponent(accursed_glare.GetComponent<AbilityResourceLogic>());
             accursed_glare.RemoveComponents<SpellComponent>();
+            accursed_glare.LocalizedSavingThrow = Helpers.CreateString("AccursedGlare.SavingThrow", Helpers.willNegates);
 
             var buff = library.CopyAndAdd<BlueprintBuff>("96bbd279e0bed0f4fb208a1761f566b5", "AccursedGlareBuff", "");
             buff.SetName(accursed_glare.Name);

@@ -1935,7 +1935,7 @@ namespace CallOfTheWild
 
                 var reroll = Helpers.Create<NewMechanics.ModifyD20WithActions>();
                 reroll.DispellOnRerollFinished = true;
-                reroll.Rule = RuleType.AttackRoll;
+                reroll.Rule = NewMechanics.ModifyD20WithActions.RuleType.AttackRoll;
                 reroll.RollsAmount = 1;
                 reroll.TakeBest = true;
                 reroll.RerollOnlyIfFailed = true;

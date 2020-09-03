@@ -66,10 +66,91 @@ namespace CallOfTheWild
         static public BlueprintProgression lightning_domain_secondary;
         static public BlueprintProgression lightning_domain_druid;
 
+        static public BlueprintProgression restoration_domain;
+        static public BlueprintProgression restoration_domain_secondary;
+
         public static void load()
         {
             createStormsDomain();
             createLightningDomain();
+            createRestorationDomain();
+        }
+
+
+
+        static void createRestorationDomain()
+        {
+            var pharasma = library.Get<BlueprintFeature>("458750bc214ab2e44abdeae404ab22e9");
+
+            var descriptors = new SpellDescriptor[] { SpellDescriptor.Shaken, SpellDescriptor.Daze, SpellDescriptor.Fatigue, SpellDescriptor.Sickened, SpellDescriptor.Staggered };
+            var icon = Helpers.GetIcon("caae1dc6fcf7b37408686971ee27db13");
+
+            var resource = Helpers.CreateAbilityResource("RestorativeTouchResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Wisdom);
+
+            var abilities = new List<BlueprintAbility>();
+
+            foreach (var d in descriptors)
+            {
+                var a = Helpers.CreateAbility(d.ToString() + "RestorativeTouchAbility",
+                                              "Restortaive Touch: " + d.ToString(),
+                                              "You can touch a creature, letting the healing power of your deity flow through you to relieve the creature of a minor condition. Your touch can remove the dazed, fatigued, shaken, sickened, or staggered condition. You choose which condition is removed. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.",
+                                              "",
+                                              icon,
+                                              AbilityType.Supernatural,
+                                              Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                              AbilityRange.Touch,
+                                              "",
+                                              "",
+                                              Helpers.CreateRunActions(Helpers.Create<ContextActionRemoveBuffsByDescriptor>(c => c.SpellDescriptor = d)),
+                                              resource.CreateResourceLogic(),
+                                              Common.createAbilitySpawnFx("224fb8fd952ec4d45b6d3436a77663d9", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget,
+                                                                                                              position_anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.None,
+                                                                                                              orientation_anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.None
+                                                                                                              )
+                                              );
+                a.setMiscAbilityParametersTouchFriendly();
+                abilities.Add(a);
+            }
+
+            var wrapper = Common.createVariantWrapper("RestorativeTouchBase", "", abilities.ToArray());
+            wrapper.SetName("Restorative Touch");
+            var restorative_touch = Common.AbilityToFeature(wrapper, false);
+            restorative_touch.AddComponent(resource.CreateAddAbilityResource());
+
+            var healing_domain = library.Get<BlueprintProgression>("b0a26ee984b6b6945b884467aa2f1baa");
+            var healing_domain_secondary = library.Get<BlueprintProgression>("599fb0d60358c354d8c5c4304a73e19a");
+
+
+            var healing_domain_base = library.Get<BlueprintFeature>("303cf1c933f343c4d91212f8f4953e3c");
+
+            var spell_list = library.CopyAndAdd<BlueprintSpellList>("033b2b6a8899be844ae8aa91d4dab477", "RestorationSubdomainSpellList", "");
+            Common.excludeSpellsFromList(spell_list, a => false);
+            restoration_domain = createSubdomain("RestorationSubdomain", "Restoration Subdomain",
+                                               "Your touch staves off pain and death, and your healing magic is particularly vital and potent.\n" +
+                                               $"{wrapper.Name}: {wrapper.Description}\n" +
+                                               "Healer's Blessing: At 6th level, all of your cure spells are treated as if they were empowered, increasing the amount of damage healed by half (+50%). This does not apply to damage dealt to undead with a cure spell. This does not stack with the Empower Spell metamagic feat.\n"                                              
+                                               + "Domain Spells: Remove Sickness, Remove Disease, Lesser, Cure Serious Wounds, Neutralize Poison, Break Enchantment, Heal, Restoration, Greater, Protection from Spells, Heal, Mass.",
+                                               healing_domain,
+                                               new BlueprintFeature[] { healing_domain_base },
+                                               new BlueprintFeature[] { restorative_touch },
+                                               spell_list
+                                               );
+            Common.replaceDomainSpell(restoration_domain, library.Get<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36"), 2);
+            Common.replaceDomainSpell(restoration_domain, library.Get<BlueprintAbility>("e7240516af4241b42b2cd819929ea9da"), 4);
+            Common.replaceDomainSpell(restoration_domain, library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8"), 5);
+            restoration_domain.AddComponents(Helpers.PrerequisiteNoFeature(healing_domain), Helpers.PrerequisiteNoFeature(pharasma));
+
+            restoration_domain_secondary = library.CopyAndAdd(restoration_domain, "RestorationSubdomainSecondaryProgression", "");
+            restoration_domain_secondary.RemoveComponents<LearnSpellList>();
+
+            restoration_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(restoration_domain),
+                                                 Helpers.PrerequisiteNoFeature(healing_domain),
+                                                 Helpers.PrerequisiteNoFeature(healing_domain_secondary));
+            restoration_domain.AddComponents(Helpers.PrerequisiteNoFeature(restoration_domain_secondary));
+
+            cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(restoration_domain);
+            cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(restoration_domain_secondary);
         }
 
 
@@ -335,6 +416,29 @@ namespace CallOfTheWild
             }
 
             progression.UIGroups = ui_groups.ToArray();
+            //add domain spells
+            var f0 = progression.LevelEntries[0].Features[0];
+            var comp = f0.GetComponent<AddFeatureOnClassLevel>();
+            if (comp != null)
+            {
+                f0 = library.CopyAndAdd(f0, name + f0.name, "");
+                f0.RemoveComponent(comp);
+            }
+
+            var give_spells = Helpers.CreateFeature(name + "SpellListFeature",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.Create<AddSpecialSpellList>(a => { a.CharacterClass = cleric_class; a.SpellList = spell_list; })
+                                                );
+
+            give_spells.IsClassFeature = true;
+            give_spells.HideInUI = true;
+
+            f0.AddComponent(Helpers.CreateAddFeatureOnClassLevel(give_spells, 1, new BlueprintCharacterClass[] { cleric_class }));
+            progression.LevelEntries[0].Features[0] = f0;
 
             return progression;
         }

@@ -249,7 +249,44 @@ namespace CallOfTheWild.SkillMechanics
     }
 
 
-    public class ContextActionSkillCheckWithFailures : ContextAction
+    public class ContextActionCasterSkillCheck : ContextAction
+    {
+        public StatType Stat;
+        public bool UseCustomDC;
+        public ContextValue CustomDC;
+        public ActionList Success = Helpers.CreateActionList();
+        public ActionList Failure = Helpers.CreateActionList();
+
+        public override void RunAction()
+        {
+            if (this.Context.MaybeCaster == null)
+            {
+                UberDebug.LogError((object)"Caster unit is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+                int num = 0;
+
+                if (this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(this.Context.MaybeCaster, this.Stat, (this.UseCustomDC ? this.CustomDC.Calculate(this.Context) : this.Context.Params.DC) + num)
+                {
+                    ShowAnyway = true
+                }).IsPassed)
+                    this.Success.Run();
+                else
+                    this.Failure.Run();
+            }
+        }
+
+        public override string GetCaption()
+        {
+            return string.Format("Caster skill check {0} {1}", (object)this.Stat, this.UseCustomDC ? (object)string.Format("(DC: {0})", (object)this.CustomDC) : (object)"");
+        }
+
+    }
+
+
+
+        public class ContextActionSkillCheckWithFailures : ContextAction
     {
         public StatType Stat;
         public bool use_custom_dc;

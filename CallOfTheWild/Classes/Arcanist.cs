@@ -137,6 +137,7 @@ namespace CallOfTheWild
         static public BlueprintSpellList halcyon_lore_spell_list;
 
         static public BlueprintFeatureSelection school_understanding;
+        static public BlueprintFeature item_bond;
 
 
         internal static void createArcanistClass()
@@ -577,6 +578,8 @@ namespace CallOfTheWild
             sorcerer_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
             arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = magus));
             magus.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+
+            item_bond.AddComponent(Common.prerequisiteNoArchetype(blood_arcanist_archetype));
         }
 
 
@@ -977,12 +980,13 @@ namespace CallOfTheWild
             createSpellResistanceAndSpellResistanceGreater();
             createWoodenFlesh();
             createShiftCaster();
+            createItemBond();
             
             arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
                                                                  flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing, sonic_blast, swift_consume,
                                                                  spell_resistance, wooden_flesh, shift_caster,
                                                                  energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
-                                                                 greater_spell_resistance};
+                                                                 greater_spell_resistance, item_bond};
 
             arcane_exploits_wizard = Helpers.CreateFeatureSelection("ArcaneExploitsWizardFeatureSelection",
                                                  "Arcanist Exploits",
@@ -993,8 +997,34 @@ namespace CallOfTheWild
             arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
             {
                 quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
-                flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh
+                flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh, item_bond
             };
+        }
+
+
+        static void createItemBond()
+        {
+            var resource = Helpers.CreateAbilityResource("ArcanistItemBondResource", "", "", "", null);
+            resource.SetFixedResource(1);
+
+            var abilities = new List<BlueprintAbility>();
+            var feature = library.Get<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9");
+            foreach (var f  in feature.GetComponent<AddFacts>().Facts)
+            {
+                var a = library.CopyAndAdd<BlueprintAbility>(f.AssetGuid, "Arcanist" + f.name, "");
+                a.ReplaceComponent<AbilityResourceLogic>(ab => ab.RequiredResource = resource);
+                a.AddComponent(Helpers.Create<NewMechanics.AbilityCasterHasResource>(ab => ab.resource = arcane_reservoir_resource));
+                abilities.Add(a);
+                a.SetDescription("Once per day an arcanist can spend 1 point from his arcane reservoir to restore any one spell that the wizard had prepared for this day.");
+                a.ActionType = CommandType.Swift;
+            }
+
+            item_bond = library.CopyAndAdd<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9", "ArcanistItemBondFeature", "");
+            item_bond.SetDescription(abilities[0].Description);
+            item_bond.ReplaceComponent<AddFacts>(a => a.Facts = abilities.ToArray());
+            item_bond.ReplaceComponent<AddAbilityResources>(a => a.Resource = resource);
+            item_bond.AddComponent(Helpers.Create<ResourceMechanics.ConnectResource>(c => { c.base_resource = resource; c.connected_resource = arcane_reservoir_resource; }));
+            item_bond.AddComponent(Helpers.PrerequisiteNoFeature(library.Get<BlueprintFeature>("2fb5e65bd57caa943b45ee32d825e9b9")));
         }
 
 

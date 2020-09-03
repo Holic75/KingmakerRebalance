@@ -189,7 +189,7 @@ namespace CallOfTheWild
                                                                                                        m.Skill = new StatType[] { checks[i] };
                                                                                                        m.RollsAmount = 1;
                                                                                                        m.TakeBest = true;
-                                                                                                       m.Rule = RuleType.SkillCheck;
+                                                                                                       m.Rule = NewMechanics.ModifyD20WithActions.RuleType.SkillCheck;
                                                                                                        m.RerollOnlyIfFailed = true;
                                                                                                       //m.DispellOnRerollFinished = true;
                                                                                                        m.required_resource = blessed_infiltration_resource;

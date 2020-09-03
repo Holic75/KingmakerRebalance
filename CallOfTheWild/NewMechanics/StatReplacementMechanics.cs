@@ -75,6 +75,30 @@ namespace CallOfTheWild.StatReplacementMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ReplaceStatForSavingthrow : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public StatType dependent_value;
+        public StatType stat;
+        [JsonProperty]
+        private StatType _oldStat;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(stat)?.AddDependentValue(this.Owner.Stats.GetStat(dependent_value));
+            _oldStat = this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(dependent_value).BaseStat.Type;
+            Helpers.SetField(this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(dependent_value), "BaseStat",  this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(stat));
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(stat)?.RemoveDependentValue(this.Owner.Stats.GetStat(dependent_value));
+            Helpers.SetField(this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(dependent_value), "BaseStat", this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(_oldStat));
+        }
+    }
+
+
     public class ReplaceBaseStatForStatTypeLogic : OwnedGameLogicComponent<UnitDescriptor>
     {
         public StatType StatTypeToReplaceBastStatFor;

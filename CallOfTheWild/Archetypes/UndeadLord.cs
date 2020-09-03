@@ -330,6 +330,20 @@ namespace CallOfTheWild.Archetypes
             base_feature.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { touch_ability });
             base_feature.ReplaceComponent<AddAbilityResources>(a => a.Resource = resource);
             base_feature.SetNameDescriptionIcon(ability.Name, ability.Description, ability.Icon);
+            base_feature.RemoveComponents<AddFeatureOnClassLevel>();
+
+            var give_spells = Helpers.CreateFeature("UndeadSubdomainSpellListFeature",
+                                    "",
+                                    "",
+                                    "",
+                                    null,
+                                    FeatureGroup.None,
+                                    Helpers.Create<AddSpecialSpellList>(a => { a.CharacterClass = cleric_class; a.SpellList = spell_list; })
+                                    );
+
+            give_spells.IsClassFeature = true;
+            give_spells.HideInUI = true;
+            base_feature.AddComponent(Helpers.CreateAddFeatureOnClassLevel(give_spells, 1, new BlueprintCharacterClass[] { cleric_class }));
 
             undeath_subdomain.LevelEntries = new LevelEntry[]
             {

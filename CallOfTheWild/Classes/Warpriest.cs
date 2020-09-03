@@ -478,7 +478,7 @@ namespace CallOfTheWild
             var context_rank_config_fcb = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureRank, feature: fervor_fcb, type: AbilityRankType.DamageBonus);
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersTouchAbility",
-                                                                        "Fervor (Postive Energy) Others",
+                                                                        "Fervor (Positive Energy) Others",
                                                                         "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
                                                                         "",
                                                                         cure_light_wounds.Icon,
@@ -511,7 +511,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateResourceLogic(warpriest_fervor_resource));
 
             var fervor_positive_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_positive_ability_others, "WarpriestFervorPositiveSelfAbility", "");
-            fervor_positive_ability_self.SetName("Fervor (Postive Energy) Self");
+            fervor_positive_ability_self.SetName("Fervor (Positive Energy) Self");
             fervor_positive_ability_self.Range = AbilityRange.Personal;
             fervor_positive_ability_self.CanTargetSelf = true;
             fervor_positive_ability_self.CanTargetFriends = false;

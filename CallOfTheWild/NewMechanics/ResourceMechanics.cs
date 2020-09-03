@@ -22,6 +22,43 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.ResourceMechanics
 {
+
+    public class UnitPartConnectResource: AdditiveUnitPart
+    {
+        public BlueprintAbilityResource getConnectedResource(BlueprintAbilityResource base_resource)
+        {
+            foreach (var b in buffs)
+            {
+                var r = b.Blueprint.GetComponent<ConnectResource>();
+                if (r == null || r.base_resource != base_resource)
+                {
+                    continue;
+                }
+                return r.connected_resource;
+            }
+
+            return null;
+        }
+    }
+
+
+    public class ConnectResource: OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public BlueprintAbilityResource base_resource;
+        public BlueprintAbilityResource connected_resource;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartConnectResource>().addBuff(this.Fact);
+        }
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartConnectResource>().removeBuff(this.Fact);
+        }
+    }
+
+
     public class ContextRestoreResource : ContextAction
     {
         public BlueprintAbilityResource Resource;
@@ -288,4 +325,21 @@ namespace CallOfTheWild.ResourceMechanics
         }
     }
 
+
+    [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
+    [Harmony12.HarmonyPatch("Spend", Harmony12.MethodType.Normal)]
+    class UnitAbilityResourceCollection__Spend__Patch
+    {
+        static void Postfix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, int amount)
+        {
+            var owner = Helpers.GetField<UnitDescriptor>(__instance, "m_Owner");
+            var connected_resource = owner?.Get<UnitPartConnectResource>()?.getConnectedResource(blueprint as BlueprintAbilityResource);
+            if (connected_resource == null)
+            {
+                return;
+            }
+
+            __instance.Spend(connected_resource, amount);
+        }
+    }
 }

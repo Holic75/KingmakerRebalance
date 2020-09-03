@@ -502,6 +502,18 @@ namespace CallOfTheWild
         }
 
 
+        public static AddHealTrigger createHealingTrigger(params Kingmaker.ElementsSystem.GameAction[] actions)
+        {
+            var c = Helpers.Create<AddHealTrigger>();
+            c.HealerAction = Helpers.CreateActionList();
+            c.OnHealDamage = true;
+            c.OnHealStatDamage = true;
+            c.OnHealEnergyDrain = true;
+            c.Action = Helpers.CreateActionList(actions);
+            return c;
+        }
+
+
         static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool dispellable = true,
                                                                                                                   int duration_seconds = 0)
@@ -2932,29 +2944,8 @@ namespace CallOfTheWild
                     old_spell.RemoveComponent(slc);
                 }
             }
-
-            if (domain_progression.AssetGuid != "881b2137a1779294c8956fe5b497cc35")
-            {
-                return;
-            }
-
-            //fix trisitian buff
-            var trisitan_fire_maximize = library.Get<BlueprintBuff>("f16954c5c8cb0834baace64a167aa3cb").GetComponent<AutoMetamagic>();
-            if (!trisitan_fire_maximize.Abilities.Contains(old_spell))
-            {
-                return;
-            }
-            
-            if (SpellDuplicates.isDuplicate(old_spell, new_spell))
-            {
-                trisitan_fire_maximize.Abilities.Add(new_spell);
-            }
-            else
-            {
-                trisitan_fire_maximize.Abilities.Remove(old_spell);
-                trisitan_fire_maximize.Abilities.Add(new_spell);
-            }
         }
+
 
 
         public static RestrictionHasFact createActivatableAbilityRestrictionHasFact(BlueprintUnitFact fact, bool not = false)
