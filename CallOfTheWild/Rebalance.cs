@@ -694,7 +694,16 @@ namespace CallOfTheWild
         internal static void fixSpellRemoveFearBuff()
         {
             var buff = library.Get<BlueprintBuff>("c5c86809a1c834e42a2eb33133e90a28");
-            buff.AddComponent(Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Shaken | SpellDescriptor.Fear));
+            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Shaken | SpellDescriptor.Fear)));
+        }
+
+
+        internal static void fixSpellUnbreakableHeartBuff()
+        {
+            var buff = library.Get<BlueprintBuff>("6603b27034f694e44a407a9cdf77c67e");
+            var suppress = buff.GetComponent<SuppressBuffs>();
+            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionRemoveBuffsByDescriptor(suppress.Descriptor)));
+            buff.RemoveComponent(suppress);
         }
 
         internal static void fixJudgments()
