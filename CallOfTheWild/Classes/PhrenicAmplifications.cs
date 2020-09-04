@@ -362,7 +362,7 @@ namespace CallOfTheWild
         public BlueprintFeature createRelentnessCasting()
         {
             var buff = Helpers.CreateBuff(name_prefix + "RelentnessCastingBuff",
-                                          "Relentness Casting",
+                                          "Relentless Casting",
                                           "The psychic can spend 1 point from her phrenic pool to roll twice on any caster level checks to overcome spell resistance required for the linked spell and take the better result. Because she must decide to spend points from her phrenic pool when she starts casting a spell, the psychic must decide to use this ability before the GM calls for the caster level check.",
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),

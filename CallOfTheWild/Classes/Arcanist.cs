@@ -1015,7 +1015,7 @@ namespace CallOfTheWild
                 a.ReplaceComponent<AbilityResourceLogic>(ab => ab.RequiredResource = resource);
                 a.AddComponent(Helpers.Create<NewMechanics.AbilityCasterHasResource>(ab => ab.resource = arcane_reservoir_resource));
                 abilities.Add(a);
-                a.SetDescription("Once per day an arcanist can spend 1 point from his arcane reservoir to restore any one spell that the wizard had prepared for this day.");
+                a.SetDescription("Once per day an arcanist can spend 1 point from his arcane reservoir to restore any one spell that she had prepared for this day.");
                 a.ActionType = CommandType.Swift;
             }
 
