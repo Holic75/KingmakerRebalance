@@ -1586,7 +1586,7 @@ namespace CallOfTheWild
                                                                                 "d26ca0ac64874157aad34ef664b116a9",
                                                                                 weapon_enchant_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, bloodrage_buff);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, NewRagePowers.rage_marker_caster/*bloodrage_buff*/);
             }
 
 
@@ -1681,7 +1681,7 @@ namespace CallOfTheWild
                                                                                 "2ba88b87439e456cb382392ba07ffa96",
                                                                                 effect_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, effect_buff, frightful_charger, bloodrage_buff);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, effect_buff, frightful_charger, NewRagePowers.rage_marker_caster/*bloodrage_buff*/);
             }
 
 
