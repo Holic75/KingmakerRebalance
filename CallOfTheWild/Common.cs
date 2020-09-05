@@ -92,6 +92,8 @@ namespace CallOfTheWild
 
     public class Common
     {
+        public static int medium_range_ft = 60;
+        public static int long_range_ft = 100;
         public static BlueprintFeature undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
         public static BlueprintFeature dragon = library.Get<BlueprintFeature>("455ac88e22f55804ab87c2467deff1d6");
         public static BlueprintFeature construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");

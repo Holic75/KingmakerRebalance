@@ -1418,11 +1418,11 @@ namespace CallOfTheWild
 
                 if (range == AbilityRange.Medium)
                 {
-                    __result = 60.Feet();
+                    __result = Common.medium_range_ft.Feet();
                 }
                 else if (range == AbilityRange.Long)
                 {
-                    __result = 100.Feet();
+                    __result = Common.long_range_ft.Feet();
                 }
             }
         }

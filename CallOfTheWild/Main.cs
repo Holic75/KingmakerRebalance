@@ -250,6 +250,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
                     CallOfTheWild.Subschools.load();
+                    CallOfTheWild.ExoticWeapons.load();
 
                     bool inquisitions_test = false;
 #if DEBUG

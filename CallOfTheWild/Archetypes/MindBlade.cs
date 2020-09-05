@@ -533,7 +533,7 @@ namespace CallOfTheWild.Archetypes
                 }
 
                 bool is_light = weapon.IsLight;
-                bool is_2h = weapon.IsTwoHanded;
+                bool is_2h = weapon.IsTwoHanded && (weapon.Category != WeaponCategory.BastardSword) && (weapon.Category != WeaponCategory.DwarvenWaraxe);
                 bool is_double = weapon.Double;
                 bool is_normal = !is_2h && !is_double && !is_light;
                 bool requires_2h = is_2h || is_double;
@@ -583,7 +583,7 @@ namespace CallOfTheWild.Archetypes
                                                     Helpers.CreateRunActions(apply_buff),
                                                     resource.CreateResourceLogic(amount: resource_amount),
                                                     Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.for_2h_item = requires_2h),
-                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterProficientWithWeaponCategory>(a => a.category = wc)
+                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterProficientWithWeaponCategory>(a => { a.category = wc; a.require_full_proficiency = true; })
                                                     );
                 abilities.Add(ability);
                 if (!is_double)
@@ -648,7 +648,7 @@ namespace CallOfTheWild.Archetypes
                                                         Common.createAbilityCasterHasFacts(allow_two_weapons_buff),
                                                         Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(a => a.for_2h_item = false),
                                                         Helpers.Create<NewMechanics.AbilityCasterSecondaryHandFree>(),
-                                                        Helpers.Create<NewMechanics.AbilityShowIfCasterProficientWithWeaponCategory>(a => a.category = wc)
+                                                        Helpers.Create<NewMechanics.AbilityShowIfCasterProficientWithWeaponCategory>(a => { a.category = wc; a.require_full_proficiency = true;})
                                                         );
                     abilities.Add(ability2);
                     //Common.setAsFullRoundAction(ability2);

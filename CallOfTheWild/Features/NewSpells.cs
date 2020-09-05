@@ -4645,6 +4645,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.SpellCastingIsDifficult),
                                           Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = -2; w.Descriptor = ModifierDescriptor.UntypedStackable; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
                                           );
@@ -4652,7 +4653,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
             howling_agony = Helpers.CreateAbility("HowlingAgonyAbility",
                                                   "Howling Agony",
-                                                  "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws.",
+                                                  "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws, and must succeed at a concentration check (DC 15 + spell level) to cast spells.",
                                                   "",
                                                   icon,
                                                   AbilityType.Spell,

@@ -6940,10 +6940,16 @@ namespace CallOfTheWild
         public class AbilityShowIfCasterProficientWithWeaponCategory : BlueprintComponent, IAbilityVisibilityProvider
         {
             public WeaponCategory category;
-
+            public bool require_full_proficiency = false;
             public bool IsAbilityVisible(AbilityData ability)
             {
-                return ability.Caster.Proficiencies.Contains(category);
+                int required_rank = 1;
+                if (require_full_proficiency 
+                    && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
+                {
+                    required_rank++;
+                }
+                return ExoticWeapons.getProficiencyRank(ability.Caster, category) >= required_rank;
             }
         }
 
@@ -9076,6 +9082,27 @@ namespace CallOfTheWild
                 {
                     this.Owner.Body.RemoveEmptyHandWeapon(this.m_Weapon);
                 }
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ConsiderAsFinessable : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public WeaponCategory category;
+
+            public override void OnTurnOn()
+            {
+                // Using DamageGracePart should ensure this works correctly with other
+                // features that work with finessable wepaons.
+                // (e.g. this is how Weapon Finesse picks it up.) 
+                Owner.Ensure<DamageGracePart>().AddEntry(category, Fact);
+            }
+
+            public override void OnTurnOff()
+            {
+                Owner.Ensure<DamageGracePart>().RemoveEntry(Fact);
             }
         }
 
