@@ -60,8 +60,9 @@ namespace CallOfTheWild
                     library.Get<BlueprintWeaponType>("1e460a2dc830cf546939b2723aa875e7"), //oversized bastard sword
                     library.Get<BlueprintWeaponType>("58dcff8d1dd5d094eb345e8eeb2e4626"), //oversized bastard sword no penalty
                 };
-
             }));
+
+            bastard_sword_proficiency.SetDescription(bastard_sword_proficiency.Description + "\nA character can use a bastard sword two-handed as a martial weapon, without exotic weapon proficiency.");
 
             var dwarven_waraxe_proficiency = library.Get<BlueprintFeature>("bd0d7feca087d2247b12965c1467790c");
             dwarven_waraxe_proficiency.RemoveComponents<PrerequisiteNotProficient>();
@@ -69,6 +70,7 @@ namespace CallOfTheWild
             var dw_profs = dwarven_waraxe_proficiency.GetComponent<AddProficiencies>();
             dw_profs.WeaponProficiencies = dw_profs.WeaponProficiencies.AddToArray(WeaponCategory.DwarvenWaraxe);
             dwarven_waraxe_proficiency.AddComponent(Helpers.Create<HoldingItemsMechanics.CanHoldIn1Hand>(c => c.category = WeaponCategory.DwarvenWaraxe));
+            dwarven_waraxe_proficiency.SetDescription(dwarven_waraxe_proficiency.Description + "\nA character can use a swarven waraxe two-handed as a martial weapon, without exotic weapon proficiency.");
 
             var duelling_sword_proficiency = library.Get<BlueprintFeature>("9c37279588fd9e34e9c4cb234857492c");
             duelling_sword_proficiency.RemoveComponents<PrerequisiteNotProficient>();
@@ -76,7 +78,7 @@ namespace CallOfTheWild
             var ds_profs = duelling_sword_proficiency.GetComponent<AddProficiencies>();
             ds_profs.WeaponProficiencies = ds_profs.WeaponProficiencies.AddToArray(WeaponCategory.DuelingSword);
             duelling_sword_proficiency.AddComponent(Helpers.Create<NewMechanics.ConsiderAsFinessable>(c => c.category = WeaponCategory.DuelingSword));
-
+            duelling_sword_proficiency.SetDescription(duelling_sword_proficiency.Description + "\nAn dueling sword can be used as a martial weapon (in which case it functions as a longsword), but if you have the feat Exotic Weapon Proficiency (dueling sword), you can use the Weapon Finesse feat to apply your Dexterity modifier instead of your Strength modifier to attack rolls with a dueling sword sized for you, even though it isn’t a light weapon.");
             //remove duelling sword from list of finessable weapons
             var info = typeof(WeaponCategoryExtension).GetField("Data", BindingFlags.NonPublic | BindingFlags.Static);
             var data = (Array)info.GetValue(null);
