@@ -392,7 +392,7 @@ namespace CallOfTheWild
             var fighter = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
             martial_performance = Helpers.CreateFeatureSelection("MartialPerformanceFeatureSelection",
                                                     "Martial Performance",
-                                                    "The bard or skald selects a weapon she is proficient with. She receives a weapon focus with associated weapon category and treats her bard or skald level as half fighter level.",
+                                                    "The bard or skald selects a weapon she is proficient with. She receives a weapon focus with associated weapon category and treats her bard or skald level as half fighter level for the purpose of qualifying for combat feats.",
                                                     "",
                                                     library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e").Icon,
                                                     FeatureGroup.None,
