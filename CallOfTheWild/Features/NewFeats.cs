@@ -2715,10 +2715,11 @@ namespace CallOfTheWild
 
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(arcane_strike_buff, vital_strike_buff, blooded_arcane_strike);
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(Bloodrager.bloodrage_buff, arcane_strike_buff, blooded_arcane_strike);
-            foreach (var b in Bloodrager.urban_bloodrage_buffs)
+            //not needed since addFactContextActions is shared between bloodrage buffs
+            /*foreach (var b in Bloodrager.urban_bloodrage_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(b, arcane_strike_buff, blooded_arcane_strike);
-            }
+            }*/
 
             blooded_arcane_strike.Groups = blooded_arcane_strike.Groups.AddToArray(FeatureGroup.Feat);
             library.AddCombatFeats(blooded_arcane_strike);           

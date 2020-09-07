@@ -64,6 +64,8 @@ namespace CallOfTheWild
         static BlueprintAbility blade_rush_swift_ability;
         static public BlueprintBuff blade_rush_buff;
 
+        static public BlueprintFeature pushing_infusion;
+
         internal static void load()
         {
             var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
@@ -108,7 +110,6 @@ namespace CallOfTheWild
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
         }
-
 
         static void fixKineticistAbilitiesToBeSpelllike()
         {
@@ -250,6 +251,7 @@ namespace CallOfTheWild
 
         static void restoreKineticKnightinfusions()
         {
+            infusion_selection.Obligatory = false;
             var level_entries = new List<LevelEntry>();
 
             foreach (var rf in kinetic_knight.RemoveFeatures)
@@ -257,7 +259,7 @@ namespace CallOfTheWild
                 var features = new List<BlueprintFeatureBase>();
                 foreach (var f in rf.Features)
                 {
-                    if (f != infusion_selection || rf.Level <= 3)
+                    if (f != infusion_selection)
                     {
                         features.Add(f);
                     }

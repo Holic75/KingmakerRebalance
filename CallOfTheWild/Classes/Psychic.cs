@@ -2168,7 +2168,7 @@ namespace CallOfTheWild
                                             library.Get<BlueprintAbility>("1bc83efec9f8c4b42a46162d72cbf494"), //burst of glory
                                             NewSpells.psychic_surgery,
                                             library.Get<BlueprintAbility>("fafd77c6bfa85c04ba31fdc1c962c914"), //restoration greater
-                                            library.Get<BlueprintAbility>("ab167fd8203c1314bac6568932f1752f"), //summon monster VII
+                                            library.Get<BlueprintAbility>("d3ac756a229830243a72e84f3ab050d0"), //summon monster VIII
                                             library.Get<BlueprintAbility>("867524328b54f25488d371214eea0d90"), //heal mass
                                     },
                                     divine_energy,
@@ -2554,6 +2554,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "41bab342089c0254ca222eb918e98cd4", 2), //hold animal
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 2),
+                new Common.SpellId( NewSpells.hypnotic_pattern.AssetGuid, 2),
                 new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
                 new Common.SpellId( NewSpells.mental_barrier[0].AssetGuid, 2),

@@ -1,7 +1,10 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Blueprints.Root;
+using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.Enums;
@@ -13,6 +16,7 @@ using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
+using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -45,9 +49,9 @@ namespace CallOfTheWild.HoldingItemsMechanics
             if (__instance.Blueprint.IsTwoHanded
                 || (__instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands && __result == false))
             {
+                var unit_part = __instance.Wielder?.Get<UnitPartCanHold2hWeaponIn1h>();
                 if (!spell_combat)
                 {//check if we can hold the 2h weapon in 1h
-                    var unit_part = __instance.Wielder?.Get<UnitPartCanHold2hWeaponIn1h>();
                     if (unit_part == null)
                     {
                         return;
@@ -57,6 +61,11 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 }
                 else
                 {
+                    if (unit_part != null && unit_part.canBeUsedOn(__instance))
+                    {//weapon is being held as one-handed
+                        __result = false;
+                        return;
+                    }
                     //normally we can not 2h with spell combat, so we check only magus specific feature that would allow us
                     var use_spell_combat_part = __instance.Wielder?.Get<UnitPartCanUseSpellCombat>();
                     if (use_spell_combat_part == null)
@@ -399,6 +408,30 @@ namespace CallOfTheWild.HoldingItemsMechanics
             }
 
             return holding_slot.PairSlot.MaybeShield.ArmorComponent.Blueprint.ProficiencyGroup == Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup.Buckler;
+        }
+    }
+
+
+    [AllowMultipleComponents]
+    public class CanHoldIn1Hand : CanUse2hWeaponAs1hBase
+    {
+        public WeaponCategory category;
+        public BlueprintWeaponType[] except_types = new BlueprintWeaponType[0];
+        public override bool canBeUsedAs2h(ItemEntityWeapon weapon)
+        {
+            HandSlot holding_slot = weapon?.HoldingSlot as HandSlot;
+            if (holding_slot == null)
+            {
+                return false;
+            }
+
+            return Helpers.hasFreeHand(holding_slot.PairSlot);
+        }
+
+
+        public override bool canBeUsedOn(ItemEntityWeapon weapon)
+        {
+            return (weapon.Blueprint?.Category).GetValueOrDefault() == category && !except_types.Contains(weapon?.Blueprint?.Type);
         }
     }
 
@@ -815,7 +848,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
         }
     }
 
-    public class ConsiderWeaponCategoriesAsLightWeapon: ConsiderAsLightWeaponBase
+    public class ConsiderWeaponCategoriesAsLightWeapon : ConsiderAsLightWeaponBase
     {
         public WeaponCategory[] categories;
 
@@ -829,4 +862,31 @@ namespace CallOfTheWild.HoldingItemsMechanics
             return categories.Contains(weapon.Blueprint.Category);
         }
     }
+
+
+
+    public class PrerequisiteNoExoticProficiency : Prerequisite
+    {
+        public WeaponCategory category;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return ExoticWeapons.getProficiencyRank(unit, category) < 2;
+        }
+
+        public override string GetUIText()
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append(string.Format("{0}:\n", (object)UIStrings.Instance.Tooltips.NoProficiencies));
+
+            stringBuilder.Append(LocalizedTexts.Instance.Stats.GetText(this.category));
+            stringBuilder.Append(" (Exotic)\n");
+
+            return stringBuilder.ToString();
+        }
+    }
+
 }

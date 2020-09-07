@@ -429,6 +429,7 @@ namespace CallOfTheWild
             akashic_form.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
             akashic_form.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(akashic_form);
+            Helpers.AddSpell(akashic_form);
         }
 
 
@@ -471,6 +472,7 @@ namespace CallOfTheWild
             telekinetic_storm.setMiscAbilityParametersSelfOnly();
             telekinetic_storm.SpellResistance = true;
             telekinetic_storm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
+            Helpers.AddSpell(telekinetic_storm);
         }
 
         static void createDivideMind()
@@ -516,6 +518,7 @@ namespace CallOfTheWild
                                                );
             divide_mind.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten;
             divide_mind.setMiscAbilityParametersSelfOnly();
+            Helpers.AddSpell(divide_mind);
         }
 
         static void createPsychicSurgery()
@@ -548,6 +551,7 @@ namespace CallOfTheWild
             psychic_surgery.setMiscAbilityParametersTouchFriendly();
             psychic_surgery.AvailableMetamagic = Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten;
             psychic_surgery.MaterialComponent = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").MaterialComponent; //stoneskin
+            Helpers.AddSpell(psychic_surgery);
         }
 
 
@@ -855,7 +859,8 @@ namespace CallOfTheWild
                                                 );
             synesthesia_mass.Range = AbilityRange.Medium;
             synesthesia_mass.AddComponent(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy));
-
+            Helpers.AddSpell(synesthesia_mass);
+            Helpers.AddSpell(synesthesia);
         }
 
 
@@ -1062,6 +1067,7 @@ namespace CallOfTheWild
                 );
 
                 psychic_crush[i].SetDescription(psychic_crush[i].Description + "\nThis spell can be undercast.");
+                Helpers.AddSpell(psychic_crush[i]);
             }
         }
 
@@ -1108,8 +1114,7 @@ namespace CallOfTheWild
 
             burst_of_force.AddToSpellList(Helpers.wizardSpellList, 5);
             burst_of_force.AddSpellAndScroll("e029ec259c9a37249b113060df32a01d"); //stunning barrier
-
-
+            Helpers.AddSpell(burst_of_force);
         }
 
         
@@ -1142,7 +1147,7 @@ namespace CallOfTheWild
             synapse_overload_touch.SpellResistance = true;
             synapse_overload_touch.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             synapse_overload = Helpers.CreateTouchSpellCast(synapse_overload_touch);
-           
+            Helpers.AddSpell(synapse_overload);
         }
 
 
@@ -1189,6 +1194,7 @@ namespace CallOfTheWild
             burst_of_insight = Common.createVariantWrapper("BurstOfInsightAbility", "", variants.ToArray());
             burst_of_insight.SetName("Burst of Insight");
             burst_of_insight.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            Helpers.AddSpell(burst_of_insight);
         }
 
 
@@ -1235,6 +1241,7 @@ namespace CallOfTheWild
             burst_of_adrenaline = Common.createVariantWrapper("BurstOfAdrenalineAbility", "", variants.ToArray());
             burst_of_adrenaline.SetName("Burst of Adrenaline");
             burst_of_adrenaline.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            Helpers.AddSpell(burst_of_adrenaline);
         }
 
 
@@ -1746,7 +1753,8 @@ namespace CallOfTheWild
                     s.overcast_abilities = mental_barrier.Skip(i + 1).ToArray();
                 })
                 );
-            mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
+                mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
+                Helpers.AddSpell(mental_barrier[i]);
             }
         }
 
@@ -1797,6 +1805,7 @@ namespace CallOfTheWild
                 })
                 );
                 thought_shield[i].SetDescription(thought_shield[i].Description + "\nThis spell can be undercast.");
+                Helpers.AddSpell(thought_shield[i]);
             }
         }
 
@@ -1971,6 +1980,7 @@ namespace CallOfTheWild
                 })
                 );
                 mind_thrust[i].SetDescription(mind_thrust[i].Description + "\nThis spell can be undercast.");
+                Helpers.AddSpell(mind_thrust[i]);
             }
         }
 
@@ -4645,6 +4655,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -2, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.SpellCastingIsDifficult),
                                           Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = -2; w.Descriptor = ModifierDescriptor.UntypedStackable; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
                                           );
@@ -4652,7 +4663,7 @@ namespace CallOfTheWild
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
             howling_agony = Helpers.CreateAbility("HowlingAgonyAbility",
                                                   "Howling Agony",
-                                                  "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws.",
+                                                  "You send wracking pains through the targets’ bodies. Because of the pain, affected creatures take a –2 penalty to AC, attacks, melee damage rolls, and Reflex saving throws, and must succeed at a concentration check (DC 15 + spell level) to cast spells.",
                                                   "",
                                                   icon,
                                                   AbilityType.Spell,

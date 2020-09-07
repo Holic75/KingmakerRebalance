@@ -196,7 +196,7 @@ namespace CallOfTheWild
 
             var spawn_fx = Helpers.Create<ContextActionSpawnFx>(c => c.PrefabLink = clw.GetComponent<AbilitySpawnFx>().PrefabLink);
             var transfer_damage = Helpers.Create<HealingMechanics.ContextActionTransferDamageToCaster>(c => c.Value = 5);
-            var new_round_action = Helpers.CreateConditional(Helpers.Create<ContextConditionDistanceToTarget>(c => c.DistanceGreater = 40.Feet()),
+            var new_round_action = Helpers.CreateConditional(Helpers.Create<ContextConditionDistanceToTarget>(c => c.DistanceGreater = Common.medium_range_ft.Feet()),
                                                                                                               Helpers.Create<ContextActionRemoveSelf>(),
                                                                                                               Helpers.CreateConditional(Helpers.Create<ContextConditionHasDamage>(),
                                                                                                                                         new GameAction[] { spawn_fx, transfer_damage }
