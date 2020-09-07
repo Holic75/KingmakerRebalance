@@ -6966,13 +6966,12 @@ namespace CallOfTheWild
             public bool require_full_proficiency = false;
             public bool IsAbilityVisible(AbilityData ability)
             {
-                int required_rank = 1;
                 if (require_full_proficiency 
                     && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
                 {
-                    required_rank++;
+                    return (ability.Caster.Get<ExoticWeapons.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
                 }
-                return ExoticWeapons.getProficiencyRank(ability.Caster, category) >= required_rank;
+                return ability.Caster.Proficiencies.Contains(category);
             }
         }
 

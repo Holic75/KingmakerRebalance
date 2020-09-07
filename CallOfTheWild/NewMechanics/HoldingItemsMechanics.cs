@@ -865,28 +865,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
 
 
-    public class PrerequisiteNoExoticProficiency : Prerequisite
-    {
-        public WeaponCategory category;
 
-        public override bool Check(
-          FeatureSelectionState selectionState,
-          UnitDescriptor unit,
-          LevelUpState state)
-        {
-            return ExoticWeapons.getProficiencyRank(unit, category) < 2;
-        }
-
-        public override string GetUIText()
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(string.Format("{0}:\n", (object)UIStrings.Instance.Tooltips.NoProficiencies));
-
-            stringBuilder.Append(LocalizedTexts.Instance.Stats.GetText(this.category));
-            stringBuilder.Append(" (Exotic)\n");
-
-            return stringBuilder.ToString();
-        }
-    }
 
 }
