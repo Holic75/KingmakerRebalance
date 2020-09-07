@@ -338,7 +338,8 @@ namespace CallOfTheWild
                                                                                ),
                                                        Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
                                                        phrenic_pool_resource.CreateResourceLogic(),
-                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
+                                                       Common.createAbilityAoERadius((10 + i * 5).Feet(), TargetType.Enemy)
                                                        );
                 ability1.setMiscAbilityParametersSelfOnly();
 
@@ -376,7 +377,8 @@ namespace CallOfTheWild
                                                                ),
                                        Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
                                        phrenic_pool_resource.CreateResourceLogic(amount: 2),
-                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
+                                       Common.createAbilityAoERadius((10 + i * 5).Feet(), TargetType.Enemy)
                                        );
                 ability2.setMiscAbilityParametersSelfOnly();
 
@@ -420,7 +422,8 @@ namespace CallOfTheWild
                                                                                    ),
                                                            Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
                                                            phrenic_pool_resource.CreateResourceLogic(amount: 3),
-                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma)
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
+                                                           Common.createAbilityAoERadius((10 + i * 5).Feet(), TargetType.Enemy)
                                                            );
                     ability3.setMiscAbilityParametersSelfOnly();
                     abilities3.Add(ability3);

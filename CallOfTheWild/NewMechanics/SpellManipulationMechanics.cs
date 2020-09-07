@@ -1556,12 +1556,13 @@ namespace CallOfTheWild
 
         public class SpellRequiringResourceIfCastFromSpecificSpellbook : BlueprintComponent, IAbilityAvailabilityProvider
         {
-            BlueprintSpellbook spellbook;
+            public BlueprintSpellbook spellbook;
             public bool arcanist_spellbook;
             public BlueprintAbilityResource resource;
             public int amount = 1;
             public bool half_level;
             public BlueprintUnitFact[] cost_increasing_facts;
+            public bool only_from_extra_arcanist_spell_list;
 
             public string GetReason()
             {
@@ -1577,11 +1578,17 @@ namespace CallOfTheWild
                     {
                         return true;
                     }
+                    if (only_from_extra_arcanist_spell_list && !arcanist_part.isExtraSpell(ability.Blueprint))
+                    {
+                        return true;
+                    }
                 }
                 else if (ability.Spellbook?.Blueprint != spellbook)
                 {
                     return true;
                 }
+
+
 
                 int required_amount = calcualteCost(ability);
 

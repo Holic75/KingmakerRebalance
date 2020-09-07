@@ -249,8 +249,14 @@ namespace CallOfTheWild
             halcyon_lore_spell_list = Common.combineSpellLists("HalcyonLoreSpellList",
                                                                (spell, spell_list, lvl) =>
                                                                {
-                                                                   if (arcanist_class.Spellbook.SpellList.Contains(spell))
+                                                                   if (arcanist_class.Spellbook.SpellList.Contains(spell) 
+                                                                       && arcanist_class.Spellbook.SpellList.GetLevel(spell) != lvl)
                                                                    {
+                                                                       return false;
+                                                                   }
+                                                                   if (Witch.witch_class.Spellbook.SpellList.Contains(spell)
+                                                                         && Witch.witch_class.Spellbook.SpellList.GetLevel(spell) != lvl)
+                                                                   {//for unlettered arcanist/maagambyan arcanist
                                                                        return false;
                                                                    }
                                                                    if (spell_list == cleric_spell_list && (spell.SpellDescriptor & SpellDescriptor.Good) == 0)
@@ -277,6 +283,7 @@ namespace CallOfTheWild
                                                                 r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
                                                                 r.half_level = true;
                                                                 r.resource = arcane_reservoir_resource;
+                                                                r.only_from_extra_arcanist_spell_list = true;
                                                             }
                                                             );
             for (int i = 1; i <= 9; i++)

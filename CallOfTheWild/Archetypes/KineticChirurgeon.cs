@@ -120,7 +120,9 @@ namespace CallOfTheWild.Archetypes
         static void createKineticChirurgery()
         {
             var elemental_focus = library.Get<BlueprintFeatureSelection>("1f3a15a3ae8a5524ab8b97f469bf4e3d"); //to be able to pick talents
+            var kinetic_knight_elemental_focus = library.Get<BlueprintFeatureSelection>("b1f296f0bd16bc242ae35d0638df82eb"); //to be able to pick talents
             var water = library.Get<BlueprintFeature>("7ab8947ce2e19c44a9edcf5fd1466686");
+            var kinetic_knight_water = library.Get<BlueprintFeature>("5e839c743c6da6649a43cdeb70b6018f");
             var kinetic_healer = library.Get<BlueprintFeature>("3ef666973adfa8f40af6c0679bd98ba5");
             kinetic_chirurgery = Helpers.CreateFeature("KineticChirurgeryFeature",
                                                        "Kinetic Chirurgery",
@@ -134,6 +136,16 @@ namespace CallOfTheWild.Archetypes
             foreach (var e in elemental_focus.AllFeatures)
             {
                 if (e == water)
+                {
+                    continue;
+                }
+                e.AddComponent(Common.prerequisiteNoArchetype(archetype.GetParentClass(), archetype));
+            }
+
+
+            foreach (var e in kinetic_knight_elemental_focus.AllFeatures)
+            {
+                if (e == kinetic_knight_water)
                 {
                     continue;
                 }
