@@ -52,11 +52,11 @@ namespace CallOfTheWild.Archetypes
 {
     public class Seeker
     {
-        static BlueprintArchetype archetype;
-        static Dictionary<BlueprintProgression, BlueprintProgression> normal_seeker_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
-        static BlueprintFeature tinkering;
-        static BlueprintFeature seeker_lore;
-        static BlueprintFeature seeker_magic;
+        public static BlueprintArchetype archetype;
+        public static Dictionary<BlueprintProgression, BlueprintProgression> normal_seeker_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
+        public static BlueprintFeature tinkering;
+        public static BlueprintFeature seeker_lore;
+        public static BlueprintFeature seeker_magic;
 
         static LibraryScriptableObject library => Main.library;
 
