@@ -1759,7 +1759,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             Main.TraceLog();
             var tr = Harmony12.Traverse.Create(__instance);
 
-            if ( !tr.Property("Active").GetValue<bool>() || tr.Method("GetSlotData", slot).GetValue<UnitViewHandSlotData>() == null)
+            if (!tr.Property("Active").GetValue<bool>() || tr.Method("GetSlotData", slot).GetValue<UnitViewHandSlotData>() == null)
             {
                 return true;
             }

@@ -740,7 +740,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     //EmptyHandWeaponOverrideNotification
     [Harmony12.HarmonyPatch(typeof(UnitBody))]
     [Harmony12.HarmonyPatch("SetEmptyHandWeapon", Harmony12.MethodType.Normal)]
-    class UnitBody__SetEmptyHandWeapon__Patch
+    public class UnitBody__SetEmptyHandWeapon__Patch
     {
         public static bool no_animation_action = false;
         //signal weapon set change to notify that weapons could have been changed
@@ -782,7 +782,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
         static bool Prefix(TurnController __instance, UnitDescriptor unit)
         {
             Main.TraceLog();
-         
+            Main.logger.Log("Trigger");
             if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
             {
                 return false;
