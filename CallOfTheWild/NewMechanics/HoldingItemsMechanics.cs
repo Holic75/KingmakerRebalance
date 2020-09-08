@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
@@ -416,6 +417,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         public WeaponCategory category;
         public BlueprintWeaponType[] except_types = new BlueprintWeaponType[0];
+        public bool require_full_proficiency = false;
         public override bool canBeUsedAs2h(ItemEntityWeapon weapon)
         {
             HandSlot holding_slot = weapon?.HoldingSlot as HandSlot;
@@ -430,7 +432,14 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
         public override bool canBeUsedOn(ItemEntityWeapon weapon)
         {
-            return (weapon.Blueprint?.Category).GetValueOrDefault() == category && !except_types.Contains(weapon?.Blueprint?.Type);
+            if (require_full_proficiency &&
+                !(weapon.Owner?.Get<ExoticWeapons.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault())
+            {
+                return false;
+            }
+            
+            return (weapon.Blueprint?.Category).GetValueOrDefault() == category 
+                    && !except_types.Contains(weapon?.Blueprint?.Type);
         }
     }
 

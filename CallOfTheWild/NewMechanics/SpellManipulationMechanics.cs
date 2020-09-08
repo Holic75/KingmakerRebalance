@@ -569,16 +569,15 @@ namespace CallOfTheWild
                         && __instance.MetamagicData.NotEmpty)
                     {
                         __result = true;
-                        return;
                     }
                 }
-                else if (!__instance.Blueprint.IsFullRoundAction)
+
+                if (!__instance.Blueprint.IsFullRoundAction && __result)
                 {
                     if (__instance.MetamagicData.MetamagicMask == 0)
                     {
                         return;
                     }
-
 
                     if ((__instance.MetamagicData.MetamagicMask | (Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic) == (Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)
                     {
