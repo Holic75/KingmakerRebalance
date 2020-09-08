@@ -87,6 +87,7 @@ namespace CallOfTheWild
                                   Helpers.Create<HoldingItemsMechanics.CanHoldIn1Hand>(c =>
                                   {
                                       c.category = WeaponCategory.BastardSword;
+                                      c.require_full_proficiency = true;
                                       c.except_types = new BlueprintWeaponType[]
                                       {
                                         library.Get<BlueprintWeaponType>("1e460a2dc830cf546939b2723aa875e7"), //oversized bastard sword
@@ -99,7 +100,7 @@ namespace CallOfTheWild
             WeaponVisualParameters dw_visuals = Helpers.GetField<WeaponVisualParameters>(dwarven_waraxe_type, "m_VisualParameters");
             Helpers.SetField(dw_visuals, "m_WeaponAnimationStyle", WeaponAnimationStyle.SlashingTwoHanded);
             fixFullWeaponCategory(WeaponCategory.DwarvenWaraxe, WeaponCategory.Battleaxe,
-                                  Helpers.Create<HoldingItemsMechanics.CanHoldIn1Hand>(c => c.category = WeaponCategory.DwarvenWaraxe));
+                                  Helpers.Create<HoldingItemsMechanics.CanHoldIn1Hand>(c => { c.category = WeaponCategory.DwarvenWaraxe; c.require_full_proficiency = true;}));
 
 
 

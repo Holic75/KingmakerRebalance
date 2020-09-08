@@ -140,7 +140,7 @@ namespace CallOfTheWild.Archetypes
 
             var size_increase2 = Helpers.CreateFeature("CorpseCompanionHugeFeature",
                                                        "Size Increase: Huge",
-                                                       "Corpse companion growth in size and receives +4 to its strength, -2 to dexterity, +1 bonus to natural armor and +10 feet bonus to speed..",
+                                                       "Corpse companion growth in size and receives +4 to its strength, -2 to dexterity, +1 bonus to natural armor and +10 feet bonus to speed.",
                                                        "",
                                                        Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                        FeatureGroup.None,

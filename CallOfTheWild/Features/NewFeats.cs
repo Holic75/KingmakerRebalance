@@ -288,12 +288,12 @@ namespace CallOfTheWild
             library.AddFeats(preferred_spell);
 
 
-            Common.addSpellbooksToSelection("PreferredSpellParametrized", 1, addToPerfectSpell,
+            Common.addSpellbooksToSelection("PreferredSpellParametrized", 1, addToPreferredSpell,
                                             preferred_spell);
         }
 
 
-        static void addToPerfectSpell(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
+        static void addToPreferredSpell(BlueprintFeatureSelection selection, BlueprintSpellbook spellbook, string name, string display_name, params BlueprintComponent[] components)
         {
             var @class = (components.AsEnumerable().First(f => (f is PrerequisiteClassSpellLevel)) as PrerequisiteClassSpellLevel).CharacterClass;
             var feature = Helpers.CreateParametrizedFeature(name,
@@ -305,6 +305,7 @@ namespace CallOfTheWild
                                                             (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell,
                                                             components.AddToArray(Helpers.Create<SpellManipulationMechanics.PreferredSpell>(p => p.character_class = @class))
                                                             );
+            feature.AddComponent(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 1));
             feature.Groups = feature.Groups.AddToArray(FeatureGroup.WizardFeat);
             feature.SpellcasterClass = @class;
             feature.BlueprintParameterVariants = library.Get<BlueprintParametrizedFeature>("e69a85f633ae8ca4398abeb6fa11b1fe").BlueprintParameterVariants;

@@ -94,7 +94,7 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public class UnitPartFreeAbilityUse : AdditiveUnitPart
+    public class UnitPartFreeAbilityUse : AdditiveUnitPartWithCheckLock
     {
         public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
         {
@@ -105,8 +105,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = false;
-                b.CallComponents<FreeActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                bool result = check< FreeActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
                 if (result)
                 {
                     return true;
@@ -136,7 +135,7 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public class UnitPartSwiftAbilityUse : AdditiveUnitPart
+    public class UnitPartSwiftAbilityUse : AdditiveUnitPartWithCheckLock
     {
         public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
         {
@@ -147,8 +146,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = false;
-                b.CallComponents<SwiftActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                bool result = check<SwiftActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
                 if (result)
                 {
                     return true;
@@ -160,7 +158,7 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public class UnitPartMoveAbilityUse : AdditiveUnitPart
+    public class UnitPartMoveAbilityUse : AdditiveUnitPartWithCheckLock
     {
         public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
         {
@@ -171,8 +169,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = false;
-                b.CallComponents<MoveActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                bool result = check<MoveActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
                 if (result)
                 {
                     return true;
@@ -184,7 +181,7 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public class UnitPartStandardActionAbilityUse : AdditiveUnitPart
+    public class UnitPartStandardActionAbilityUse : AdditiveUnitPartWithCheckLock
     {
         public bool canBeUsedOnAbility(AbilityData ability, CommandType actual_action_type)
         {
@@ -195,8 +192,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = false;
-                b.CallComponents<StandardActionAbilityUseBase>(c => result = c.canUseOnAbility(ability, actual_action_type));
+                bool result = check<StandardActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
                 if (result)
                 {
                     return true;
@@ -339,11 +335,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
             if (actual_action_type == CommandType.Standard)
             {
-                bool need_full_round = !ability.HasMetamagic(Metamagic.Quicken)
-                                         && (
-                                             ((ability.Spellbook.Blueprint.Spontaneous  || ability.ConvertedFrom != null) && ability.MetamagicData != null && ability.MetamagicData.NotEmpty)
-                                             || (ability.Blueprint.IsFullRoundAction)
-                                             );
+                bool need_full_round = ability.RequireFullRoundAction;
                 if (is_full_round != need_full_round)
                 {
                     return false;
@@ -646,7 +638,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
 
 
-    public class UnitPartFullRoundAbilityUse : AdditiveUnitPart
+    public class UnitPartFullRoundAbilityUse : AdditiveUnitPartWithCheckLock
     {
         public bool canBeUsedOnAbility(AbilityData ability)
         {
@@ -657,8 +649,8 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = false;
-                b.CallComponents<FullRoundAbilityUseBase>(c => result = c.canUseOnAbility(ability));
+                bool result = check<FullRoundAbilityUseBase>(b, c => c.canUseOnAbility(ability));
+
                 if (result)
                 {
                     return true;
