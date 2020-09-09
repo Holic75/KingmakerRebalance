@@ -38,6 +38,7 @@ namespace CallOfTheWild
             internal bool secondary_rake_attacks { get; }
             internal bool one_sneak_attack_per_target_per_spell { get; }
             internal bool metamagic_for_spontaneous_spell_conversion { get; }
+            internal bool remove_solo_tactics_from_sacred_huntsmater { get; }
             internal Settings()
             {
 
@@ -60,6 +61,7 @@ namespace CallOfTheWild
                     secondary_rake_attacks = (bool)jo["secondary_rake_attacks"];
                     one_sneak_attack_per_target_per_spell = (bool)jo["one_sneak_attack_per_target_per_spell"];
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
+                    remove_solo_tactics_from_sacred_huntsmater = (bool)jo["remove_solo_tactics_from_sacred_huntsmater"];
                 }
             }
         }
@@ -162,6 +164,13 @@ namespace CallOfTheWild
                     {
                         Main.logger.Log("Fixing Ecclesitheurge");
                         CallOfTheWild.Rebalance.fixEcclesitheurge();
+                    }
+
+
+                    if (settings.remove_solo_tactics_from_sacred_huntsmater)
+                    {
+                        Main.logger.Log("Removing Solo Tactics from Sacred Huntsmater");
+                        CallOfTheWild.Rebalance.removeSoloTacticsFromSH();
                     }
 
                     CallOfTheWild.Common.initialize();

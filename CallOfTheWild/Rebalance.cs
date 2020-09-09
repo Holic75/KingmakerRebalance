@@ -1494,6 +1494,18 @@ namespace CallOfTheWild
         }
 
 
+        static public void removeSoloTacticsFromSH()
+        {
+            var solo_tactics = library.Get<BlueprintFeature>("5602845cd22683840a6f28ec46331051");
+            var sacred_huntsmaster = library.Get<BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
+            if (sacred_huntsmaster.RemoveFeatures.Any(r => r.Level == 3))
+            {
+                return;
+            }
+            sacred_huntsmaster.RemoveFeatures = sacred_huntsmaster.RemoveFeatures.AddToArray(Helpers.LevelEntry(3, solo_tactics));
+        }
+
+
         static internal void fixDruidDomainUi()
         {
             var druid_domains = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e").AllFeatures;

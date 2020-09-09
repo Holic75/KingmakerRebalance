@@ -308,7 +308,7 @@ namespace CallOfTheWild
                 area1.Size = (10 + i * 5).Feet();
                 area1.ComponentsArray = new BlueprintComponent[]
                 {
-                    Helpers.CreateAddFactContextActions(newRound: apply_confusion),
+                    Helpers.CreateAreaEffectRunAction(round: apply_confusion),
                     Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Confusion | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting)
                 };
@@ -348,7 +348,7 @@ namespace CallOfTheWild
                 var area2 = library.CopyAndAdd<BlueprintAbilityAreaEffect>(area1, $"AuraOfInsanityII{i + 1}Area", "");
                 area2.ComponentsArray = new BlueprintComponent[]
                 {
-                    Helpers.CreateAddFactContextActions(newRound: apply_confusion2),
+                    Helpers.CreateAreaEffectRunAction(round: apply_confusion2),
                     Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence)
                 };
 
@@ -392,7 +392,7 @@ namespace CallOfTheWild
                     area3.Size = (10 + i * 5).Feet();
                     area3.ComponentsArray = new BlueprintComponent[]
                     {
-                    Helpers.CreateAddFactContextActions(newRound: apply_specific_confusion_buffs[j]),
+                    Helpers.CreateAreaEffectRunAction(round: apply_specific_confusion_buffs[j]),
                     Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Confusion | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting)
                     };
