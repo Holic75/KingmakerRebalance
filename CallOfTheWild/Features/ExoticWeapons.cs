@@ -116,14 +116,23 @@ namespace CallOfTheWild
                                   Helpers.Create<NewMechanics.ConsiderAsFinessable>(c => c.category = WeaponCategory.DuelingSword));          
             duelling_sword_proficiency.SetDescription(duelling_sword_proficiency.Description + "\nAn dueling sword can be used as a martial weapon (in which case it functions as a longsword), but if you have the feat Exotic Weapon Proficiency (dueling sword), you can use the Weapon Finesse feat to apply your Dexterity modifier instead of your Strength modifier to attack rolls with a dueling sword sized for you, even though it isn’t a light weapon.");
 
-            //remove duelling sword from list of finessable weapons
+            var estoc_type = library.Get<BlueprintWeaponType>("d516765b3c2904e4a939749526a52a9a");
+            Helpers.SetField(estoc_type, "m_IsTwoHanded", true);
+
+            var estoc_proficiency = library.Get<BlueprintFeature>("9dc64f0b9161a354c9471a631318e16c");
+            fixFullWeaponCategory(WeaponCategory.Estoc, WeaponCategory.Greatsword,
+                                  Helpers.Create<HoldingItemsMechanics.CanHoldIn1Hand>(c => { c.category = WeaponCategory.Estoc; c.require_full_proficiency = true; }),
+                                  Helpers.Create<NewMechanics.ConsiderAsFinessable>(c => c.category = WeaponCategory.Estoc));
+            estoc_proficiency.SetDescription(duelling_sword_proficiency.Description + "\nLike the bastard sword, an estoc requires special training to use it one handed, but it can also be wielded as a two-handed martial weapon.\nWhen you wield an estoc with one hand, treat it as a one-handed weapon; when you wield an estoc with two hands, treat it as a two-handed weapon. If you can use the estoc proficiently with one hand, you can also use the Weapon Finesse feat to apply your Dexterity modifier instead of your Strength modifier on attack rolls when wielding an estoc sized for you with one or two hands, even though it isn’t a light weapon.");
+
+            //remove duelling sword and estoc from list of finessable weapons
             var info = typeof(WeaponCategoryExtension).GetField("Data", BindingFlags.NonPublic | BindingFlags.Static);
             var data = (Array)info.GetValue(null);
             
             foreach (var dd in data)
             {
                 var category = Helpers.GetField<WeaponCategory>(dd, "Category");
-                if (category == WeaponCategory.DuelingSword)
+                if (category == WeaponCategory.DuelingSword || category == WeaponCategory.Estoc)
                 {
                     var subcategories = Helpers.GetField<WeaponSubCategory[]>(dd, "SubCategories");
                     subcategories = subcategories.RemoveFromArray(WeaponSubCategory.Finessable);
