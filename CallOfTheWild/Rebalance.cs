@@ -1133,6 +1133,15 @@ namespace CallOfTheWild
             }
         }
 
+        internal static void refixBardicPerformanceOverlap()
+        {
+            //after 2.1.2 dev's fix
+            var abilities = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
+            foreach (var a in abilities)
+            {
+                a.Buff.RemoveComponents<AddFactContextActions>();
+            }
+        }
 
         //forbid bard song overlap on bardic performance
         [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]
