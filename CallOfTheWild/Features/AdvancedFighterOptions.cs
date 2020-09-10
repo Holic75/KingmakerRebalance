@@ -913,7 +913,7 @@ namespace CallOfTheWild
                                                     "",
                                                     skill_foci.FirstOrDefault(sf => sf.GetComponent<AddContextStatBonus>().Stat == s.Key).Icon,
                                                     FeatureGroup.None,
-                                                    Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s.Key; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                                    Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s.Key; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); ss.increase_by1_on_apply = true; }),
                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.BaseAttack)
                                                     );
                 versatile_training.AllFeatures = versatile_training.AllFeatures.AddToArray(feature);
