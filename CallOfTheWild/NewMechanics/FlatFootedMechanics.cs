@@ -26,7 +26,7 @@ namespace CallOfTheWild.FlatFootedMechanics
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
     class RuleCheckTargetFlatFooted__OnTrigger__Patch
     {
-        static void Prefix(RuleCheckTargetFlatFooted __instance)
+        static bool Prefix(RuleCheckTargetFlatFooted __instance)
         {
             bool ignore_initiative = (__instance.Target.Get<UnitPartNotFlatFootedBeforeInitiative>()?.active()).GetValueOrDefault();
             bool is_flat_footed = __instance.ForceFlatFooted 
@@ -43,6 +43,7 @@ namespace CallOfTheWild.FlatFootedMechanics
             //TODO: fix shatter defenses not to apply on first hit
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("IsFlatFooted").SetValue(is_flat_footed);
+            return false;
         }
     }
 
