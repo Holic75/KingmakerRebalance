@@ -43,6 +43,7 @@ namespace CallOfTheWild
             {
                 String template_file_name = UnityModManager.modsPath + @"/CallOfTheWild/template.json";
                 String settings_file_name = UnityModManager.modsPath + @"/CallOfTheWild/settings.json";
+                JObject jo;
 
                 if (!File.Exists(settings_file_name))
                 {
@@ -53,9 +54,9 @@ namespace CallOfTheWild
                 using (JsonTextReader settings_reader = new JsonTextReader(settings_file))
                 using (JsonTextReader template_reader = new JsonTextReader(template_file))
                 {
-                    JObject jo = (JObject)JToken.ReadFrom(settings_reader);
-                    JObject jo_template = (JObject)JToken.ReadFrom(template_reader);
-                    jo.Merge(jo_template);
+                    jo = (JObject)JToken.ReadFrom(template_reader);
+                    JObject jo_settings = (JObject)JToken.ReadFrom(settings_reader);
+                    jo.Merge(jo_settings);
                     update_companions = (bool)jo["update_companions"];
                     //nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
@@ -72,8 +73,8 @@ namespace CallOfTheWild
                     one_sneak_attack_per_target_per_spell = (bool)jo["one_sneak_attack_per_target_per_spell"];
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
                     remove_solo_tactics_from_sacred_huntsmater = (bool)jo["remove_solo_tactics_from_sacred_huntsmater"];
-                    File.WriteAllText(settings_file_name, JsonConvert.SerializeObject(jo, Formatting.Indented));
                 }
+                File.WriteAllText(settings_file_name, JsonConvert.SerializeObject(jo, Formatting.Indented));
             }
         }
 
