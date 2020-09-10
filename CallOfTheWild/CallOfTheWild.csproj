@@ -327,7 +327,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Repository.json" />
-    <None Include="settings.json">
+    <None Include="template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
