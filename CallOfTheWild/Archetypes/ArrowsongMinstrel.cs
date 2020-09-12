@@ -226,6 +226,8 @@ namespace CallOfTheWild.Archetypes
             arrowsong_strike = Common.ActivatableAbilityToFeature(spellstrike, false);
             arrowsong_strike.AddComponents(add_magus_part, add_eldritch_archer, add_spellstrike);
 
+            var add_spell_combat18 = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9").GetComponent<AddMagusMechanicPart>().CreateCopy(); //spell combat
+            Helpers.SetField(add_spell_combat18, "m_MagusClass", bard_class);
             var spell_combat_buff = library.Get<BlueprintBuff>("91e4b45ab5f29574aa1fb41da4bbdcf2");
             ray_spell_combat = Helpers.CreateFeature("RaySpellCombatFeature",
                                                      "Arrowsong Strike II",
@@ -233,7 +235,8 @@ namespace CallOfTheWild.Archetypes
                                                      "",
                                                      LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
                                                      FeatureGroup.None,
-                                                     Helpers.CreateAddFact(Common.ignore_spell_combat_penalty)
+                                                     Helpers.CreateAddFact(Common.ignore_spell_combat_penalty),
+                                                     add_spell_combat18
                                                      );
             var apply_spell_combat = Common.createContextActionApplyBuff(spell_combat_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false);
             spellstrike.Buff.AddComponent(Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Common.createContextConditionHasFact(ray_spell_combat),

@@ -2029,7 +2029,7 @@ namespace CallOfTheWild
 
             var divine_energy_cure = Helpers.CreateFeature("FaithDivineEnergyCureFeature",
                                                            "Spontaneous Healing",
-                                                           "You can channel spell energy into cure or inflict spells. This ability functions similarly to the cleric’s ability to spontaneously cast cure or inflict spells, and the type of spells you can convert depends on your alignment in the same way.The cure or inflict spells don’t count as being on your psychic spell list for the purposes of any other effects. Each time you use this ability to convert a spell, you regain 1 point in your phrenic pool.\n"
+                                                           "You can channel spell energy into cure or inflict spells. This ability functions similarly to the cleric’s ability to spontaneously cast cure or inflict spells, and the type of spells you can convert depends on your alignment in the same way. The cure or inflict spells don’t count as being on your psychic spell list for the purposes of any other effects. Each time you use this ability to convert a spell, you regain 1 point in your phrenic pool.\n"
                                                            + "You can use this ability a number of times per day equal to your Wisdom modifier.",
                                                            "",
                                                            cleric_spontaneous_cure.Icon,

@@ -2065,12 +2065,13 @@ namespace CallOfTheWild
         }
 
 
-        static public AbilityScoreCheckBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
+        static public BuffAbilityRollsBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor, StatType stat)
         {
-            var a = Helpers.Create<AbilityScoreCheckBonus>();
-            a.Bonus = bonus;
+            var a = Helpers.Create<BuffAbilityRollsBonus>();
+            a.Value = 1;
             a.Descriptor = descriptor;
             a.Stat = stat;
+            a.Multiplier = bonus;
             return a;
         }
 

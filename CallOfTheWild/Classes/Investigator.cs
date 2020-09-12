@@ -1588,7 +1588,7 @@ namespace CallOfTheWild
                                                                      dice_type_context,
                                                                      Helpers.Create<NewMechanics.AddRandomBonusOnSkillCheckAndConsumeResource>(a =>
                                                                      {
-                                                                         a.stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution,                                                                                                    StatType.Intelligence, StatType.Wisdom, StatType.Charisma };
+                                                                         a.stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution, StatType.Intelligence, StatType.Wisdom, StatType.Charisma };
                                                                          a.resource = inspiration_resource;
                                                                          a.amount = 1;
                                                                          a.dices = dice_type;
