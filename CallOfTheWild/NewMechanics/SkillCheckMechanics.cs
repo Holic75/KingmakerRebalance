@@ -83,7 +83,7 @@ namespace CallOfTheWild.SkillMechanics
                     {
                         evt.Silent = true; ;
                         Rulebook.Trigger<RuleSkillCheck>(evt);
-                        num += evt.Bonus;
+                        num += (int)evt.Bonus;
                     }
 
                     if (___m_StatValue < num)
@@ -111,7 +111,7 @@ namespace CallOfTheWild.SkillMechanics
                     EventBus.RaiseEvent<IRollSkillCheckHandler>((Action<IRollSkillCheckHandler>)(h => h.HandleOnRuleSkillCheck(selected_evt)));
                     //Game.Instance?.UI?.BattleLogManager?.HandleUnitSkillCheckRolled(selected_evt);
                 }
-                ___m_D20 = selected_evt.D20;
+                ___m_D20 = selected_evt.D20;       
             }
             return false;
         }
@@ -178,7 +178,7 @@ namespace CallOfTheWild.SkillMechanics
                 return;
             }
 
-            evt.Bonus.AddModifier(new_stat_value - old_stat_value, this, Kingmaker.Enums.ModifierDescriptor.Inherent);
+            evt.Bonus.AddModifier(new_stat_value - old_stat_value, null, Kingmaker.Enums.ModifierDescriptor.Inherent);
         }
     }
 
@@ -286,7 +286,7 @@ namespace CallOfTheWild.SkillMechanics
 
 
 
-        public class ContextActionSkillCheckWithFailures : ContextAction
+    public class ContextActionSkillCheckWithFailures : ContextAction
     {
         public StatType Stat;
         public bool use_custom_dc;

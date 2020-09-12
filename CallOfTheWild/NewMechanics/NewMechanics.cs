@@ -8606,7 +8606,7 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                evt.Bonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable);
+                evt.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
             }
 
             public override void OnEventDidTrigger(RuleSkillCheck evt)

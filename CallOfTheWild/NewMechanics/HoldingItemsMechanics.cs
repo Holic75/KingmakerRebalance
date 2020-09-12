@@ -861,6 +861,24 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         public WeaponCategory[] categories;
 
+        public override void OnFactActivate()
+        {
+            base.OnFactActivate();
+            foreach (var c in categories)
+            {
+                this.Owner.Ensure<DamageGracePart>().AddEntry(c, this.Fact);
+            }
+        }
+
+        public override void OnFactDeactivate()
+        {
+            base.OnFactDeactivate();
+            foreach (var c in categories)
+            {
+                this.Owner.Ensure<DamageGracePart>().RemoveEntry(this.Fact);
+            }
+        }
+
         public override bool canBeUsedOn(ItemEntityWeapon weapon)
         {
             if (weapon == null)
