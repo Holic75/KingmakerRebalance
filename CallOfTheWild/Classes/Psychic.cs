@@ -2573,6 +2573,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
 
+                new Common.SpellId( NewSpells.babble.AssetGuid, 3),
                 new Common.SpellId( "0a2f7c6aa81bc6548ac7780d8b70bcbc", 3), //battering blast (it seems it should be on the list since all force spells are there)
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
@@ -2591,6 +2592,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
+                new Common.SpellId( NewSpells.synaptic_pulse.AssetGuid, 3),
                 new Common.SpellId( NewSpells.synesthesia.AssetGuid, 3),
                 new Common.SpellId( NewSpells.thought_shield[1].AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
@@ -2644,9 +2646,11 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.psychic_crush[0].AssetGuid, 5),
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
+                new Common.SpellId( NewSpells.synaptic_pulse_greater.AssetGuid, 5),
                 new Common.SpellId( NewSpells.synapse_overload.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
+                new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast ? (probably should be since wail of banshee is also on the list)
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
                 new Common.SpellId( "36c8971e91f1745418cc3ffdfac17b74", 6), //blade barrier
                 new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bull strength mass
@@ -2703,6 +2707,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 8), //prediction of failure
                 new Common.SpellId( "42aa71adc7343714fa92e471baa98d42", 8), //protection from spells
                 new Common.SpellId( NewSpells.psychic_crush[3].AssetGuid, 8),
+                new Common.SpellId( NewSpells.song_of_discord_greater.AssetGuid, 8),
                 new Common.SpellId( "fd0d3840c48cafb44bb29e8eb74df204", 8), //shout greater
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 8), //sm 8
                 new Common.SpellId( NewSpells.temporal_stasis.AssetGuid, 8),

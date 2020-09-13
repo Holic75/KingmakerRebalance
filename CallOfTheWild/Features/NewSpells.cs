@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.NewMechanics;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Experience;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -240,6 +241,11 @@ namespace CallOfTheWild
 
         static public BlueprintBuff nauseted_non_poison;
 
+        static public BlueprintAbility synaptic_pulse;
+        static public BlueprintAbility synaptic_pulse_greater;
+        static public BlueprintAbility babble;
+        static public BlueprintAbility song_of_discord_greater;
+
         static public void load()
         {
             createImmunityToWind();
@@ -393,6 +399,159 @@ namespace CallOfTheWild
             createDivideMind();
             createTelekineticStorm();
             createAkashicForm();
+            createSynapticPulse();
+            createBabble();
+            createSongOfDiscordGreater();
+        }
+
+
+        static void createSongOfDiscordGreater()
+        {
+            var buff = library.CopyAndAdd<BlueprintBuff>("2e1646c2449c88a4188e58043455a43a", "SongOfDiscordGreaterBuff", "");
+            buff.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Sonic),
+                Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.AttackNearest),
+                Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Morale)
+            };
+
+            song_of_discord_greater = library.CopyAndAdd<BlueprintAbility>("d38aaf487e29c3d43a3bffa4a4a55f8f", "SongOfDiscordGreaterAbility", "");
+            song_of_discord_greater.RemoveComponents<SpellListComponent>();
+            song_of_discord_greater.RemoveComponents<AbilityEffectRunAction>();
+            song_of_discord_greater.SetNameDescription("Song of Discord, Greater",
+                                                       "This spell functions as song of discord except that affected creatures automatically attack the nearest target each round. In addition, all affected creatures gain a +4 morale bonus to Strength for the duration of the spell. A creature that succeeds at the Will save reduces the effect’s duration to 1 round.");
+            song_of_discord_greater.AddComponent(Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                          Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1)),
+                                                                                                         Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                                                        )
+                                                                         )
+                                                );
+            song_of_discord_greater.AddToSpellList(Helpers.bardSpellList, 6);
+        }
+
+        static void createBabble()
+        {
+            var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
+            var fascinated = library.Get<BlueprintBuff>("9c70d2ae017665b4b845e6c299cb7439");
+            var immune_to_fascinate = library.Get<BlueprintBuff>("a50373fa77d30d34c8c6efb198b36921");
+
+            var apply_fascinate_immune = Common.createContextActionApplyBuff(immune_to_fascinate, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
+            var apply_fascinate = Common.createContextActionApplyBuff(fascinated, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+
+            var fascinate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a4fc1c0798359974e99e1d790935501d", "BabbleFascinateArea", "");
+            fascinate_area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateAreaEffectRunAction(unitEnter: new GameAction[]{ Helpers.CreateConditional(Common.createContextConditionHasFact(immune_to_fascinate), null,
+                                                                                       Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                                                                       Helpers.CreateConditionalSaved(apply_fascinate_immune,
+                                                                                                                                                      apply_fascinate)
+                                                                                                                       )
+                                                                                      )
+                                                                             },
+                                                   unitExit: new GameAction[]{Common.createContextActionRemoveBuffFromCaster(fascinated),
+                                                                              Common.createContextActionRemoveBuffFromCaster(immune_to_fascinate)
+                                                                             }
+                                                  ),
+                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+            };
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("555930f121b364a4e82670b433028728", "BabbleBuff", "");
+            buff.ComponentsArray = new BlueprintComponent[]
+            {
+                Common.createAddAreaEffect(fascinate_area),
+                Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Nauseated),
+                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion)
+            };
+            buff.SetNameDescriptionIcon("", "", null);
+
+
+            babble = Helpers.CreateAbility("BabbleAbility",
+                                           "Babble",
+                                           "This spell causes the target to break into a fit of bizarre, uncontrollable babbling. The target also becomes nauseated. If the target succeeds at its save, the effects end. If not, the creature continues babbling and is nauseated for the entire duration.\n"
+                                           + "Creatures within 30 feet of the subject that can hear the target’s babbling must succeed at a Will save or become fascinated for as long as the babbling persists. Once a creature’s fascination ends, it can’t become fascinated by the same instance of babble again as long as it does not leave spell area.",
+                                           "",
+                                           Helpers.GetIcon("886c7407dc629dc499b9f1465ff382df"), //confusion
+                                           AbilityType.Spell,
+                                           UnitCommand.CommandType.Standard,
+                                           AbilityRange.Medium,
+                                           Helpers.roundsPerLevelDuration,
+                                           Helpers.willNegates,
+                                           Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                    Helpers.CreateConditionalSaved(null,
+                                                                                                   Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default))))
+                                                                   ),
+                                           Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
+                                           Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                           Common.createAbilityAoERadius(30.Feet(), TargetType.Any),
+                                           Helpers.CreateContextRankConfig()
+                                           );
+            babble.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            babble.SpellResistance = true;
+            babble.AvailableMetamagic = Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            babble.AddToSpellList(Helpers.bardSpellList, 2);
+            babble.AddToSpellList(Helpers.wizardSpellList, 3);
+            Helpers.AddSpellAndScroll(babble, "1db86aaa479be6944abe90eaddb4afa2");
+
+        }
+
+
+        static void createSynapticPulse()
+        {
+            var icon = Helpers.GetIcon("df3950af5a783bd4d91ab73eb8fa0fd3");//stagger buff
+
+            var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
+            var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1));
+            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1));
+            synaptic_pulse = Helpers.CreateAbility("SynapticPulseAbility",
+                                                   "Synaptic Pulse",
+                                                   "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1 round.",
+                                                   "",
+                                                   icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Personal,
+                                                   Helpers.oneRoundDuration,
+                                                   Helpers.willNegates,
+                                                   Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                            Helpers.CreateConditional(Common.createContextConditionIsCaster(), null, stun1)
+                                                                            ),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
+                                                   Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                   Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any),
+                                                   Common.createAbilitySpawnFxDestroyOnCast("6b75812d8c3b0d34f9bc204d6babc2a1", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                                   );
+            synaptic_pulse.SpellResistance = true;
+            synaptic_pulse.setMiscAbilityParametersSelfOnly();
+            synaptic_pulse.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            Helpers.AddSpell(synaptic_pulse);
+
+
+            synaptic_pulse_greater = Helpers.CreateAbility("SynapticPulseGreaterAbility",
+                                       "Synaptic Pulse, Greater",
+                                       "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1d4 rounds. On a successful save, a creature is instead sickened for 1 round.",
+                                       "",
+                                       icon,
+                                       AbilityType.Spell,
+                                       UnitCommand.CommandType.Standard,
+                                       AbilityRange.Personal,
+                                       "1d4 rounds",
+                                       Helpers.willNegates,
+                                       Helpers.CreateRunActions(SavingThrowType.Will,
+                                                                Helpers.CreateConditional(Common.createContextConditionIsCaster(), sickened1, stun1d4)
+                                                                ),
+                                       Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
+                                       Helpers.Create<SharedSpells.CannotBeShared>(),
+                                       Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any),
+                                       Common.createAbilitySpawnFxDestroyOnCast("6b75812d8c3b0d34f9bc204d6babc2a1", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                       );
+            synaptic_pulse_greater.AvailableMetamagic = synaptic_pulse.AvailableMetamagic;
+            synaptic_pulse_greater.SpellResistance = true;
+            synaptic_pulse_greater.setMiscAbilityParametersSelfOnly();
+            Helpers.AddSpell(synaptic_pulse_greater);
         }
 
 
@@ -471,7 +630,7 @@ namespace CallOfTheWild
                                                       );
             telekinetic_storm.setMiscAbilityParametersSelfOnly();
             telekinetic_storm.SpellResistance = true;
-            telekinetic_storm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
+            telekinetic_storm.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
             Helpers.AddSpell(telekinetic_storm);
         }
 
@@ -680,7 +839,7 @@ namespace CallOfTheWild
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Acid, 0.5f),
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Fire, 0.5f),
                                           Helpers.Create<ArcaneSpellFailureIncrease>(a => a.Bonus = 35),
-                                          Helpers.Create<ArmorCheckPenaltyIncrease>(a => a.Bonus = -6),
+                                          Helpers.Create<NewMechanics.ArmorCheckPenaltyIncrease>(a => a.Bonus = -6),
                                           Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed)
                                           );
 
@@ -1110,7 +1269,7 @@ namespace CallOfTheWild
             burst_of_force.EffectOnEnemy = AbilityEffectOnUnit.Harmful;
             burst_of_force.SpellResistance = true;
 
-            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            burst_of_force.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
 
             burst_of_force.AddToSpellList(Helpers.wizardSpellList, 5);
             burst_of_force.AddSpellAndScroll("e029ec259c9a37249b113060df32a01d"); //stunning barrier

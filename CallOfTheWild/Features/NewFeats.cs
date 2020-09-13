@@ -589,6 +589,11 @@ namespace CallOfTheWild
             static BlueprintFeature shield_master = library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc");
             static bool Prefix(TwoWeaponFightingAttackPenalty __instance, RuleCalculateAttackBonusWithoutTarget evt)
             {
+                RulebookEvent rule = evt.Reason.Rule;
+                if (rule != null && rule is RuleAttackWithWeapon attack && !attack.IsFullAttack)
+                {
+                    return true;
+                }
                 ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
                 ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
                 if (evt.Weapon == null || maybeWeapon1 == null || (maybeWeapon2 == null || maybeWeapon1.Blueprint.IsNatural) || (maybeWeapon2.Blueprint.IsNatural || maybeWeapon1 == evt.Initiator.Body.EmptyHandWeapon || maybeWeapon2 == evt.Initiator.Body.EmptyHandWeapon) || maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)

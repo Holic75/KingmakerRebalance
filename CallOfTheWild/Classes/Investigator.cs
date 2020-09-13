@@ -671,6 +671,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
 
+                new Common.SpellId( NewSpells.babble.AssetGuid, 3),
                 new Common.SpellId( "0a2f7c6aa81bc6548ac7780d8b70bcbc", 3), //battering blast (it seems it should be on the list since all force spells are there)
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
@@ -689,6 +690,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
+                new Common.SpellId( NewSpells.synaptic_pulse.AssetGuid, 3),
                 new Common.SpellId( NewSpells.synesthesia.AssetGuid, 3),
                 new Common.SpellId( NewSpells.thought_shield[1].AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
@@ -743,8 +745,10 @@ namespace CallOfTheWild
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 5), //true seeing
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
                 new Common.SpellId( NewSpells.synapse_overload.AssetGuid, 5),
+                new Common.SpellId( NewSpells.synaptic_pulse_greater.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
+                new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast ? (probably should be since wail of banshee is also on the list)
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
                 new Common.SpellId( "36c8971e91f1745418cc3ffdfac17b74", 6), //blade barrier
