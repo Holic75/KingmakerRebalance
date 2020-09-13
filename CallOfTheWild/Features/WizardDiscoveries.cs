@@ -298,7 +298,7 @@ namespace CallOfTheWild
             {
                 foreach (var s in wizard.Spellbook.SpellList.GetSpells(i))
                 {
-                    if (s.School == SpellSchool.Enchantment && ((s.SpellDescriptor & SpellDescriptor.Compulsion) != 0) && !s.HasAreaEffect() && !(s.Range == AbilityRange.Personal))
+                    if (s.School == SpellSchool.Enchantment && ((s.SpellDescriptor & SpellDescriptor.Compulsion) != 0) && !s.HasAreaEffect() && (s.Range != AbilityRange.Personal))
                     {
                         spells.Add(s.StickyTouch?.TouchDeliveryAbility ?? s);
                     }

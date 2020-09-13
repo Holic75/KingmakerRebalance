@@ -1333,6 +1333,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
 
                 new Common.SpellId( NewSpells.accursed_glare.AssetGuid, 3),
+                new Common.SpellId( NewSpells.babble.AssetGuid, 3),
                 new Common.SpellId( NewSpells.barrow_haze.AssetGuid, 3),
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( NewSpells.burning_entanglement.AssetGuid, 3),

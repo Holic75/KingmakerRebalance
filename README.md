@@ -322,6 +322,7 @@ New spells:
 - Vine Strike,
 - Winter's Grasp,
 - Accursed Glare,
+- Babble,
 - Barrow Haze,
 - Bloody Claws,
 - Burning Entanglement,
@@ -343,6 +344,7 @@ New spells:
 - Sheet Lightning,
 - Sleet Storm,
 - Stunning Barrier, Greater,
+- Synaptic Pulse and Synaptic Pulse, Greater,
 - Synesthesia and Synesthesia, Mass,
 - Air Walk and Air Walk, Communal,
 - Archon's Trumpet,
@@ -375,6 +377,7 @@ New spells:
 - Plant Shape I, II and III,
 - Ice Body,
 - Psychic Surgery,
+- Song of Discord, Greater
 - Wind Walk,
 - Giant Form I and II,
 - Control Undead,
