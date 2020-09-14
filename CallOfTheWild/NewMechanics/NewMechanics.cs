@@ -7091,8 +7091,8 @@ namespace CallOfTheWild
             {
                 try
                 {
-                    var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
-                    if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
                     {
                         var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
                         int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;

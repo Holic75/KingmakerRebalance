@@ -1943,7 +1943,7 @@ namespace CallOfTheWild
             var cooldown = Helpers.CreateBuff("HallucinogenicAuraCooldownBuff",
                                                "Hallucinogenic Aura Cooldown",
                                                "At 13th level, a mental field emanates from you, touching the minds of those nearby.\n"
-                                               + "Any creature within 30 feet of you must succeed at a Will save or be confused for 1d4 rounds. A creature that succeeds at its saving throw is immune to your hallucinogenic aura for 24 hours. A creature that fails its save doesn’t need to continue making saves while it’s confused by this aura, and becomes immune for 24 hours once its confusion ends.\n"
+                                               + "Any creature within 20 feet of you must succeed at a Will save or be confused for 1d4 rounds. A creature that succeeds at its saving throw is immune to your hallucinogenic aura for 24 hours. A creature that fails its save doesn’t need to continue making saves while it’s confused by this aura, and becomes immune for 24 hours once its confusion ends.\n"
                                                + "This is a mind-affecting effect. You’re immune to your own hallucinogenic aura, as well as your allies.\n",
                                                "",
                                                confused.Icon,
@@ -1953,7 +1953,9 @@ namespace CallOfTheWild
                                                           null,
                                                           new GameAction[]{ Helpers.CreateActionSavingThrow(SavingThrowType.Will,
                                                                                                             Helpers.CreateConditionalSaved(null,
-                                                                                                                                           Common.createContextActionApplyBuff(confused, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1), dispellable: false)
+                                                                                                                                           new GameAction[]{Common.createContextActionApplyBuff(confused, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1), dispellable: false),
+                                                                                                                                                            Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false)
+                                                                                                                                                           }
                                                                                                                                            )
                                                                                                            ),
                                                                             Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false)
@@ -1963,7 +1965,7 @@ namespace CallOfTheWild
             var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: apply_confused);
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "HallucinogenicAuraArea", "");
-            area.Size = 30.Feet();
+            area.Size = 20.Feet();
             area.SpellResistance = false;
             area.ComponentsArray = new BlueprintComponent[] {area_effect,
                                                              Common.createContextCalculateAbilityParamsBasedOnClass(psychic_class, StatType.Intelligence),
@@ -2741,8 +2743,7 @@ namespace CallOfTheWild
                                              "Psychic Magic",
                                              "A psychic can cast any spell she knows without preparing it ahead of time. To learn or cast a spell, a psychic must have an Intelligence score equal to at least 10 + the spell’s level. The saving throw DC against a psychic’s spell is 10 + the spell’s level + the psychic detective’s Intelligence modifier.\n"
                                              + "Psychic spells are not subject to arcane spell failure due to armor, but they require a more significant effort, compared to classic magic and thus the DC of all concentration checks required as a part of casting a psychic spell is increased by 10, additionaly psychic magic can not be used at all if caster is under the influence of fear or negative emotion effects.\n"
-                                             + "Some psychic spells can be undercast. This means that the spellcaster can cast the spell at the level that he knows, or as any lower-level version of that spell, using the appropriate spell slot. When a spellcaster undercasts a spell, it is treated exactly like the lower-level version, including when determining its effect, saving throw, and other variables. For example, a psychic spellcaster who adds ego mind trhust III to his list of spells known can cast it as mind thrust I, II, or III. If he casts it as mind thrust I, it is treated in all ways as that spell; it uses the text and the saving throw DC for that spell, and requires him to expend a 1st-level spell slot.\n"
-                                             + "Psychic spell casters automatically add higher versions of the spell that can be undercast as soon as they can cast spell of the appropriate spell level.",
+                                             + "Some psychic spells can be undercast. This means that the spellcaster can cast the spell at the level that he knows, or as any lower-level version of that spell, using the appropriate spell slot. When a spellcaster undercasts a spell, it is treated exactly like the lower-level version, including when determining its effect, saving throw, and other variables. For example, a psychic spellcaster who adds ego mind trhust III to his list of spells known can cast it as mind thrust I, II, or III. If he casts it as mind thrust I, it is treated in all ways as that spell; it uses the text and the saving throw DC for that spell, and requires him to expend a 1st-level spell slot.\n",
                                              "",
                                              null,
                                              FeatureGroup.None);

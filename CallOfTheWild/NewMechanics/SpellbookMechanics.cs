@@ -146,6 +146,53 @@ namespace CallOfTheWild.SpellbookMechanics
         }
     }
 
+
+    //make fake spell book return zero memorized spells
+    [Harmony12.HarmonyPatch(typeof(Spellbook))]
+    [Harmony12.HarmonyPatch("AddKnown", Harmony12.MethodType.Normal)]
+    class Spellbook__AddKnown__Patch
+    {
+        static bool in_action = false;
+        static void Postfix(Spellbook __instance, int spellLevel, BlueprintAbility spell, bool isCopy)
+        {
+            if (in_action)
+            {//avoid running multiple instances
+                return;
+            }
+            bool added_replacement = false;
+            in_action = true;
+
+            var comp = spell?.GetComponent<SpellUndercast>();
+            if (comp != null)
+            {
+                var undercast_spells = comp.getExtraAbilities().Reverse().ToArray();
+                foreach (var us in undercast_spells)
+                {
+                    var sl = __instance.Blueprint.SpellList.GetLevel(us);
+                    if (!__instance.IsKnown(us) && sl > 0)
+                    {
+                        __instance.AddKnown(sl, us, false);
+                    }
+                    else if (!added_replacement && sl > 0)
+                    {
+                        added_replacement = true;
+
+                        Main.logger.Log("Checking lvl up ok");
+                        var levelUp = Kingmaker.Game.Instance.UI?.CharacterBuildController?.LevelUpController;
+                        if (__instance.Owner == levelUp?.Preview || __instance.Owner == levelUp?.Unit)
+                        {
+                            Main.logger.Log("Level up ok");
+                            var spellSelection = levelUp.State.DemandSpellSelection(__instance.Blueprint, __instance.Blueprint.SpellList);
+                            int existingNewSpells = spellSelection.LevelCount[sl]?.SpellSelections.Length ?? 0;
+                            spellSelection.SetLevelSpells(sl, 1 + existingNewSpells);
+                        }
+                    }
+                }
+            }
+            in_action = false;
+        }
+    }
+
     [Harmony12.HarmonyPatch(typeof(Spellbook))]
     [Harmony12.HarmonyPatch("Spend", Harmony12.MethodType.Normal)]
     class Spellbook__Spends__Patch
@@ -532,39 +579,10 @@ namespace CallOfTheWild.SpellbookMechanics
     public class AddUndercastSpells : OwnedGameLogicComponent<UnitDescriptor>, ILearnSpellHandler, IGlobalSubscriber
     {
         public BlueprintSpellbook spellbook;
-        private bool in_action = false;
 
         public void HandleLearnSpell()
-        {
-            var sb = this.Owner.GetSpellbook(spellbook);
-            if (sb == null)
-            {
-                return;
-            }
-            if (in_action)
-            {//avoid running multiple instances
-                return;
-            }
-            in_action = true;
-            foreach (var s in sb.GetAllKnownSpells().ToArray())
-            {
-                var comp = s?.Blueprint.GetComponent<SpellUndercast>();
-                if (comp == null)
-                {
-                    continue;
-                }
+        {    
 
-                var undercast_spells = comp.getExtraAbilities();
-                foreach (var us in undercast_spells)
-                {
-                    var sl = sb.Blueprint.SpellList.GetLevel(us);
-                    if (!sb.IsKnown(us) && sl > 0)
-                    {                       
-                        sb.AddKnown(sl, us, false);
-                    }
-                }
-            }
-            in_action = false;
         }
     }
 

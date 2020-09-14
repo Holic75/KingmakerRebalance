@@ -463,7 +463,8 @@ namespace CallOfTheWild
                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion)
             };
             buff.SetNameDescriptionIcon("", "", null);
-
+            buff.SetBuffFlags(0);
+            buff.IsClassFeature = false;
 
             babble = Helpers.CreateAbility("BabbleAbility",
                                            "Babble",
@@ -485,6 +486,7 @@ namespace CallOfTheWild
                                            Common.createAbilityAoERadius(30.Feet(), TargetType.Any),
                                            Helpers.CreateContextRankConfig()
                                            );
+           
             babble.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             babble.SpellResistance = true;
             babble.AvailableMetamagic = Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
@@ -521,7 +523,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
                                                    Helpers.Create<SharedSpells.CannotBeShared>(),
                                                    Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any),
-                                                   Common.createAbilitySpawnFxDestroyOnCast("6b75812d8c3b0d34f9bc204d6babc2a1", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                                   Common.createAbilitySpawnFxDestroyOnCast("9012980c54f45ee428aa717c69446820", anchor: AbilitySpawnFxAnchor.Caster,  position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)                                                
                                                    );
             synaptic_pulse.SpellResistance = true;
             synaptic_pulse.setMiscAbilityParametersSelfOnly();
@@ -546,7 +548,7 @@ namespace CallOfTheWild
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
                                        Helpers.Create<SharedSpells.CannotBeShared>(),
                                        Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any),
-                                       Common.createAbilitySpawnFxDestroyOnCast("6b75812d8c3b0d34f9bc204d6babc2a1", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                       Common.createAbilitySpawnFxDestroyOnCast("9012980c54f45ee428aa717c69446820", anchor: AbilitySpawnFxAnchor.Caster, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
                                        );
             synaptic_pulse_greater.AvailableMetamagic = synaptic_pulse.AvailableMetamagic;
             synaptic_pulse_greater.SpellResistance = true;
@@ -620,10 +622,10 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(SavingThrowType.Fortitude, dmg, effect),
                                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                       Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                      Helpers.CreateAbilityTargetsAround(40.Feet(), TargetType.Enemy),
-                                                      Common.createAbilitySpawnFx("503b78b507366cc4da0f462cb40131f6",
-                                                                                       anchor: AbilitySpawnFxAnchor.SelectedTarget,
-                                                                                       position_anchor: AbilitySpawnFxAnchor.SelectedTarget
+                                                      Helpers.CreateAbilityTargetsAround(40.Feet(), TargetType.Enemy, spreadSpeed: 28.Feet()),
+                                                      Common.createAbilitySpawnFx("5c60b61bfa134fa47a4628f2ae880e05",
+                                                                                       orientation_anchor: AbilitySpawnFxAnchor.None,
+                                                                                       position_anchor: AbilitySpawnFxAnchor.None
                                                                                        ),
                                                       Helpers.Create<SharedSpells.CannotBeShared>(),
                                                       Helpers.CreateContextRankConfig(max: 20)
@@ -1225,7 +1227,7 @@ namespace CallOfTheWild
                 })
                 );
 
-                psychic_crush[i].SetDescription(psychic_crush[i].Description + "\nThis spell can be undercast.");
+                psychic_crush[i].SetDescription(psychic_crush[i].Description + (i == 0 ? "" : "\nThis spell can be undercast."));
                 Helpers.AddSpell(psychic_crush[i]);
             }
         }
@@ -1867,7 +1869,7 @@ namespace CallOfTheWild
                 var description = $"You put a barrier of mental energy that protects you from harm.\nThis barrier grants you a +{Math.Min(8, 4 + 2 * i)} shield bonus to AC.";
                 if (i >=3)
                 {
-                    description = $"If you are struck by a critical hit or sneak attack, there is a {(i - 2)*25}% chance that the additional damage is negated. This does not stack with similar effects that negate the additional damage from a critical hit or sneak attack.";
+                    description += $"\nIf you are struck by a critical hit or sneak attack, there is a {(i - 2)*25}% chance that the additional damage is negated. This does not stack with similar effects that negate the additional damage from a critical hit or sneak attack.";
                 }
                 var buff = Helpers.CreateBuff($"MentalBarrier{i + 1}Buff",
                                               "Mental Barrier " + Common.roman_id[i+1],
@@ -1912,7 +1914,7 @@ namespace CallOfTheWild
                     s.overcast_abilities = mental_barrier.Skip(i + 1).ToArray();
                 })
                 );
-                mental_barrier[i].SetDescription(mental_barrier[i].Description + "\nThis spell can be undercast.");
+                mental_barrier[i].SetDescription(mental_barrier[i].Description + (i == 0 ? "" : "\nThis spell can be undercast."));
                 Helpers.AddSpell(mental_barrier[i]);
             }
         }
@@ -1963,7 +1965,7 @@ namespace CallOfTheWild
                     s.overcast_abilities = thought_shield.Skip(i + 1).ToArray();
                 })
                 );
-                thought_shield[i].SetDescription(thought_shield[i].Description + "\nThis spell can be undercast.");
+                thought_shield[i].SetDescription(thought_shield[i].Description + (i == 0 ? "" : "\nThis spell can be undercast."));
                 Helpers.AddSpell(thought_shield[i]);
             }
         }
@@ -2138,7 +2140,7 @@ namespace CallOfTheWild
                     s.overcast_abilities = mind_thrust.Skip(i + 1).ToArray();
                 })
                 );
-                mind_thrust[i].SetDescription(mind_thrust[i].Description + "\nThis spell can be undercast.");
+                mind_thrust[i].SetDescription(mind_thrust[i].Description + (i == 0 ? "" : "\nThis spell can be undercast."));
                 Helpers.AddSpell(mind_thrust[i]);
             }
         }
