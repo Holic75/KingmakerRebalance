@@ -1682,8 +1682,8 @@ namespace CallOfTheWild
             undead_immunity.RemoveComponents<SpellImmunityToSpellDescriptor>();
 
             SpellDescriptor always_immune = SpellDescriptor.Poison | SpellDescriptor.Disease | SpellDescriptor.Sickened | SpellDescriptor.Paralysis
-                                            | SpellDescriptor.Nauseated | SpellDescriptor.Fatigue | SpellDescriptor.Exhausted | SpellDescriptor.Bleed
-                                            | SpellDescriptor.VilderavnBleed | SpellDescriptor.Death | SpellDescriptor.Stun | SpellDescriptor.Stun;
+                                            | SpellDescriptor.Fatigue | SpellDescriptor.Exhausted | SpellDescriptor.Bleed
+                                            | SpellDescriptor.VilderavnBleed | SpellDescriptor.Death | SpellDescriptor.Stun;
 
 
             undead_immunity.AddComponent(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = always_immune; }));
@@ -1720,6 +1720,17 @@ namespace CallOfTheWild
 
             var mummification = library.Get<BlueprintFeature>("daf854d84d442e941aa3a2fdc041b37c");
             mummification.GetComponent<BuffDescriptorImmunity>().IgnoreFeature = null;
+
+            //fix baleful polymorrph
+            var baleful_polymorph = library.Get<BlueprintAbility>("3105d6e9febdc3f41a08d2b7dda1fe74");
+            baleful_polymorph.ReplaceComponent<AbilityTargetHasFact>(a => a.CheckedFacts = a.CheckedFacts.AddToArray(Common.undead));
+        }
+
+
+        static internal void fixWidomCognatogen()
+        {
+            var wis_cognatogen = library.Get<BlueprintAbility>("84a9092b8430a1344a3c8b002cc68e7f");
+            wis_cognatogen.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, b => b.DurationValue.BonusValue = Helpers.CreateContextValue(AbilityRankType.Default)));
         }
 
 

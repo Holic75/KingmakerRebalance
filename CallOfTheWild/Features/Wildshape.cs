@@ -785,6 +785,7 @@ namespace CallOfTheWild
                                                                  wildshape_mandragora_buff,
                                                                  library.Get<BlueprintBuff>("0d29c50c956e82d4eae56710987de9f7"),//shambling mound
                                                                  wildshape_flytrap_buff,
+                                                                 wildshape_treant_buff,
                                                                  //air
                                                                  library.Get<BlueprintBuff>("eb52d24d6f60fc742b32fe943b919180"),
                                                                  library.Get<BlueprintBuff>("814bc75e74f969641bf110addf076ff9"),
