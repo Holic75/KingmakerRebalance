@@ -57,7 +57,7 @@ namespace CallOfTheWild
             fixWallAbilitiesAoeVIsualization();
             processRage();
             fixPolymorphSizeChangesStacking();
-
+            fixBardicPerformanceSilenced();
 
             var domain_selection = Main.library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             var cleric = Main.library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
@@ -71,6 +71,16 @@ namespace CallOfTheWild
             {
                 Main.logger.Log("Enabling deity selection for everyone.");
                 addDietySelectionToEveryone();
+            }
+        }
+
+
+        static void fixBardicPerformanceSilenced()
+        {
+            var abilities = Main.library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
+            foreach (var a in abilities)
+            {
+                a.AddComponent(Helpers.Create<SpellFailureMechanics.NonSilencedRestriciton>());
             }
         }
 

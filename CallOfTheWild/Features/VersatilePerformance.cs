@@ -125,7 +125,9 @@ namespace CallOfTheWild
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
                                                 performance_resource.CreateResourceLogic(),
-                                                Common.createAbilitySpawnFx("20d09f919accddf41bde3820341d08b7", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget)
+                                                Common.createAbilitySpawnFx("20d09f919accddf41bde3820341d08b7", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget),
+                                                Common.createAbilityCasterHasNoFacts(NewSpells.silence_buff),
+                                                Common.createAbilityTargetHasFact(true, NewSpells.silence_buff)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             Common.setAsFullRoundAction(ability);

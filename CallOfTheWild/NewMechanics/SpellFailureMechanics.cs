@@ -10,6 +10,7 @@ using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.Utility;
@@ -21,6 +22,41 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.SpellFailureMechanics
 {
+
+    class UnitPartSilence : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !this.buffs.Empty();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class Silence : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartSilence>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartSilence>().removeBuff(this.Fact);
+        }
+    }
+
+
+    public class NonSilencedRestriciton : ActivatableAbilityRestriction
+    {
+        public override bool IsAvailable()
+        {
+            return !(this.Owner.Get<UnitPartSilence>()?.active()).GetValueOrDefault();
+        }
+    }
+
 
     class UnitPartCenterSelf: AdditiveUnitPart
     {
@@ -103,35 +139,9 @@ namespace CallOfTheWild.SpellFailureMechanics
     }
 
 
-    class PsychicSpellbook : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCastSpell>, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>,  IInitiatorRulebookSubscriber
+    class PsychicSpellbook : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>,  IInitiatorRulebookSubscriber
     {
         public BlueprintSpellbook spellbook;
-
-        public void OnEventAboutToTrigger(RuleCastSpell evt)
-        {
-            if (evt.Spell?.Spellbook?.Blueprint != spellbook)
-            {
-                return;
-            }
-
-            foreach (var b in evt.Initiator.Buffs)
-            {
-                if (!b.IsSuppressed && (b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
-                {
-                    evt.SpellFailureChance = Math.Max(evt.SpellFailureChance, 100);
-                    break;
-                }
-            }
-
-            
-        }
-
-        public void OnEventDidTrigger(RuleCastSpell evt)
-        {
-
-        }
-
-
         void IRulebookHandler<RuleCalculateAbilityParams>.OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
         {
             if (evt.Spellbook?.Blueprint != spellbook)
@@ -153,6 +163,39 @@ namespace CallOfTheWild.SpellFailureMechanics
         }
     }
 
+
+    [Harmony12.HarmonyPatch(typeof(AbilityData))]
+    [Harmony12.HarmonyPatch("IsAvailableForCast", Harmony12.MethodType.Getter)]
+    class AbilityData__IsAvailableForCast__Patch
+    {
+        static void Postfix(AbilityData __instance, ref bool __result)
+        {
+            if (__result == false)
+            {
+                return;
+            }
+
+            bool is_psychic = __instance.Spellbook?.Blueprint.GetComponent<PsychicSpellbook>() != null;
+
+            if (is_psychic)
+            {
+                foreach (var b in __instance.Caster.Buffs)
+                {
+                    if (!b.IsSuppressed && (b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
+                    {
+                        __result = false;
+                        return;
+                    }
+                }
+            }
+            else if ((__instance.Caster.Get<UnitPartSilence>()?.active()).GetValueOrDefault()
+                    && __instance.Blueprint.IsSpell)
+            {
+                __result = false;
+                return;
+            }
+        }
+    }
 
 
 

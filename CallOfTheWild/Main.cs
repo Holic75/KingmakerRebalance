@@ -255,8 +255,8 @@ namespace CallOfTheWild
                         CallOfTheWild.Wildshape.allowToUseArmorInWildshape();
                     }
                     CallOfTheWild.MetamagicFeats.load();
-                    CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
+                    CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
                     CallOfTheWild.Subschools.load();
@@ -362,6 +362,7 @@ namespace CallOfTheWild
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();
+                    CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();
 

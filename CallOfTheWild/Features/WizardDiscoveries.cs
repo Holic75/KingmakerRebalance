@@ -124,7 +124,7 @@ namespace CallOfTheWild
                                                        "",
                                                        Helpers.GetIcon("6717dbaef00c0eb4897a1c908a75dfe5"), //phantasmal killer
                                                        FeatureGroup.Feat,
-                                                       Helpers.Create<SpellManipulationMechanics.ReplaceDCWithCasterLevelCheckForSchool>(r => { r.school = SpellSchool.Illusion; r.save_type = SavingThrowType.Will; }),
+                                                       Helpers.Create<ShadowSpells.ResilentSpells>(),
                                                        Helpers.PrerequisiteClassLevel(wizard, 8)
                                                        );
             addWizardDiscovery(resilent_illusions);

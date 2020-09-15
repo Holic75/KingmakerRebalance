@@ -122,7 +122,8 @@ namespace CallOfTheWild
                                                                 null,
                                                                 Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
-                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; })
+                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; }),
+                                                                Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                                                 );
 
         public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",
@@ -2071,6 +2072,17 @@ namespace CallOfTheWild
             a.Value = 1;
             a.Descriptor = descriptor;
             a.Stat = stat;
+            a.Multiplier = bonus;
+            return a;
+        }
+
+
+        static public BuffAbilityRollsBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor)
+        {
+            var a = Helpers.Create<BuffAbilityRollsBonus>();
+            a.Value = 1;
+            a.Descriptor = descriptor;
+            a.AffectAllStats = true;
             a.Multiplier = bonus;
             return a;
         }

@@ -2641,6 +2641,23 @@ namespace CallOfTheWild
         }
 
 
+        public class RunActionList : ContextAction
+        {
+            public string Comment;
+            public ActionList actions;
+
+            public override void RunAction()
+            {
+                actions.Run();
+            }
+
+            public override string GetCaption()
+            {
+                return "Actions from list (" + this.Comment + " )";
+            }
+        }
+
+
         [ComponentName("Attack bonus against fact owner for attack type")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]

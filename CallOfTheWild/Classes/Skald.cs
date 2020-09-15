@@ -1200,7 +1200,7 @@ namespace CallOfTheWild
                               song_of_the_fallen_ability.Icon,
                               null
                               );
-
+            song_of_the_fallen_ability.AddComponent(Common.createAbilityCasterHasNoFacts(NewSpells.silence_buff));
             buff.SetBuffFlags(BuffFlags.StayOnDeath);
             
             buff.AddComponent(Helpers.CreateAddFactContextActions(newRound: Common.createContextActionApplyBuff(staggered_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true),
@@ -1300,6 +1300,7 @@ namespace CallOfTheWild
                                                                  dispellable: false);
             song_of_marching_ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
             song_of_marching_ability.RemoveComponents<ContextRankConfig>();
+            song_of_marching_ability.AddComponent(Common.createAbilityCasterHasNoFacts(NewSpells.silence_buff));
 
             song_of_marching = Helpers.CreateFeature("SkaldSongOfMarchingFeature",
                                                      song_of_marching_ability.Name,

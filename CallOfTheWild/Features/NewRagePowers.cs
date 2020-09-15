@@ -813,6 +813,7 @@ namespace CallOfTheWild
             terrifying_howl_ability.RemoveComponents<SpellComponent>();
             terrifying_howl_ability.RemoveComponents<SpellListComponent>();
             terrifying_howl_ability.Range = AbilityRange.Personal;
+            terrifying_howl_ability.AddComponent(Common.createAbilityCasterHasNoFacts(NewSpells.silence_buff));
 
             var frighteneed_buff = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
             var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");

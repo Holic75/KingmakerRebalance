@@ -135,6 +135,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd"), //spike stones
                 library.Get<BlueprintAbilityAreaEffect>("16e0e4c6a16f68c49832340b93706499"), //spike growth
                 library.Get<BlueprintAbilityAreaEffect>("bcb6329cefc66da41b011299a43cc681"), //entangle
+                library.Get<BlueprintAbilityAreaEffect>("d46313be45054b248a1f1656ddb38614"), //grease
                 library.Get<BlueprintAbilityAreaEffect>("7d7821abf06fae744a4e37e48077a43a"), //mud golem area
                 library.Get<BlueprintAbilityAreaEffect>("cf742a1d377378e4c8799f6a3afff1ba"), //create pit area
                 library.Get<BlueprintAbilityAreaEffect>("e122151e93e44e0488521aed9e51b617"), //acid pit area

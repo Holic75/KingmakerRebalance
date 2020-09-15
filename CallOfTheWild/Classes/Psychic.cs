@@ -771,6 +771,7 @@ namespace CallOfTheWild
                                                            null,
                                                            FeatureGroup.None);
             amnesiac_spell_casting.ComponentsArray = psychic_spellcasting.ComponentsArray.ToList().ToArray();
+            amnesiac_spell_casting.ReplaceComponent<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = amnesiac_spellbook);
             amnesiac_spell_casting.ReplaceComponent<SpellbookMechanics.AddUndercastSpells>(a => a.spellbook = amnesiac_spellbook);
 
             spell_recollection = Helpers.CreateFeature("SpellRecollectionFeature",
@@ -2570,6 +2571,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( NewSpells.savage_maw.AssetGuid, 2),
+                new Common.SpellId( NewSpells.silence.AssetGuid, 2),
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
@@ -2592,6 +2594,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7bb0c402f7f789d4d9fae8ca87b4c7e2", 3), //resist energy communal
                 new Common.SpellId( NewSpells.resinous_skin.AssetGuid, 3),
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
+                new Common.SpellId( NewSpells.shadow_enchantment.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( NewSpells.stunning_barrier_greater.AssetGuid, 3),
                 new Common.SpellId( NewSpells.synaptic_pulse.AssetGuid, 3),
@@ -2674,6 +2677,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
                 new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 6),
+                new Common.SpellId( NewSpells.shadow_enchantment_greater.AssetGuid, 6),
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
 
