@@ -592,7 +592,7 @@ namespace CallOfTheWild
                 RulebookEvent rule = evt.Reason.Rule;
                 if (rule != null && rule is RuleAttackWithWeapon attack && !attack.IsFullAttack)
                 {
-                    return true;
+                    return false;
                 }
                 ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
                 ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;

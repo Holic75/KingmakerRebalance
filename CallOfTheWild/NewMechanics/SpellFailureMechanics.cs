@@ -175,7 +175,7 @@ namespace CallOfTheWild.SpellFailureMechanics
                 return;
             }
 
-            bool is_psychic = __instance.Spellbook?.Blueprint.GetComponent<PsychicSpellbook>() != null;
+            bool is_psychic = __instance.Spellbook?.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null;
 
             if (is_psychic)
             {

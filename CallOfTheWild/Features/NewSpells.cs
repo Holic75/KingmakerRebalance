@@ -250,10 +250,11 @@ namespace CallOfTheWild
 
         static public BlueprintAbility shadow_enchantment;
         static public BlueprintAbility shadow_enchantment_greater;
-
+        static public BlueprintAbility wrathful_weapon;
 
         static public void load()
         {
+            fixPhantasmalSpells();
             createSilence();
             createImmunityToWind();
             createShillelagh();
@@ -411,6 +412,85 @@ namespace CallOfTheWild
             createSongOfDiscordGreater();
 
             createShadowEnchantment();
+            createWrathfulWeapon();
+        }
+
+
+        static void fixPhantasmalSpells()
+        {
+            var phantasmal_web = library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a");
+            var phantasmal_putrefaction = library.Get<BlueprintAbility>("1f2e6019ece86d64baa5effa15e81ecc");
+            var phantasmal_killer = library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5");
+            var weird = library.Get<BlueprintAbility>("870af83be6572594d84d276d7fc583e0");
+            phantasmal_web.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
+            phantasmal_putrefaction.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
+            phantasmal_killer.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
+            weird.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
+        }
+
+        static void createWrathfulWeapon()
+        {
+            BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"), //unholy
+                library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140"), //holy
+                library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"), //chaotic
+                library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4") //axiomatic
+            };
+
+            UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
+            {
+                library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,//unholy
+                library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon,//holy
+                library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,//chaotic
+                library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,//axiomatic
+            };
+
+            SpellDescriptor[] descriptors = new SpellDescriptor[]
+            {
+                SpellDescriptor.Evil,
+                SpellDescriptor.Good,
+                SpellDescriptor.Chaos,
+                SpellDescriptor.Law
+            };
+
+            var abilities = new List<BlueprintAbility>();
+            var spell_name = "Wrathful Weapon";
+            var spell_description = "You grant the targeted weapon one of the following weapon special abilities: anarchic, axiomatic, holy, or unholy. If anarchic, this spell has the chaos descriptor; if axiomatic, the law descriptor; if holy, the good descriptor; and if unholy, the evil descriptor. If the caster attempts to place a special ability on a weapon that already has that special ability, the spell fails.";
+
+            for (int i = 0; i < 4; i++)
+            {
+                var ability1 = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", enchants[i].name +"WrathfulWeaponAbility" , "");
+
+                ability1.SetIcon(enchant_icons[i]);
+                ability1.SetDescription(spell_description + "\n" + enchants[i].Description);
+                ability1.SetName(spell_name + ": " + enchants[i].Name);
+                ability1.setMiscAbilityParametersTouchFriendly();
+                ability1.RemoveComponents<AbilityDeliverTouch>();
+                var action = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
+                action.Enchantment = enchants[i];
+
+                ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+                ability1.AddComponent(Helpers.CreateSpellDescriptor(descriptors[i]));
+
+                var ability2 = library.CopyAndAdd(ability1, enchants[i].name + "WrathfulWeaponSecondaryHandAbility", "");
+                ability2.SetName(spell_name + ": " + enchants[i].Name + " (Off-Hand)");
+                var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+                ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
+                ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
+                ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
+                abilities.Add(ability1);
+                abilities.Add(ability2);
+            }
+
+  
+
+            wrathful_weapon = Common.createVariantWrapper("WrathfulWeaponAbility", "", abilities.ToArray());
+            wrathful_weapon.SetNameDescriptionIcon(spell_name, spell_description, enchant_icons[1]);
+            wrathful_weapon.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            wrathful_weapon.AddToSpellList(Helpers.clericSpellList, 4);
+
+            wrathful_weapon.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
         }
 
 
@@ -521,13 +601,6 @@ namespace CallOfTheWild
 
         static public void fixShadowSpells()
         {
-
-            //fix phantasmal putrefaction and phantasmal web
-            var phantasmal_web = library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a");
-            var phantasmal_putrefaction = library.Get<BlueprintAbility>("1f2e6019ece86d64baa5effa15e81ecc");
-            phantasmal_web.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
-            phantasmal_putrefaction.AddComponent(Helpers.Create<ShadowSpells.DisbeliefSpell>());
-
             var shadow_evocation = library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f");
             shadow_evocation.SetDescription("You tap energy from the Plane of Shadow to cast a quasi-real, illusory version of any evocation spell of 4th level or lower. Spells that deal damage have normal effects unless an affected creature succeeds at a Will save. Each disbelieving creature takes only one-fifth damage from the attack. Regardless of the result of the save to disbelieve, an affected creature is also allowed any save (or spell resistance) that the spell being simulated allows, but the save DC is set according to shadow evocation's level (5th) rather than the spell's normal level.");
 
@@ -621,13 +694,20 @@ namespace CallOfTheWild
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sonic),
                                           Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                           );
-
+            silence_buff.Stacking = StackingType.Stack;
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7f57a1fabe15a3e4f96d1e12f838a476", "SilenceAreaEffect", "");
             area.Size = 20.Feet();
             area.Fx = Common.createPrefabLink("63f322580ec0e7c4c96fc62ecabad40f");
             area.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = silence_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+                Helpers.CreateAreaEffectRunAction(unitEnter: Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                                             Helpers.CreateConditionalSaved(null,
+                                                                                                                            Common.createContextActionApplyBuff(silence_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                                            )
+                                                                                            ),
+                                                  unitExit: Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(silence_buff),
+                                                                                      Common.createContextActionRemoveBuffFromCaster(silence_buff))
+                                                                                      ),
             };
 
             silence = Helpers.CreateAbility("SilenceAbility",
@@ -5255,7 +5335,7 @@ namespace CallOfTheWild
                                           );
 
             var particualte_form_swift = Helpers.CreateAbility("ParticulateFormSwiftAction",
-                                                               "Particualte Form: Dismiss",
+                                                               "Particulate Form: Dismiss",
                                                                buff.Description,
                                                                "",
                                                                icon,

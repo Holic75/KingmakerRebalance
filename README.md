@@ -369,8 +369,8 @@ New spells:
 - Burst of Force,
 - Overland Flight,
 - Tidal Surge,
+- Wrathful Weapon,
 - Suffocate,
-- Shadow Enchantment, Greater,
 - Contingency,
 - Curse, Major,
 - Fire Seeds,
@@ -380,6 +380,7 @@ New spells:
 - Plant Shape I, II and III,
 - Ice Body,
 - Psychic Surgery,
+- Shadow Enchantment, Greater,
 - Song of Discord, Greater
 - Wind Walk,
 - Giant Form I and II,
