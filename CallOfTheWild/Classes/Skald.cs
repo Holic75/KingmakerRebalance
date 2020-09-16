@@ -1104,7 +1104,7 @@ namespace CallOfTheWild
                                                                                         }
                                                                                     },
                                                                                     true,
-                                                                                  c.Item1.Spellbook.SpellList.SpellsByLevel[i].Spells.ToArray()
+                                                                                  c.Item1.Spellbook.SpellList.SpellsByLevel[i].Spells.Where(s => !NewSpells.getShadowSpells().Contains(s)).ToArray()
                                                                                   );
 
                     for (int j = 0; j < max_variants_in_list * max_spell_holders; j+= max_variants_in_list)

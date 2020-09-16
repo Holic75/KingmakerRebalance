@@ -508,7 +508,7 @@ namespace CallOfTheWild
                                                        "See text");
             shadow_enchantment.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.CreateAbilityVariants(shadow_enchantment),
+                //Helpers.CreateAbilityVariants(shadow_enchantment),
                 Helpers.CreateSpellComponent(SpellSchool.Illusion),
             };
             shadow_enchantment.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -527,7 +527,7 @@ namespace CallOfTheWild
                                            "See text");
             shadow_enchantment_greater.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.CreateAbilityVariants(shadow_enchantment_greater),
+                //Helpers.CreateAbilityVariants(shadow_enchantment_greater),
                 Helpers.CreateSpellComponent(SpellSchool.Illusion),
             };
             shadow_enchantment_greater.AddToSpellList(Helpers.wizardSpellList, 6);
@@ -8845,7 +8845,7 @@ namespace CallOfTheWild
                                                                                         }
                                                                                     },
                                                                                     ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
-                                                                                  spells_per_level[i].ToArray()
+                                                                                  spells_per_level[i].Where(s => !NewSpells.getShadowSpells().Contains(s)).ToArray()
                                                                                   );
                 wish_variant.AddComponent(Helpers.CreateAbilityVariants(wish_variant, variant_spells));
                 wish_variants.Add(wish_variant);
@@ -8891,6 +8891,19 @@ namespace CallOfTheWild
 
             var storm_burst = library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"); //from weather domain
             storm_burst.AddComponent(Common.createAbilityTargetHasFact(true, immunity_to_wind));
+
+        }
+
+
+        static public BlueprintAbility[] getShadowSpells()
+        {
+            return new BlueprintAbility[]
+            {
+                shadow_enchantment,
+                shadow_enchantment_greater,
+                library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f"), //shadow_evocation
+                library.Get<BlueprintAbility>("3c4a2d4181482e84d9cd752ef8edc3b6") //shadow evocation greater
+        };
 
         }
     }
