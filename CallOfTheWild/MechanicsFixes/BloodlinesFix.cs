@@ -25,6 +25,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature blood_havoc;
         static public BlueprintFeature blood_intensity;
+        static public BlueprintFeature blood_piercing;
         static public BlueprintFeatureSelection bloodline_familiar;
 
         static internal void load()
@@ -36,6 +37,7 @@ namespace CallOfTheWild
             createBloodlineFamiliar();
             createBloodHavoc();
             createBloodIntensity();
+            createBloodPiercing();
             addBloodlineMutations();
 
             //fixDragonDisciplePrerequisites();
@@ -179,6 +181,54 @@ namespace CallOfTheWild
         }
 
 
+        static void createBloodPiercing()
+        {
+            var resource = Helpers.CreateAbilityResource("BloodPiercingResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(0, 4, 1, 5, 1, 0, 0.0f, new BlueprintCharacterClass[] { sorcerer, magus, Bloodrager.bloodrager_class }, new BlueprintArchetype[] { eldritch_scion });
+
+            var buff = Helpers.CreateBuff("BloodPiercingBuff",
+                                          "Blood Piercing",
+                                          "When you cast a bloodrager or sorcerer spell that deals damage, creatures affected by the spell reduce their energy resistance and spell resistance against the spell’s effects by an amount equal to your Strength or Charisma modifier, whichever is higher. You can use this ability once per day at 4th level and one additional time per day for every 5 caster levels you have beyond 3rd, up to four times per day at 18th level.",
+                                          "",
+                                          MetamagicFeats.piercing_metamagic.Icon,
+                                          null,
+                                          //Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseIfLessMetamagic>(n => n.max_metamagics = 0), //blood intensity does not increase casting time
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(m =>
+                                          {
+                                              m.amount = 1;
+                                              m.resource = resource;
+                                              m.spell_descriptor = SpellDescriptor.None;
+                                              m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.BloodPiercing;
+                                          })
+                                          );
+
+            var ability = Helpers.CreateActivatableAbility("BloodPiercingToggleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           buff,
+                                                           Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
+                                                           null,
+                                                           Helpers.CreateActivatableResourceLogic(resource, Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic.ResourceSpendType.Never)
+                                                           );
+            ability.DeactivateImmediately = true;
+
+            blood_piercing = Helpers.CreateFeature("BloodPiercingFeature",
+                                                "Blood Piericng",
+                                                buff.Description,
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddAbilityResource(resource),
+                                                Helpers.CreateAddFact(ability),
+                                                Helpers.PrerequisiteClassLevel(sorcerer, 9, any: true),
+                                                Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 4, any: true)                                                 
+                                                );
+        }
+
+
         static void createBloodHavoc()
         {
             Dictionary<string, List<BlueprintFeature>> spell_asset_id_feature_map = new Dictionary<string, List<BlueprintFeature>>();
@@ -232,7 +282,7 @@ namespace CallOfTheWild
 
             foreach (var fs in feats_selections)
             {
-                fs.AllFeatures = fs.AllFeatures.AddToArray(blood_havoc, blood_intensity);
+                fs.AllFeatures = fs.AllFeatures.AddToArray(blood_havoc, blood_intensity, blood_piercing);
             }
 
             var bloodlines = library.Get<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914").AllFeatures.Cast<BlueprintProgression>().ToList();
@@ -241,6 +291,7 @@ namespace CallOfTheWild
             {
                 var ability1 = b.LevelEntries[0].Features.Where(f => !f.name.Contains("Arcana") && !f.name.Contains("ClassSkill")).FirstOrDefault() as BlueprintFeature;
                 var ability3 = b.LevelEntries[1].Features.Where(f => !f.name.Contains("SpellLevel1")).FirstOrDefault() as BlueprintFeature;
+                var ability9 = b.LevelEntries[4].Features.Where(f => !f.name.Contains("SpellLevel4")).FirstOrDefault() as BlueprintFeature;
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
@@ -257,14 +308,25 @@ namespace CallOfTheWild
                                                ability3.Icon,
                                                FeatureGroup.None);
                 selection3.AllFeatures = new BlueprintFeature[] { ability3, blood_intensity };
+                var selection9 = Helpers.CreateFeatureSelection(ability9.name + "Selection",
+                               ability9.Name,
+                               ability9.Description,
+                               "",
+                               ability9.Icon,
+                               FeatureGroup.None);
+                selection9.AllFeatures = new BlueprintFeature[] { ability9, blood_piercing };
+
                 b.UIGroups[0].Features.Remove(ability1);
                 b.UIGroups[0].Features.Add(selection);
                 b.UIGroups[0].Features.Remove(ability3);
                 b.UIGroups[0].Features.Add(selection3);
+                b.UIGroups[0].Features.Add(selection9);
                 b.LevelEntries[0].Features.Remove(ability1);
                 b.LevelEntries[0].Features.Add(selection);
                 b.LevelEntries[1].Features.Remove(ability3);
                 b.LevelEntries[1].Features.Add(selection3);
+                b.LevelEntries[4].Features.Remove(ability9);
+                b.LevelEntries[4].Features.Add(selection9);
             }
 
             foreach (var b in Bloodrager.bloodlines.Values)
@@ -291,7 +353,7 @@ namespace CallOfTheWild
                                                                "",
                                                                ability1.Icon,
                                                                FeatureGroup.None);
-                selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc };
+                selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc, blood_piercing };
                 b.progression.UIGroups[0].Features.Remove(ability1);
                 b.progression.UIGroups[0].Features.Add(selection);
                 b.progression.LevelEntries[1].Features.Remove(ability1);

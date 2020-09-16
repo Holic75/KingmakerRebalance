@@ -244,6 +244,7 @@ New Magus Arcana:
 Bloodline Mutations:
 - Blood Havoc,
 - Blood Intensity,
+- Blood Piercing,
 - Bloodline Familiar.
 
 Wizard Discoveries:
@@ -259,7 +260,8 @@ Wizard Discoveries:
 Arcane Subschools:
 - Admixture,
 - Enhancement,
-- Teleportation.
+- Teleportation,
+- Prophecy.
 
 Bard Masterpieces:
 - Clamor of Heavens,
