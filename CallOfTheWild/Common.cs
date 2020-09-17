@@ -2392,39 +2392,46 @@ namespace CallOfTheWild
         }
 
 
-        static public void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
+        static public bool addToFactInContextConditionHasFact(BlueprintFact buff, BlueprintUnitFact inner_buff_to_locate = null,
                                                        Condition condition_to_add = null)
         {
+            bool added = false;
             var component = buff.GetComponent<AddFactContextActions>();
             if (component == null)
             {
-                return;
+                return added;
             }
 
-            var activated_actions = component.Activated.Actions;
-
-            for (int i = 0; i < activated_actions.Length; i++)
+            var action_lists = new ActionList[] { component.Activated, component.Deactivated, component.NewRound };
+            foreach (var al in action_lists)
             {
-                if (activated_actions[i] is Conditional)
+                var activated_actions = al.Actions;
+
+                for (int i = 0; i < activated_actions.Length; i++)
                 {
-                    var c_action = (Conditional)activated_actions[i].CreateCopy();
-                    for (int j = 0; j < c_action.ConditionsChecker.Conditions.Length; j++)
+                    if (activated_actions[i] is Conditional)
                     {
-                        if (c_action.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
+                        var c_action = (Conditional)activated_actions[i].CreateCopy();
+                        for (int j = 0; j < c_action.ConditionsChecker.Conditions.Length; j++)
                         {
-                            var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
-                            var fact = condition_entry.Fact;
-                            if (fact == inner_buff_to_locate)
+                            if (c_action.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
                             {
-                                c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
-                                c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
-                                activated_actions[i] = c_action;
-                                break;
+                                var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
+                                var fact = condition_entry.Fact;
+                                if (fact == inner_buff_to_locate)
+                                {
+                                    added = true;
+                                    c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
+                                    c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
+                                    activated_actions[i] = c_action;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
+            return added;
         }
 
 

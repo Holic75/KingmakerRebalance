@@ -90,6 +90,7 @@ namespace CallOfTheWild
         static public BlueprintFeature blood_casting;
         
         static public BlueprintFeatureSelection adopted_magic;
+        static public BlueprintArchetype eldritch_scion_bloodrager;
 
 
         static public BlueprintArchetype blood_conduit;
@@ -97,6 +98,10 @@ namespace CallOfTheWild
         static public BlueprintFeature spell_conduit;
         static public BlueprintFeature reflexive_conduit;
 
+        static public BlueprintBuff eldritch_scion_buff;
+        static public BlueprintFeature mystical_focus;
+
+        static public Dictionary<BlueprintProgression, BlueprintProgression> bloodrager_eldritch_scion_bloodlines_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
         public class BloodlineInfo
         {
             public BlueprintProgression progression;
@@ -145,11 +150,12 @@ namespace CallOfTheWild
             bloodrager_class.EquipmentEntities = barbarian_class.EquipmentEntities;
             bloodrager_class.MaleEquipmentEntities = barbarian_class.MaleEquipmentEntities;
             bloodrager_class.FemaleEquipmentEntities = barbarian_class.FemaleEquipmentEntities;
-            bloodrager_class.ComponentsArray = new BlueprintComponent[] { barbarian_class.ComponentsArray[0] }; //no animal class, probably shoudl be no sorcerer or eldrich scion  or dragon disciple
+            bloodrager_class.ComponentsArray = new BlueprintComponent[] { barbarian_class.ComponentsArray[0] }; //no animal class, probably should be no sorcerer or eldrich scion  or dragon disciple
             bloodrager_class.StartingItems = barbarian_class.StartingItems;
             createBloodragerProgression();
             bloodrager_class.Progression = bloodrager_progression;
 
+            createEldritchScionMysticalFocus();
             createMetarager();
             createSpellEater();
             createSteelblood();
@@ -159,6 +165,149 @@ namespace CallOfTheWild
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
             addToPrestigeClasses();
+        }
+
+
+        static void createEldritchScionMysticalFocus()
+        {
+            var eldritch_scion = library.Get<BlueprintArchetype>("d078b2ef073f2814c9e338a789d97b73");
+            eldritch_scion_bloodrager = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "EldritchScionBloodragerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Eldritch Scion (Bloodrager)");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", eldritch_scion.Description);
+            });
+            Helpers.SetField(eldritch_scion_bloodrager, "m_ParentClass", eldritch_scion.GetParentClass());
+            library.AddAsset(eldritch_scion_bloodrager, "");
+            eldritch_scion_bloodrager.GetParentClass().Archetypes = eldritch_scion_bloodrager.GetParentClass().Archetypes.AddToArray(eldritch_scion_bloodrager);
+
+            var rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+
+            var add_fact_context_actions_rage = rage_buff.GetComponent<AddFactContextActions>();
+            var add_fact_context_actions_bloodrage = bloodrage_buff.GetComponent<AddFactContextActions>();
+
+            eldritch_scion_buff = Helpers.CreateBuff("EldritchScionMysticalFocusBuff",
+                                                       "Mystical Focus",
+                                                       "As a swift action, an eldritch scion can spend a point of eldritch energy to enter a state of mystical focus for 4 rounds. This allows him to use abilities from his bloodrager bloodline as though he were in a bloodrage, though he gains none of the other benefits or drawbacks of bloodraging.",
+                                                       "",
+                                                       bloodrage_buff.Icon,
+                                                       bloodrage_buff.FxOnStart,
+                                                       Helpers.CreateAddFactContextActions(activated: add_fact_context_actions_bloodrage.Activated.Actions.Except(add_fact_context_actions_rage.Activated.Actions).ToArray(),
+                                                                                           deactivated: add_fact_context_actions_bloodrage.Deactivated.Actions.Except(add_fact_context_actions_rage.Deactivated.Actions).ToArray()
+                                                                                           )
+                                                       );
+            bloodrage_buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = eldritch_scion_buff));
+
+            
+            ClassToProgression.addClassToFact(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, eldritch_scion_buff);
+            ClassToProgression.addClassToDomains(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NormalList, bloodline_selection);
+
+            var eldritch_resource = library.Get<BlueprintAbilityResource>("17b6158d363e4844fa073483eb2655f8");
+
+            var mystical_focus_ability = Helpers.CreateAbility("MysticalFocusAbility",
+                                                       eldritch_scion_buff.Name,
+                                                       eldritch_scion_buff.Description,
+                                                       "",
+                                                       eldritch_scion_buff.Icon,
+                                                       AbilityType.Supernatural,
+                                                       CommandType.Swift,
+                                                       AbilityRange.Personal,
+                                                       "4 rounds",
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(eldritch_scion_buff, Helpers.CreateContextDuration(4, DurationRate.Rounds), dispellable: false)),
+                                                       eldritch_resource.CreateResourceLogic()
+                                                       );
+            mystical_focus_ability.setMiscAbilityParametersSelfOnly();
+
+            mystical_focus = Common.AbilityToFeature(mystical_focus_ability, false);
+
+            var eldritch_scion_bloodrager_bloodlines = library.CopyAndAdd(bloodline_selection, "EldritchScionBloodlineSelection", "");
+            eldritch_scion_bloodrager_bloodlines.SetDescription("An eldritch scion gains a bloodrager bloodline.The bloodline is selected at 1st level, and this choice cannot be changed. An eldritch scion’s effective bloodrager level for his bloodline abilities is equal to his eldritch scion level. He does not gain any bonus feats and he gains bonus spells from his bloodline 3 levels earlier than a bloodrager would. To use any ability that normally functions when in a bloodrage, an eldritch scion must spend a point from his eldritch pool (see mystical focus ability).");
+
+            for (int i = 0; i < eldritch_scion_bloodrager_bloodlines.AllFeatures.Length; i++)
+            {
+                var f = library.CopyAndAdd(eldritch_scion_bloodrager_bloodlines.AllFeatures[i] as BlueprintProgression, "EldritchScion" + eldritch_scion_bloodrager_bloodlines.AllFeatures[i].name, "");
+
+                f.ReplaceComponent<PrerequisiteClassLevel>(Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
+                eldritch_scion_bloodrager_bloodlines.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(a => a.replacement_feature = f));
+                var powers = new BlueprintFeatureBase[]
+                {
+                    f.LevelEntries[0].Features[0],
+                    f.LevelEntries[1].Features[0],
+                    f.LevelEntries[3].Features[0],
+                    f.LevelEntries[5].Features[0],
+                    f.LevelEntries[7].Features[0],
+                    f.LevelEntries[8].Features[0],
+                };
+                var spells = new BlueprintFeatureBase[]
+                {
+                    f.LevelEntries[2].Features[0],
+                    f.LevelEntries[4].Features[0],
+                    f.LevelEntries[6].Features[0],
+                    f.LevelEntries[7].Features[1],
+                };
+                f.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, powers[0]),
+                                                         Helpers.LevelEntry(4, powers[1], spells[0]),
+                                                         Helpers.LevelEntry(7, spells[1]),
+                                                         Helpers.LevelEntry(8, powers[2]),
+                                                         Helpers.LevelEntry(10, spells[2]),
+                                                         Helpers.LevelEntry(12, powers[3]),
+                                                         Helpers.LevelEntry(13, spells[3]),
+                                                         Helpers.LevelEntry(16, powers[4]),
+                                                         Helpers.LevelEntry(20, powers[5])
+                                                  };
+
+                bloodrager_eldritch_scion_bloodlines_map.Add(eldritch_scion_bloodrager_bloodlines.AllFeatures[i] as BlueprintProgression, f);
+                eldritch_scion_bloodrager_bloodlines.AllFeatures[i] = f;
+                eldritch_scion_bloodrager_bloodlines.Features[i] = f;
+
+            }
+
+            bloodline_selection.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = eldritch_scion_bloodrager_bloodlines));
+
+            eldritch_scion_bloodrager.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, eldritch_scion_bloodrager_bloodlines, mystical_focus, eldritch_scion.AddFeatures[0].Features[1], eldritch_scion.AddFeatures[0].Features[2]) };
+            eldritch_scion_bloodrager.AddFeatures = eldritch_scion_bloodrager.AddFeatures.AddToArray(eldritch_scion.AddFeatures.Skip(1));
+            eldritch_scion_bloodrager.RemoveFeatures = eldritch_scion.RemoveFeatures;
+
+            var bard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
+
+            eldritch_scion_bloodrager.ReplaceSpellbook = library.CopyAndAdd(eldritch_scion.ReplaceSpellbook, "EldritchScionBloodragerSpellbook", "");
+            //add check against new archetype for exisitng magus spellbooks
+            var selections_to_fix = new BlueprintFeatureSelection[] {Common.EldritchKnightSpellbookSelection,
+                                                                     Common.ArcaneTricksterSelection,
+                                                                     Common.MysticTheurgeArcaneSpellbookSelection,
+                                                                     Common.DragonDiscipleSpellbookSelection,
+                                                                    };
+            foreach (var s in selections_to_fix)
+            {
+                foreach (var f in s.AllFeatures)
+                {
+                    if (f.GetComponents<PrerequisiteClassSpellLevel>().Where(c => c.CharacterClass == eldritch_scion_bloodrager.GetParentClass()).Count() > 0)
+                    {
+                        f.AddComponent(Common.prerequisiteNoArchetype(eldritch_scion_bloodrager));
+                    }
+                }
+            }
+
+           
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, eldritch_scion_bloodrager.ReplaceSpellbook, "EldritchKnightEldritchScionBloodrager",
+                                       Common.createPrerequisiteClassSpellLevel(eldritch_scion_bloodrager.GetParentClass(), 3),
+                                       Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
+
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, eldritch_scion_bloodrager.ReplaceSpellbook, "ArcaneTricksterEldritchScionBloodrager",
+                                      Common.createPrerequisiteClassSpellLevel(eldritch_scion_bloodrager.GetParentClass(), 2),
+                                       Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
+
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, eldritch_scion_bloodrager.ReplaceSpellbook, "MysticTheurgeEldritchScionBloodrager",
+                                       Common.createPrerequisiteClassSpellLevel(eldritch_scion_bloodrager.GetParentClass(), 2),
+                                       Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
+
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, eldritch_scion_bloodrager.ReplaceSpellbook, "DragonDiscipleEldritchScionBloodrager",
+                                       Common.createPrerequisiteClassSpellLevel(eldritch_scion_bloodrager.GetParentClass(), 1),
+                                       Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
+
+            var dd_breath = library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3");
+            ClassToProgression.addClassToFeat(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, dd_breath);
         }
 
 
@@ -376,15 +525,48 @@ namespace CallOfTheWild
 
         static void createBloodrage()
         {
-            var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
-            rage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
+            //normally bloodrage should allow to use rage powers if you have any since it is treated as normal rage
+            bloodrage_ability = library.CopyAndAdd<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730", "BloodrageToggleAbility", "");
+            bloodrage_ability.SetNameDescription("Bloodrage",
+                                            "The bloodrager’s source of internal power grants him the ability to bloodrage.\n"
+                                            + "At 1st level, a bloodrager can rage for a number of rounds per day equal to 4 + her Constitution modifier. For each level after 1st she possesses, the bloodrager can rage for 2 additional rounds per day. Temporary increases to Constitution, such as that gained from bear's endurance, do not increase the total number of rounds that a bloodrager can rage per day. A bloodrager can enter a rage as a free action. The total number of rounds of rage per day is renewed after resting for 8 hours, although these hours need not be consecutive.\nWhile in a bloodrage, a bloodrager gains a +2 bonus on melee attack rolls, melee damage rolls, thrown weapon damage rolls, and Will saving throws. In addition, she takes a –2 penalty to Armor Class. She also gains 2 temporary hit points per Hit Die. These temporary hit points are lost first when a character takes damage, disappear when the rage ends, and are not replenished if the barbarian enters a rage again within 1 minute of her previous rage. While in a rage, a bloodrager can cast spells.\nA bloodrager can end her bloodrage as a free action, and is fatigued for 1 minute after a bloodrage ends. A bloodrager can't enter a new bloodrage while fatigued or exhausted, but can otherwise enter a rage multiple times per day. If a bloodrager falls unconscious, her rage immediately ends.\n"
+                                            + "Bloodrage counts as the barbarian’s rage class feature for the purpose of feat prerequisites, feat abilities, magic item abilities, and spell effects."
+                                            );
+            bloodrage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
+            bloodrage_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", "BloodrageBuff", "");
+            bloodrage_buff.RemoveComponent(bloodrage_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
+            bloodrage_buff.AddComponent(Common.createForbidSpellCastingUnlessHasClass(false, getBloodragerArray()));
+            bloodrage_buff.SetNameDescription(bloodrage_ability);
+            bloodrage_ability.Buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = bloodrage_buff));
+            bloodrage_ability.Buff = bloodrage_buff;
+            bloodrage_buff.ReplaceComponent<AddFactContextActions>(a =>
+            {
+                a.Activated = Helpers.CreateActionList(a.Activated.Actions.ToList().ToArray());
+                a.NewRound = Helpers.CreateActionList(a.NewRound.Actions.ToList().ToArray());
+                a.Deactivated = Helpers.CreateActionList(a.Deactivated.Actions.ToList().ToArray());
+            });
 
-            
-            //we are going to use barbarian rage as a bloodrage, at least for the time being
-            bloodrage = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");//barbarian rage feature
-            greater_bloodrage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
-            tireless_bloodrage = library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a");
-            mighty_bloodrage = library.Get<BlueprintFeature>("06a7e5b60020ad947aed107d82d1f897");
+
+            bloodrage = library.CopyAndAdd<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647", "BloodrageFeature", "");//barbarian rage feature
+            bloodrage.SetNameDescription(bloodrage_ability);
+            bloodrage.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { a.Facts[1], bloodrage_ability });//keep standard rage resource
+
+            greater_bloodrage = library.CopyAndAdd<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982", "GreaterBloodrageFeature", "");
+            greater_bloodrage.SetNameDescription("Greater Bloodrage",
+                                                  "At 11th level, a bloodrager's bonus on melee attack rolls, melee damage rolls, thrown weapon damage rolls, and Will saves while raging increases to +3. In addition, the amount of temporary hit points gained when entering a bloodrage increases to 3 per Hit Die.");
+            tireless_bloodrage = library.CopyAndAdd<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a", "TirelessBloodrageFeature", "");
+            tireless_bloodrage.SetNameDescription("Tireless Bloodrage", "At 17th level, a bloodrager no longer becomes fatigued at the end of his bloodrage.");
+            library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a").AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = tireless_bloodrage));
+            mighty_bloodrage = library.CopyAndAdd<BlueprintFeature>("06a7e5b60020ad947aed107d82d1f897", "MightyBloodrageFeature", "");
+            mighty_bloodrage.SetNameDescription("Mighty Bloodrage",
+                                                "At 20th level, a bloodrager's bonus on melee attack rolls, melee damage rolls, thrown weapon damage rolls, and Will saves while raging increases to +4. In addition, the amount of temporary hit points gained when entering a bloodrage increases to 4 per Hit Die."
+                                                );
+            //fix config for greater/tirelss rage
+            var context_rank_config = bloodrage_buff.GetComponents<ContextRankConfig>().Where(a => a.IsFeatureList).FirstOrDefault();
+            var features = Helpers.GetField<BlueprintFeature[]>(context_rank_config, "m_FeatureList");
+            Helpers.SetField(context_rank_config, "m_FeatureList", features.AddToArray(mighty_bloodrage, greater_bloodrage));
+
+
             //fix rage resource to work for bloodrager
             var rage_resource = library.Get<Kingmaker.Blueprints.BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
             var amount = Helpers.GetField(rage_resource, "m_MaxAmount");
@@ -393,13 +575,7 @@ namespace CallOfTheWild
             Helpers.SetField(amount, "Class", classes);
             Helpers.SetField(rage_resource, "m_MaxAmount", amount);
 
-            bloodrage_ability = rage_ability;
-            //allow to cast spells while in rage
-            //It is possible to make a separate rage buff for bloodrager, different from standard rage,
-            //but it is apparently impossible to allow casting only bloodrager spells while under the effect of such buff
-            bloodrage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
-            bloodrage_buff.RemoveComponent(bloodrage_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
-            bloodrage_buff.AddComponent(Common.createForbidSpellCastingUnlessHasClass(false, getBloodragerArray()));
+
 
             if (test_mode)
             {
@@ -581,6 +757,7 @@ namespace CallOfTheWild
             bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(DraconicBloodlines.progressions);
             bloodline_selection.AllFeatures = bloodline_selection.AllFeatures.AddToArray(ElementalBloodlines.progressions);
             bloodline_selection.Features = bloodline_selection.AllFeatures;
+            bloodline_selection.AddComponent(Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; }));
         }
 
 
@@ -1586,7 +1763,7 @@ namespace CallOfTheWild
                                                                                 "d26ca0ac64874157aad34ef664b116a9",
                                                                                 weapon_enchant_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, NewRagePowers.rage_marker_caster/*bloodrage_buff*/);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, weapon_enchant_buff, hellfire_charge, bloodrage_buff);
             }
 
 
@@ -1681,7 +1858,7 @@ namespace CallOfTheWild
                                                                                 "2ba88b87439e456cb382392ba07ffa96",
                                                                                 effect_buff.Icon,
                                                                                 FeatureGroup.None);
-                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, effect_buff, frightful_charger, NewRagePowers.rage_marker_caster/*bloodrage_buff*/);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuff(charge_buff, effect_buff, frightful_charger, bloodrage_buff);
             }
 
 
@@ -2862,7 +3039,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateUIGroup(feat_selection, feat_selection, feat_selection, feat_selection, feat_selection)
                                                  };
 
-            progression.AddComponent(Helpers.PrerequisiteClassLevel(bloodrager_class, 1)); //require level 1 bloodrager to not allow dd to pick bloodrager lines
+            progression.AddComponent(Helpers.PrerequisiteClassLevel(bloodrager_class, 1, any: true)); //require level 1 bloodrager to not allow dd to pick bloodrager lines
             var bloodline_info = new BloodlineInfo(progression, feat_selection);
             bloodlines.Add(name + name_ext, bloodline_info);
 
@@ -3268,13 +3445,13 @@ namespace CallOfTheWild
 
         static void addBloodrageRestriction(BlueprintAbility ability)
         {
-            ability.AddComponent(Common.createAbilityCasterHasFacts(NewRagePowers.rage_marker_caster));
+            ability.AddComponent(Common.createAbilityCasterHasFacts(bloodrage_buff));
         }
 
 
         static void addBloodrageRestriction(BlueprintActivatableAbility ability)
         {
-            ability.AddComponent(Common.createActivatableAbilityRestrictionHasFact(NewRagePowers.rage_marker_caster));
+            ability.AddComponent(Common.createActivatableAbilityRestrictionHasFact(bloodrage_buff));
         }
 
 
@@ -3379,6 +3556,7 @@ namespace CallOfTheWild
                 activatable_ability.Buff = urban_bloodrage_buffs[i];
                 activatable_ability.SetNameDescriptionIcon(urban_bloodrage_buffs[i]);
                 urban_bloodrage.GetComponent<AddFacts>().Facts = urban_bloodrage.GetComponent<AddFacts>().Facts.AddToArray(activatable_ability);
+                bloodrage_buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = urban_bloodrage_buffs[i]));
             }
 
 
@@ -3448,7 +3626,7 @@ namespace CallOfTheWild
             {
                 a.name = "BloodConduitBloodragerArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Blood Conduit");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Blood conduits learn to channel their arcane might directly through their flesh, without the need for mystical words or gestures..");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Blood conduits learn to channel their arcane might directly through their flesh, without the need for mystical words or gestures.");
             });
             Helpers.SetField(blood_conduit, "m_ParentClass", bloodrager_class);
             library.AddAsset(blood_conduit, "");

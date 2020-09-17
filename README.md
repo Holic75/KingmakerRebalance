@@ -274,6 +274,7 @@ Bard Masterpieces:
 
 New spells:
 - Blade Lash,
+- Blade Tutor,
 - Burst of Adrealine,
 - Burst of Insight,
 - Command and Command, Greater,

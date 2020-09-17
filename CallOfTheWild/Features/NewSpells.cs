@@ -251,6 +251,9 @@ namespace CallOfTheWild
         static public BlueprintAbility shadow_enchantment;
         static public BlueprintAbility shadow_enchantment_greater;
         static public BlueprintAbility wrathful_weapon;
+        static public BlueprintAbility blade_tutor;
+        //corrosive consumption
+
 
         static public void load()
         {
@@ -413,6 +416,47 @@ namespace CallOfTheWild
 
             createShadowEnchantment();
             createWrathfulWeapon();
+            createBladeTutor();
+        }
+
+
+        static void createBladeTutor()
+        {
+            var buff = Helpers.CreateBuff("BladeTutorBuff",
+                                          "Blade Tutor",
+                                          "You summon an insubstantial spirit of force that resembles a cloudy vapor hovering around your fists or any melee weapons you wield. The spirit compensates for your defensive or reckless melee attacks, nudging your weapons in the proper direction.\n"
+                                          + "When you voluntarily use one or more actions or feats that apply penalties to attack rolls with your melee weapons (such as fighting defensively, or using the Power Attack feat), the spirit reduces the total penalty on affected attacks by 1 (to a minimum penalty of 0). The penalty is reduced by an additional 1 for every 5 caster levels you possess (to a minimum penalty of 0). Only penalties incurred by voluntary use of feats or maneuvers are reduced by this spell.",
+                                          "",
+                                          Helpers.GetIcon("bea9deffd3ab6734c9534153ddc70bde"),
+                                          null,
+                                          Helpers.Create<BladeTutor.BladeTutor>(b => b.value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, ContextRankProgression.OnePlusDivStep, AbilityRankType.StatBonus,
+                                                                         stepLevel: 5)
+                                         );
+
+            blade_tutor = Helpers.CreateAbility("BladeTutorAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                                );
+            blade_tutor.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
+            blade_tutor.NeedEquipWeapons = true;
+
+            blade_tutor.AddToSpellList(Helpers.paladinSpellList, 2);
+            blade_tutor.AddToSpellList(Helpers.magusSpellList, 1);
+            blade_tutor.AddToSpellList(Helpers.wizardSpellList, 2);
+
+            Helpers.AddSpellAndScroll(blade_tutor, "e40d940818ed94645829632007b2a871");//holy sword
+
         }
 
 

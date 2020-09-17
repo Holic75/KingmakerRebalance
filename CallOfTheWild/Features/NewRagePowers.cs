@@ -5,6 +5,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.Mechanics.Facts;
@@ -134,6 +135,14 @@ namespace CallOfTheWild
 
             createFerociousBeast();
             createSharpenedAccuracy();
+
+            replaceContextConditionHasFactToContextConditionCasterHasFact(rage_buff, rage_buff, rage_marker_caster); //use rage marker instead of actual rage
+
+            //fix group
+            var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
+            rage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
+
+
         }
 
 
@@ -285,6 +294,8 @@ namespace CallOfTheWild
                                                                                                    is_child: true, dispellable: false, is_permanent: true)
                                                               );                                                                                                                          
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(rage_buff, conditional_caster);
+
+            
         }
 
 
@@ -1031,6 +1042,63 @@ namespace CallOfTheWild
                 addToSelection(energy_resistance_feature[i]);
             }
         }
+
+        public static void replaceContextConditionHasFactToContextConditionCasterHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
+                                                                           BlueprintUnitFact inner_buff_to_add = null, string prefix = "")
+        {
+            var personal_buffs = new BlueprintUnitFact[] {library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937"), //reckless stance
+                                                     library.Get<BlueprintBuff>("16649b2e80602eb48bbeaad77f9f365f"), //lethal stance
+                                                     library.Get<BlueprintBuff>("fd0fb6aef4000a443bdc45363410e377"), //guarded stance
+                                                     library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a"), //inspire ferocity
+                                                     NewRagePowers.taunting_stance_buff
+                                                     };
+            List<BlueprintUnitFact> patched_buffs = new List<BlueprintUnitFact>();
+            var component = buff.GetComponent<AddFactContextActions>();
+            if (component == null)
+            {
+                return;
+            }
+            component = component.CreateCopy();
+            var activated_actions = component.Activated.Actions;
+
+            for (int i = 0; i < activated_actions.Length; i++)
+            {
+                if (activated_actions[i] is Conditional)
+                {
+                    var new_a = (Conditional)activated_actions[i].CreateCopy();
+                    new_a.ConditionsChecker = Helpers.CreateConditionsCheckerAnd(new_a.ConditionsChecker.Conditions);
+                    bool is_personal = false;
+                    for (int j = 0; j < new_a.ConditionsChecker.Conditions.Length; j++)
+                    {
+                        if (new_a.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
+                        {
+                            var condition_entry = (ContextConditionHasFact)new_a.ConditionsChecker.Conditions[j];
+                            var fact = condition_entry.Fact;
+
+                            if (fact is BlueprintBuff && personal_buffs.Contains(fact))
+                            {
+                                is_personal = true;
+                            }
+                            if (fact is BlueprintBuff && inner_buff_to_locate != null && !patched_buffs.Contains(fact))
+                            {
+                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
+                                Common.addToFactInContextConditionHasFact(fact, inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
+                                patched_buffs.Add(fact);
+                            }
+                            new_a.ConditionsChecker.Conditions[j] = Common.createContextConditionCasterHasFact(fact, !condition_entry.Not);
+                        }
+                    }
+                    if (is_personal)
+                    {
+                        //personal buff
+                        new_a.ConditionsChecker.Conditions = new_a.ConditionsChecker.Conditions.AddToArray(Common.createContextConditionIsCaster());
+                    }
+                    activated_actions[i] = new_a;
+                }
+            }
+            component.Activated.Actions = activated_actions;
+            buff.ReplaceComponent<AddFactContextActions>(component);
+        }
     }
 
 
@@ -1075,5 +1143,8 @@ namespace CallOfTheWild
             }
             return area.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
         }
+
+
+
     }
 }

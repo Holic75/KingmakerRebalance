@@ -47,6 +47,7 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.ElementsSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.Blueprints.Items.Ecnchantments;
 
 namespace CallOfTheWild
 {
@@ -177,7 +178,8 @@ namespace CallOfTheWild
 
         static void processRage()
         {
-            BlueprintBuff[] rage_buffs = new BlueprintBuff[] { Bloodrager.bloodrage_buff, //same as barabrian rage
+            BlueprintBuff[] rage_buffs = new BlueprintBuff[] { Main.library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613"), //standart rage
+                                                               Bloodrager.bloodrage_buff, //same as all other bloodrages
                                                                Skald.inspired_rage_effect_buff,
                                                                Skald.controlled_rage_str_buff,
                                                                Skald.controlled_rage_dex_buff,
@@ -232,6 +234,18 @@ namespace CallOfTheWild
             }
             addRageRejection();
 
+            //fix furious
+            var furious = Main.library.Get<BlueprintWeaponEnchantment>("b606a3f5daa76cc40add055613970d2a");
+            furious.ReplaceComponent<WeaponConditionalEnhancementBonus>(w =>
+            {
+                w.Conditions = Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasFacts(false, Main.library.Get<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), NewRagePowers.rage_marker_caster,
+                                                                                                               Skald.inspired_rage_effect_buff,
+                                                                                                               Skald.controlled_rage_str_buff,
+                                                                                                               Skald.controlled_rage_dex_buff,
+                                                                                                               Skald.controlled_rage_con_buff,
+                                                                                                               Skald.insightful_contemplation_buff,
+                                                                                                               NewRagePowers.greater_ferocious_beast_buff));
+            });
         }
 
 

@@ -1168,7 +1168,7 @@ namespace CallOfTheWild
             var feature_air = library.Get<BlueprintFeature>("1ae6835b8f568d44c8deb911f74762e4");
             feature_air.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(airborne) };
 
-            feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flyig creatures.");
+            feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flying creatures.");
         }
 
 
@@ -1649,6 +1649,7 @@ namespace CallOfTheWild
                                                                                   featureList: new BlueprintFeature[] {Common.ignore_spell_combat_penalty, Common.ignore_spell_combat_penalty })
                                                   
                                                   );
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(spellcombat_penalty_buff);
         }
 
         static internal void fixUndeadImmunity()

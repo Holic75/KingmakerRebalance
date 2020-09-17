@@ -240,6 +240,7 @@
     <Compile Include="NewMechanics\AoeMechanics.cs" />
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
+    <Compile Include="NewMechanics\BladeTutor.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
     <Compile Include="NewMechanics\BuffMechanics.cs" />
     <Compile Include="NewMechanics\ChargenMechanincs.cs" />

@@ -1439,7 +1439,7 @@ namespace CallOfTheWild
                                           library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
                                           //Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
-
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(buff);
             var ability = Helpers.CreateActivatableAbility("DazingAssaultToggleAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -1481,7 +1481,7 @@ namespace CallOfTheWild
                                           library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
                                           // Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
-
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(buff);
             var ability = Helpers.CreateActivatableAbility("StunningAssaultToggleAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -2636,6 +2636,8 @@ namespace CallOfTheWild
 
             furious_focus.Groups = furious_focus.Groups.AddToArray(FeatureGroup.Feat);
             library.AddCombatFeats(furious_focus);
+
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(furious_focus);
         }
 
         static void createRagingBrutality()
@@ -2909,6 +2911,9 @@ namespace CallOfTheWild
                                                          );
             new_toggle_buff.SetComponents(Helpers.CreateAddFactContextActions(context_action));
             toggle_ability.Buff = new_toggle_buff;
+
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(improved_stalwart_buff);
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(stalwart);
         }
 
     }

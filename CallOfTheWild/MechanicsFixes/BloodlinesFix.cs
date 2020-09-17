@@ -335,6 +335,8 @@ namespace CallOfTheWild
                 var ability1 = b.progression.LevelEntries[1].Features[0] as BlueprintFeature;
                 var ability2 = b.progression.LevelEntries[3].Features[0] as BlueprintFeature;
 
+                var es_b = Bloodrager.bloodrager_eldritch_scion_bloodlines_map[b.progression];
+
                 var selection0 = Helpers.CreateFeatureSelection(ability0.name + "Selection",
                                                ability0.Name,
                                                ability0.Description,
@@ -346,6 +348,10 @@ namespace CallOfTheWild
                 b.progression.UIGroups[0].Features.Add(selection0);
                 b.progression.LevelEntries[0].Features.Remove(ability0);
                 b.progression.LevelEntries[0].Features.Add(selection0);
+                es_b.UIGroups[0].Features.Remove(ability0);
+                es_b.UIGroups[0].Features.Add(selection0);
+                es_b.LevelEntries[0].Features.Remove(ability0);
+                es_b.LevelEntries[0].Features.Add(selection0);
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,
@@ -358,6 +364,10 @@ namespace CallOfTheWild
                 b.progression.UIGroups[0].Features.Add(selection);
                 b.progression.LevelEntries[1].Features.Remove(ability1);
                 b.progression.LevelEntries[1].Features.Add(selection);
+                es_b.UIGroups[0].Features.Remove(ability1);
+                es_b.UIGroups[0].Features.Add(selection);
+                es_b.LevelEntries[1].Features.Remove(ability1);
+                es_b.LevelEntries[1].Features.Add(selection);
 
                 var selection2 = Helpers.CreateFeatureSelection(ability2.name + "Selection",
                                                ability2.Name,
@@ -370,6 +380,10 @@ namespace CallOfTheWild
                 b.progression.UIGroups[0].Features.Add(selection2);
                 b.progression.LevelEntries[3].Features.Remove(ability2);
                 b.progression.LevelEntries[3].Features.Add(selection2);
+                es_b.UIGroups[0].Features.Remove(ability2);
+                es_b.UIGroups[0].Features.Add(selection2);
+                es_b.LevelEntries[3].Features.Remove(ability2);
+                es_b.LevelEntries[3].Features.Add(selection2);
             }
         }
 

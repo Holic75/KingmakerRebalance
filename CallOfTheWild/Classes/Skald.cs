@@ -1343,7 +1343,7 @@ namespace CallOfTheWild
                 BlueprintCharacterClass[] classes = Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class");
                 classes = classes.AddToArray(skald_class);
                 Helpers.SetField(c, "m_Class", classes);
-                replaceContextConditionHasFactToContextConditionCasterHasFact(b);
+                //replaceContextConditionHasFactToContextConditionCasterHasFact(b);
             }
             var renewed_vigor = library.Get<BlueprintAbility>("5a25185dbf75a954580a1248dc694cfc");
             var context_rank_configs = renewed_vigor.GetComponents<ContextRankConfig>();
@@ -1523,7 +1523,7 @@ namespace CallOfTheWild
             //in Deactivated remove Conditional (to apply fatigue)
             //also add skald to all contexts
             var standard_rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
-            replaceContextConditionHasFactToContextConditionCasterHasFact(raging_song_effect_buff, standard_rage_buff, raging_song_effect_buff, "Skald");
+            //replaceContextConditionHasFactToContextConditionCasterHasFact(raging_song_effect_buff, standard_rage_buff, raging_song_effect_buff, "Skald");
 
             var component = raging_song_effect_buff.GetComponent<AddFactContextActions>();
             component.NewRound = Helpers.CreateActionList();
@@ -1578,64 +1578,6 @@ namespace CallOfTheWild
         static internal BlueprintBuff createRagingSongEffectBuff(string name, params BlueprintComponent[] components)
         {
             return createRagingSongEffectBuffForbidSpellCasting(name, true, components);
-        }
-
-
-        static void replaceContextConditionHasFactToContextConditionCasterHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
-                                                                                  BlueprintUnitFact inner_buff_to_add = null, string prefix = "")
-        {
-            var personal_buffs = new BlueprintUnitFact[] {library.Get<BlueprintBuff>("c52e4fdad5df5d047b7ab077a9907937"), //reckless stance
-                                                     library.Get<BlueprintBuff>("16649b2e80602eb48bbeaad77f9f365f"), //lethal stance
-                                                     library.Get<BlueprintBuff>("fd0fb6aef4000a443bdc45363410e377"), //guarded stance
-                                                     library.Get<BlueprintBuff>("4b3fb3c9473a00f4fa526f4bd3fc8b7a"), //inspire ferocity
-                                                     NewRagePowers.taunting_stance_buff
-                                                     };
-            List<BlueprintUnitFact> patched_buffs = new List<BlueprintUnitFact>();
-            var component = buff.GetComponent<AddFactContextActions>();
-            if (component == null)
-            {
-                return;
-            }
-            component = component.CreateCopy();
-            var activated_actions = component.Activated.Actions;
-
-            for (int i = 0; i < activated_actions.Length; i++)
-            {
-                if (activated_actions[i] is Conditional)
-                {
-                    var new_a = (Conditional)activated_actions[i].CreateCopy();
-                    new_a.ConditionsChecker = Helpers.CreateConditionsCheckerAnd(new_a.ConditionsChecker.Conditions);
-                    bool is_personal = false;
-                    for (int j = 0; j < new_a.ConditionsChecker.Conditions.Length; j++)
-                    {
-                        if (new_a.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
-                        {
-                            var condition_entry = (ContextConditionHasFact)new_a.ConditionsChecker.Conditions[j];
-                            var fact = condition_entry.Fact;
-
-                            if (fact is BlueprintBuff && personal_buffs.Contains(fact))
-                            {
-                                is_personal = true;
-                            }
-                            if (fact is BlueprintBuff && inner_buff_to_locate != null && !patched_buffs.Contains(fact))
-                            {
-                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
-                                Common.addToFactInContextConditionHasFact((BlueprintBuff)(fact), inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
-                                patched_buffs.Add(fact);
-                            }
-                            new_a.ConditionsChecker.Conditions[j] = Common.createContextConditionCasterHasFact(fact, !condition_entry.Not);
-                        }
-                    }
-                    if (is_personal)
-                    {
-                        //personal buff
-                        new_a.ConditionsChecker.Conditions = new_a.ConditionsChecker.Conditions.AddToArray(Common.createContextConditionIsCaster());
-                    }
-                    activated_actions[i] = new_a;
-                }
-            }
-            component.Activated.Actions = activated_actions;
-            buff.ReplaceComponent<AddFactContextActions>(component);
         }
 
 
