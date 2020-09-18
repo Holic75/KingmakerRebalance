@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -136,6 +137,8 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd"), //spike stones
                 library.Get<BlueprintAbilityAreaEffect>("16e0e4c6a16f68c49832340b93706499"), //spike growth
                 library.Get<BlueprintAbilityAreaEffect>("bcb6329cefc66da41b011299a43cc681"), //entangle
+                library.Get<BlueprintAbilityAreaEffect>("72328360f1eeeb94d8a43d51db96eccb"), //sickeneing entangle
+                library.Get<BlueprintAbilityAreaEffect>("d46313be45054b248a1f1656ddb38614"), //grease
                 library.Get<BlueprintAbilityAreaEffect>("7d7821abf06fae744a4e37e48077a43a"), //mud golem area
                 library.Get<BlueprintAbilityAreaEffect>("cf742a1d377378e4c8799f6a3afff1ba"), //create pit area
                 library.Get<BlueprintAbilityAreaEffect>("e122151e93e44e0488521aed9e51b617"), //acid pit area
@@ -161,7 +164,7 @@ namespace CallOfTheWild
                 {
                     continue;
                 }
-                pit.ImmunityFacts = pit.ImmunityFacts.AddToArray(airborne);
+                pit.ImmunityFacts = pit.ImmunityFacts.AddToArray(pit_spell_immunity);
             }
 
 
@@ -309,5 +312,21 @@ namespace CallOfTheWild
             }
         }
 
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
+    [Harmony12.HarmonyPatch("TryOvercomeSpellResistance", Harmony12.MethodType.Normal)]
+    class Patch_AreaEffectEntityData_TryOvercomeSpellResistance_NoSR_Immunity_Postfix
+    {
+        static public void Postfix(AreaEffectEntityData __instance, UnitEntityData unit, ref bool __result)
+        {
+            if (__instance.Blueprint.SpellResistance || __result == false)
+            {
+                return;
+            }
+
+            __result = !(unit.Get<UnitPartSpellResistance>()?.IsImmune(__instance.Context)).GetValueOrDefault();
+        }
     }
 }

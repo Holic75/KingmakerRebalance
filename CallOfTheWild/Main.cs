@@ -27,7 +27,6 @@ namespace CallOfTheWild
             internal bool reduce_skill_points { get; }
             internal bool sacred_huntsmaster_animal_focus { get; }
             internal bool use_armor_in_wildshape { get; }
-            internal bool x3_crit_multiplier_for_flails { get; }
             internal bool swap_weapon_sets_as_move_action { get; }
             internal bool allow_spellcasting_in_elemental_form { get; }
             internal bool fix_teamwork_feats { get; }
@@ -51,7 +50,6 @@ namespace CallOfTheWild
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
                     use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
-                    x3_crit_multiplier_for_flails = (bool)jo["x3_crit_multiplier_for_flails"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                     fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
@@ -149,13 +147,6 @@ namespace CallOfTheWild
                         Main.logger.Log("Reducing class skillpoints to 1/2 of pnp value.");
                         CallOfTheWild.Rebalance.fixSkillPoints();
                     }
-
-                    if (settings.x3_crit_multiplier_for_flails)
-                    {
-                        Main.logger.Log("Increasing flails crit multiplier to x3.");
-                        CallOfTheWild.Rebalance.fixFlailCritMultiplier();
-                    }
-
 
                     if (settings.fix_teamwork_feats)
                     {
@@ -259,12 +250,12 @@ namespace CallOfTheWild
                         CallOfTheWild.Wildshape.allowToUseArmorInWildshape();
                     }
                     CallOfTheWild.MetamagicFeats.load();
-                    CallOfTheWild.NewRagePowers.load();
                     CallOfTheWild.NewSpells.load();
+                    CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
                     CallOfTheWild.Subschools.load();
-                    CallOfTheWild.ExoticWeapons.load();
+                    CallOfTheWild.WeaponsFix.load();
 
                     bool inquisitions_test = false;
 #if DEBUG
@@ -362,10 +353,12 @@ namespace CallOfTheWild
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
                     CallOfTheWild.NewFeats.createPreferredSpell();
+                    CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();
+                    
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();
 

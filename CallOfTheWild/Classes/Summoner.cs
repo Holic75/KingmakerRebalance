@@ -1600,6 +1600,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "5b77d7cc65b8ab74688e74a37fc2f553", 2), //barksin
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance
+                new Common.SpellId( NewSpells.blade_tutor.AssetGuid, 2),
                 new Common.SpellId( NewSpells.blood_armor.AssetGuid, 2),
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
                 new Common.SpellId( "4c3d08935262b6544ae97599b3a9556d", 2), //bull's strength

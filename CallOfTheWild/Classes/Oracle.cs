@@ -2379,7 +2379,9 @@ namespace CallOfTheWild
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (4, -4), (20, 0) }
                                                                               ),
-                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = NewSpells.silence_buff),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2"))//echolocation
                                               );
             curse.ReapplyOnLevelUp = true;
 

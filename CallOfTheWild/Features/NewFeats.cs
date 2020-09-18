@@ -593,7 +593,7 @@ namespace CallOfTheWild
                 RulebookEvent rule = evt.Reason.Rule;
                 if (rule != null && rule is RuleAttackWithWeapon attack && !attack.IsFullAttack)
                 {
-                    return true;
+                    return false;
                 }
                 ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
                 ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
@@ -1441,7 +1441,7 @@ namespace CallOfTheWild
                                           library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
                                           //Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
-
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(buff);
             var ability = Helpers.CreateActivatableAbility("DazingAssaultToggleAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -1483,7 +1483,7 @@ namespace CallOfTheWild
                                           library.Get<BlueprintBuff>("f766db0dcd17aaa44b76181bdf85fee9").GetComponent<ContextCalculateAbilityParams>() //from staggering critical
                                           // Helpers.Create<ContextCalculateAbilityParams>(c => { c.StatType = StatType.BaseAttackBonus; c.ReplaceCasterLevel = true; c.ReplaceSpellLevel = true; })
                                           );
-
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(buff);
             var ability = Helpers.CreateActivatableAbility("StunningAssaultToggleAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -2638,6 +2638,8 @@ namespace CallOfTheWild
 
             furious_focus.Groups = furious_focus.Groups.AddToArray(FeatureGroup.Feat);
             library.AddCombatFeats(furious_focus);
+
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(furious_focus);
         }
 
         static void createRagingBrutality()
@@ -2686,6 +2688,7 @@ namespace CallOfTheWild
                                                       Helpers.PrerequisiteStatValue(StatType.Strength, 13),
                                                       Helpers.PrerequisiteFeature(power_attack_feature),
                                                       Helpers.PrerequisiteFeature(rage_feature, any: true),
+                                                      Helpers.PrerequisiteFeature(Bloodrager.bloodrage, any: true),
                                                       Helpers.PrerequisiteFeature(Bloodrager.urban_bloodrage, any: true),
                                                       Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 12)
                                                       );
@@ -2911,6 +2914,9 @@ namespace CallOfTheWild
                                                          );
             new_toggle_buff.SetComponents(Helpers.CreateAddFactContextActions(context_action));
             toggle_ability.Buff = new_toggle_buff;
+
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(improved_stalwart_buff);
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(stalwart);
         }
 
     }

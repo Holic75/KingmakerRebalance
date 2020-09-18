@@ -80,7 +80,8 @@ namespace CallOfTheWild
             RollSpellResistanceTwice = 0x00004000,
             ThrenodicSpell = 0x00002000,
             VerdantSpell = 0x00001000,
-            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | RollSpellResistanceTwice,
+            BloodPiercing = 0x00000800,
+            FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | RollSpellResistanceTwice | BloodPiercing,
         }
 
         static public bool test_mode = false;
@@ -183,6 +184,18 @@ namespace CallOfTheWild
                 if (s.Parent != null)
                 {
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.ThrenodicSpell | (Metamagic)MetamagicExtender.VerdantSpell;
+                }
+            }
+
+
+            var blood_piercing_spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && (b.AvailableMetamagic & (Metamagic)(MetamagicExtender.Piercing | MetamagicExtender.Elemental))!= 0).ToArray();
+
+            foreach (var s in blood_piercing_spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.BloodPiercing;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.BloodPiercing;
                 }
             }
         }
@@ -577,7 +590,7 @@ namespace CallOfTheWild
 
                 if (context.HasMetamagic((Metamagic)MetamagicExtender.BloodIntensity))
                 {
-                    var value = Math.Max(context.MaybeCaster.Descriptor.Stats.Charisma.Bonus, context.MaybeCaster.Descriptor.Stats.Strength);
+                    var value = Math.Max(context.MaybeCaster.Descriptor.Stats.Charisma.Bonus, context.MaybeCaster.Descriptor.Stats.Strength.Bonus);
                     if (intensify_watcher < value)
                     {
                         intensify_watcher = value;
@@ -1024,6 +1037,34 @@ namespace CallOfTheWild
         }
 
 
+        [Harmony12.HarmonyPatch(typeof(RuleCalculateDamage))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        static class RuleCalculateDamage_OnTrigger_Patch
+        {
+            internal static bool Prefix(RuleCalculateDamage __instance, RulebookEventContext context)
+            {
+                var context2 = __instance.ParentRule?.Reason.Context;
+                if (context2?.SourceAbility == null || context2?.Params == null)
+                {
+                    return true;
+                }
+
+                if (context2.SourceAbility.IsSpell && (context2.Params.Metamagic & (Metamagic)MetamagicExtender.BloodPiercing) != 0)
+                {
+                    var value = Math.Max(context2.MaybeCaster.Descriptor.Stats.Charisma.Bonus, context2.MaybeCaster.Descriptor.Stats.Strength.Bonus);
+                    foreach (var d in __instance.DamageBundle)
+                    {
+                        if (d is EnergyDamage)
+                        {
+                            d.SetReductionPenalty(value);
+                        }
+                    }
+                }
+
+                return true;
+            }
+        }
+
         [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
         static class RuleSpellResistanceCheck_OnTrigger_Patch
@@ -1038,6 +1079,12 @@ namespace CallOfTheWild
                 }
                 var tr = Harmony12.Traverse.Create(__instance);
                 if (context2.SourceAbility.IsSpell &&
+                        (context2.Params.Metamagic & (Metamagic)MetamagicExtender.BloodPiercing) != 0)
+                {
+                    var value = Math.Max(context2.MaybeCaster.Descriptor.Stats.Charisma.Bonus, context2.MaybeCaster.Descriptor.Stats.Strength.Bonus);
+                    tr.Property("SpellResistance").SetValue(Math.Max(0, __instance.SpellResistance - value));
+                }
+                else if (context2.SourceAbility.IsSpell &&
                     (context2.Params.Metamagic & (Metamagic)MetamagicExtender.Piercing) != 0)
                 {
                     tr.Property("SpellResistance").SetValue(Math.Max(0, __instance.SpellResistance - 5));

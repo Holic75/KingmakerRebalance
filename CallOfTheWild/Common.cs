@@ -124,7 +124,8 @@ namespace CallOfTheWild
                                                                 null,
                                                                 Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
-                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; })
+                                                                Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; }),
+                                                                Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                                                 );
 
         public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",
@@ -2098,6 +2099,17 @@ namespace CallOfTheWild
         }
 
 
+        static public BuffAbilityRollsBonus createAbilityScoreCheckBonus(ContextValue bonus, ModifierDescriptor descriptor)
+        {
+            var a = Helpers.Create<BuffAbilityRollsBonus>();
+            a.Value = 1;
+            a.Descriptor = descriptor;
+            a.AffectAllStats = true;
+            a.Multiplier = bonus;
+            return a;
+        }
+
+
         static public ContextActionResurrect createContextActionResurrect(float result_health, bool full_restore = false)
         {
             var c = Helpers.Create<ContextActionResurrect>();
@@ -2402,39 +2414,46 @@ namespace CallOfTheWild
         }
 
 
-        static public void addToFactInContextConditionHasFact(BlueprintBuff buff, BlueprintUnitFact inner_buff_to_locate = null,
+        static public bool addToFactInContextConditionHasFact(BlueprintFact buff, BlueprintUnitFact inner_buff_to_locate = null,
                                                        Condition condition_to_add = null)
         {
+            bool added = false;
             var component = buff.GetComponent<AddFactContextActions>();
             if (component == null)
             {
-                return;
+                return added;
             }
 
-            var activated_actions = component.Activated.Actions;
-
-            for (int i = 0; i < activated_actions.Length; i++)
+            var action_lists = new ActionList[] { component.Activated, component.Deactivated, component.NewRound };
+            foreach (var al in action_lists)
             {
-                if (activated_actions[i] is Conditional)
+                var activated_actions = al.Actions;
+
+                for (int i = 0; i < activated_actions.Length; i++)
                 {
-                    var c_action = (Conditional)activated_actions[i].CreateCopy();
-                    for (int j = 0; j < c_action.ConditionsChecker.Conditions.Length; j++)
+                    if (activated_actions[i] is Conditional)
                     {
-                        if (c_action.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
+                        var c_action = (Conditional)activated_actions[i].CreateCopy();
+                        for (int j = 0; j < c_action.ConditionsChecker.Conditions.Length; j++)
                         {
-                            var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
-                            var fact = condition_entry.Fact;
-                            if (fact == inner_buff_to_locate)
+                            if (c_action.ConditionsChecker.Conditions[j] is ContextConditionHasFact)
                             {
-                                c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
-                                c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
-                                activated_actions[i] = c_action;
-                                break;
+                                var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
+                                var fact = condition_entry.Fact;
+                                if (fact == inner_buff_to_locate)
+                                {
+                                    added = true;
+                                    c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
+                                    c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
+                                    activated_actions[i] = c_action;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
+            return added;
         }
 
 
@@ -2569,6 +2588,19 @@ namespace CallOfTheWild
             w.Stat = stat;
             return w;
         }
+
+        static public void addEnchantment(BlueprintWeaponType weapon_type, params BlueprintWeaponEnchantment[] enchantments)
+        {
+
+            BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField<BlueprintWeaponEnchantment[]>(weapon_type, "m_Enchantments");
+            if (original_enchantments == null)
+            {
+                original_enchantments = new BlueprintWeaponEnchantment[0];
+            }
+
+            Helpers.SetField(weapon_type, "m_Enchantments", original_enchantments.AddToArray(enchantments));
+        }
+
 
         static public void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
         {

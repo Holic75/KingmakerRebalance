@@ -1215,6 +1215,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 5), //true seeing
                 new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 5),
 
+                new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast, seems should be there since both wail of banshee and fear are there?
                 new Common.SpellId( "d361391f645db984bbf58907711a146a", 6), //banishment
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
                 new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bulls strength mass

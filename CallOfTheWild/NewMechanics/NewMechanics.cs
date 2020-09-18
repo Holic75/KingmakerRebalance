@@ -2642,6 +2642,23 @@ namespace CallOfTheWild
         }
 
 
+        public class RunActionList : ContextAction
+        {
+            public string Comment;
+            public ActionList actions;
+
+            public override void RunAction()
+            {
+                actions.Run();
+            }
+
+            public override string GetCaption()
+            {
+                return "Actions from list (" + this.Comment + " )";
+            }
+        }
+
+
         [ComponentName("Attack bonus against fact owner for attack type")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
@@ -6969,7 +6986,7 @@ namespace CallOfTheWild
                 if (require_full_proficiency 
                     && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
                 {
-                    return (ability.Caster.Get<ExoticWeapons.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
+                    return (ability.Caster.Get<WeaponsFix.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
                 }
                 return ability.Caster.Proficiencies.Contains(category);
             }

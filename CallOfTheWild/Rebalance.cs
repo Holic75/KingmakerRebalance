@@ -571,7 +571,8 @@ namespace CallOfTheWild
                 }
             };
             SaveGameFix.save_game_actions.Add(fix_action);
-            //change regongar
+            //change regongar and fix his portrait
+            var reg_portrait = library.Get<BlueprintPortrait>("6e7302bb773adf04299dbe8832562d50").BackupPortrait = null;
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
             var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
@@ -1178,7 +1179,7 @@ namespace CallOfTheWild
             var feature_air = library.Get<BlueprintFeature>("1ae6835b8f568d44c8deb911f74762e4");
             feature_air.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(airborne) };
 
-            feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flyig creatures.");
+            feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flying creatures.");
         }
 
 
@@ -1660,6 +1661,7 @@ namespace CallOfTheWild
                                                                                   featureList: new BlueprintFeature[] {Common.ignore_spell_combat_penalty, Common.ignore_spell_combat_penalty })
                                                   
                                                   );
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(spellcombat_penalty_buff);
         }
 
         static internal void fixUndeadImmunity()
