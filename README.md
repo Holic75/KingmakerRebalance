@@ -172,7 +172,8 @@ New features:
 - Dismissable area effect spells,
 - When using wall area effect spells you should now see which enemies will be affected,
 - Summoned monsters are now considered as allies,
-- Dwarven war axe and bastard sword can be used as martial weapons if wielded two-handed; dueling sword can be used as martial weapon, in this case it is no longer considered to be finessable.
+- Dwarven war axe and bastard sword can be used as martial weapons if wielded two-handed; dueling sword can be used as martial weapon, in this case it is no longer considered to be finessable,
+- Disarm, Sunder and Trip weapon properties were added to corresponding weapon types.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,

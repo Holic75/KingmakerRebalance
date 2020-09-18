@@ -583,6 +583,8 @@ namespace CallOfTheWild
                 var rage = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
                 rage.IsOnByDefault = false;
                 rage.DeactivateIfCombatEnded = false;
+                bloodrage_ability.IsOnByDefault = false;
+                bloodrage_ability.DeactivateIfCombatEnded = false;
                 // allow to use charge on allies
                 var charge = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038");
                 charge.CanTargetFriends = true;
@@ -3557,6 +3559,7 @@ namespace CallOfTheWild
                 activatable_ability.SetNameDescriptionIcon(urban_bloodrage_buffs[i]);
                 urban_bloodrage.GetComponent<AddFacts>().Facts = urban_bloodrage.GetComponent<AddFacts>().Facts.AddToArray(activatable_ability);
                 bloodrage_buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = urban_bloodrage_buffs[i]));
+                NewRagePowers.rage_buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = urban_bloodrage_buffs[i]));
             }
 
 

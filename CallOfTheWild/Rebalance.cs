@@ -571,7 +571,8 @@ namespace CallOfTheWild
                 }
             };
             SaveGameFix.save_game_actions.Add(fix_action);
-            //change regongar
+            //change regongar and fix his portrait
+            var reg_portrait = library.Get<BlueprintPortrait>("6e7302bb773adf04299dbe8832562d50").BackupPortrait = null;
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
             var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();

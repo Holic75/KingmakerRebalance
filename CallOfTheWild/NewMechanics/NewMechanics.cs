@@ -6963,7 +6963,7 @@ namespace CallOfTheWild
                 if (require_full_proficiency 
                     && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
                 {
-                    return (ability.Caster.Get<ExoticWeapons.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
+                    return (ability.Caster.Get<WeaponsFix.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
                 }
                 return ability.Caster.Proficiencies.Contains(category);
             }

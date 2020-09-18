@@ -433,7 +433,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
         public override bool canBeUsedOn(ItemEntityWeapon weapon)
         {
             if (require_full_proficiency &&
-                !(weapon.Owner?.Get<ExoticWeapons.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault())
+                !(weapon.Owner?.Get<WeaponsFix.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault())
             {
                 return false;
             }

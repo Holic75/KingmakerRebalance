@@ -2686,6 +2686,7 @@ namespace CallOfTheWild
                                                       Helpers.PrerequisiteStatValue(StatType.Strength, 13),
                                                       Helpers.PrerequisiteFeature(power_attack_feature),
                                                       Helpers.PrerequisiteFeature(rage_feature, any: true),
+                                                      Helpers.PrerequisiteFeature(Bloodrager.bloodrage, any: true),
                                                       Helpers.PrerequisiteFeature(Bloodrager.urban_bloodrage, any: true),
                                                       Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 12)
                                                       );

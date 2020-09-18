@@ -2567,6 +2567,19 @@ namespace CallOfTheWild
             return w;
         }
 
+        static public void addEnchantment(BlueprintWeaponType weapon_type, params BlueprintWeaponEnchantment[] enchantments)
+        {
+
+            BlueprintWeaponEnchantment[] original_enchantments = Helpers.GetField<BlueprintWeaponEnchantment[]>(weapon_type, "m_Enchantments");
+            if (original_enchantments == null)
+            {
+                original_enchantments = new BlueprintWeaponEnchantment[0];
+            }
+
+            Helpers.SetField(weapon_type, "m_Enchantments", original_enchantments.AddToArray(enchantments));
+        }
+
+
         static public void addEnchantment(BlueprintItemWeapon weapon, params BlueprintWeaponEnchantment[] enchantments)
         {
 

@@ -4,6 +4,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Blueprints.Root.Strings;
+using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Enums;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.LevelUp;
@@ -20,7 +21,7 @@ using System.Threading.Tasks;
 namespace CallOfTheWild
 {
     
-    public class ExoticWeapons
+    public class WeaponsFix
     {
 
         public class UnitPartFullProficiency: AdditiveUnitPart
@@ -75,6 +76,86 @@ namespace CallOfTheWild
         static internal void load()
         {
             fixMartialExoticWeapons();
+            addWeaponProperties();
+        }
+
+
+        static void addWeaponProperties()
+        {
+            var sunder = Helpers.CreateFeature("SunderWeaponPropertyFeature",
+                                               "Sunder",
+                                               "When you use a sunder weapon, you get a +2 bonus on Combat Maneuver Checks to sunder attempts.",
+                                               "",
+                                               null,
+                                               FeatureGroup.None,
+                                               Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.SunderArmor, 2)
+                                               );
+            sunder.HideInCharacterSheetAndLevelUp = true;
+            var sunder_enchant = Common.createWeaponEnchantment("SunderEnchantment", sunder.Name, sunder.Description, "", "", "", 0, null,
+                                           Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = sunder));
+
+            var trip = Helpers.CreateFeature("TripWeaponPropertyFeature",
+                                   "Trip",
+                                   "When you use a trip weapon, you get a +2 bonus on Combat Maneuver Checks to trip attempts.",
+                                   "",
+                                   null,
+                                   FeatureGroup.None,
+                                   Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 2)
+                                   );
+            trip.HideInCharacterSheetAndLevelUp = true;
+            var trip_enchant = Common.createWeaponEnchantment("TripEnchantment", trip.Name, trip.Description, "", "", "", 0, null,
+                               Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = trip));
+
+            var disarm = Helpers.CreateFeature("DisarmWeaponPropertyFeature",
+                                               "Disarm",
+                                               "When you use a disarm weapon, you get a +2 bonus on Combat Maneuver Checks to trip attempts.",
+                                               "",
+                                               null,
+                                               FeatureGroup.None,
+                                               Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, 2)
+                                               );
+            disarm.HideInCharacterSheetAndLevelUp = true;
+
+            var disarm_enchant = Common.createWeaponEnchantment("DisarmEnchantment", disarm.Name, disarm.Description, "", "", "", 0, null,
+                   Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = disarm));
+
+            WeaponCategory[] disarm_weapons = new WeaponCategory[]
+            {
+                WeaponCategory.Flail,
+                WeaponCategory.HeavyFlail,
+                WeaponCategory.Nunchaku,
+                WeaponCategory.Sai,
+            };
+            WeaponCategory[] sunder_weapons = new WeaponCategory[]
+            {
+            };
+            WeaponCategory[] trip_weapons = new WeaponCategory[]
+            {
+                WeaponCategory.Sickle,
+                WeaponCategory.Flail,
+                WeaponCategory.HeavyFlail,
+                WeaponCategory.Scythe,
+                WeaponCategory.Kama,
+                WeaponCategory.Fauchard,
+                WeaponCategory.HookedHammer
+            };
+
+            var weapon_types = library.GetAllBlueprints().OfType<BlueprintWeaponType>();
+            foreach (var wt in weapon_types)
+            {
+                if (disarm_weapons.Contains(wt.Category))
+                {
+                    Common.addEnchantment(wt, disarm_enchant);
+                }
+                if (sunder_weapons.Contains(wt.Category))
+                {
+                    Common.addEnchantment(wt, sunder_enchant);
+                }
+                if (trip_weapons.Contains(wt.Category))
+                {
+                    Common.addEnchantment(wt, trip_enchant);
+                }
+            }
         }
 
         static void fixMartialExoticWeapons()

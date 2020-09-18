@@ -1525,7 +1525,7 @@ namespace CallOfTheWild
             var standard_rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
             //replaceContextConditionHasFactToContextConditionCasterHasFact(raging_song_effect_buff, standard_rage_buff, raging_song_effect_buff, "Skald");
 
-            var component = raging_song_effect_buff.GetComponent<AddFactContextActions>();
+            var component = raging_song_effect_buff.GetComponent<AddFactContextActions>().CreateCopy();
             component.NewRound = Helpers.CreateActionList();
 
             var deactivate_actions = component.Deactivated.Actions;

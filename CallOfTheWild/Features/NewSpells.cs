@@ -253,7 +253,7 @@ namespace CallOfTheWild
         static public BlueprintAbility wrathful_weapon;
         static public BlueprintAbility blade_tutor;
         //corrosive consumption
-
+        //implosion
 
         static public void load()
         {
@@ -617,6 +617,7 @@ namespace CallOfTheWild
             if (ability_variants == null)
             {
                 ability_variants = Helpers.CreateAbilityVariants(base_ability);
+                
             }
             foreach (var s in spells)
             {
@@ -640,6 +641,8 @@ namespace CallOfTheWild
                 shadow_s.ActionType = UnitCommand.CommandType.Standard;
                 Common.unsetAsFullRoundAction(shadow_s);
             }
+            base_ability.RemoveComponents<AbilityVariants>();
+            base_ability.AddComponent(ability_variants);
 
         }
 
@@ -719,7 +722,7 @@ namespace CallOfTheWild
 
 
             addShadowSpells(shadow_enchantment, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
-                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 3, SpellSchool.Enchantment
+                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 2, SpellSchool.Enchantment
                           );
             addShadowSpells(shadow_enchantment_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
                            new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
