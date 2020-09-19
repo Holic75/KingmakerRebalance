@@ -738,7 +738,7 @@ namespace CallOfTheWild
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/Silence.png"),
                                           Common.createPrefabLink("c4e5e6e8407f1774b97af4957364852c"),
                                           Helpers.Create<SpellFailureMechanics.Silence>(),
-                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sonic),
+                                          Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sonic | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
                                           Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                           );
             silence_buff.Stacking = StackingType.Stack;
@@ -5931,12 +5931,6 @@ namespace CallOfTheWild
 
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_burn)));
 
-            var effect_on_demoralzie = Helpers.Create<NewMechanics.ActionOnDemoralize>(a =>
-                                                                                        {
-                                                                                            a.Buff = demoralize.Buff; a.GreaterBuff = demoralize.GreaterBuff;
-                                                                                            a.actions = Helpers.CreateActionList(effect);
-                                                                                        }
-                                                                                      );
 
             blistering_invective = Helpers.CreateAbility("BlisteringInvectiveAbility",
                                                          "Blistering Invective",
@@ -5948,13 +5942,13 @@ namespace CallOfTheWild
                                                          AbilityRange.Personal,
                                                          "",
                                                          "Reflex partial",
-                                                         Helpers.CreateRunActions(effect_on_demoralzie),
+                                                         Helpers.CreateRunActions(demoralize),
+                                                         Helpers.Create<DemoralizeMechanics.ScopedDemoralizeActions>(a => a.actions = Helpers.CreateActionList(effect)),
                                                          dazzling_display.GetComponent<AbilityTargetsAround>(),
                                                          dazzling_display.GetComponent<AbilitySpawnFx>(),
                                                          Helpers.Create<SharedSpells.CannotBeShared>(),
-                                                         Helpers.Create<NewMechanics.AbilityTargetIsCaster>(),
                                                          Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Fire)
+                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Fire | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                                          );
 
             blistering_invective.setMiscAbilityParametersSelfOnly();
@@ -8095,9 +8089,8 @@ namespace CallOfTheWild
                                             AbilityRange.Close,
                                             Helpers.oneRoundDuration,
                                             Helpers.willNegates,
-                                            dominate_monster.GetComponent<SpellDescriptorComponent>(),
-                                            dominate_monster.GetComponent<SpellComponent>(),
-                                            Common.createAbilityCasterHasNoFacts(silence_buff)
+                                            dominate_monster.GetComponent<SpellDescriptorComponent>().CreateCopy(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
+                                            dominate_monster.GetComponent<SpellComponent>()
                                             );
 
             command.setMiscAbilityParametersSingleTargetRangedHarmful();
@@ -8105,8 +8098,8 @@ namespace CallOfTheWild
             command.SpellResistance = true;
 
 
-            var checker_fact = dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>().ToArray();
-            var does_not_work = dominate_monster.GetComponent<AbilityTargetHasFact>();
+            var checker_fact = dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>().ToArray(); //vermin
+            var does_not_work = dominate_monster.GetComponent<AbilityTargetHasFact>();//construct, plant type
 
             command_greater = Helpers.CreateAbility("CommandGreaterSpellAbility",
                                 "Command, Greater",
@@ -8118,10 +8111,11 @@ namespace CallOfTheWild
                                 AbilityRange.Close,
                                 Helpers.roundsPerLevelDuration,
                                 Helpers.willNegates,
-                                dominate_monster.GetComponent<SpellDescriptorComponent>(),
+                                dominate_monster.GetComponent<SpellDescriptorComponent>().CreateCopy(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
                                 Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy),
                                 dominate_monster.GetComponent<SpellComponent>(),
-                                Common.createAbilityCasterHasNoFacts(silence_buff));
+                                Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
+                                );
 
             command_greater.setMiscAbilityParametersRangedDirectional();
             command_greater.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
@@ -8141,7 +8135,6 @@ namespace CallOfTheWild
                 variant_command.AddComponent(Helpers.CreateRunActions(buff_save));
                 variant_command.AddComponent(dominate_monster.GetComponent<AbilitySpawnFx>());
                 variant_command.AddComponent(Helpers.CreateContextRankConfig(min: 1, max: 1)); 
-                variant_command.AddComponent(dominate_monster.GetComponent<AbilityTargetHasFact>());
                 variant_command.AddComponents(dominate_monster.GetComponents<AbilityTargetHasNoFactUnless>());
                 commands.Add(variant_command);
 
@@ -8150,14 +8143,7 @@ namespace CallOfTheWild
                 variant_greater.SetDescription(descriptions[i]);
                 variant_greater.AddComponent(Helpers.CreateContextRankConfig());
 
-                var action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFacts(false, checker_fact[0].CheckedFacts), Common.createContextConditionCasterHasFact(checker_fact[0].UnlessFact, has: false)),
-                                                       null,
-                                                       Helpers.CreateConditional(Common.createContextConditionHasFacts(false, does_not_work.CheckedFacts),
-                                                                                 null,
-                                                                                 buff_save
-                                                                                 )
-                                                       );
-                variant_greater.AddComponent(Helpers.CreateRunActions(action));
+                variant_greater.AddComponent(Helpers.CreateRunActions(buff_save));
                 variant_greater.AddComponent(dominate_monster.GetComponent<AbilitySpawnFx>());
 
                 greater_commands.Add(variant_greater);

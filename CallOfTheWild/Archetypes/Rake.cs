@@ -133,7 +133,7 @@ namespace CallOfTheWild.Archetypes
         static void createBravadosBlade()
         {
             
-            var demoralize = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as NewMechanics.DemoralizeWithAction;
+            var demoralize = library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as Demoralize;
             for (int i = 0; i < 5; i++)
             {
                 var buff_sneak = Helpers.CreateBuff($"BravadosBladeReduceSneak{i}Buff",
@@ -142,12 +142,13 @@ namespace CallOfTheWild.Archetypes
                                                       "",
                                                       null,
                                                       null,
-                                                      Helpers.CreateAddStatBonus(StatType.SneakAttack, -(i + 1), ModifierDescriptor.UntypedStackable)
+                                                      Helpers.CreateAddStatBonus(StatType.SneakAttack, -(i + 1), ModifierDescriptor.UntypedStackable),
+                                                      Helpers.Create<DemoralizeMechanics.DemoralizeBonus>(d => d.value = i*5)
                                                       );
                 buff_sneak.SetBuffFlags(BuffFlags.HiddenInUi);
-                var new_demoralize = demoralize.CreateCopy(d => d.bonus = i * 5);
+
                 var action_on_hit = Helpers.CreateActionList(Common.createContextActionApplyBuffToCaster(buff_sneak, Helpers.CreateContextDuration(1), dispellable: false),
-                                                             demoralize.CreateCopy(d => d.bonus = i * 5));
+                                                             demoralize);
 
                 var buff = Helpers.CreateBuff($"BravadosBlade{i}Buff",
                                               $"Bravado's Blade ({Common.roman_id[i + 1]})",

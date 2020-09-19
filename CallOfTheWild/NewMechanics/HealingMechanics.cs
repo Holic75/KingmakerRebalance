@@ -539,6 +539,37 @@ namespace CallOfTheWild.HealingMechanics
         }
     }
 
+    public class ContextActionTreatDeadlyWounds : ContextAction
+    {
+        public ContextValue Value;
+        public StatType[] stats_to_heal = new StatType[] {StatType.Strength, StatType.Dexterity, StatType.Constitution, StatType.Intelligence, StatType.Wisdom, StatType.Charisma };
+        public override string GetCaption()
+        {
+            return string.Format("Heal {0} of hit point damage", (object)this.Value);
+        }
+
+        public override void RunAction()
+        {
+            if (this.Target.Unit == null)
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Invalid target for effect '{0}'", (object)this.GetType().Name);
+            else if (this.Context.MaybeCaster == null)
+            {
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Caster is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+                int bonus = this.Value.Calculate(this.Context);
+                int hps = bonus * this.Target.Unit.Descriptor.Progression.CharacterLevel;
+                this.Context.TriggerRule<RuleHealDamage>(new RuleHealDamage(this.Context.MaybeCaster, this.Target.Unit, DiceFormula.Zero, bonus));
+
+                foreach (var s in stats_to_heal)
+                {
+                    this.Context.TriggerRule<RuleHealStatDamage>(new RuleHealStatDamage(this.Context.MaybeCaster, this.Target.Unit, s, bonus));
+                }
+            }
+        }
+    }
+
 
     public class OnHealingReceivedActionTrigger: OwnedGameLogicComponent<UnitDescriptor>, IHealingHandler
     {

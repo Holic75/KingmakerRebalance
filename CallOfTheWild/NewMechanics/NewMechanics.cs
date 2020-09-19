@@ -6149,8 +6149,74 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReplaceSaveStatForSpellDescriptor : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public StatType old_stat;
+            public StatType new_stat;
+            public SavingThrowType save_type;
+            public bool keep_penalty;
+            public SpellDescriptorWrapper spell_descriptor;
 
-        public class DemoralizeWithAction : ContextAction
+            StatType getSaveStat()
+            {
+                if (save_type == SavingThrowType.Fortitude)
+                {
+                    return StatType.SaveFortitude;
+                }
+                if (save_type == SavingThrowType.Will)
+                {
+                    return StatType.SaveWill;
+                }
+                if (save_type == SavingThrowType.Reflex)
+                {
+                    return StatType.SaveReflex;
+                }
+
+                return StatType.SaveReflex;
+            }
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason?.Context == null)
+                {
+                    return;
+                }
+
+                if ((evt.Reason.Context.SpellDescriptor & spell_descriptor) == 0)
+                {
+                    return;
+                }
+
+                if (evt.Type != save_type)
+                {
+                    return;
+                }
+
+                if (this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(getSaveStat()).BaseStat.Type != old_stat)
+                {
+                    return;
+                }
+
+                int bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+                int old_bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+                if (keep_penalty)
+                {
+                    old_bonus = Math.Max(old_bonus, 0);
+                }
+                bonus = bonus - old_bonus;
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.GetStat<ModifiableValueSavingThrow>(getSaveStat()).AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+
+            }
+        }
+
+
+        /*public class DemoralizeWithAction : ContextAction
         {
             public BlueprintBuff Buff;
             public BlueprintBuff GreaterBuff;
@@ -6229,9 +6295,9 @@ namespace CallOfTheWild
                     }
                 }
             }
-        }
+        }*/
 
-        public class ActionOnDemoralize : ContextAction
+        /*public class ActionOnDemoralize : ContextAction
         {
             public BlueprintBuff Buff;
             public BlueprintBuff GreaterBuff;
@@ -6274,7 +6340,7 @@ namespace CallOfTheWild
                     }
                 }
             }
-        }
+        }*/
 
         public class ConsumeMoveAction : ContextAction
         {

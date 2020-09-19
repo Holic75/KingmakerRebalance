@@ -2379,6 +2379,7 @@ namespace CallOfTheWild
                                                                               progression: ContextRankProgression.Custom,
                                                                               customProgression: new (int, int)[] { (4, -4), (20, 0) }
                                                                               ),
+                                              Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = NewSpells.silence_buff),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2"))//echolocation
@@ -2393,7 +2394,10 @@ namespace CallOfTheWild
                                               FeatureGroup.None,
                                               Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
                                               Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
-                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened)
+                                              Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = NewSpells.silence_buff),
+                                              Helpers.Create<SpecificBuffImmunity>(s => s.Buff = library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2"))//echolocation
                                               );
 
             curse_to_minor_map.Add(curse, deaf_minor);

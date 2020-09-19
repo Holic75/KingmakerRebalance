@@ -1653,6 +1653,30 @@ namespace CallOfTheWild
             BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(spellcombat_penalty_buff);
         }
 
+
+        static internal void addMissingImmunities()
+        {
+            Common.plant_arcana_language_hidden = Helpers.CreateFeature("BypassPlantLanguageDependentImmunity",
+                                        "",
+                                        "",
+                                        "",
+                                        null,
+                                        FeatureGroup.None);
+            Common.plant_arcana_language_hidden.HideInCharacterSheetAndLevelUp = true;
+            Common.plant_arcana_language_hidden.HideInUI = true;
+            var serpentine_arcana = library.Get<BlueprintFeature>("02707231be1d3a74ba7e38a426c8df37");
+            var language_dependent = (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent;
+            Common.vermin.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = serpentine_arcana; }),
+                                        Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = serpentine_arcana; })
+                                        );
+            Common.plant.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = Common.plant_arcana_language_hidden; }),
+                                        Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = Common.plant_arcana_language_hidden; })
+                                        );
+            Common.animal.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = serpentine_arcana; }),
+                                        Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = serpentine_arcana; })
+                                        );
+        }
+
         static internal void fixUndeadImmunity()
         {
             Common.undead_arcana_hidden = Helpers.CreateFeature("BypassUndeadImmunity",
