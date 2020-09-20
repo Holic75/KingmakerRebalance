@@ -24,7 +24,7 @@ namespace CallOfTheWild
 {
     public class ExoticWeapons
     {
-        public class FullProficiency : OwnedGameLogicComponent<UnitDescriptor>
+        public class UnitPartFullProficiency : AdditiveUnitPart
         {
         }
     }
