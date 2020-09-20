@@ -1534,18 +1534,31 @@ namespace CallOfTheWild
 
                 var buff = Helpers.CreateBuff(stat.ToString() + "RitualUnityBuff",
                                               "Ritual Unity: " + name,
-                                              "You can use aid another action to assist an ally with a skill check. If you and succeed at a DC 20 skill check, you impart a +4 bonus to your ally until the end of the round. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
+                                              "You can use aid another action to assist an ally with a skill check. If you and succeed at a DC 20 skill check, you impart a +4 bonus to your ally on his next skill check. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
                                               + "You can use this ability a number of times per day equal to your Charisma modifier.",
                                               "",
                                               skill_foci[i].Icon,
                                               null,
                                               Helpers.CreateAddStatBonus(stat, 4, ModifierDescriptor.UntypedStackable)
                                               );
+                buff.AddComponents(Helpers.Create<AddInitiatorSkillRollTrigger>(a => { a.Skill = stat; a.Action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff)); }),
+                                   Helpers.Create<AddInitiatorPartySkillRollTrigger>(a => { a.Skill = stat; a.Action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff)); })
+                                   );
+                if (stat == StatType.SkillPersuasion)
+                {
+                    foreach (var s in new StatType[] { StatType.CheckIntimidate, StatType.CheckDiplomacy, StatType.CheckBluff })
+                    {
+                        buff.AddComponents(Helpers.Create<AddInitiatorSkillRollTrigger>(a => { a.Skill = s; a.Action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff)); }),
+                                           Helpers.Create<AddInitiatorPartySkillRollTrigger>(a => { a.Skill = s; a.Action = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff)); })
+                                           );
+                    }
+                }
+                buff.SetBuffFlags(BuffFlags.RemoveOnRest);
                 var check = Helpers.Create<SkillMechanics.ContextActionCasterSkillCheck>(c =>
                 {
                     c.CustomDC = 20;
                     c.UseCustomDC = true;
-                    c.Success = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false),
+                    c.Success = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
                                                          Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(r => r.Resource = phrenic_pool_resource)));
                     c.Stat = stat;
                 });
@@ -1645,7 +1658,7 @@ namespace CallOfTheWild
                                                     NewSpells.silence,
                                                     library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
                                                     library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow_pattern
-                                                    NewSpells.command,
+                                                    NewSpells.command_greater,
                                                     library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31"), //heroism greater
                                                     NewSpells.hold_person_mass,
                                                     library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect

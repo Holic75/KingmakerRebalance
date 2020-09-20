@@ -144,7 +144,7 @@ namespace CallOfTheWild
                 Helpers.CreateRunActions(effect, Common.createContextActionApplyBuff(treat_deadly_wounds_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false)),
                 Common.createAbilityTargetHasFact(inverted: true, treat_deadly_wounds_cooldown)
             };
-            treat_deadly_wounds_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom));
+            treat_deadly_wounds_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 0));
 
             var heal_ability_copy = library.CopyAndAdd(heal_ability, heal_ability.name + "Child", "");
             heal_ability.ComponentsArray = new BlueprintComponent[]
