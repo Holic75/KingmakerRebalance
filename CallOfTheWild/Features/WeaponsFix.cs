@@ -13,6 +13,7 @@ using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.Utility;
 using Kingmaker.View.Animation;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +90,38 @@ namespace CallOfTheWild
                     return category == required_category;
                 }
                 return false;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class AddFullWeaponProficiencyWeaponCategory : ParametrizedFeatureComponent
+        {
+            static public Dictionary<WeaponCategory, BlueprintFeature> category_feature_map;
+            [JsonProperty]
+            private Fact m_applied_fact = null;
+
+            public override void OnFactActivate()
+            {
+                if (this.Param.WeaponCategory.HasValue && category_feature_map.ContainsKey(this.Param.WeaponCategory.Value)
+                    && !this.Owner.HasFact(category_feature_map[this.Param.WeaponCategory.Value]))
+                {
+                    m_applied_fact = this.Owner.AddFact(category_feature_map[this.Param.WeaponCategory.Value], null, null);
+                }
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (m_applied_fact != null)
+                {
+                    this.Owner.RemoveFact(m_applied_fact);
+                }
+            }
+
+            public override void PostLoad()
+            {
+                base.PostLoad();
+                this.OnFactActivate();
             }
         }
 
@@ -249,16 +282,14 @@ namespace CallOfTheWild
 
             //fix kensai choosen weapon to give proficiency
             var kensai_choosen_weapon = library.Get<BlueprintParametrizedFeature>("c0b4ec0175e3ff940a45fc21f318a39a");
-            kensai_choosen_weapon.AddComponent(Helpers.Create<NewMechanics.AddFeatureBasedOnWeaponCategory>(a =>
-            {
-                a.category_feature_map = new Dictionary<WeaponCategory, BlueprintFeature>()
+            kensai_choosen_weapon.AddComponent(Helpers.Create<AddFullWeaponProficiencyWeaponCategory>());
+            AddFullWeaponProficiencyWeaponCategory.category_feature_map = new Dictionary<WeaponCategory, BlueprintFeature>()
                 {
                     {WeaponCategory.BastardSword, library.Get<BlueprintFeature>("57299a78b2256604dadf1ab9a42e2873") },
                     {WeaponCategory.DwarvenWaraxe, library.Get<BlueprintFeature>("bd0d7feca087d2247b12965c1467790c") },
                     {WeaponCategory.DuelingSword, library.Get<BlueprintFeature>("9c37279588fd9e34e9c4cb234857492c") },
                     {WeaponCategory.Estoc, library.Get<BlueprintFeature>("9dc64f0b9161a354c9471a631318e16c") }
                 };
-            }));
 
         }
 

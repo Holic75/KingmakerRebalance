@@ -3949,24 +3949,24 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
-        public class AttackBonusOnAttacksOfOpportunity : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        public class AttackBonusOnAttacksOfOpportunity : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
             public ContextValue Value;
             public ModifierDescriptor Descriptor;
             public WeaponCategory[] categories = new WeaponCategory[0];
 
-            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
-                if (!evt.IsAttackOfOpportunity)
+                if (!(evt.RuleAttackWithWeapon?.IsAttackOfOpportunity).GetValueOrDefault())
                     return;
                 if (!categories.Empty() && !categories.Contains(evt.Weapon.Blueprint.Category))
                 {
                     return;
                 }
-                evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(this.Value.Calculate(this.Fact.MaybeContext), (GameLogicComponent)this, this.Descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Value.Calculate(this.Fact.MaybeContext), (GameLogicComponent)this, this.Descriptor));
             }
 
-            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
             }
         }
@@ -6171,36 +6171,7 @@ namespace CallOfTheWild
         }
 
 
-        [AllowedOn(typeof(BlueprintParametrizedFeature))]
-        public class AddFeatureBasedOnWeaponCategory : ParametrizedFeatureComponent
-        {
-            public Dictionary<WeaponCategory, BlueprintFeature> category_feature_map;
-            [JsonProperty]
-            private Fact m_applied_fact = null;
 
-            public override void OnFactActivate()
-            {
-                if (this.Param.WeaponCategory.HasValue && category_feature_map.ContainsKey(this.Param.WeaponCategory.Value) 
-                    && !this.Owner.HasFact(category_feature_map[this.Param.WeaponCategory.Value]))
-                {
-                    m_applied_fact = this.Owner.AddFact(category_feature_map[this.Param.WeaponCategory.Value], null, null);
-                }
-            }
-
-            public override void OnFactDeactivate()
-            {
-                if (m_applied_fact != null)
-                {
-                    this.Owner.RemoveFact(m_applied_fact);
-                }
-            }
-
-            public override void PostLoad()
-            {
-                base.PostLoad();
-                this.OnFactActivate();
-            }
-        }
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]

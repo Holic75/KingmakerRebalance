@@ -1530,6 +1530,7 @@ namespace CallOfTheWild
 
             var deactivate_actions = component.Deactivated.Actions;
             component.Deactivated = Helpers.CreateActionList(deactivate_actions.RemoveFromArrayByType<Kingmaker.ElementsSystem.GameAction, Conditional>());
+            raging_song_effect_buff.ReplaceComponent<AddFactContextActions>(component);
 
             //clear everything
             raging_song_effect_buff.RemoveComponents<TemporaryHitPointsPerLevel>();
