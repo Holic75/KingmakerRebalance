@@ -231,6 +231,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.createAidAnother();
                     CallOfTheWild.Rebalance.fixFeyStalkerSummonBuff();
                     CallOfTheWild.Rebalance.fixBeltsOfPerfectComponents();
+                    CallOfTheWild.Rebalance.addMissingImmunities();
                     if (settings.secondary_rake_attacks)
                     {
                         Main.logger.Log("Applying -5 penalty to rake attacks.");
@@ -308,7 +309,7 @@ namespace CallOfTheWild
                     
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
-                    
+                    CallOfTheWild.SkillUnlocks.load();
 
                     CallOfTheWild.VersatilePerformance.create();
                     if (settings.advanced_fighter_options)

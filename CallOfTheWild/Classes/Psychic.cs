@@ -938,7 +938,8 @@ namespace CallOfTheWild
             //nature's command
             var buff = Helpers.CreateBuff("NaturesCommandBuff",
                                           "Nature’s Command",
-                                          "The Magaambyan telepath’s mind-affecting spells can affect even plant creatures. When she casts a mind-affecting spell, the Magaambyan telepath can spend 2 points from her phrenic pool to overcome a plant creature’s immunity to mind-affecting effects for the purposes of that spell. This ability functions even on mindless plant creatures.",
+                                          "The Magaambyan telepath’s mind-affecting spells can affect even plant creatures. When she casts a mind-affecting spell, the Magaambyan telepath can spend 2 points from her phrenic pool to overcome a plant creature’s immunity to mind-affecting effects for the purposes of that spell. This ability functions even on mindless plant creatures.\n"
+                                          + "At 11th-level she can treat plant creatures as if they understood her language for purpose of language-dependent spells or abilities.",
                                           "",
                                           Helpers.GetIcon("0fd00984a2c0e0a429cf1a911b4ec5ca"),
                                           null,
@@ -958,11 +959,13 @@ namespace CallOfTheWild
                                              );
             toggle.Group = ActivatableAbilityGroupExtension.PhrenicAmplification.ToActivatableAbilityGroup();
             natures_command =  Common.ActivatableAbilityToFeature(toggle, false);
+            natures_command.AddComponent(Helpers.CreateAddFeatureOnClassLevel(Common.plant_arcana_language_hidden, 11, getPsychicArray()));
+
 
             //primal spells
-            var drudi_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
+            var druid_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
            
-            var combined_spell_list = Common.combineSpellLists("MagaambyanTelepathPrimalMagicSpellList", drudi_spell_list);
+            var combined_spell_list = Common.combineSpellLists("MagaambyanTelepathPrimalMagicSpellList", druid_spell_list);
             Common.excludeSpellsFromList(combined_spell_list, psychic_class.Spellbook.SpellList);
 
             for (int i = 1; i <= 9; i++)
@@ -1531,7 +1534,7 @@ namespace CallOfTheWild
 
                 var buff = Helpers.CreateBuff(stat.ToString() + "RitualUnityBuff",
                                               "Ritual Unity: " + name,
-                                              "You can use aid another action to assist an ally with a skill check and succeed at a DC 20 check, you impart a +4 bonus to your ally until the end of the round. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
+                                              "You can use aid another action to assist an ally with a skill check. If you and succeed at a DC 20 skill check, you impart a +4 bonus to your ally until the end of the round. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
                                               + "You can use this ability a number of times per day equal to your Charisma modifier.",
                                               "",
                                               skill_foci[i].Icon,
@@ -1639,12 +1642,12 @@ namespace CallOfTheWild
                                     new BlueprintAbility[]
                                     {
                                                     library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
-                                                    library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0"), //aid
+                                                    NewSpells.silence,
                                                     library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
-                                                    library.Get<BlueprintAbility>("7792da00c85b9e042a0fdfc2b66ec9a8"), //break enchantment
-                                                    library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a"), //phantasmal web
+                                                    library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow_pattern
+                                                    NewSpells.command,
                                                     library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31"), //heroism greater
-                                                    library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
+                                                    NewSpells.hold_person_mass,
                                                     library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
                                                     library.Get<BlueprintAbility>("43740dab07286fe4aa00a6ee104ce7c1"), //heroic invocation
                                     },

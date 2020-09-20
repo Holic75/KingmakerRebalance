@@ -15,6 +15,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -114,6 +115,30 @@ namespace CallOfTheWild.SkillMechanics
                 ___m_D20 = selected_evt.D20;       
             }
             return false;
+        }
+    }
+
+
+    public class ContextSkillRanks : ContextCondition
+    {
+        public StatType skill;
+        public int value;
+        public bool check_caster;
+
+        protected override string GetConditionCaption()
+        {
+            return "Check raw skill value";
+        }
+
+        protected override bool CheckCondition()
+        {
+            UnitEntityData unit = this.check_caster ? this.Context.MaybeCaster : this.Target.Unit;
+            if (unit == null)
+            {
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+            return unit.Stats.GetStat<ModifiableValueSkill>(skill).BaseValue >= value;
         }
     }
 
@@ -295,6 +320,8 @@ namespace CallOfTheWild.SkillMechanics
         public ActionList Failure5 = Helpers.CreateActionList();
         public ActionList Failure10 = Helpers.CreateActionList();
         public ActionList Failure = Helpers.CreateActionList();
+        public ActionList Bypass5 = Helpers.CreateActionList();
+        public ActionList Bypass10 = Helpers.CreateActionList();
         public bool on_caster = false;
 
         public override void RunAction()
@@ -311,6 +338,14 @@ namespace CallOfTheWild.SkillMechanics
                 if (skill_check.IsPassed)
                 {
                     this.Success.Run();
+                    if (skill_check.IsSuccessRoll(skill_check.D20, -10))
+                    {
+                        this.Bypass10.Run();
+                    }
+                    else if (skill_check.IsSuccessRoll(skill_check.D20, -5))
+                    {
+                        this.Bypass5.Run();
+                    }
                 }
                 else if (!skill_check.IsSuccessRoll(skill_check.D20, 9))
                 {

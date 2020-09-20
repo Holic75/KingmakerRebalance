@@ -1,6 +1,8 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Blueprints.Root.Strings;
@@ -20,7 +22,13 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    
+    public class ExoticWeapons
+    {
+        public class FullProficiency : OwnedGameLogicComponent<UnitDescriptor>
+        {
+        }
+    }
+
     public class WeaponsFix
     {
 
@@ -39,6 +47,11 @@ namespace CallOfTheWild
                 }
                 return false;
             }
+
+            public bool hasBuff(Fact fact)
+            {
+                return buffs.Contains(fact);
+            }
         }
 
 
@@ -52,10 +65,22 @@ namespace CallOfTheWild
                 this.Owner.Ensure<UnitPartFullProficiency>().addBuff(this.Fact);
             }
 
+
             public override void OnFactDeactivate()
             {
                 this.Owner.Ensure<UnitPartFullProficiency>().removeBuff(this.Fact);
             }
+
+
+            public override void PostLoad()
+            {
+                base.PostLoad();
+                if (!this.Owner.Ensure<UnitPartFullProficiency>().hasBuff(this.Fact))
+                {
+                    this.OnFactActivate();
+                }
+            }
+
 
             public bool hasProficiency(WeaponCategory required_category)
             {
@@ -222,8 +247,19 @@ namespace CallOfTheWild
                 }
             }
 
+            //fix kensai choosen weapon to give proficiency
+            var kensai_choosen_weapon = library.Get<BlueprintParametrizedFeature>("c0b4ec0175e3ff940a45fc21f318a39a");
+            kensai_choosen_weapon.AddComponent(Helpers.Create<NewMechanics.AddFeatureBasedOnWeaponCategory>(a =>
+            {
+                a.category_feature_map = new Dictionary<WeaponCategory, BlueprintFeature>()
+                {
+                    {WeaponCategory.BastardSword, library.Get<BlueprintFeature>("57299a78b2256604dadf1ab9a42e2873") },
+                    {WeaponCategory.DwarvenWaraxe, library.Get<BlueprintFeature>("bd0d7feca087d2247b12965c1467790c") },
+                    {WeaponCategory.DuelingSword, library.Get<BlueprintFeature>("9c37279588fd9e34e9c4cb234857492c") },
+                    {WeaponCategory.Estoc, library.Get<BlueprintFeature>("9dc64f0b9161a354c9471a631318e16c") }
+                };
+            }));
 
-            
         }
 
 

@@ -16,7 +16,8 @@ namespace CallOfTheWild.AdditionalSpellDescriptors
         Water = 0x0010000000000000,
         Shadow20 = 0x0020000000000000,
         Shadow60 = 0x0040000000000000,
-        Shadow = Shadow20 | Shadow60
+        Shadow = Shadow20 | Shadow60,
+        LanguageDependent = 0x0100000000000000,
     }
 
 
@@ -38,6 +39,10 @@ namespace CallOfTheWild.AdditionalSpellDescriptors
             if (spellDescriptor.Intersects((SpellDescriptor)ExtraSpellDescriptor.Shadow))
             {
                 __result = maybeAddSeparator(__result) + "Shadow";
+            }
+            if (spellDescriptor.Intersects((SpellDescriptor)ExtraSpellDescriptor.LanguageDependent))
+            {
+                __result = maybeAddSeparator(__result) + "Language-Dependent";
             }
         }
 

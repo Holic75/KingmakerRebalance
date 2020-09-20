@@ -136,6 +136,8 @@ namespace CallOfTheWild
 
         static public BlueprintFeature vicious_stomp;
 
+        static public BlueprintFeature steadfast_personality;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -218,6 +220,29 @@ namespace CallOfTheWild
             createGreaterSpellSpecialization();
 
             createViciousStomp();
+            createSteadfastPersonality();
+        }
+
+
+        static void createSteadfastPersonality()
+        {
+            steadfast_personality = Helpers.CreateFeature("SteadfastPersonality",
+                                                          "Steadfast Personality",
+                                                          "Add your Charisma modifier instead of your Wisdom bonus on Will saves against mind-affecting effects. If you have a Wisdom penalty, you must apply both your Wisdom penalty and your Charisma modifier.",
+                                                          "",
+                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/SteadfastPersonality.png"),
+                                                          FeatureGroup.Feat,
+                                                          Helpers.Create<NewMechanics.ReplaceSaveStatForSpellDescriptor>(r =>
+                                                          {
+                                                              r.old_stat = StatType.Wisdom;
+                                                              r.new_stat = StatType.Charisma;
+                                                              r.keep_penalty = true;
+                                                              r.save_type = SavingThrowType.Will;
+                                                              r.spell_descriptor = SpellDescriptor.MindAffecting;
+                                                          })
+                                                          );
+
+            library.AddFeats(steadfast_personality);
         }
 
 
@@ -1625,40 +1650,8 @@ namespace CallOfTheWild
 
             var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(hurtful), Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>() },
                                                    Common.createContextActionApplyBuff(hurtful_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 3));
-            // no need to fix shatter confidence because by pnp it requires a swift action
-            var shatter_confidence = library.Get<BlueprintFeature>("51f5a63f1a0cb9047acdad77fc437312");
 
-            var displays = new ActionList[]{ library.Get<BlueprintAbility>("5f3126d4120b2b244a95cb2ec23d69fb").GetComponent<AbilityEffectRunAction>().Actions,
-                                                   library.Get<BlueprintAbility>("7d2233c3b7a0b984ba058a83b736e6ac").GetComponent<AbilityEffectRunAction>().Actions,
-                                                   (library.Get<BlueprintFeature>("ceea53555d83f2547ae5fc47e0399e14").GetComponent<AddInitiatorAttackWithWeaponTrigger>().Action.Actions[0] as Conditional).IfTrue ,
-                                                   /*(shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(0).Action.Actions[0] as Conditional).IfTrue,
-                                                   (shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(1).Action.Actions[0] as Conditional).IfTrue,
-                                                   (shatter_confidence.GetComponents<ManeuverTrigger>().ElementAt(2).Action.Actions[0] as Conditional).IfTrue,
-                                                   shatter_confidence.GetComponents<AddInitiatorAttackWithWeaponTrigger>().ElementAt(0).Action,
-                                                   (shatter_confidence.GetComponents<AddInitiatorAttackWithWeaponTrigger>().ElementAt(1).Action.Actions[0] as Conditional).IfTrue,*/
-                                                 };
-            //no need to fix dreadful carnage since it uses dazzling display
-            //no need to fix warpriest glory blessing demoralize since it will be automatically picked from cornugon smash
-            foreach (var display in displays)
-            {
-                var demoralize = (display.Actions[0] as Demoralize);
-
-                var new_demoralize = Helpers.Create<NewMechanics.DemoralizeWithAction>(d =>
-                {
-                    d.ShatterConfidenceBuff = demoralize.ShatterConfidenceBuff;
-                    d.ShatterConfidenceFeature = demoralize.ShatterConfidenceFeature;
-                    d.SwordlordProwessFeature = demoralize.SwordlordProwessFeature;
-                    d.DazzlingDisplay = demoralize.DazzlingDisplay;
-                    d.Buff = demoralize.Buff;
-                    d.GreaterBuff = demoralize.GreaterBuff;
-                    d.actions = Helpers.CreateActionList(action);
-                });
-
-                display.Actions[0] = new_demoralize;
-            }
-
-            var blistering_demoralize = NewSpells.blistering_invective.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as NewMechanics.ActionOnDemoralize;
-            blistering_demoralize.actions = Helpers.CreateActionList(action, blistering_demoralize.actions.Actions[0]);
+            hurtful.AddComponent(Helpers.Create<DemoralizeMechanics.RunActionsOnDemoralize>(r => r.actions = Helpers.CreateActionList(action)));
             hurtful.Groups = hurtful.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(hurtful);
         }

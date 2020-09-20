@@ -6171,8 +6171,106 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class AddFeatureBasedOnWeaponCategory : ParametrizedFeatureComponent
+        {
+            public Dictionary<WeaponCategory, BlueprintFeature> category_feature_map;
+            [JsonProperty]
+            private Fact m_applied_fact = null;
 
-        public class DemoralizeWithAction : ContextAction
+            public override void OnFactActivate()
+            {
+                if (this.Param.WeaponCategory.HasValue && category_feature_map.ContainsKey(this.Param.WeaponCategory.Value) 
+                    && !this.Owner.HasFact(category_feature_map[this.Param.WeaponCategory.Value]))
+                {
+                    m_applied_fact = this.Owner.AddFact(category_feature_map[this.Param.WeaponCategory.Value], null, null);
+                }
+            }
+
+            public override void OnFactDeactivate()
+            {
+                if (m_applied_fact != null)
+                {
+                    this.Owner.RemoveFact(m_applied_fact);
+                }
+            }
+
+            public override void PostLoad()
+            {
+                base.PostLoad();
+                this.OnFactActivate();
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReplaceSaveStatForSpellDescriptor : RuleInitiatorLogicComponent<RuleSavingThrow>
+        {
+            public StatType old_stat;
+            public StatType new_stat;
+            public SavingThrowType save_type;
+            public bool keep_penalty;
+            public SpellDescriptorWrapper spell_descriptor;
+
+            StatType getSaveStat()
+            {
+                if (save_type == SavingThrowType.Fortitude)
+                {
+                    return StatType.SaveFortitude;
+                }
+                if (save_type == SavingThrowType.Will)
+                {
+                    return StatType.SaveWill;
+                }
+                if (save_type == SavingThrowType.Reflex)
+                {
+                    return StatType.SaveReflex;
+                }
+
+                return StatType.SaveReflex;
+            }
+
+            public override void OnEventAboutToTrigger(RuleSavingThrow evt)
+            {
+                if (evt.Reason?.Context == null)
+                {
+                    return;
+                }
+
+                if ((evt.Reason.Context.SpellDescriptor & spell_descriptor) == 0)
+                {
+                    return;
+                }
+
+                if (evt.Type != save_type)
+                {
+                    return;
+                }
+
+                if (this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(getSaveStat()).BaseStat.Type != old_stat)
+                {
+                    return;
+                }
+
+                int bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+                int old_bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+                if (keep_penalty)
+                {
+                    old_bonus = Math.Max(old_bonus, 0);
+                }
+                bonus = bonus - old_bonus;
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.GetStat<ModifiableValueSavingThrow>(getSaveStat()).AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
+            }
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+
+            }
+        }
+
+
+        /*public class DemoralizeWithAction : ContextAction
         {
             public BlueprintBuff Buff;
             public BlueprintBuff GreaterBuff;
@@ -6251,9 +6349,9 @@ namespace CallOfTheWild
                     }
                 }
             }
-        }
+        }*/
 
-        public class ActionOnDemoralize : ContextAction
+        /*public class ActionOnDemoralize : ContextAction
         {
             public BlueprintBuff Buff;
             public BlueprintBuff GreaterBuff;
@@ -6296,7 +6394,7 @@ namespace CallOfTheWild
                     }
                 }
             }
-        }
+        }*/
 
         public class ConsumeMoveAction : ContextAction
         {
