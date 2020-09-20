@@ -739,6 +739,7 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("c4e5e6e8407f1774b97af4957364852c"),
                                           Helpers.Create<SpellFailureMechanics.Silence>(),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sonic | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
+                                          Helpers.Create<SuppressBuffs>(s =>  {s.Descriptor = SpellDescriptor.Sonic; }),
                                           Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                           );
             silence_buff.Stacking = StackingType.Stack;
