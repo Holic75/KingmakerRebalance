@@ -543,6 +543,7 @@ namespace CallOfTheWild.HealingMechanics
     {
         public ContextValue Value;
         public StatType[] stats_to_heal = new StatType[] {StatType.Strength, StatType.Dexterity, StatType.Constitution, StatType.Intelligence, StatType.Wisdom, StatType.Charisma };
+        public bool multiply_by_hd = true;
         public override string GetCaption()
         {
             return string.Format("Heal {0} of hit point damage", (object)this.Value);
@@ -559,8 +560,13 @@ namespace CallOfTheWild.HealingMechanics
             else
             {
                 int bonus = this.Value.Calculate(this.Context);
-                int hps = bonus * this.Target.Unit.Descriptor.Progression.CharacterLevel;
-                this.Context.TriggerRule<RuleHealDamage>(new RuleHealDamage(this.Context.MaybeCaster, this.Target.Unit, DiceFormula.Zero, bonus));
+                int hps = bonus;
+                if (multiply_by_hd)
+                {
+                    hps = bonus * this.Target.Unit.Descriptor.Progression.CharacterLevel;
+                }
+
+                this.Context.TriggerRule<RuleHealDamage>(new RuleHealDamage(this.Context.MaybeCaster, this.Target.Unit, DiceFormula.Zero, hps));
 
                 foreach (var s in stats_to_heal)
                 {

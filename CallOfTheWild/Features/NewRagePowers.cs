@@ -1081,8 +1081,7 @@ namespace CallOfTheWild
                             }
                             if (fact is BlueprintBuff && inner_buff_to_locate != null && !patched_buffs.Contains(fact))
                             {
-                                //WARNING will work only if there is one condition or all conditions are ored (which is the case for all barbarian and bloodrager buffs so far)
-                                Common.addToFactInContextConditionHasFact(fact, inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
+                                Common.replaceInFactInContextConditionHasFact(fact, inner_buff_to_locate, Common.createContextConditionCasterHasFact(inner_buff_to_add));
                                 patched_buffs.Add(fact);
                             }
                             new_a.ConditionsChecker.Conditions[j] = Common.createContextConditionCasterHasFact(fact, !condition_entry.Not);

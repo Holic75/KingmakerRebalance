@@ -81,7 +81,7 @@ namespace CallOfTheWild
             var abilities = Main.library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
             foreach (var a in abilities)
             {
-                a.AddComponent(Helpers.Create<SpellFailureMechanics.NonSilencedRestriciton>());
+                Common.addSpellDescriptor(a.Buff, SpellDescriptor.Sonic);
             }
         }
 

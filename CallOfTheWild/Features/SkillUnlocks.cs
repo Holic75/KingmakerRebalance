@@ -124,7 +124,7 @@ namespace CallOfTheWild
                                                         Helpers.Create<HealingMechanics.ContextActionTreatDeadlyWounds>(c => { c.Value = 1; c.stats_to_heal = new StatType[0]; })
                                                         );
 
-            var wis_heal_action = Helpers.Create<HealingMechanics.ContextActionTreatDeadlyWounds>(c => { c.Value = heal_wis_value; c.stats_to_heal = new StatType[0]; });
+            var wis_heal_action = Helpers.Create<HealingMechanics.ContextActionTreatDeadlyWounds>(c => { c.Value = heal_wis_value; c.stats_to_heal = new StatType[0]; c.multiply_by_hd = false; });
             var effect = Helpers.Create<SkillMechanics.ContextActionSkillCheckWithFailures>(c =>
             {
                 c.Stat = StatType.SkillLoreReligion;

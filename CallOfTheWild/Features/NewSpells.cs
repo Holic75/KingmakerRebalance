@@ -783,15 +783,16 @@ namespace CallOfTheWild
             Helpers.AddSpellAndScroll(silence, "1db86aaa479be6944abe90eaddb4afa2");//confusion
 
             var soothing_performance = library.Get<BlueprintAbility>("9b7fa6cadc0349449829873c63cc5b0b");
-            soothing_performance.AddComponent(Common.createAbilityCasterHasNoFacts(silence_buff));
+            Common.addSpellDescriptor(soothing_performance, SpellDescriptor.Sonic);
+
 
             var trollhound_howl = library.Get<BlueprintAbility>("78e79b09c2d724447a5c432e54ce4294");
-            trollhound_howl.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
-            trollhound_howl.AddComponent(Common.createAbilityCasterHasNoFacts(silence_buff));
+            Common.addSpellDescriptor(trollhound_howl, SpellDescriptor.Sonic);
+
 
             var croak = library.Get<BlueprintAbility>("d7ab3a110325b174e90ae6c7b4e96bb9");
-            croak.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
-            croak.AddComponent(Common.createAbilityCasterHasNoFacts(silence_buff));
+            Common.addSpellDescriptor(croak, SpellDescriptor.Sonic);
+
         }
 
 

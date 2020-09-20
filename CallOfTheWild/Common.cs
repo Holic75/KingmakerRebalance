@@ -2394,14 +2394,13 @@ namespace CallOfTheWild
         }
 
 
-        static public bool addToFactInContextConditionHasFact(BlueprintFact buff, BlueprintUnitFact inner_buff_to_locate = null,
-                                                       Condition condition_to_add = null)
+        static public void replaceInFactInContextConditionHasFact(BlueprintFact buff, BlueprintUnitFact inner_buff_to_replace = null,
+                                                       Condition condition_to_replace = null)
         {
-            bool added = false;
             var component = buff.GetComponent<AddFactContextActions>();
             if (component == null)
             {
-                return added;
+                return;
             }
 
             var action_lists = new ActionList[] { component.Activated, component.Deactivated, component.NewRound };
@@ -2420,11 +2419,9 @@ namespace CallOfTheWild
                             {
                                 var condition_entry = (ContextConditionHasFact)c_action.ConditionsChecker.Conditions[j];
                                 var fact = condition_entry.Fact;
-                                if (fact == inner_buff_to_locate)
+                                if (fact == inner_buff_to_replace)
                                 {
-                                    added = true;
-                                    c_action.ConditionsChecker.Conditions = c_action.ConditionsChecker.Conditions.AddToArray(condition_to_add);
-                                    c_action.ConditionsChecker.Operation = Kingmaker.ElementsSystem.Operation.Or;
+                                    c_action.ConditionsChecker.Conditions[j] = condition_to_replace.CreateCopy(c => c.Not = c_action.ConditionsChecker.Conditions[j].Not);
                                     activated_actions[i] = c_action;
                                     break;
                                 }
@@ -2433,7 +2430,7 @@ namespace CallOfTheWild
                     }
                 }
             }
-            return added;
+            return;
         }
 
 
@@ -3147,6 +3144,19 @@ namespace CallOfTheWild
             a.Value = value;
             a.Descriptor = descriptor;
             return a;
+        }
+
+        public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor)
+        {
+            var a = fact.GetComponent<SpellDescriptorComponent>();
+            if (a == null)
+            {
+                fact.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
+            }
+            else
+            {
+                a.Descriptor = a.Descriptor | descriptor;
+            }
         }
 
 
