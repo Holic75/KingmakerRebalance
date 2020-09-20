@@ -22,7 +22,13 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    
+    public class ExoticWeapons
+    {
+        public class FullProficiency : OwnedGameLogicComponent<UnitDescriptor>
+        {
+        }
+    }
+
     public class WeaponsFix
     {
 
