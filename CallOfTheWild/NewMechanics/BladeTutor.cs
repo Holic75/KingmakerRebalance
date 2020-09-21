@@ -73,7 +73,7 @@ namespace CallOfTheWild.BladeTutor
             Main.library.Get<BlueprintBuff>("e81cd772a7311554090e413ea28ceea1"), //combat expertise - stat
             Main.library.Get<BlueprintBuff>("6ffd93355fb3bcf4592a5d976b1d32a9"), //fight defensively - stat
             //add same from stalwart
-            Main.library.Get<BlueprintFeature>("6948b379c0562714d9f6d58ccbfa8faa"), //rule
+            Main.library.Get<BlueprintFeature>("6948b379c0562714d9f6d58ccbfa8faa"), //twf - rule
         };
 
         internal static bool Prefix(RuleCalculateAttackBonusWithoutTarget __instance, RulebookEventContext context)
