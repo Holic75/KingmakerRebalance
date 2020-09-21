@@ -238,6 +238,7 @@
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditionalSpellDescriptors.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
+    <Compile Include="NewMechanics\AffectedBySpellMechanics.cs" />
     <Compile Include="NewMechanics\AoeMechanics.cs" />
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />

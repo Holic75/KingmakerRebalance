@@ -291,6 +291,10 @@ namespace CallOfTheWild
                     {WeaponCategory.Estoc, library.Get<BlueprintFeature>("9dc64f0b9161a354c9471a631318e16c") }
                 };
 
+
+            //fix units
+            var hendrick_bandit = library.Get<BlueprintUnit>("5d7122078d52ec34aa5cc34df345ed51");
+            hendrick_bandit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("0ce4b3f4a3d70fa45851313a7f3d233f"); //battle axe +1 instead of bastard sword +1 since he does not have proficiency
         }
 
 

@@ -1534,7 +1534,7 @@ namespace CallOfTheWild
 
                 var buff = Helpers.CreateBuff(stat.ToString() + "RitualUnityBuff",
                                               "Ritual Unity: " + name,
-                                              "You can use aid another action to assist an ally with a skill check. If you and succeed at a DC 20 skill check, you impart a +4 bonus to your ally on his next skill check. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
+                                              "You can use aid another action to assist an ally with a skill check. If you succeed at a DC 20 skill check, you impart a +4 bonus to your ally on his next skill check. When you successfully aid an ally in this way, you regain 1 point in your phrenic pool.\n"
                                               + "You can use this ability a number of times per day equal to your Charisma modifier.",
                                               "",
                                               skill_foci[i].Icon,
