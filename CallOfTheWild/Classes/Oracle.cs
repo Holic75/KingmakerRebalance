@@ -1349,9 +1349,9 @@ namespace CallOfTheWild
                                                           null,
                                                           FeatureGroup.None);
 
-            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
+            var extend = Common.CreateMetamagicAbility(final_revelation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
             extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
+            var reach = Common.CreateMetamagicAbility(final_revelation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air, "", "", library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon);
             reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
             final_revelation.AddComponent(Helpers.CreateAddFacts(extend, reach));
 

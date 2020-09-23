@@ -3716,6 +3716,7 @@ namespace CallOfTheWild
                                               Helpers.CreateRunActions(apply_buff),
                                               Helpers.CreateContextRankConfig(),
                                               Helpers.Create<SharedSpells.CannotBeShared>(),
+                                              Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air),
                                               Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                               Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.ClickedTarget)
                                               );
@@ -3744,7 +3745,8 @@ namespace CallOfTheWild
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
                                           Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground),
                                           Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
-                                          Helpers.CreateAddFact(FixFlying.pit_spell_immunity)
+                                          Helpers.CreateAddFact(FixFlying.pit_spell_immunity),
+                                          Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes), is_from_spell: true);
@@ -3761,7 +3763,8 @@ namespace CallOfTheWild
                                         Helpers.CreateRunActions(apply_buff),
                                         spawn_fx,
                                         Helpers.CreateContextRankConfig(),
-                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                        Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
                                         );
             air_walk.setMiscAbilityParametersTouchFriendly();
             air_walk.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
@@ -3789,7 +3792,8 @@ namespace CallOfTheWild
                                         Helpers.CreateContextRankConfig(),
                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                         Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
-                                        Helpers.Create<SharedSpells.CannotBeShared>()
+                                        Helpers.Create<SharedSpells.CannotBeShared>(),
+                                        Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
                                         );
             air_walk_communal.setMiscAbilityParametersSelfOnly();
             air_walk_communal.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;

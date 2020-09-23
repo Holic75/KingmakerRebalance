@@ -160,16 +160,10 @@ namespace CallOfTheWild
 
             foreach (var ws in water_spells)
             {
-                var comp = ws.GetComponent<SpellDescriptorComponent>();
-                if (comp == null)
-                {
-                    ws.AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water));
-                }
-                else
-                {
-                    comp.Descriptor = comp.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water;
-                }
+                Common.addSpellDescriptor(ws, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water);
             }
+            var tsunami_area = library.Get<BlueprintAbilityAreaEffect>("800daf41c11463742ad24efd71ab1916");
+            Common.addSpellDescriptor(tsunami_area, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water);
 
 
             //add descriptor text to spells 
@@ -182,6 +176,22 @@ namespace CallOfTheWild
             sirocco.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air);
             var sirocco_area = library.Get<BlueprintAbilityAreaEffect>("b21bc337e2beaa74b8823570cd45d6dd");
             sirocco_area.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air);
+
+            //earth spells
+            var earth_spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("bacba2ff48d498b46b86384053945e83"), //cave fangs
+                library.Get<BlueprintAbility>("e48638596c955a74c8a32dbc90b518c1"), //obsidian flow
+                library.Get<BlueprintAbility>("7d700cdf260d36e48bb7af3a8ca5031f"), //tar pool
+                library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //clashing rocks
+                library.Get<BlueprintAbility>("01300baad090d634cb1a1b2defe068d6"), //stone call
+            };
+            earth_spells = earth_spells.AddToArray(library.Get<BlueprintAbility>("bacba2ff48d498b46b86384053945e83").Variants);
+            foreach (var es in earth_spells)
+            {
+                Common.addSpellDescriptor(es, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth);
+            }
+
         }
 
         internal static void fixFeyStalkerSummonBuff()

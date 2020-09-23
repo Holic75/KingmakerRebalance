@@ -331,9 +331,9 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Acid));
 
-                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Acid)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Acid, "", "");
+                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Acid)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Acid | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth, "", "");
                 extend.Group = ActivatableAbilityGroupExtension.ShamanStoneMetamagic.ToActivatableAbilityGroup();
-                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Acid)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Acid, "", "");
+                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Acid)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Acid | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth, "", "");
                 reach.Group = ActivatableAbilityGroupExtension.ShamanStoneMetamagic.ToActivatableAbilityGroup();
                 manifestation.AddComponent(Helpers.CreateAddFacts(extend, reach));
             }
