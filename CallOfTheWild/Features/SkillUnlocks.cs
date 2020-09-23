@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild
 {
-    class SkillUnlocks
+    public class SkillUnlocks
     {
         static public Kingmaker.Blueprints.LibraryScriptableObject library => Main.library;
         

@@ -199,8 +199,8 @@ namespace CallOfTheWild
             bloodrage_buff.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = eldritch_scion_buff));
 
             
-            ClassToProgression.addClassToFact(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, eldritch_scion_buff);
-            ClassToProgression.addClassToDomains(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NormalList, bloodline_selection);
+            ClassToProgression.addClassToFact(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, eldritch_scion_buff, bloodrager_class);
+            ClassToProgression.addClassToDomains(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NormalList, bloodline_selection, bloodrager_class);
 
             var eldritch_resource = library.Get<BlueprintAbilityResource>("17b6158d363e4844fa073483eb2655f8");
 
@@ -307,7 +307,7 @@ namespace CallOfTheWild
                                        Common.createPrerequisiteArchetypeLevel(eldritch_scion_bloodrager, 1));
 
             var dd_breath = library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3");
-            ClassToProgression.addClassToFeat(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, dd_breath);
+            ClassToProgression.addClassToFeat(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, dd_breath, bloodrager_class);
         }
 
 

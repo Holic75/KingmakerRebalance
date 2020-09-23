@@ -2285,7 +2285,8 @@ namespace CallOfTheWild
                                                                          customProgression: new (int, int)[] { (4, 1), (12, 2), (20, 3) }
                                                                          ),
                                          bleed1d6.GetComponent<CombatStateTrigger>(),
-                                         bleed1d6.GetComponent<AddHealTrigger>()
+                                         bleed1d6.GetComponent<AddHealTrigger>(),
+                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Bleed)
                                          );
 
             var spend_resource = Helpers.CreateConditional(Helpers.Create<ResourceMechanics.ContextConditionTargetHasEnoughResource>(c => c.resource = resource),

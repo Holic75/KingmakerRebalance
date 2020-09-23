@@ -176,6 +176,12 @@ namespace CallOfTheWild
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetSpellDescriptor");
             var patch = Harmony12.AccessTools.Method(typeof(AdditionalSpellDescriptors.UIUtilityTexts_GetSpellDescriptor_Patch), "Postfix");
             Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
+
+            
+            var sirocco = library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c");
+            sirocco.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air);
+            var sirocco_area = library.Get<BlueprintAbilityAreaEffect>("b21bc337e2beaa74b8823570cd45d6dd");
+            sirocco_area.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air);
         }
 
         internal static void fixFeyStalkerSummonBuff()

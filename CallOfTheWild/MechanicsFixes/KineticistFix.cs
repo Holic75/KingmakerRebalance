@@ -92,6 +92,7 @@ namespace CallOfTheWild
                 }
             }
 
+            fixDescriptors();
             //addWhirlwindInfusionToKineticistSelection();
             restoreKineticKnightinfusions();
             whirlwind_infusion.HideInUI = false;
@@ -109,6 +110,35 @@ namespace CallOfTheWild
             createSparkOfLife();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
+        }
+
+
+        static void fixDescriptors()
+        {
+            var blast_descriptor_map = new Dictionary<BlueprintAbility, SpellDescriptor>
+            {
+                {library.Get<BlueprintAbility>("d663a8d40be1e57478f34d6477a67270"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water }, //water blast
+                {library.Get<BlueprintAbility>("4e2e066dd4dc8de4d8281ed5b3f4acb6"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water | SpellDescriptor.Electricity }, //charged water
+                {library.Get<BlueprintAbility>("7980e876b0749fc47ac49b9552e259c1"), SpellDescriptor.Cold }, //cold blast
+                {library.Get<BlueprintAbility>("3baf01649a92ae640927b0f633db7c11"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water | SpellDescriptor.Fire }, //steam blast
+                {library.Get<BlueprintAbility>("b93e1f0540a4fa3478a6b47ae3816f32"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth |  (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air}, //sandstorm
+                {library.Get<BlueprintAbility>("9afdc3eeca49c594aa7bf00e8e9803ac"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air | SpellDescriptor.Fire }, //plasma
+                {library.Get<BlueprintAbility>("e2610c88664e07343b4f3fb6336f210c"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth }, //mud
+                {library.Get<BlueprintAbility>("8c25f52fce5113a4491229fd1265fc3c"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth | SpellDescriptor.Fire }, //magma blast
+                {library.Get<BlueprintAbility>("403bcf42f08ca70498432cf62abee434"), SpellDescriptor.Cold | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water}, //ice blast
+                {library.Get<BlueprintAbility>("16617b8c20688e4438a803effeeee8a6"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Water | SpellDescriptor.Cold }, //blizzard blast
+                {library.Get<BlueprintAbility>("0ab1552e2ebdacf44bb7b20f5393366d"), (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air }, //air blast
+            };
+
+            foreach (var kv in blast_descriptor_map)
+            {
+                Common.replaceSpellDescriptor(kv.Key, kv.Value);
+
+                foreach (var v in kv.Key.Variants)
+                {
+                    Common.replaceSpellDescriptor(v, kv.Value);
+                }
+            }
         }
 
         static void fixKineticistAbilitiesToBeSpelllike()

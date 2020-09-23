@@ -154,7 +154,7 @@ namespace CallOfTheWild.ShadowSpells
         //check damage
         [Harmony12.HarmonyPatch(typeof(RuleDealDamage))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-        class Patch_RuleDealDamage_DealDamage_Prefix
+        class Patch_RuleDealDamage_OnTrigger_Prefix
         {
             static public bool Prefix(RuleDealDamage __instance, RulebookEventContext context)
             {
@@ -188,7 +188,7 @@ namespace CallOfTheWild.ShadowSpells
         //check if buffs will be applied
         [Harmony12.HarmonyPatch(typeof(RuleApplyBuff))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-        class Patch_RuleDealDamage_RuleApplyBuff_Prefix
+        class Patch_RuleApplyBuff_OnTrigger_Prefix
         {
             static public bool Prefix(RuleApplyBuff __instance, RulebookEventContext context)
             {
@@ -198,7 +198,7 @@ namespace CallOfTheWild.ShadowSpells
                     return true;
                 }
 
-                if (__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
+                if (!__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
                 {
                     return true;
                 }

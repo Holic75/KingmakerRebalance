@@ -154,7 +154,7 @@ namespace CallOfTheWild
                     var class_archetypes = archetypes_list.Where(a => a.GetParentClass() == c.CharacterClass).ToArray();
                     if (class_archetypes.Empty())
                     {
-                        __result = Math.Max(c.Level, __result);
+                        __result += c.Level;
                     }
                     else
                     {
@@ -162,7 +162,7 @@ namespace CallOfTheWild
                         {
                             if (class_archetypes.Contains(a))
                             {
-                                __result = Math.Max(c.Level, __result);
+                                __result += c.Level;
                                 break;
                             }
                         }

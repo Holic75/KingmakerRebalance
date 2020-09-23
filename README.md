@@ -230,7 +230,8 @@ New Rogue Talents:
 - Minor Magic,
 - Major Magic,
 - Feat,
-- Bleeding Attack.
+- Bleeding Attack,
+- Slippery Mind.
 
 
 New Slayer Talents:

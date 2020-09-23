@@ -9441,18 +9441,24 @@ namespace CallOfTheWild
         public class SecondRollToRemoveBuffAfterOneRound : RuleInitiatorLogicComponent<RuleApplyBuff>
         {
             public SpellDescriptorWrapper spell_descriptor;
+            public SpellSchool school = SpellSchool.None;
+            public SavingThrowType save_type;
 
             private RuleSavingThrow last_saving_throw = null;
             private bool passed = false;
             public override void OnEventAboutToTrigger(RuleApplyBuff evt)
             {
-                if (evt.Context == null || !evt.Context.SpellDescriptor.Intersects(spell_descriptor))
+                if (evt.Context == null 
+                    || (spell_descriptor != SpellDescriptor.None && !evt.Context.SpellDescriptor.Intersects(spell_descriptor))
+                    || (school != SpellSchool.None && evt.Context.SpellSchool != school)
+                    )
                 {
                     return;
                 }
 
                 var saving_throw = evt.Context.SavingThrow;
-                if (saving_throw == null || saving_throw.IsPassed)
+                if (saving_throw == null || saving_throw.IsPassed 
+                    || (save_type != SavingThrowType.Unknown && saving_throw.Type != save_type))
                 {
                     return;
                 }
