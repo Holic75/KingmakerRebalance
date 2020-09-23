@@ -321,15 +321,15 @@ namespace CallOfTheWild
             {
                 manifestation = Helpers.CreateFeature(prefix + "WindManifestationFeature",
                                                       "Manifestation",
-                                                      "Upon reaching 20th level, the shaman becomes a spirit of air. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
+                                                      "Upon reaching 20th level, the shaman becomes a spirit of air. The shaman gains electricity resistance 30. She can also apply any one of the following feats to any air or electricity spell she casts without increasing the spell’s level or casting time: Reach Spell, Extend Spell. She doesn’t need to possess these feats to use this ability.",
                                                       "",
                                                       library.Get<BlueprintProgression>("cd788df497c6f10439c7025e87864ee4").Icon, //electric wall
                                                       FeatureGroup.None,
                                                       Common.createEnergyDR(30, DamageEnergyType.Electricity));
 
-                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity, "", "");
+                var extend = Common.CreateMetamagicAbility(manifestation, "Extend", "Extend Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Extend, SpellDescriptor.Electricity | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air, "", "");
                 extend.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
-                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity, "", "");
+                var reach = Common.CreateMetamagicAbility(manifestation, "Reach", "Reach Spell (Electricity)", Kingmaker.UnitLogic.Abilities.Metamagic.Reach, SpellDescriptor.Electricity | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air, "", "");
                 reach.Group = ActivatableAbilityGroupExtension.ShamanFlamesMetamagic.ToActivatableAbilityGroup();
                 manifestation.AddComponent(Helpers.CreateAddFacts(extend, reach));
             }

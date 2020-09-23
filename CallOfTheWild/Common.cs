@@ -3148,6 +3148,31 @@ namespace CallOfTheWild
 
         public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor)
         {
+            var a = fact?.GetComponent<SpellDescriptorComponent>();
+            if (a == null)
+            {
+                fact.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
+            }
+            else
+            {
+                a.Descriptor = a.Descriptor | descriptor;
+            }
+
+            var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
+            if (actions == null)
+            {
+                return;
+            }
+
+            foreach (var ac in actions.OfType<ContextActionSpawnAreaEffect>())
+            {
+                addSpellDescriptor(ac.AreaEffect, descriptor);
+            }
+        }
+
+
+        public static void addSpellDescriptor(BlueprintAbilityAreaEffect fact, SpellDescriptor descriptor)
+        {
             var a = fact.GetComponent<SpellDescriptorComponent>();
             if (a == null)
             {
