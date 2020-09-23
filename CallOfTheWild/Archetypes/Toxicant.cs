@@ -143,7 +143,7 @@ namespace CallOfTheWild.Archetypes
             medical_discovery.AllFeatures = medical_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison, concentrate_poison);
 
             var dispelling_attack = library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c");
-            ClassToProgression.addClassToFeat(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.NoSpells, dispelling_attack);
+            ClassToProgression.addClassToFeat(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.NoSpells, dispelling_attack, archetype.GetParentClass());
 
             var greater_mutagen = library.Get<BlueprintFeature>("76c61966afdd82048911f3d63c6fe0bc");
             var cognatogen = library.Get<BlueprintFeature>("e3f460ea61fcc504183c7d6818bbbf7a");

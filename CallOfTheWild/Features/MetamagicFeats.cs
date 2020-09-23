@@ -569,6 +569,11 @@ namespace CallOfTheWild
 
             var acid_spray_buff = library.Get<BlueprintBuff>("ab9cfc0c9411e6441b738dcf5a3567ee");
             Helpers.SetField(acid_spray_buff.GetComponent<ContextRankConfig>(), "m_Feature", intensified_metamagic);
+
+            var blade_barrier = library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74");
+            blade_barrier.AvailableMetamagic = blade_barrier.AvailableMetamagic | (Metamagic)MetamagicExtender.IntensifiedGeneral;
+            var blade_barrier_area = library.Get<BlueprintAbilityAreaEffect>("cae4347a512809e4388fb3949dc0bc67");
+            Helpers.SetField(blade_barrier_area.GetComponent<ContextRankConfig>(), "m_Feature", intensified_metamagic);
         }
 
 

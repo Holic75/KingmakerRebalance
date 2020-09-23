@@ -515,6 +515,7 @@ namespace CallOfTheWild
 
         static void createSchoolSavant()
         {
+            var wizard_class = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
             school_savant_archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "SchoolSavantArchetype";
@@ -528,12 +529,12 @@ namespace CallOfTheWild
             school_focus.SetNameDescription("School Focus",
                                             "At 1st level, a school savant chooses a school of magic. The arcanist gains the abilities granted by that school, as the arcane school class feature of the wizard, treating her arcanist level as her wizard level for these abilities. She can also further specialize by selecting a subschool. In addition, the arcanist can prepare one additional spell per day of each level she can cast, but this spell must be chosen from the selected school.\n"
                                             + "Finally, the arcanist must select two additional schools of magic as her opposition schools. Whenever she prepares spells from one of her opposition schools, the spell takes up two of her prepared spell slots. ");
-            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.SpecialList, school_focus);
+            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.SpecialList, school_focus, wizard_class);
 
             school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits) };
             school_savant_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_focus) };
 
-            var wizard_class = library.Get<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
+            
             arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = wizard_class));
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(school_focus);
             wizard_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
@@ -542,6 +543,7 @@ namespace CallOfTheWild
 
         static void createBloodArcanist()
         {
+            var sorcerer_class = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
             blood_arcanist_archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "BloodArcanistArchetype";
@@ -556,7 +558,7 @@ namespace CallOfTheWild
 
             bloodline_selection.SetNameDescription("Bloodline",
                                             "A blood arcanist selects one bloodline from those available through the sorcerer bloodline class feature. The blood arcanist gains the bloodline arcana and bloodline powers of that bloodline, treating her arcanist level as her sorcerer level. The blood arcanist does not gain bonus feats, or bonus spells from her bloodline.");
-            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[] { blood_arcanist_archetype }, ClassToProgression.DomainSpellsType.NoSpells, bloodline_selection);
+            ClassToProgression.addClassToDomains(arcanist_class, new BlueprintArchetype[] { blood_arcanist_archetype }, ClassToProgression.DomainSpellsType.NoSpells, bloodline_selection, sorcerer_class);
 
             foreach (var b in bloodline_selection.AllFeatures)
             {
@@ -579,7 +581,7 @@ namespace CallOfTheWild
             blood_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(bloodline_selection);
 
-            var sorcerer_class = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            
             var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
             arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = sorcerer_class));
             sorcerer_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));

@@ -133,9 +133,10 @@ namespace CallOfTheWild.Archetypes
         {
             paladin_deity = library.Get<BlueprintFeatureSelection>("a7c8b73528d34c2479b4bd638503da1d");
             paladin_deity.Group = FeatureGroup.Deities;
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var cleric_domain = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             domain_selection = library.CopyAndAdd(cleric_domain, "SacredServantDomainSelection", "");
-            ClassToProgression.addClassToDomains(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection);
+            ClassToProgression.addClassToDomains(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection, cleric);
             domain_selection.SetDescription("Sacred Servant chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of paladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
             archetype.GetParentClass().Spellbook.CantripsType = CantripsType.Orisions; //to properly show domain slots
         }

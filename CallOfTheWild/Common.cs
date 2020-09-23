@@ -3160,6 +3160,20 @@ namespace CallOfTheWild
         }
 
 
+        public static void replaceSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor)
+        {
+            var a = fact.GetComponent<SpellDescriptorComponent>();
+            if (a == null)
+            {
+                fact.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
+            }
+            else
+            {
+                a.Descriptor = descriptor;
+            }
+        }
+
+
         public static ACBonusAgainstAttacks createACBonussOnAttacksOfOpportunity(ContextValue value, ModifierDescriptor descriptor)
         {
             var a = Helpers.Create<ACBonusAgainstAttacks>();

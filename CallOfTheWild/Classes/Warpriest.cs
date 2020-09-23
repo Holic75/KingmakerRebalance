@@ -4711,7 +4711,7 @@ namespace CallOfTheWild
             //fix scaling
             foreach (var s in Wildshape.animal_wildshapes)
             {
-                ClassToProgression.addClassToAbility(warpriest_class, new BlueprintArchetype[] { feral_champion }, s);
+                ClassToProgression.addClassToAbility(warpriest_class, new BlueprintArchetype[] { feral_champion }, s, druid);
                 /*s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
                                                                                        classes: new BlueprintCharacterClass[] { druid, warpriest_class },
                                                                                        archetype: feral_champion)

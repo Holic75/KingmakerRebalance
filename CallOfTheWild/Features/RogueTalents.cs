@@ -51,7 +51,7 @@ namespace CallOfTheWild
         static public BlueprintFeature armored_marudeur;
         static public BlueprintFeature armored_swiftness;
         static public BlueprintFeature reaping_stalker;
-
+        static public BlueprintFeature slippery_mind;
 
         static internal bool test_mode = false;
         static LibraryScriptableObject library => Main.library;
@@ -76,11 +76,29 @@ namespace CallOfTheWild
             createArmoredMaraudeur();
             createArmoredSwiftness();
             createReapingStalker();
+            createSlipperyMind();
 
             fixRogueSneakAttackTalents();
             fixSlayerTrapfindingScaling();
         }
 
+        static void createSlipperyMind()
+        {
+            slippery_mind = Helpers.CreateFeature("SlipperyMindRogueTalentFeature",
+                                       "Slippery Mind",
+                                       "This ability represents the rogue’s ability to wriggle free from magical effects that would otherwise control or compel her. If a rogue with slippery mind is affected by an enchantment spell or effect and fails her saving throw, she can attempt it again 1 round later at the same DC. She gets only this one extra chance to succeed on her saving throw.",
+                                       "",
+                                       Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),//mind fog
+                                       FeatureGroup.RogueTalent,
+                                       Helpers.Create<NewMechanics.SecondRollToRemoveBuffAfterOneRound>(m =>
+                                                                                                       {
+                                                                                                           m.school = SpellSchool.Enchantment;
+                                                                                                           m.save_type = SavingThrowType.Will;
+                                                                                                       }
+                                                                                                       )
+                                       );
+            addToTalentSelection(slippery_mind, advanced: true);
+        }
 
         static void fixSlayerTrapfindingScaling()
         {
@@ -402,10 +420,8 @@ namespace CallOfTheWild
 
             feat = library.CopyAndAdd<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45", "RogueTalentFeat", "");
             feat.SetDescription(" A rogue can gain any feat that she qualifies for in place of a rogue talent.");
-            feat.AddComponents(Helpers.PrerequisiteNoFeature(feat),
-                               Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c"))
-                               );
-            addToTalentSelection(feat);
+            feat.AddComponents(Helpers.PrerequisiteNoFeature(feat));
+            addToTalentSelection(feat, advanced: true);
         }
 
 

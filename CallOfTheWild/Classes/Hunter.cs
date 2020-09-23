@@ -332,7 +332,7 @@ namespace CallOfTheWild
             //fix scaling
             foreach (var s in Wildshape.animal_wildshapes)
             {
-                ClassToProgression.addClassToAbility(hunter_class, new BlueprintArchetype[] { feral_hunter }, s);
+                ClassToProgression.addClassToAbility(hunter_class, new BlueprintArchetype[] { feral_hunter }, s, druid);
                 /*s.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
                                                                                        classes: new BlueprintCharacterClass[] { druid, warpriest_class },
                                                                                        archetype: feral_champion)
@@ -695,6 +695,7 @@ namespace CallOfTheWild
 
         static void createDivineHunterArchetype()
         {
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             //Since it is a bit tricky to provide favored terran damage bonuses as per RAW
             //I decided to replace this feature with 4 favored enemies at levels 6, 10, 14 and 18 (with rank increases).
             divine_hunter_archetype = Helpers.Create<BlueprintArchetype>(a =>
@@ -719,7 +720,7 @@ namespace CallOfTheWild
             var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             //add divine_hunter to all domains
             //this will make hunter receive all domain bonuses starting from level 1 which will be a bit stronger than pnp version, but way simpler to implement
-            ClassToProgression.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, ClassToProgression.DomainSpellsType.NormalList, domain_selection);
+            ClassToProgression.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, ClassToProgression.DomainSpellsType.NormalList, domain_selection, cleric);
             createOtherWordlyCompanion();
 
             divine_hunter_archetype.ClassSkills = hunter_class.ClassSkills.AddToArray(StatType.SkillLoreReligion);

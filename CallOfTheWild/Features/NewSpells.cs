@@ -1022,7 +1022,7 @@ namespace CallOfTheWild
                                                                                        position_anchor: AbilitySpawnFxAnchor.None
                                                                                        ),
                                                       Helpers.Create<SharedSpells.CannotBeShared>(),
-                                                      Helpers.CreateContextRankConfig(max: 20)
+                                                      Helpers.CreateContextRankConfig(max: 20, feature: MetamagicFeats.intensified_metamagic)
                                                       );
             telekinetic_storm.setMiscAbilityParametersSelfOnly();
             telekinetic_storm.SpellResistance = true;
@@ -1297,7 +1297,7 @@ namespace CallOfTheWild
                                                 );
             pain_strike.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             pain_strike.SpellResistance = true;
-            pain_strike.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
+            pain_strike.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
             pain_strike_mass = library.CopyAndAdd(pain_strike, "PainStrikeMassAbility", "");
             pain_strike_mass.SetNameDescription("Pain Strike, Mass",
                                                 "This spell works like pain strike, except as noted above.\n" + pain_strike.Name + ": " + pain_strike.Description);
@@ -1451,7 +1451,7 @@ namespace CallOfTheWild
                                                      );
             psychic_crush[0].SpellResistance = true;
             psychic_crush[0].setMiscAbilityParametersSingleTargetRangedHarmful(true);
-            psychic_crush[0].AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            psychic_crush[0].AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             var dmg2 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 5, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect2 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
@@ -1649,6 +1649,7 @@ namespace CallOfTheWild
                                                                                                                         }
                                                                                                     )
                                                                             ),
+                                                    Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                     Helpers.Create<SharedSpells.CannotBeShared>(),
@@ -1691,7 +1692,7 @@ namespace CallOfTheWild
                                                              Helpers.CreateSpellComponent(SpellSchool.Divination),
                                                              Helpers.CreateDeliverTouch(),
                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
-                                                             Helpers.CreateContextRankConfig(max: 15)
+                                                             Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic)
                                                              );
             synapse_overload_touch.setMiscAbilityParametersTouchHarmful();
             synapse_overload_touch.SpellResistance = true;
@@ -2386,7 +2387,7 @@ namespace CallOfTheWild
                                                    Helpers.CreateRunActions(SavingThrowType.Will,
                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                             ),
-                                                   Helpers.CreateContextRankConfig(max: 5),
+                                                   Helpers.CreateContextRankConfig(max: 5, feature: MetamagicFeats.intensified_metamagic),
                                                    Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -2411,7 +2412,7 @@ namespace CallOfTheWild
                                        Helpers.CreateRunActions(SavingThrowType.Will,
                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                 ),
-                                       Helpers.CreateContextRankConfig(max: 5),
+                                       Helpers.CreateContextRankConfig(max: 5, feature: MetamagicFeats.intensified_metamagic),
                                        Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                        Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -2435,7 +2436,7 @@ namespace CallOfTheWild
                            Helpers.CreateRunActions(SavingThrowType.Will,
                                                     Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                     ),
-                           Helpers.CreateContextRankConfig(max: 10),
+                           Helpers.CreateContextRankConfig(max: 10, feature: MetamagicFeats.intensified_metamagic),
                            Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                            Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -2460,7 +2461,7 @@ namespace CallOfTheWild
                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                                             Helpers.CreateConditionalSaved(null, apply_fatigued)                                                                            
                                                                             ),
-                                                   Helpers.CreateContextRankConfig(max: 15),
+                                                   Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
                                                    Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -2485,7 +2486,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                                 Helpers.CreateConditionalSaved(apply_fatigued, apply_exhausted)
                                                                 ),
-                                       Helpers.CreateContextRankConfig(max: 15),
+                                       Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
                                        Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                                        Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -2510,7 +2511,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                     Helpers.CreateConditionalSaved(new GameAction[] { apply_fatigued }, new GameAction[] { apply_stunned, apply_exhausted })
                                                     ),
-                           Helpers.CreateContextRankConfig(max: 20),
+                           Helpers.CreateContextRankConfig(max: 20, feature: MetamagicFeats.intensified_metamagic),
                            Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
                            Helpers.CreateSpellComponent(SpellSchool.Divination),
@@ -3354,6 +3355,7 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.CreateRunActions(spawn_area),
                                                      Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation)
                                                      );
 
@@ -3379,6 +3381,7 @@ namespace CallOfTheWild
                                          Helpers.savingThrowNone,
                                          Helpers.CreateRunActions(spawn_area),
                                          Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                         Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                          Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                          Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
                                          );
@@ -5999,16 +6002,15 @@ namespace CallOfTheWild
 
         static void createRiverOfWind()
         {
-            var air_subtype = library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775");
 
             var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 4), true, true);
             var dmg2 = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2), true, true);
             var saved = Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKnockdownTarget>());
-            var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(air_subtype),
+            var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(immunity_to_wind),
                                                    null,
                                                    Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg, saved))
                                                    );
-            var effect2 = Helpers.CreateConditional(Helpers.CreateConditionHasFact(air_subtype),
+            var effect2 = Helpers.CreateConditional(Helpers.CreateConditionHasFact(immunity_to_wind),
                                                    null,
                                                    Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg2, saved))
                                                    );
@@ -6033,7 +6035,7 @@ namespace CallOfTheWild
                                                                            ),
                                                   Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                   Helpers.CreateContextRankConfig(),
-                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.MovementImpairing)
+                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.MovementImpairing | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
                                                   );
             river_of_wind.setMiscAbilityParametersRangedDirectional();
             river_of_wind.SpellResistance = true;
@@ -6107,6 +6109,7 @@ namespace CallOfTheWild
                                                        AbilityRange.Personal,
                                                        Helpers.minutesPerLevelDuration,
                                                        "",
+                                                       Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air),
                                                        Helpers.CreateRunActions(apply_buff),
                                                        Helpers.CreateContextRankConfig(),
                                                        Helpers.CreateSpellComponent(SpellSchool.Evocation)
@@ -6646,7 +6649,7 @@ namespace CallOfTheWild
                                                                           Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1, DurationRate.Hours))
                                                                           ),
                                                  Helpers.CreateContextRankConfig(max: 10, feature: MetamagicFeats.intensified_metamagic),
-                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                                  Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                  Common.createAbilityDeliverProjectile(AbilityProjectileType.Cone,
                                                                                       library.Get<BlueprintProjectile>("868f9126707bdc5428528dd492524d52"), 20.Feet(), 5.Feet()) //sonic cone
@@ -8926,6 +8929,9 @@ namespace CallOfTheWild
 
             var storm_burst = library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"); //from weather domain
             storm_burst.AddComponent(Common.createAbilityTargetHasFact(true, immunity_to_wind));
+
+            var air_subtype = library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775");
+            air_subtype.AddComponent(Helpers.CreateAddFact(immunity_to_wind));
 
         }
 
