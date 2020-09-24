@@ -158,7 +158,7 @@ namespace CallOfTheWild.Archetypes
         {
             metahealer_wild_talent = library.CopyAndAdd<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459", "MetahealerTalent", "");
             metahealer_wild_talent.SetNameDescription("Metahealer Talent",
-                                                      "A kinetic chirurgeon can select a metahealing talent or kinetic restoration or kinetic revivification wild talents. Alternatively the kinetic chirurgeon can select any one paladin mercy that a paladin of that level could select. Each time she uses kinetic healer, she can apply one of these mercies to the target of the healing.");
+                                                      "A kinetic chirurgeon can select a metahealing talent or any talent altering kinetic healer wild talent. Alternatively the kinetic chirurgeon can select any one paladin mercy that a paladin of that level could select. Each time she uses kinetic healer, she can apply one of these mercies to the target of the healing.");
             metahealer_wild_talent.AllFeatures = new BlueprintFeature[0];
             var mercies_selection = library.Get<BlueprintFeatureSelection>("02b187038a8dce545bb34bbfb346428d");
             metahealer_wild_talent.AllFeatures = metahealer_wild_talent.AllFeatures.AddToArray(mercies_selection.AllFeatures);
@@ -171,7 +171,8 @@ namespace CallOfTheWild.Archetypes
             createEmpoweredHealing();
             var kinetic_revivification = library.Get<BlueprintFeature>("0377fcf4c10871f4187809d273af7f5d");
             var kinetic_restoration = library.Get<BlueprintFeature>("ed01d50910ae67b4dadc050f16d93bdf");
-            metahealer_wild_talent.AllFeatures = metahealer_wild_talent.AllFeatures.AddToArray(empowered_healing, dual_healing, swift_healing, kinetic_restoration, kinetic_revivification);
+            var healing_burst = library.Get<BlueprintFeature>("c73b37aaa2b82b44686c56db8ce14e7f");
+            metahealer_wild_talent.AllFeatures = metahealer_wild_talent.AllFeatures.AddToArray(empowered_healing, dual_healing, swift_healing, kinetic_restoration, kinetic_revivification, healing_burst);
         }
 
 
@@ -342,6 +343,7 @@ namespace CallOfTheWild.Archetypes
 
         static void createHealingBuffer()
         {
+            var healing_burst = library.Get<BlueprintAbility>("db611ffeefb8f1e4f88e7d5393fc651d");
             var kinetic_healer = library.Get<BlueprintAbility>("eff667a3a43a77d45a193bb7c94b3a6c"); //kinetic healer
             var heal_varinats = kinetic_healer.GetComponent<AbilityVariants>();
 
@@ -361,7 +363,7 @@ namespace CallOfTheWild.Archetypes
                                           Helpers.Create<KineticistMechanics.DecreaseWildTalentCostForSpecificTalents>(a =>
                                                                                                                       {
                                                                                                                           a.actions = Helpers.CreateActionList(spend_resource);
-                                                                                                                          a.abilities = heal_varinats.Variants.Where(v => v.GetComponent<AbilityKineticist>().WildTalentBurnCost > 0).ToArray();
+                                                                                                                          a.abilities = heal_varinats.Variants.Where(v => v.GetComponent<AbilityKineticist>().WildTalentBurnCost > 0).ToArray().AddToArray(healing_burst);
                                                                                                                       }
                                                                                                                       )
                                           );

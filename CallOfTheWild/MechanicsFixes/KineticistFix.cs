@@ -7,6 +7,8 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
@@ -143,7 +145,7 @@ namespace CallOfTheWild
 
         static void fixKineticistAbilitiesToBeSpelllike()
         {
-            var abilities = library.GetAllBlueprints().Where<BlueprintScriptableObject>(a => a is BlueprintAbility).ToArray().Cast<BlueprintAbility>().Where(b => b.GetComponent< AbilityKineticist>() != null).ToArray();
+            var abilities = library.GetAllBlueprints().Where<BlueprintScriptableObject>(a => a is BlueprintAbility).ToArray().Cast<BlueprintAbility>().Where(b => b.GetComponent<AbilityKineticist>() != null).ToArray();
 
             var combat_abilities = new BlueprintAbility[] { blade_rush_ability, blade_rush_swift_ability, whip_hurricane_ability, blade_whirlwind_ability, kinetic_whip_ability };
 
@@ -155,6 +157,9 @@ namespace CallOfTheWild
                 }              
             }
         }
+
+
+
 
 
         static void createInternalBuffer()
@@ -805,4 +810,20 @@ namespace CallOfTheWild
         }
     }
 
+
+    //fix concentration checks for kineticist
+    [Harmony12.HarmonyPatch(typeof(RuleCalculateAbilityParams))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleCalculateAbilityParams__OnTrigger__Patch
+    {
+        static void Postfix(RuleCalculateAbilityParams __instance, RulebookEventContext context)
+        {
+            Main.TraceLog();
+            Main.logger.Log("Cl:" + __instance.Result.CasterLevel.ToString());
+            Main.logger.Log("Concentration:" + __instance.Result.Concentration.ToString());
+            Main.logger.Log("SL:" + __instance.Result.SpellLevel.ToString());
+            Main.logger.Log("DC:" + __instance.Result.DC.ToString());
+        }
     }
+
+}
