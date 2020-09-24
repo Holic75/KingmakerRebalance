@@ -83,8 +83,7 @@ namespace CallOfTheWild
         //[System.Diagnostics.Conditional("DEBUG")]
         internal static void TraceLog()
         {
-            MethodBase m = MethodBase.GetCurrentMethod();
-            logger.Log($"Executing {m.ReflectedType.Name}.{m.Name}");
+            logger.Log("StackTrace:" + Environment.StackTrace);
         }
 
         internal static void DebugError(Exception ex)

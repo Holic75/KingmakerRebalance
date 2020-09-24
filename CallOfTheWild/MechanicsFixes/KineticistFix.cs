@@ -10,6 +10,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
@@ -812,17 +813,63 @@ namespace CallOfTheWild
 
 
     //fix concentration checks for kineticist
-    [Harmony12.HarmonyPatch(typeof(RuleCalculateAbilityParams))]
+    [Harmony12.HarmonyPatch(typeof(RuleCheckConcentration))]
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-    class RuleCalculateAbilityParams__OnTrigger__Patch
+    class RuleCheckConcentration__OnTrigger__Patch
     {
-        static void Postfix(RuleCalculateAbilityParams __instance, RulebookEventContext context)
+        static bool Prefix(RuleCheckConcentration __instance, RulebookEventContext context)
         {
-            Main.TraceLog();
-            Main.logger.Log("Cl:" + __instance.Result.CasterLevel.ToString());
-            Main.logger.Log("Concentration:" + __instance.Result.Concentration.ToString());
-            Main.logger.Log("SL:" + __instance.Result.SpellLevel.ToString());
-            Main.logger.Log("DC:" + __instance.Result.DC.ToString());
+            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
+            {
+                return true;
+            }
+            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
+            if (kineticist_part == null)
+            {
+                return true;
+            }
+
+            var tr = Harmony12.Traverse.Create(__instance);
+            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
+            var ability_params = rule.Result;
+
+            tr.Property("DC").SetValue(__instance.Damage == null ? 15 + ability_params.SpellLevel : 10 + ability_params.SpellLevel + __instance.Damage.Damage / 2);
+
+            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
+            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
+            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
+            return false;
+        }
+    }
+
+
+    //fix concentration checks for kineticist
+    [Harmony12.HarmonyPatch(typeof(RuleCheckCastingDefensively))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleCheckCastingDefensively__OnTrigger__Patch
+    {
+        static bool Prefix(RuleCheckCastingDefensively __instance, RulebookEventContext context)
+        {
+            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
+            {
+                return true;
+            }
+            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
+            if (kineticist_part == null)
+            {
+                return true;
+            }
+
+            var tr = Harmony12.Traverse.Create(__instance);
+            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
+            var ability_params = rule.Result;
+
+            tr.Property("DC").SetValue(15 + ability_params.SpellLevel*2);
+
+            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
+            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
+            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
+            return false;
         }
     }
 
