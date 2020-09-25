@@ -686,12 +686,29 @@ namespace CallOfTheWild
             kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
             kalikke_acl.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillLoreNature };
             var kalikke_companion = library.Get<BlueprintUnit>("c807d18a89f96c74f8bb48b31b616323");
-            kalikke_companion.Strength = 10;
+            kalikke_companion.Strength = 9;
             kalikke_companion.Dexterity = 17;
             kalikke_companion.Intelligence = 10;
             kalikke_companion.Constitution = 16;
-            kalikke_companion.Charisma = 10;
-            kalikke_companion.Strength = 10;
+            kalikke_companion.Charisma = 8;
+            kalikke_companion.Wisdom = 12;
+
+            var elemental_focus = library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31");
+            var kanerah_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ccb52e235941e0442be0cb0ee5570f07");
+            var kanerah_acl = kanerah_feature.GetComponent<AddClassLevels>();
+            kanerah_acl.Levels = 1;
+            kanerah_acl.Selections[0].Features[0] = elemental_focus; //elemental_focus
+            kanerah_acl.Selections[12].Features[0] = library.Get<BlueprintFeature>("c82bc8134f3a6e24994b8ef70fb4014a"); //tiefling standard
+            Common.addFeatureSelectionToAcl(kanerah_acl, elemental_focus, elemental_focus.AllFeatures.Last()); //fire
+            kanerah_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
+            kanerah_acl.Skills = new StatType[] { StatType.SkillStealth, StatType.SkillMobility, StatType.SkillUseMagicDevice, StatType.SkillKnowledgeWorld };
+            var kanerah_companion = library.Get<BlueprintUnit>("f1c0b181a534f4940ae17f243a5968ec");
+            kanerah_companion.Strength = 9;
+            kanerah_companion.Dexterity = 17;
+            kanerah_companion.Intelligence = 16;
+            kanerah_companion.Constitution = 14;
+            kanerah_companion.Charisma = 8;
+            kanerah_companion.Wisdom = 10;
         }
 
 

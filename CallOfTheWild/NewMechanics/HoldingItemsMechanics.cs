@@ -719,7 +719,8 @@ namespace CallOfTheWild.HoldingItemsMechanics
             if ((__instance.Blueprint.IsTwoHanded && !__instance.HoldInTwoHands) //2h that is held as 1h
                 || ((__instance.Blueprint.IsTwoHanded || __instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands) && forDollRoom)) // make weapon look 1h in the doll room to see the shield if possible
             {
-                if ((__instance.HoldingSlot as HandSlot)?.PairSlot?.MaybeShield == null)
+                var pair_slot = (__instance.HoldingSlot as HandSlot)?.PairSlot;
+                if (pair_slot?.MaybeWeapon == null && pair_slot?.MaybeShield == null)
                 {
                     return;
                 }

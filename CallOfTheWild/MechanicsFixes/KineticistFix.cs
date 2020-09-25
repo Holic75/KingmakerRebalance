@@ -17,6 +17,7 @@ using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.UnitLogic.Class.Kineticist.Actions;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -69,7 +70,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature pushing_infusion;
 
-        internal static void load()
+        internal static void load(bool update_archetypes)
         {
             var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
             foreach (var c in kinetic_blade_infusion.GetComponents<AddFeatureIfHasFact>())
@@ -113,6 +114,32 @@ namespace CallOfTheWild
             createSparkOfLife();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
+            Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
+
+            if (update_archetypes)
+            {
+                Main.logger.Log("Updating base kineticist archetypes");
+                updateKineticistArchetypes();
+            }
+        }
+
+
+        static void updateKineticistArchetypes()
+        {
+            //make dark elementalist recover 2 points of burn per soul power use
+            var soul_power = library.Get<BlueprintAbility>("31a1e5b27cdb78f4094630610519981c");
+            soul_power.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionHealBurn>(a.Actions.Actions, c => c.Value = 3)));
+            soul_power.SetDescription("A dark elementalist uses the souls of others to protect herself from the dangers of burn. She can't choose to accept burn if doing so would raise her total number of points of burn above 3. However, a number of times per day equal to her Intelligence modifier, as a full-round action she can gather up the souls of dead creatures with HD sum equal to or higher than her character level. When she does, all of her existing burn is unloaded into the departing souls, racking it with unspeakable torment, but reducing her current burn total to zero.\nA dark elementalist gains attack and damage bonuses from elemental overflow based on how many times that day she has successfully used soul power to rack souls, rather than based on her current burn total. For instance, a 9th-level dark elementalist who had used soul power three or more times during the course of the day would add a +3 bonus on attack rolls and a +6 bonus on damage rolls. A dark elementalist does not gain size bonuses to physical ability scores or a chance to ignore critical hits and sneak attacks from elemental overflow.\nThis ability alters burn and elemental overflow and replaces internal buffer.");
+
+            var soul_power_feature = library.Get<BlueprintFeature>("42c5a9a8661db2f47aedf87fb8b27aaf");
+            soul_power_feature.SetDescription(soul_power.Description);
+
+            //make psychockineticist burn give only -1 to skills/saves per burn value
+            var psychokineticist_burn = library.Get<BlueprintBuff>("a9e3e785ea41449499b6b5d3d22a0856");
+            var context_rank_config = psychokineticist_burn.GetComponent<ContextRankConfig>();
+            Helpers.SetField(context_rank_config, "m_StepLevel", 1);
+            var psychikineticist_burn_feature = library.Get<BlueprintFeature>("f53404854de9fd04a9ff1959385edb71");
+            psychikineticist_burn_feature.SetDescription("A psychokineticist's mind strains when he overtaxes himself. He takes a –1 penalty on Will saves, Wisdom checks, and Wisdom-based skill checks for each point of burn he has accepted, rather than taking nonlethal damage from burn. He can accept an amount of burn equal to his Wisdom modifier (rather than 3 + his Wisdom modifier). Otherwise, his burn works just like a normal kineticist's.\nThis ability alters burn.");
         }
 
 
@@ -197,17 +224,10 @@ namespace CallOfTheWild
             internal_buffer.AddComponent(Helpers.CreateAddAbilityResource(internal_buffer_resource));
             kineticist_progression.LevelEntries[5].Features.Add(internal_buffer);
 
-            Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
-            //fix previous saves without buffer
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
-            {
-                if (unit.Progression.GetClassLevel(kineticist_class) >= 6 && !unit.Progression.Features.HasFact(internal_buffer)
-                    && !unit.Progression.IsArchetype(Archetypes.OverwhelmingSoul.archetype))
-                {
-                    unit.Progression.Features.AddFeature(internal_buffer);
-                }
-            };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
+            var dark_elementalist_archetype = library.Get<BlueprintArchetype>("f12f18ae8842425489d29f302e69134c");
+            dark_elementalist_archetype.RemoveFeatures = dark_elementalist_archetype.RemoveFeatures.AddToArray(Helpers.LevelEntry(6, internal_buffer));
+
+            //Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
         }
 
         static void fixShroudOfWaterForKineticKnight()
