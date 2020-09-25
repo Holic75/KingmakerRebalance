@@ -676,6 +676,22 @@ namespace CallOfTheWild
                                                                                             );
             cephales_class_levels.Selections[0].Features[3] = library.Get<BlueprintParametrizedFeature>("5b04b45b228461c43bad768eb0f7c7bf");
             cephales_class_levels.Selections[0].Features[4] = library.Get<BlueprintFeature>("f180e72e4a9cbaa4da8be9bc958132ef");
+
+
+            //change kallike
+            var kalikke_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("385e8d69b89992844b0992caf666a5fd");
+            var kalikke_acl = kalikke_feature.GetComponent<AddClassLevels>();
+            kalikke_acl.Levels = 1;
+            kalikke_acl.Selections[0].Features[0] = library.Get<BlueprintFeature>("90e54424d682d104ab36436bd527af09"); //weapon finesse
+            kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
+            kalikke_acl.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillLoreNature };
+            var kalikke_companion = library.Get<BlueprintUnit>("c807d18a89f96c74f8bb48b31b616323");
+            kalikke_companion.Strength = 10;
+            kalikke_companion.Dexterity = 17;
+            kalikke_companion.Intelligence = 10;
+            kalikke_companion.Constitution = 16;
+            kalikke_companion.Charisma = 10;
+            kalikke_companion.Strength = 10;
         }
 
 

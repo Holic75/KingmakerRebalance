@@ -165,7 +165,7 @@ namespace CallOfTheWild
                 else if (c is ContextCalculateAbilityParamsBasedOnClass)
                 {
                     var c_typed = c as ContextCalculateAbilityParamsBasedOnClass;
-                    if (c_typed == class_to_check)
+                    if (c_typed.CharacterClass == class_to_check)
                     {
                         a.ReplaceComponent(c, Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(new BlueprintCharacterClass[] { c_typed.CharacterClass, class_to_add }, archetypes_to_add, c_typed.StatType));
                     }
@@ -443,7 +443,7 @@ namespace CallOfTheWild
                 else if (c is AddOppositionSchool && spells_type == DomainSpellsType.SpecialList)
                 {
                     var c_typed = c as AddOppositionSchool;
-                    if (c_typed.CharacterClass != class_to_add && c_typed == class_to_check)
+                    if (c_typed.CharacterClass != class_to_add && c_typed.CharacterClass == class_to_check)
                     {
                         var c2 = Helpers.Create<AddOppositionSchool>();
                         c2.CharacterClass = class_to_add;

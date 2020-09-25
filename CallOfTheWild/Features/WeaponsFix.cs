@@ -166,7 +166,7 @@ namespace CallOfTheWild
 
             var disarm = Helpers.CreateFeature("DisarmWeaponPropertyFeature",
                                                "Disarm",
-                                               "When you use a disarm weapon, you get a +2 bonus on Combat Maneuver Checks to trip attempts.",
+                                               "When you use a disarm weapon, you get a +2 bonus on Combat Maneuver Checks to disarm attempts.",
                                                "",
                                                null,
                                                FeatureGroup.None,
