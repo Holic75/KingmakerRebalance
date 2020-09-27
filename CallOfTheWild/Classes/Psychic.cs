@@ -884,6 +884,7 @@ namespace CallOfTheWild
                                                                                  ),
                                                          Common.createAbilityCasterHasNoFacts(amnesiac_cooldown_buff)
                                                          );
+
                     ability.setMiscAbilityParametersSelfOnly();
                     spell_recollection_ability.addToAbilityVariants(ability);
                 }
@@ -2770,7 +2771,8 @@ namespace CallOfTheWild
                                              null,
                                              FeatureGroup.None);
 
-            psychic_spellcasting.AddComponent(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_spellbook));
+            psychic_spellcasting.AddComponents(Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = psychic_spellbook), 
+                                               Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             psychic_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = psychic_spellbook));
             psychic_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
             psychic_spellcasting.AddComponents(Common.createCantrips(psychic_class, StatType.Intelligence, psychic_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));

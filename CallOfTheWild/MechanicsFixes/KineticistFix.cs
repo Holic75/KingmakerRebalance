@@ -7,6 +7,7 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
@@ -182,7 +183,7 @@ namespace CallOfTheWild
                 if (!combat_abilities.Contains(ability))
                 {
                     ability.Type = AbilityType.SpellLike;
-                }              
+                }
             }
         }
 
@@ -361,9 +362,9 @@ namespace CallOfTheWild
             healer_burn_other.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(apply_burn)));
 
 
-            
-            healer_base.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(healer_base, healer_burn_self, healer_burn_other)};
-            sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities = (new BlueprintAbility[] {healer_burn_self, healer_burn_other }).ToList();
+
+            healer_base.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAbilityVariants(healer_base, healer_burn_self, healer_burn_other) };
+            sigil_of_creation_feature.GetComponent<AutoMetamagic>().Abilities = (new BlueprintAbility[] { healer_burn_self, healer_burn_other }).ToList();
         }
 
 
@@ -407,7 +408,7 @@ namespace CallOfTheWild
                                                 UnitCommand.CommandType.Free,
                                                 AbilityRange.Personal,
                                                 Helpers.oneRoundDuration,
-                                                "",   
+                                                "",
                                                 Helpers.CreateRunActions(apply_whip),
                                                 blade_whirlwind.GetComponent<AbilityCasterHasFacts>(),
                                                 Helpers.Create<AbilityKineticist>(a =>
@@ -469,7 +470,7 @@ namespace CallOfTheWild
                                                               ""
                                                               );
             var variants = Helpers.CreateAbilityVariants(spark_of_life_ability);
-           
+
             spark_of_life_ability.setMiscAbilityParametersRangedDirectional();
 
 
@@ -486,7 +487,7 @@ namespace CallOfTheWild
                                                                                                                                     Helpers.Create<ContextActionRemoveSelf>()
                                                                                                                                     ),
                                                                                                          },
-                                                                              deactivated: new GameAction[] { Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool)}
+                                                                              deactivated: new GameAction[] { Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool) }
                                                                               )
                                           );
 
@@ -494,7 +495,7 @@ namespace CallOfTheWild
 
             var names = new string[] { "Air", "Earth", "Fire", "Water" };
 
-            
+
             for (int i = 0; i < 4; i++)
             {
                 var action = Common.createRunActionsDependingOnContextValue(
@@ -517,9 +518,9 @@ namespace CallOfTheWild
                                                            "",
                                                            Helpers.CreateRunActions(action),
                                                            summon_elemental_medium.Variants[i].GetComponent<SpellDescriptorComponent>(),
-                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {kineticist_class}),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class }),
                                                            Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = elements[i]),
-                                                           Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; } ),
+                                                           Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; }),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
                                                                                            progression: ContextRankProgression.DelayedStartPlusDivStep, type: Kingmaker.Enums.AbilityRankType.StatBonus,
                                                                                            startLevel: 10, stepLevel: 2, min: 1, max: 5)
@@ -820,7 +821,7 @@ namespace CallOfTheWild
             var check_blade_activated = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsActivatingBladeNow"));
 
             codes[check_blade_activated] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //cmd
-            codes.Insert(check_blade_activated + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,  new Func<UnitPartKineticist, UnitCommand, bool>(shouldReturnToQueue).Method));
+            codes.Insert(check_blade_activated + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<UnitPartKineticist, UnitCommand, bool>(shouldReturnToQueue).Method));
 
             return codes.AsEnumerable();
         }
@@ -884,11 +885,71 @@ namespace CallOfTheWild
             var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
             var ability_params = rule.Result;
 
-            tr.Property("DC").SetValue(15 + ability_params.SpellLevel*2);
+            tr.Property("DC").SetValue(15 + ability_params.SpellLevel * 2);
 
             var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
             tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
             tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
+            return false;
+        }
+    }
+
+
+    //fix addAreaDamageTrigger to account for descriptors of ability that provoked it (for (greater) elemental fcous feat)
+    [Harmony12.HarmonyPatch(typeof(AddAreaDamageTrigger))]
+    [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
+    class AddAreaDamageTrigger__RunAction__Patch
+    {
+        static bool Prefix(AddAreaDamageTrigger __instance, UnitEntityData target, ref TimeSpan ___m_LastFrameTime, ref HashSet<UnitEntityData> ___m_AffectedThisFrame)
+        {
+            var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;      
+            var original_blueprint = __instance.Fact.MaybeContext?.AssociatedBlueprint;
+
+            TimeSpan gameTime = Game.Instance.TimeController.GameTime;
+            if (gameTime != ___m_LastFrameTime)
+            {
+                ___m_LastFrameTime = gameTime;
+                ___m_AffectedThisFrame.Clear();
+            }
+            if (!___m_AffectedThisFrame.Add(target) || !__instance.Actions.HasActions)
+                return false;
+            if (__instance.OwnerArea != null)
+            {
+                ability_context = __instance.OwnerArea.Context?.SourceAbilityContext;
+            }
+
+            if (ability_context != null)
+            {
+
+            }
+            else
+            {
+                Main.logger.Log("Context is null");
+            }
+
+            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
+            //__instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
+
+            (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
+            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
+            //__instance.Fact.MaybeContext?.RecalculateAbilityParams();
+
+            return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(IncreaseSpellDescriptorDC))]
+    [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
+    class IncreaseSpellDescriptorDC__OnEventAboutToTrigger__Patch
+    {
+        static bool Prefix(IncreaseSpellDescriptorDC __instance, RuleCalculateAbilityParams evt)
+        {
+            var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+            SpellDescriptorComponent component = ability_context.AssociatedBlueprint?.GetComponent<SpellDescriptorComponent>();
+            if ((component != null ? (component.Descriptor.HasAnyFlag((SpellDescriptor)__instance.Descriptor) ? 1 : 0) : 0) == 0)
+                return false;
+            evt.AddBonusDC(__instance.BonusDC);
             return false;
         }
     }

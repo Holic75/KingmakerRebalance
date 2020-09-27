@@ -276,8 +276,8 @@ namespace CallOfTheWild.SkillMechanics
     public class ContextActionCasterSkillCheck : ContextAction
     {
         public StatType Stat;
-        public bool UseCustomDC;
-        public ContextValue CustomDC;
+        public bool UseCustomDC;//if false will be used against main target hd
+        public ContextValue CustomDC = 0;
         public ActionList Success = Helpers.CreateActionList();
         public ActionList Failure = Helpers.CreateActionList();
 
@@ -291,7 +291,7 @@ namespace CallOfTheWild.SkillMechanics
             {
                 int num = 0;
 
-                if (this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(this.Context.MaybeCaster, this.Stat, (this.UseCustomDC ? this.CustomDC.Calculate(this.Context) : this.Context.Params.DC) + num)
+                if (this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(this.Context.MaybeCaster, this.Stat, (this.UseCustomDC ? this.CustomDC.Calculate(this.Context) : ((this.Target.Unit?.Descriptor?.Progression.CharacterLevel).GetValueOrDefault() + 10)) + num)
                 {
                     ShowAnyway = true
                 }).IsPassed)
@@ -305,7 +305,6 @@ namespace CallOfTheWild.SkillMechanics
         {
             return string.Format("Caster skill check {0} {1}", (object)this.Stat, this.UseCustomDC ? (object)string.Format("(DC: {0})", (object)this.CustomDC) : (object)"");
         }
-
     }
 
 

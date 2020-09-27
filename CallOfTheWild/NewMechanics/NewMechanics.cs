@@ -5531,10 +5531,11 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class BuffExtraAttackCategorySpecific : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
+        public class BuffExtraAttackCategorySpecific : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
         {
             public WeaponCategory[] categories;
             public ContextValue num_attacks = 1;
+            public int attack_bonus = 0;
 
             public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
             {
@@ -5544,8 +5545,28 @@ namespace CallOfTheWild
                 evt.AddExtraAttacks(attacks, false, (ItemEntity)this.Owner.Body.PrimaryHand.Weapon);
             }
 
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon == null)
+                    return;
+                RulebookEvent rule = evt.Reason.Rule;
+                if (rule != null && rule is RuleAttackWithWeapon && !(rule as RuleAttackWithWeapon).IsFullAttack)
+                    return;
+
+                if (!categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+                evt.AddBonus(attack_bonus, this.Fact);
+            }
+
             public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
             {
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+               
             }
         }
 

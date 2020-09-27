@@ -343,7 +343,9 @@ namespace CallOfTheWild
                                               null,
                                               null);
 
-                var apply_buff = Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false);
+                var apply_buff = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(infectious_charms),
+                                                           Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                           );
 
                 var swift_ability = library.CopyAndAdd<BlueprintAbility>(spell, "InfectiousCharms" + spell.name, Helpers.MergeIds("ad7a842eeff740f4bad0d794893143d5", spell.AssetGuid));
                 swift_ability.ActionType = UnitCommand.CommandType.Swift;

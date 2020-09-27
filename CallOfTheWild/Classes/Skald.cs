@@ -1572,6 +1572,7 @@ namespace CallOfTheWild
                                                                    );
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition1);
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, skald_vigor_condition2);
+            raging_song_effect_buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Emotion));
             return raging_song_effect_buff;
         }
 

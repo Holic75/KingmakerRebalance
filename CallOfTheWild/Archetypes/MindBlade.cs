@@ -172,7 +172,8 @@ namespace CallOfTheWild.Archetypes
                                                          FeatureGroup.None,
                                                          Helpers.Create<SpellFailureMechanics.PsychicSpellbook>(p => p.spellbook = spellbook),
                                                          Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = spellbook),
-                                                         Helpers.CreateAddFact(Investigator.center_self)
+                                                         Helpers.CreateAddFact(Investigator.center_self),
+                                                         Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell)
                                                          );
             //disallow prestige classes
             var prestige_spellbooks = new BlueprintFeature[]
