@@ -230,6 +230,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixFeyStalkerSummonBuff();
                     CallOfTheWild.Rebalance.fixBeltsOfPerfectComponents();
                     CallOfTheWild.Rebalance.addMissingImmunities();
+                    CallOfTheWild.Rebalance.fixJaethalUndeadFeature();
                     if (settings.secondary_rake_attacks)
                     {
                         Main.logger.Log("Applying -5 penalty to rake attacks.");

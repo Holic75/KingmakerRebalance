@@ -9116,6 +9116,72 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusIfAloneAgainstBiggerSize : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+            public bool only_melee;
+            public bool only_non_reach;
+            public bool only_alone;
+            public bool only_if_smaller;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null)
+                    return;
+
+                if (!evt.Weapon.Blueprint.IsMelee &&  only_melee)
+                {
+                    return;
+                }
+                if (evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange && only_non_reach)
+                {
+                    return;
+                }
+
+                if (evt.Target.Descriptor.State.Size <= evt.Initiator.Descriptor.State.Size && only_if_smaller)
+                {
+                    return;
+                }
+
+                if (only_alone)
+                {
+                    var units_around = GameHelper.GetTargetsAround(this.Owner.Unit.Position, 5.Feet().Meters, true, false);
+                    foreach (var u in units_around)
+                    {
+                        if (u == evt.Initiator)
+                        {
+                            continue;
+                        }
+                        if (u.IsAlly(evt.Initiator))
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]

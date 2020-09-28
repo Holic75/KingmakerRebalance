@@ -661,7 +661,8 @@ namespace CallOfTheWild
             ekun_companion.Constitution = 12;
             ekun_companion.Dexterity = 17;
             ekun_companion.Wisdom = 14;
-            ekun_companion.Charisma = 10;
+            ekun_companion.Charisma = 8;
+            ekun_companion.Intelligence = 12;
             var ekun_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0bc6dc9b6648a744899752508addae8c");
             var ekun_class_level = ekun_feature.GetComponent<AddClassLevels>();
             ekun_class_level.RaceStat = Kingmaker.EntitySystem.Stats.StatType.Dexterity;
@@ -702,14 +703,6 @@ namespace CallOfTheWild
             jaethal_selections.LevelsStat = StatType.Dexterity;
             jaethal_unit.Body.PrimaryHandAlternative1 = library.Get<BlueprintItemWeapon>("7998cd1409fe1194583b64180df4f216"); //composite longbow
 
-            var jaethal_immortality = library.Get<BlueprintFeature>("1ed5fac73a4dc054d8411f24cf09d703");
-            jaethal_immortality.AddComponents(Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Racial),
-                                              Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.Racial),
-                                              Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
-                                              Common.createContextFormDR(5, Kingmaker.Enums.Damage.PhysicalDamageForm.Slashing),
-                                              Helpers.CreateAddFact(library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212")) //channel resistance
-                                              );
-
             var varn_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e83a03d50fedd35449042ce73f1b6908");
             var varn_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("2babd2d4687b5ee428966322eccfe4b6");
             varn_companion.Dexterity = 18;
@@ -729,7 +722,7 @@ namespace CallOfTheWild
             cephales_companion.Charisma = 12;
             var cephales_class_levels = cephales_feature.GetComponent<AddClassLevels>();
             cephales_class_levels.Selections[0].Features[0] = library.Get<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74"); //improved initiative
-            cephales_class_levels.Selections[0].Features[1] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"); //spell focus (necromancy
+            cephales_class_levels.Selections[0].Features[1] = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe"); //spell focus (necromancy)
             cephales_class_levels.Selections = cephales_class_levels.Selections.AddToArray(new SelectionEntry()
             {
                 Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
@@ -879,6 +872,18 @@ namespace CallOfTheWild
 
             var protection_domain_save_bonus = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Buffs.Blueprints.BlueprintBuff>("2ddb4cfc3cfd04c46a66c6cd26df1c06"); //resitant touch bonus
             protection_domain_save_bonus.ReplaceComponent<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>(protection_bonus_context_rank);*/
+        }
+
+
+        internal static void fixJaethalUndeadFeature()
+        {
+            var jaethal_immortality = library.Get<BlueprintFeature>("1ed5fac73a4dc054d8411f24cf09d703");
+            jaethal_immortality.AddComponents(Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Racial),
+                                              Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.Racial),
+                                              Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
+                                              Common.createContextFormDR(5, Kingmaker.Enums.Damage.PhysicalDamageForm.Slashing),
+                                              Helpers.CreateAddFact(library.Get<BlueprintFeature>("a9ac84c6f48b491438f91bb237bc9212")) //channel resistance
+                                              );
         }
 
 

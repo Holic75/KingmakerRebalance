@@ -545,6 +545,7 @@ namespace CallOfTheWild
             channel_vigor = Common.createVariantWrapper("ChannelVigorBaseAbility", "", abilities.ToArray());
             channel_vigor.SetName(display_name);
 
+            channel_vigor.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
             channel_vigor.AddToSpellList(Helpers.alchemistSpellList, 3);
             channel_vigor.AddToSpellList(Helpers.clericSpellList, 3);
             channel_vigor.AddToSpellList(Helpers.inquisitorSpellList, 3);
