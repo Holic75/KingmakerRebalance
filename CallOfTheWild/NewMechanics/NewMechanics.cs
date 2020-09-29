@@ -826,7 +826,6 @@ namespace CallOfTheWild
                         unit.Descriptor.Resurrect(this.ResultHealth, true);
                         pair?.Descriptor.Resurrect(this.ResultHealth, true);
                     }
-
                 }
             }
         }

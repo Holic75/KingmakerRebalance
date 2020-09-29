@@ -1089,18 +1089,36 @@ namespace CallOfTheWild
         static void createAkashicForm()
         {
             var buff = Helpers.CreateBuff("AkashicFormBuff",
-                               "Akashic Form",
-                               "If at any point within the duration of the spell you are reduced to fewer than 0 hit points or are slain by a death effect that is not mind-affecting, you can immediately let your current physical body die and assume the record of your physical body on your next turn.",
-                               "",
-                               Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
-                               null,
-                               Common.createDeathActions(Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true),
-                                                                                  Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1000))
-                                                                                  )
-                                                        )
-                               );
+                                           "Akashic Form",
+                                           "If at any point within the duration of the spell you are reduced to fewer than 0 hit points or are slain by a death effect that is not mind-affecting, you can immediately let your current physical body die and assume the record of your physical body on your next turn.",
+                                           "",
+                                           Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
+                                           null
+                                           );
 
-            buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.RemoveOnResurrect);
+            var buff_resurrect = Helpers.CreateBuff("AkashicFormHealBuff",
+                                "Akashic Form Resurrect",
+                                "",
+                                "0a3800d5e3d442bdaa0a4c81cbec875f",
+                                Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
+                                null,
+                                Helpers.CreateAddFactContextActions(deactivated: new GameAction[]
+                                {
+                                    Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true),
+                                    Common.createContextActionRemoveBuffFromCaster(buff),
+
+                                }
+                                )
+                                );
+            buff_resurrect.SetBuffFlags(BuffFlags.StayOnDeath);
+
+            buff.AddComponent(Common.createDeathActions(Helpers.CreateActionList(Common.createContextActionApplyBuff(buff_resurrect, Helpers.CreateContextDuration(0), is_child: true, dispellable: false)
+                                                                                )
+                                                       ));
+
+
+
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
 
             akashic_form = Helpers.CreateAbility("AkashicFormAbility",
                                                  buff.Name,
