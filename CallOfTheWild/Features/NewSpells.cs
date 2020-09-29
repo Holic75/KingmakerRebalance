@@ -445,7 +445,7 @@ namespace CallOfTheWild
 
             control_construct = Helpers.CreateAbility("ControlConstructAbility",
                                                       "Control Construct",
-                                                      "You wrest the control of a construct from its master. For as long as you concentrate, you can control the construct as if you were its master. You must make a Spellcraft check each round to maintain control. The DC of the Spellcraft check is (10 + the construct’s HD). If the construct’s creator or master is present and trying to control the construct, you both must make opposed Spellcraft checks each round to control the construct. You can not maintain control over more than once construct.",
+                                                      "You wrest the control of a construct from its master. For as long as you concentrate, you can control the construct as if you were its master. You must make a Knowledge (Arcana) check each round to maintain control. The DC of the Spellcraft check is (10 + the construct’s HD). If the construct’s creator or master is present and trying to control the construct, you both must make opposed Spellcraft checks each round to control the construct. You can not maintain control over more than once construct.",
                                                       "",
                                                       dominate_person_buff.Icon,
                                                       AbilityType.Spell,
@@ -455,7 +455,8 @@ namespace CallOfTheWild
                                                       "",
                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
                                                       Helpers.CreateContextRankConfig(),
-                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                      Common.createAbilityTargetHasFact(inverted: false, Common.construct)
                                                       );
             control_construct.setMiscAbilityParametersSingleTargetRangedHarmful();
             control_construct.AddToSpellList(Helpers.wizardSpellList, 7);

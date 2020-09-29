@@ -335,6 +335,7 @@ New spells:
 - Barrow Haze,
 - Bloody Claws,
 - Burning Entanglement,
+- Channel Vigor,
 - Countless Eyes,
 - Deadly Juggernaut,
 - Earth Tremor,
@@ -386,6 +387,7 @@ New spells:
 - Freezing Sphere,
 - Poison Breath,
 - Plant Shape I, II and III,
+- Control Construct,
 - Ice Body,
 - Psychic Surgery,
 - Shadow Enchantment, Greater,
@@ -485,7 +487,8 @@ Original game bug fixes:
 - Polymorph no longer puts a lock on inventory slots (they still stay inaccessible though) to avoid preventing temporary weapons and limbs from removal when corresponding buffs expire, as a side effect it also allows to loot body under baleful polymorph.
 - Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required),
 - Fixed missing druid scaling on 1st level Weather domain ability,
-- Monks no longer gain their AC bonus if using shield and fighting unarmored.
+- Monks no longer gain their AC bonus if using shield and fighting unarmored,
+- (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
@@ -526,7 +529,10 @@ Notable differences from pnp:
 - Monk/Ninja ki pools do not stack,
 - You can not use twf with unhindering shield,
 - Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis,
-- Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks).
+- Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
+- Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
+- Psychockineticist receives only -1 to wis skils and will savingthrows (optional).
+
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
