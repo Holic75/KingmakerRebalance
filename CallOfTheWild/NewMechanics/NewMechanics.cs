@@ -826,7 +826,6 @@ namespace CallOfTheWild
                         unit.Descriptor.Resurrect(this.ResultHealth, true);
                         pair?.Descriptor.Resurrect(this.ResultHealth, true);
                     }
-
                 }
             }
         }
@@ -5553,10 +5552,11 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
-        public class BuffExtraAttackCategorySpecific : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
+        public class BuffExtraAttackCategorySpecific : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
         {
             public WeaponCategory[] categories;
             public ContextValue num_attacks = 1;
+            public int attack_bonus = 0;
 
             public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
             {
@@ -5566,8 +5566,28 @@ namespace CallOfTheWild
                 evt.AddExtraAttacks(attacks, false, (ItemEntity)this.Owner.Body.PrimaryHand.Weapon);
             }
 
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon == null)
+                    return;
+                RulebookEvent rule = evt.Reason.Rule;
+                if (rule != null && rule is RuleAttackWithWeapon && !(rule as RuleAttackWithWeapon).IsFullAttack)
+                    return;
+
+                if (!categories.Contains(evt.Weapon.Blueprint.Category))
+                {
+                    return;
+                }
+                evt.AddBonus(attack_bonus, this.Fact);
+            }
+
             public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
             {
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+               
             }
         }
 
@@ -9110,6 +9130,72 @@ namespace CallOfTheWild
                 if (evt.Weapon == null || !evt.Target.Descriptor.HasFact(this.CheckedFact) || evt.Target.Descriptor.Alignment.Value != this.alignment)
                     return;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.AttackBonus * this.Fact.GetRank() + this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class AttackBonusIfAloneAgainstBiggerSize : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public ContextValue Bonus;
+            public ModifierDescriptor Descriptor;
+            public bool only_melee;
+            public bool only_non_reach;
+            public bool only_alone;
+            public bool only_if_smaller;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if (evt.Weapon == null)
+                    return;
+
+                if (!evt.Weapon.Blueprint.IsMelee &&  only_melee)
+                {
+                    return;
+                }
+                if (evt.Weapon.Blueprint.Type.AttackRange > GameConsts.MinWeaponRange && only_non_reach)
+                {
+                    return;
+                }
+
+                if (evt.Target.Descriptor.State.Size <= evt.Initiator.Descriptor.State.Size && only_if_smaller)
+                {
+                    return;
+                }
+
+                if (only_alone)
+                {
+                    var units_around = GameHelper.GetTargetsAround(this.Owner.Unit.Position, 5.Feet().Meters, true, false);
+                    foreach (var u in units_around)
+                    {
+                        if (u == evt.Initiator)
+                        {
+                            continue;
+                        }
+                        if (u.IsAlly(evt.Initiator))
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus.Calculate(this.Context), (GameLogicComponent)this, this.Descriptor));
             }
 
             public override void OnEventDidTrigger(RuleAttackRoll evt)

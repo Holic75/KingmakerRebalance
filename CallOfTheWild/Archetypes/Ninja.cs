@@ -317,7 +317,7 @@ namespace CallOfTheWild.Archetypes
                                           "",
                                           Helpers.GetIcon("b296531ffe013c8499ad712f8ae97f6b"), //acid dart
                                           null,
-                                          Helpers.Create<NewMechanics.BuffExtraAttackCategorySpecific>(b => b.categories = new WeaponCategory[] { WeaponCategory.Dart })
+                                          Helpers.Create<NewMechanics.BuffExtraAttackCategorySpecific>(b => { b.categories = new WeaponCategory[] { WeaponCategory.Dart }; b.num_attacks = 2; b.attack_bonus = -2; })
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);

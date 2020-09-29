@@ -1223,10 +1223,10 @@ namespace CallOfTheWild
             // (It's common for many features to use the same localized text.
             // In that case, we reuse the old entry instead of making a new one.)
             LocalizedString localized;
-            if (textToLocalizedString.TryGetValue(value, out localized))
+            /*if (textToLocalizedString.TryGetValue(value, out localized))
             {
                 return localized;
-            }
+            }*/
             var strings = LocalizationManager.CurrentPack.Strings;
             String oldValue;
             if (strings.TryGetValue(key, out oldValue) && value != oldValue)

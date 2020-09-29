@@ -38,6 +38,7 @@ namespace CallOfTheWild
             internal bool one_sneak_attack_per_target_per_spell { get; }
             internal bool metamagic_for_spontaneous_spell_conversion { get; }
             internal bool remove_solo_tactics_from_sacred_huntsmater { get; }
+            internal bool update_kineticist_archetypes { get; }
             internal Settings()
             {
 
@@ -60,6 +61,7 @@ namespace CallOfTheWild
                     one_sneak_attack_per_target_per_spell = (bool)jo["one_sneak_attack_per_target_per_spell"];
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
                     remove_solo_tactics_from_sacred_huntsmater = (bool)jo["remove_solo_tactics_from_sacred_huntsmater"];
+                    update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
                 }
             }
         }
@@ -232,6 +234,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixFeyStalkerSummonBuff();
                     CallOfTheWild.Rebalance.fixBeltsOfPerfectComponents();
                     CallOfTheWild.Rebalance.addMissingImmunities();
+                    CallOfTheWild.Rebalance.fixJaethalUndeadFeature();
                     if (settings.secondary_rake_attacks)
                     {
                         Main.logger.Log("Applying -5 penalty to rake attacks.");
@@ -340,7 +343,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
 
-                    CallOfTheWild.KineticistFix.load();
+                    CallOfTheWild.KineticistFix.load(Main.settings.update_kineticist_archetypes);
                     CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();

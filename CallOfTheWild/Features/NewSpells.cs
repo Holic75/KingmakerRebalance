@@ -254,6 +254,9 @@ namespace CallOfTheWild
         static public BlueprintAbility blade_tutor;
         //corrosive consumption
         //implosion
+        static public BlueprintAbility channel_vigor;
+        static public BlueprintAbility control_construct;
+        //static public BlueprintAbility battlemind_link;
 
         static public void load()
         {
@@ -417,6 +420,138 @@ namespace CallOfTheWild
             createShadowEnchantment();
             createWrathfulWeapon();
             createBladeTutor();
+            createChannelVigor();
+            createControlConstruct();
+        }
+
+
+        static void createControlConstruct()
+        {
+            var dominate_person_buff = library.Get<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f");
+            var buff = Helpers.CreateBuff("ControlConstructBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          dominate_person_buff.FxOnStart,
+                                          dominate_person_buff.GetComponent<ChangeFaction>(),
+                                          Helpers.CreateAddFactContextActions(newRound: Helpers.Create<SkillMechanics.ContextActionCasterSkillCheck>(c =>
+                                          {
+                                              c.Failure = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>());
+                                              c.Stat = StatType.SkillKnowledgeArcana;
+                                          })),
+                                          Helpers.Create<UniqueBuff>()
+                                          );
+
+            control_construct = Helpers.CreateAbility("ControlConstructAbility",
+                                                      "Control Construct",
+                                                      "You wrest the control of a construct from its master. For as long as you concentrate, you can control the construct as if you were its master. You must make a Spellcraft check each round to maintain control. The DC of the Spellcraft check is (10 + the construct’s HD). If the construct’s creator or master is present and trying to control the construct, you both must make opposed Spellcraft checks each round to control the construct. You can not maintain control over more than once construct.",
+                                                      "",
+                                                      dominate_person_buff.Icon,
+                                                      AbilityType.Spell,
+                                                      UnitCommand.CommandType.Standard,
+                                                      AbilityRange.Close,
+                                                      Helpers.roundsPerLevelDuration,
+                                                      "",
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                      Helpers.CreateContextRankConfig(),
+                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                      );
+            control_construct.setMiscAbilityParametersSingleTargetRangedHarmful();
+            control_construct.AddToSpellList(Helpers.wizardSpellList, 7);
+            Helpers.AddSpellAndScroll(control_construct, "f199f6e5026488c499042900b572eb7f");
+        }
+
+
+        static void createChannelVigor()
+        {
+            var icon = Helpers.GetIcon("c3a8f31778c3980498d8f00c980be5f5"); //guidance
+            var limbs_buff = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280");
+            var mind_buff = Helpers.CreateBuff("ChannelVigorMindBuff",
+                                               "",
+                                               "",
+                                               "",
+                                               null,
+                                               limbs_buff.FxOnStart,
+                                               Helpers.CreateAddStatBonus(StatType.SkillKnowledgeArcana, 4, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.SkillKnowledgeWorld, 4, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.SkillLoreNature, 4, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.SkillLoreReligion, 4, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.SkillPerception, 4, ModifierDescriptor.Competence),
+                                               Common.createAttackTypeAttackBonus(4, AttackTypeAttackBonus.WeaponRangeType.Ranged, ModifierDescriptor.Competence)
+                                               );
+            var spirit_buff = Helpers.CreateBuff("ChannelVigorSpiritBuff",
+                                               "",
+                                               "",
+                                               "",
+                                               null,
+                                               limbs_buff.FxOnStart,
+                                               Helpers.CreateAddStatBonus(StatType.CheckIntimidate, 6, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.CheckBluff, 6, ModifierDescriptor.Competence),
+                                               Helpers.CreateAddStatBonus(StatType.SaveWill, 6, ModifierDescriptor.Competence)
+                                               );
+
+            var torso_buff = Helpers.CreateBuff("ChannelVigorTorsoBuff",
+                                   "",
+                                   "",
+                                   "",
+                                   null,
+                                   limbs_buff.FxOnStart,
+                                   Helpers.CreateAddStatBonus(StatType.SaveFortitude, 6, ModifierDescriptor.Competence),
+                                   Helpers.Create<ConcentrationBonus>(c => c.Value  = 6)
+                                   );
+
+            var description = "You focus the energy of your mind, body, and spirit into a specific part of your being, granting yourself an exceptional ability to perform certain tasks.When you cast the spell, choose one of the following portions of your self as your focus target. You can gain the benefit of only one channel vigor spell at a time.\n"
+                              + "Limbs: You gain the benefits of a haste spell.\n"
+                              + "Mind: You gain a +4 competence bonus on Knowledge and Perception skill checks and on ranged attack rolls.\n"
+                              + "Spirit: You gain a +6 competence bonus on Will saving throws and Bluff and Intimidate checks.\n"
+                              + "Torso: You gain a +6 competence bonus on Fortitude saving throws and concentration checks.\n";
+
+            var display_name = "Channel Vigor";
+
+            var name_buff_map = new Dictionary<string, BlueprintBuff>()
+            {
+                {"Limbs", limbs_buff },
+                {"Mind", mind_buff },
+                {"Spirit", spirit_buff },
+                {"Torso", torso_buff }
+            };
+
+            var abilities = new List<BlueprintAbility>();
+
+            foreach (var kv in name_buff_map)
+            {
+                var ability = Helpers.CreateAbility("ChannelVigor" + kv.Key + "Ability",
+                                                    display_name + ": " + kv.Key,
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = name_buff_map.Values.ToArray()),
+                                                                             Common.createContextActionApplyBuff(kv.Value, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                             ),
+                                                    Helpers.CreateContextRankConfig(),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                                    );
+                ability.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Extend;
+                ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
+            }
+
+            channel_vigor = Common.createVariantWrapper("ChannelVigorBaseAbility", "", abilities.ToArray());
+            channel_vigor.SetName(display_name);
+
+            channel_vigor.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            channel_vigor.AddToSpellList(Helpers.alchemistSpellList, 3);
+            channel_vigor.AddToSpellList(Helpers.clericSpellList, 3);
+            channel_vigor.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            channel_vigor.AddToSpellList(Helpers.magusSpellList, 3);
+
+            Helpers.AddSpellAndScroll(channel_vigor, "50f9e398017b34c43aa08a2c2c44e8af");
         }
 
 
@@ -954,18 +1089,36 @@ namespace CallOfTheWild
         static void createAkashicForm()
         {
             var buff = Helpers.CreateBuff("AkashicFormBuff",
-                               "Akashic Form",
-                               "If at any point within the duration of the spell you are reduced to fewer than 0 hit points or are slain by a death effect that is not mind-affecting, you can immediately let your current physical body die and assume the record of your physical body on your next turn.",
-                               "",
-                               Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
-                               null,
-                               Common.createDeathActions(Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true),
-                                                                                  Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1000))
-                                                                                  )
-                                                        )
-                               );
+                                           "Akashic Form",
+                                           "If at any point within the duration of the spell you are reduced to fewer than 0 hit points or are slain by a death effect that is not mind-affecting, you can immediately let your current physical body die and assume the record of your physical body on your next turn.",
+                                           "",
+                                           Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
+                                           null
+                                           );
 
-            buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.RemoveOnResurrect);
+            var buff_resurrect = Helpers.CreateBuff("AkashicFormHealBuff",
+                                "Akashic Form Resurrect",
+                                "",
+                                "0a3800d5e3d442bdaa0a4c81cbec875f",
+                                Helpers.GetIcon("fafd77c6bfa85c04ba31fdc1c962c914"),
+                                null,
+                                Helpers.CreateAddFactContextActions(deactivated: new GameAction[]
+                                {
+                                    Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true),
+                                    Common.createContextActionRemoveBuffFromCaster(buff),
+
+                                }
+                                )
+                                );
+            buff_resurrect.SetBuffFlags(BuffFlags.StayOnDeath);
+
+            buff.AddComponent(Common.createDeathActions(Helpers.CreateActionList(Common.createContextActionApplyBuff(buff_resurrect, Helpers.CreateContextDuration(0), is_child: true, dispellable: false)
+                                                                                )
+                                                       ));
+
+
+
+            buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
 
             akashic_form = Helpers.CreateAbility("AkashicFormAbility",
                                                  buff.Name,
