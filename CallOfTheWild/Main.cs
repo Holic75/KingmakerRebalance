@@ -138,6 +138,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Helpers.Load();
                     CallOfTheWild.ArmorEnchantments.initialize();
                     CallOfTheWild.WeaponEnchantments.initialize();
+                    CallOfTheWild.Deities.create();
 
                     CallOfTheWild.Rebalance.fixAnimalCompanion();
 
