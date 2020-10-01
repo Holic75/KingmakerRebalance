@@ -238,6 +238,7 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.nerfSmilodonRake();
                     }
 
+                    CallOfTheWild.ShadowSpells.ShadowSpells.init();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
                     CallOfTheWild.Familiars.load();
                     CallOfTheWild.ChannelEnergyEngine.init();
