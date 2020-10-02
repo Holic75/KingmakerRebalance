@@ -843,8 +843,7 @@ namespace CallOfTheWild
                                                                            stepLevel: 4);
             var int_bonus = Helpers.CreateAddContextStatBonus(StatType.Intelligence, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
             var cha_bonus = Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Morale, ContextValueType.Rank, AbilityRankType.StatBonus, 2);
-            var athletics_penalty = Helpers.CreateAddStatBonus(StatType.SkillAthletics, -20, ModifierDescriptor.Penalty);
-            var str_check_penalty = Common.createAbilityScoreCheckBonus(-20, ModifierDescriptor.Penalty, StatType.Strength);
+
 
             var stat_context_rank_config = Helpers.CreateContextRankConfig(type: AbilityRankType.StatBonus,
                                                                            baseValueType: ContextRankBaseValueType.ClassLevel,
@@ -852,9 +851,20 @@ namespace CallOfTheWild
                                                                            progression: ContextRankProgression.OnePlusDivStep,
                                                                            stepLevel: 8);
 
+            var insightful_contemplation_debuff = Helpers.CreateBuff("InsightfulContemplationDebuff",
+                                             "",
+                                             "",
+                                             "",
+                                             null,
+                                             null,
+                                             Helpers.CreateAddStatBonus(StatType.SkillAthletics, -20, ModifierDescriptor.UntypedStackable),
+                                             Common.createAbilityScoreCheckBonus(-20, ModifierDescriptor.UntypedStackable, StatType.Constitution)
+                                             );
+            insightful_contemplation_debuff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            insightful_contemplation_buff = createRagingSongEffectBuffForbidSpellCasting("SkaldCourtPoetInsigtfulContemplationBuff", false, int_bonus, cha_bonus, will_bonus, ac_penalty,
-                                                                                                                                     athletics_penalty, str_check_penalty, stat_context_rank_config,
+            insightful_contemplation_buff = createRagingSongEffectBuffForbidSpellCasting("SkaldCourtPoetInsigtfulContemplationBuff", false, insightful_contemplation_debuff,
+                                                                                                                                     int_bonus, cha_bonus, will_bonus, ac_penalty,
+                                                                                                                                     stat_context_rank_config,
                                                                                                                                      will_context_rank_config, ac_context_rank_config);
 
 
@@ -966,9 +976,9 @@ namespace CallOfTheWild
                                                                            stepLevel: 8);
 
 
-            controlled_rage_dex_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageDexBuff", dex_bonus, stat_context_rank_config);
-            controlled_rage_str_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageStrBuff",str_bonus, stat_context_rank_config);
-            controlled_rage_con_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageConBuff", con_bonus, stat_context_rank_config);
+            controlled_rage_dex_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageDexBuff", null, dex_bonus, stat_context_rank_config);
+            controlled_rage_str_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageStrBuff", null, str_bonus, stat_context_rank_config);
+            controlled_rage_con_buff = createRagingSongEffectBuff("SkaldUrbanSkaldControlledRageConBuff", null, con_bonus, stat_context_rank_config);
 
             var transmuter_con = library.Get<BlueprintActivatableAbility>("99cf556b967c2074ca284e127d815711");
             var transmuter_str = library.Get<BlueprintActivatableAbility>("c7773d1b408fea24dbbb0f7bf3eb864e");
@@ -1494,13 +1504,31 @@ namespace CallOfTheWild
                                                                            classes: getSkaldArray(),
                                                                            progression: ContextRankProgression.OnePlusDivStep,
                                                                            stepLevel: 8);
-            inspired_rage_effect_buff = createRagingSongEffectBuff("SkaldInspiredRageEffectBuff", 
+
+
+            var inspire_rage_debuff = Helpers.CreateBuff("InspiredRageDebuff",
+                                                         "",
+                                                         "",
+                                                         "",
+                                                         null,
+                                                         null,
+                                                         Helpers.CreateAddStatBonus(StatType.CheckDiplomacy, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.CheckBluff, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.SkillThievery, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.SkillStealth, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.SkillUseMagicDevice, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.SkillKnowledgeArcana, -20, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateAddStatBonus(StatType.SkillKnowledgeWorld, -20, ModifierDescriptor.UntypedStackable)
+                                                         );
+            inspire_rage_debuff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            inspired_rage_effect_buff = createRagingSongEffectBuff("SkaldInspiredRageEffectBuff", inspire_rage_debuff,
                                                                       ac_penalty, will_bonus, str_bonus, con_bonus, ac_context_rank_config, will_context_rank_config, stat_context_rank_config);
             var inspire_courage = library.Get<BlueprintActivatableAbility>("5250fe10c377fdb49be449dfe050ba70");
 
             inspired_rage_effect_buff.SetIcon(inspire_courage.Icon);
             inspired_rage_effect_buff.SetName("Inspired Rage");
-            inspired_rage_effect_buff.SetDescription("At 1st level, affected allies gain a +2 morale bonus to Strength and Constitution and a +1 morale bonus on Will saving throws, but also take a –1 penalty to AC. While under the effects of inspired rage, allies other than the skald cannot use any ability that requires patience or concentration. At 4th level and every 4 levels thereafter, the song’s bonuses on Will saves increase by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Strength and Constitution increase by 2. Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends. A skald is trained to use music, oration, and similar performances to inspire his allies to feats of strength and ferocity. At 1st level, a skald can use this ability for a number of rounds per day equal to 4 + his Charisma modifier. For each level thereafter, he can use raging song for 2 additional rounds per day.");
+            inspired_rage_effect_buff.SetDescription("At 1st level, affected allies gain a +2 morale bonus to Strength and Constitution and a +1 morale bonus on Will saving throws, but also take a –1 penalty to AC. While under the effects of inspired rage, allies other than the skald cannot use any Charisma-, Dexterity-, or Intelligence-based skills (except Mobility and Intimidate). While under the effects of inspired rage, allies other than the skald cannot use any ability that requires patience or concentration. At 4th level and every 4 levels thereafter, the song’s bonuses on Will saves increase by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Strength and Constitution increase by 2. Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends. A skald is trained to use music, oration, and similar performances to inspire his allies to feats of strength and ferocity. At 1st level, a skald can use this ability for a number of rounds per day equal to 4 + his Charisma modifier. For each level thereafter, he can use raging song for 2 additional rounds per day.");
             inspired_rage = Common.convertPerformance(inspire_courage, inspired_rage_effect_buff, "SkaldInspiredRage");
 
             inspired_rage_feature = Helpers.CreateFeature("SkaldInspiredRageFeature",
@@ -1514,7 +1542,8 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintBuff createRagingSongEffectBuffForbidSpellCasting(string name, bool forbid_spellcasting, params BlueprintComponent[] components)
+        static internal BlueprintBuff createRagingSongEffectBuffForbidSpellCasting(string name, bool forbid_spellcasting,
+                                                                                   BlueprintBuff allies_debuff, params BlueprintComponent[] components)
         {
             var raging_song_effect_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", name, "");//standard rage buff
             //in AddFactContextActions in Activated we will need to replace all ContextConditionHasFact with ContextConditionCasterHasFact
@@ -1546,18 +1575,26 @@ namespace CallOfTheWild
             raging_song_effect_buff.RemoveComponents<ForbidSpellCasting>();
             raging_song_effect_buff.RemoveComponents<NewMechanics.ForbidSpellCastingUnlessHasClass>();
 
+            var actions = new List<GameAction>();
+            if (forbid_spellcasting)
+            {
+                actions.Add(Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true, false));
+            }
+            if (allies_debuff != null)
+            {
+                actions.Add(Common.createContextActionApplyBuff(allies_debuff, Helpers.CreateContextDuration(), false, true, true, false));
+            }
             var forbid_condition = Helpers.CreateConditional(new Condition[] { Common.createContextConditionIsCaster(not: true), Common.createContextConditionCasterHasFact(master_skald, has: false) },
-                                                             Common.createContextActionApplyBuff(no_spell_casting_buff, Helpers.CreateContextDuration(), false, true, true, false),
+                                                             actions.ToArray(),
                                                              null
                                                             );
             var master_skald_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(master_skald, has: true),
                                                  Common.createContextActionApplyBuff(master_skald_buff, Helpers.CreateContextDuration(), false, true, true, false),
                                                  null
                                                 );
-            if (forbid_spellcasting)
-            {
-                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
-            }
+
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, forbid_condition);
+
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuff(raging_song_effect_buff, master_skald_condition);
 
             var skald_vigor_condition1 = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(skald_vigor_feat, has: true),
@@ -1577,9 +1614,9 @@ namespace CallOfTheWild
         }
 
 
-        static internal BlueprintBuff createRagingSongEffectBuff(string name, params BlueprintComponent[] components)
+        static internal BlueprintBuff createRagingSongEffectBuff(string name, BlueprintBuff allies_debuff, params BlueprintComponent[] components)
         {
-            return createRagingSongEffectBuffForbidSpellCasting(name, true, components);
+            return createRagingSongEffectBuffForbidSpellCasting(name, true, allies_debuff, components);
         }
 
 

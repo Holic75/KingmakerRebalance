@@ -168,7 +168,7 @@ namespace CallOfTheWild.ShadowSpells
 
     namespace Patches
     {
-        [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
+        /*[Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
         [Harmony12.HarmonyPatch("HasResistanceRoll", Harmony12.MethodType.Getter)]
         class Patch_RuleSpellResistanceCheck_HasResistanceRoll_Prefix
         {
@@ -187,10 +187,10 @@ namespace CallOfTheWild.ShadowSpells
                 }
                 return true;
             }
-        }
+        }*/
 
 
-        [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
+        /*[Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
         [Harmony12.HarmonyPatch("TryOvercomeSpellResistance", Harmony12.MethodType.Normal)]
         class Patch_AreaEffectEntityData_TryOvercomeSpellResistance_Prefix
         {
@@ -209,7 +209,7 @@ namespace CallOfTheWild.ShadowSpells
                 }
                 return true;
             }
-        }
+        }*/
 
 
         /*[Harmony12.HarmonyPatch(typeof(UnitEntityData))]
@@ -283,7 +283,8 @@ namespace CallOfTheWild.ShadowSpells
 
                 if (!__instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
                 {
-                    return true;
+                    RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Target, SavingThrowType.Will, context2.Params.DC));
+                    __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
                 }
 
                 if (__instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])
@@ -333,11 +334,12 @@ namespace CallOfTheWild.ShadowSpells
                     return true;
                 }
 
+
                 if (shadow_summon > shadow_descriptor2)
                 {
                     context2 = summoned_context;
                 }
-             
+           
                 if (__instance.Initiator == null)
                 {
                     return true;
@@ -345,7 +347,8 @@ namespace CallOfTheWild.ShadowSpells
 
                 if (!__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
                 {
-                    return true;
+                    RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Initiator, SavingThrowType.Will, context2.Params.DC));
+                    __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
                 }
 
                 if (__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])
