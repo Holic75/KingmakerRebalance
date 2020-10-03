@@ -105,6 +105,9 @@ namespace CallOfTheWild
         static public BlueprintFeature teamwork_feat_share;
         static public BlueprintFeatureSelection teamwork_feat;
 
+        static public BlueprintAbility summon_companion_ability;
+        static public BlueprintAbility summon_call_ability;
+
 
 
         internal static void createSummonerClass()
@@ -196,7 +199,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Personal,
                                                       "",
                                                       "",
-                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = makers_call_ability),
+                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = summon_call_ability),
                                                                                Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionCastSpell>(ca => ca.Spell = dimension_door)))
                                                                                ),
                                                       makers_call_resource.CreateResourceLogic()
@@ -1268,6 +1271,13 @@ namespace CallOfTheWild
             makers_call.AddComponent(Helpers.CreateAddAbilityResource(makers_call_resource));
             makers_call_ability = ability;
 
+            summon_call_ability = library.CopyAndAdd(ability, "SummonCallAbility", "6a8ce66ed50c431b9825a3554491c904");
+            summon_call_ability.SetNameDescriptionIcon("Call Eidolon", "", null);
+            summon_call_ability.RemoveComponents<AbilityResourceLogic>();
+            summon_call_ability.Parent = null;
+            summon_companion_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(Helpers.Create<ContextActionCastSpell>(c => c.Spell = summon_call_ability))));
+
+
 
             var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
             var ability2 = Helpers.CreateAbility("SummonerTranspositionAbility",
@@ -1280,7 +1290,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Personal,
                                                       "",
                                                       "",
-                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = ability),
+                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = summon_call_ability),
                                                                                Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionCastSpell>(ca => ca.Spell = dimension_door)))
                                                                                ),
                                                       makers_call_resource.CreateResourceLogic()
@@ -1515,6 +1525,7 @@ namespace CallOfTheWild
             Common.setAsFullRoundAction(summon_companion);
             summon_companion.setMiscAbilityParametersSelfOnly();
             eidolon_selection.AddComponent(Helpers.CreateAddFacts(summon_companion, unsummon_companion));
+            summon_companion_ability = summon_companion;
         }
 
 

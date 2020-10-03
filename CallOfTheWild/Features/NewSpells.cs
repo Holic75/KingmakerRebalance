@@ -250,6 +250,9 @@ namespace CallOfTheWild
 
         static public BlueprintAbility shadow_enchantment;
         static public BlueprintAbility shadow_enchantment_greater;
+        static public BlueprintAbility shadow_conjuration;
+        static public BlueprintAbility shadow_conjuration_greater;
+        static public BlueprintAbility shades;
         static public BlueprintAbility wrathful_weapon;
         static public BlueprintAbility blade_tutor;
         //corrosive consumption
@@ -418,6 +421,7 @@ namespace CallOfTheWild
             createSongOfDiscordGreater();
 
             createShadowEnchantment();
+            createShadowConjuration();
             createWrathfulWeapon();
             createBladeTutor();
             createChannelVigor();
@@ -713,8 +717,70 @@ namespace CallOfTheWild
             shadow_enchantment_greater.AddToSpellList(Helpers.wizardSpellList, 6);
             shadow_enchantment_greater.AddToSpellList(Helpers.bardSpellList, 6);
             Helpers.AddSpell(shadow_enchantment_greater);
+        }
 
 
+        static void createShadowConjuration()
+        {
+            shadow_conjuration = Helpers.CreateAbility("ShadowConjuration",
+                                                       "Shadow Conjuration",
+                                                       "You use material from the Plane of Shadow to shape quasi-real illusions of one or more creatures, objects, or forces. Shadow conjuration can mimic any sorcerer or wizard conjuration (summoning) or conjuration (creation) spell of 3rd level or lower. Shadow conjurations are only one-fifth (20%) as strong as the real things, though creatures who believe the shadow conjurations to be real are affected by them at full strength. Any creature that interacts with the spell can make a Will save to recognize its true nature.\n"
+                                                       + "Spells that deal damage have normal effects unless the affected creature succeeds on a Will save. Each disbelieving creature takes only one-fifth (20%) damage from the attack. If the disbelieved attack has a special effect other than damage, that effect is only 20% likely to occur. Regardless of the result of the save to disbelieve, an affected creature is also allowed any save that the spell being simulated allows, but the save DC is set according to shadow conjuration‘s level (4th) rather than the spell’s normal level. In addition, any effect created by shadow conjuration allows Spell Resistance, even if the spell it is simulating does not. Shadow objects or substances have normal effects except against those who disbelieve them. Against disbelievers, they are 20% likely to work.\n"
+                                                       + "A shadow creature has one-fifth the hit points of a normal creature of its kind (regardless of whether it’s recognized as shadowy). It deals normal damage and has all normal abilities and weaknesses. Against a creature that recognizes it as a shadow creature, however, the shadow creature’s damage is one-fifth (20%) normal, and all special abilities that do not deal lethal damage are only 20% likely to work. (Roll for each use and each affected character separately.) Furthermore, the shadow creature’s AC bonuses are just one-fifth as large. A creature that succeeds on its save sees the shadow conjurations as transparent images superimposed on vague, shadowy forms. Objects automatically succeed on their Will saves against this spell.",
+                                                       "",
+                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Unlimited,
+                                                       "See text",
+                                                       "See text");
+            shadow_conjuration.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateSpellComponent(SpellSchool.Illusion),
+            };
+            shadow_conjuration.AddToSpellList(Helpers.wizardSpellList, 4);
+            shadow_conjuration.AddToSpellList(Helpers.bardSpellList, 4);
+            Helpers.AddSpell(shadow_conjuration);
+
+            shadow_conjuration_greater = Helpers.CreateAbility("ShadowConjurationGreater",
+                                                       "Shadow Conjuration Greater",
+                                                       "This spell functions like shadow conjuration, except that it duplicates any sorcerer or wizard conjuration (summoning) or conjuration (creation) spell of 6th level or lower. The illusory conjurations created deal three-fifths (60%) damage to nonbelievers, and non-damaging effects are 60% likely to work against nonbelievers.\n"
+                                                       + $"{shadow_conjuration.Name}: {shadow_conjuration.Description}",
+                                                       "",
+                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Unlimited,
+                                                       "See text",
+                                                       "See text");
+            shadow_conjuration_greater.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateSpellComponent(SpellSchool.Illusion),
+            };
+            shadow_conjuration_greater.AddToSpellList(Helpers.wizardSpellList, 7);
+            Helpers.AddSpell(shadow_conjuration_greater);
+
+            shades = Helpers.CreateAbility("Shades",
+                                           "Shades",
+                                           "This spell functions like shadow conjuration, except that it mimics conjuration spells of 8th level or lower. The illusory conjurations created deal four-fifths (80%) damage to nonbelievers, and non-damaging effects are 80% likely to work against nonbelievers.\n"
+                                           + $"{shadow_conjuration.Name}: {shadow_conjuration.Description}",
+                                           "",
+                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                           AbilityType.Spell,
+                                           UnitCommand.CommandType.Standard,
+                                           AbilityRange.Unlimited,
+                                           "See text",
+                                           "See text");
+            shades.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateSpellComponent(SpellSchool.Illusion),
+            };
+            shades.AddToSpellList(Helpers.wizardSpellList, 9);
+            Helpers.AddSpell(shades);
+
+
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), shadow_conjuration, 4); //instead of enervation for darkness domain
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), shades, 9); //instead of polar midnight for darkness domain
         }
 
 
@@ -863,6 +929,24 @@ namespace CallOfTheWild
             addShadowSpells(shadow_enchantment_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
                            new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
                           );
+
+
+            var conjuration_except_spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("4a648b57935a59547b7a2ee86fb4f26a"), //dimension door
+                library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+            };
+
+            addShadowSpells(shadow_conjuration, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
+                           new BlueprintSpellList[] { Helpers.wizardSpellList}, 3, SpellSchool.Conjuration, conjuration_except_spells
+                          );
+            addShadowSpells(shadow_conjuration_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
+                           new BlueprintSpellList[] { Helpers.wizardSpellList}, 6, SpellSchool.Conjuration, conjuration_except_spells
+                          );
+            addShadowSpells(shades, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80,
+                               new BlueprintSpellList[] { Helpers.wizardSpellList }, 8, SpellSchool.Conjuration,
+                               conjuration_except_spells
+                              );
         }
 
         static void createSilence()
@@ -5762,7 +5846,7 @@ namespace CallOfTheWild
             suffocation = Helpers.CreateAbility("SuffocationAbility",
                                                 "Suffocation",
                                                 "This spell extracts the air from the target’s lungs, causing swift suffocation.\n"
-                                                + "The target can attempt to resist this spell’s effects with a Fortitude save - if he succeeds, he is merely staggered for 1 round as he gasps for breath.If the target fails, he immediately begins to suffocate.On the target’s next turn, he falls unconscious and is reduced to 0 hit points. One round later, the target drops to - 1 hit points and is dying. One round after that, the target dies. Each round, the target can delay that round’s effects from occurring by making a successful Fortitude save, but the spell continues for 3 rounds, and each time a target fails his Fortitude save, he moves one step further along the track to suffocation. This spell only affects living creatures that must breathe. It is impossible to defeat the effects of this spell by simply holding one’s breath -if the victim fails the initial Saving Throw, the air in his lungs is extracted.",
+                                                + "The target can attempt to resist this spell’s effects with a Fortitude save - if he succeeds, he is merely staggered for 1 round as he gasps for breath. If the target fails, he immediately begins to suffocate. On the target’s next turn, he falls unconscious and is reduced to 0 hit points. One round later, the target drops to - 1 hit points and is dying. One round after that, the target dies. Each round, the target can delay that round’s effects from occurring by making a successful Fortitude save, but the spell continues for 3 rounds, and each time a target fails his Fortitude save, he moves one step further along the track to suffocation. This spell only affects living creatures that must breathe. It is impossible to defeat the effects of this spell by simply holding one’s breath -if the victim fails the initial Saving Throw, the air in his lungs is extracted.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -9102,7 +9186,10 @@ namespace CallOfTheWild
                 shadow_enchantment,
                 shadow_enchantment_greater,
                 library.Get<BlueprintAbility>("237427308e48c3341b3d532b9d3a001f"), //shadow_evocation
-                library.Get<BlueprintAbility>("3c4a2d4181482e84d9cd752ef8edc3b6") //shadow evocation greater
+                library.Get<BlueprintAbility>("3c4a2d4181482e84d9cd752ef8edc3b6"), //shadow evocation greater
+                shadow_conjuration,
+                shadow_conjuration_greater,
+                shades
         };
 
         }

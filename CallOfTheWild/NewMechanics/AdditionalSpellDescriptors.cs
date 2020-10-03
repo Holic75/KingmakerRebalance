@@ -12,7 +12,7 @@ namespace CallOfTheWild.AdditionalSpellDescriptors
     public enum ExtraSpellDescriptor : long
          {         
         Earth = 0x0004000000000000, //from earth blast        
-         Air = 0x0008000000000000, //should be added to all air blasts (?)
+        Air = 0x0008000000000000, //should be added to all air blasts (?)
         Water = 0x0010000000000000, //from kineticist water blast
                                     //cold blast have wrong descriptor 20000000000004 - i.e cold + something ?, should be just cold
                                     //magma blast is missing earth descriptor (only fire)
@@ -23,9 +23,12 @@ namespace CallOfTheWild.AdditionalSpellDescriptors
                                     //metal is correct
                                     //thunderstorm only has electricity - probably correct
                                     //plasma only has fire - should be air +fire
-        Shadow20 = 0x0200000000000000,
-        Shadow60 = 0x0400000000000000,
-        Shadow = Shadow20 | Shadow60,
+        Shadow1 = 0x0200000000000000,
+        Shadow2 = 0x0400000000000000,
+        Shadow = Shadow1 | Shadow2,
+        Shadow20 = Shadow,
+        Shadow60 = Shadow2,
+        Shadow80 = Shadow1,
 
         LanguageDependent = 0x2000000000000000,
         HolyVindicatorShield = 0x4000000000000000,

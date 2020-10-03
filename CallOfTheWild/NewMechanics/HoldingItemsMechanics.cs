@@ -36,7 +36,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("HoldInTwoHands", Harmony12.MethodType.Getter)]
     class ItemEntityWeapon__HoldInTwoHands__Patch
     {
-
         static void Postfix(ItemEntityWeapon __instance, ref bool __result)
         {
             Main.TraceLog();
@@ -552,10 +551,9 @@ namespace CallOfTheWild.HoldingItemsMechanics
     {
         static void Postfix(UnitDescriptor unit, ref bool __result)
         {
-            Main.TraceLog();
-            if (__result == false)
-            {//check buckler with unhindering shield
-                __result = unit.Body.SecondaryHand.HasItem && Helpers.hasFreeHand(unit.Body.SecondaryHand);
+            if (__result == false && unit.Body.PrimaryHand.MaybeWeapon != null)
+            {
+                __result = !unit.Body.PrimaryHand.MaybeWeapon.HoldInTwoHands && Helpers.hasFreeHand(unit.Body.SecondaryHand);
             }
             var use_spell_combat_part = unit.Get<UnitPartCanUseSpellCombat>();
             if (__result == false && use_spell_combat_part != null)

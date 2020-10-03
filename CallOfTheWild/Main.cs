@@ -141,6 +141,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Helpers.Load();
                     CallOfTheWild.ArmorEnchantments.initialize();
                     CallOfTheWild.WeaponEnchantments.initialize();
+                    CallOfTheWild.Deities.create();
 
                     CallOfTheWild.Rebalance.fixAnimalCompanion();
 
@@ -241,6 +242,7 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.nerfSmilodonRake();
                     }
 
+                    CallOfTheWild.ShadowSpells.ShadowSpells.init();
                     //CallOfTheWild.Rebalance.fixNaturalACStacking();
                     CallOfTheWild.Familiars.load();
                     CallOfTheWild.ChannelEnergyEngine.init();
