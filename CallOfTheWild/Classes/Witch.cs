@@ -692,7 +692,7 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
             var empatic_healing = Helpers.CreateFeature("HedgeWitchEmpaticHealingFeature",
                                                         "Empatic Healing",
-                                                        "The witch gains a +3 bonus to religion skill.",
+                                                        "The witch gains a +3 bonus to Lore (Religion) skill.",
                                                         "",
                                                         icon,
                                                         FeatureGroup.None,

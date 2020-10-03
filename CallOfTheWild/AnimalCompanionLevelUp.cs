@@ -191,6 +191,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
 
             foreach (var f in animal_restricted_feats)
             {
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Spiritualist.spiritualist_class));
                 f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.quadruped_archetype));
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.serpentine_archetype));

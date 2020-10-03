@@ -61,10 +61,12 @@ namespace CallOfTheWild
                 if (__instance.CurrentUnit == null)
                     return false;
 
+                bool is_phantom = player.Descriptor.Progression.GetClassLevel(Phantom.phantom_class) > 0;
                 bool is_serpentine = player.Descriptor.Progression.IsArchetype(Eidolon.serpentine_archetype);
-                bool is_biped = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
+                bool is_biped = (player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
                                                   && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype)
-                                                  && !is_serpentine;
+                                                  && !is_serpentine)
+                                || is_phantom;
                 is_biped = is_biped || player.Blueprint.GetComponent<Eidolon.CorpseCompanionComponent>() != null;
                 EquipSlotBase.SlotType[] allowed_slots;
                 if (is_serpentine)
@@ -115,7 +117,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (player.Descriptor.IsPet && !is_biped)
+                if (player.Descriptor.IsPet && (!is_biped || is_phantom))
                 {//remove additional weapon sets
                     for (int i = 1; i < player.Body.HandsEquipmentSets.Count; i++)
                     {

@@ -185,9 +185,12 @@
     <Compile Include="Classes\Mysteries\Waves.cs" />
     <Compile Include="Classes\Mysteries\Wind.cs" />
     <Compile Include="Classes\Oracle.cs" />
+    <Compile Include="Classes\Phantoms\Anger.cs" />
+    <Compile Include="Classes\Phantoms\Phantom.cs" />
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Psychic.cs" />
+    <Compile Include="Classes\Spiritualist.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="Archetypes\UndeadLord.cs" />
     <Compile Include="ClassToProgression.cs" />
