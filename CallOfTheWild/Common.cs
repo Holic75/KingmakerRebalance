@@ -1590,7 +1590,7 @@ namespace CallOfTheWild
                                                                          CommandType command_type, PrefabLink prefab_link_area, PrefabLink prefab_link_buff)
         {
             var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("5d4308fa344af0243b2dd3b1e500b2cc", effect_buff.name +"Area", "");
-            area_effect.Size = 30.Feet();
+            area_effect.Size = radius;
             area_effect.Fx = prefab_link_area; //evocation alignment aoe
 
             area_effect.ComponentsArray = new BlueprintComponent[]

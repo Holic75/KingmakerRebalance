@@ -124,7 +124,8 @@ namespace CallOfTheWild
                                                                                    Summoner.lesser_eidolon_selection,
                                                                                    Summoner.twinned_eidolon_selection,
                                                                                    Summoner.fey_eidolon_selection,
-                                                                                   Summoner.infernal_eidolon_selection
+                                                                                   Summoner.infernal_eidolon_selection,
+                                                                                   Spiritualist.emotional_focus_selection
                                                                                    };
         public static BlueprintFeatureSelection familiar_selection = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183"); //rogue familiar
                                                                                                      

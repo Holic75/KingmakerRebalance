@@ -6,6 +6,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -25,6 +26,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -38,6 +40,151 @@ using UnityEngine;
 
 namespace CallOfTheWild.CompanionMechanics
 {
+    public class AddOutgoingDamageTriggerOnAttackerOfPetOrMaster : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IInitiatorRulebookHandler<RuleDealStatDamage>, IInitiatorRulebookHandler<RuleDrainEnergy>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber, IRulebookHandler<RuleDealStatDamage>, IRulebookHandler<RuleDrainEnergy>
+    {
+        public ActionList Actions;
+        public bool TriggerOnStatDamageOrEnergyDrain;
+        public bool reduce_below0;
+        public int min_dmg = 1;
+        public bool on_self = false;
+
+        public bool only_from_weapon = false;
+        public bool only_from_spell = false;
+        public bool consider_damage_type = false;
+
+        public DamageEnergyType[] energy_types;
+        public PhysicalDamageForm[] physical_types;
+
+        private void RunAction(TargetWrapper target)
+        {
+            if (!this.Actions.HasActions)
+                return;
+            (this.Fact as IFactContextOwner)?.RunActionInContext(this.Actions, target);
+        }
+
+        public void OnEventAboutToTrigger(RuleDealDamage evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+            if (!checkPetOrMaster(evt.Target))
+            {
+                return;
+            }
+            var spellbook = Helpers.GetMechanicsContext()?.SourceAbilityContext?.Ability.Spellbook;
+            if (only_from_spell && spellbook == null)
+            {
+                return;
+            }
+            if (only_from_weapon && !(evt.Reason?.Rule is RuleAttackWithWeapon))
+            {
+                return;
+            }
+
+            int received_damage = 0;
+
+
+            if (!consider_damage_type)
+            {
+                received_damage = evt.Damage;
+            }
+            else
+            {
+                foreach (var d in evt.Calculate.CalculatedDamage)
+                {
+                    var energy_damage = (d.Source as EnergyDamage);
+                    var physical_damage = (d.Source as PhysicalDamage);
+
+                    if (energy_damage != null && energy_types.Contains(energy_damage.EnergyType))
+                    {
+                        received_damage += d.FinalValue;
+                    }
+                    if (physical_damage != null && physical_damage.Form.HasValue && physical_types.Contains(physical_damage.Form.Value))
+                    {
+                        received_damage += d.FinalValue;
+                    }
+                }
+            }
+
+            if (received_damage < min_dmg)
+            {
+                return;
+            }
+
+            if ((evt.Target.Damage + evt.Target.HPLeft < 0 || evt.Target.HPLeft > 0) && reduce_below0)
+            {
+                return;
+            }
+
+            this.RunAction(on_self ? evt.Target : evt.Initiator);
+
+        }
+
+        public void OnEventAboutToTrigger(RuleDealStatDamage evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleDealStatDamage evt)
+        {
+            if (!checkPetOrMaster(evt.Target))
+            {
+                return;
+            }
+            if (!this.TriggerOnStatDamageOrEnergyDrain)
+                return;
+
+            if (reduce_below0 && !evt.Target.Descriptor.State.MarkedForDeath)
+            {
+                return;
+            }
+            this.RunAction(on_self ? evt.Target : evt.Initiator);
+        }
+
+        public void OnEventAboutToTrigger(RuleDrainEnergy evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleDrainEnergy evt)
+        {
+            if (!checkPetOrMaster(evt.Target))
+            {
+                return;
+            }
+            if (!this.TriggerOnStatDamageOrEnergyDrain)
+                return;
+            if (reduce_below0 && !evt.Target.Descriptor.State.MarkedForDeath)
+            {
+                return;
+            }
+            this.RunAction(on_self ? evt.Target : evt.Initiator);
+        }
+
+        private bool checkPetOrMaster(UnitEntityData unit)
+        {
+            if (this.Fact.MaybeContext?.MaybeCaster == null || unit == null)
+            {
+                return false;
+            }
+            if (unit == this.Fact.MaybeContext?.MaybeCaster)
+            {
+                return true;
+            }
+
+            if (unit.Descriptor.IsPet && unit.Descriptor.Master.Value == this.Fact.MaybeContext.MaybeCaster)
+            {
+                return true;
+            }
+
+            if (this.Fact.MaybeContext.MaybeCaster.Descriptor.IsPet && this.Fact.MaybeContext.MaybeCaster.Descriptor.Master.Value == unit)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class MultiAttack : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>
     {

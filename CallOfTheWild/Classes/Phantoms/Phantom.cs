@@ -1,5 +1,6 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Experience;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
@@ -7,6 +8,7 @@ using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.Controllers.Brain.Blueprints;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -67,11 +69,13 @@ namespace CallOfTheWild
         static public BlueprintProgression whimsy;
         static public BlueprintProgression zeal;
 
+        static public BlueprintPortrait phantom_portrait;
+
         static public Dictionary<string, BlueprintProgression> phantom_progressions = new Dictionary<string, BlueprintProgression>();
         static public Dictionary<string, BlueprintFeature> potent_phantom = new Dictionary<string, BlueprintFeature>();
         static public Dictionary<string, List<BlueprintFeature>> phantom_skill_foci = new Dictionary<string, List<BlueprintFeature>>();
 
-        static public BlueprintArchetype anger_archetype, despair_archetype, fear_archetype, hatred_archetpye, zeal_archetype;
+      
 
        
         static public BlueprintFeatureSelection extra_class_skills;
@@ -81,6 +85,7 @@ namespace CallOfTheWild
 
         static public void create()
         {
+            phantom_portrait = Helpers.createPortrait("PhantomProtrait", "Phantom", "");
             createPhantomClass();
             createPhantoms();
         }
@@ -88,7 +93,9 @@ namespace CallOfTheWild
 
         static void createPhantoms()
         {
-
+            createAnger();
+            createDespair();
+            createHatred();
         }
 
 
@@ -122,17 +129,32 @@ namespace CallOfTheWild
             unit.Body.SecondaryHand = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
             unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
             unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
+            unit.Body.DisableHands = false;
             unit.ReplaceComponent<AddClassLevels>(a =>
             {
+                a.DoNotApplyAutomatically = true;
+                a.Levels = 0;
                 a.Archetypes = new BlueprintArchetype[] { archetype };
                 a.CharacterClass = phantom_class;
                 a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillPersuasion, StatType.SkillKnowledgeArcana }.RemoveFromArray(skills[0]).RemoveFromArray(skills[1]);
                 a.Selections = new SelectionEntry[0];
             });
+            Helpers.SetField(unit, "m_Portrait", phantom_portrait);
             unit.AddComponents(Helpers.Create<Eidolon.EidolonComponent>());
+            unit.AddComponents(Helpers.Create<AllowDyingCondition>());
+            unit.AddComponents(Helpers.Create<AddResurrectOnRest>());
+            unit.LocalizedName = unit.LocalizedName.CreateCopy();
+            unit.LocalizedName.String = Helpers.CreateString(unit.name + ".Name", display_name + " Phantom");
+            unit.RemoveComponents<Experience>();
+            unit.RemoveComponents<AddTags>();
+            unit.Brain = library.Get<BlueprintBrain>("cf986dd7ba9d4ec46ad8a3a0406d02ae"); //character brain
+            unit.Faction = library.Get<BlueprintFaction>("d8de50cc80eb4dc409a983991e0b77ad"); //neutrals
+            unit.Visual = library.Get<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9").Visual.CloneObject();
+            unit.Visual.BloodType = Kingmaker.Visual.HitSystem.BloodType.BlackUndead;
+            unit.Visual.FootstepSoundSizeType = Kingmaker.Visual.Sound.FootstepSoundSizeType.Ghost;
+            unit.Visual.Barks = spectre.Visual.Barks;
 
-            Helpers.SetField(unit, "m_Portrait", Helpers.createPortrait("EidolonAngelProtrait", "Phantom", ""));
-            var progression = Helpers.CreateProgression(name + "PhantomProgression",
+           var progression = Helpers.CreateProgression(name + "PhantomProgression",
                                                         "Emotion Focus: " + display_name,
                                                         descripton,
                                                         "",
@@ -163,8 +185,6 @@ namespace CallOfTheWild
                 {
                     ability = Common.convertToSpellLike(spell_like_abilities[i], name, Spiritualist.getSpiritualistArray(), StatType.Wisdom,
                                                                resource);
-
-                    spell_likes[i] = Common.AbilityToFeature(ability, false);
                 }
                 else
                 {
@@ -180,6 +200,7 @@ namespace CallOfTheWild
                     ability.SetNameDescriptionIcon(spell_like_abilities[i]);
                 }
                 spell_likes[i] = Common.AbilityToFeature(ability, false);
+                spell_likes[i].AddComponent(resource.CreateAddAbilityResource());
                 spell_likes[i].SetNameDescription("Emotional Power: " + spell_likes[i].Name,
                                                   "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.");
 
@@ -190,7 +211,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(7, feature7_s, spell_likes[1]),
                                                            Helpers.LevelEntry(9, spell_likes[2]),
                                                            Helpers.LevelEntry(12, feature12_s),
-                                                           Helpers.LevelEntry(16, feature7_s, spell_likes[3]),
+                                                           Helpers.LevelEntry(16, spell_likes[3]),
                                                            Helpers.LevelEntry(17, feature17_s)
                                                            };
             progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(feature1_s, feature7_s, feature12_s, feature17_s),
@@ -233,7 +254,7 @@ namespace CallOfTheWild
 
             phantom_class = Helpers.Create<BlueprintCharacterClass>();
             phantom_class.name = "PhantomClass";
-            library.AddAsset(phantom_class, "e3b3ad6decb14cdba2e7e14982d90035");
+            library.AddAsset(phantom_class, "");
 
 
             phantom_class.LocalizedName = Helpers.CreateString("Phantom.Name", "Phantom");
@@ -281,7 +302,7 @@ namespace CallOfTheWild
             //str/dex increase
             //improved evasion
 
-            devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "EidolonDevotionFeature", "");
+            devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "PhantomDevotionFeature", "");
             devotion.SetDescription("AThen phantom gains a +4 morale bonus on Will saves against enchantment spells and effects.");
           
             var natural_armor = library.CopyAndAdd<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1", "PhantomNaturalArmorFeature", "");
@@ -421,7 +442,7 @@ namespace CallOfTheWild
                                                }),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                 type: AbilityRankType.Default,
-                                                                                progression: ContextRankProgression.StartPlusDivStep,
+                                                                                progression: ContextRankProgression.DelayedStartPlusDivStep,
                                                                                 startLevel: 4,
                                                                                 stepLevel: 3,
                                                                                 classes: getPhantomArray())
@@ -447,7 +468,7 @@ namespace CallOfTheWild
                                                }),
                                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                 type: AbilityRankType.Default,
-                                                                                progression: ContextRankProgression.StartPlusDivStep,
+                                                                                progression: ContextRankProgression.DelayedStartPlusDivStep,
                                                                                 startLevel: 4,
                                                                                 stepLevel: 3,
                                                                                 classes: getPhantomArray())
@@ -531,8 +552,9 @@ namespace CallOfTheWild
             foreach (var s in skills)
             {
                 skill_feature.AddComponents(Helpers.Create<AddClassSkill>(a => a.Skill = s),
-                                            Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); ss.increase_by1_on_apply = true; }),
-                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.AsIs,
+                                            Helpers.Create<SkillMechanics.SetSkillRankToValue>(ss => { ss.skill = s; ss.value = Helpers.CreateContextValue(AbilityRankType.Default); /*ss.increase_by1_on_apply = true;*/ }),
+                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDivStep,
+                                                                                   stepLevel: 1,
                                                                                    classes: new BlueprintCharacterClass[] { phantom_class }
                                                                                    ));
             }

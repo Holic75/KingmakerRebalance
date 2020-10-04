@@ -89,7 +89,7 @@ namespace CallOfTheWild
             spiritualist_class.name = "SpiritualistClass";
             library.AddAsset(spiritualist_class, "");
 
-            spiritualist_class.LocalizedName = Helpers.CreateString("Spiritualist.Name", "Summoner");
+            spiritualist_class.LocalizedName = Helpers.CreateString("Spiritualist.Name", "Spiritualist");
             spiritualist_class.LocalizedDescription = Helpers.CreateString("Spiritualsit.Description",
                                                                          "Becoming a spiritualist is not a calling — it’s a phenomenon.\n"
                                                                          + "When a creature dies, its spirit flees its body and begins the next stage of its existence. Debilitating emotional attachments during life and other psychic corruptions cause some spirits to drift into the Ethereal Plane and descend toward the Negative Energy Plane. Some of these spirits are able to escape the pull of undeath and make their way back to the Material Plane, seeking refuge in a psychically attuned mind. Such a fusing of consciousnesses creates a spiritualist—the master of a single powerful phantom whom the spiritualist can manifest to do her bidding.\n"
@@ -103,7 +103,7 @@ namespace CallOfTheWild
             spiritualist_class.ReflexSave = inquisitor_class.ReflexSave;
             spiritualist_class.WillSave = inquisitor_class.WillSave;
             spiritualist_class.Spellbook = createSpiritualistSpellbook();
-            spiritualist_class.ClassSkills = new StatType[] { StatType.CheckDiplomacy, StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPerception,
+            spiritualist_class.ClassSkills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillPerception,
                                                          StatType.SkillUseMagicDevice};
             spiritualist_class.IsDivineCaster = false;
             spiritualist_class.IsArcaneCaster = false;
@@ -225,7 +225,7 @@ namespace CallOfTheWild
 
         static void createPhantomRecall()
         {
-            phantom_recall_resource = Helpers.CreateAbilityResource("MakersCallResource", "", "", "", null);
+            phantom_recall_resource = Helpers.CreateAbilityResource("PhantomRecallResource", "", "", "", null);
             phantom_recall_resource.SetIncreasedByLevelStartPlusDivStep(0, 6, 1, 4, 1, 0, 0.0f, getSpiritualistArray());
 
 
@@ -267,7 +267,7 @@ namespace CallOfTheWild
             phantom_recall.AddComponent(Helpers.CreateAddAbilityResource(phantom_recall_resource));
             phantom_recall_ability = ability;
 
-            summon_call_ability = library.CopyAndAdd(ability, "SummonCallAbility", "6a8ce66ed50c431b9825a3554491c904");
+            summon_call_ability = library.CopyAndAdd(ability, "PhantomSummonCallAbility", "");
             summon_call_ability.SetNameDescriptionIcon("Call Phantom", "", null);
             summon_call_ability.RemoveComponents<AbilityResourceLogic>();
             summon_call_ability.Parent = null;
@@ -348,13 +348,16 @@ namespace CallOfTheWild
                                        "",
                                        Helpers.GetIcon("4aa7942c3e62a164387a73184bca3fc1"), //disintegrate
                                        null,
-                                       Helpers.CreateAddFactContextActions(activated: new GameAction[] { Helpers.Create<CompanionMechanics.ContextActionUnsummonCompanion>() })
+                                       Helpers.CreateAddFactContextActions(activated: new GameAction[] { Helpers.Create<CompanionMechanics.ContextActionUnsummonCompanion>() },
+                                                                           deactivated: new GameAction[] { Helpers.Create<CompanionMechanics.ContextActionSummonCompanion>()
+                                                                           }
+                                                                           )
                                       );
             unsummon_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
 
             var unsummon_companion = Helpers.CreateAbility("SpiritUnsummonAbility",
                                                             "Confine Phantom",
-                                                            "Confine your phantom in your conciousness.",
+                                                            "Confine your phantom in your consciousness.",
                                                             "",
                                                             unsummon_buff.Icon,
                                                             AbilityType.Supernatural,
@@ -368,7 +371,7 @@ namespace CallOfTheWild
 
             unsummon_companion.setMiscAbilityParametersSelfOnly();
             var summon_companion = Helpers.CreateAbility("ManifestSpiritAbility",
-                                                           "Manifest Spirit",
+                                                           "Manifest Phantom",
                                                            "Fully manifest your phantom.",
                                                            "",
                                                            unsummon_companion.Icon,
@@ -400,7 +403,7 @@ namespace CallOfTheWild
                                               Helpers.CreateAddStatBonus(StatType.SaveWill, 2, ModifierDescriptor.Circumstance)
                                               );
             var buff11 = library.CopyAndAdd<BlueprintBuff>(buff1, "GreaterSpiritualInferenceAllyBuff", "");
-            var buff2 = Helpers.CreateBuff("SpiritualInferenceBuff",
+            var buff2 = Helpers.CreateBuff("GreaterSpiritualInferenceBuff",
                                   "",
                                   "",
                                   "",
@@ -530,11 +533,11 @@ namespace CallOfTheWild
         static void createSpiritualistKnacks()
         {
             var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
-            spiritualist_knacks = Common.createCantrips("SummonerCantripsFeature",
+            spiritualist_knacks = Common.createCantrips("SpiritualistKnacksFeature",
                                                    "Knacks",
                                                    "A spiritualist learns a number of knacks, or 0-level psychic spells. These spells are cast like any other spell, but they are not expended when cast and may be used again.",
                                                    daze.Icon,
-                                                   "98914f0079234c06b9a3c5064e06665b",
+                                                   "",
                                                    spiritualist_class,
                                                    StatType.Wisdom,
                                                    spiritualist_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray());

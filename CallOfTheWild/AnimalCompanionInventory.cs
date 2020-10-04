@@ -121,7 +121,12 @@ namespace CallOfTheWild
                 {//remove additional weapon sets
                     for (int i = 1; i < player.Body.HandsEquipmentSets.Count; i++)
                     {
-                        player.Body.HandsEquipmentSets[i] = player.Body.HandsEquipmentSets[0];
+                        if (player.Body.HandsEquipmentSets[i].PrimaryHand?.MaybeItem != player.Body.HandsEquipmentSets[0].PrimaryHand?.MaybeItem
+                            || player.Body.HandsEquipmentSets[i].SecondaryHand?.MaybeItem != player.Body.HandsEquipmentSets[0].SecondaryHand?.MaybeItem)
+                        {
+                            player.Body.HandsEquipmentSets[i] = player.Body.HandsEquipmentSets[0].CloneObject();
+                        }
+
                     }
                 }
 

@@ -37,7 +37,7 @@ namespace CallOfTheWild
             internal bool secondary_rake_attacks { get; }
             internal bool one_sneak_attack_per_target_per_spell { get; }
             internal bool metamagic_for_spontaneous_spell_conversion { get; }
-            internal bool remove_solo_tactics_from_sacred_huntsmater { get; }
+            internal bool remove_solo_tactics_from_sacred_huntsmaster { get; }
             internal bool update_kineticist_archetypes { get; }
             internal Settings()
             {
@@ -60,7 +60,7 @@ namespace CallOfTheWild
                     secondary_rake_attacks = (bool)jo["secondary_rake_attacks"];
                     one_sneak_attack_per_target_per_spell = (bool)jo["one_sneak_attack_per_target_per_spell"];
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
-                    remove_solo_tactics_from_sacred_huntsmater = (bool)jo["remove_solo_tactics_from_sacred_huntsmater"];
+                    remove_solo_tactics_from_sacred_huntsmaster = (bool)jo["remove_solo_tactics_from_sacred_huntsmaster"];
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
                 }
             }
@@ -161,9 +161,9 @@ namespace CallOfTheWild
                     }
 
 
-                    if (settings.remove_solo_tactics_from_sacred_huntsmater)
+                    if (settings.remove_solo_tactics_from_sacred_huntsmaster)
                     {
-                        Main.logger.Log("Removing Solo Tactics from Sacred Huntsmater");
+                        Main.logger.Log("Removing Solo Tactics from Sacred Huntsmaster");
                         CallOfTheWild.Rebalance.removeSoloTacticsFromSH();
                     }
 
@@ -290,6 +290,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.RavenerHunter.create();
                     CallOfTheWild.Oracle.createOracleClass();
                     CallOfTheWild.Investigator.createInvestigatorClass();
+                    CallOfTheWild.Spiritualist.createSpiritualistClass();
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();

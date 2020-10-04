@@ -85,7 +85,8 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     static class AddPet_TryLevelUpPet_Patch
     {
         static BlueprintCharacterClass[] manual_classes = new BlueprintCharacterClass[] { ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
-                                                                                         Eidolon.eidolon_class
+                                                                                         Eidolon.eidolon_class,
+                                                                                         Phantom.phantom_class
                                                                                         };
         internal static bool Prefix(AddPet __instance)
         {
@@ -162,6 +163,10 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 {
                     c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));
                 }
+                if (c != Phantom.phantom_class)
+                {
+                    c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
+                }
             }
 
 
@@ -191,7 +196,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
 
             foreach (var f in animal_restricted_feats)
             {
-                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Spiritualist.spiritualist_class));
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
                 f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.quadruped_archetype));
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.serpentine_archetype));

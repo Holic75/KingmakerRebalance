@@ -36,7 +36,7 @@ namespace CallOfTheWild
 
             var aura_of_fury_effect_buff = Helpers.CreateBuff("AngerPhantomAuraOfFuryEffectBuff",
                                                        "Aura of Fury",
-                                                       "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot-radius aura of fury. Creatures within the aura gain a +2 bonus on melee attack rolls but take a –2 penalty to AC. Ending the aura is a free action. The phantom can use this ability in either ectoplasmic or incorporeal form.",
+                                                       "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot-radius aura of fury. Creatures within the aura gain a +2 bonus on melee attack rolls but take a –2 penalty to AC. Ending the aura is a free action.",
                                                        "",
                                                        Helpers.GetIcon("97b991256e43bb140b263c326f690ce2"), //rage
                                                        null,
@@ -45,7 +45,7 @@ namespace CallOfTheWild
                                                        );
 
             var toggle = Common.createToggleAreaEffect(aura_of_fury_effect_buff, 20.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
-                                                      AbilityActivationType.OnUnitAction,
+                                                      AbilityActivationType.WithUnitCommand,
                                                       UnitCommand.CommandType.Swift,
                                                       Common.createPrefabLink("b3acbaa70e97c3649992e8f1e4bfe8dd"), //anarchic
                                                       null
@@ -86,15 +86,14 @@ namespace CallOfTheWild
 
 
             var powerful_strikes_phantom = Helpers.CreateFeature("AngerPhantomBaseFeature",
-                                                                 "",
-                                                                 "",
+                                                                 "Strength Focus",
+                                                                 "The phantom gains a +2 bonus to Strength and a –2 penalty to Dexterity. Instead of the phantom gaining a bonus to Dexterity as the spiritualist gains levels, an anger-focused phantom gains a bonus to Strength instead.",
                                                                  "",
                                                                  null,
                                                                  FeatureGroup.None,
                                                                  Helpers.CreateAddFact(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"))
                                                                  );
-            powerful_strikes_phantom.HideInCharacterSheetAndLevelUp = true;
-            powerful_strikes_phantom.HideInUI = true;
+
 
             var anger_archetype = createPhantomArchetype("AngerPhantomArchetype",
                                                          "Anger",
@@ -122,7 +121,7 @@ namespace CallOfTheWild
                                                                             Helpers.LevelEntry(13, dex_cha_bonus),
                                                                             Helpers.LevelEntry(15, dex_cha_bonus),}
                                                          );
-            //enlarge person, rage, longstrider, shout
+
 
             createPhantom("Anger",
                           "Anger",
@@ -137,15 +136,12 @@ namespace CallOfTheWild
                           14, 12,
                           new BlueprintAbility[]
                           {
-                              library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"),
-                              library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"),
-                              library.Get<BlueprintAbility>("14c90900b690cac429b229efdf416127"),
-                              library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162")
+                              library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
+                              library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), //rage
+                              library.Get<BlueprintAbility>("14c90900b690cac429b229efdf416127"), //longstrider
+                              library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162") //shout
                           }
                           );
         }
-
-
-
     }
 }
