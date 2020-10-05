@@ -89,7 +89,7 @@ namespace CallOfTheWild
            
             var crushing_despair = library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903");
             var despairing_shout_resource = Helpers.CreateAbilityResource("DespairPhantomDespairingShoutResource", "", "", "", null);
-            despairing_shout_resource.SetFixedResource(1);
+            despairing_shout_resource.SetFixedResource(3);
             var crushing_despair_ability = Common.convertToSuperNatural(crushing_despair, "DespairPhantom", getPhantomArray(), StatType.Charisma, despairing_shout_resource);
             var despairing_shout = Common.AbilityToFeature(crushing_despair_ability);
             despairing_shout.AddComponent(despairing_shout_resource.CreateAddAbilityResource());

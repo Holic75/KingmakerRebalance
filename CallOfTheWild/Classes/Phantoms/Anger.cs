@@ -44,7 +44,7 @@ namespace CallOfTheWild
                                                        Common.createAttackTypeAttackBonus(2, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable)
                                                        );
 
-            var toggle = Common.createToggleAreaEffect(aura_of_fury_effect_buff, 20.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
+            var toggle = Common.createToggleAreaEffect(aura_of_fury_effect_buff, 20.Feet(), Helpers.CreateConditionsCheckerAnd(),
                                                       AbilityActivationType.WithUnitCommand,
                                                       UnitCommand.CommandType.Swift,
                                                       Common.createPrefabLink("b3acbaa70e97c3649992e8f1e4bfe8dd"), //anarchic
@@ -58,10 +58,10 @@ namespace CallOfTheWild
             ferocious_mien_buff.FxOnStart = library.Get<BlueprintBuff>("a1ffec0ce7c167a40aaea13dc49b757b").FxOnStart;
 
             var ferocious_mien_resource = Helpers.CreateAbilityResource("AngeerPhantomFerociousMienResource", "", "", "", null);
-            ferocious_mien_resource.SetFixedResource(1);
+            ferocious_mien_resource.SetFixedResource(3);
             var ferocious_mien_ability = Helpers.CreateAbility("AngerPhantomFerociousMienAbility",
                                                            "Ferocious Mien",
-                                                           "When the spiritualist reaches 12th level, once per day as a swift action, a phantom in ectoplasmic form can grow more ferocious and frightening. It becomes one size category larger than its current size, as affected by an enlarge person spell, and grows fiercer in combat, as if affected by a rage spell. This effect lasts for 1 round per class level of the spiritualist.",
+                                                           "When the spiritualist reaches 12th level, three times per day as a swift action, a phantom in ectoplasmic form can grow more ferocious and frightening. It becomes one size category larger than its current size, as affected by an enlarge person spell, and grows fiercer in combat, as if affected by a rage spell. This effect lasts for 1 round per class level of the spiritualist.",
                                                            "",
                                                            ferocious_mien_buff.Icon,
                                                            AbilityType.Supernatural,

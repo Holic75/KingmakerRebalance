@@ -457,7 +457,7 @@ namespace CallOfTheWild
                                                       AbilityRange.Close,
                                                       Helpers.roundsPerLevelDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)),
                                                       Helpers.CreateContextRankConfig(),
                                                       Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                       Common.createAbilityTargetHasFact(inverted: false, Common.construct)
@@ -537,7 +537,7 @@ namespace CallOfTheWild
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = name_buff_map.Values.ToArray()),
-                                                                             Common.createContextActionApplyBuff(kv.Value, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                             Common.createContextActionApplyBuff(kv.Value, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
                                                                              ),
                                                     Helpers.CreateContextRankConfig(),
                                                     Helpers.CreateSpellComponent(SpellSchool.Transmutation)
@@ -584,7 +584,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 Helpers.minutesPerLevelDuration,
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true)),
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                 Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
                                                 );
@@ -1033,8 +1033,8 @@ namespace CallOfTheWild
             song_of_discord_greater.SetNameDescription("Song of Discord, Greater",
                                                        "This spell functions as song of discord except that affected creatures automatically attack the nearest target each round. In addition, all affected creatures gain a +4 morale bonus to Strength for the duration of the spell. A creature that succeeds at the Will save reduces the effect’s duration to 1 round.");
             song_of_discord_greater.AddComponent(Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                          Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1)),
-                                                                                                         Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                          Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), is_from_spell: true),
+                                                                                                         Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
                                                                                                         )
                                                                          )
                                                 );
@@ -1093,7 +1093,7 @@ namespace CallOfTheWild
                                            Helpers.willNegates,
                                            Helpers.CreateRunActions(SavingThrowType.Will,
                                                                     Helpers.CreateConditionalSaved(null,
-                                                                                                   Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default))))
+                                                                                                   Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true))
                                                                    ),
                                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
                                            Helpers.CreateSpellComponent(SpellSchool.Enchantment),
@@ -1117,9 +1117,9 @@ namespace CallOfTheWild
 
             var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
-            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
-            var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1));
-            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1));
+            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true);
             synaptic_pulse = Helpers.CreateAbility("SynapticPulseAbility",
                                                    "Synaptic Pulse",
                                                    "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1 round.",

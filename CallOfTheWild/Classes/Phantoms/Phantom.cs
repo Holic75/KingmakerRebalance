@@ -96,6 +96,10 @@ namespace CallOfTheWild
             createAnger();
             createDespair();
             createHatred();
+            createFear();
+            createZeal();
+            //whimsy
+            //kindness
         }
 
 

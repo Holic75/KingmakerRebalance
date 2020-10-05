@@ -79,6 +79,11 @@ namespace CallOfTheWild
         static public BlueprintAbility summon_companion_ability;
         static public BlueprintAbility summon_call_ability;
 
+        //phantom blade or extoplasmotist
+        //onymoji
+        //necrologist
+        //priest of the fallen
+        //exciter
 
         internal static void createSpiritualistClass()
         {
@@ -579,6 +584,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c3a8f31778c3980498d8f00c980be5f5", 0), //guidance
                 new Common.SpellId( "95f206566c5261c42aa5b3e7e0d1e36c", 0), //mage light
                 new Common.SpellId( "7bc8e27cba24f0e43ae64ed201ad5785", 0), //resistance
+                new Common.SpellId( "5bf3315ce1ed4d94e8805706820ef64d", 0), //touch of fatigue
                 new Common.SpellId( "d3a852385ba4cd740992d1970170301a", 0), //virtue
 
                 new Common.SpellId( NewSpells.burst_of_adrenaline.AssetGuid, 1),

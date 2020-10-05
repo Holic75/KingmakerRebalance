@@ -66,7 +66,7 @@ namespace CallOfTheWild
             var dmg = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default)), IgnoreCritical: true);
             var hateful_aura_effect_buff = Helpers.CreateBuff("HatredPhantomHatefulAuraEffectBuff",
                                                               "Hateful Aura",
-                                                              "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot-radius aura that inflicts pain upon the minds of those who dare damage it or its master. Enemies within the aura that deal damage to the spiritualist or the phantom take an amount of damage equal to the phantom’s Charisma bonus. This is a mind-affecting pain effect. The phantom can use this ability in either ectoplasmic or incorporeal form.",
+                                                              "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot-radius aura that inflicts pain upon the minds of those who dare damage it or its master. Enemies within the aura that deal damage to the spiritualist or the phantom take an amount of damage equal to the phantom’s Charisma bonus. This is a mind-affecting pain effect.",
                                                               "",
                                                               Helpers.GetIcon("b48674cef2bff5e478a007cf57d8345b"), //remove curse
                                                               null,
@@ -128,14 +128,15 @@ namespace CallOfTheWild
                                                                                       Helpers.CreateConditional(Common.createContextConditionCasterHasFact(shared_hatred),
                                                                                                                 Common.createContextActionApplyBuff(shared_hatred_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true))
                                                                                       );
-         
+            var add_weapon_finesse = Common.featureToFeature(weapon_finesse, false);
+            add_weapon_finesse.SetDescription("The phantom gains Weapon Finesse as a bonus feat.");
             var hatred_archetype = createPhantomArchetype("HatredPhantomArchetype",
                                                          "Hatred",
                                                          true,
                                                          true,
                                                          false,
                                                          new StatType[] { StatType.SkillMobility, StatType.SkillPerception },
-                                                         new LevelEntry[] { Helpers.LevelEntry(1, weapon_finesse)},
+                                                         new LevelEntry[] { Helpers.LevelEntry(1, add_weapon_finesse)},
                                                          new LevelEntry[] { Helpers.LevelEntry(1) }
                                                          );
 

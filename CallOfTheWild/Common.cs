@@ -1586,38 +1586,57 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintActivatableAbility createToggleAreaEffect(BlueprintBuff effect_buff, Feet radius, ConditionsChecker conditions, AbilityActivationType activation_type,
-                                                                         CommandType command_type, PrefabLink prefab_link_area, PrefabLink prefab_link_buff)
+
+        static public BlueprintActivatableAbility createToggleAreaEffect(
+                                                                 string prefix, string display_name, string description, UnityEngine.Sprite icon,
+                                                                 Feet radius, AbilityActivationType activation_type,
+                                                                 CommandType command_type, PrefabLink prefab_link_area, PrefabLink prefab_link_buff,
+                                                                 params BlueprintComponent[] components)
         {
-            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("5d4308fa344af0243b2dd3b1e500b2cc", effect_buff.name +"Area", "");
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("5d4308fa344af0243b2dd3b1e500b2cc", prefix + "Area", "");
             area_effect.Size = radius;
-            area_effect.Fx = prefab_link_area; //evocation alignment aoe
+            area_effect.Fx = prefab_link_area;
 
-            area_effect.ComponentsArray = new BlueprintComponent[]
-            {
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = effect_buff; a.Condition = conditions; })
-            };
+            area_effect.ComponentsArray = components;
 
-
-            var buff = Helpers.CreateBuff(effect_buff.name + "Buff",
-                                            effect_buff.Name,
-                                            effect_buff.Description,
+            var buff = Helpers.CreateBuff(prefix + "Buff",
+                                            display_name,
+                                            description,
                                             "",
-                                            effect_buff.Icon,
+                                            icon,
                                             prefab_link_buff,
                                             Common.createAddAreaEffect(area_effect)
                                             );
 
-            var toggle = Helpers.CreateActivatableAbility(effect_buff.name + "ToggleAbility",
-                                                          effect_buff.Name,
-                                                          effect_buff.Description,
+            var toggle = Helpers.CreateActivatableAbility(prefix + "ToggleAbility",
+                                                          display_name,
+                                                          description,
                                                           "",
-                                                          effect_buff.Icon,
+                                                          icon,
                                                           buff,
                                                           activation_type,
                                                           command_type,
                                                           null);
             return toggle;
+        }
+
+
+        static public BlueprintActivatableAbility createToggleAreaEffect(BlueprintBuff effect_buff, Feet radius, ConditionsChecker conditions, AbilityActivationType activation_type,
+                                                                         CommandType command_type, PrefabLink prefab_link_area, PrefabLink prefab_link_buff)
+        {
+            var components = new BlueprintComponent[]
+            {
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = effect_buff; a.Condition = conditions; })
+            };
+
+            var spell_descriptor_component = effect_buff.GetComponent<SpellDescriptorComponent>();
+            if (spell_descriptor_component != null)
+            {
+                components = components.AddToArray(spell_descriptor_component);
+            }
+
+            return createToggleAreaEffect(effect_buff.name, effect_buff.Name, effect_buff.Description, effect_buff.Icon,
+                                          radius, activation_type, command_type, prefab_link_area, prefab_link_buff, components);
         }
 
 

@@ -187,8 +187,10 @@
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="Classes\Phantoms\Anger.cs" />
     <Compile Include="Classes\Phantoms\Despair.cs" />
+    <Compile Include="Classes\Phantoms\Fear.cs" />
     <Compile Include="Classes\Phantoms\Hatred.cs" />
     <Compile Include="Classes\Phantoms\Phantom.cs" />
+    <Compile Include="Classes\Phantoms\Zeal.cs" />
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Psychic.cs" />
