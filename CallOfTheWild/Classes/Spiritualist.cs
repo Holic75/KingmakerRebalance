@@ -153,7 +153,7 @@ namespace CallOfTheWild
             createEthericTether();
             createSpiritualBond();
             createSharedAndFusedConsciousness();
-            //createBondedManifestationAndDualBond();
+            createBondedManifestationAndDualBond();
             createSpiritualInferenceAndGreaterSpiritualInference();
             createPhantomRecall();
             createPotentPhantom();
@@ -173,7 +173,7 @@ namespace CallOfTheWild
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
                                                                     Helpers.LevelEntry(2),
-                                                                    Helpers.LevelEntry(3/*, bonded_manifestation*/),
+                                                                    Helpers.LevelEntry(3, bonded_manifestation),
                                                                     Helpers.LevelEntry(4, spiritual_inference),
                                                                     Helpers.LevelEntry(5),
                                                                     Helpers.LevelEntry(6, phantom_recall),
@@ -187,15 +187,189 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(14, spiritual_bond),
                                                                     Helpers.LevelEntry(15 ),
                                                                     Helpers.LevelEntry(16),
-                                                                    Helpers.LevelEntry(17/*, dual_bond*/),
+                                                                    Helpers.LevelEntry(17, dual_bond),
                                                                     Helpers.LevelEntry(20, potent_phantom)
                                                                     };
 
             spiritualist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { spiritualist_proficiencies, spiritualist_spellcasting, detect_magic,
                                                                                             spiritualist_knacks, emotional_focus_selection };
             spiritualist_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(etheric_tether, spiritual_inference, phantom_recall, spiritual_bond, greater_spiritual_inference, potent_phantom),
-                                                            Helpers.CreateUIGroup(shared_consciousness, /*bonded_manifestation,*/ fused_consciousness/*, dual_bond*/)
+                                                            Helpers.CreateUIGroup(shared_consciousness, bonded_manifestation, fused_consciousness, dual_bond)
                                                            };
+        }
+
+
+        static void createBondedManifestationAndDualBond()
+        {
+            var bonded_manifestation_buff = Helpers.CreateBuff("BondedManifestationBuff",
+                                                               "Bonded Manifestation",
+                                                               "At 3rd level, as a swift action, a spiritualist can pull on the consciousness of her phantom and the substance of the Ethereal Plane to partially manifest aspects of both in her own body. When she does, she uses this bonded manifestation to enhance her own abilities while the phantom is still bound to her consciousness.\n"
+                                                               + "For the spiritualist to use this ability, the phantom must be confined in the spiritualist’s consciousness; it can’t be manifested in any other way.\n"
+                                                               + "During a bonded manifestation, the phantom can’t be damaged, dismissed, or banished. A spiritualist can use bonded manifestation a number of rounds per day equal to 3 + her spiritualist level. The rounds need not be consecutive. She can dismiss the effects of a bonded manifestation as a free action, but even if she dismisses a bonded manifestation on the same round that she used it, it counts as 1 round of use.\n"
+                                                               + "Spiritualist gains an ectoplasmic shield that protects her without restricting her movement or actions. She gains a +4 shield bonus to Armor Class; this bonus applies to incorporeal touch attacks.\n"
+                                                               + "The ectoplasmic shield has no armor check penalty or arcane spell failure chance. At 8th level, the spiritualist also sprouts a pair of ectoplasmic tendrils from her body. The spiritualist can use these tendrils to attack creatures within her melee reach (using the damage dice of her manifested phantom).\n"
+                                                               + "At 13th level, the bonus from ectoplasmic shield increases to +6. At 18th level, the spiritualist can take a full-round action to attack all creatures within her melee reach with her tendrils (using the damage dice of her manifested phantom). When she does, she rolls the attack roll twice, takes the better of the two results, and uses that as her attack roll result against all creatures within her melee reach.",
+                                                               "",
+                                                               NewSpells.barrow_haze.Icon,
+                                                               Common.createPrefabLink("e9a8af06810719e4d9885c10c827b131"), //from ghost form
+                                                               Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Shield),
+                                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSpiritualistArray(),
+                                                                                               progression: ContextRankProgression.Custom,
+                                                                                               customProgression: new (int, int)[] { (12, 4), (20, 6) }
+                                                                                               )
+                                                               );
+
+            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
+                                                            new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(1, DiceType.D10),
+                                                            new DiceFormula(2, DiceType.D6),
+                                                            new DiceFormula(2, DiceType.D8)};
+
+            var bonded_manifestation_buff8_1 = Helpers.CreateBuff("BondedManifestation81Buff",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    null,
+                                                    Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),
+                                                    Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),
+                                                    Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementForSpecificCategory>(c =>
+                                                                                                   {
+                                                                                                       c.category = WeaponCategory.OtherNaturalWeapons;
+                                                                                                       c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                       c.dice_formulas = diceFormulas;
+                                                                                                   }),
+                                                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                type: AbilityRankType.Default,
+                                                                                progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                                startLevel: 5,
+                                                                                stepLevel: 4,
+                                                                                classes: getSpiritualistArray())
+                                                   );
+            bonded_manifestation_buff8_1.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            DiceFormula[] diceFormulas2 = new DiceFormula[] {new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(2, DiceType.D6),
+                                                            new DiceFormula(2, DiceType.D8),
+                                                            new DiceFormula(3, DiceType.D6),
+                                                            new DiceFormula(3, DiceType.D8)};
+            var slam = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
+            var bonded_manifestation_buff8_2 = Helpers.CreateBuff("BondedManifestation82Buff",
+                                        "",
+                                        "",
+                                        "",
+                                        null,
+                                        null,
+                                        Common.createAddAdditionalLimb(slam),
+                                        Common.createAddAdditionalLimb(slam),
+                                        Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementForSpecificCategory>(c =>
+                                        {
+                                            c.category = WeaponCategory.OtherNaturalWeapons;
+                                            c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                            c.dice_formulas = diceFormulas2;
+                                        }),
+                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                    type: AbilityRankType.Default,
+                                                                    progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                                    startLevel: 5,
+                                                                    stepLevel: 4,
+                                                                    classes: getSpiritualistArray())
+                                       );
+            bonded_manifestation_buff8_2.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var bonded_manifestaion8_feature = Helpers.CreateFeature("BondedManifestation8Feature",
+                                                                     "",
+                                                                     "",
+                                                                     "",
+                                                                     null,
+                                                                     FeatureGroup.None);
+            bonded_manifestaion8_feature.HideInCharacterSheetAndLevelUp = true;
+            bonded_manifestaion8_feature.HideInUI = true;
+            var apply_slams = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(Phantom.phantom_progressions["Anger"]),
+                                                                                                    Common.createContextActionApplyBuff(bonded_manifestation_buff8_2, Helpers.CreateContextDuration(), is_child: true),
+                                                                                                    Common.createContextActionApplyBuff(bonded_manifestation_buff8_1, Helpers.CreateContextDuration(), is_child: true)
+                                                                                                    );
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(bonded_manifestation_buff,
+                                                                                      Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bonded_manifestaion8_feature),
+                                                                                                                apply_slams
+                                                                                                                )
+                                                                                     );
+            var buff_reroll_attacks = Helpers.CreateBuff("BondedManifestation13RerollAttacksBuff",
+                                                         "",
+                                                         "",
+                                                         "",
+                                                         null,
+                                                         null,
+                                                         Helpers.Create<ModifyD20>(m =>
+                                                         {
+                                                             m.Rule = RuleType.AttackRoll;
+                                                             m.RollsAmount = 1;
+                                                         })
+                                                         );
+            buff_reroll_attacks.SetBuffFlags(BuffFlags.HiddenInUi);
+            var attack = Helpers.CreateAbility("BondedManifestationCleaveAbility",
+                                               "Bonded Manifestation Attack",
+                                                "At 18th level, while using bonded manifestation, the spiritualist can take a full-round action to attack all creatures within her melee reach with her tendrils (using the damage dice of her manifested phantom). When she does, she rolls the attack roll twice, takes the better of the two results, and uses that as her attack roll result against all creatures within her melee reach.",
+                                                "",
+                                                LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff_reroll_attacks, Helpers.CreateContextDuration(1)),
+                                                                         Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c =>
+                                                                         {
+                                                                             c.Radius = 7.Feet();
+                                                                             var attack_action = Common.createContextActionAttack();
+                                                                             attack_action.specific_weapon = slam;
+                                                                             c.actions = Helpers.CreateActionList(Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
+                                                                                                                  attack_action)
+                                                                                                                 );
+                                                                         }
+                                                                         ),
+                                               Common.createContextActionRemoveBuff(buff_reroll_attacks)),
+                                               Helpers.Create<NewMechanics.AttackAnimation>(),
+                                               Common.createAbilityCasterHasFacts(bonded_manifestation_buff),
+                                               Common.createAbilityAoERadius(20.Feet(), TargetType.Enemy)
+                                               );
+            attack.setMiscAbilityParametersSelfOnly();
+            attack.NeedEquipWeapons = true;
+            Common.setAsFullRoundAction(attack);
+            var bonded_manifestaion18_feature = Helpers.CreateFeature("BondedManifestation18Feature",
+                                                         "",
+                                                         "",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.None,
+                                                         Helpers.CreateAddFact(attack));
+            bonded_manifestaion18_feature.HideInCharacterSheetAndLevelUp = true;
+            bonded_manifestaion18_feature.HideInUI = true;
+
+            var bonded_manifestation_resource = Helpers.CreateAbilityResource("BondedManigfestationResource", "", "", "", null);
+            bonded_manifestation_resource.SetIncreasedByLevel(3, 1, getSpiritualistArray());
+            var toggle = Common.buffToToggle(bonded_manifestation_buff, CommandType.Swift, false,
+                                             bonded_manifestation_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound),
+                                             Helpers.Create<CompanionMechanics.ActivatableAbilityCompanionUnsummoned>()
+                                             );
+
+            bonded_manifestation = Common.ActivatableAbilityToFeature(toggle, false);
+            bonded_manifestation.AddComponents(bonded_manifestation_resource.CreateAddAbilityResource(),
+                                               Helpers.CreateAddFeatureOnClassLevel(bonded_manifestaion8_feature, 8, getSpiritualistArray()),
+                                               Helpers.CreateAddFeatureOnClassLevel(bonded_manifestaion18_feature, 18, getSpiritualistArray())
+                                              );
+
+            dual_bond = Helpers.CreateFeature("DualBondSpiritualistFeature",
+                                              "Dual Bond",
+                                              "At 17th level, the spiritualist can use her bonded manifestation ability a number of rounds per day equal to 3 + twice her spiritualist level.",
+                                              "",
+                                              bonded_manifestation.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = bonded_manifestation_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.Default);}),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSpiritualistArray())
+                                              );
+            dual_bond.ReapplyOnLevelUp = true;
+
         }
 
 

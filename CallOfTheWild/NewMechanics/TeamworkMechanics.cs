@@ -161,6 +161,39 @@ namespace CallOfTheWild.TeamworkMechanics
     }
 
 
+    public class ContextActionOnUnitsEngagingTarget : ContextAction
+    {
+        public ActionList actions;
+        public bool ignore_caster;
+
+        public override string GetCaption()
+        {
+            return string.Empty;
+        }
+
+        public override void RunAction()
+        {
+            if (actions == null || this.Target?.Unit == null)
+            {
+                return;
+            }
+
+
+            foreach (UnitEntityData unitEntityData in this.Target.Unit.CombatState.EngagedBy)
+            {
+                if (unitEntityData == this.Context.MaybeCaster && ignore_caster)
+                {
+                    continue;
+                }
+                using (this.Context.GetDataScope((TargetWrapper)unitEntityData))
+                {
+                    this.actions.Run();
+                }
+            }
+        }
+    }
+
+
     public class ContextActionOnUnitsWithinRadius : ContextAction
     {
         public ActionList actions;

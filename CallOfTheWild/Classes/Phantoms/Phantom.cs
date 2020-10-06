@@ -61,6 +61,7 @@ namespace CallOfTheWild
         static public BlueprintFeature dr15;
         static public BlueprintFeature magic_attacks;
 
+
         static public BlueprintProgression phantom_progression;
         static public BlueprintProgression anger; 
         static public BlueprintProgression despair;
@@ -98,8 +99,8 @@ namespace CallOfTheWild
             createHatred();
             createFear();
             createZeal();
+            createKindness();
             //whimsy
-            //kindness
         }
 
 
@@ -128,9 +129,9 @@ namespace CallOfTheWild
             unit.Speed = 30.Feet();
             unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, ghost_fx };
             unit.Body = unit.Body.CloneObject();
-            unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
-            unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
-            unit.Body.SecondaryHand = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
+            unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
+            unit.Body.PrimaryHand = null;
+            unit.Body.SecondaryHand = null;
             unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
             unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             unit.Body.DisableHands = false;

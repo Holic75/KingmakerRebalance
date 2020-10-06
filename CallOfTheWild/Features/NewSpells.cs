@@ -462,6 +462,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                       Common.createAbilityTargetHasFact(inverted: false, Common.construct)
                                                       );
+            control_construct.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
             control_construct.setMiscAbilityParametersSingleTargetRangedHarmful();
             control_construct.AddToSpellList(Helpers.wizardSpellList, 7);
             Helpers.AddSpellAndScroll(control_construct, "f199f6e5026488c499042900b572eb7f");
@@ -591,6 +592,7 @@ namespace CallOfTheWild
             blade_tutor.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
             blade_tutor.NeedEquipWeapons = true;
 
+            blade_tutor.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken;
             blade_tutor.AddToSpellList(Helpers.paladinSpellList, 2);
             blade_tutor.AddToSpellList(Helpers.magusSpellList, 1);
             blade_tutor.AddToSpellList(Helpers.wizardSpellList, 2);

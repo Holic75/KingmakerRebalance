@@ -189,6 +189,7 @@
     <Compile Include="Classes\Phantoms\Despair.cs" />
     <Compile Include="Classes\Phantoms\Fear.cs" />
     <Compile Include="Classes\Phantoms\Hatred.cs" />
+    <Compile Include="Classes\Phantoms\Kindness.cs" />
     <Compile Include="Classes\Phantoms\Phantom.cs" />
     <Compile Include="Classes\Phantoms\Zeal.cs" />
     <Compile Include="Classes\PhrenicAmplifications.cs" />

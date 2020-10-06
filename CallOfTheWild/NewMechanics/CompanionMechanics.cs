@@ -372,6 +372,16 @@ namespace CallOfTheWild.CompanionMechanics
         }
     }
 
+    public class ActivatableAbilityCompanionUnsummoned : ActivatableAbilityRestriction
+    {
+        public bool not;
+        public override bool IsAvailable()
+        {
+            var unsummon_part = Owner.Get<UnitPartUnsummonedCompanion>();
+            return (unsummon_part != null && unsummon_part.active()) != not;
+        }
+    }
+
 
     [AllowedOn(typeof(BlueprintAbility))]
     [AllowMultipleComponents]
@@ -602,6 +612,21 @@ namespace CallOfTheWild.CompanionMechanics
             m_AppliedModifiers.Clear();
         }
     }
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityTargetSelfOrMaster : BlueprintComponent, IAbilityTargetChecker
+    {
+        public bool Inverted;
+
+        public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+        {
+            UnitEntityData unit = target.Unit;
+            
+            return (target.Unit == caster || caster.Descriptor.Master.Value == target.Unit) != Inverted;
+        }
+    }
+
 
     [AllowedOn(typeof(BlueprintAbility))]
     [AllowMultipleComponents]

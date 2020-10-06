@@ -4067,6 +4067,9 @@ namespace CallOfTheWild
         {
             public ActionList action_on_success = null;
             public ActionList action_on_miss = null;
+
+            public BlueprintItemWeapon specific_weapon = null;
+
             public override string GetCaption()
             {
                 return string.Format("Caster attack");
@@ -4084,13 +4087,20 @@ namespace CallOfTheWild
                     var target = this.Target;
                     if (target == null)
                         return;
-                    // UnitAttack attack = new UnitAttack(this.Target.Unit);
-                    // attack.IgnoreCooldown(null);
-                    // maybeCaster.Commands.AddToQueueFirst(attack);
 
-                    RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(maybeCaster, target.Unit, maybeCaster.Body.PrimaryHand.MaybeWeapon, 0);
+                    var current_weapon = maybeCaster.Body.PrimaryHand.MaybeWeapon;
+                    if (specific_weapon != null && current_weapon?.Blueprint != specific_weapon)
+                    {
+                        var weapon = maybeCaster.Body.AdditionalLimbs.Where(a => a.HasWeapon && a.Weapon.Blueprint == specific_weapon).FirstOrDefault();
+                        if (weapon != null)
+                        {
+                            current_weapon = weapon.MaybeWeapon;
+                        }
+                    }
+                    RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(maybeCaster, target.Unit, current_weapon, 0);
                     attackWithWeapon.Reason = (RuleReason)this.Context;
                     RuleAttackWithWeapon rule = attackWithWeapon;
+                    rule.Reason = this.Context;
                     this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
                     if (rule.AttackRoll.IsHit)
                     {
@@ -4159,6 +4169,28 @@ namespace CallOfTheWild
             public UnitAnimationAction GetAbilityAction(UnitEntityData caster)
             {
                 return caster.Descriptor.Unit.View.AnimationManager.CreateHandle(UnitAnimationType.MainHandAttack).Action;
+            }
+        }
+
+
+        public class DamageBonusForAbilities : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+        {
+            public BlueprintAbility[] abilities;
+            public ContextValue value;
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || evt.DamageBundle.Empty())
+                    return;
+
+                if (abilities.Contains(context.SourceAbility) || abilities.Contains(context.SourceAbility?.Parent))
+                {
+                    evt.DamageBundle.First.AddBonus(value.Calculate(this.Fact.MaybeContext));
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
             }
         }
 
