@@ -54,6 +54,7 @@ namespace CallOfTheWild
 
         static public BlueprintBuff[] aid_another_buffs = new BlueprintBuff[2];
         static public ContextRankConfig aid_another_config;
+        static public BlueprintAbility aid_another;
 
         static internal void createAidAnother()
         {
@@ -125,6 +126,7 @@ namespace CallOfTheWild
             feature.HideInCharacterSheetAndLevelUp = true;
             var basic_feat_progression = library.Get<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
             basic_feat_progression.LevelEntries[0].Features.Add(feature);
+            aid_another = wrapper;
 
             Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
             {

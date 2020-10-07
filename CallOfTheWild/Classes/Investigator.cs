@@ -624,6 +624,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4f8181e7a7f1d904fbaea64220e83379", 1), //expeditious retreat
                 new Common.SpellId( "4709274b2080b6444a3c11c6ebbe2404", 1), //find traps
                 new Common.SpellId( "39a602aa80cc96f4597778b6d4d49c0a", 1), //flare burst
+                new Common.SpellId( Witch.hermean_potential.AssetGuid, 1),
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( Witch.ill_omen.AssetGuid, 1),
                 new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),                

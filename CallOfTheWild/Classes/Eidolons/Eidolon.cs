@@ -49,6 +49,7 @@ namespace CallOfTheWild
         static public BlueprintCharacterClass eidolon_class;
         static public bool test_mode = false;
 
+        static public BlueprintFeature multi_attack;
         static public BlueprintFeature devotion;
         static public BlueprintProgression eidolon_progression;
         static public BlueprintProgression angel_eidolon; //ok
@@ -356,12 +357,12 @@ namespace CallOfTheWild
             //improved evasion
 
 
-            var multi_attack = Helpers.CreateFeature("MultiAttackFeature",
+            multi_attack = Helpers.CreateFeature("MultiAttackFeature",
                                                      "Multiattack",
                                                      "The creature reduces secondary attacks penalty to -2 if it has 3 or more natural attacks. If it does not have the requisite 3 or more natural attacks (or it is reduced to less than 3 attacks), the creature instead gains a second attack with one of its natural weapons, albeit at a –5 penalty.",
                                                      "",
                                                      null,
-                                                     FeatureGroup.None,
+                                                     FeatureGroup.Feat,
                                                      Helpers.Create<CompanionMechanics.MultiAttack>(),
                                                      Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 5)
                                                      );
@@ -429,18 +430,6 @@ namespace CallOfTheWild
                     le.Features.Add(multi_attack);
                 }
             }
-
-            //fix previous saves without bloodcasting
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
-            {
-                if (unit.Progression.GetClassLevel(eidolon_class) >= 7 && !unit.Progression.Features.HasFact(multi_attack) 
-                    || unit.Progression.GetClassLevel(animal_companion_archetype.GetParentClass()) >= 8 && unit.Progression.IsArchetype(animal_companion_archetype) 
-                      && !unit.Progression.Features.HasFact(multi_attack))
-                {
-                    unit.Progression.Features.AddFeature(multi_attack);
-                }
-            };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 

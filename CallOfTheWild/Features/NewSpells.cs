@@ -449,7 +449,7 @@ namespace CallOfTheWild
 
             control_construct = Helpers.CreateAbility("ControlConstructAbility",
                                                       "Control Construct",
-                                                      "You wrest the control of a construct from its master. For as long as you concentrate, you can control the construct as if you were its master. You must make a Knowledge (Arcana) check each round to maintain control. The DC of the Spellcraft check is (10 + the construct’s HD). If the construct’s creator or master is present and trying to control the construct, you both must make opposed Spellcraft checks each round to control the construct. You can not maintain control over more than once construct.",
+                                                      "You wrest the control of a construct from its master. For as long as you concentrate, you can control the construct as if you were its master. You must make a Knowledge (Arcana) check each round to maintain control. The DC of the Knowledge (Arcana) check is (10 + the construct’s HD). You can not maintain control over more than one construct at a time.",
                                                       "",
                                                       dominate_person_buff.Icon,
                                                       AbilityType.Spell,
@@ -457,11 +457,12 @@ namespace CallOfTheWild
                                                       AbilityRange.Close,
                                                       Helpers.roundsPerLevelDuration,
                                                       "",
-                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)),
                                                       Helpers.CreateContextRankConfig(),
                                                       Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                       Common.createAbilityTargetHasFact(inverted: false, Common.construct)
                                                       );
+            control_construct.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
             control_construct.setMiscAbilityParametersSingleTargetRangedHarmful();
             control_construct.AddToSpellList(Helpers.wizardSpellList, 7);
             Helpers.AddSpellAndScroll(control_construct, "f199f6e5026488c499042900b572eb7f");
@@ -537,7 +538,7 @@ namespace CallOfTheWild
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = name_buff_map.Values.ToArray()),
-                                                                             Common.createContextActionApplyBuff(kv.Value, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                             Common.createContextActionApplyBuff(kv.Value, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
                                                                              ),
                                                     Helpers.CreateContextRankConfig(),
                                                     Helpers.CreateSpellComponent(SpellSchool.Transmutation)
@@ -584,13 +585,14 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 Helpers.minutesPerLevelDuration,
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true)),
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                 Common.createAbilitySpawnFx("930c1a4aa129b8344a40c8c401d99a04", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
                                                 );
             blade_tutor.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
             blade_tutor.NeedEquipWeapons = true;
 
+            blade_tutor.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken;
             blade_tutor.AddToSpellList(Helpers.paladinSpellList, 2);
             blade_tutor.AddToSpellList(Helpers.magusSpellList, 1);
             blade_tutor.AddToSpellList(Helpers.wizardSpellList, 2);
@@ -1033,8 +1035,8 @@ namespace CallOfTheWild
             song_of_discord_greater.SetNameDescription("Song of Discord, Greater",
                                                        "This spell functions as song of discord except that affected creatures automatically attack the nearest target each round. In addition, all affected creatures gain a +4 morale bonus to Strength for the duration of the spell. A creature that succeeds at the Will save reduces the effect’s duration to 1 round.");
             song_of_discord_greater.AddComponent(Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                          Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1)),
-                                                                                                         Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                          Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), is_from_spell: true),
+                                                                                                         Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
                                                                                                         )
                                                                          )
                                                 );
@@ -1093,7 +1095,7 @@ namespace CallOfTheWild
                                            Helpers.willNegates,
                                            Helpers.CreateRunActions(SavingThrowType.Will,
                                                                     Helpers.CreateConditionalSaved(null,
-                                                                                                   Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default))))
+                                                                                                   Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true))
                                                                    ),
                                            Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
                                            Helpers.CreateSpellComponent(SpellSchool.Enchantment),
@@ -1117,9 +1119,9 @@ namespace CallOfTheWild
 
             var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
-            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
-            var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1));
-            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1));
+            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true);
             synaptic_pulse = Helpers.CreateAbility("SynapticPulseAbility",
                                                    "Synaptic Pulse",
                                                    "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1 round.",
@@ -3434,7 +3436,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
                                                   "Aggressive Thundercloud",
-                                                  "A crackling, spherical storm cloud at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
+                                                  "A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
                                                   + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
                                                   "",
                                                   icon,
@@ -8671,7 +8673,7 @@ namespace CallOfTheWild
                                                   "Flame Blade",
                                                   "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
-                                                  library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b").Icon, //bless weapon
+                                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameBlade.png"),
                                                   DamageEnergyType.Fire,
                                                   SpellDescriptor.Fire,
                                                   library.Get<BlueprintWeaponEnchantment>("ed7b5eb80e2a974499c3dd7aeca71f88")); //kinetic blade fire

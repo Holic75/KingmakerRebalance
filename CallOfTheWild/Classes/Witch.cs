@@ -117,6 +117,7 @@ namespace CallOfTheWild
         static public BlueprintFeature patron_cl_fcb;
         static public BlueprintFeature witch_knife;
         static public BlueprintAbility ill_omen;
+        static public BlueprintAbility hermean_potential;
         static public BlueprintAbility screech;
 
         static HexEngine hex_engine;
@@ -149,6 +150,7 @@ namespace CallOfTheWild
             witch_class.Spellbook = createWitchSpellbook();
             createIllOmen();
             createScreech();
+            createHermeanPotential();
             witch_class.ClassSkills = new StatType[] {StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion, StatType.SkillUseMagicDevice,
                                                       StatType.SkillPersuasion};
             witch_class.IsDivineCaster = false;
@@ -692,7 +694,7 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
             var empatic_healing = Helpers.CreateFeature("HedgeWitchEmpaticHealingFeature",
                                                         "Empatic Healing",
-                                                        "The witch gains a +3 bonus to religion skill.",
+                                                        "The witch gains a +3 bonus to Lore (Religion) skill.",
                                                         "",
                                                         icon,
                                                         FeatureGroup.None,
@@ -1546,6 +1548,69 @@ namespace CallOfTheWild
 
             ill_omen.AddToSpellList(witch_class.Spellbook.SpellList, 1);
             ill_omen.AddSpellAndScroll("3bbf0e0edd3e78f42a42b0dd85c3a53a"); //doom
+        }
+
+        static void createHermeanPotential()
+        {
+            var buff0 = library.CopyAndAdd<BlueprintBuff>("3bc40c9cbf9a0db4b8b43d8eedf2e6ec", "HermeanPotential1Buff", "");
+            buff0.SetName("Hermean Potential");
+            buff0.SetDescription("You gift the target with the ability to perfect its actions via mental clarity. On the next attack roll, saving throw, ability check, or skill check the target attempts, it rolls twice and takes the more favorable result. For every 5 caster levels you have, the target can roll twice on an additional attack roll, saving throw, ability check, or skill check (to a maximum of 5 rolls at 20th level).");
+            buff0.ReplaceComponent<ModifyD20>(m => m.DispellOnRerollFinished = true);
+            buff0.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            BlueprintBuff[] buffs = new BlueprintBuff[5];
+            ActionList[] actions = new ActionList[5];
+            GameAction[] removes = new GameAction[5];
+            buffs[0] = buff0;
+            actions[0] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buffs[0], Helpers.CreateContextDuration(), is_child: false, is_permanent: true, dispellable: false));
+            removes[0] = Common.createContextActionRemoveBuffFromCaster(buff0);
+
+            for (int i = 1; i < 5; i++)
+            {
+                buffs[i] = library.CopyAndAdd<BlueprintBuff>(buff0.AssetGuid, $"HermeanPotential{i + 1}Buff", "");
+
+                buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: actions[i - 1].Actions[0]));
+                actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(buffs[i], Helpers.CreateContextDuration(), is_child: false, is_permanent: true, dispellable: false));
+                removes[i] = Common.createContextActionRemoveBuffFromCaster(buffs[i]);
+            }
+
+            var buff = Helpers.CreateBuff("HermeanPotentialBuff",
+                                          buff0.Name,
+                                          buff0.Description,
+                                          "",
+                                          buff0.Icon,
+                                          null,
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] { Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus), actions) },
+                                                                              deactivated: removes),
+                                          Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 5, type: AbilityRankType.StatBonus)
+                                          );
+            buff0.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuffFromCaster(buff)));
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
+
+            hermean_potential = Helpers.CreateAbility("HermeanPotentialAbility",
+                                             buff.Name,
+                                             buff.Description,
+                                             "",
+                                             buff.Icon,
+                                             AbilityType.Spell,
+                                             UnitCommand.CommandType.Standard,
+                                             AbilityRange.Touch,
+                                             Helpers.roundsPerLevelDuration,
+                                             Helpers.savingThrowNone,
+                                             Helpers.CreateRunActions(apply_buff),
+                                             Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
+                                             Helpers.CreateContextRankConfig()
+                                             );
+
+
+            hermean_potential.SpellResistance = true;
+            hermean_potential.setMiscAbilityParametersTouchFriendly();
+            hermean_potential.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+
+            hermean_potential.AddToSpellList(witch_class.Spellbook.SpellList, 1);
+            hermean_potential.AddSpellAndScroll("08cf11d25aaab074388207b66f64a162"); //aid
         }
 
 

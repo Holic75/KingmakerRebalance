@@ -53,8 +53,11 @@ namespace CallOfTheWild
             static EquipSlotBase.SlotType[] allowed_slots_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
                                                                                                    EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Feet, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves, EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders,
                                                                                                    EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
+            static EquipSlotBase.SlotType[] allowed_slots_phantom = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
+                                                                                                   EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Feet, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves, EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders,
+                                                                                                   EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
 
-   
+
             static bool Prefix(CharDollBase __instance, UnitEntityData player)
             {
                 Main.TraceLog();
@@ -63,15 +66,21 @@ namespace CallOfTheWild
                 if (__instance.CurrentUnit == null)
                     return false;
 
+                bool is_phantom = player.Descriptor.Progression.GetClassLevel(Phantom.phantom_class) > 0;
                 bool is_serpentine = player.Descriptor.Progression.IsArchetype(Eidolon.serpentine_archetype);
-                bool is_biped = player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
+                bool is_biped = (player.Blueprint.GetComponent<Eidolon.EidolonComponent>() != null 
                                                   && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype)
-                                                  && !is_serpentine;
+                                                  && !is_serpentine)
+                                || is_phantom;
                 is_biped = is_biped || player.Blueprint.GetComponent<Eidolon.CorpseCompanionComponent>() != null;
                 EquipSlotBase.SlotType[] allowed_slots;
                 if (is_serpentine)
                 {
                     allowed_slots = allowed_slots_serpentine;
+                }
+                else if (is_phantom)
+                {
+                    allowed_slots = allowed_slots_phantom;
                 }
                 else if (!is_biped)
                 {
@@ -120,11 +129,16 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (player.Descriptor.IsPet && !is_biped)
+                if (player.Descriptor.IsPet && (!is_biped))
                 {//remove additional weapon sets
                     for (int i = 1; i < player.Body.HandsEquipmentSets.Count; i++)
                     {
-                        player.Body.HandsEquipmentSets[i] = player.Body.HandsEquipmentSets[0];
+                        if (player.Body.HandsEquipmentSets[i].PrimaryHand?.MaybeItem != player.Body.HandsEquipmentSets[0].PrimaryHand?.MaybeItem
+                            || player.Body.HandsEquipmentSets[i].SecondaryHand?.MaybeItem != player.Body.HandsEquipmentSets[0].SecondaryHand?.MaybeItem)
+                        {
+                            player.Body.HandsEquipmentSets[i] = player.Body.HandsEquipmentSets[0].CloneObject();
+                        }
+
                     }
                 }
 
