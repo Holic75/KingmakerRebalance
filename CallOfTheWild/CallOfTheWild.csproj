@@ -260,6 +260,7 @@
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\DemoralizeMechanics.cs" />
     <Compile Include="NewMechanics\FlatFootedMechanics.cs" />
+    <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />
     <Compile Include="NewMechanics\RandomMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />

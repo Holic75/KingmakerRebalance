@@ -96,9 +96,9 @@ namespace CallOfTheWild
                                                         AbilityRange.Weapon,
                                                         "",
                                                         "",
-                                                        Helpers.CreateRunActions(Common.createContextActionAttack(Helpers.CreateActionList(effect))),
-                                                        Helpers.Create<NewMechanics.AttackAnimation>(),
-                                                        Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { opening_strike_buff_target })
+                                                        Helpers.CreateRunActions(Common.createContextActionAttack(Helpers.CreateActionList(effect, 
+                                                                                                                                           Common.createContextActionApplyBuff(opening_strike_buff_target, Helpers.CreateContextDuration(1), dispellable: false)))),
+                                                        Helpers.Create<NewMechanics.AttackAnimation>()
                                                         );
             opening_strike_ability.setMiscAbilityParametersTouchHarmful();
             opening_strike_ability.NeedEquipWeapons = true;
@@ -155,16 +155,26 @@ namespace CallOfTheWild
                                                          new LevelEntry[] { Helpers.LevelEntry(1) }
                                                          );
 
+            Dictionary<BlueprintFeature, BlueprintFeature> phantom_mercy_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
             var mercy_selection = library.Get<BlueprintFeatureSelection>("02b187038a8dce545bb34bbfb346428d");
+            var phantom_mercy_selection = library.CopyAndAdd<BlueprintFeatureSelection>("02b187038a8dce545bb34bbfb346428d", "KindnessPhantomMercySelection", "");
+            phantom_mercy_selection.AllFeatures = new BlueprintFeature[0];
             foreach (var m in mercy_selection.AllFeatures)
             {
                 var prereq = m.GetComponent<PrerequisiteClassLevel>();
 
-                if (prereq != null && prereq.Level <= 12)
+                if (prereq == null || prereq.Level <= 12)
                 {
-                    prereq.Group = Prerequisite.GroupType.Any;
-                    m.AddComponent(Common.createPrerequisiteArchetypeLevel(kindness_archetype, 1, any: true));
-                }
+                    phantom_mercy_map[m] = Common.createAddFeatToAnimalCompanion("AddKindnessPhantom", m, "");
+                    phantom_mercy_map[m].AddComponents(m.ComponentsArray);
+                }               
+            }
+
+            foreach (var kv in phantom_mercy_map)
+            {
+                kv.Value.RemoveComponents<PrerequisiteClassLevel>();
+                kv.Value.MaybeReplaceComponent<PrerequisiteFeature>(p => p.Feature = phantom_mercy_map[p.Feature]);
+                phantom_mercy_selection.AllFeatures = phantom_mercy_selection.AllFeatures.AddToArray(kv.Value);
             }
 
             var expanded_aid = Helpers.CreateFeature("KindnessPhantomExpandedAid",
@@ -173,12 +183,9 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.GetIcon("03a9630394d10164a9410882d31572f0"),
                                                      FeatureGroup.None,
-                                                     Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { Rebalance.aid_another }),
-                                                     Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = mercy_selection),
-                                                     Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = mercy_selection),
-                                                     Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = mercy_selection),
-                                                     Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = mercy_selection)
+                                                     Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { Rebalance.aid_another })
                                                      );
+
 
             var exceptional_aid = Helpers.CreateFeature("KindnessPhantomExceptionalAid",
                                          "Exceptional Aid",
@@ -208,7 +215,7 @@ namespace CallOfTheWild
                                                                                                                Common.createContextActionApplyBuff(exceptional_aid_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false)
                                                                                                                )
                                                                                      );
-
+            //bless, aid, heroism, good hope, waves of ecstasy, greater heroism
             createPhantom("Kindness",
                           "Kindness",
                           "A phantom with this emotional focus was a being with a generous heart in life and continues to remain that way well after death. The phantom’s intense generosity compels it to remain a phantom and continue assisting the living, especially relatives or those who had been its good friends during its living years. Kindness phantoms have pleasant and gentle demeanors and speak with a melodic cadence, putting most who see them at ease. Their auras are bright emerald green with occasional fluctuating scarlet or golden hues.\n"
@@ -228,6 +235,12 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("a5e23522eda32dc45801e32c05dc9f96") //good hope
                           }
                           );
+
+            var le12 = phantom_progressions["Kindness"].LevelEntries.Where(le => le.Level == 12).First();
+            le12.Features[0].AddComponents(Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phantom_mercy_selection),
+                                           Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phantom_mercy_selection),
+                                           Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phantom_mercy_selection),
+                                           Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = phantom_mercy_selection));
         }
     }
 }
