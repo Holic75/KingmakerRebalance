@@ -293,7 +293,7 @@ namespace CallOfTheWild
             phantom_class.Progression = phantom_progression;
 
             phantom_class.Archetypes = new BlueprintArchetype[] { };
-            Helpers.RegisterClass(phantom_class);
+            //Helpers.RegisterClass(phantom_class);
         }
 
 

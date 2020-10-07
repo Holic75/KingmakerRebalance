@@ -69,6 +69,7 @@ namespace CallOfTheWild.BladeTutor
         public static HashSet<BlueprintUnitFact> facts = new HashSet<BlueprintUnitFact>
         {
             Main.library.Get<BlueprintBuff>("5898bcf75a0942449a5dc16adc97b279"), //power attack - rule
+            Main.library.Get<BlueprintBuff>("8af258b1dd322874ba6047b0c24660c7"), //piranha strike - rule
             //add furious focus
             Main.library.Get<BlueprintBuff>("e81cd772a7311554090e413ea28ceea1"), //combat expertise - stat
             Main.library.Get<BlueprintBuff>("6ffd93355fb3bcf4592a5d976b1d32a9"), //fight defensively - stat

@@ -3436,7 +3436,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
                                                   "Aggressive Thundercloud",
-                                                  "A crackling, spherical storm cloud at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
+                                                  "A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
                                                   + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
                                                   "",
                                                   icon,
@@ -8673,7 +8673,7 @@ namespace CallOfTheWild
                                                   "Flame Blade",
                                                   "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
-                                                  library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b").Icon, //bless weapon
+                                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameBlade.png"),
                                                   DamageEnergyType.Fire,
                                                   SpellDescriptor.Fire,
                                                   library.Get<BlueprintWeaponEnchantment>("ed7b5eb80e2a974499c3dd7aeca71f88")); //kinetic blade fire

@@ -134,7 +134,7 @@ namespace CallOfTheWild
             createSpiritualistProgression();
             spiritualist_class.Progression = spiritualist_progression;
             spiritualist_class.Archetypes = new BlueprintArchetype[] { };
-            Helpers.RegisterClass(spiritualist_class);
+            //Helpers.RegisterClass(spiritualist_class);
         }
 
         public static BlueprintCharacterClass[] getSpiritualistArray()
