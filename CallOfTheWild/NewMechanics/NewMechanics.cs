@@ -7076,6 +7076,38 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ReduceMaxHp : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            private ModifiableValue.Modifier m_Modifier;
+            public int hp_percent;
+            public override void OnTurnOn()
+            {
+                this.Apply();
+            }
+
+            public override void OnTurnOff()
+            {
+                this.m_Modifier?.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                
+                this.m_Modifier?.Remove();
+                var current_hp = this.Owner.Stats.HitPoints.ModifiedValue;
+                int remove_hp = hp_percent * current_hp /100;
+                this.m_Modifier = this.Owner.Stats.HitPoints.AddModifier(-remove_hp, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityShowIfCasterHasFact2 : BlueprintComponent, IAbilityVisibilityProvider
         {
