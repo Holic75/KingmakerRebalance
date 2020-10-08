@@ -39,7 +39,8 @@ namespace CallOfTheWild.ShadowSpells
                                                "",
                                                icon,
                                                Common.createPrefabLink("e0a060bdf0389704db438820279c1f79"),
-                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20)
+                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20),
+                                               Helpers.Create<NewMechanics.ReduceMaxHp>(r => r.hp_percent = 80)
                                                );
             //add component that will make them receive 1.66 times more damage
             shadow60_buff = Helpers.CreateBuff("ShadowSummon60Buff",
@@ -48,7 +49,8 @@ namespace CallOfTheWild.ShadowSpells
                                                "",
                                                icon,
                                                Common.createPrefabLink("e0a060bdf0389704db438820279c1f79"),
-                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60)
+                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60),
+                                               Helpers.Create<NewMechanics.ReduceMaxHp>(r => r.hp_percent = 40)
                                                );
             //add component that will make them receive 1.20 times more damage
             shadow80_buff = Helpers.CreateBuff("ShadowSummon80Buff",
@@ -57,7 +59,8 @@ namespace CallOfTheWild.ShadowSpells
                                                "",
                                                icon,
                                                Common.createPrefabLink("e0a060bdf0389704db438820279c1f79"),
-                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80)
+                                               Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80),
+                                               Helpers.Create<NewMechanics.ReduceMaxHp>(r => r.hp_percent = 20)
                                                );
             //also fix ac calcualtion
         }
@@ -242,25 +245,11 @@ namespace CallOfTheWild.ShadowSpells
                     return true;
                 }
 
-                //increase damage on shadow creatures
-                var target_summoned_context = ShadowSpells.getShadowBuff(__instance.Target.Descriptor)?.MaybeContext;
-                if (target_summoned_context != null)
-                {
-                    if ((target_summoned_context.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20)
-                    {
-                        __instance.Modifier = new float?((__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) / 0.2f);
-                    }
-                    else if ((target_summoned_context.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60)
-                    {
-                        __instance.Modifier = new float?((__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) / 0.6f);
-                    }
-                    else if ((target_summoned_context.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80)
-                    {
-                        __instance.Modifier = new float?((__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) / 0.8f);
-                    }
-                }
-
                 var context2 = __instance.Reason.Context;
+                if (context2?.AssociatedBlueprint != null && context2.AssociatedBlueprint is BlueprintBuff)
+                {//do not apply shadow twice
+                    return true;
+                }
                 var summoned_context = ShadowSpells.getShadowBuff(__instance.Initiator.Descriptor)?.MaybeContext;
 
                 if (context2 == null && summoned_context == null)
@@ -318,6 +307,11 @@ namespace CallOfTheWild.ShadowSpells
                     return true;
                 }
                 var context2 = __instance.Reason.Context;
+                
+                if (context2?.AssociatedBlueprint != null && context2.AssociatedBlueprint is BlueprintBuff)
+                {//do not apply shadow twice
+                    return true;
+                }
                 var summoned_context = ShadowSpells.getShadowBuff(__instance.Initiator.Descriptor)?.MaybeContext;
 
                 if (context2 == null && summoned_context == null)

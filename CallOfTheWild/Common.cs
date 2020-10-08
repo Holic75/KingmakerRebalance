@@ -3196,7 +3196,7 @@ namespace CallOfTheWild
             }
             else
             {
-                a.Descriptor = a.Descriptor | descriptor;
+                fact.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | descriptor);
             }
 
             var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
