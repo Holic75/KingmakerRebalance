@@ -831,16 +831,21 @@ namespace CallOfTheWild
                 shadow_s.RemoveComponents<SpellListComponent>();
                 shadow_s.RemoveComponents<SpellComponent>();
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
-                if (shadow_s.GetComponent<SpellDescriptorComponent>() == null)
-                {
-                    shadow_s.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
-                }
-                else
-                {
-                    shadow_s.ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | descriptor);
-                }
+                Common.addSpellDescriptor(shadow_s, descriptor);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
                                            base_ability.Description+"\n" + s.Description);
+
+                var shadow_touch = shadow_s.GetComponent<AbilityEffectStickyTouch>();
+                if (shadow_touch != null)
+                {
+                    var touch_s = shadow_touch.TouchDeliveryAbility;
+                    var shadow_sticky_touch = library.CopyAndAdd<BlueprintAbility>(touch_s, base_ability.name + touch_s.name, Helpers.MergeIds(base_ability.AssetGuid, touch_s.AssetGuid));
+                    shadow_sticky_touch.RemoveComponents<SpellListComponent>();
+                    shadow_sticky_touch.RemoveComponents<SpellComponent>();
+                    shadow_sticky_touch.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
+                    Common.addSpellDescriptor(shadow_sticky_touch, descriptor);
+                    shadow_s.ReplaceComponent<AbilityEffectStickyTouch>(a => a.TouchDeliveryAbility = shadow_sticky_touch);
+                }
                 ability_variants.Variants = ability_variants.Variants.AddToArray(shadow_s);
                 base_ability.AvailableMetamagic = base_ability.AvailableMetamagic | shadow_s.AvailableMetamagic;
                 shadow_s.ActionType = UnitCommand.CommandType.Standard;

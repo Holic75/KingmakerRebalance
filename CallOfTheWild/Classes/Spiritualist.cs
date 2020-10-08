@@ -223,7 +223,7 @@ namespace CallOfTheWild
                                                                + "During a bonded manifestation, the phantom can’t be damaged, dismissed, or banished. A spiritualist can use bonded manifestation a number of rounds per day equal to 3 + her spiritualist level. The rounds need not be consecutive. She can dismiss the effects of a bonded manifestation as a free action, but even if she dismisses a bonded manifestation on the same round that she used it, it counts as 1 round of use.\n"
                                                                + "Spiritualist gains an ectoplasmic shield that protects her without restricting her movement or actions. She gains a +4 shield bonus to Armor Class; this bonus applies to incorporeal touch attacks.\n"
                                                                + "The ectoplasmic shield has no armor check penalty or arcane spell failure chance. At 8th level, the spiritualist also sprouts a pair of ectoplasmic tendrils from her body. As a swift action, the spiritualist can use these tendrils to attack creatures within her melee reach (using the damage dice of her manifested phantom).\n"
-                                                               + "At 13th level, the bonus from ectoplasmic shield increases to +6. At 18th level, the spiritualist can take a full-round action to attack all creatures within her melee reach with her tendrils (using the damage dice of her manifested phantom). When she does, she rolls the attack roll twice, takes the better of the two results, and uses that as her attack roll result against all creatures within her melee reach.",
+                                                               + "At 13th level, the bonus from ectoplasmic shield increases to +6. At 18th level, the spiritualist can take a full-round action to attack all creatures within her melee reach with her tendrils (using the damage dice of her manifested phantom). When she does, she rolls the attack roll twice and takes the better of the two results.",
                                                                "",
                                                                NewSpells.barrow_haze.Icon,
                                                                Common.createPrefabLink("e9a8af06810719e4d9885c10c827b131"), //from ghost form
@@ -417,7 +417,7 @@ namespace CallOfTheWild
             phantom_rank_progression.Classes = getSpiritualistArray();
             emotional_focus_selection = Helpers.CreateFeatureSelection("PhantomFeatureSelection",
                                                                   "Phantom",
-                                                                  "A spiritualist begins play with the aid of a powerful and versatile spirit entity called a phantom. The phantom forms a link with the spiritualist, who forever after can either harbor the creature within her consciousness or manifest it as an ectoplasmic or incorporeal entity. A phantom has the same alignment as the spiritualist, and it can speak all the languages its master can. A spiritualist can harbor her phantom in her consciousness (see the shared consciousness class feature), manifest it partially (see the bonded manifestation class feature), or fully manifest it. A fully manifested phantom is treated as a summoned creature from the Ethereal Plane, except it is not sent back to the Ethereal Plane until it is reduced to a negative amount of hit points equal to or greater than its Constitution score.\n"
+                                                                  "A spiritualist begins play with the aid of a powerful and versatile spirit entity called a phantom. The phantom forms a link with the spiritualist, who forever after can either harbor the creature within her consciousness or manifest it as an ectoplasmic entity. A phantom has the same alignment as the spiritualist, and it can speak all the languages its master can. A spiritualist can harbor her phantom in her consciousness (see the shared consciousness class feature), manifest it partially (see the bonded manifestation class feature), or fully manifest it. A fully manifested phantom is treated as a summoned creature from the Ethereal Plane, except it is not sent back to the Ethereal Plane until it is reduced to a negative amount of hit points equal to or greater than its Constitution score.\n"
                                                                   + "The phantom does not heal naturally, and can be healed only with magic or by being tended to with the Heal skill while fully manifested in ectoplasmic form. The phantom stays fully manifested until it is either returned to the spiritualist’s consciousness (a standard action) or banished to the Ethereal Plane. If the phantom is banished to the Ethereal Plane, it can’t return to the spiritualist’s consciousness or manifest again for 24 hours.\n"
                                                                   + "Fully manifested phantoms can use magic items (though not wield weapons) appropriate to their forms.\n"
                                                                   + "A fully manifested phantom’s abilities, feats, Hit Dice, saving throws, and skills are tied to the spiritualist’s class level and increase as the spiritualist gains levels.\n"
@@ -628,7 +628,7 @@ namespace CallOfTheWild
             var buff11 = library.CopyAndAdd<BlueprintBuff>(buff1, "GreaterSpiritualInferenceAllyBuff", "");
             buff1.AddComponents(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Shield),
                                 Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterFeatureRank.ToContextRankBaseValueType(), progression: ContextRankProgression.BonusValue,
-                                                                startLevel: 2,
+                                                                stepLevel: 2,
                                                                 feature: spiritual_inference_ac_fcb
                                                                 ));
             buff11.AddComponent(Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.Shield));
@@ -640,7 +640,7 @@ namespace CallOfTheWild
                                   null, //shield spell
                                   Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Shield),
                                   Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterFeatureRank.ToContextRankBaseValueType(), progression: ContextRankProgression.BonusValue,
-                                                                    startLevel: 4,
+                                                                    stepLevel: 4,
                                                                     feature: spiritual_inference_ac_fcb
                                                                  ),
                                   Helpers.CreateAddStatBonus(StatType.SaveFortitude, 4, ModifierDescriptor.Circumstance),
