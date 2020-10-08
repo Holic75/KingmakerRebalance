@@ -303,10 +303,12 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff}),
-                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental, Common.undead)
+                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental, Common.undead),
+                                                Helpers.Create<NonOffensiveActionMechanics.NonOffensiveAbility>()
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            ability.EffectOnAlly = AbilityEffectOnUnit.None;
             //Common.setAsFullRoundAction(ability);
 
             var attempt_assasinate = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsFlatFooted>(), Common.createContextConditionHasBuffFromCaster(assasinate_buff)),

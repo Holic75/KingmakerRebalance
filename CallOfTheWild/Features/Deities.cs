@@ -14,6 +14,7 @@ namespace CallOfTheWild
     {
         static Kingmaker.Blueprints.LibraryScriptableObject library => Main.library;
         static public BlueprintFeature lamashtu;
+        static public BlueprintFeature kukri_proficiency;
 
 
         static internal void create()
@@ -24,7 +25,7 @@ namespace CallOfTheWild
                                             "Lamashtu (pronounced lah-MAHSH-too) is the mother and patroness of many misshapen and malformed creatures that crawl, slither, or flap on, above, or below the surface of Golarion. Her unholy symbol is a three-eyed jackal head, which may be represented in many ways, and her sacred animal is the jackal.\n"
                                             + "Domains: Chaos, Evil, Madness, Strength, Trickery.\nFavored Weapon: Kukri.",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/FontOfSpiritMagic.png"));
-            var kukri_proficiency = library.CopyAndAdd<BlueprintFeature>("70ab8880eaf6c0640887ae586556a652", "KukriProficiency", "");
+            kukri_proficiency = library.CopyAndAdd<BlueprintFeature>("70ab8880eaf6c0640887ae586556a652", "KukriProficiency", "");
             kukri_proficiency.SetNameDescription("Weapon Proficiency (Kukri)",
                                                 "You become proficient with kukris and can use them as a weapon.");
             kukri_proficiency.ReplaceComponent<AddProficiencies>(a => a.WeaponProficiencies = new Kingmaker.Enums.WeaponCategory[] { Kingmaker.Enums.WeaponCategory.Kukri });

@@ -258,6 +258,7 @@ namespace CallOfTheWild
         //corrosive consumption
         //implosion
         //debilitating portent
+        //condensed ether
         static public BlueprintAbility channel_vigor;
         static public BlueprintAbility control_construct;
         //static public BlueprintAbility battlemind_link;

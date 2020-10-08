@@ -242,7 +242,14 @@ namespace CallOfTheWild
                                                                                                ),
                                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureRank, type: AbilityRankType.StatBonus,
                                                                                                feature: bonded_manifestation_ac_fcb
-                                                                                               )
+                                                                                               ),
+                                                               Helpers.Create<NewMechanics.TransferDescriptorBonusToTouchAC>(t =>
+                                                               {
+                                                                   t.value = Helpers.CreateContextValue(AbilitySharedValue.StatBonus);
+                                                                   t.Descriptor = ModifierDescriptor.Sacred;
+                                                                   t.required_target_fact = library.Get<BlueprintFeature>("c4a7f98d743bc784c9d4cf2105852c39");
+                                                               }
+                                                               )
                                                                );
 
             DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
@@ -759,7 +766,10 @@ namespace CallOfTheWild
                                                                 "");
             spiritualist_proficiencies.SetName("Spiritualist Proficiencies");
             spiritualist_proficiencies.SetDescription("A spiritualist is proficient with all simple weapons, kukris and scythes, as well as with light armor.");
-            spiritualist_proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { a.Facts[0], library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132") });
+            spiritualist_proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { a.Facts[0],
+                                                                                                           library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132"),//light
+                                                                                                           library.Get<BlueprintFeature>("96c174b0ebca7b246b82d4bc4aac4574"),//scythe
+                                                                                                           Deities.kukri_proficiency});
         }
 
 

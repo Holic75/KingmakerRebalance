@@ -131,7 +131,8 @@ namespace CallOfTheWild.Archetypes
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff }),
-                                                Common.createAbilityTargetHasFact(false, Common.undead)
+                                                Common.createAbilityTargetHasFact(false, Common.undead),
+                                                Helpers.Create<NonOffensiveActionMechanics.NonOffensiveAbility>()
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;

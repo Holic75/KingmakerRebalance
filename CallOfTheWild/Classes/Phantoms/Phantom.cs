@@ -207,7 +207,8 @@ namespace CallOfTheWild
                 spell_likes[i] = Common.AbilityToFeature(ability, false);
                 spell_likes[i].AddComponent(resource.CreateAddAbilityResource());
                 spell_likes[i].SetNameDescription("Emotional Power: " + spell_likes[i].Name,
-                                                  "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.");
+                                                  "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.\n"
+                                                   + spell_like_abilities[i].Name + ": " + spell_like_abilities[i].Description);
 
             }
 
