@@ -151,7 +151,7 @@ namespace CallOfTheWild
                                                          new LevelEntry[] { Helpers.LevelEntry(1) }
                                                          );
 
-
+            //bane, scare, fear, phantasmal killer, phantasmal web, frightful aspect
             createPhantom("Fear",
                           "Fear",
                           "A phantom with this emotional focus suffered from overwhelming fear in life. As a phantom, it is able to channel that fear into a terrifying weapon. Fear phantoms are often horrifying to behold. Sometimes they appear as ghostly figures in tattered funeral garb or wrapped in chains or other bindings. Their features may be distorted into gaunt and haunting forms, making them seem more like ghosts or spectres. A miasma of livid gray swirling motes often surrounds their forms as they stalk their surroundings, seeking to bestow their terror on others.\n"
@@ -167,7 +167,7 @@ namespace CallOfTheWild
                           {
                               library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), //bane
                               NewSpells.savage_maw,
-                              library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485"), //doom
+                              library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampiryc touch
                               library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5") //phantasmal killer
                           }
                           );

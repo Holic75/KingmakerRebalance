@@ -4068,6 +4068,7 @@ namespace CallOfTheWild
         {
             public ActionList action_on_success = null;
             public ActionList action_on_miss = null;
+            public ActionList action_on_before_attack = null;
 
             public BlueprintItemWeapon specific_weapon = null;
 
@@ -4088,6 +4089,8 @@ namespace CallOfTheWild
                     var target = this.Target;
                     if (target == null)
                         return;
+
+                    action_on_before_attack?.Run();
 
                     var current_weapon = maybeCaster.Body.PrimaryHand.MaybeWeapon;
                     if (specific_weapon != null && current_weapon?.Blueprint != specific_weapon)

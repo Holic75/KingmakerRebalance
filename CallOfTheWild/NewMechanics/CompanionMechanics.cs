@@ -40,6 +40,24 @@ using UnityEngine;
 
 namespace CallOfTheWild.CompanionMechanics
 {
+
+    public class ChangeCompanionAlignmentToMasters : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner?.Pet?.Descriptor?.Alignment?.Set(this.Owner.Alignment.Value);
+        }
+    }
+
+    public class ChangeCompanionAlignment : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public Alignment alignment;
+        public override void OnFactActivate()
+        {
+            this.Owner?.Pet?.Descriptor?.Alignment?.Set(alignment);
+        }
+    }
+
     public class AddOutgoingDamageTriggerOnAttackerOfPetOrMaster : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleDealDamage>, IInitiatorRulebookHandler<RuleDealStatDamage>, IInitiatorRulebookHandler<RuleDrainEnergy>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber, IRulebookHandler<RuleDealStatDamage>, IRulebookHandler<RuleDrainEnergy>
     {
         public ActionList Actions;

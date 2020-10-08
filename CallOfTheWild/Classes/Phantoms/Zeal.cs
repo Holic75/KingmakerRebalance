@@ -156,7 +156,7 @@ namespace CallOfTheWild
                                                          new LevelEntry[] { Helpers.LevelEntry(1)}
                                                          );
 
-
+            //bless, false life, heroism, freedom of movement, joyful rapture, heroism greater
             createPhantom("Zeal",
                           "Zeal",
                           "A phantom with this emotional focus fixates on every task given as if it were the phantom’s last. The most basic commands are treated as life-and-death situations, and the truly dangerous ones are faced with a resolve and tenacity that sometimes defies common sense. Zeal phantoms take the form of steadfast protectors or daring and manic creatures looking for the next challenge or opportunity to prove itself to either its master or itself. Often very prideful creatures, these phantoms display an orange aura upon completing their tasks. They are prone to boast about their accomplishments and chastise those around them for not accomplishing more.\n"
@@ -172,7 +172,7 @@ namespace CallOfTheWild
                           {
                               library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
                               NewSpells.force_sword,
-                              library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113"), //longstrider
+                              library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113"), //divine favor
                               library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e") //freedom of movement
                           }
                           );

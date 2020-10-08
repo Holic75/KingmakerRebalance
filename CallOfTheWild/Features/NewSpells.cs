@@ -257,6 +257,7 @@ namespace CallOfTheWild
         static public BlueprintAbility blade_tutor;
         //corrosive consumption
         //implosion
+        //debilitating portent
         static public BlueprintAbility channel_vigor;
         static public BlueprintAbility control_construct;
         //static public BlueprintAbility battlemind_link;
@@ -830,16 +831,21 @@ namespace CallOfTheWild
                 shadow_s.RemoveComponents<SpellListComponent>();
                 shadow_s.RemoveComponents<SpellComponent>();
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
-                if (shadow_s.GetComponent<SpellDescriptorComponent>() == null)
-                {
-                    shadow_s.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
-                }
-                else
-                {
-                    shadow_s.ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | descriptor);
-                }
+                Common.addSpellDescriptor(shadow_s, descriptor);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
                                            base_ability.Description+"\n" + s.Description);
+
+                var shadow_touch = shadow_s.GetComponent<AbilityEffectStickyTouch>();
+                if (shadow_touch != null)
+                {
+                    var touch_s = shadow_touch.TouchDeliveryAbility;
+                    var shadow_sticky_touch = library.CopyAndAdd<BlueprintAbility>(touch_s, base_ability.name + touch_s.name, Helpers.MergeIds(base_ability.AssetGuid, touch_s.AssetGuid));
+                    shadow_sticky_touch.RemoveComponents<SpellListComponent>();
+                    shadow_sticky_touch.RemoveComponents<SpellComponent>();
+                    shadow_sticky_touch.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
+                    Common.addSpellDescriptor(shadow_sticky_touch, descriptor);
+                    shadow_s.ReplaceComponent<AbilityEffectStickyTouch>(a => a.TouchDeliveryAbility = shadow_sticky_touch);
+                }
                 ability_variants.Variants = ability_variants.Variants.AddToArray(shadow_s);
                 base_ability.AvailableMetamagic = base_ability.AvailableMetamagic | shadow_s.AvailableMetamagic;
                 shadow_s.ActionType = UnitCommand.CommandType.Standard;
@@ -2043,7 +2049,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource("FieryShurikenResource", "", "", "", null);
             resource.SetFixedResource(8);
 
-            var description = "You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd(to a maximum of eight shuriken at 15th level), which hover in front of you.When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d8 points of fire damage.You provoke no attacks of opportunity when launching them.Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken.If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
+            var description = "You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd (to a maximum of eight shuriken at 15th level), which hover in front of you. When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d8 points of fire damage.You provoke no attacks of opportunity when launching them. Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken. If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
             var one_projectile_spell_swift = library.CopyAndAdd(fire_bolt, "FieryShurikenSingleProjectileAbility", "");
             one_projectile_spell_swift.SetNameDescription("Fiery Shuriken (1 Projectile, Swift)", description);
 

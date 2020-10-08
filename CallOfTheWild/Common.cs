@@ -3351,6 +3351,19 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.ContextActionAttack createContextActionAttackWithSpecificWeapon(BlueprintItemWeapon weapon,
+                                                                                                   ActionList action_before_attack = null, 
+                                                                                                   ActionList action_on_hit = null, ActionList action_on_miss = null)
+        {
+            var c = Helpers.Create<NewMechanics.ContextActionAttack>();
+            c.action_on_success = action_on_hit;
+            c.action_on_miss = action_on_miss;
+            c.action_on_before_attack = action_before_attack;
+            c.specific_weapon = weapon;
+            return c;
+        }
+
+
         static public NewMechanics.ContextActionForceAttack createContextActionForceAttack()
         {
             return Helpers.Create<NewMechanics.ContextActionForceAttack>(); ;
@@ -3928,12 +3941,12 @@ namespace CallOfTheWild
 
 
 
-        public static BlueprintFeature createAddFeatToAnimalCompanion(BlueprintFeature feat, string guid)
+        public static BlueprintFeature createAddFeatToAnimalCompanion(string prefix, BlueprintFeature feat, string guid)
         {
             var add_feat_ac = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.AddFeatureToCompanion>();
             add_feat_ac.Feature = feat;
 
-            var feature = Helpers.CreateFeature("Add" + feat.name,
+            var feature = Helpers.CreateFeature(prefix + feat.name,
                                                 feat.Name,
                                                 feat.Description,
                                                 guid,
@@ -3942,6 +3955,12 @@ namespace CallOfTheWild
                                                 add_feat_ac);
             feature.Ranks = feat.Ranks;
             return feature;
+        }
+
+
+        public static BlueprintFeature createAddFeatToAnimalCompanion(BlueprintFeature feat, string guid)
+        {
+            return createAddFeatToAnimalCompanion("Add", feat, guid);
         }
 
 

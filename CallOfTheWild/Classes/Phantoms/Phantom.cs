@@ -293,7 +293,7 @@ namespace CallOfTheWild
             phantom_class.Progression = phantom_progression;
 
             phantom_class.Archetypes = new BlueprintArchetype[] { };
-            //Helpers.RegisterClass(phantom_class);
+            Helpers.RegisterClass(phantom_class);
         }
 
 
@@ -312,20 +312,20 @@ namespace CallOfTheWild
           
             var natural_armor = library.CopyAndAdd<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1", "PhantomNaturalArmorFeature", "");
             natural_armor.SetNameDescription("Armor Bonus",
-                                             "Phantom receives bonuses to their natural armor. An eidolon cannot wear armor of any kind, as the armor interferes with the summoner’s connection to the eidolon.");
+                                             "Phantom receives bonuses to their natural armor. A phantom cannot wear armor of any kind, as the armor interferes with the spiritualist’s connection to the phantom.");
             dex_cha_bonus = library.CopyAndAdd<BlueprintFeature>("0c80276018694f24fbaf59ec7b841f2b", "PhantomDexChaIncreaseFeature", "");
             dex_cha_bonus.SetNameDescription("Phantom Prowess", "Phantom receives +1 bonus to their Dexterity and Charisma.");
             dex_cha_bonus.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.None),
-                Helpers.CreateAddStatBonus(StatType.Charisma, 2, ModifierDescriptor.None),
+                Helpers.CreateAddStatBonus(StatType.Dexterity, 1, ModifierDescriptor.None),
+                Helpers.CreateAddStatBonus(StatType.Charisma, 1, ModifierDescriptor.None),
             };
             str_cha_bonus = library.CopyAndAdd<BlueprintFeature>("0c80276018694f24fbaf59ec7b841f2b", "PhantomStrChaIncreaseFeature", "");
             str_cha_bonus.SetNameDescription("Phantom Prowess", "Anger phantom receives +1 bonus to their Strength and Charisma.");
             str_cha_bonus.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.None),
-                Helpers.CreateAddStatBonus(StatType.Charisma, 2, ModifierDescriptor.None),
+                Helpers.CreateAddStatBonus(StatType.Strength, 1, ModifierDescriptor.None),
+                Helpers.CreateAddStatBonus(StatType.Charisma, 1, ModifierDescriptor.None),
             };
 
             createExtraClassSkill();

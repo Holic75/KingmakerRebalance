@@ -136,7 +136,7 @@ namespace CallOfTheWild
                                                          new LevelEntry[] {Helpers.LevelEntry(1) }
                                                          );
 
-
+            //touch of gracelesness, stricken heart, ray of exhaustion, crushing despair, suffocation, eyebite
             createPhantom("Despair",
                           "Despair",
                           "Some creatures die in such horrific ways, or live such pointless and senseless lives, that despair grips their very beings. Phantoms with this focus use misery as a weapon, inflicting the living with the gloom of the phantoms’ continued existence. Despair phantoms often appear twisted or wounded, showing the grisly circumstances of their demise. Their coloration tends to have a grayish or sickly green cast. When they speak, they do so in terrifying whispers or high-pitched screeches.\n"
@@ -152,7 +152,7 @@ namespace CallOfTheWild
                           {
                               Witch.ill_omen,
                               NewSpells.stricken_heart,
-                              library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485"), //doom
+                              library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
                               library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903") //crushing despair
                           }
                           );

@@ -122,7 +122,7 @@ namespace CallOfTheWild
                                                                             Helpers.LevelEntry(15, dex_cha_bonus),}
                                                          );
 
-
+            //burst of adrenaline, rage, howling agony, shout, ?, transformation
             createPhantom("Anger",
                           "Anger",
                           "Phantoms with this emotional focus are filled with seething anger from events in their past lives. Phantoms with this focus often take the form of hulking brutes with furrowed brows or of frenzied creatures that always seem ready to strike down those who come too near. Many times, these phantoms exude a bright red aura, especially when they are engaged in combat, or they seem to breathe a red mist in shallow pants from behind clenched, phantasmal teeth.\n"
@@ -138,7 +138,7 @@ namespace CallOfTheWild
                           {
                               library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
                               library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), //rage
-                              library.Get<BlueprintAbility>("14c90900b690cac429b229efdf416127"), //longstrider
+                              library.Get<BlueprintAbility>("e80a4d6c0efa5774cbd515e3e37095b0"), //longstrider greater
                               library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162") //shout
                           }
                           );
