@@ -29,7 +29,7 @@ It introduces new classes:
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
-- Spiritualist,
+- Spiritualist with following archetypes: Hag-Haunted, Onmyoji,
 - Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:

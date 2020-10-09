@@ -1818,7 +1818,6 @@ namespace CallOfTheWild
             features1.Add(selection2);
 
             return features1;
-
         }
 
 
@@ -2731,6 +2730,21 @@ namespace CallOfTheWild
             var data = Activator.CreateInstance(ParametrizedFeatureData);
             Helpers.SetField(data, "Feature", feature);
             Helpers.SetField(data, "ParamWeaponCategory", category);
+
+            var data_array = Array.CreateInstance(ParametrizedFeatureData, 1);
+            data_array.SetValue(data, 0);
+
+            var a = Helpers.Create<AddParametrizedFeatures>();
+            Helpers.SetField(a, "m_Features", data_array);
+            return a;
+        }
+
+
+        static public AddParametrizedFeatures createAddParametrizedFeatures(BlueprintParametrizedFeature feature, SpellSchool school)
+        {
+            var data = Activator.CreateInstance(ParametrizedFeatureData);
+            Helpers.SetField(data, "Feature", feature);
+            Helpers.SetField(data, "ParamSpellSchool", school);
 
             var data_array = Array.CreateInstance(ParametrizedFeatureData, 1);
             data_array.SetValue(data, 0);

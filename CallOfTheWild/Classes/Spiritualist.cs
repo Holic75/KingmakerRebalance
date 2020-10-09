@@ -79,11 +79,25 @@ namespace CallOfTheWild
         static public BlueprintAbility summon_companion_ability;
         static public BlueprintAbility summon_call_ability;
 
+        static public BlueprintArchetype hag_haunted;
+        static public BlueprintFeature hag_phantom;
+        static public BlueprintFeature hag_shared_consciousness;
+        static public BlueprintFeature hag_fused_consciousness;
+        static public BlueprintFeature hag_fused_consciousness12;
+        static public BlueprintFeature hag_spell_casting;
+        static public BlueprintFeature hag_curse7;
+        static public BlueprintFeature hag_curse13;
+        static public BlueprintSpellbook hag_haunted_spellbook;
+
+        static public BlueprintArchetype onmyoji;
+        static public BlueprintSpellbook onmyoji_spellbook;
+        static public BlueprintFeature onmyoji_spellcasting;
+        static public BlueprintFeatureSelection divine_teachings;
+
         //fractured mind x
-        //phantom blade or extoplasmotist
-        //onymoji x
+        //phantom blade or ectoplasmotist
         //necrologist
-        //hag-haunted x
+        //scourge
 
         internal static void createSpiritualistClass()
         {
@@ -133,10 +147,274 @@ namespace CallOfTheWild
 
             createSpiritualistProgression();
             spiritualist_class.Progression = spiritualist_progression;
-            spiritualist_class.Archetypes = new BlueprintArchetype[] { };
+            
             Helpers.RegisterClass(spiritualist_class);
 
-            //createHagHaunted();
+            createHagHaunted();
+            createOnmyoji();
+            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji};
+        }
+
+
+        static void createOnmyoji()
+        {
+            onmyoji = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "OnmyojiArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Onmyoji");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Though most spiritualists are chosen by their phantoms, others deliberately call phantoms to them through years of careful preparation and study in obscure divine traditions.\n"
+                                                                                       + "These spiritualists, known as onmyoji, form close bonds with their phantoms, as any other spiritualist does, but see the phantoms as partners and tools in their work. Onmyoji serve as emissaries between the mundane world and the spiritual one, either working to ensure that troubles in the spiritual world do not spill over into the world of mortals, or stirring up spiritual trouble in order to achieve their ends among the living.");
+            });
+            Helpers.SetField(onmyoji, "m_ParentClass", spiritualist_class);
+            library.AddAsset(onmyoji, "");
+
+            createOnmyojiSpellcasting();
+            createDivineTeachings();
+
+
+            onmyoji.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spiritualist_spellcasting, shared_consciousness),
+                                                            Helpers.LevelEntry(4, spiritual_inference),
+                                                            Helpers.LevelEntry(10, fused_consciousness),
+                                                            Helpers.LevelEntry(12, greater_spiritual_inference),};
+            onmyoji.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, onmyoji_spellcasting),
+                                                         Helpers.LevelEntry(4, divine_teachings),
+                                                         Helpers.LevelEntry(7, divine_teachings),
+                                                         Helpers.LevelEntry(10, divine_teachings),
+                                                         Helpers.LevelEntry(13, divine_teachings),
+                                                         Helpers.LevelEntry(16, divine_teachings),
+                                                         Helpers.LevelEntry(19, divine_teachings),
+                                                         };
+
+            onmyoji.ReplaceSpellbook = onmyoji_spellbook;
+            onmyoji.ChangeCasterType = true;
+            onmyoji.IsDivineCaster = true;
+            spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(onmyoji_spellcasting);
+            Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", Common.createPrerequisiteArchetypeLevel(onmyoji, 1));
+        }
+
+
+        static void createOnmyojiSpellcasting()
+        {
+            onmyoji_spellbook = library.CopyAndAdd(spiritualist_class.Spellbook, "OnmyojiSpellbook", "");
+            onmyoji_spellbook.IsArcane = false;
+            onmyoji_spellbook.Name = onmyoji.LocalizedName;
+            onmyoji_spellbook.CantripsType = CantripsType.Orisions;
+            onmyoji_spellbook.RemoveComponents<SpellbookMechanics.PsychicSpellbook>();
+
+            onmyoji_spellcasting = Helpers.CreateFeature("OnmyojiSpellcastingFeature",
+                                                      "Divine Spellcasting",
+                                                      "An onmyoji’s spellcasting ability comes from divine rather than psychic power. As a divine caster, the onmyoji’s spells use verbal components instead of thought components, and somatic components instead of emotional components, and she uses an ofuda as a divine focus. Ofudas are scrolls with holy writings written on parchment, cloth, or wood (having the same cost as a wooden holy symbol) or metal (having the same cost as a silver holy symbol).",
+                                                      "",
+                                                      Helpers.GetIcon("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                                                      FeatureGroup.None
+                                                      );
+        }
+
+
+        static void createDivineTeachings()
+        {
+            var icon = library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830").Icon; //restoration
+            divine_teachings = Helpers.CreateFeatureSelection("DivineTeachingsFeatureSelection",
+                                                            "Divine Teachings",
+                                                            "An onmyoji gains the ability to call upon her phantom to help her cast spells she normally couldn’t. At 4th level and every 3 levels thereafter, an onmyoji can choose a single spell from the cleric spell list with a spell level she is currently able to cast, and add that spell to her list of spells known, at the same spell level as it appears on the cleric spell list.",
+                                                            "",
+                                                            icon,
+                                                            FeatureGroup.None);
+
+            var cleric_spell_list = Common.combineSpellLists("DivineTeachingsSpellList", library.Get<BlueprintSpellList>("8443ce803d2d31347897a3d85cc32f53"));
+            Common.excludeSpellsFromList(cleric_spell_list, spiritualist_class.Spellbook.SpellList);
+            for (int i = 1; i <= 6; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956",  $"DivineTeachings{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = spiritualist_class;
+                learn_spell.SpellList = cleric_spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = cleric_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = spiritualist_class; });
+                learn_spell.AddComponent(Common.createPrerequisiteClassSpellLevel(spiritualist_class, i));
+                learn_spell.SetName(Helpers.CreateString( $"DivineTeachingsParametrizedFeature{i}.Name", "Divine Teachings " + $"(level {i})"));
+                learn_spell.SetDescription(divine_teachings.Description);
+                learn_spell.SetIcon(divine_teachings.Icon);
+
+                divine_teachings.AllFeatures = divine_teachings.AllFeatures.AddToArray(learn_spell);
+            }
+        }
+
+
+
+        static void createHagHaunted()
+        {
+            hag_haunted = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HagHauntedArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Hag-Haunted");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Hags—those of flesh and blood, at any rate—die like any other mortals, and their souls normally depart to the Outer Planes for judgment. A hag who dies with a curse on her breath is often anchored to the Ethereal Plane by the power of her hatred —similar to vile and angry mortal souls—and some even claw their way back to the living world through the souls of those they despised or ruined… or those unfortunate souls they birthed. Hag-haunted spiritualists are tethered to these spiteful spirits, anchoring them once again in the world of the living. While this partnership imparts powerful magic, they run the constant risk of serving as little more than mounts for their overwhelming phantoms.\n" 
+                                                                                       + "Hag-haunted spiritualists are rarely the masters in their relationship with their phantoms, and the only tool at their disposal to control their wicked minion is to dismiss them back to the Ethereal Plane. In the best scenarios, the relationship is one of mutual competition and constant bargaining, but just as often the hag phantom dominates and abuses her spiritualist.");
+            });
+            Helpers.SetField(hag_haunted, "m_ParentClass", spiritualist_class);
+            library.AddAsset(hag_haunted, "");
+
+            createHagSpellcasting();
+            createHagPhantom();
+            createHagSharedConsciousnessAndFusedConsciousness();
+            createHagDeathCurse();
+
+            hag_haunted.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spiritualist_spellcasting, shared_consciousness),
+                                                            Helpers.LevelEntry(4, spiritual_inference),
+                                                            Helpers.LevelEntry(10, fused_consciousness),
+                                                            Helpers.LevelEntry(12, greater_spiritual_inference),};
+            hag_haunted.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, hag_spell_casting, hag_phantom, hag_shared_consciousness),
+                                                         Helpers.LevelEntry(7, hag_curse7),
+                                                         Helpers.LevelEntry(10, hag_fused_consciousness),
+                                                         Helpers.LevelEntry(12, hag_fused_consciousness12),
+                                                         Helpers.LevelEntry(13, hag_curse13),
+                                                         };
+
+            hag_haunted.ReplaceSpellbook = hag_haunted_spellbook;
+            hag_haunted.ChangeCasterType = true;
+            hag_haunted.IsArcaneCaster = true;
+            spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(hag_spell_casting, hag_phantom);
+            spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(hag_shared_consciousness, hag_curse7, hag_fused_consciousness, hag_curse13));
+
+            //add to prestige classes
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, hag_haunted_spellbook, "EldritchKnightHagHaunted",
+                          Common.createPrerequisiteArchetypeLevel(hag_haunted, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, hag_haunted_spellbook, "ArcaneTricksterHagHaunted",
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, hag_haunted_spellbook, "MysticTheurgeHagHaunted",
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, hag_haunted_spellbook, "DragonDiscipleHagHaunted",
+                                       Common.createPrerequisiteArchetypeLevel(hag_haunted, 1));
+        }
+
+
+        static void createHagDeathCurse()
+        {
+            var bestow_curse = library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603");
+            hag_curse7 = Helpers.CreateFeature("HagDeathCurse7Feature",
+                                               "Death Curse",
+                                               "At 7th level, the spiritualist gains bestow curse as an extra 3rd-level spell known.",
+                                               "",
+                                               bestow_curse.Icon,
+                                               FeatureGroup.None,
+                                               Helpers.CreateAddKnownSpell(bestow_curse, spiritualist_class, 3)
+                                               );
+
+            hag_curse13 = Helpers.CreateFeature("HagDeathCurse16Feature",
+                                   "Death Curse II",
+                                   "At 13th level, the spiritualist gains major curse as an additional 5th-level spell known.",
+                                   "",
+                                   bestow_curse.Icon,
+                                   FeatureGroup.None,
+                                   Helpers.CreateAddKnownSpell(NewSpells.curse_major, spiritualist_class, 5)
+                                   );
+
+        }
+
+
+        static void createHagSpellcasting()
+        {
+            hag_haunted_spellbook = library.CopyAndAdd(spiritualist_class.Spellbook, "HagHauntedSpellbook", "");
+            hag_haunted_spellbook.IsArcane = true;
+            hag_haunted_spellbook.Name = hag_haunted.LocalizedName;
+            hag_haunted_spellbook.CantripsType = CantripsType.Cantrips;
+            hag_haunted_spellbook.RemoveComponents<SpellbookMechanics.PsychicSpellbook>();
+
+            hag_spell_casting = Helpers.CreateFeature("HagSpellcastingFeature",
+                                                      "Hag Spellcasting",
+                                                      "A hag-haunted spiritualist’s spells come from her connection to her hag phantom. Her spells are considered arcane rather than psychic, and they use verbal and somatic components instead of thought and emotion components. She still selects her spells known from the spiritualist class list.\n"
+                                                      + "A hag-haunted can cast spiritualist spells while wearing light armor without incurring the normal arcane spell failure chance. Like any other arcane spellcaster, a hag-haunted wearing medium or heavy armor incurs a chance of arcane spell failure.",
+                                                      "",
+                                                      Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
+                                                      FeatureGroup.None,
+                                                      Common.createArcaneArmorProficiency(ArmorProficiencyGroup.Light)
+                                                      );
+        }
+
+
+        static void createHagSharedConsciousnessAndFusedConsciousness()
+        {
+            var spell_focus = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");
+            var spell_focus_greater = library.Get<BlueprintParametrizedFeature>("5b04b45b228461c43bad768eb0f7c7bf");
+            var skill_focus_persuasion = library.Get<BlueprintFeature>("1621be43793c5bb43be55493e9c45924");
+            hag_shared_consciousness = Helpers.CreateFeature("HagSharedConsciousnessFeature",
+                                             "Shared Consciousness",
+                                             "When in the spiritualist’s consciousness, the hag phantom can grant the hag-haunted Spell Focus (necromancy) and Skill Focus (persuasion), but she often revokes them if the spiritualist banishes her there as a punishment, and she might use them as leverage to get what she wants.",
+                                             "",
+                                             Helpers.GetIcon("b48674cef2bff5e478a007cf57d8345b"),
+                                             FeatureGroup.None);
+
+            hag_fused_consciousness = Helpers.CreateFeature("HagFusedConsciousnessFeature",
+                                             "Fused Consciousness",
+                                             "When the spiritualist reaches 10th level, the hag can also grant Spell Focus (necromancy) and Skill Focus (persuasion) while manifested, and when the spiritualist reaches 12th level, she can also grant Greater Spell Focus (necromancy).",
+                                             "",
+                                             Helpers.GetIcon("b48674cef2bff5e478a007cf57d8345b"),
+                                             FeatureGroup.None,
+                                             Common.createAddParametrizedFeatures(spell_focus, SpellSchool.Necromancy),
+                                             Common.createAddFeatureIfHasFact(skill_focus_persuasion, skill_focus_persuasion, not: true),
+                                             Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.MindAffecting),
+                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSpiritualistArray(),
+                                                                                      progression: ContextRankProgression.Custom,
+                                                                                      customProgression: new (int, int)[] { (11, 4), (20, 8) })
+
+                                            );
+
+            var shared_consciousness_buff = Helpers.CreateBuff("HagSharedConsciousnessBuff",
+                                                   hag_shared_consciousness.Name,
+                                                   hag_shared_consciousness.Description,
+                                                   "",
+                                                   hag_shared_consciousness.Icon,
+                                                   null,
+                                                   hag_fused_consciousness.ComponentsArray
+                                                   );
+
+            hag_fused_consciousness12 = Helpers.CreateFeature("HagFusedConsciousness12Feature",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              null,
+                                                              FeatureGroup.None,
+                                                              Common.createAddParametrizedFeatures(spell_focus_greater, SpellSchool.Necromancy)
+                                                              );
+            hag_fused_consciousness12.HideInCharacterSheetAndLevelUp = true;
+            hag_fused_consciousness12.HideInUI = true;
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(unsummon_buff,
+                                                                                      Helpers.CreateConditional(Common.createContextConditionHasFact(hag_fused_consciousness, has: false),
+                                                                                                                Helpers.CreateConditional(Common.createContextConditionHasFact(hag_shared_consciousness, has: true),
+                                                                                                                Common.createContextActionApplyBuff(shared_consciousness_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false)
+                                                                                                                )
+                                                                                                                )
+                                                                                                                );
+        }
+
+
+        static void createHagPhantom()
+        {
+            var hag_phantom_feature = Helpers.CreateFeature("HagPhantomFeature",
+                                                            "Hag Phantom",
+                                                            "A hag phantom forms from the soul of a deceased hag. She always has an evil alignment, rather than matching the spiritualist’s alignment, and must select one of the following emotional focuses: anger, hatred, or zeal. The hag phantom starts with a +2 bonus to Strength and Intelligence and has her own agenda—usually contrary to the spiritualist’s—though she recognizes that the spiritualist can unmanifest her, and therefore she typically hides suspicious actions from her spiritualist.",
+                                                            "",
+                                                            Helpers.GetIcon("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                                                            FeatureGroup.None,
+                                                            Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Racial),
+                                                            Helpers.CreateAddStatBonus(StatType.Intelligence, 2, ModifierDescriptor.Racial)
+                                                            );
+
+            hag_phantom = Common.createAddFeatToAnimalCompanion("Spiritualist", hag_phantom_feature, "");
+            hag_phantom.AddComponent(Helpers.Create<CompanionMechanics.ChangeCompanionAlignment>(c => c.alignment = Alignment.NeutralEvil));
+
+            var allowed_foci = new string[] { "Anger", "Hatred", "Zeal" };
+
+            foreach (var kv in Phantom.phantom_progressions)
+            {
+                if (!allowed_foci.Contains(kv.Key))
+                {
+                    kv.Value.AddComponent(Common.prerequisiteNoArchetype(hag_haunted));
+                    Phantom.potent_phantom[kv.Key].AddComponent(Common.prerequisiteNoArchetype(hag_haunted));
+                }
+            }
+            
         }
 
 
@@ -189,9 +467,11 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(12, greater_spiritual_inference),
                                                                     Helpers.LevelEntry(13),
                                                                     Helpers.LevelEntry(14, spiritual_bond),
-                                                                    Helpers.LevelEntry(15 ),
+                                                                    Helpers.LevelEntry(15),
                                                                     Helpers.LevelEntry(16),
                                                                     Helpers.LevelEntry(17, dual_bond),
+                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(19),
                                                                     Helpers.LevelEntry(20, potent_phantom)
                                                                     };
 
@@ -516,7 +796,6 @@ namespace CallOfTheWild
 
         static void createSharedAndFusedConsciousness()
         {
-
             shared_consciousness = Helpers.CreateFeature("SharedConsciousnessFeature",
                                                          "Shared Consciousness",
                                                          "At 1st level, while a phantom is confined in a spiritualist’s consciousness (but not while it’s fully manifested or banished to the Ethereal Plane), it grants the spiritualist the Skill Focus feat in two skills determined by the phantom’s emotional focus, unless the spiritualist already has Skill Focus in those skills. It also grants a +4 bonus on saving throws against all mind - affecting effects; at 12th level, this bonus increases to + 8.",
@@ -556,7 +835,9 @@ namespace CallOfTheWild
 
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(unsummon_buff,
                                                                                       Helpers.CreateConditional(Common.createContextConditionHasFact(fused_consciousness, has: false),
+                                                                                                                Helpers.CreateConditional(Common.createContextConditionHasFact(shared_consciousness, has: true),
                                                                                                                 Common.createContextActionApplyBuff(shared_consciousness_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false)
+                                                                                                                )
                                                                                                                 )
                                                                                                                 );
         }

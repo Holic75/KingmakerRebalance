@@ -1767,6 +1767,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
