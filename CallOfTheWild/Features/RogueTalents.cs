@@ -289,7 +289,7 @@ namespace CallOfTheWild
             assasinate_cooldown.Stacking = StackingType.Stack;
             var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(assasinate_cooldown), null,
                                                            Common.createContextActionApplyBuff(assasinate_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false));
-            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
+            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(2, DurationRate.Rounds), dispellable: false);
 
             var ability = Helpers.CreateAbility("AssasinateAbility",
                                                 "Assassinate",
@@ -299,7 +299,7 @@ namespace CallOfTheWild
                                                 AbilityType.Extraordinary,
                                                 UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
-                                                Helpers.oneRoundDuration,
+                                                "2 rounds",
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff}),

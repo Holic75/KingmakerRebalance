@@ -267,11 +267,16 @@ namespace CallOfTheWild
 
             eldritch_scion_bloodrager.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, eldritch_scion_bloodrager_bloodlines, mystical_focus, eldritch_scion.AddFeatures[0].Features[1], eldritch_scion.AddFeatures[0].Features[2]) };
             eldritch_scion_bloodrager.AddFeatures = eldritch_scion_bloodrager.AddFeatures.AddToArray(eldritch_scion.AddFeatures.Skip(1));
+            //eldritch_scion_bloodrager.AddFeatures = eldritch_scion_bloodrager.AddFeatures.RemoveFromArray(eldritch_scion_bloodrager.AddFeatures.Where(le => le.Level == 19).FirstOrDefault());
             eldritch_scion_bloodrager.RemoveFeatures = eldritch_scion.RemoveFeatures;
 
             var bard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 
             eldritch_scion_bloodrager.ReplaceSpellbook = library.CopyAndAdd(eldritch_scion.ReplaceSpellbook, "EldritchScionBloodragerSpellbook", "");
+            //eldritch_scion_bloodrager.ReplaceSpellbook.RemoveComponents<AddCustomSpells>();
+            eldritch_scion_bloodrager.OverrideAttributeRecommendations = true;
+            eldritch_scion_bloodrager.RecommendedAttributes = eldritch_scion.RecommendedAttributes;
+            eldritch_scion_bloodrager.NotRecommendedAttributes = eldritch_scion.NotRecommendedAttributes;
             //add check against new archetype for exisitng magus spellbooks
             var selections_to_fix = new BlueprintFeatureSelection[] {Common.EldritchKnightSpellbookSelection,
                                                                      Common.ArcaneTricksterSelection,

@@ -79,8 +79,6 @@ namespace CallOfTheWild
         static public BlueprintAbility summon_companion_ability;
         static public BlueprintAbility summon_call_ability;
 
-        static public BlueprintArchetype hag_haunted;
-
         //fractured mind x
         //phantom blade or extoplasmotist
         //onymoji x

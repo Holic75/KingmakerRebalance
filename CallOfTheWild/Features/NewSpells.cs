@@ -259,9 +259,10 @@ namespace CallOfTheWild
         //implosion
         //debilitating portent
         //condensed ether
+        //battle mind link
+        //debilitating portent
         static public BlueprintAbility channel_vigor;
         static public BlueprintAbility control_construct;
-        //static public BlueprintAbility battlemind_link;
 
         static public void load()
         {
