@@ -415,7 +415,14 @@ namespace CallOfTheWild
                                                                        spell_scourge_aura_buff, 10.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
                                                                        );
             spell_scourge_phantom.AddComponents(Common.createAttackBonusOnAttacksOfOpportunity(2, ModifierDescriptor.UntypedStackable),
-                                                Helpers.Create<NewMechanics.AttackOfOpportunityDaamgeBonus>(a => { a.value = 2; a.descriptor = ModifierDescriptor.UntypedStackable; })
+                                                Helpers.Create<NewMechanics.AttackOfOpportunityDamgeBonus>(a => { a.value = 2; a.descriptor = ModifierDescriptor.UntypedStackable; }),
+                                                Helpers.Create<AddOutgoingDamageTrigger>(a =>
+                                                {
+                                                    a.NotZeroDamage = true;
+                                                    a.ApplyToAreaEffectDamage = true;
+                                                    a.Actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(spell_scourge_attack_buff, Helpers.CreateContextDuration(1), dispellable: false));
+                                                }
+                                                )
                                                );
             spell_scourge = Common.createAddFeatToAnimalCompanion(spell_scourge_phantom, "");
         }

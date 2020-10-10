@@ -233,7 +233,7 @@ namespace CallOfTheWild
 
             var capstone = Helpers.CreateFeature(name + "PotentPhantomFeature",
                                                  "Potent Phantom: " + display_name,
-                                                 display_name,
+                                                 descripton,
                                                  "",
                                                  icon,
                                                  FeatureGroup.None,
@@ -321,7 +321,7 @@ namespace CallOfTheWild
 
             endure_torment = Helpers.CreateFeature("EndureTormentPhantomFeature",
                                                    "Endure Torment",
-                                                   "At 6th level, a scourge’s phantom gains a +4 bonus on saving throws against death effects and effects that could cause it to become staggered or stunned.",
+                                                   "At 5th level, a scourge’s phantom gains a +4 bonus on saving throws against death effects and effects that could cause it to become staggered or stunned.",
                                                    "",
                                                    null,
                                                    FeatureGroup.None,
@@ -596,8 +596,8 @@ namespace CallOfTheWild
 
 
             var pain_archetype = library.CopyAndAdd(archetype, "Pain" + archetype.name, "");
-            pain_archetype.RemoveFeatures = pain_archetype.RemoveFeatures.AddToArray(Helpers.LevelEntry(6, devotion));
-            pain_archetype.AddFeatures = pain_archetype.AddFeatures.AddToArray(Helpers.LevelEntry(6, endure_torment));
+            pain_archetype.RemoveFeatures = pain_archetype.RemoveFeatures.AddToArray(Helpers.LevelEntry(5, devotion));
+            pain_archetype.AddFeatures = pain_archetype.AddFeatures.AddToArray(Helpers.LevelEntry(5, endure_torment));
             phantom_class.Archetypes = phantom_class.Archetypes.AddToArray(pain_archetype);
             pain_phantom_archetype_map[archetype] = pain_archetype;
             return archetype;

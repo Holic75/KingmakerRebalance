@@ -1468,33 +1468,6 @@ namespace CallOfTheWild
         {
             public ModifierDescriptor descriptor;
             public ContextValue bonus;
-            public bool retroactive;
-
-            public override void OnFactActivate()
-            {
-                if (!retroactive)
-                {
-                    return;
-                }
-                int val = bonus.Calculate(this.Fact.MaybeContext);
-                foreach (var s in this.Owner.Stats.GetList())
-                {
-                    bool updated = false;
-                    foreach (var m in s.Modifiers.ToArray())
-                    {
-                        if (m.ModDescriptor == descriptor)
-                        {
-                            m.ModValue += val;
-                            updated = true;
-                        }
-                    }
-
-                    if (updated)
-                    {
-                        s.UpdateValue();
-                    }
-                }
-            }
 
             public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
             {

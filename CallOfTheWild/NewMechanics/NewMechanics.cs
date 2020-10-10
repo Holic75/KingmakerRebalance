@@ -5513,7 +5513,7 @@ namespace CallOfTheWild
 
 
 
-        public class AttackOfOpportunityDaamgeBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        public class AttackOfOpportunityDamgeBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
         {
             public ModifierDescriptor descriptor;
             public ContextValue value;
