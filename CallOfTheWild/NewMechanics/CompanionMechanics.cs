@@ -390,6 +390,28 @@ namespace CallOfTheWild.CompanionMechanics
         }
     }
 
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionHasFact : BlueprintComponent, IAbilityCasterChecker
+    {
+        public bool not = false;
+        public BlueprintUnitFact fact;
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            if (caster?.Descriptor.Pet == null)
+            {
+                return false;
+            }
+            return caster.Descriptor.Pet.Descriptor.HasFact(fact) != not;
+        }
+
+        public string GetReason()
+        {
+            return "Companion " + (not ? "has" : "does not have ") + fact.Name;
+        }
+    }
+
     public class ActivatableAbilityCompanionUnsummoned : ActivatableAbilityRestriction
     {
         public bool not;

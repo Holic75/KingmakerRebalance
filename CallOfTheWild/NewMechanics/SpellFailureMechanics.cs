@@ -10,6 +10,7 @@ using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -22,6 +23,31 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.SpellFailureMechanics
 {
+    class UnitPartUnableToUseAbilities : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !this.buffs.Empty();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class UnableToUseAbilities : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartUnableToUseAbilities>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartUnableToUseAbilities>().removeBuff(this.Fact);
+        }
+    }
+
 
     class UnitPartSilence : AdditiveUnitPart
     {
@@ -164,6 +190,22 @@ namespace CallOfTheWild.SpellFailureMechanics
     }
 
 
+    [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]
+    [Harmony12.HarmonyPatch("IsAvailable", Harmony12.MethodType.Getter)]
+    class ActivatableAbility__IsAvailable__Patch
+    {
+        static void Postfix(ActivatableAbility __instance, ref bool __result)
+        {
+            if (__result == false)
+            {
+                return;
+            }
+
+            __result = !(__instance.Owner.Get<UnitPartUnableToUseAbilities>()?.active()).GetValueOrDefault();
+        }
+    }
+
+
     [Harmony12.HarmonyPatch(typeof(AbilityData))]
     [Harmony12.HarmonyPatch("IsAvailableForCast", Harmony12.MethodType.Getter)]
     class AbilityData__IsAvailableForCast__Patch
@@ -172,6 +214,12 @@ namespace CallOfTheWild.SpellFailureMechanics
         {
             if (__result == false)
             {
+                return;
+            }
+
+            if ((__instance.Caster.Get<UnitPartUnableToUseAbilities>()?.active()).GetValueOrDefault())
+            {
+                __result = false;
                 return;
             }
 

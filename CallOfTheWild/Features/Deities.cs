@@ -39,6 +39,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("c346bcc77a6613040b3aa915b1ceddec"), //madness
                 library.Get<BlueprintFeature>("eaa368e08628a8641b16cd41cbd2cb33"), //trickery
                 library.Get<BlueprintFeature>("58d2867520de17247ac6988a31f9e397"), //strength
+                library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6"), //channel negative
             });
             lamashtu.AddComponent(Helpers.Create<RaceMechanics.PrerequisiteRace>(p => p.race = library.Get<BlueprintRace>("9d168ca7100e9314385ce66852385451")));
 

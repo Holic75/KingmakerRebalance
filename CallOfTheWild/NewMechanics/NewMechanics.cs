@@ -5512,6 +5512,26 @@ namespace CallOfTheWild
         }
 
 
+
+        public class AttackOfOpportunityDaamgeBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public ModifierDescriptor descriptor;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                int num = this.value.Calculate(this.Fact.MaybeContext);
+                if (evt.AttackWithWeapon == null || !evt.AttackWithWeapon.IsAttackOfOpportunity)
+                    return;
+                evt.AddBonusDamage(num);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class RerollOnWeaponCategoryAndSpendResource : RuleInitiatorLogicComponent<RuleRollD20>, ITargetRulebookSubscriber
         {

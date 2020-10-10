@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Kingmaker.Assets.UnitLogic.Mechanics.Actions;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -34,6 +35,7 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -94,6 +96,9 @@ namespace CallOfTheWild
         static public BlueprintFeature onmyoji_spellcasting;
         static public BlueprintFeatureSelection divine_teachings;
 
+        static public BlueprintArchetype scourge;
+        static public BlueprintFeature spell_scourge;
+        static public BlueprintFeature ectoplasmic_swarm;
         //fractured mind x
         //phantom blade or ectoplasmotist
         //necrologist
@@ -152,7 +157,8 @@ namespace CallOfTheWild
 
             createHagHaunted();
             createOnmyoji();
-            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji};
+            createScourge();
+            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge};
         }
 
 
@@ -190,6 +196,228 @@ namespace CallOfTheWild
             onmyoji.IsDivineCaster = true;
             spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(onmyoji_spellcasting);
             Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", Common.createPrerequisiteArchetypeLevel(onmyoji, 1));
+        }
+
+
+        static void createScourge()
+        {
+            scourge = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ScourgeArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Scourge");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Scourges are students of pain and have a rare connection to tormented and wracked spirits. Scourges seek to share their phantoms’ miseries with all around them, using the spirit’s pain as a weapon. A scourge’s phantom is a broken and wretched creature, and the torments it suffered in life are reflected in its ghostly or ectoplasmic appearance as wounds, scars, grotesque malformations, and tattered garments.");
+            });
+            Helpers.SetField(scourge, "m_ParentClass", spiritualist_class);
+            library.AddAsset(scourge, "");
+
+            createSpellScourge();
+            createEctoplasmicSwarm();
+
+
+            scourge.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(4, spiritual_inference),
+                                                       Helpers.LevelEntry(12, greater_spiritual_inference),};
+            scourge.AddFeatures = new LevelEntry[] {     
+                                                         Helpers.LevelEntry(4, spell_scourge),
+                                                         Helpers.LevelEntry(12, ectoplasmic_swarm),
+                                                   };
+
+            spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(spell_scourge, ectoplasmic_swarm));
+
+            //fix phantoms
+            foreach (var f in emotional_focus_selection.AllFeatures)
+            {
+                f.AddComponent(Common.prerequisiteNoArchetype(scourge));
+            }
+
+            foreach (var kv in Phantom.pain_phantom_progressions)
+            {
+                kv.Value.AddComponent(Common.createPrerequisiteArchetypeLevel(scourge, 1));
+                kv.Value.SetDescription(kv.Value.Description + "\n" + Phantom.endure_torment.Name + ": " + Phantom.endure_torment.Description);
+                emotional_focus_selection.AllFeatures = emotional_focus_selection.AllFeatures.AddToArray(kv.Value);
+            }
+        }
+
+
+        static void createEctoplasmicSwarm()
+        {
+            var spider_swarm_damage_effect_immunity = library.Get<BlueprintBuff>("1c63c2b0ea1f44940a63211fef462b98");
+            var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
+            var apply_nauseted = Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(1));
+            var dmg_phantom = Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 1, 0)),
+                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, 1, 0)),
+                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D10, 1, 0)),
+                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 2, 0)),
+                                                                             Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, 2, 0))
+                                                                             );
+
+            var dmg_phantom_large = Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, 1, 0)),
+                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 2, 0)),
+                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, 2, 0)),
+                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 3, 0)),
+                                                                 Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, 3, 0))
+                                                                 );
+
+            var dmg = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(Phantom.slam_damage_large),
+                                                dmg_phantom_large,
+                                                dmg_phantom);
+
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                type: AbilityRankType.Default,
+                                                                                progression: ContextRankProgression.StartPlusDivStep,
+                                                                                startLevel: 1,
+                                                                                stepLevel: 3,
+                                                                                classes: Phantom.getPhantomArray());
+
+            var activated_actions = Helpers.CreateActionList(Helpers.Create<ContextActionSwarmTarget>(),
+                                                             Common.createContextActionApplyBuff(spider_swarm_damage_effect_immunity, Helpers.CreateContextDuration(1)),
+                                                             dmg,
+                                                             Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_nauseted))
+                                                             );
+
+
+            var in_swarm_buff = Helpers.CreateBuff("EctoplasmicSwarmDamageEffectBuff",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    null,
+                                                    Common.createPrefabLink("4b31ab00d34d50845aa087a2a8bed63d"),
+                                                    Helpers.CreateAddFactContextActions(activated: activated_actions.Actions,
+                                                                                        deactivated: new GameAction[] { Helpers.Create<ContextActionSwarmTarget>(c => c.Remove = true) }
+                                                                                        ),
+                                                    context_rank_config
+                                                   );
+            in_swarm_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var swarm_buff = Common.createBuffAreaEffect(in_swarm_buff, 5.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()));
+            swarm_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+          
+            var swarm_attack = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasBuffFromCaster(spider_swarm_damage_effect_immunity) },
+                                                                     null,
+                                                                     new GameAction[]{dmg,
+                                                                                      Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_nauseted))
+                                                                                     }
+                                                        );
+
+            var attack_in_swarm = Helpers.Create<ContextActionSwarmAttack>(c => c.AttackActions = Helpers.CreateActionList(Helpers.Create<ContextActionOnSwarmTargets>(a => a.Actions = Helpers.CreateActionList(swarm_attack))));
+            var swarm_attack_conditional = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextSwarmHasEnemiesInInnerCircle>() },
+                                                                     new GameAction[] { attack_in_swarm,
+                                                                                        Helpers.Create<ContextActionPlaySound>(c => c.SoundName = "SwarmMandragora_Attack_Voice")
+                                                                                      }
+                                                                     );
+
+            swarm_buff.AddComponents(Helpers.CreateAddFactContextActions(newRound: swarm_attack_conditional),
+                                    context_rank_config);
+
+            var swarm_feature = Helpers.CreateFeature("EctoplasmicSwarmDamageFeature",
+                                                      "",
+                                                      "",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Common.createAuraFeatureComponent(swarm_buff),
+                                                      Common.createContextCalculateAbilityParamsBasedOnClass(Phantom.phantom_class, StatType.Constitution)
+                                                      );
+            swarm_feature.HideInUI = true;
+            swarm_feature.HideInCharacterSheetAndLevelUp = true;
+
+            var polymorph_component = library.Get<BlueprintBuff>("6ba1229b016317041b17f75e7b0fc686").GetComponent<Polymorph>().CreateCopy();
+            polymorph_component.DexterityBonus = 8;
+            polymorph_component.StrengthBonus = -10;
+            polymorph_component.ConstitutionBonus = -2;
+            polymorph_component.Size = Size.Diminutive;
+            polymorph_component.Prefab = Common.createUnitViewLink("99a0fbddd76b4b147b1831d315a581cb");//mandragora swarm
+            polymorph_component.MainHand = null;
+            polymorph_component.OffHand = null;
+            polymorph_component.NaturalArmor = 0;
+            polymorph_component.AdditionalLimbs = new BlueprintItemWeapon[0];
+            polymorph_component.SecondaryAdditionalLimbs = new BlueprintItemWeapon[0];
+            polymorph_component.Facts = new BlueprintUnitFact[]
+            {
+                swarm_feature,
+                library.Get<BlueprintFeature>("2e3e840ab458ce04c92064489f87ecc2") //diminutive swarm
+            };
+
+            var ectoplasmic_swarm_buff = Helpers.CreateBuff("EctoplasmicSwarmBuff",
+                                                            "Ectoplasmic Swarm",
+                                                            "At 12th level, as a standard action, a scourge with a phantom manifested in ectoplasmic form can command it to break apart in a gruesome display of gore and agony, transforming it into a swarm of Diminutive ectoplasmic organs and viscera. The phantom gains the swarm subtype, dealing its unmodified slam damage die as damage for its swarm attack. Its distraction DC is equal to 10 + 1/2 the phantom’s Hit Dice + its Constitution modifier. In this form, the phantom is too diffuse to use any of its abilities from emotional focus (even passive abilities).",
+                                                            "",
+                                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/EctoplasmicSwarm.png"),
+                                                            null,
+                                                            polymorph_component,
+                                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                                            Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.CanNotAttack),
+                                                            Helpers.Create<SpellFailureMechanics.UnableToUseAbilities>()
+                                                            );
+            ectoplasmic_swarm_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            var apply_polymorph = Common.createContextActionApplyBuff(ectoplasmic_swarm_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            var precast_action = Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph)));
+            var ectoplasmic_swarm_ability = Helpers.CreateAbility("EctoplasmicSwarmAbility",
+                                                                  ectoplasmic_swarm_buff.Name,
+                                                                  ectoplasmic_swarm_buff.Description,
+                                                                  "",
+                                                                  ectoplasmic_swarm_buff.Icon,
+                                                                  AbilityType.Supernatural,
+                                                                  CommandType.Standard,
+                                                                  AbilityRange.Personal,
+                                                                  "",
+                                                                  "",
+                                                                  Helpers.CreateRunActions(Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(apply_polymorph))),
+                                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(precast_action)),
+                                                                  Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true),
+                                                                  Helpers.Create<CompanionMechanics.AbilityCasterCompanionHasFact>(a => { a.fact = ectoplasmic_swarm_buff; a.not = true; })
+                                                                  );
+            ectoplasmic_swarm_ability.setMiscAbilityParametersSelfOnly();
+
+            var ectoplasmic_swarm_ability_remove = Helpers.CreateAbility("EctoplasmicSwarmRemoveAbility",
+                                                      "Deactivate " + ectoplasmic_swarm_buff.Name,
+                                                      ectoplasmic_swarm_buff.Description,
+                                                      "",
+                                                      ectoplasmic_swarm_buff.Icon,
+                                                      AbilityType.Supernatural,
+                                                      CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      "",
+                                                      "",
+                                                      Helpers.CreateRunActions(Helpers.Create<ContextActionsOnPet>(c => c.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuff(ectoplasmic_swarm_buff)))),
+                                                      Helpers.Create<CompanionMechanics.AbilityCasterCompanionHasFact>(a => a.fact = ectoplasmic_swarm_buff)
+                                                      );
+
+            var wrapper = Common.createVariantWrapper("EctoplasmicswarmAbilityBase", "", ectoplasmic_swarm_ability, ectoplasmic_swarm_ability_remove);
+            ectoplasmic_swarm = Common.AbilityToFeature(wrapper, false);
+        }
+
+
+        static void createSpellScourge()
+        {
+            var spell_scourge_attack_buff = Helpers.CreateBuff("SpellScourgePhantomAttackBuff",
+                                                              "Spell Scourge",
+                                                              "At 4th level, when a scourge’s phantom damages a creature, it causes severe pain, requiring that creature to succeed at a concentration check (DC = 15 + spell level) to use spells, spell-like abilities, and other abilities that require concentration for 1 round.\n"
+                                                              + "The phantom gains a +2 bonus on attack and damage rolls when making attacks of opportunity. Any creature threatened by the scourge’s phantom takes a –5 penalty on concentration checks.",
+                                                              "",
+                                                              NewSpells.fleshworm_infestation.Icon,
+                                                              null,
+                                                              Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.SpellCastingIsDifficult)
+                                                              );
+
+            var spell_scourge_aura_buff = Helpers.CreateBuff("SpellScourgeAuraEffectBuff",
+                                                  "Spell Scourge Concentration Penalty",
+                                                  spell_scourge_attack_buff.Description,
+                                                  "",
+                                                  spell_scourge_attack_buff.Icon,
+                                                  null,
+                                                  Helpers.Create<ConcentrationBonus>(c => c.Value = -5)
+                                                  );
+
+            var spell_scourge_phantom = Common.createAuraEffectFeature(spell_scourge_attack_buff.Name, spell_scourge_attack_buff.Description, spell_scourge_attack_buff.Icon,
+                                                                       spell_scourge_aura_buff, 10.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                                       );
+            spell_scourge_phantom.AddComponents(Common.createAttackBonusOnAttacksOfOpportunity(2, ModifierDescriptor.UntypedStackable),
+                                                Helpers.Create<NewMechanics.AttackOfOpportunityDaamgeBonus>(a => { a.value = 2; a.descriptor = ModifierDescriptor.UntypedStackable; })
+                                               );
+            spell_scourge = Common.createAddFeatToAnimalCompanion(spell_scourge_phantom, "");
         }
 
 
@@ -395,7 +623,7 @@ namespace CallOfTheWild
                                                             "Hag Phantom",
                                                             "A hag phantom forms from the soul of a deceased hag. She always has an evil alignment, rather than matching the spiritualist’s alignment, and must select one of the following emotional focuses: anger, hatred, or zeal. The hag phantom starts with a +2 bonus to Strength and Intelligence and has her own agenda—usually contrary to the spiritualist’s—though she recognizes that the spiritualist can unmanifest her, and therefore she typically hides suspicious actions from her spiritualist.",
                                                             "",
-                                                            Helpers.GetIcon("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                                                            NewSpells.howling_agony.Icon,
                                                             FeatureGroup.None,
                                                             Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Racial),
                                                             Helpers.CreateAddStatBonus(StatType.Intelligence, 2, ModifierDescriptor.Racial)

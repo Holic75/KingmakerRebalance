@@ -2841,6 +2841,20 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValue(ContextValue value, params GameAction[] actions)
+        {
+            var action_lists = new ActionList[actions.Length];
+            for (int i = 0; i < actions.Length; i++)
+            {
+                action_lists[i] = Helpers.CreateActionList(actions[i]);
+            }
+            var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
+            r.value = value;
+            r.actions = action_lists;
+            return r;
+        }
+
+
         static public NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValueIgnoreNegative(ContextValue value, params ActionList[] actions)
         {
             var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
