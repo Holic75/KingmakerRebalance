@@ -1767,6 +1767,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
@@ -3406,6 +3409,34 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class TransferDescriptorBonusToTouchAC : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, ITargetRulebookSubscriber
+        {
+            public ModifierDescriptor Descriptor;
+            public ContextValue value;
+            public BlueprintUnitFact required_target_fact;
+
+
+            public void OnEventAboutToTrigger(RuleCalculateAC evt)
+            {
+                int bonus = value.Calculate(this.Fact.MaybeContext);
+                bonus = bonus > 0 ? Math.Min(bonus, this.Owner.Stats.AC.GetDescriptorBonus(this.Descriptor)) : this.Owner.Stats.AC.GetDescriptorBonus(this.Descriptor);
+
+                if (!evt.AttackType.IsTouch())
+                    return;
+
+                if (required_target_fact != null && !evt.Initiator.Descriptor.HasFact(required_target_fact))
+                {
+                    return;
+                }
+                evt.AddBonus(bonus, this.Fact);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAC evt)
+            {
+            }
+        }
+
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class TouchACBonus : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, ITargetRulebookSubscriber
@@ -3416,6 +3447,7 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAC evt)
             {
                 int bonus = value.Calculate(this.Fact.MaybeContext);
+
                 if (!ModifiableValue.DefaultStackingDescriptors.Contains(Descriptor))
                 {
                     bonus -= this.Owner.Stats.AC.GetDescriptorBonus(this.Descriptor);
@@ -5498,6 +5530,26 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleRollD20 evt)
             {
 
+            }
+        }
+
+
+
+        public class AttackOfOpportunityDamgeBonus : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public ModifierDescriptor descriptor;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                int num = this.value.Calculate(this.Fact.MaybeContext);
+                if (evt.AttackWithWeapon == null || !evt.AttackWithWeapon.IsAttackOfOpportunity)
+                    return;
+                evt.AddBonusDamage(num);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
             }
         }
 

@@ -52,6 +52,7 @@ namespace CallOfTheWild
         static public bool test_mode = false;
 
         static public BlueprintFeature devotion;
+        static public BlueprintFeature endure_torment;
         static public BlueprintFeature dex_cha_bonus;
         static public BlueprintFeature str_cha_bonus;
         static public BlueprintFeature slam_damage;
@@ -73,12 +74,13 @@ namespace CallOfTheWild
         static public BlueprintPortrait phantom_portrait;
 
         static public Dictionary<string, BlueprintProgression> phantom_progressions = new Dictionary<string, BlueprintProgression>();
+        static public Dictionary<string, BlueprintProgression> pain_phantom_progressions = new Dictionary<string, BlueprintProgression>();
         static public Dictionary<string, BlueprintFeature> potent_phantom = new Dictionary<string, BlueprintFeature>();
         static public Dictionary<string, List<BlueprintFeature>> phantom_skill_foci = new Dictionary<string, List<BlueprintFeature>>();
+        static public Dictionary<BlueprintArchetype, BlueprintArchetype> pain_phantom_archetype_map = new Dictionary<BlueprintArchetype, BlueprintArchetype>();
 
-      
 
-       
+
         static public BlueprintFeatureSelection extra_class_skills;
 
         static BlueprintFeature outsider = library.Get<BlueprintFeature>("9054d3988d491d944ac144e27b6bc318");
@@ -158,7 +160,10 @@ namespace CallOfTheWild
             unit.Visual.BloodType = Kingmaker.Visual.HitSystem.BloodType.BlackUndead;
             unit.Visual.FootstepSoundSizeType = Kingmaker.Visual.Sound.FootstepSoundSizeType.Ghost;
             unit.Visual.Barks = spectre.Visual.Barks;
-
+            unit.Race = null;
+            var pain_unit = library.CopyAndAdd(unit, "Pain" + unit.name, "");
+            pain_unit.ReplaceComponent<AddClassLevels>(a => a.Archetypes = new BlueprintArchetype[] { pain_phantom_archetype_map[archetype] });
+             
            var progression = Helpers.CreateProgression(name + "PhantomProgression",
                                                         "Emotion Focus: " + display_name,
                                                         descripton,
@@ -207,7 +212,8 @@ namespace CallOfTheWild
                 spell_likes[i] = Common.AbilityToFeature(ability, false);
                 spell_likes[i].AddComponent(resource.CreateAddAbilityResource());
                 spell_likes[i].SetNameDescription("Emotional Power: " + spell_likes[i].Name,
-                                                  "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.");
+                                                  "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.\n"
+                                                   + spell_like_abilities[i].Name + ": " + spell_like_abilities[i].Description);
 
             }
 
@@ -223,10 +229,12 @@ namespace CallOfTheWild
                                                   Helpers.CreateUIGroup(spell_likes)
                                                  };
 
+            var pain_progression = library.CopyAndAdd(progression, "Pain" + progression.name, "");
+            pain_progression.ReplaceComponent<AddPet>(a => a.Pet = pain_unit);
 
             var capstone = Helpers.CreateFeature(name + "PotentPhantomFeature",
                                                  "Potent Phantom: " + display_name,
-                                                 display_name,
+                                                 descripton,
                                                  "",
                                                  icon,
                                                  FeatureGroup.None,
@@ -235,6 +243,8 @@ namespace CallOfTheWild
                                                  );
 
             phantom_progressions[name] = progression;
+            pain_phantom_progressions[name] = pain_progression;
+            progression.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = pain_progression));
             potent_phantom[name] = capstone;
 
             phantom_skill_foci[name] = new List<BlueprintFeature>();
@@ -303,13 +313,23 @@ namespace CallOfTheWild
             outsider.HideInUI = true;
             //devotion
             //evasion
-            //natural armor
+            //natural armorc
             //str/dex increase
             //improved evasion
 
             devotion = library.CopyAndAdd<BlueprintFeature>("226f939b7dfd47b4697ec52f79799012", "PhantomDevotionFeature", "");
-            devotion.SetDescription("AThen phantom gains a +4 morale bonus on Will saves against enchantment spells and effects.");
-          
+            devotion.SetDescription("The phantom gains a +4 morale bonus on Will saves against enchantment spells and effects.");
+
+            endure_torment = Helpers.CreateFeature("EndureTormentPhantomFeature",
+                                                   "Endure Torment",
+                                                   "At 5th level, a scourge’s phantom gains a +4 bonus on saving throws against death effects and effects that could cause it to become staggered or stunned.",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Stun | SpellDescriptor.Staggered | SpellDescriptor.Death)
+                                                   );
+
+
             var natural_armor = library.CopyAndAdd<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1", "PhantomNaturalArmorFeature", "");
             natural_armor.SetNameDescription("Armor Bonus",
                                              "Phantom receives bonuses to their natural armor. A phantom cannot wear armor of any kind, as the armor interferes with the spiritualist’s connection to the phantom.");
@@ -377,7 +397,7 @@ namespace CallOfTheWild
                                                                     };
 
 
-            phantom_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(slam_damage, magic_attacks, devotion, Eidolon.multi_attack),
+            phantom_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(slam_damage, magic_attacks, devotion, Eidolon.multi_attack, endure_torment),
                                                            Helpers.CreateUIGroup(dr5_slashing, dr_magic,dr15),
                                                            Helpers.CreateUIGroup(natural_armor),
                                                            Helpers.CreateUIGroup(dex_cha_bonus, str_cha_bonus),
@@ -385,7 +405,7 @@ namespace CallOfTheWild
         }
 
 
-        static BlueprintCharacterClass[] getPhantomArray()
+        static public BlueprintCharacterClass[] getPhantomArray()
         {
             return new BlueprintCharacterClass[] { phantom_class };
         }
@@ -461,7 +481,7 @@ namespace CallOfTheWild
             slam_damage_large = Helpers.CreateFeature("PhantomSlamDamageLarge",
                                                 "Anger Phantom Slam Damage",
                                                 "Phantoms have two slam natural weapon attacks. \n"
-                                                + "The damage dealt by medium anger phantom with her slam attack is 1d8 at levels 1-3, 2d6 at levels 4-6, 2d18 at levels 7 - 9, 3d6 at levels 10-12 and finally 3d8 at level 15.",
+                                                + "The damage dealt by medium anger phantom with her slam attack is 1d8 at levels 1-3, 2d6 at levels 4-6, 2d8 at levels 7 - 9, 3d6 at levels 10-12 and finally 3d8 at level 15.",
                                                 "",
                                                 Helpers.GetIcon("247a4068296e8be42890143f451b4b45"), //basic feat
                                                 FeatureGroup.None,
@@ -574,6 +594,13 @@ namespace CallOfTheWild
             }
                                                       
             phantom_class.Archetypes = phantom_class.Archetypes.AddToArray(archetype);
+
+
+            var pain_archetype = library.CopyAndAdd(archetype, "Pain" + archetype.name, "");
+            pain_archetype.RemoveFeatures = pain_archetype.RemoveFeatures.AddToArray(Helpers.LevelEntry(5, devotion));
+            pain_archetype.AddFeatures = pain_archetype.AddFeatures.AddToArray(Helpers.LevelEntry(5, endure_torment));
+            phantom_class.Archetypes = phantom_class.Archetypes.AddToArray(pain_archetype);
+            pain_phantom_archetype_map[archetype] = pain_archetype;
             return archetype;
         }
     }

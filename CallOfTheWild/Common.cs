@@ -1820,7 +1820,6 @@ namespace CallOfTheWild
             features1.Add(selection2);
 
             return features1;
-
         }
 
 
@@ -2762,6 +2761,21 @@ namespace CallOfTheWild
             return a;
         }
 
+
+        static public AddParametrizedFeatures createAddParametrizedFeatures(BlueprintParametrizedFeature feature, SpellSchool school)
+        {
+            var data = Activator.CreateInstance(ParametrizedFeatureData);
+            Helpers.SetField(data, "Feature", feature);
+            Helpers.SetField(data, "ParamSpellSchool", school);
+
+            var data_array = Array.CreateInstance(ParametrizedFeatureData, 1);
+            data_array.SetValue(data, 0);
+
+            var a = Helpers.Create<AddParametrizedFeatures>();
+            Helpers.SetField(a, "m_Features", data_array);
+            return a;
+        }
+
         static public IncreaseActivatableAbilityGroupSize createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup group)
         {
             var i = Helpers.Create<IncreaseActivatableAbilityGroupSize>();
@@ -2845,6 +2859,20 @@ namespace CallOfTheWild
             var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
             r.value = value;
             r.actions = actions;
+            return r;
+        }
+
+
+        static public NewMechanics.RunActionsDependingOnContextValue createRunActionsDependingOnContextValue(ContextValue value, params GameAction[] actions)
+        {
+            var action_lists = new ActionList[actions.Length];
+            for (int i = 0; i < actions.Length; i++)
+            {
+                action_lists[i] = Helpers.CreateActionList(actions[i]);
+            }
+            var r = Helpers.Create<NewMechanics.RunActionsDependingOnContextValue>();
+            r.value = value;
+            r.actions = action_lists;
             return r;
         }
 
@@ -3187,7 +3215,7 @@ namespace CallOfTheWild
             return a;
         }
 
-        public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor)
+        public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor, bool add_to_area = true)
         {
             var a = fact?.GetComponent<SpellDescriptorComponent>();
             if (a == null)
@@ -3199,15 +3227,18 @@ namespace CallOfTheWild
                 fact.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | descriptor);
             }
 
-            var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
-            if (actions == null)
+            if (add_to_area)
             {
-                return;
-            }
+                var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
+                if (actions == null)
+                {
+                    return;
+                }
 
-            foreach (var ac in actions.OfType<ContextActionSpawnAreaEffect>())
-            {
-                addSpellDescriptor(ac.AreaEffect, descriptor);
+                foreach (var ac in actions.OfType<ContextActionSpawnAreaEffect>())
+                {
+                    addSpellDescriptor(ac.AreaEffect, descriptor);
+                }
             }
         }
 
@@ -3221,7 +3252,7 @@ namespace CallOfTheWild
             }
             else
             {
-                a.Descriptor = a.Descriptor | descriptor;
+                fact.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | descriptor);
             }
         }
 

@@ -199,8 +199,9 @@ namespace CallOfTheWild
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, questioner_spellbook, "MysticTheurgeQuestioner",
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
-            Common.addReplaceSpellbook(Common.MysticTheurgeDivineSpellbookSelection, jinyiwei_spellbook, "MysticTheurgeJinyiwei",
-                                        Common.createPrerequisiteArchetypeLevel(investigator_class, jinyiwei_archetype, 2));
+            /*Common.addReplaceSpellbook(Common.MysticTheurgeDivineSpellbookSelection, jinyiwei_spellbook, "MysticTheurgeJinyiwei",
+                                        Common.createPrerequisiteArchetypeLevel(investigator_class, jinyiwei_archetype, 2));*/
+            Common.addMTDivineSpellbookProgression(investigator_class, jinyiwei_spellbook, "MysticTheurgeJinyiweiProgression", Common.createPrerequisiteArchetypeLevel(jinyiwei_archetype, 1));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, questioner_spellbook, "DragonDiscipleQuestioner",
                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1));
         }

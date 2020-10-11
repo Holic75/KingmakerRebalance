@@ -289,7 +289,7 @@ namespace CallOfTheWild
             assasinate_cooldown.Stacking = StackingType.Stack;
             var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(assasinate_cooldown), null,
                                                            Common.createContextActionApplyBuff(assasinate_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false));
-            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
+            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(2, DurationRate.Rounds), dispellable: false);
 
             var ability = Helpers.CreateAbility("AssasinateAbility",
                                                 "Assassinate",
@@ -299,14 +299,16 @@ namespace CallOfTheWild
                                                 AbilityType.Extraordinary,
                                                 UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
-                                                Helpers.oneRoundDuration,
+                                                "2 rounds",
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff}),
-                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental, Common.undead)
+                                                Common.createAbilityTargetHasFact(true, Common.construct, Common.elemental, Common.undead),
+                                                Helpers.Create<NonOffensiveActionMechanics.NonOffensiveAbility>()
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;
+            ability.EffectOnAlly = AbilityEffectOnUnit.None;
             //Common.setAsFullRoundAction(ability);
 
             var attempt_assasinate = Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsFlatFooted>(), Common.createContextConditionHasBuffFromCaster(assasinate_buff)),

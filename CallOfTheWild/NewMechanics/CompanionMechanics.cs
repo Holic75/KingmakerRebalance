@@ -45,16 +45,27 @@ namespace CallOfTheWild.CompanionMechanics
     {
         public override void OnTurnOn()
         {
-            this.Owner?.Pet?.Descriptor?.Alignment?.Set(this.Owner.Alignment.Value);
+            var pet = this.Owner?.Pet;
+            if (pet == null || pet.Descriptor.Alignment.Value == this.Owner.Alignment.Value)
+            {
+                return;
+            }
+            pet.Descriptor.Alignment.Set(this.Owner.Alignment.Value);
         }
     }
 
     public class ChangeCompanionAlignment : OwnedGameLogicComponent<UnitDescriptor>
     {
         public Alignment alignment;
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
-            this.Owner?.Pet?.Descriptor?.Alignment?.Set(alignment);
+            var pet = this.Owner?.Pet;
+            if (pet == null || pet.Descriptor.Alignment.Value == alignment)
+            {
+                return;
+            }
+
+            pet.Descriptor.Alignment.Set(alignment);
         }
     }
 
@@ -387,6 +398,28 @@ namespace CallOfTheWild.CompanionMechanics
         public string GetReason()
         {
             return "Companion is alive";
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionHasFact : BlueprintComponent, IAbilityCasterChecker
+    {
+        public bool not = false;
+        public BlueprintUnitFact fact;
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            if (caster?.Descriptor.Pet == null)
+            {
+                return false;
+            }
+            return caster.Descriptor.Pet.Descriptor.HasFact(fact) != not;
+        }
+
+        public string GetReason()
+        {
+            return "Companion " + (not ? "has" : "does not have ") + fact.Name;
         }
     }
 

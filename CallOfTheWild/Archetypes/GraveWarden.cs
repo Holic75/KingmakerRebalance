@@ -117,7 +117,7 @@ namespace CallOfTheWild.Archetypes
             assasinate_cooldown.Stacking = StackingType.Stack;
             var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(assasinate_cooldown), null,
                                                            Common.createContextActionApplyBuff(assasinate_cooldown, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false));
-            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false);
+            var apply_buff = Common.createContextActionApplyBuff(assasinate_buff, Helpers.CreateContextDuration(2, DurationRate.Rounds), dispellable: false);
 
             var ability = Helpers.CreateAbility("GraveWardenDustbringerAbility",
                                                 "Dustbringer",
@@ -127,11 +127,12 @@ namespace CallOfTheWild.Archetypes
                                                 AbilityType.Extraordinary,
                                                 UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
-                                                Helpers.oneRoundDuration,
+                                                "2 rounds",
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[] { assasinate_cooldown, assasinate_buff }),
-                                                Common.createAbilityTargetHasFact(false, Common.undead)
+                                                Common.createAbilityTargetHasFact(false, Common.undead),
+                                                Helpers.Create<NonOffensiveActionMechanics.NonOffensiveAbility>()
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             ability.EffectOnEnemy = AbilityEffectOnUnit.None;
@@ -152,8 +153,7 @@ namespace CallOfTheWild.Archetypes
                                                    a.OnlyHit = true;
                                                    a.SneakAttack = true;
                                                    a.Action = Helpers.CreateActionList(attempt_assasinate);
-                                               }
-                                                                                            ),
+                                               }                                                                                            ),
                                                Helpers.Create<AddInitiatorAttackRollTrigger>(a =>
                                                {
                                                    a.OnlyHit = false;
