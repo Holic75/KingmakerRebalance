@@ -3193,7 +3193,7 @@ namespace CallOfTheWild
             return a;
         }
 
-        public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor)
+        public static void addSpellDescriptor(BlueprintUnitFact fact, SpellDescriptor descriptor, bool add_to_area = true)
         {
             var a = fact?.GetComponent<SpellDescriptorComponent>();
             if (a == null)
@@ -3205,15 +3205,18 @@ namespace CallOfTheWild
                 fact.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | descriptor);
             }
 
-            var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
-            if (actions == null)
+            if (add_to_area)
             {
-                return;
-            }
+                var actions = fact.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
+                if (actions == null)
+                {
+                    return;
+                }
 
-            foreach (var ac in actions.OfType<ContextActionSpawnAreaEffect>())
-            {
-                addSpellDescriptor(ac.AreaEffect, descriptor);
+                foreach (var ac in actions.OfType<ContextActionSpawnAreaEffect>())
+                {
+                    addSpellDescriptor(ac.AreaEffect, descriptor);
+                }
             }
         }
 
@@ -3227,7 +3230,7 @@ namespace CallOfTheWild
             }
             else
             {
-                a.Descriptor = a.Descriptor | descriptor;
+                fact.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | descriptor);
             }
         }
 

@@ -24,7 +24,7 @@ namespace CallOfTheWild
             lamashtu.SetNameDescriptionIcon("Lamashtu",
                                             "Lamashtu (pronounced lah-MAHSH-too) is the mother and patroness of many misshapen and malformed creatures that crawl, slither, or flap on, above, or below the surface of Golarion. Her unholy symbol is a three-eyed jackal head, which may be represented in many ways, and her sacred animal is the jackal.\n"
                                             + "Domains: Chaos, Evil, Madness, Strength, Trickery.\nFavored Weapon: Kukri.",
-                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/FontOfSpiritMagic.png"));
+                                            LoadIcons.Image2Sprite.Create(@"FeatIcons/Lamashtu.png"));
             kukri_proficiency = library.CopyAndAdd<BlueprintFeature>("70ab8880eaf6c0640887ae586556a652", "KukriProficiency", "");
             kukri_proficiency.SetNameDescription("Weapon Proficiency (Kukri)",
                                                 "You become proficient with kukris and can use them as a weapon.");
@@ -41,7 +41,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("58d2867520de17247ac6988a31f9e397"), //strength
                 library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6"), //channel negative
             });
-            lamashtu.AddComponent(Helpers.Create<RaceMechanics.PrerequisiteRace>(p => p.race = library.Get<BlueprintRace>("9d168ca7100e9314385ce66852385451")));
+            //lamashtu.AddComponent(Helpers.Create<RaceMechanics.PrerequisiteRace>(p => p.race = library.Get<BlueprintRace>("9d168ca7100e9314385ce66852385451")));
 
             var deities = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
             deities.AllFeatures = deities.AllFeatures.AddToArray(lamashtu);

@@ -293,7 +293,7 @@ namespace CallOfTheWild.Archetypes
             addToNinjaTricks(kamikaze);
             addToNinjaTricks(unarmed_combat_mastery, true);
             addToNinjaTricks(evasion, true);
-            addToNinjaTricks(flurry_of_darts, true);
+            addToNinjaTricks(flurry_of_darts, false);
         }
 
 
@@ -313,7 +313,8 @@ namespace CallOfTheWild.Archetypes
         {
             var buff = Helpers.CreateBuff("FlurryOfDartsBuff",
                                           "Flurry of Darts",
-                                          "A ninja with this ability can expend 1 ki point from her ki pool as a swift action before she makes a full-attack attack with darts. During that attack, she can throw two additional darts at her highest attack bonus, but all of her darts attacks are made at a –2 penalty, including the two extra attacks.",
+                                          "A ninja with this ability can expend 1 ki point from her ki pool as a swift action before she makes a full-attack attack with darts. During that attack, she can throw two additional darts at her highest attack bonus, but all of her darts attacks are made at a –2 penalty, including the two extra attacks.\n"
+                                          + "Additionaly, darts are considered as light weapons for the purpose of two-weapon fighting.",
                                           "",
                                           Helpers.GetIcon("b296531ffe013c8499ad712f8ae97f6b"), //acid dart
                                           null,
@@ -339,6 +340,7 @@ namespace CallOfTheWild.Archetypes
             ability.setMiscAbilityParametersSelfOnly();
 
             flurry_of_darts = Common.AbilityToFeature(ability, false);
+            flurry_of_darts.AddComponent(Helpers.Create<HoldingItemsMechanics.ConsiderWeaponCategoriesAsLightWeapon>(c => c.categories = new WeaponCategory[] { WeaponCategory.Dart }));
         }
 
 

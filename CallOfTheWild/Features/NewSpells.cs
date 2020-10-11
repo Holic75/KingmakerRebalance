@@ -833,7 +833,7 @@ namespace CallOfTheWild
                 shadow_s.RemoveComponents<SpellListComponent>();
                 shadow_s.RemoveComponents<SpellComponent>();
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
-                Common.addSpellDescriptor(shadow_s, descriptor);
+                Common.addSpellDescriptor(shadow_s, descriptor, false);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
                                            base_ability.Description+"\n" + s.Description);
 

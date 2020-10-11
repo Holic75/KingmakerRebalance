@@ -160,6 +160,7 @@ namespace CallOfTheWild
             unit.Visual.BloodType = Kingmaker.Visual.HitSystem.BloodType.BlackUndead;
             unit.Visual.FootstepSoundSizeType = Kingmaker.Visual.Sound.FootstepSoundSizeType.Ghost;
             unit.Visual.Barks = spectre.Visual.Barks;
+            unit.Race = null;
             var pain_unit = library.CopyAndAdd(unit, "Pain" + unit.name, "");
             pain_unit.ReplaceComponent<AddClassLevels>(a => a.Archetypes = new BlueprintArchetype[] { pain_phantom_archetype_map[archetype] });
              
@@ -480,7 +481,7 @@ namespace CallOfTheWild
             slam_damage_large = Helpers.CreateFeature("PhantomSlamDamageLarge",
                                                 "Anger Phantom Slam Damage",
                                                 "Phantoms have two slam natural weapon attacks. \n"
-                                                + "The damage dealt by medium anger phantom with her slam attack is 1d8 at levels 1-3, 2d6 at levels 4-6, 2d18 at levels 7 - 9, 3d6 at levels 10-12 and finally 3d8 at level 15.",
+                                                + "The damage dealt by medium anger phantom with her slam attack is 1d8 at levels 1-3, 2d6 at levels 4-6, 2d8 at levels 7 - 9, 3d6 at levels 10-12 and finally 3d8 at level 15.",
                                                 "",
                                                 Helpers.GetIcon("247a4068296e8be42890143f451b4b45"), //basic feat
                                                 FeatureGroup.None,

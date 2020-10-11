@@ -75,6 +75,7 @@ namespace CallOfTheWild
         static public BlueprintFeature fused_consciousness;
         static public BlueprintFeature dual_bond;
         static public BlueprintFeatureSelection potent_phantom;
+        static public BlueprintFeature masters_alignment;
 
         static public BlueprintFeature shared_consciousness;
         static public BlueprintBuff unsummon_buff;
@@ -99,6 +100,8 @@ namespace CallOfTheWild
         static public BlueprintArchetype scourge;
         static public BlueprintFeature spell_scourge;
         static public BlueprintFeature ectoplasmic_swarm;
+
+
         //fractured mind x
         //phantom blade or ectoplasmotist
         //necrologist
@@ -232,7 +235,7 @@ namespace CallOfTheWild
             foreach (var kv in Phantom.pain_phantom_progressions)
             {
                 kv.Value.AddComponent(Common.createPrerequisiteArchetypeLevel(scourge, 1));
-                kv.Value.SetDescription(kv.Value.Description + "\n" + Phantom.endure_torment.Name + ": " + Phantom.endure_torment.Description);
+                kv.Value.SetDescription(kv.Value.Description + "\n" + Phantom.endure_torment.Name + ": " + Phantom.endure_torment.Description + " This ability replaces devotion.");
                 emotional_focus_selection.AllFeatures = emotional_focus_selection.AllFeatures.AddToArray(kv.Value);
             }
         }
@@ -495,7 +498,7 @@ namespace CallOfTheWild
             createHagSharedConsciousnessAndFusedConsciousness();
             createHagDeathCurse();
 
-            hag_haunted.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spiritualist_spellcasting, shared_consciousness),
+            hag_haunted.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spiritualist_spellcasting, shared_consciousness, masters_alignment),
                                                             Helpers.LevelEntry(4, spiritual_inference),
                                                             Helpers.LevelEntry(10, fused_consciousness),
                                                             Helpers.LevelEntry(12, greater_spiritual_inference),};
@@ -687,6 +690,7 @@ namespace CallOfTheWild
 
             spiritualist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, spiritualist_proficiencies, spiritualist_spellcasting, detect_magic,
                                                                                             spiritualist_knacks, emotional_focus_selection, etheric_tether, shared_consciousness, /*link,*/
+                                                                                            masters_alignment,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
                                                                     Helpers.LevelEntry(2),
@@ -949,9 +953,19 @@ namespace CallOfTheWild
                                                                   null,
                                                                   FeatureGroup.AnimalCompanion,
                                                                   Helpers.Create<AddFeatureOnApply>(a => a.Feature = phantom_rank_progression),
-                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d")),
-                                                                  Helpers.Create<CompanionMechanics.ChangeCompanionAlignmentToMasters>()
+                                                                  Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d"))                                                                 
                                                                   );
+
+            masters_alignment = Helpers.CreateFeature("PhantomMastersAlignment",
+                                                          "",
+                                                          "",
+                                                          "5b6cb21f9bd34e2c90a2ef72a70dce8e",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<CompanionMechanics.ChangeCompanionAlignmentToMasters>()
+                                                          );
+            masters_alignment.HideInCharacterSheetAndLevelUp = true;
+            masters_alignment.HideInUI = true;
 
             Phantom.create();
             emotional_focus_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
