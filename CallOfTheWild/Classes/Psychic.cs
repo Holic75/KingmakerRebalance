@@ -2594,6 +2594,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+                new Common.SpellId( NewSpells.telekinetic_strikes.AssetGuid, 2),
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
 
                 new Common.SpellId( NewSpells.babble.AssetGuid, 3),
@@ -2627,6 +2628,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
+                new Common.SpellId( NewSpells.debilitating_portent.AssetGuid, 4),
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimensions door
                 new Common.SpellId( "754c478a2aa9bb54d809e648c3f7ac0e", 4), //dominate animal
                 new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass

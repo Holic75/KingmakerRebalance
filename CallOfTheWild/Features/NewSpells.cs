@@ -257,12 +257,16 @@ namespace CallOfTheWild
         static public BlueprintAbility blade_tutor;
         //corrosive consumption
         //implosion
-        //debilitating portent
         //condensed ether
         //battle mind link
-        //debilitating portent
+        //arcane concordance
+        //oneric horror
+        
         static public BlueprintAbility channel_vigor;
         static public BlueprintAbility control_construct;
+
+        static public BlueprintAbility telekinetic_strikes;
+        static public BlueprintAbility debilitating_portent;
 
         static public void load()
         {
@@ -429,6 +433,89 @@ namespace CallOfTheWild
             createBladeTutor();
             createChannelVigor();
             createControlConstruct();
+
+            createTelekinticStrikes();
+            createDebilitatingPortent();
+        }
+
+
+        static void createDebilitatingPortent()
+        {
+            var buff = Helpers.CreateBuff("DebilitatingPortentBuff",
+                                          "Debilitating Portent",
+                                          "The target is surrounded by a glowing green aura of ill fate. Each time the spell’s subject makes an attack or casts a spell, it must succeed at a Will saving throw with a DC = 10 + 1/2 caster level + best mental stat bonus. If it fails the saving throw, it deals half damage with the attack or spell.",
+                                          "",
+                                          Helpers.GetIcon("e6f2fc5d73d88064583cb828801212f4"),
+                                          null,
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
+                                          Helpers.Create<NewMechanics.SaveOrReduceDamage>(s => { s.save_type = SavingThrowType.Will; s.use_caster_level_and_stat = true; })
+                                          );
+
+
+            debilitating_portent = Helpers.CreateAbility("DebilitatingPortentAbility",
+                                                         buff.Name,
+                                                         buff.Description,
+                                                         "",
+                                                         buff.Icon,
+                                                         AbilityType.Spell,
+                                                         UnitCommand.CommandType.Standard,
+                                                         AbilityRange.Medium,
+                                                         Helpers.roundsPerLevelDuration,
+                                                         "",
+                                                         Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                         Common.createAbilitySpawnFx("c14a2f46018cb0e41bfeed61463510ff", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                         Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                                         Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
+                                                         Helpers.CreateContextRankConfig()
+                                                         );
+            debilitating_portent.SpellResistance = true;
+            debilitating_portent.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            debilitating_portent.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            debilitating_portent.AddToSpellList(Helpers.clericSpellList, 4);
+            Helpers.AddSpellAndScroll(debilitating_portent, "e8f59c0e2bbbb514db0dfff42dbdde91");
+        }
+
+
+        static void createTelekinticStrikes()
+        {
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, 1));
+            dmg.DamageType.Type = DamageType.Force;
+            var on_attack = Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(dmg), wait_for_attack_to_resolve: true);
+            on_attack.AllNaturalAndUnarmed = true;
+            var buff = Helpers.CreateBuff("TelekinticStrikesBuff",
+                                          "Telekinetic Strikes",
+                                          "The touched creature’s limbs are charged with telekinetic force. For the duration of the spell, the target’s unarmed attacks or natural weapons deal an additional 1d4 points of force damage on each successful unarmed melee attack.",
+                                          "",
+                                          Helpers.GetIcon("810992c76efdde84db707a0444cf9a1c"),
+                                          null,
+                                          on_attack,
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                          );
+
+            telekinetic_strikes = Helpers.CreateAbility("TelekineticStrikesAbility",
+                                                        buff.Name,
+                                                        buff.Description,
+                                                        "",
+                                                        buff.Icon,
+                                                        AbilityType.Spell,
+                                                        UnitCommand.CommandType.Standard,
+                                                        AbilityRange.Touch,
+                                                        Helpers.minutesPerLevelDuration,
+                                                        "",
+                                                        Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                        Common.createAbilitySpawnFx("52d413df527f9fa4a8cf5391fd593edd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                        Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                        Helpers.CreateContextRankConfig()
+                                                        );
+            telekinetic_strikes.setMiscAbilityParametersTouchFriendly();
+            telekinetic_strikes.AvailableMetamagic = Metamagic.Extend | Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling;
+            telekinetic_strikes.AddToSpellList(Helpers.wizardSpellList, 2);
+            telekinetic_strikes.AddToSpellList(Helpers.magusSpellList, 2);
+            Helpers.AddSpellAndScroll(telekinetic_strikes, "42d9445b9cdfac94385eaa2a3499b204");
+
+
+
         }
 
 
@@ -3831,9 +3918,9 @@ namespace CallOfTheWild
             hypnotic_pattern.ReplaceComponent<AbilitySpawnFx>(a => a.PrefabLink = Common.createPrefabLink("bb95a6177968e3f499f39e7c90c59fee"));//blinding aoe 10 feet
             hypnotic_pattern.ReplaceComponent<AbilityTargetsAround>(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any));
             hypnotic_pattern.ReplaceComponent<ContextCalculateSharedValue>(c => c.Value = Helpers.CreateContextDiceValue(DiceType.D4, 2, Helpers.CreateContextValue(AbilityRankType.DamageDice)));
-            hypnotic_pattern.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(min: 2, max: 2));
+            hypnotic_pattern.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(min: 3, max:32));
             hypnotic_pattern.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageDice, max: 10));
-            hypnotic_pattern.LocalizedDuration = Helpers.CreateString("HypnoticPattern.Description","2 rounds");
+            hypnotic_pattern.LocalizedDuration = Helpers.CreateString("HypnoticPattern.Description","3 rounds");
 
             hypnotic_pattern.AddToSpellList(Helpers.wizardSpellList, 2);
             hypnotic_pattern.AddToSpellList(Helpers.bardSpellList, 2);

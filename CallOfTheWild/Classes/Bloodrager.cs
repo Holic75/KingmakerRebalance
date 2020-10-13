@@ -1287,7 +1287,7 @@ namespace CallOfTheWild
                                                               "By way of a celestial ancestor or divine intervention, the blood of angels fills your body with a holy potency, granting you a majestic visage and angelic powers when you enter your bloodrage.\n"
                                                                + "Bonus Feats: Dodge, Mobility, Dazzling Display, Cornugon Smash, Improved Initiative, Iron Will, Weapon Focus.\n"
                                                                + "Bonus Spells: Bless (7th), resist energy (10th), heroism (13th), flamestrike (16th).",
-                                                              library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217").Icon, //angelic aspect
+                                                              library.Get<BlueprintAbility>("b1c7576bd06812b42bda3f09ab202f14").Icon, //angelic aspect greater
                                                               new BlueprintAbility[] { bless, resist_energy, heroism, flamestrike },
                                                               new BlueprintFeature[] { dodge, mobility, dazzling_display, cornugon_smash, improved_initiative, iron_will, weapon_focus },
                                                               new BlueprintFeature[] { angelic_attacks, celestial_resistances, conviction, wings_of_heaven, angelic_protection, ascension },

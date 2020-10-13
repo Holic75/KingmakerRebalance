@@ -432,7 +432,7 @@ namespace CallOfTheWild
                                                            "Celestial Totem, Lesser",
                                                            "Whenever barbarian is subject to a spell that cures hit point damage, she heals 1 additional point of damage per caster level. In the case of non-spell healing effects (such as channeled energy or lay on hands), she heals a number of additional points equal to the class level of the character performing the magical healing. This does not affect fast healing or regeneration.",
                                                            "",
-                                                           library.Get<BlueprintAbility>("75a10d5a635986641bfbcceceec87217").Icon, //angelic aspect
+                                                           library.Get<BlueprintAbility>("b1c7576bd06812b42bda3f09ab202f14").Icon, //angelic aspect greater
                                                            FeatureGroup.RagePower);
             lesser_celestial_totem_buff = Helpers.CreateBuff("LesserCelestialTotemBuff",
                                           "",

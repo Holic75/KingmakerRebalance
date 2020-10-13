@@ -2869,6 +2869,47 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class SaveOrReduceDamage : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public float residual_damage = 0.5f;
+            public SavingThrowType save_type;
+            public bool use_caster_level_and_stat;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                Rulebook rulebook = Game.Instance.Rulebook;
+                int dc = 10;
+                if (use_caster_level_and_stat)
+                {
+                    CharacterStats stats = this.Fact.MaybeContext.MaybeCaster.Stats;
+                    var boni = new int[] { stats.Charisma.Bonus, stats.Wisdom.Bonus, stats.Intelligence.Bonus };
+
+                    dc = 10 + this.Fact.MaybeContext.Params.CasterLevel / 2 + boni.Max();
+                }
+                else
+                {
+                   dc  = this.Fact.MaybeContext.Params.DC;
+                }
+                RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(this.Owner.Unit, this.save_type, this.Fact.MaybeContext.Params.DC);
+                ruleSavingThrow.Reason = (RuleReason)this.Fact;
+
+                if (rulebook.TriggerEvent<RuleSavingThrow>(ruleSavingThrow).IsPassed)
+                    return;
+
+                foreach (BaseDamage base_damage in evt.DamageBundle)
+                {
+                    base_damage.Durability = residual_damage;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
         [ComponentName("ReplaceSkillRankWithClassLevel")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]

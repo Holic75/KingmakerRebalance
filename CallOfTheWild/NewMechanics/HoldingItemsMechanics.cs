@@ -717,10 +717,11 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 || ((__instance.Blueprint.IsTwoHanded || __instance.Blueprint.IsOneHandedWhichCanBeUsedWithTwoHands) && forDollRoom)) // make weapon look 1h in the doll room to see the shield if possible
             {
                 var pair_slot = (__instance.HoldingSlot as HandSlot)?.PairSlot;
-                if (pair_slot?.MaybeWeapon == null && pair_slot?.MaybeShield == null)
+                if (!(pair_slot?.HasItem).GetValueOrDefault())
                 {
                     return;
                 }
+               
                 switch (__result)
                 {
                     case WeaponAnimationStyle.AxeTwoHanded:
