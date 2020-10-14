@@ -606,6 +606,21 @@ namespace CallOfTheWild
         }
 
 
+        static public Dictionary<StatType, BlueprintFeature> getSkillFociMap()
+        {
+            var map = new Dictionary<StatType, BlueprintFeature>();
+
+            var skill_focus = library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a");
+            foreach (var f in skill_focus.AllFeatures)
+            {
+                map.Add(f.GetComponent<AddContextStatBonus>().Stat, f);
+            }
+
+            return map;
+        }
+
+
+
         static public NewMechanics.SpecificBuffImmunityExceptCaster createSpecificBuffImmunityExceptCaster(BlueprintBuff buff, bool except_caster = true)
         {
             var b = Helpers.Create<NewMechanics.SpecificBuffImmunityExceptCaster>();
@@ -2347,9 +2362,9 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintFeature featureToFeature(BlueprintFeature feature, bool hide = true, string guid = "")
+        static public BlueprintFeature featureToFeature(BlueprintFeature feature, bool hide = true, string guid = "", string prefix = "")
         {
-            var f = Helpers.CreateFeature(feature.name + "Feature",
+            var f = Helpers.CreateFeature(prefix + feature.name + "Feature",
                                                      feature.Name,
                                                      feature.Description,
                                                      guid,

@@ -139,7 +139,8 @@ New feats:
 - Greater Spell Specialization,
 - Vicious Stomp,
 - Steadfast Personality,
-- Signature Skill (Heal, Intimidate, Mobility).
+- Signature Skill (Heal, Intimidate, Mobility),
+- Eldritch Heritage, Improved Eldritch Heritage, Greater Eldritch Heritage.
 
 New rage powers:
 - Terrifying Howl
@@ -330,6 +331,7 @@ New spells:
 - Savage Maw,
 - Silence,
 - Stricken Heart,
+- Telekinetic Strikes,
 - Vine Strike,
 - Winter's Grasp,
 - Accursed Glare,
@@ -362,6 +364,7 @@ New spells:
 - Air Walk and Air Walk, Communal,
 - Archon's Trumpet,
 - Aura of Doom,
+- Debilitating Portent,
 - Explosion of Rot,
 - Fire Shield,
 - Fleshworm Infestation,

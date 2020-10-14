@@ -68,6 +68,10 @@ namespace CallOfTheWild
                     if (m_ExceptClasses && !((IList<BlueprintCharacterClass>)m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass) || !m_ExceptClasses && ((IList<BlueprintCharacterClass>)m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass))
                         rankBonus += classData.Level;
                 }
+                if (!m_ExceptClasses)
+                {
+                    rankBonus += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(unit, m_Class, new BlueprintArchetype[0]);
+                }
             }
             else if (m_BaseValueType == ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType())
             {
@@ -77,6 +81,11 @@ namespace CallOfTheWild
                     if ((m_ExceptClasses && !((IList<BlueprintCharacterClass>)m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass) || !m_ExceptClasses && ((IList<BlueprintCharacterClass>)m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass)) && (!((IEnumerable<BlueprintArchetype>)classData.CharacterClass.Archetypes).Contains<BlueprintArchetype>(Archetype) || classData.Archetypes.Contains(Archetype)))
                         rankBonus = Math.Max(rankBonus, classData.Level);
                 }
+                if (!m_ExceptClasses)
+                {
+                    rankBonus = Math.Max(FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(unit, m_Class, new BlueprintArchetype[0]), rankBonus);
+                }
+
             }
             return rankBonus;
 
@@ -102,10 +111,11 @@ namespace CallOfTheWild
         static bool Prefix(ContextRankConfig __instance, MechanicsContext context, ContextRankBaseValueType ___m_BaseValueType, bool ___m_ExceptClasses, StatType ___m_Stat,
                            BlueprintFeature ___m_Feature, BlueprintCharacterClass[] ___m_Class, BlueprintArchetype ___Archetype,  ref int __result)
         {
+            int rankBonus1 = context.Params.RankBonus;
             if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType()
                 || ___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType())
             {
-                int rankBonus1 = context.Params.RankBonus;
+                
                 var caster = context.MaybeCaster;
 
                 __result = rankBonus1 + getMasterRank(caster.Descriptor, __instance);
@@ -125,7 +135,6 @@ namespace CallOfTheWild
             }
             else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.ClassLevelPlusStatValue.ToContextRankBaseValueType())
             {
-                int rankBonus1 = context.Params.RankBonus;
                 foreach (Kingmaker.UnitLogic.ClassData classData in context.MaybeCaster.Descriptor.Progression.Classes)
                 {
                     if (___m_ExceptClasses && !((IList<BlueprintCharacterClass>)___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass) || !___m_ExceptClasses && ((IList<BlueprintCharacterClass>)___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass))
@@ -134,6 +143,10 @@ namespace CallOfTheWild
                 int? bonus = context.MaybeCaster.Descriptor.Stats.GetStat<ModifiableValueAttributeStat>(___m_Stat)?.Bonus;
                 rankBonus1 =  !bonus.HasValue ? rankBonus1 : rankBonus1 + bonus.Value;
                 __result = rankBonus1;
+                if (!___m_ExceptClasses)
+                {
+                    __result += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context.MaybeCaster.Descriptor, ___m_Class, new BlueprintArchetype[0]);
+                }
                 return false;
             }
             else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType())
@@ -167,6 +180,7 @@ namespace CallOfTheWild
                         }
                     }
                 }
+                __result += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context.MaybeCaster.Descriptor, ___m_Class, archetypes_list) + rankBonus1;
                 return false;
             }
             else if (___m_BaseValueType == ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType())
@@ -200,6 +214,7 @@ namespace CallOfTheWild
                         }
                     }
                 }
+                __result = Math.Max(FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context.MaybeCaster.Descriptor, ___m_Class, archetypes_list), __result) + rankBonus1;
                 return false;
             }
             else

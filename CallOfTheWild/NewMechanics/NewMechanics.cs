@@ -2892,7 +2892,7 @@ namespace CallOfTheWild
                 {
                    dc  = this.Fact.MaybeContext.Params.DC;
                 }
-                RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(this.Owner.Unit, this.save_type, this.Fact.MaybeContext.Params.DC);
+                RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(this.Owner.Unit, this.save_type, dc);
                 ruleSavingThrow.Reason = (RuleReason)this.Fact;
 
                 if (rulebook.TriggerEvent<RuleSavingThrow>(ruleSavingThrow).IsPassed)
@@ -6344,24 +6344,24 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
+                
                 if ((evt.Reason.Context.SpellDescriptor & spell_descriptor) == 0)
                 {
                     return;
                 }
-
+                
                 if (evt.Type != save_type)
                 {
                     return;
                 }
-
+                
                 if (this.Owner.Stats.GetStat<ModifiableValueSavingThrow>(getSaveStat()).BaseStat.Type != old_stat)
                 {
                     return;
                 }
-
+                
                 int bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
-                int old_bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(new_stat).Bonus;
+                int old_bonus = this.Owner.Stats.GetStat<ModifiableValueAttributeStat>(old_stat).Bonus;
                 if (keep_penalty)
                 {
                     old_bonus = Math.Max(old_bonus, 0);

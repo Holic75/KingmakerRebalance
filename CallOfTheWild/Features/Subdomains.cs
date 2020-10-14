@@ -66,6 +66,10 @@ namespace CallOfTheWild
         static public BlueprintProgression lightning_domain_secondary;
         static public BlueprintProgression lightning_domain_druid;
 
+        static public BlueprintProgression rage_domain;
+        static public BlueprintProgression rage_domain_secondary;
+        static public BlueprintProgression rage_domain_druid;
+
         static public BlueprintProgression restoration_domain;
         static public BlueprintProgression restoration_domain_secondary;
 
@@ -74,6 +78,111 @@ namespace CallOfTheWild
             createStormsDomain();
             createLightningDomain();
             createRestorationDomain();
+            createRageDomain();
+        }
+
+
+        static void createRageDomain()
+        {
+            var barbarian = library.Get<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
+            var groetus = library.Get<BlueprintFeature>("c3e4d5681906d5246ab8b0637b98cbfe");
+            var zon_kuthon = library.Get<BlueprintFeature>("f7eed400baa66a744ad361d4df0e6f1b");
+
+            var rage_feature = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");
+            var rage_power_selection = library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");
+
+            var fake_barbarian = library.CopyAndAdd(barbarian, "FakeBarbarianClass", "");
+            var rage_resource = library.Get<BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
+            rage_resource.SetIncreasedByLevelStartPlusDivStep(0, 1, 4, 1, 2, 0, 0.0f, new BlueprintCharacterClass[] { barbarian });
+            rage_resource.SetIncreasedByStat(0, StatType.Constitution);
+            var rage_buff = library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613");
+            var feature = Helpers.CreateFeature("RageRageSubdomainFeature",
+                                                "Rage",
+                                                "At 8th level, you can enter a fearsome rage, like a barbarian, for a number of rounds per day equal to your cleric level + your constitution modifier.",
+                                                "",
+                                                rage_feature.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFact(rage_feature),
+                                                Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = fake_barbarian; a.value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { cleric_class, druid_class, inquisitor_class },
+                                                                                progression: ContextRankProgression.Div2),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { cleric_class, druid_class, inquisitor_class },
+                                                                                type: AbilityRankType.StatBonus),
+                                                Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = rage_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus); })
+                                                );
+            feature.ReapplyOnLevelUp = true;
+
+
+            var new_rage_power = library.CopyAndAdd(rage_power_selection, "RageSubdomainRagePowerSelection", "");
+            new_rage_power.SetNameDescription(new_rage_power.Name, 
+                                                  "At 12th and 16th level, you can select one rage power. You cannot select any rage power that possesses a level requirement, but otherwise your barbarian level is equal to 1/2 your cleric level.");
+
+            ClassToProgression.addClassToBuff(fake_barbarian, new BlueprintArchetype[0], rage_buff, barbarian);
+            foreach (var f in new_rage_power.AllFeatures)
+            {
+                ClassToProgression.addClassToFeat(fake_barbarian, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, f, barbarian);
+            }
+
+
+            var destruction_domain = library.Get<BlueprintProgression>("269ff0bf4596f5248864bc2653a2f0e0");
+            var destruction_domain_secondary = library.Get<BlueprintProgression>("8edced7121849414f8b1dc77a119b4a2");
+            var destruction_domain_druid = library.Get<BlueprintProgression>("7a73be7fab8efd34b8449e0fbba8399e");
+
+            var destruction_domain_greater = library.Get<BlueprintFeature>("b047e72c88cbdfe409ea0aaea3dfddf6");
+
+            var spell_list = library.CopyAndAdd<BlueprintSpellList>("6f9fe425726026d4f9c28c32d5d03481", "RageSubdomainSpellList", "");
+            Common.excludeSpellsFromList(spell_list, a => false);
+            rage_domain = createSubdomain("RageSubdomain", "Rage Subdomain",
+                                   "You revel in ruin and devastation, and can deliver particularly destructive attacks.\n"
+                                   + "Destructive Smite: You gain the the supernatural ability to make a melee attack with a morale bonus on damage rolls equal to 1/2 your level in the class that gave you access to this domain (minimum 1).\n"
+                                   + feature.Name + ": " + feature.Description + "\n"
+                                   + "Domain Spells: True Strike, Boneshaker, Rage, Fear, Boneshatter, Harm, Disintegrate, Horrid Wilting, Tsunami.",
+                                   destruction_domain,
+                                   new BlueprintFeature[] { destruction_domain_greater },
+                                   new BlueprintFeature[] { feature },
+                                   spell_list
+                                   );
+
+            Common.replaceDomainSpell(rage_domain, library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d"), 2); //bull strength
+
+            rage_domain.AddComponents(Helpers.PrerequisiteNoFeature(destruction_domain), 
+                                      Helpers.PrerequisiteNoFeature(groetus),
+                                      Helpers.PrerequisiteNoFeature(zon_kuthon)
+                                      );
+
+            rage_domain.LevelEntries = rage_domain.LevelEntries.AddToArray(Helpers.LevelEntry(12, new_rage_power),
+                                                                           Helpers.LevelEntry(16, new_rage_power)
+                                                                           );
+            rage_domain.UIGroups[0].Features.Add(new_rage_power);
+
+            rage_domain_secondary = library.CopyAndAdd(rage_domain, "RageSubdomainSecondaryProgression", "");
+            rage_domain_secondary.RemoveComponents<LearnSpellList>();
+
+            rage_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(rage_domain),
+                                                 Helpers.PrerequisiteNoFeature(destruction_domain),
+                                                 Helpers.PrerequisiteNoFeature(destruction_domain_secondary));
+            rage_domain.AddComponents(Helpers.PrerequisiteNoFeature(destruction_domain_secondary));
+            rage_domain_druid = library.CopyAndAdd(destruction_domain_secondary, "RageSubdomainDruidProgression", "");
+            rage_domain_druid.Classes = new BlueprintCharacterClass[] { druid_class };
+            rage_domain_druid.ComponentsArray = new BlueprintComponent[] { Helpers.PrerequisiteNoFeature(destruction_domain_druid), Helpers.PrerequisiteClassLevel(druid_class, 1) };
+            destruction_domain_druid.AddComponent(Helpers.PrerequisiteNoFeature(rage_domain_druid));
+            destruction_domain.AddComponents(Helpers.PrerequisiteNoFeature(rage_domain), Helpers.PrerequisiteNoFeature(rage_domain_secondary));
+            destruction_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(rage_domain), Helpers.PrerequisiteNoFeature(rage_domain_secondary));
+
+            var destruction_domain_base = rage_domain.LevelEntries[0].Features[0];
+            var destruction_domain_base_ability = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
+            destruction_domain_base.SetNameDescription(destruction_domain_base_ability.Name, destruction_domain_base_ability.Description);
+
+            var spells_feature_druid = library.CopyAndAdd<BlueprintFeature>("01c9f3756c9d2e1488b6a2d29dd9d37f", "RageDomainSpellListDruidFeature", "");
+            spells_feature_druid.ReplaceComponent<AddSpecialSpellList>(a => a.SpellList = spell_list);
+            rage_domain_druid.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(1, rage_domain_druid.LevelEntries[0].Features.ToArray().AddToArray(spells_feature_druid)),
+                                                                 rage_domain.LevelEntries[1],
+                                                                 rage_domain.LevelEntries[2],
+                                                                 rage_domain.LevelEntries[3]};
+
+            cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(rage_domain);
+            cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(rage_domain_secondary);
+            blight_druid_domain_selection.AllFeatures = blight_druid_domain_selection.AllFeatures.AddToArray(rage_domain_druid);
         }
 
 
@@ -439,6 +548,10 @@ namespace CallOfTheWild
 
             f0.AddComponent(Helpers.CreateAddFeatureOnClassLevel(give_spells, 1, new BlueprintCharacterClass[] { cleric_class }));
             progression.LevelEntries[0].Features[0] = f0;
+            if (base_progression.UIGroups.Length > 0)
+            {
+                progression.UIGroups[0].Features.Add(f0);
+            }
 
             return progression;
         }

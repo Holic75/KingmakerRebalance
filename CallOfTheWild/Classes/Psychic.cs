@@ -892,7 +892,7 @@ namespace CallOfTheWild
                                                 {
                                                     a.classes = getPsychicArray();
                                                     a.min_level = (i == 1) ? 0 : i * 2 + 1;
-                                                    a.max_level = (i == 1) ? 5 : (i == 9 ? 20 : i * 2 + 3);
+                                                    a.max_level = (i == 1) ? 5 : (i >= 8 ? 20 : i * 2 + 3);
                                                     a.Feature = allowed_feature;
                                                 })
                 );
