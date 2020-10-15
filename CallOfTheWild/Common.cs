@@ -137,6 +137,25 @@ namespace CallOfTheWild
                                                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Daze)
                                                                                 );
 
+        public static BlueprintBuff dazed_non_stun = Helpers.CreateBuff("DazedNonStunBuff",
+                                                                        "Dazed",
+                                                                        "The creature is unable to act normally. A dazed creature can take no actions, but has no penalty to AC.\nA dazed condition typically lasts 1 round.",
+                                                                        "9eaba7c71b784c3e90e62ec91a43e7f9",
+                                                                        Helpers.GetIcon("9934fedff1b14994ea90205d189c8759"),
+                                                                        Common.createPrefabLink("396af91a93f6e2b468f5fa1a944fae8a"),
+                                                                        Common.createBuffStatusCondition(UnitCondition.Dazed, SavingThrowType.Will, false),
+                                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Daze | SpellDescriptor.MindAffecting)
+                                                                        );
+
+        public static BlueprintBuff cannot_act_buff = Helpers.CreateBuff("CanNotActBuff",
+                                                                        "Can Not Act",
+                                                                        "The creature is unable to act and holds still.",
+                                                                        "f80086d737cf4db39d706f39dc6c192c",
+                                                                        Helpers.GetIcon("9934fedff1b14994ea90205d189c8759"),
+                                                                        Common.createPrefabLink("396af91a93f6e2b468f5fa1a944fae8a"),
+                                                                        Common.createAddCondition(UnitCondition.CantAct)
+                                                                        );
+
 
         public static BlueprintFeature undead_arcana_hidden;
         public static BlueprintFeature plant_arcana_hidden;

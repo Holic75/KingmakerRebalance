@@ -2325,7 +2325,8 @@ namespace CallOfTheWild
                                                                                                                                      ),
                                                                                                            Helpers.CreateConditional(Common.createContextConditionCasterHasFact(psychic_safeguard),
                                                                                                                                      apply_psychic_safeguard_buff),
-                                                                                                           spend_resource
+                                                                                                           spend_resource,
+                                                                                                           Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Fear | SpellDescriptor.Shaken)
                                                                                                            },
                                                                               newRound: new GameAction[] {spend_resource
                                                                                                           }

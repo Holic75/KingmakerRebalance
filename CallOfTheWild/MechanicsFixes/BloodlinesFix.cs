@@ -133,17 +133,17 @@ namespace CallOfTheWild
                 var level9_feature = bp.LevelEntries.Where(l => l.Level == 9).FirstOrDefault().Features.Where(f => !f.name.Contains("SpellLevel")).FirstOrDefault() as BlueprintFeature;
                 var level15_feature = bp.LevelEntries.Where(l => l.Level == 15).FirstOrDefault().Features.Where(f => !f.name.Contains("SpellLevel")).FirstOrDefault() as BlueprintFeature;
 
+
+                var eldritch_heritage_lvl1 = level1_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level1_feature, "EldritchHeritage" + bp.name + level1_feature.name, "") : Common.featureToFeature(level1_feature, false, prefix: "EldritchHeritage" + bp.name);
+                eldritch_heritage_lvl1.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+                eldritch_heritage_lvl1.SetNameDescription(eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl1.Name})",
+                                                          eldritch_heritage.Description + "\n" + level1_feature.Name + ": " + level1_feature.Description
+                                                          );
                 foreach (var sf in skill_features)
                 {
                     var skill = sf.GetComponent<AddClassSkill>().Skill;
-                    eldritch_heritage.AddComponent(Helpers.PrerequisiteFeature(skill_foci_map[skill], any: skill_features.Length > 1));
+                    eldritch_heritage_lvl1.AddComponent(Helpers.PrerequisiteFeature(skill_foci_map[skill], any: skill_features.Length > 1));
                 }
-                var eldritch_heritage_lvl1 = level1_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level1_feature, "EldritchHeritage" + bp.name + level1_feature.name, "") : Common.featureToFeature(level1_feature, false, prefix: "EldritchHeritage" + bp.name);
-                eldritch_heritage_lvl1.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-                eldritch_heritage_lvl1.SetNameDescription(eldritch_heritage.Name + ": " + bp.Name,
-                                                          eldritch_heritage.Description + "\n" + level1_feature.Name + ": " + level1_feature.Description
-                                                          );
-
                 eldritch_heritage.AllFeatures = eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl1);
                 ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl1, sorcerer);
 
@@ -151,7 +151,7 @@ namespace CallOfTheWild
                 {
                     var eldritch_heritage_lvl3 = level3_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level3_feature, "ImprovedEldritchHeritage3" + bp.name + level3_feature.name, "") : Common.featureToFeature(level3_feature, false, prefix: "ImprovedEldritchHeritage3" +bp.name);
                     eldritch_heritage_lvl3.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-                    eldritch_heritage_lvl3.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + " (Level 3)",
+                    eldritch_heritage_lvl3.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl3.Name})",
                                                               improved_eldritch_heritage.Description + "\n" + level3_feature.Name + ": " + level3_feature.Description
                                                               );
                     eldritch_heritage_lvl3.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
@@ -168,7 +168,7 @@ namespace CallOfTheWild
                 {
                     var eldritch_heritage_lvl9 = level9_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level9_feature, "ImprovedEldritchHeritage9" + bp.name + level9_feature.name, "") : Common.featureToFeature(level9_feature, false, prefix: "ImprovedEldritchHeritage9" + bp.name);
                     eldritch_heritage_lvl9.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-                    eldritch_heritage_lvl9.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + " (Level 9)",
+                    eldritch_heritage_lvl9.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl9.Name})",
                                                               improved_eldritch_heritage.Description + "\n" + level9_feature.Name + ": " + level9_feature.Description
                                                               );
                     eldritch_heritage_lvl9.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
@@ -183,11 +183,10 @@ namespace CallOfTheWild
 
                 var eldritch_heritage_lvl15 = level15_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level15_feature, "ImprovedEldritchHeritage15" + bp.name + level15_feature.name, "") : Common.featureToFeature(level15_feature, false, prefix: "GreaterEldritchHeritage" + bp.name);
                 eldritch_heritage_lvl15.Groups = new FeatureGroup[] { FeatureGroup.Feat };
-                eldritch_heritage_lvl15.SetNameDescription(greater_eldritch_heritage.Name + ": " + bp.Name,
+                eldritch_heritage_lvl15.SetNameDescription(greater_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl15.Name})",
                                                           greater_eldritch_heritage.Description + "\n" + level15_feature.Name + ": " + level15_feature.Description
                                                           );
-
-                eldritch_heritage_lvl15.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl15));
+                eldritch_heritage_lvl15.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
                 greater_eldritch_heritage.AllFeatures = greater_eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl15);
                 ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl15, sorcerer);
 
@@ -195,6 +194,9 @@ namespace CallOfTheWild
                 b.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
             }
 
+            sorcerer.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            
             
             library.AddFeats(eldritch_heritage, improved_eldritch_heritage, greater_eldritch_heritage);
         }

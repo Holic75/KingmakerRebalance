@@ -57,6 +57,7 @@ namespace CallOfTheWild.FakeClassLevelMechanics
                 return 0;
             }
 
+            this.Fact.MaybeContext.Recalculate();
             return value.Calculate(this.Fact.MaybeContext);
         }
     }

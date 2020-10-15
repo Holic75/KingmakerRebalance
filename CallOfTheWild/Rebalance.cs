@@ -791,8 +791,12 @@ namespace CallOfTheWild
 
         internal static void fixSpellRemoveFearBuff()
         {
+            var fearless_rage_buff = library.Get<BlueprintBuff>("7f043b6980cdcbe42b52f0837a0e7361");
+            var fearless_defensive_stance_buff = library.Get<BlueprintBuff>("993a5300cc84fde4bb4df441bf92d701");
+            fearless_defensive_stance_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Shaken | SpellDescriptor.Fear)));
+            fearless_rage_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Shaken | SpellDescriptor.Fear)));
             var buff = library.Get<BlueprintBuff>("c5c86809a1c834e42a2eb33133e90a28");
-            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Shaken | SpellDescriptor.Fear)));
+            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(fearless_rage_buff, Helpers.CreateContextDuration(), duration_seconds: 1)));
         }
 
 

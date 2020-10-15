@@ -8406,7 +8406,7 @@ namespace CallOfTheWild
         static void createCommand()
         {
             var dominate_monster = library.Get<BlueprintAbility>("3c17035ec4717674cae2e841a190e757");
-            BlueprintBuff[] buffs = new BlueprintBuff[]{library.CopyAndAdd<BlueprintBuff>("9934fedff1b14994ea90205d189c8759", "DazeCommandBuff", ""), //daze
+            BlueprintBuff[] buffs = new BlueprintBuff[]{Common.dazed_non_stun,
                                                          library.CopyAndAdd<BlueprintBuff>("bd9d11c630f645443b8a1061044d5cf0", "ProneCommandBuff", ""), //prone
                                                          library.CopyAndAdd<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf", "FrightenedCommandBuff", "") //frightened
                                                         };
