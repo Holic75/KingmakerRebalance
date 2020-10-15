@@ -103,7 +103,7 @@ namespace CallOfTheWild
                                                         "Angel Eidolon",
                                                         "Hailing from the higher planes, angel eidolons are creatures of exquisite beauty. They usually appear in idealized humanoid forms, with smooth skin, shining hair, and bright eyes. Angel eidolons are impeccably honorable, trustworthy, and diplomatic, but they do not shy away from confrontation when facing off against evil and its minions.",
                                                         "",
-                                                        Helpers.GetIcon("75a10d5a635986641bfbcceceec87217"), //angelic aspect
+                                                        Helpers.GetIcon("b1c7576bd06812b42bda3f09ab202f14"), //angelic aspect greater
                                                         FeatureGroup.AnimalCompanion,
                                                         library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
                                                         );

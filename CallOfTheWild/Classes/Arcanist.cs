@@ -562,7 +562,10 @@ namespace CallOfTheWild
 
             foreach (var b in bloodline_selection.AllFeatures)
             {
-                bloodlines.Add(Common.removeEntriesFromProgression(b as BlueprintProgression, "Arcanist" + b.name, f => f.name.Contains("ClassSkill") || f.name.Contains("SpellLevel") /*|| f.name.Contains("NewArcanaSelection")*/));
+                var bloodline_no_spells_skills = Common.removeEntriesFromProgression(b as BlueprintProgression, "Arcanist" + b.name, f => f.name.Contains("ClassSkill") || f.name.Contains("SpellLevel") /*|| f.name.Contains("NewArcanaSelection")*/);
+
+                bloodlines.Add(bloodline_no_spells_skills);
+                b.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = bloodline_no_spells_skills));
             }
 
             var new_arcana = library.Get<BlueprintFeatureSelection>("20a2435574bdd7f4e947f405df2b25ce");

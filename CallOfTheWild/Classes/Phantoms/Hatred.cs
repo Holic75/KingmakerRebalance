@@ -139,7 +139,7 @@ namespace CallOfTheWild
                                                          new LevelEntry[] { Helpers.LevelEntry(1, add_weapon_finesse)},
                                                          new LevelEntry[] { Helpers.LevelEntry(1) }
                                                          );
-            //ill omen, inflcit pain, bestow curse, ? debilitating portent?, inflict pain mass, harm
+            //ill omen, inflcit pain, bestow curse, ?debilitating portent?, inflict pain mass, harm
             createPhantom("Hatred",
                           "Hatred",
                           "Few things draw a spirit toward the Negative Material Plane like the emotion of hatred. Phantoms with this focus often are blinded by—and blind others with—this powerful emotion. These phantoms are frequently darker and more foreboding than all but those phantoms with the fear emotional focus. Many of them manifest as dark and dreadful knights, their armor bristling with spikes and their hands seeming to grasp barbed and terrible weapons. Other times they appear as tall, gaunt figures staring down arrogantly at those who approach.\n"

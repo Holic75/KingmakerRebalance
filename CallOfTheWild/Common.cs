@@ -139,6 +139,25 @@ namespace CallOfTheWild
                                                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Daze)
                                                                                 );
 
+        public static BlueprintBuff dazed_non_stun = Helpers.CreateBuff("DazedNonStunBuff",
+                                                                        "Dazed",
+                                                                        "The creature is unable to act normally. A dazed creature can take no actions, but has no penalty to AC.\nA dazed condition typically lasts 1 round.",
+                                                                        "9eaba7c71b784c3e90e62ec91a43e7f9",
+                                                                        Helpers.GetIcon("9934fedff1b14994ea90205d189c8759"),
+                                                                        Common.createPrefabLink("396af91a93f6e2b468f5fa1a944fae8a"),
+                                                                        Common.createBuffStatusCondition(UnitCondition.Dazed, SavingThrowType.Will, false),
+                                                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Daze | SpellDescriptor.MindAffecting)
+                                                                        );
+
+        public static BlueprintBuff cannot_act_buff = Helpers.CreateBuff("CanNotActBuff",
+                                                                        "Can Not Act",
+                                                                        "The creature is unable to act and holds still.",
+                                                                        "f80086d737cf4db39d706f39dc6c192c",
+                                                                        Helpers.GetIcon("9934fedff1b14994ea90205d189c8759"),
+                                                                        Common.createPrefabLink("396af91a93f6e2b468f5fa1a944fae8a"),
+                                                                        Common.createAddCondition(UnitCondition.CantAct)
+                                                                        );
+
 
         public static BlueprintFeature undead_arcana_hidden;
         public static BlueprintFeature plant_arcana_hidden;
@@ -606,6 +625,21 @@ namespace CallOfTheWild
             b.Buff = buff;
             return b;
         }
+
+
+        static public Dictionary<StatType, BlueprintFeature> getSkillFociMap()
+        {
+            var map = new Dictionary<StatType, BlueprintFeature>();
+
+            var skill_focus = library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a");
+            foreach (var f in skill_focus.AllFeatures)
+            {
+                map.Add(f.GetComponent<AddContextStatBonus>().Stat, f);
+            }
+
+            return map;
+        }
+
 
 
         static public NewMechanics.SpecificBuffImmunityExceptCaster createSpecificBuffImmunityExceptCaster(BlueprintBuff buff, bool except_caster = true)
@@ -2369,9 +2403,9 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintFeature featureToFeature(BlueprintFeature feature, bool hide = true, string guid = "")
+        static public BlueprintFeature featureToFeature(BlueprintFeature feature, bool hide = true, string guid = "", string prefix = "")
         {
-            var f = Helpers.CreateFeature(feature.name + "Feature",
+            var f = Helpers.CreateFeature(prefix + feature.name + "Feature",
                                                      feature.Name,
                                                      feature.Description,
                                                      guid,

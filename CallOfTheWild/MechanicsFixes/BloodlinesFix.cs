@@ -3,9 +3,12 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -28,11 +31,15 @@ namespace CallOfTheWild
         static public BlueprintFeature blood_piercing;
         static public BlueprintFeatureSelection bloodline_familiar;
 
+        static public BlueprintFeatureSelection eldritch_heritage;
+        static public BlueprintFeatureSelection improved_eldritch_heritage;
+        static public BlueprintFeatureSelection greater_eldritch_heritage;
         static internal void load()
         {
             fixSorcBloodlineProgression();
             fixBloodlinesUI();
             fixArcaneBloodline();
+            createEldritchHeritage();
 
             createBloodlineFamiliar();
             createBloodHavoc();
@@ -44,6 +51,155 @@ namespace CallOfTheWild
             fixBloodlineSpells();
         }
 
+
+        static void createEldritchHeritage()
+        {
+            var bloodlines = library.Get<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914").AllFeatures;
+
+            eldritch_heritage = Helpers.CreateFeatureSelection("EldritchHeritageFeatureSelection",
+                                                       "Eldritch Heritage",
+                                                       "Select one sorcerer bloodline. You must have Skill focus in the class skill that bloodline grants to a sorcerer at 1st level (for example, Heal for the celestial bloodline). This bloodline cannot be a bloodline you already have. You gain the first-level bloodline power for the selected bloodline. For purposes of using that power, treat your sorcerer level as equal to your character level – 2, even if you have levels in sorcerer. You do not gain any of the other bloodline abilities.",
+                                                       "",
+                                                       null,
+                                                       FeatureGroup.Feat,
+                                                       Helpers.PrerequisiteStatValue(Kingmaker.EntitySystem.Stats.StatType.Charisma, 13),
+                                                       Helpers.PrerequisiteCharacterLevel(3)
+                                                       );
+            eldritch_heritage.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            eldritch_heritage.ReapplyOnLevelUp = true;
+            improved_eldritch_heritage = Helpers.CreateFeatureSelection("ImprovedEldritchHeritageFeatureSelection",
+                                                                       "Improved Eldritch Heritage",
+                                                                       "You gain either the 3rd-level or the 9th-level power (your choice) of the bloodline you selected with the Eldritch Heritage feat. For purposes of using that power, treat your sorcerer level as equal to your character level – 2, even if you have levels in sorcerer. You do not gain any of the other bloodline abilities.\n"
+                                                                       + "Special: You may select this feat multiple times. Its effects do not stack. Each time you select the feat, it applies to a different bloodline power for that bloodline available at sorcerer level 3 or 9.",
+                                                                       "",
+                                                                       null,
+                                                                       FeatureGroup.Feat,
+                                                                       Helpers.PrerequisiteStatValue(Kingmaker.EntitySystem.Stats.StatType.Charisma, 15),
+                                                                       Helpers.PrerequisiteCharacterLevel(11),
+                                                                       Helpers.PrerequisiteFeature(eldritch_heritage)
+                                                                       );
+
+
+            greater_eldritch_heritage = Helpers.CreateFeatureSelection("GreaterEldritchHeritageFeatureSelection",
+                                                                       "Greater Eldritch Heritage",
+                                                                       "ou gain an additional power from the bloodline you selected with the Eldritch Heritage feat. You gain a 15th-level sorcerer bloodline power. For purposes of using that power, treat your character level as your sorcerer level for all your sorcerer bloodline powers granted by this feat, Eldritch Heritage, and Improved Eldritch Heritage.",
+                                                                       "",
+                                                                       null,
+                                                                       FeatureGroup.Feat,
+                                                                       Helpers.PrerequisiteStatValue(Kingmaker.EntitySystem.Stats.StatType.Charisma, 17),
+                                                                       Helpers.PrerequisiteCharacterLevel(17),
+                                                                       Helpers.PrerequisiteFeature(improved_eldritch_heritage)
+                                                                       );
+
+            var skill_foci_map = Common.getSkillFociMap();
+
+            var fake_sorcerer = library.CopyAndAdd(sorcerer, "FakeSorcererClass", "");
+            eldritch_heritage.AddComponents(Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a =>
+                                            {
+                                                a.fake_class = fake_sorcerer;
+                                                a.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                            }
+                                            ),
+                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel, ContextRankProgression.BonusValue,
+                                                                            stepLevel: -2)
+                                           );
+
+            greater_eldritch_heritage.AddComponent(Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a =>
+                                                    {
+                                                        a.fake_class = fake_sorcerer;
+                                                        a.value = 2;
+                                                    }
+                                                    )
+                                                  );
+
+            foreach (var b in bloodlines)
+            {
+                List<StatType> bloodline_skills = new List<StatType>();
+                var bp = b as BlueprintProgression;
+                var skill_features = bp.LevelEntries[0].Features.Where(f => f.name.Contains("ClassSkill")).ToArray();
+                if (skill_features[0] is BlueprintFeatureSelection)
+                {
+                    skill_features = (skill_features[0] as BlueprintFeatureSelection).AllFeatures;
+                }
+
+                var level1_feature = bp.LevelEntries.Where(l => l.Level == 1).FirstOrDefault().Features.Where(f => !f.name.Contains("ClassSkill") && !f.Name.Contains("Arcana")).FirstOrDefault() as BlueprintFeature;
+                if (level1_feature is BlueprintProgression)
+                {
+                    Main.logger.Log("Eldritch Heritage: Skipping " + b.Name + ". " + "Level 1 feature " + level1_feature.Name + " is progression");
+                    continue;
+                }
+
+                var level3_feature = bp.LevelEntries.Where(l => l.Level == 3).FirstOrDefault().Features.Where(f => !f.name.Contains("SpellLevel")).FirstOrDefault() as BlueprintFeature;
+                var level9_feature = bp.LevelEntries.Where(l => l.Level == 9).FirstOrDefault().Features.Where(f => !f.name.Contains("SpellLevel")).FirstOrDefault() as BlueprintFeature;
+                var level15_feature = bp.LevelEntries.Where(l => l.Level == 15).FirstOrDefault().Features.Where(f => !f.name.Contains("SpellLevel")).FirstOrDefault() as BlueprintFeature;
+
+
+                var eldritch_heritage_lvl1 = level1_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level1_feature, "EldritchHeritage" + bp.name + level1_feature.name, "") : Common.featureToFeature(level1_feature, false, prefix: "EldritchHeritage" + bp.name);
+                eldritch_heritage_lvl1.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+                eldritch_heritage_lvl1.SetNameDescription(eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl1.Name})",
+                                                          eldritch_heritage.Description + "\n" + level1_feature.Name + ": " + level1_feature.Description
+                                                          );
+                foreach (var sf in skill_features)
+                {
+                    var skill = sf.GetComponent<AddClassSkill>().Skill;
+                    eldritch_heritage_lvl1.AddComponent(Helpers.PrerequisiteFeature(skill_foci_map[skill], any: skill_features.Length > 1));
+                }
+                eldritch_heritage.AllFeatures = eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl1);
+                ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl1, sorcerer);
+
+                if (!(level3_feature is BlueprintProgression))
+                {
+                    var eldritch_heritage_lvl3 = level3_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level3_feature, "ImprovedEldritchHeritage3" + bp.name + level3_feature.name, "") : Common.featureToFeature(level3_feature, false, prefix: "ImprovedEldritchHeritage3" +bp.name);
+                    eldritch_heritage_lvl3.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+                    eldritch_heritage_lvl3.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl3.Name})",
+                                                              improved_eldritch_heritage.Description + "\n" + level3_feature.Name + ": " + level3_feature.Description
+                                                              );
+                    eldritch_heritage_lvl3.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
+                    improved_eldritch_heritage.AllFeatures = improved_eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl3);
+                    ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl3, sorcerer);
+                }
+                else
+                {
+                    Main.logger.Log("Eldritch Heritage: Skipping " + b.Name + " " + "Level 3 feature " + level3_feature.Name + " (progression)");
+                }
+
+
+                if (!(level9_feature is BlueprintProgression))
+                {
+                    var eldritch_heritage_lvl9 = level9_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level9_feature, "ImprovedEldritchHeritage9" + bp.name + level9_feature.name, "") : Common.featureToFeature(level9_feature, false, prefix: "ImprovedEldritchHeritage9" + bp.name);
+                    eldritch_heritage_lvl9.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+                    eldritch_heritage_lvl9.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl9.Name})",
+                                                              improved_eldritch_heritage.Description + "\n" + level9_feature.Name + ": " + level9_feature.Description
+                                                              );
+                    eldritch_heritage_lvl9.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
+                    improved_eldritch_heritage.AllFeatures = improved_eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl9);
+                    ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl9, sorcerer);
+                }
+                else
+                {
+                    Main.logger.Log("Eldritch Heritage: Skipping " + b.Name + " " + "Level 9 feature " + level9_feature.Name + " (progression)");
+                }
+
+
+                var eldritch_heritage_lvl15 = level15_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level15_feature, "ImprovedEldritchHeritage15" + bp.name + level15_feature.name, "") : Common.featureToFeature(level15_feature, false, prefix: "GreaterEldritchHeritage" + bp.name);
+                eldritch_heritage_lvl15.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+                eldritch_heritage_lvl15.SetNameDescription(greater_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl15.Name})",
+                                                          greater_eldritch_heritage.Description + "\n" + level15_feature.Name + ": " + level15_feature.Description
+                                                          );
+                eldritch_heritage_lvl15.AddComponent(Helpers.PrerequisiteFeature(eldritch_heritage_lvl1));
+                greater_eldritch_heritage.AllFeatures = greater_eldritch_heritage.AllFeatures.AddToArray(eldritch_heritage_lvl15);
+                ClassToProgression.addClassToFact(fake_sorcerer, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, eldritch_heritage_lvl15, sorcerer);
+
+                eldritch_heritage.AddComponent(Helpers.PrerequisiteNoFeature(b));
+                b.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            }
+
+            sorcerer.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+            
+            
+            library.AddFeats(eldritch_heritage, improved_eldritch_heritage, greater_eldritch_heritage);
+        }
 
         static void fixBloodlineSpells()
         {
