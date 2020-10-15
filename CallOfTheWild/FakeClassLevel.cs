@@ -136,6 +136,7 @@ namespace CallOfTheWild.FakeClassLevelMechanics
 
     [Harmony12.HarmonyPatch(typeof(UnitProgressionData))]
     [Harmony12.HarmonyPatch("GetClassLevel", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintCharacterClass) })]
     class UnitProgressionData__GetClassLevel__Patch
     {
         static void Postfix(UnitProgressionData __instance, BlueprintCharacterClass characterClass, ref int __result)
