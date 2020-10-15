@@ -68,7 +68,7 @@ namespace CallOfTheWild
                                                                                                                               )
                                                                                                                               ),
                                                                     Helpers.Create<NewMechanics.AttackAnimation>(),
-                                                                    Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { opening_strike_buff_target })
+                                                                    Common.createAbilityTargetHasFact(opening_strike_buff_target)
                                                                     );
             opening_strike_ally_ability.setMiscAbilityParametersTouchHarmful();
             opening_strike_ally_ability.NeedEquipWeapons = true;
