@@ -551,8 +551,8 @@ namespace CallOfTheWild
                 a.Deactivated = Helpers.CreateActionList(a.Deactivated.Actions.ToList().ToArray());
             });
 
-
-            bloodrage = library.CopyAndAdd<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647", "BloodrageFeature", "");//barbarian rage feature
+            var rage_feature = library.Get<BlueprintFeature>("2479395977cfeeb46b482bc3385f4647");
+            bloodrage = library.CopyAndAdd<BlueprintFeature>(rage_feature, "BloodrageFeature", "");//barbarian rage feature
             bloodrage.SetNameDescription(bloodrage_ability);
             bloodrage.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { a.Facts[1], bloodrage_ability });//keep standard rage resource
 
@@ -574,13 +574,11 @@ namespace CallOfTheWild
 
             //fix rage resource to work for bloodrager
             var rage_resource = library.Get<Kingmaker.Blueprints.BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
-            var amount = Helpers.GetField(rage_resource, "m_MaxAmount");
-            BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(amount, "Class");
-            classes = classes.AddToArray(bloodrager_class);
-            Helpers.SetField(amount, "Class", classes);
-            Helpers.SetField(rage_resource, "m_MaxAmount", amount);
+            ClassToProgression.addClassToResource(bloodrager_class, new BlueprintArchetype[0], rage_resource, library.Get<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853"));
 
-
+            var extra_rage = library.Get<BlueprintFeature>("1a54bbbafab728348a015cf9ffcf50a7");
+            extra_rage.ReplaceComponent<PrerequisiteFeature>(p => p.Group = Prerequisite.GroupType.Any);
+            extra_rage.AddComponent(Helpers.PrerequisiteFeature(bloodrage, any: true));
 
             if (test_mode)
             {
@@ -597,7 +595,7 @@ namespace CallOfTheWild
 
             //we will use damage reduction of barbarian
             damage_reduction = library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8");
-            bloodrage_resource = library.Get<BlueprintAbilityResource>("24353fcf8096ea54684a72bf58dedbc9");
+            bloodrage_resource = rage_resource;
         }
 
 
@@ -3533,7 +3531,6 @@ namespace CallOfTheWild
                                                     FeatureGroup.None,
                                                     Helpers.CreateAddFact(library.Get<BlueprintUnitFact>("4b1f3dd0f61946249a654941fc417a89"))
                                                     );
-
 
 
             var stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution };
