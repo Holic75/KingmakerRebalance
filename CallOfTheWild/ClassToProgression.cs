@@ -370,7 +370,7 @@ namespace CallOfTheWild
             var classes = Helpers.GetField<BlueprintCharacterClass[]>(amount, "Class");
             var archetypes = Helpers.GetField<BlueprintArchetype[]>(amount, "Archetypes");
 
-            if (classes != null && !classes.Empty())
+            if (classes != null && !classes.Empty() && classes.Contains(class_to_check))
             {
                 classes = classes.AddToArray(class_to_add).Distinct().ToArray();
                 archetypes = archetypes.AddToArray(archetypes_to_add).Distinct().ToArray();
@@ -382,7 +382,7 @@ namespace CallOfTheWild
             var classes_div = Helpers.GetField<BlueprintCharacterClass[]>(amount, "ClassDiv");
             var archetypes_div = Helpers.GetField<BlueprintArchetype[]>(amount, "ArchetypesDiv");
 
-            if (classes_div != null && !classes_div.Empty())
+            if (classes_div != null && !classes_div.Empty() && classes_div.Contains(class_to_check))
             {
                 classes_div = classes_div.AddToArray(class_to_add).Distinct().ToArray();
                 archetypes_div = archetypes_div.AddToArray(archetypes_to_add).Distinct().ToArray();

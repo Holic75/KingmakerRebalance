@@ -129,6 +129,9 @@ namespace CallOfTheWild
             var greater_rage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
             var tireless_rage = library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a");
 
+            var extra_rage = library.Get<BlueprintFeature>("1a54bbbafab728348a015cf9ffcf50a7");
+            extra_rage.AddComponent(Helpers.PrerequisiteFeature(divine_anger, any: true));
+
             anger = Helpers.CreateProgression("AngerInquisitionProgression",
                                               "Anger Inquisition",
                                               "Holy (or unholy) rage, granted by your patron deity, ensures that when you fight, the battle ends with a bloody victory.",
