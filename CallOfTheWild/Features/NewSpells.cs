@@ -449,13 +449,13 @@ namespace CallOfTheWild
             var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
             var actions = daze.GetComponent<AbilityEffectRunAction>().Actions.Actions;
 
-            var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(Common.aberration, Common.construct, Common.dragon, Common.fey, Common.outsider, Common.plant),
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.aberration, Common.construct, Common.dragon, Common.fey, Common.outsider, Common.plant),
                                                    null,
-                                                   Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasFacts(Common.animal, Common.monstrous_humanoid, Common.magical_beast, Common.vermin),
+                                                   Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasFacts(false, Common.animal, Common.monstrous_humanoid, Common.magical_beast, Common.vermin),
                                                                                              Common.createContextConditionCasterHasFact(serpentine_arcana, false)
                                                                                             },
                                                                              null,
-                                                                             actions
+                                                                             Helpers.CreateActionSavingThrow(SavingThrowType.Will, actions)
                                                                             )
                                                    );
 
@@ -1757,6 +1757,7 @@ namespace CallOfTheWild
                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -4, ModifierDescriptor.UntypedStackable),
                                          Helpers.Create<BuffAllSkillsBonus>(b => { b.Value = -4; b.Descriptor = ModifierDescriptor.UntypedStackable; }),
                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.SpellCastingIsDifficult),
+                                         Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
                                          Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a =>
                                          {
                                              a.Concealment = Concealment.Partial;

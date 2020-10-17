@@ -185,7 +185,7 @@ namespace CallOfTheWild
             var feature16 = Helpers.CreateFeature("ProteanEidolonLevel16Feature",
                                                     "Immunity",
                                                     "At 16th level, protean eidolons lose the resistance (acid) evolution and instead gain the immunity (acid) evolution. They also gain the amorphous anatomy ability.\n"
-                                                    + "Amorphous Anatomy: A protean’s vital organs shift and change shape and position constantly. This grants it a 50 % chance to ignore additional damage caused by critical hits and sneak attacks, and grants it immunity to polymorph effects(unless the protean is a willing target). A protean automatically recovers from physical blindness or deafness after 1 round by growing new sensory organs to replace those that were compromised.",
+                                                    + "Amorphous Anatomy: A protean’s vital organs shift and change shape and position constantly. This grants it a 50 % chance to ignore additional damage caused by critical hits and sneak attacks, and grants it immunity to polymorph effects (unless the protean is a willing target). A protean automatically recovers from physical blindness or deafness after 1 round by growing new sensory organs to replace those that were compromised.",
                                                     "",
                                                     Evolutions.amorphous.Icon,
                                                     FeatureGroup.None,
