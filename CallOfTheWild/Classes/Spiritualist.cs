@@ -1373,6 +1373,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "03a9630394d10164a9410882d31572f0", 2), //aid
                 new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
+                new Common.SpellId( NewSpells.blade_tutor.AssetGuid, 2),
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2),//boneshaker
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds

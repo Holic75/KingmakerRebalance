@@ -1650,7 +1650,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 3), //summon monster 4
 
+                
                 new Common.SpellId( "1407fb5054d087d47a4c40134c809f12", 4), //acid pit
+                new Common.SpellId( NewSpells.daze_mass.AssetGuid, 4),
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimension door
                 new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
                 //evolution surge greater
