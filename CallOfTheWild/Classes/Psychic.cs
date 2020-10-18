@@ -618,7 +618,7 @@ namespace CallOfTheWild
 
             enlarged_body = createBodilyMutation("EnlargedBody",
                                                  "Enlarged Body",
-                                                 "The mutation mind’s body swells and stretches, enlarging her as the enlarge person spell but uby 2 size categories. Mutation mind receives + 4 size bonus to strength and -2 bonus to dexterity.",
+                                                 "The mutation mind’s body swells and stretches, enlarging her as the enlarge person spell but by 2 size categories. Mutation mind receives + 4 size bonus to strength and -2 bonus to dexterity.",
                                                  Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271"),
                                                  null,
                                                  true,
