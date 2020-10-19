@@ -92,7 +92,7 @@ namespace CallOfTheWild
         }
 
 
-        public class UnitPartArcanistPreparedMetamagic : AdditiveUnitPart
+        public class UnitPartArcanistPreparedMetamagic : UnitPart
         {
             [JsonProperty]
             public BlueprintSpellbook spellbook = Arcanist.arcanist_spellbook;
@@ -389,14 +389,14 @@ namespace CallOfTheWild
         public class InitializeArcanistPart : OwnedGameLogicComponent<UnitDescriptor>
         {
             public BlueprintSpellbook spellbook;
-            public override void OnTurnOn()
+            public override void OnFactActivate()
             {
                 this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().spellbook = spellbook;
             }
 
-            public override void OnTurnOff()
+            public override void OnFactDeactivate()
             {
-
+                this.Owner.Remove<UnitPartArcanistPreparedMetamagic>();
             }
         }
 
@@ -1543,12 +1543,19 @@ namespace CallOfTheWild
                     return;
 
                 var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
-                if (arcanist_part == null)
-                {
-                    return;
-                }
 
-                arcanist_part.addExtraSpell(spell, this.spell_list.GetLevel(spell));
+                arcanist_part?.addExtraSpell(spell, this.spell_list.GetLevel(spell));
+            }
+
+            public override void OnFactDeactivate()
+            {
+                BlueprintAbility spell = !(this.Param != (FeatureParam)null) ? (BlueprintAbility)null : this.Param.Value.Blueprint as BlueprintAbility;
+                if (spell == null)
+                    return;
+
+                var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
+
+                arcanist_part?.removeExtraSpell(spell);
             }
         }
 
