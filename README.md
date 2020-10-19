@@ -178,7 +178,8 @@ New features:
 - Summoned monsters are now considered as allies,
 - Dwarven war axe and bastard sword can be used as martial weapons if wielded two-handed; dueling sword can be used as martial weapon, in this case it is no longer considered to be finessable,
 - Disarm, Sunder and Trip weapon properties were added to corresponding weapon types.
-- Lore Religion skill can now be used to treat dealy wounds.
+- Lore Religion skill can now be used to treat deadly wounds,
+- Body armor can be used by anyone, even without proficiency, but in this case the wearer applies armor check penalty to his attack rolls.
 
 The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,
