@@ -120,6 +120,10 @@ namespace CallOfTheWild
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
             var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
             Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
+            //fix ability description
+            var original2 = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetAbilityRuntimeActionText", new Type[] {typeof(AbilityData) });
+            var patch2 = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetAbilityRuntimeActionText_Patch), "Prefix");
+            Main.harmony.Patch(original2, prefix: new Harmony12.HarmonyMethod(patch2));
         }
 
 
@@ -966,6 +970,22 @@ namespace CallOfTheWild
                 }
             }
 
+        }
+
+        static class UIUtilityTexts_GetAbilityRuntimeActionText_Patch
+        {
+            static bool Prefix(AbilityData abilityData, ref string __result)
+            {
+                if (abilityData == (AbilityData)null)
+                {
+                    __result = "";
+                }
+                else
+                {
+                    __result = UIUtilityTexts.GetActionText(abilityData.RuntimeActionType, abilityData.RequireFullRoundAction);
+                }
+                return false;
+            }
         }
 
 

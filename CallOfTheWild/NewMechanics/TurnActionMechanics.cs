@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using Harmony12;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
@@ -9,6 +10,7 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
+using Kingmaker.UI.Tooltip;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -204,7 +206,7 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public abstract class MoveActionAbilityUseBase : BuffLogic
+    public abstract class MoveActionAbilityUseBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
 
@@ -224,7 +226,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
 
 
-    public abstract class StandardActionAbilityUseBase : BuffLogic
+    public abstract class StandardActionAbilityUseBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
 
@@ -242,7 +244,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
 
 
-    public abstract class SwiftActionAbilityUseBase : BuffLogic
+    public abstract class SwiftActionAbilityUseBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract bool canUseOnAbility(AbilityData ability, CommandType actual_action_type);
 
@@ -663,7 +665,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
 
 
-    public abstract class FullRoundAbilityUseBase : BuffLogic
+    public abstract class FullRoundAbilityUseBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract bool canUseOnAbility(AbilityData ability);
 
@@ -691,7 +693,7 @@ namespace CallOfTheWild.TurnActionMechanics
             {
                 var standard_action_use = __instance.Caster.Get<UnitPartStandardActionAbilityUse>();
                 if (standard_action_use != null)
-                {
+                {                 
                     __result = !standard_action_use.canBeUsedOnAbility(__instance, CommandType.Standard);
                 }
                 return;
@@ -864,6 +866,40 @@ namespace CallOfTheWild.TurnActionMechanics
             }
 
             return true;
+        }
+    }
+
+
+
+    [Harmony12.HarmonyPatch(typeof(DescriptionTemplatesAbility))]
+    [Harmony12.HarmonyPatch("AbilityDescription", Harmony12.MethodType.Normal)]
+    public class MagusController_HandleUnitRunCommand_Patch
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+
+            int ability_index = -1;
+
+            for (int i = 0; i < codes.Count - 3; i++)
+            {
+                if (codes[i].opcode == System.Reflection.Emit.OpCodes.Ldfld && codes[i + 1].opcode == System.Reflection.Emit.OpCodes.Brfalse
+                    && codes[i].operand.ToString().Contains("Ability"))
+                {
+                    ability_index = i;
+                    break;
+                }
+            }
+                codes[ability_index] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<TooltipData, bool>(shouldUseBlueprint).Method
+                                                                           );
+
+            return codes.AsEnumerable();
+        }
+
+        internal static bool shouldUseBlueprint(TooltipData data)
+        {
+            return data.AbilityData == null && data.Ability != null;
         }
     }
 }
