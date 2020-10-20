@@ -268,6 +268,8 @@ namespace CallOfTheWild
         static public BlueprintAbility telekinetic_strikes;
         static public BlueprintAbility debilitating_portent;
 
+        static public BlueprintAbility daze_mass;
+
         static public void load()
         {
             fixPhantasmalSpells();
@@ -436,6 +438,52 @@ namespace CallOfTheWild
 
             createTelekinticStrikes();
             createDebilitatingPortent();
+
+            createDazeMass();
+        }
+
+
+        static void createDazeMass()
+        {
+            var serpentine_arcana = library.Get<BlueprintFeature>("02707231be1d3a74ba7e38a426c8df37");
+            var daze = library.Get<BlueprintAbility>("55f14bc84d7c85446b07a1b5dd6b2b4c");
+            var actions = daze.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+
+            var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.aberration, Common.construct, Common.dragon, Common.fey, Common.outsider, Common.plant),
+                                                   null,
+                                                   Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasFacts(false, Common.animal, Common.monstrous_humanoid, Common.magical_beast, Common.vermin),
+                                                                                             Common.createContextConditionCasterHasFact(serpentine_arcana, false)
+                                                                                            },
+                                                                             null,
+                                                                             Helpers.CreateActionSavingThrow(SavingThrowType.Will, actions)
+                                                                            )
+                                                   );
+
+            daze_mass = Helpers.CreateAbility("DazeMassAbility",
+                                              "Daze, Mass",
+                                              "This spell functions as daze except that it can affect multiple targets without HD limit.\n"
+                                              + daze.Name + ": " + daze.Description,
+                                              "",
+                                              daze.Icon,
+                                              AbilityType.Spell,
+                                              UnitCommand.CommandType.Standard,
+                                              AbilityRange.Close,
+                                              Helpers.oneRoundDuration,
+                                              Helpers.willNegates,
+                                              Helpers.CreateRunActions(effect),
+                                              Helpers.CreateSpellComponent(SpellSchool.Enchantment),
+                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
+                                              Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy)
+                                              );
+            daze_mass.setMiscAbilityParametersRangedDirectional();
+            daze_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            daze_mass.SpellResistance = true;
+
+            daze_mass.AddToSpellList(Helpers.wizardSpellList, 4);
+            daze_mass.AddToSpellList(Helpers.bardSpellList, 4);
+            daze_mass.AddToSpellList(Helpers.inquisitorSpellList, 4);
+
+            Helpers.AddScroll(daze_mass, "11987b82dbc808143963b9acaa81bf07");
         }
 
 
@@ -1709,6 +1757,7 @@ namespace CallOfTheWild
                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -4, ModifierDescriptor.UntypedStackable),
                                          Helpers.Create<BuffAllSkillsBonus>(b => { b.Value = -4; b.Descriptor = ModifierDescriptor.UntypedStackable; }),
                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.SpellCastingIsDifficult),
+                                         Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
                                          Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(a =>
                                          {
                                              a.Concealment = Concealment.Partial;

@@ -948,7 +948,8 @@ namespace CallOfTheWild
         static bool Prefix(IncreaseSpellDescriptorDC __instance, RuleCalculateAbilityParams evt)
         {
             var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
-            SpellDescriptorComponent component = ability_context.AssociatedBlueprint?.GetComponent<SpellDescriptorComponent>();
+            SpellDescriptorComponent component = ability_context?.AssociatedBlueprint?.GetComponent<SpellDescriptorComponent>();
+            component = component ?? evt.Spell.GetComponent<SpellDescriptorComponent>();
             if ((component != null ? (component.Descriptor.HasAnyFlag((SpellDescriptor)__instance.Descriptor) ? 1 : 0) : 0) == 0)
                 return false;
             evt.AddBonusDC(__instance.BonusDC);

@@ -95,23 +95,24 @@ namespace CallOfTheWild
 
             var fake_sorcerer = library.CopyAndAdd(sorcerer, "FakeSorcererClass", "");
             eldritch_heritage.AddComponents(Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a =>
-                                            {
-                                                a.fake_class = fake_sorcerer;
-                                                a.value = Helpers.CreateContextValue(AbilityRankType.Default);
-                                            }
+            {
+                a.fake_class = fake_sorcerer;
+                a.value = Helpers.CreateContextValue(AbilityRankType.Default);
+            }
                                             ),
                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel, ContextRankProgression.BonusValue,
                                                                             stepLevel: -2)
                                            );
 
             greater_eldritch_heritage.AddComponent(Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a =>
-                                                    {
-                                                        a.fake_class = fake_sorcerer;
-                                                        a.value = 2;
-                                                    }
+            {
+                a.fake_class = fake_sorcerer;
+                a.value = 2;
+            }
                                                     )
                                                   );
 
+            var infernal_bloodline = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d");
             foreach (var b in bloodlines)
             {
                 List<StatType> bloodline_skills = new List<StatType>();
@@ -149,7 +150,7 @@ namespace CallOfTheWild
 
                 if (!(level3_feature is BlueprintProgression))
                 {
-                    var eldritch_heritage_lvl3 = level3_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level3_feature, "ImprovedEldritchHeritage3" + bp.name + level3_feature.name, "") : Common.featureToFeature(level3_feature, false, prefix: "ImprovedEldritchHeritage3" +bp.name);
+                    var eldritch_heritage_lvl3 = level3_feature is BlueprintFeatureSelection ? library.CopyAndAdd(level3_feature, "ImprovedEldritchHeritage3" + bp.name + level3_feature.name, "") : Common.featureToFeature(level3_feature, false, prefix: "ImprovedEldritchHeritage3" + bp.name);
                     eldritch_heritage_lvl3.Groups = new FeatureGroup[] { FeatureGroup.Feat };
                     eldritch_heritage_lvl3.SetNameDescription(improved_eldritch_heritage.Name + ": " + bp.Name + $" ({eldritch_heritage_lvl3.Name})",
                                                               improved_eldritch_heritage.Description + "\n" + level3_feature.Name + ": " + level3_feature.Description
@@ -192,12 +193,17 @@ namespace CallOfTheWild
 
                 eldritch_heritage.AddComponent(Helpers.PrerequisiteNoFeature(b));
                 b.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
+
+                if (b == infernal_bloodline)
+                {
+                    eldritch_heritage.AddComponent(Common.prerequisiteNoArchetype(Summoner.devil_binder));
+                }
             }
 
             sorcerer.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
             dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
-            
-            
+
+
             library.AddFeats(eldritch_heritage, improved_eldritch_heritage, greater_eldritch_heritage);
         }
 

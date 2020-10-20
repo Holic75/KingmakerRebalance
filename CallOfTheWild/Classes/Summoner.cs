@@ -1628,6 +1628,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 //restore eidolon, lesser
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
 
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
@@ -1648,9 +1649,12 @@ namespace CallOfTheWild
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( "46097f610219ac445b4d6403fc596b9f", 3), //spiked pit
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
+                new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 3), //summon medium elemental
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 3), //summon monster 4
 
+                
                 new Common.SpellId( "1407fb5054d087d47a4c40134c809f12", 4), //acid pit
+                new Common.SpellId( NewSpells.daze_mass.AssetGuid, 4),
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimension door
                 new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
                 //evolution surge greater
@@ -1661,6 +1665,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
+                new Common.SpellId( "89404dd71edc1aa42962824b44156fe5", 4), //summon large elemental
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 4), //summon monster 5
                 new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 4),
 
@@ -1674,6 +1679,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 //rejuvenate eidolon greater
                 new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
+                new Common.SpellId( "766ec978fa993034f86a372c8eb1fc10", 5), //summon huge elemental
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 5), //summon monster 6
               
 
@@ -1686,11 +1692,18 @@ namespace CallOfTheWild
                 new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                 new Common.SpellId( "98310a099009bbd4dbdf66bcef58b4cd", 6), //invisibility mass
-                new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass             
+                new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass 
+                new Common.SpellId( "8eb769e3b583f594faabe1cfdb0bb696", 6), //summon greater elemental
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 6), //summon monster 7
                 new Common.SpellId( "7d700cdf260d36e48bb7af3a8ca5031f", 6), //tar pool
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 6), //true seeing
+            
+                
+                
+                
+                
 
+                new Common.SpellId( "8a7f8c1223bda1541b42fd0320cdbe2b", 8), //summon elder elemental
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 7), //summon monster 3
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 7), //summon monster 8
                 new Common.SpellId( "52b5df2a97df18242aec67610616ded0", 7), //summon monster 9              

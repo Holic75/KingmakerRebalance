@@ -1148,7 +1148,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "e84fc922ccf952943b5240293669b171", 2), //restoration lesser
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "6c7467f0344004d48848a43d8c078bf8", 2), //sickening entanglement
+                new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "298148133cdc3fd42889b99c82711986", 2), //summon nature ally II
+                
                 new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 2),
                 new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2),
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
@@ -1193,6 +1195,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
+                new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "c83db50513abdf74ca103651931fac4b", 4), //summon nature ally IV
                 new Common.SpellId( NewSpells.thirsting_entanglement.AssetGuid, 4),
                 new Common.SpellId( "2daf9c5112f16d54ab3cd6904c705c59", 4), //thorn body
@@ -1210,6 +1213,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 5), //stoneskin
+                new Common.SpellId( "89404dd71edc1aa42962824b44156fe5", 5), //summon large elemental
                 new Common.SpellId( "8f98a22f35ca6684a983363d32e51bfe", 5), //summon nature ally
                 new Common.SpellId( NewSpells.tidal_surge.AssetGuid, 5),
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 5), //true seeing
@@ -1229,6 +1233,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
+                new Common.SpellId( "766ec978fa993034f86a372c8eb1fc10", 6), //summon huge elemental
                 new Common.SpellId( "55bbce9b3e76d4a4a8c8e0698d29002c", 6), //summon nature ally VI
                 new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flesh
                 
@@ -1242,6 +1247,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "da1b292d91ba37948893cdbe9ea89e28", 7), //legendary proportions
                 new Common.SpellId( "76a11b460be25e44ca85904d6806e5a3", 7), //create undead
                 new Common.SpellId( "fafd77c6bfa85c04ba31fdc1c962c914", 7), //restoration greater
+                new Common.SpellId( "8eb769e3b583f594faabe1cfdb0bb696", 7), //summon greater elemental
                 new Common.SpellId( "051b979e7d7f8ec41b9fa35d04746b33", 7), //summon nature ally VII
                 new Common.SpellId( "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", 7), //sunbeam
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike
@@ -1257,6 +1263,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //ressurection
                 new Common.SpellId( "7cfbefe0931257344b2cb7ddc4cdff6f", 8), //stormbolts
                 new Common.SpellId( "ea78c04f0bd13d049a1cce5daf8d83e0", 8), //summon nature ally
+                new Common.SpellId( "8a7f8c1223bda1541b42fd0320cdbe2b", 8), //summon elder elemental
                 new Common.SpellId( "e96424f70ff884947b06f41a765b7658", 8), //sunburst
 
                 
@@ -1269,7 +1276,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d8144161e352ca846a73cf90e85bf9ac", 9), //tsunami
                 new Common.SpellId( "a7469ef84ba50ac4cbf3d145e3173f8e", 9), //summon nature ally IX
                 new Common.SpellId( "b24583190f36a8442b212e45226c54fc", 9), //wail of banshee
-                new Common.SpellId(NewSpells.winds_of_vengeance.AssetGuid, 9)
+                new Common.SpellId(NewSpells.winds_of_vengeance.AssetGuid, 9),
             };
 
             foreach (var spell_id in spells)

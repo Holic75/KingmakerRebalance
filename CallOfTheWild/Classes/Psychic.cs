@@ -618,7 +618,7 @@ namespace CallOfTheWild
 
             enlarged_body = createBodilyMutation("EnlargedBody",
                                                  "Enlarged Body",
-                                                 "The mutation mind’s body swells and stretches, enlarging her as the enlarge person spell but uby 2 size categories. Mutation mind receives + 4 size bonus to strength and -2 bonus to dexterity.",
+                                                 "The mutation mind’s body swells and stretches, enlarging her as the enlarge person spell but by 2 size categories. Mutation mind receives + 4 size bonus to strength and -2 bonus to dexterity.",
                                                  Helpers.GetIcon("3dccdf27a8209af478ac71cded18a271"),
                                                  null,
                                                  true,
@@ -2594,6 +2594,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.silence.AssetGuid, 2),
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.telekinetic_strikes.AssetGuid, 2),
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
@@ -2601,6 +2602,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.babble.AssetGuid, 3),
                 new Common.SpellId( "0a2f7c6aa81bc6548ac7780d8b70bcbc", 3), //battering blast (it seems it should be on the list since all force spells are there)
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
+                new Common.SpellId( NewSpells.daze_mass.AssetGuid, 3),
                 new Common.SpellId( "7658b74f626c56a49939d9c20580885e", 3), //deep slumber
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
@@ -2649,6 +2651,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass  
                 new Common.SpellId( "f09453607e683784c8fca646eec49162", 4), //shout
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
+                new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
                 new Common.SpellId( NewSpells.thought_shield[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 4),
@@ -2668,6 +2671,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d38aaf487e29c3d43a3bffa4a4a55f8f", 5), //song of discord
                 new Common.SpellId( "0a5ddfbcfb3989543ac7c936fc256889", 5), //spell resistance
                 new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin communal
+                new Common.SpellId( "89404dd71edc1aa42962824b44156fe5", 5), //summon large elemental
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.mental_barrier[3].AssetGuid, 5),
                 new Common.SpellId( NewSpells.psychic_crush[0].AssetGuid, 5),
@@ -2700,6 +2704,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
                 new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 6),
                 new Common.SpellId( NewSpells.shadow_enchantment_greater.AssetGuid, 6),
+                new Common.SpellId( "766ec978fa993034f86a372c8eb1fc10", 6), //summon huge elemental
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
 
@@ -2716,6 +2721,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
                 new Common.SpellId( NewSpells.psychic_crush[2].AssetGuid, 7),
                 new Common.SpellId( "df7d13c967bce6a40bec3ba7c9f0e64c", 7), //resonating word
+                new Common.SpellId( "8eb769e3b583f594faabe1cfdb0bb696", 7), //summon greater elemental
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //sm 7
                 new Common.SpellId( NewSpells.synesthesia_mass.AssetGuid, 7),
                 new Common.SpellId( "1e2d1489781b10a45a3b70192bba9be3", 7), //waves of ectasy
@@ -2737,6 +2743,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.psychic_crush[3].AssetGuid, 8),
                 new Common.SpellId( NewSpells.song_of_discord_greater.AssetGuid, 8),
                 new Common.SpellId( "fd0d3840c48cafb44bb29e8eb74df204", 8), //shout greater
+                new Common.SpellId( "8a7f8c1223bda1541b42fd0320cdbe2b", 8), //summon elder elemental
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 8), //sm 8
                 new Common.SpellId( NewSpells.temporal_stasis.AssetGuid, 8),
 
@@ -2755,6 +2762,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.time_stop.AssetGuid, 9),
                 new Common.SpellId( "b24583190f36a8442b212e45226c54fc", 9), //wail of banshee
                 new Common.SpellId( "870af83be6572594d84d276d7fc583e0", 9), //weird
+
             };
 
             foreach (var spell_id in spells)

@@ -427,12 +427,6 @@ namespace CallOfTheWild.OnCastMechanics
             if (context?.SourceAbility == null || !context.SpellDescriptor.HasAnyFlag((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor) || !context.SourceAbility.IsSpell)
                 return;
 
-
-            if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, context.MaybeCaster.Descriptor))
-            {
-                return;
-            }
-
             if (!context.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.ForceFocus))
             {
                 return;
