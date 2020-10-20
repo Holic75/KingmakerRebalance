@@ -707,6 +707,14 @@ namespace CallOfTheWild
                     continue;
                 }
                 comp.Abilities.Add(ability);
+
+                var comp2 = b.GetComponent<AddKineticistBurnModifier>();
+                if (comp2.AppliableTo.Contains(ability))
+                {
+                    continue;
+                }
+                comp2.AppliableTo = comp2.AppliableTo.AddToArray(ability);
+
             }
         }
 
@@ -986,5 +994,4 @@ namespace CallOfTheWild
             return false;
         }
     }
-
 }
