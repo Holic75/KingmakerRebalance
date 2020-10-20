@@ -1392,6 +1392,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 2),
+                new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 
                 new Common.SpellId( "4b76d32feb089ad4499c3a1ce8e1ac27", 3), //animate dead
@@ -1437,6 +1438,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
                 new Common.SpellId( NewSpells.shadow_conjuration.AssetGuid, 4),
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
+                new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
 
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 5), //break enchantment
@@ -1457,6 +1459,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4fbd47525382517419c66fb548fe9a67", 5), //slay living
                 new Common.SpellId( "0a5ddfbcfb3989543ac7c936fc256889", 5), //spell resistance
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
+                new Common.SpellId( "89404dd71edc1aa42962824b44156fe5", 5), //summon large elemental
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( "a34921035f2a6714e9be5ca76c5e34b5", 5), //vampiric shadow shield
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
@@ -1471,6 +1474,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "cc09224ecc9af79449816c45bc5be218", 6), //harm
                 new Common.SpellId( "5da172c4c89f9eb4cbb614f3a67357d3", 6), //heal
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
+                new Common.SpellId( "766ec978fa993034f86a372c8eb1fc10", 6), //summon huge elemental
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation     
                 new Common.SpellId( "4cf3d0fae3239ec478f51e86f49161cb", 6), //true seeing

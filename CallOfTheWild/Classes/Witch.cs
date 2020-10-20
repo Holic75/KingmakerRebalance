@@ -1330,6 +1330,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 2),
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+                new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 2),
                 new Common.SpellId( "134cb6d492269aa4f8662700ef57449f", 2), //web
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
@@ -1384,6 +1385,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 4),
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( NewSpells.spite.AssetGuid, 4),
+                new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
                 new Common.SpellId( NewSpells.threefold_aspect.AssetGuid, 4),
                 new Common.SpellId( "1e481e03d9cf1564bae6b4f63aed2d1a", 4), //touch of slime
@@ -1403,6 +1405,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( NewSpells.pain_strike_mass.AssetGuid, 5),
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
+                new Common.SpellId( "89404dd71edc1aa42962824b44156fe5", 5), //summon large elemental
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
@@ -1422,6 +1425,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 6), //raise dead
                 new Common.SpellId( "a6e59e74cba46a44093babf6aec250fc", 6), //slay living
                 new Common.SpellId( "e243740dfdb17a246b116b334ed0b165", 6), //stone to flesh
+                new Common.SpellId( "766ec978fa993034f86a372c8eb1fc10", 6), //summon huge elemental
                 new Common.SpellId( "e740afbab0147944dab35d83faa0ae1c", 6), //summon monster 6
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation
                 new Common.SpellId( "b3da3fbee6a751d4197e446c7e852bcb", 6), //true seeing
@@ -1441,6 +1445,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 7), //primal regression
                 new Common.SpellId( NewSpells.scouring_winds.AssetGuid, 7),
+                new Common.SpellId( "8eb769e3b583f594faabe1cfdb0bb696", 7), //summon greater elemental
                 new Common.SpellId( "ab167fd8203c1314bac6568932f1752f", 7), //summon monster 7
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 7), //umbral strike
                 new Common.SpellId( "1e2d1489781b10a45a3b70192bba9be3", 7), //waves of Ectasy
@@ -1456,6 +1461,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 8), //prediction of failure
                 new Common.SpellId( "80a1a388ee938aa4e90d427ce9a7a3e9", 8), //resurrection
                 new Common.SpellId( "7cfbefe0931257344b2cb7ddc4cdff6f", 8), //stormbolts
+                new Common.SpellId( "8a7f8c1223bda1541b42fd0320cdbe2b", 8), //summon elder elemental
                 new Common.SpellId( "d3ac756a229830243a72e84f3ab050d0", 8), //summon monster 8
                 new Common.SpellId( "df2a0ba6b6dcecf429cbb80a56fee5cf", 8), //mind blank
 
