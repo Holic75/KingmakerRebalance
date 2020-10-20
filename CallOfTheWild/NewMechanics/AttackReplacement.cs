@@ -87,7 +87,7 @@ namespace CallOfTheWild.AttackReplacementMechanics
                 return;
             }
 
-            evt.PrimaryHand.MainAttacks--;
+            evt.PrimaryHand.AdditionalAttacks--;
             this.valid = true;
         }
     }

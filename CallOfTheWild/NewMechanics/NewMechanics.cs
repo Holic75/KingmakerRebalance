@@ -3418,7 +3418,7 @@ namespace CallOfTheWild
             {
                 if (evt.Initiator.Body.SecondaryHand.MaybeWeapon != null)
                 {
-                    evt.SecondaryHand.MainAttacks+= Number;
+                    evt.SecondaryHand.AdditionalAttacks+= Number;
                 }
             }
 
