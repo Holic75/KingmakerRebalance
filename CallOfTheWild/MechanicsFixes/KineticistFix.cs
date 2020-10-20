@@ -437,6 +437,8 @@ namespace CallOfTheWild
             blade_whirlwind_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
             blade_rush_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
             blade_rush_swift_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
+
+            addToMetakinesis(kinetic_whip_ability);
         }
 
 
@@ -614,6 +616,8 @@ namespace CallOfTheWild
 
             kinetic_knight.AddFeatures = kinetic_knight.AddFeatures.AddToArray(Helpers.LevelEntry(11, whip_hurricane));
             kineticist_progression.UIGroups.Last().Features.Add(whip_hurricane);
+
+            addToMetakinesis(whip_hurricane_ability);
         }
 
 
@@ -677,8 +681,34 @@ namespace CallOfTheWild
 
             kineticist_progression.UIGroups[3].Features = kineticist_progression.UIGroups[3].Features.Take(4).ToList();
             kineticist_progression.UIGroups = kineticist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(kinetic_blade_infusion, blade_rush, whirlwind_infusion, blade_rush_swift));
+
+            addToMetakinesis(blade_rush_ability);
         }
 
+
+        static void addToMetakinesis(BlueprintAbility ability)
+        {
+            var metakinesis_buffs = new BlueprintBuff[]
+            {
+                library.Get<BlueprintBuff>("f5f3aa17dd579ff49879923fb7bc2adb"), //empower
+                library.Get<BlueprintBuff>("f8d0f7099e73c95499830ec0a93e2eeb"), //empower cheaper
+                library.Get<BlueprintBuff>("870d7e67e97a68f439155bdf465ea191"), //maximized
+                library.Get<BlueprintBuff>("b8f43f0040155c74abd1bc794dbec320"), //maximized cheaper
+                library.Get<BlueprintBuff>("f690edc756b748e43bba232e0eabd004"), //quicken
+                library.Get<BlueprintBuff>("c4b74e4448b81d04f9df89ed14c38a95"), //quicken cheaper
+            };
+
+            foreach (var b in metakinesis_buffs)
+            {
+                var comp = b.GetComponent<AutoMetamagic>();
+                
+                if (comp.Abilities.Contains(ability))
+                {
+                    continue;
+                }
+                comp.Abilities.Add(ability);
+            }
+        }
 
         static void fixBladeWhirlwindCost()
         {
