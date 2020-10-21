@@ -46,7 +46,7 @@ namespace CallOfTheWild.ArmorFix
     {
         static void Postfix(ItemEntityArmor __instance)
         {
-            if (__instance.Wielder == null)
+            if (__instance?.Wielder == null || __instance?.Owner == null || __instance?.Blueprint == null)
             {
                 return;
             }
