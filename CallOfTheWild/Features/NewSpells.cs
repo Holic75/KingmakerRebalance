@@ -120,6 +120,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility suffocation, mass_suffocation;
         static public BlueprintBuff suffocation_buff;
+        static public BlueprintBuff fast_suffocation_buff;
         static public BlueprintAbility fluid_form;
 
         static public BlueprintAbility hold_person_mass;
@@ -269,6 +270,10 @@ namespace CallOfTheWild
         static public BlueprintAbility debilitating_portent;
 
         static public BlueprintAbility daze_mass;
+
+        static public BlueprintAbility invigorate;
+        static public BlueprintAbility invigorate_mass;
+        static public BlueprintAbility cloak_of_winds;
 
         static public void load()
         {
@@ -440,7 +445,111 @@ namespace CallOfTheWild
             createDebilitatingPortent();
 
             createDazeMass();
+            createInvigorateAndInvigorateMass();
+            createCloakOfWinds();
         }
+
+
+        static void createCloakOfWinds()
+        {
+            var buff = Helpers.CreateBuff("CloakOfWindsBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<ACBonusAgainstAttacks>(a =>
+                                          {
+                                              a.ArmorClassBonus = 0;
+                                              a.Value = 4;
+                                              a.AgainstRangedOnly = true;
+                                              a.Descriptor = ModifierDescriptor.UntypedStackable;
+                                          }
+                                          )
+                                          );
+
+            cloak_of_winds = Helpers.CreateAbility("CloakOfWindsAbility",
+                                   "Cloak of Winds",
+                                   "The subject is never checked or blown away by strong winds of windstorm or lesser strength (whether natural or magically created), and ranged attack rolls against the subject take a -4 penalty. ",
+                                   "",
+                                   Helpers.GetIcon("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                                   AbilityType.Spell,
+                                   UnitCommand.CommandType.Standard,
+                                   AbilityRange.Touch,
+                                   Helpers.minutesPerLevelDuration,
+                                   "",
+                                   Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                   Helpers.CreateContextRankConfig(),
+                                   Common.createAbilitySpawnFx("c30bef03751b7e844bc22646fb6927c4", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                   Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                   Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
+                                   );
+            cloak_of_winds.setMiscAbilityParametersTouchFriendly();
+            cloak_of_winds.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            cloak_of_winds.AddToSpellList(Helpers.wizardSpellList, 3);
+            cloak_of_winds.AddToSpellList(Helpers.druidSpellList, 3);
+            cloak_of_winds.AddToSpellList(Helpers.rangerSpellList, 3);
+            cloak_of_winds.AddToSpellList(Helpers.magusSpellList, 3);
+            Helpers.AddSpellAndScroll(cloak_of_winds, "179d91b899fa6304b8c076e002890317");
+        }
+
+
+        static void createInvigorateAndInvigorateMass()
+        {
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhaused = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var buff = Helpers.CreateBuff("InvigorateBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<SuppressBuffs>(s => { s.Buffs = new BlueprintBuff[] { fatigued, exhaused }; })
+                                          );
+
+            invigorate = Helpers.CreateAbility("InvigorateAbility",
+                                               "Invigorate",
+                                               "This spell banishes feelings of weariness. For the duration, the subject takes no penalties from the fatigued or exhausted conditions. The effect of invigorate is merely an illusion, however, not a substitute for actual rest or respite.",
+                                               "",
+                                               Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruciton judgment
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Standard,
+                                               AbilityRange.Touch,
+                                               Helpers.tenMinPerLevelDuration,
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes))),
+                                               Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                               Helpers.CreateContextRankConfig(),
+                                               Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                               );
+            invigorate.setMiscAbilityParametersTouchFriendly();
+            invigorate.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+
+            invigorate_mass = Helpers.CreateAbility("InvigorateMass Ability",
+                                                   "Invigorate, Mass",
+                                                   "This spell work as invigorate, except it affects multiple creatures.\n"
+                                                   + invigorate.Name + ": " + invigorate.Description,
+                                                   "",
+                                                   Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruciton judgment
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Personal,
+                                                   Helpers.tenMinPerLevelDuration,
+                                                   "",
+                                                   Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes))),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                   Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.Create<SharedSpells.CannotBeShared>(),
+                                                   Helpers.CreateContextRankConfig(),
+                                                    Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally)
+                                                   );
+            invigorate_mass.setMiscAbilityParametersSelfOnly();
+            invigorate_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
+            invigorate.AddToSpellList(Helpers.bardSpellList, 1);
+            Helpers.AddSpellAndScroll(invigorate, "08cf11d25aaab074388207b66f64a162"); //aid
+            invigorate_mass.AddToSpellList(Helpers.bardSpellList, 3);
+            Helpers.AddSpellAndScroll(invigorate_mass, "08cf11d25aaab074388207b66f64a162"); //aid
+        }  
 
 
         static void createDazeMass()
@@ -1614,6 +1723,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.Dexterity, -6, ModifierDescriptor.UntypedStackable),
                                           Common.createEmptyHandWeaponOverride(weapon),
                                           Common.createSpecificBuffImmunity(suffocation_buff),
+                                          Common.createSpecificBuffImmunity(fast_suffocation_buff),
                                           Common.createSpecificBuffImmunity(Common.deafened),
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Acid, 0.5f),
                                           Common.createAddEnergyDamageDurability(DamageEnergyType.Fire, 0.5f),
@@ -5979,6 +6089,20 @@ namespace CallOfTheWild
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
                                           );
 
+
+            var fast_death = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, Helpers.Create<NewMechanics.ReduceHpToValue>(r => r.value = -1))));
+            fast_suffocation_buff = Helpers.CreateBuff("FastSuffocationBuff",
+                                                      "",
+                                                      "",
+                                                      "",
+                                                      icon,
+                                                      null,
+                                                      Helpers.CreateAddFactContextActions(activated: Helpers.Create<NewMechanics.ReduceHpToValue>(r => r.value = 0), 
+                                                                                          newRound: Helpers.CreateConditional(Helpers.Create<BuffConditionCheckRoundNumber>(b => b.RoundNumber = 0), null, fast_death)
+                                                                                          ),
+                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
+                                                      );
+
             var effect = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1, DurationRate.Rounds), is_from_spell: true),
                                                         Common.createContextActionApplyBuff(suffocation_buff, Helpers.CreateContextDuration(3, DurationRate.Rounds), is_from_spell: true));
 
@@ -6187,6 +6311,7 @@ namespace CallOfTheWild
                                           Common.createEmptyHandWeaponOverride(weapon),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Cold),
                                           Common.createSpecificBuffImmunity(suffocation_buff),
+                                          Common.createSpecificBuffImmunity(fast_suffocation_buff),
                                           Common.createSpecificBuffImmunity(Common.deafened)
                                           );
 

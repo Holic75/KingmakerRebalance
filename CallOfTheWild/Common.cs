@@ -58,6 +58,7 @@ using Kingmaker.Items;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Alignments;
 using CallOfTheWild.NewMechanics;
+using Kingmaker.UnitLogic.Class.Kineticist;
 
 namespace CallOfTheWild
 {
@@ -4469,6 +4470,17 @@ namespace CallOfTheWild
             return new_progression;
         }
 
+
+        static public BlueprintAbility convertToKineticistTalent(BlueprintAbility spell, string prefix, int burn_cost = 0)
+        {
+            var kineticist = library.Get<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
+            var ability = convertToSpellLike(spell, prefix, new BlueprintCharacterClass[] { kineticist }, StatType.Unknown, no_resource: true, no_scaling: true);
+            ability.AddComponents(Helpers.Create<AbilityKineticist>(a => { a.Amount = burn_cost; a.WildTalentBurnCost = burn_cost; }),
+                                  Common.createContextCalculateAbilityParamsBasedOnClass(kineticist, StatType.Constitution, true)
+                                  );
+            ability.RemoveComponents<SpellListComponent>();
+            return ability;
+        }
 
         static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
                                                           bool no_resource = false,

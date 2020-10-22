@@ -302,12 +302,26 @@ namespace CallOfTheWild.ShadowSpells
         {
             static public bool Prefix(RuleApplyBuff __instance, RulebookEventContext context)
             {
-                if (ShadowSpells.isShadowBuff(__instance.Blueprint))
+                /*if (ShadowSpells.isShadowBuff(__instance.Blueprint))
+                {
+                    return true;
+                }*/
+                var rule_summon = Rulebook.CurrentContext.AllEvents.LastOfType<RuleSummonUnit>();
+                if (rule_summon != null)
+                {//do not interrupt summon buffs
+                    return true;
+                }
+
+                var context2 = __instance.Reason.Context;
+                //there are also actions after summon that should not be affected
+                //we need to check if we are still inside SpawnMonsterComponent
+                var summon_context = __instance.Initiator.Buffs?.GetBuff(Game.Instance.BlueprintRoot.SystemMechanics.SummonedUnitBuff)?.MaybeContext?.ParentContext;
+                if (summon_context == context2)
                 {
                     return true;
                 }
-                var context2 = __instance.Reason.Context;
-                
+
+                       
                 if (context2?.AssociatedBlueprint != null && context2.AssociatedBlueprint is BlueprintBuff)
                 {//do not apply shadow twice
                     return true;
