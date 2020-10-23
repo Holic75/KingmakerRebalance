@@ -16,6 +16,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
@@ -56,6 +57,7 @@ namespace CallOfTheWild
         public static BlueprintFeature flame_jet_greater; //move action dimension door and immunity to ground based effects
         public static BlueprintFeature purifying_flames;//
         public static BlueprintFeature windsight;//
+        public static BlueprintFeature ice_path;//
         public static BlueprintFeature spark_of_life;
 
         static public BlueprintFeature kinetic_invocation;
@@ -66,6 +68,7 @@ namespace CallOfTheWild
         static public BlueprintFeature kinetic_invocation_fluid_form;
         static public BlueprintFeature kinetic_invocation_sleet_storm;
         static public BlueprintFeature kinetic_invocation_slowing_mud;
+        static public BlueprintFeatureSelection expanded_element_bonus_talent_selection;
 
         public static BlueprintFeature whip_hurricane;
 
@@ -137,15 +140,69 @@ namespace CallOfTheWild
             createWindsight();
             createPurifyingFlames();
             createSuffocate();
+            createIcePath();
             createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
             Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
 
+            fixRepeatingElements();
+
             if (update_archetypes)
             {
                 Main.logger.Log("Updating base kineticist archetypes");
                 updateKineticistArchetypes();
+            }
+        }
+
+
+        static void fixRepeatingElements()
+        {
+            var first_element_selection = library.Get<BlueprintFeatureSelection>("1f3a15a3ae8a5524ab8b97f469bf4e3d");
+            var first_element_selection_kk = library.Get<BlueprintFeatureSelection>("b1f296f0bd16bc242ae35d0638df82eb");
+            var second_element_selection = library.Get<BlueprintFeatureSelection>("4204bc10b3d5db440b1f52f0c375848b");
+            var third_element_selection = library.Get<BlueprintFeatureSelection>("e2c1718828fc843479f18ab4d75ded86");
+
+            second_element_selection.SetDescription("At 7th level, a kineticist learns to use another element or expands her understanding of her own element. She can choose any element, including her primary element. She gains one of that element’s simple blast wild talents that she does not already possess, if any. She also gains all composite blast wild talents whose prerequisites she meets, as well as the basic wild talent of her chosen expanded element.\n"
+                                                    + "If the kineticist chooses to expand her understanding of an element she already has, she gains an additional utility wild talent or infusion of her choice from that element, as if from her infusion or wild talent class feature, as appropriate.\n"
+                                                    + "At 15th level, the kineticist can either select a new element or expand her understanding of her original element. She can’t select the same element she selected at 7th level unless it is her primary element. She gains all the benefits from her new expanded element as listed above. However, if the kineticist selected her primary element as her expanded element at both 7th and 15th levels, her mastery of that element increases. For wild talents of her element, the kineticist gains a +1 bonus on attack rolls and damage rolls, as well as to caster level and DCs.");
+            third_element_selection.SetDescription(second_element_selection.Description);
+
+            expanded_element_bonus_talent_selection = Helpers.CreateFeatureSelection("BonusExpandedElementFeatureSelection",
+                                                                                     second_element_selection.Name,
+                                                                                     second_element_selection.Description,
+                                                                                     "",
+                                                                                     second_element_selection.Icon,
+                                                                                     FeatureGroup.None);
+
+            expanded_element_bonus_talent_selection.AllFeatures = new BlueprintFeature[] { infusion_selection, library.Get<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459") };
+            for (int i = 0; i < 4; i++)
+            {
+                second_element_selection.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.addSelectionIfHasFacts>(a =>
+                {
+                    a.selection = expanded_element_bonus_talent_selection;
+                    a.facts = new BlueprintUnitFact[] { first_element_selection.AllFeatures[i], first_element_selection_kk.AllFeatures[i] };
+                }));
+
+                third_element_selection.AllFeatures[i].AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                {
+                    p.base_prerequsite = third_element_selection.AllFeatures[i].GetComponent<PrerequisiteNoFeature>();
+                    p.alternative_prerequsite = Helpers.PrerequisiteFeaturesFromList(first_element_selection.AllFeatures[i],
+                                                                                     first_element_selection_kk.AllFeatures[i]);
+                }));
+                third_element_selection.AllFeatures[i].RemoveComponents<PrerequisiteNoFeature>();
+
+
+                var third_element_bonus = Helpers.CreateFeature("Bonus" + third_element_selection.AllFeatures[i].name,
+                                                                third_element_selection.AllFeatures[i].Name,
+                                                                third_element_selection.AllFeatures[i].Description,
+                                                                "",
+                                                                third_element_selection.AllFeatures[i].Icon,
+                                                                FeatureGroup.None,
+                                                                Helpers.Create<NewMechanics.ThirdElementKineticistBonus>(t => t.value = 1)
+                                                                );
+                third_element_bonus.HideInCharacterSheetAndLevelUp = true;
+                third_element_selection.AllFeatures[i].AddComponents(Common.createAddFeatureIfHasFact(second_element_selection.AllFeatures[i], third_element_bonus));
             }
         }
 
@@ -280,6 +337,47 @@ namespace CallOfTheWild
         }
 
 
+        static void createIcePath()
+        {
+            var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "IcePathDifficultTerrainBuff", "");
+            var slick_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "IcePathArea", ""); //spike stones
+            slick_area.Size = 5.Feet();
+
+            slick_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            slick_area.Fx.AssetId = "b6a8750499b0ec647ba68430e83bfc2f";
+            slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
+            var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
+            var area_effect = Helpers.CreateAreaEffectRunAction(//unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                //unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
+                                                                unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(apply_prone), custom_dc: 10));
+            slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
+            slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | SpellDescriptor.Cold));
+
+            var ice_path_buff = Helpers.CreateBuff("IcePathBuff",
+                                               "Ice Path",
+                                               "Element: water\nType: utility\nLevel: 6\nBurn: 0\n"
+                                               + "You freeze water vapor in the air, allowing you to travel above the ground as air walk by walking along the ice, and leaving a path of ice behind you that lasts for 1 round before it melts.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/IcePath.png"),
+                                               null,
+                                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
+                                               Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground),
+                                               Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                                               Helpers.CreateAddFact(FixFlying.pit_spell_immunity),
+                                               Helpers.Create<UnitMoveMechanics.ActionOnUnitMoved>(a => a.actions = Helpers.CreateActionList(Common.createContextActionSpawnAreaEffect(slick_area, Helpers.CreateContextDuration(1))))
+                                               );
+
+            var toggle = Common.buffToToggle(ice_path_buff, UnitCommand.CommandType.Free, true);
+
+            ice_path = Common.ActivatableAbilityToFeature(toggle, false);
+            ice_path.Groups = new FeatureGroup[] { FeatureGroup.KineticWildTalent };
+            ice_path.AddComponents(library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>()); //from slick
+            ice_path.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 12));
+
+            addWildTalent(ice_path);
+        }
+
+
         static void createWindsight()
         {
             windsight = Helpers.CreateFeature("WindsightAirFeature",
@@ -379,15 +477,11 @@ namespace CallOfTheWild
             flame_jet_greater = Helpers.CreateFeature("FlameJEtGreaterFeature",
                                                      "Flame Jet, Greater",
                                                      "Element: fire\nType: utility\nLevel: 5\nBurn: 0\n"
-                                                     + "You can use flame jet as a move action and can emanate a mild jet of flame, allowing you to hover without spending an action and ignore all ground based effects",
+                                                     + "You can use flame jet as a move action and can emanate a mild jet of flame, allowing you to hover without spending an action (essentially a fly effect).",
                                                      "",
                                                      flame_jet.Icon,
                                                      FeatureGroup.KineticWildTalent,
                                                      Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] {flame_jet_ability }),
-                                                     Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
-                                                     Common.createBuffDescriptorImmunity(SpellDescriptor.Ground),
-                                                     Common.createAddConditionImmunity(UnitCondition.DifficultTerrain),
-                                                     Helpers.CreateAddFact(FixFlying.pit_spell_immunity),
                                                      Common.createAuraFeatureComponent(NewSpells.fly_buff),
                                                      library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>(), //from fox fire
                                                      Helpers.PrerequisiteClassLevel(kineticist_class, 10),
@@ -1257,7 +1351,7 @@ namespace CallOfTheWild
         {
             var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
             SpellDescriptorComponent component = ability_context?.AssociatedBlueprint?.GetComponent<SpellDescriptorComponent>();
-            component = component ?? evt.Spell.GetComponent<SpellDescriptorComponent>();
+            component = component ?? evt.Spell?.GetComponent<SpellDescriptorComponent>();
             if ((component != null ? (component.Descriptor.HasAnyFlag((SpellDescriptor)__instance.Descriptor) ? 1 : 0) : 0) == 0)
                 return false;
             evt.AddBonusDC(__instance.BonusDC);

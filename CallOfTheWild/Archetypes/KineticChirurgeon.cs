@@ -114,6 +114,13 @@ namespace CallOfTheWild.Archetypes
             archetype.OverrideAttributeRecommendations = true;
             kineticist_class.Progression.UIDeterminatorsGroup = kineticist_class.Progression.UIDeterminatorsGroup.AddToArray(kinetic_chirurgery);
             kineticist_class.Archetypes = kineticist_class.Archetypes.AddToArray(archetype);
+
+            //fix expanded element bonus
+            wild_talent_selection.AddComponent(Common.prerequisiteNoArchetype(archetype));
+            metahealer_wild_talent.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype, 1));
+
+
+            KineticistFix.expanded_element_bonus_talent_selection.AllFeatures = KineticistFix.expanded_element_bonus_talent_selection.AllFeatures.AddToArray(metahealer_wild_talent);
         }
 
 

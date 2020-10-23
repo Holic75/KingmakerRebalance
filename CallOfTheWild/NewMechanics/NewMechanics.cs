@@ -3426,6 +3426,84 @@ namespace CallOfTheWild
             }
         }
 
+        public class ThirdElementKineticistBonus : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, 
+                                                      IRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IRulebookHandler<RuleCalculateAbilityParams>
+        {
+            public int value;
+
+            public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+                if (evt.Weapon.Blueprint.Category != WeaponCategory.KineticBlast)
+                {
+                    evt.AddBonus(value, this.Fact);
+                }
+            }
+
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                var component = ability_context?.AssociatedBlueprint?.GetComponent<AbilityKineticist>() ;
+                component = component ?? evt.Spell?.GetComponent<AbilityKineticist>();
+                if (component == null )
+                    return;
+                evt.AddBonusDC(value);
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAttackBonusWithoutTarget evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+
+            }
+        }
+
+
+        public class addSelectionIfHasFacts : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+        {
+            public BlueprintUnitFact[] facts;
+            public BlueprintFeatureSelection selection;
+
+            public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+            {
+            }
+
+            public override void OnFactActivate()
+            {
+                try
+                {
+                    bool is_ok = false;
+                    foreach (var f in facts)
+                    {
+                        if (this.Owner.HasFact(f))
+                        {
+                            is_ok = true;
+                            break;
+                        }
+                    }
+                    if (!is_ok)
+                    {
+                        return;
+                    }
+
+
+                    var levelUp = Game.Instance.UI.CharacterBuildController.LevelUpController;
+                    if (Owner == levelUp.Preview || Owner == levelUp.Unit)
+                    {
+                        int index = levelUp.State.Selections.Count<FeatureSelectionState>((Func<FeatureSelectionState, bool>)(s => s.Selection == selection));
+                        FeatureSelectionState featureSelectionState = new FeatureSelectionState(null, null, selection, index, 0);
+                        levelUp.State.Selections.Add(featureSelectionState);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Main.logger.Error(e.ToString());
+                }
+            }
+        }
+
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]

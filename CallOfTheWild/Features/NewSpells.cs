@@ -275,6 +275,9 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
 
+        //static public BlueprintAbility binding_earth;
+        //static public BlueprintAbility binding_earth_mass;
+
         static public void load()
         {
             fixPhantasmalSpells();
@@ -8167,7 +8170,6 @@ namespace CallOfTheWild
 
         static void createIceSlick()
         {
-
             var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "IceSlickDifficultTerrainBuff", "");
             var slick_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "IceSlickArea", ""); //spike stones
             slick_area.Size = 5.Feet();
@@ -8177,8 +8179,8 @@ namespace CallOfTheWild
             slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
 
             var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
-            var area_effect = Helpers.CreateAreaEffectRunAction(unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
-                                                                unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
+            var area_effect = Helpers.CreateAreaEffectRunAction(//unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                //unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
                                                                 unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(apply_prone), custom_dc: 10));
             slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
             slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
