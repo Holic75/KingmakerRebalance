@@ -191,25 +191,39 @@ namespace CallOfTheWild
                 resource.SetIncreasedByLevelStartPlusDivStep(0, i == 3 ? 16 : 5 + i * 2, 1, 4, 1, 0, 0.0f, Spiritualist.getSpiritualistArray());
 
                 BlueprintAbility ability = null;
+                BlueprintAbility ability_charisma = null;
                 if (!spell_like_abilities[i].HasVariants)
                 {
                     ability = Common.convertToSpellLike(spell_like_abilities[i], name, Spiritualist.getSpiritualistArray(), StatType.Wisdom,
                                                                resource);
+                    ability_charisma = Common.convertToSpellLike(spell_like_abilities[i], "Charisma" + name, Spiritualist.getSpiritualistArray(), StatType.Charisma,
+                                           resource);
                 }
                 else
                 {
                     List<BlueprintAbility> variants = new List<BlueprintAbility>();
+                    List<BlueprintAbility> variants_charisma = new List<BlueprintAbility>();
                     foreach (var v in spell_like_abilities[i].Variants)
                     {
                         var a = Common.convertToSpellLike(v, name, Spiritualist.getSpiritualistArray(), StatType.Wisdom,
                                                                resource);
                         variants.Add(a);
+
+                        var a_charisma = Common.convertToSpellLike(v, "Charisma" + name, Spiritualist.getSpiritualistArray(), StatType.Charisma,
+                                       resource);
+                        variants_charisma.Add(a_charisma);
                     }
 
                     ability = Common.createVariantWrapper(name + spell_like_abilities[i].name, "", variants.ToArray());
                     ability.SetNameDescriptionIcon(spell_like_abilities[i]);
+
+                    ability_charisma = Common.createVariantWrapper("Charisma"  + name + spell_like_abilities[i].name, "", variants_charisma.ToArray());
+                    ability_charisma.SetNameDescriptionIcon(spell_like_abilities[i]);
                 }
                 spell_likes[i] = Common.AbilityToFeature(ability, false);
+                spell_likes[i].SetComponents(Common.createAddFeatureIfHasFact(Spiritualist.charisma_spellcasting, ability, not: true),
+                                             Common.createAddFeatureIfHasFact(Spiritualist.charisma_spellcasting, ability_charisma)
+                                             );
                 spell_likes[i].AddComponent(resource.CreateAddAbilityResource());
                 spell_likes[i].SetNameDescription("Emotional Power: " + spell_likes[i].Name,
                                                   "A spiritualist gains a number of spell-like abilities, which are tied to her phantom’s emotional focus. She gains one spell-like ability at 5th level, a second at 7th level, a third at 9th level, and a fourth at 16th level. A spiritualist can use each of these abilities once per day, plus one additional time per day for every 4 spiritualist levels she possesses beyond the level at which she gained the spell-like ability. The saving throw DCs for these spell-like abilities are equal to 10 + 1/2 spiritualist class level + Wisdom modifier, rather than being based on the spell’s level.\n"
