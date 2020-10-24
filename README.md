@@ -208,7 +208,9 @@ New Wild Talents:
 - Wings of Air,
 - Flame Jet and Flame Jet, Greater,
 - Windsight,
-- Purifying Flames.
+- Purifying Flames,
+- Cold Snap,
+- Windsight.
 
 
 New Alchemist Discoveries:

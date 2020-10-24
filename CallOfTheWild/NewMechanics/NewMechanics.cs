@@ -73,6 +73,7 @@ using System.Text;
 using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.AreaLogic.SummonPool;
+using Kingmaker.UnitLogic.FactLogic;
 
 namespace CallOfTheWild
 {
@@ -3505,6 +3506,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
         public class SpellCastTrigger : RuleInitiatorLogicComponent<RuleCastSpell>
@@ -4192,6 +4196,62 @@ namespace CallOfTheWild
                     }
                 }
                 return Not;
+            }
+        }
+
+
+        public class HasEnergyImmunityOrDR : ContextCondition
+        {
+            public int min_dr = 5;
+            public DamageEnergyType energy;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Empty;
+            }
+
+            protected override bool CheckCondition()
+            {
+                bool has_immunity = false;
+                int dr = 0;
+
+                this.Target.Unit.Descriptor?.Buffs?.CallFactComponents<AddEnergyImmunity>(a =>
+                {
+                    has_immunity = has_immunity || (a.Type == energy);
+                });
+                if (has_immunity)
+                {
+                    return true;
+                }
+
+                this.Target.Unit.Descriptor.Progression?.Features?.CallFactComponents<AddDamageResistanceEnergy>(a =>
+                {
+                    has_immunity = has_immunity || (a.Type == energy);
+                });
+                if (has_immunity)
+                {
+                    return true;
+                }
+
+
+                this.Target.Unit.Descriptor?.Buffs?.CallFactComponents<AddDamageResistanceEnergy>(a =>
+                {
+                    if (a.Type == energy)
+                    {
+                        dr += a.GetValue();
+                    }
+                });
+
+                this.Target.Unit.Descriptor.Progression?.Features?.CallFactComponents<AddDamageResistanceEnergy>(a =>
+                {
+                    if (a.Type == energy)
+                    {
+                        dr += a.GetValue();
+                    }
+                });
+
+                return dr >= min_dr;
+
             }
         }
 

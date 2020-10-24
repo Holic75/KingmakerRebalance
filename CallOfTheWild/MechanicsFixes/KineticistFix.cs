@@ -59,6 +59,13 @@ namespace CallOfTheWild
         public static BlueprintFeature windsight;//
         public static BlueprintFeature ice_path;//
         public static BlueprintFeature spark_of_life;
+        static public BlueprintFeature cold_snap;
+
+        //cold snap
+        //heat wave
+        //searing flame
+        //smoke storm
+        //from the ashes
 
         static public BlueprintFeature kinetic_invocation;
         static public BlueprintFeature kinetic_invocation_cloak_of_winds;
@@ -141,6 +148,7 @@ namespace CallOfTheWild
             createPurifyingFlames();
             createSuffocate();
             createIcePath();
+            createColdSnap();
             createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
@@ -205,6 +213,72 @@ namespace CallOfTheWild
                 third_element_selection.AllFeatures[i].AddComponents(Common.createAddFeatureIfHasFact(second_element_selection.AllFeatures[i], third_element_bonus));
             }
         }
+
+
+        static void createColdSnap()
+        {
+
+            var buff = Helpers.CreateBuff("ColdSnapBuff",
+                                          "Cold Snap Effect",
+                                          "Element: water \nType: utility\nLevel: 3\nBurn: 1\n"
+                                          + "You chill your shroud of water and send the cold around you, creating an aura of numbing cold around yourself. Until the next time your burn is removed ou can begin or end the cold aura at will as a swift action. When aura is active, all creatures within 5 feet of you take a –4 penalty to Dexterity. You are immune to these effects, as are creatures that are immune to cold or having at least cold resistance 5.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable)
+                                          );
+
+            var aura = Common.createBuffAreaEffect(buff, 7.Feet(),
+                                                  Helpers.CreateConditionsCheckerAnd(Helpers.Create<NewMechanics.HasEnergyImmunityOrDR>(h =>
+                                                                                     {
+                                                                                         h.energy = Kingmaker.Enums.Damage.DamageEnergyType.Cold;
+                                                                                         h.min_dr = 5;
+                                                                                         h.Not = true;
+                                                                                     }),
+                                                                                     Common.createContextConditionIsCaster(not: true))
+                                                  );
+
+            aura.SetName("Cold Snap");
+
+            var enable_buff = Helpers.CreateBuff("ColdSnapEnableBuff",
+                                          "Activate Cold Snap",
+                                          buff.Description,
+                                          "",
+                                          buff.Icon,
+                                          null
+                                          );
+            enable_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Swift, true, Common.createActivatableAbilityRestrictionHasFact(enable_buff));
+            toggle.DeactivateIfOwnerDisabled = true;
+
+            var enable_ability = Helpers.CreateAbility("ColdSnapEnableAbility",
+                                                       enable_buff.Name,
+                                                       enable_buff.Description,
+                                                       "",
+                                                       enable_buff.Icon,
+                                                       AbilityType.SpellLike,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       "Until rest",
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(enable_buff, Helpers.CreateContextDuration(), dispellable: true, is_permanent: true)),
+                                                       Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; }),
+                                                       Common.createAbilityCasterHasNoFacts(enable_buff)
+                                                       );
+            enable_ability.setMiscAbilityParametersSelfOnly();
+
+            cold_snap = Common.ActivatableAbilityToFeature(toggle);
+            cold_snap.AddComponent(Helpers.CreateAddFact(enable_ability));
+            cold_snap.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("1ff5d6e76b7c2fa48be555b77d1ad8b2")), //cold adaptation
+                                    Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("29ec36fa2a5b8b94ebce170bd369083a"))
+                                    );//shroud of water
+            cold_snap.AddComponents(library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>()); //from slick
+            cold_snap.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
+            cold_snap.SetName("Cold Snap");
+            addWildTalent(cold_snap);
+        }
+
 
         static void createSuffocate()
         {
