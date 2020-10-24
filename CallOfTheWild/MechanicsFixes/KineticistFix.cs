@@ -10,6 +10,7 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
@@ -60,11 +61,10 @@ namespace CallOfTheWild
         public static BlueprintFeature ice_path;//
         public static BlueprintFeature spark_of_life;
         static public BlueprintFeature cold_snap;
+        static public BlueprintFeature smoke_storm;
 
-        //cold snap
         //heat wave
         //searing flame
-        //smoke storm
         //from the ashes
 
         static public BlueprintFeature kinetic_invocation;
@@ -149,6 +149,7 @@ namespace CallOfTheWild
             createSuffocate();
             createIcePath();
             createColdSnap();
+            createSmokeStorm();
             createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
@@ -192,6 +193,12 @@ namespace CallOfTheWild
                     a.facts = new BlueprintUnitFact[] { first_element_selection.AllFeatures[i], first_element_selection_kk.AllFeatures[i] };
                 }));
 
+                third_element_selection.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.addSelectionIfHasFacts>(a =>
+                {
+                    a.selection = expanded_element_bonus_talent_selection;
+                    a.facts = new BlueprintUnitFact[] { first_element_selection.AllFeatures[i], first_element_selection_kk.AllFeatures[i] };
+                }));
+
                 third_element_selection.AllFeatures[i].AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
                 {
                     p.base_prerequsite = third_element_selection.AllFeatures[i].GetComponent<PrerequisiteNoFeature>();
@@ -215,9 +222,52 @@ namespace CallOfTheWild
         }
 
 
+        static void createSmokeStorm()
+        {
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(NewSpells.obscuring_mist_area.AssetGuid, "SmokeStormAbilityArea", "");
+
+            var apply_buff = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1, DurationRate.Rounds, DiceType.D4, 1));
+            var apply_saved = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff));
+            area.AddComponent(Helpers.CreateAreaEffectRunAction(round: Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.undead, Common.construct, Common.elemental, sickened),
+                                                                                                 null,
+                                                                                                 apply_saved)
+                                                                )
+                             );
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire | SpellDescriptor.Sickened));
+            
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            var ability = Helpers.CreateAbility("SmokeStormKineticistAbility",
+                                                     "Smoke Storm",
+                                                     "Element: fire\nType: utility\nLevel: 3\nBurn: 0\n"
+                                                     + "You create a cloud of choking smoke, filling a 20-foot-radius spread and affecting vision like an obscuring mist. All creatures that begin their turns inside the area become sickened for 1d4+1 rounds (Fort negates).",
+                                                     "",
+                                                     sickened.Icon,
+                                                     AbilityType.SpellLike,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Medium,
+                                                     Helpers.roundsPerLevelDuration,
+                                                     Helpers.fortNegates,
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Fire | SpellDescriptor.Sickened),
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {kineticist_class }),
+                                                     Helpers.Create<AbilityKineticist>(a => { a.Amount = 0; a.WildTalentBurnCost = 0; }),
+                                                     Common.createContextCalculateAbilityParamsBasedOnClass(kineticist_class, StatType.Constitution, true)
+                                                     );
+            ability.setMiscAbilityParametersRangedDirectional();
+
+            smoke_storm = Common.AbilityToFeature(ability, false);
+            smoke_storm.AddComponents(library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>());
+            smoke_storm.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
+
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>(a => a.Feature = smoke_storm));
+            addWildTalent(smoke_storm);
+        }
+
+
         static void createColdSnap()
         {
-
             var buff = Helpers.CreateBuff("ColdSnapBuff",
                                           "Cold Snap Effect",
                                           "Element: water \nType: utility\nLevel: 3\nBurn: 1\n"

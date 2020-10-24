@@ -210,7 +210,8 @@ New Wild Talents:
 - Windsight,
 - Purifying Flames,
 - Cold Snap,
-- Windsight.
+- Windsight,
+- Smoke Storm.
 
 
 New Alchemist Discoveries:

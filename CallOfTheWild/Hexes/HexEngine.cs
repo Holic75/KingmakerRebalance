@@ -1309,7 +1309,7 @@ namespace CallOfTheWild
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("1d649d8859b25024888966ba1cc291d1", name_prefix + "HexArea", "");
             area.Fx = Common.createPrefabLink("284c1ae66a3e8d44085d6567b0c284a1"); //mud
             area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
-            area.AddComponent(Helpers.Create<UniqueAreaEffect>());
+           
             area.Size = 20.Feet();
             var ability = Helpers.CreateAbility(name_prefix + "HexAbility",
                                                 display_name,
@@ -1328,6 +1328,7 @@ namespace CallOfTheWild
                                                );
             ability.setMiscAbilityParametersRangedDirectional();
             var feature = Common.AbilityToFeature(ability, hide: false);
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>(a => a.Feature = feature));
 
             addToRodOfAbruptHexes(ability);
             addToRodOfInterminableHexes(ability);
