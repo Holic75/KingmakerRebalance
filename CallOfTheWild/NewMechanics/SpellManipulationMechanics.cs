@@ -1829,8 +1829,6 @@ namespace CallOfTheWild
                 spellbook_spell_lists_map = new Dictionary<BlueprintSpellbook, List<BlueprintAbility[]>>();
                 var param_spell = this.Param.Blueprint as BlueprintAbility;
 
-
-
                 foreach (var sb in this.Owner.Spellbooks)
                 {
                     var spell_lists = new List<BlueprintAbility[]>();
