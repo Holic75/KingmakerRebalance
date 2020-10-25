@@ -681,6 +681,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( "61a7ed778dd93f344a5dacdbad324cc9", 3), //beast shape 1
                 new Common.SpellId( NewSpells.channel_vigor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.cloak_of_winds.AssetGuid, 3),
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
                 new Common.SpellId( "2d81362af43aeac4387a3d4fced489c3", 3), //fireball

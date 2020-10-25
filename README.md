@@ -140,7 +140,8 @@ New feats:
 - Vicious Stomp,
 - Steadfast Personality,
 - Signature Skill (Heal, Intimidate, Mobility),
-- Eldritch Heritage, Improved Eldritch Heritage, Greater Eldritch Heritage.
+- Eldritch Heritage, Improved Eldritch Heritage, Greater Eldritch Heritage,
+- Kinetic Invocation.
 
 New rage powers:
 - Terrifying Howl
@@ -201,7 +202,16 @@ New Wild Talents:
 - Blade Rush,
 - Kinetic Whip,
 - Whip Hurricane,
-- Spark of Life.
+- Spark of Life,
+- Suffocate,
+- Air's Leap,
+- Wings of Air,
+- Flame Jet and Flame Jet, Greater,
+- Windsight,
+- Purifying Flames,
+- Cold Snap,
+- Windsight,
+- Smoke Storm.
 
 
 New Alchemist Discoveries:
@@ -341,6 +351,7 @@ New spells:
 - Bloody Claws,
 - Burning Entanglement,
 - Channel Vigor,
+- Cloak of Winds,
 - Countless Eyes,
 - Deadly Juggernaut,
 - Earth Tremor,

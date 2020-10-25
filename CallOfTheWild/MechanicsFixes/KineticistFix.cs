@@ -2,18 +2,23 @@
 using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -22,6 +27,7 @@ using Kingmaker.UnitLogic.Class.Kineticist.Actions;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
@@ -44,9 +50,32 @@ namespace CallOfTheWild
         public static BlueprintFeature kinetic_whip;
         public static BlueprintBuff kinetic_whip_buff;
 
-        //public static BlueprintFeature suffocate;
-        public static BlueprintFeature wings_of_air;
+        public static BlueprintFeature suffocate;
+        public static BlueprintFeature air_leap;
+        public static BlueprintFeature wings_of_air;//+1/2 level to mobility
+        public static BlueprintFeature cryokinetic_stasis;//?
+        public static BlueprintFeature flame_jet; //dimension door
+        public static BlueprintFeature flame_jet_greater; //move action dimension door and immunity to ground based effects
+        public static BlueprintFeature purifying_flames;//
+        public static BlueprintFeature windsight;//
+        public static BlueprintFeature ice_path;//
         public static BlueprintFeature spark_of_life;
+        static public BlueprintFeature cold_snap;
+        static public BlueprintFeature smoke_storm;
+
+        //heat wave
+        //searing flame
+        //from the ashes
+
+        static public BlueprintFeature kinetic_invocation;
+        static public BlueprintFeature kinetic_invocation_cloak_of_winds;
+        static public BlueprintFeature kinetic_invocation_wind_walk;
+        static public BlueprintFeature kinetic_invocation_blessing_of_salamander;
+        static public BlueprintFeature kinetic_invocation_invigorate;
+        static public BlueprintFeature kinetic_invocation_fluid_form;
+        static public BlueprintFeature kinetic_invocation_sleet_storm;
+        static public BlueprintFeature kinetic_invocation_slowing_mud;
+        static public BlueprintFeatureSelection expanded_element_bonus_talent_selection;
 
         public static BlueprintFeature whip_hurricane;
 
@@ -69,7 +98,7 @@ namespace CallOfTheWild
         static BlueprintAbility blade_rush_swift_ability;
         static public BlueprintBuff blade_rush_buff;
 
-        static public BlueprintFeature pushing_infusion;
+
 
         internal static void load(bool update_archetypes)
         {
@@ -113,15 +142,478 @@ namespace CallOfTheWild
             createKineticWhip();
             createWhipHurricane();
             createSparkOfLife();
+            createAirLeapAndWingsOfAir();
+            createFlameJetAndFlameJetGreater();
+            createWindsight();
+            createPurifyingFlames();
+            createSuffocate();
+            createIcePath();
+            createColdSnap();
+            createSmokeStorm();
+            createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
             Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
+
+            fixRepeatingElements();
 
             if (update_archetypes)
             {
                 Main.logger.Log("Updating base kineticist archetypes");
                 updateKineticistArchetypes();
             }
+        }
+
+
+        static void fixRepeatingElements()
+        {
+            var first_element_selection = library.Get<BlueprintFeatureSelection>("1f3a15a3ae8a5524ab8b97f469bf4e3d");
+            var first_element_selection_kk = library.Get<BlueprintFeatureSelection>("b1f296f0bd16bc242ae35d0638df82eb");
+            var second_element_selection = library.Get<BlueprintFeatureSelection>("4204bc10b3d5db440b1f52f0c375848b");
+            var third_element_selection = library.Get<BlueprintFeatureSelection>("e2c1718828fc843479f18ab4d75ded86");
+
+            second_element_selection.SetDescription("At 7th level, a kineticist learns to use another element or expands her understanding of her own element. She can choose any element, including her primary element. She gains one of that element’s simple blast wild talents that she does not already possess, if any. She also gains all composite blast wild talents whose prerequisites she meets, as well as the basic wild talent of her chosen expanded element.\n"
+                                                    + "If the kineticist chooses to expand her understanding of an element she already has, she gains an additional utility wild talent or infusion of her choice from that element, as if from her infusion or wild talent class feature, as appropriate.\n"
+                                                    + "At 15th level, the kineticist can either select a new element or expand her understanding of her original element. She can’t select the same element she selected at 7th level unless it is her primary element. She gains all the benefits from her new expanded element as listed above. However, if the kineticist selected her primary element as her expanded element at both 7th and 15th levels, her mastery of that element increases. For wild talents of her element, the kineticist gains a +1 bonus on attack rolls and damage rolls, as well as to caster level and DCs.");
+            third_element_selection.SetDescription(second_element_selection.Description);
+
+            expanded_element_bonus_talent_selection = Helpers.CreateFeatureSelection("BonusExpandedElementFeatureSelection",
+                                                                                     second_element_selection.Name,
+                                                                                     second_element_selection.Description,
+                                                                                     "",
+                                                                                     second_element_selection.Icon,
+                                                                                     FeatureGroup.None);
+
+            expanded_element_bonus_talent_selection.AllFeatures = new BlueprintFeature[] { infusion_selection, library.Get<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459") };
+            for (int i = 0; i < 4; i++)
+            {
+                second_element_selection.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.addSelectionIfHasFacts>(a =>
+                {
+                    a.selection = expanded_element_bonus_talent_selection;
+                    a.facts = new BlueprintUnitFact[] { first_element_selection.AllFeatures[i], first_element_selection_kk.AllFeatures[i] };
+                }));
+
+                third_element_selection.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.addSelectionIfHasFacts>(a =>
+                {
+                    a.selection = expanded_element_bonus_talent_selection;
+                    a.facts = new BlueprintUnitFact[] { first_element_selection.AllFeatures[i], first_element_selection_kk.AllFeatures[i] };
+                }));
+
+                third_element_selection.AllFeatures[i].AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(p =>
+                {
+                    p.base_prerequsite = third_element_selection.AllFeatures[i].GetComponent<PrerequisiteNoFeature>();
+                    p.alternative_prerequsite = Helpers.PrerequisiteFeaturesFromList(first_element_selection.AllFeatures[i],
+                                                                                     first_element_selection_kk.AllFeatures[i]);
+                }));
+                third_element_selection.AllFeatures[i].RemoveComponents<PrerequisiteNoFeature>();
+
+
+                var third_element_bonus = Helpers.CreateFeature("Bonus" + third_element_selection.AllFeatures[i].name,
+                                                                third_element_selection.AllFeatures[i].Name,
+                                                                third_element_selection.AllFeatures[i].Description,
+                                                                "",
+                                                                third_element_selection.AllFeatures[i].Icon,
+                                                                FeatureGroup.None,
+                                                                Helpers.Create<NewMechanics.ThirdElementKineticistBonus>(t => t.value = 1)
+                                                                );
+                third_element_bonus.HideInCharacterSheetAndLevelUp = true;
+                third_element_selection.AllFeatures[i].AddComponents(Common.createAddFeatureIfHasFact(second_element_selection.AllFeatures[i], third_element_bonus));
+            }
+        }
+
+
+        static void createSmokeStorm()
+        {
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(NewSpells.obscuring_mist_area.AssetGuid, "SmokeStormAbilityArea", "");
+
+            var apply_buff = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1, DurationRate.Rounds, DiceType.D4, 1));
+            var apply_saved = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff));
+            area.AddComponent(Helpers.CreateAreaEffectRunAction(round: Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.undead, Common.construct, Common.elemental, sickened),
+                                                                                                 null,
+                                                                                                 apply_saved)
+                                                                )
+                             );
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Fire | SpellDescriptor.Sickened));
+            
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            var ability = Helpers.CreateAbility("SmokeStormKineticistAbility",
+                                                     "Smoke Storm",
+                                                     "Element: fire\nType: utility\nLevel: 3\nBurn: 0\n"
+                                                     + "You create a cloud of choking smoke, filling a 20-foot-radius spread and affecting vision like an obscuring mist. All creatures that begin their turns inside the area become sickened for 1d4+1 rounds (Fort negates).",
+                                                     "",
+                                                     sickened.Icon,
+                                                     AbilityType.SpellLike,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Medium,
+                                                     Helpers.roundsPerLevelDuration,
+                                                     Helpers.fortNegates,
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Fire | SpellDescriptor.Sickened),
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {kineticist_class }),
+                                                     Helpers.Create<AbilityKineticist>(a => { a.Amount = 0; a.WildTalentBurnCost = 0; }),
+                                                     Common.createContextCalculateAbilityParamsBasedOnClass(kineticist_class, StatType.Constitution, true)
+                                                     );
+            ability.setMiscAbilityParametersRangedDirectional();
+
+            smoke_storm = Common.AbilityToFeature(ability, false);
+            smoke_storm.AddComponents(library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>());
+            smoke_storm.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
+
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>(a => a.Feature = smoke_storm));
+            addWildTalent(smoke_storm);
+        }
+
+
+        static void createColdSnap()
+        {
+            var buff = Helpers.CreateBuff("ColdSnapBuff",
+                                          "Cold Snap Effect",
+                                          "Element: water \nType: utility\nLevel: 3\nBurn: 1\n"
+                                          + "You chill your shroud of water and send the cold around you, creating an aura of numbing cold around yourself. Until the next time your burn is removed ou can begin or end the cold aura at will as a swift action. When aura is active, all creatures within 5 feet of you take a –4 penalty to Dexterity. You are immune to these effects, as are creatures that are immune to cold or having at least cold resistance 5.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable)
+                                          );
+
+            var aura = Common.createBuffAreaEffect(buff, 7.Feet(),
+                                                  Helpers.CreateConditionsCheckerAnd(Helpers.Create<NewMechanics.HasEnergyImmunityOrDR>(h =>
+                                                                                     {
+                                                                                         h.energy = Kingmaker.Enums.Damage.DamageEnergyType.Cold;
+                                                                                         h.min_dr = 5;
+                                                                                         h.Not = true;
+                                                                                     }),
+                                                                                     Common.createContextConditionIsCaster(not: true))
+                                                  );
+
+            aura.SetName("Cold Snap");
+
+            var enable_buff = Helpers.CreateBuff("ColdSnapEnableBuff",
+                                          "Activate Cold Snap",
+                                          buff.Description,
+                                          "",
+                                          buff.Icon,
+                                          null
+                                          );
+            enable_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Swift, true, Common.createActivatableAbilityRestrictionHasFact(enable_buff));
+            toggle.DeactivateIfOwnerDisabled = true;
+
+            var enable_ability = Helpers.CreateAbility("ColdSnapEnableAbility",
+                                                       enable_buff.Name,
+                                                       enable_buff.Description,
+                                                       "",
+                                                       enable_buff.Icon,
+                                                       AbilityType.SpellLike,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       "Until rest",
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(enable_buff, Helpers.CreateContextDuration(), dispellable: true, is_permanent: true)),
+                                                       Helpers.Create<AbilityKineticist>(a => { a.Amount = 1; a.WildTalentBurnCost = 1; }),
+                                                       Common.createAbilityCasterHasNoFacts(enable_buff)
+                                                       );
+            enable_ability.setMiscAbilityParametersSelfOnly();
+
+            cold_snap = Common.ActivatableAbilityToFeature(toggle);
+            cold_snap.AddComponent(Helpers.CreateAddFact(enable_ability));
+            cold_snap.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("1ff5d6e76b7c2fa48be555b77d1ad8b2")), //cold adaptation
+                                    Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("29ec36fa2a5b8b94ebce170bd369083a"))
+                                    );//shroud of water
+            cold_snap.AddComponents(library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>()); //from slick
+            cold_snap.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
+            cold_snap.SetName("Cold Snap");
+            addWildTalent(cold_snap);
+        }
+
+
+        static void createSuffocate()
+        {
+            var effect = Helpers.CreateConditionalSaved(null,
+                                                         Common.createContextActionApplyBuff(NewSpells.fast_suffocation_buff, Helpers.CreateContextDuration(2, DurationRate.Rounds), is_from_spell: true)
+                                                       );
+            var suffocate_ability = Helpers.CreateAbility("SuffocateKineticistAbility",
+                                    "Suffocate",
+                                    "Element: air, water\nType: utility\nLevel: 6\nBurn: 1\n"
+                                    + "You can accept 1 point of burn to expel the air from your target’s lungs. If you do so and the target fails its first Fortitude save, it becomes disabled and is reduced to 0 hit points, and on its second failed Fortitude save, it falls unconscious and is reduced to –1 hit points.",
+                                    "",
+                                    Helpers.GetIcon("e6f2fc5d73d88064583cb828801212f4"),
+                                    AbilityType.SpellLike,
+                                    UnitCommand.CommandType.Standard,
+                                    AbilityRange.Medium,
+                                    "2 rounds",
+                                    Helpers.fortNegates,
+                                    Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
+                                    Common.createAbilityTargetHasFact(true, Common.undead),
+                                    Common.createAbilityTargetHasFact(true, Common.construct),
+                                    Common.createAbilityTargetHasFact(true, Common.elemental),
+                                    Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                    Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                    Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                    Common.createContextCalculateAbilityParamsBasedOnClass(kineticist_class, StatType.Constitution, true),
+                                    Helpers.Create<AbilityKineticist>(a => { a.WildTalentBurnCost = 1; a.Amount = 1; })
+                                    );
+            suffocate_ability.SpellResistance = true;
+            suffocate = Common.AbilityToFeature(suffocate_ability, false);
+            suffocate.AddComponents(library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent<PrerequisiteFeaturesFromList>().CreateCopy(p => p.Group = Prerequisite.GroupType.Any),
+                                    library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>().CreateCopy(p => p.Group = Prerequisite.GroupType.Any),
+                                    Helpers.PrerequisiteClassLevel(kineticist_class, 12)
+                                    );
+            addWildTalent(suffocate);
+        }
+
+
+        static void createKineticInvocation()
+        {
+            kinetic_invocation = Helpers.CreateFeature("KineticInvocationFeature",
+                                                       "Kinetic Invocation",
+                                                       "For each kineticist element to which you have access, you treat all spells associated with that element (see below) as utility wild talents of the listed level, which you can select as normal. Each has a burn cost of 1 unless otherwise noted, and any nonpermanent, non-instantaneous effects end when your burn is removed.\n"
+                                                       + "Your caster level for a spell is equal to your kineticist level, and the save DC for any spell is equal to 10 + 1/2 kineticist level + your Constitution modifier."
+                                                       + "Air: Cloak of Winds (3rd), wind walk (6th).\n"
+                                                       + "Earth: Slowing Mud (4th).\n"
+                                                       + "Fire: Blessing of the Salamander (5th, self only), Invigorate (1st).\n"
+                                                       + "Water: Fluid Form (6th), Sleet Storm (3rd).",
+                                                       "",
+                                                       Helpers.GetIcon("16fa59cc9a72a6043b566b49184f53fe"),
+                                                       FeatureGroup.Feat,
+                                                       Helpers.PrerequisiteClassLevel(kineticist_class, 1)
+                                                       );
+
+            kinetic_invocation_cloak_of_winds = createKineticInvocationTalent(NewSpells.cloak_of_winds, 3, SpellDescriptor.Electricity);
+            kinetic_invocation_wind_walk = createKineticInvocationTalent(NewSpells.wind_walk, 6, SpellDescriptor.Electricity);
+
+            kinetic_invocation_slowing_mud = createKineticInvocationTalent(library.Get<BlueprintAbility>("6b30813c3709fc44b92dc8fd8191f345"), 4, SpellDescriptor.Acid);
+
+            kinetic_invocation_invigorate = createKineticInvocationTalent(NewSpells.invigorate, 1, SpellDescriptor.Fire);
+            kinetic_invocation_blessing_of_salamander = createKineticInvocationTalent(library.Get<BlueprintAbility>("9256a86aec14ad14e9497f6b60e26f3f"), 5, SpellDescriptor.Fire, self_only: true);
+
+            kinetic_invocation_fluid_form = createKineticInvocationTalent(NewSpells.fluid_form, 6, SpellDescriptor.Cold);
+            kinetic_invocation_sleet_storm = createKineticInvocationTalent(NewSpells.sleet_storm, 3, SpellDescriptor.Cold);
+
+        }
+
+
+        static BlueprintFeature createKineticInvocationTalent(BlueprintAbility spell, int level, SpellDescriptor descriptor, int burn_cost = 1, bool self_only = false)
+        {
+
+            var ability = Common.convertToKineticistTalent(spell, "KineticInvocation", burn_cost: burn_cost);
+            if (self_only)
+            {
+                ability.setMiscAbilityParametersSelfOnly();
+                ability.Range = AbilityRange.Personal;
+            }
+
+            ability.SetName(kinetic_invocation.Name + ": " + spell.Name);
+
+            switch (descriptor)
+            {
+                case SpellDescriptor.Electricity:
+                    ability.SetDescription($"Element: air\nType: utility\nLevel: {level}\nBurn: {burn_cost}\n" + ability.Description);
+                    break;
+                case SpellDescriptor.Cold:
+                    ability.SetDescription($"Element: water\nType: utility\nLevel: {level}\nBurn: {burn_cost}\n" + ability.Description);
+                    break;
+                case SpellDescriptor.Fire:
+                    ability.SetDescription($"Element: fire\nType: utility\nLevel: {level}\nBurn: {burn_cost}\n" + ability.Description);
+                    break;
+                case SpellDescriptor.Acid:
+                    ability.SetDescription($"Element: earth\nType: utility\nLevel: {level}\nBurn: {burn_cost}\n" + ability.Description);
+                    break;
+                default:
+                    break;
+            }
+            var feature = Common.AbilityToFeature(ability, false, "");
+            if (level > 1)
+            {
+                feature.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, level * 2));
+            }
+            feature.Groups = new FeatureGroup[] { FeatureGroup.KineticWildTalent };
+            feature.AddComponent(Helpers.PrerequisiteFeature(kinetic_invocation));
+
+            switch (descriptor)
+            {
+                case SpellDescriptor.Electricity:
+                    feature.AddComponent(library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent< PrerequisiteFeaturesFromList>()); //celerity
+                    break;
+                case SpellDescriptor.Cold:
+                    feature.AddComponent(library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>()); //slick
+                    break;
+                case SpellDescriptor.Fire:
+                    feature.AddComponent(library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>()); //fox fire
+                    break;
+                case SpellDescriptor.Acid:
+                    feature.AddComponent(Helpers.PrerequisiteFeaturesFromList(library.Get<BlueprintFeature>("c6816ad80a3df9c4ea7d3b012b06bacd"),
+                                                                              library.Get<BlueprintFeature>("956b65effbf37e5419c13100ab4385a3"),
+                                                                              library.Get<BlueprintFeature>("c43d9c2d23e56fb428a4eb60da9ba1cb"),
+                                                                              library.Get<BlueprintFeature>("d2a93ab18fcff8c419b03a2c3d573606")
+                                                                             )
+                                        ); 
+                    break;
+                default:
+                    break;
+            }
+
+            addWildTalent(feature);
+            return feature;
+        }
+
+
+        static void createIcePath()
+        {
+            var difficult_terrain = library.CopyAndAdd<BlueprintBuff>("1914ccc0f3da5b1439f0b90d90d05811", "IcePathDifficultTerrainBuff", "");
+            var slick_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("eca936a9e235875498d1e74ff7c09ecd", "IcePathArea", ""); //spike stones
+            slick_area.Size = 5.Feet();
+
+            slick_area.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            slick_area.Fx.AssetId = "b6a8750499b0ec647ba68430e83bfc2f";
+            slick_area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
+            var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
+            var area_effect = Helpers.CreateAreaEffectRunAction(//unitEnter: Common.createContextActionApplyBuff(difficult_terrain, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                //unitExit: Helpers.Create<ContextActionRemoveBuffSingleStack>(r => r.TargetBuff = difficult_terrain),
+                                                                unitMove: Common.createContextActionSkillCheck(StatType.SkillMobility, failure: Helpers.CreateActionList(apply_prone), custom_dc: 10));
+            slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
+            slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | SpellDescriptor.Cold));
+
+            var ice_path_buff = Helpers.CreateBuff("IcePathBuff",
+                                               "Ice Path",
+                                               "Element: water\nType: utility\nLevel: 6\nBurn: 0\n"
+                                               + "You freeze water vapor in the air, allowing you to travel above the ground as air walk by walking along the ice, and leaving a path of ice behind you that lasts for 1 round before it melts.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/IcePath.png"),
+                                               null,
+                                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Ground),
+                                               Common.createBuffDescriptorImmunity(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground),
+                                               Common.createAddConditionImmunity(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                                               Helpers.CreateAddFact(FixFlying.pit_spell_immunity),
+                                               Helpers.Create<UnitMoveMechanics.ActionOnUnitMoved>(a => a.actions = Helpers.CreateActionList(Common.createContextActionSpawnAreaEffect(slick_area, Helpers.CreateContextDuration(1))))
+                                               );
+
+            var toggle = Common.buffToToggle(ice_path_buff, UnitCommand.CommandType.Free, true);
+
+            ice_path = Common.ActivatableAbilityToFeature(toggle, false);
+            ice_path.Groups = new FeatureGroup[] { FeatureGroup.KineticWildTalent };
+            ice_path.AddComponents(library.Get<BlueprintFeature>("1d42456e6113739499e1bda025e0ba03").GetComponent<PrerequisiteFeaturesFromList>()); //from slick
+            ice_path.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 12));
+
+            addWildTalent(ice_path);
+        }
+
+
+        static void createWindsight()
+        {
+            windsight = Helpers.CreateFeature("WindsightAirFeature",
+                                     "Windsight",
+                                     "Element: air\nType: utility\nLevel: 3\nBurn: 0\n"
+                                     + "You can see through mist and fog (including fog cloud and similar magic).",
+                                     "",
+                                     Helpers.GetIcon("4cf3d0fae3239ec478f51e86f49161cb"),
+                                     FeatureGroup.KineticWildTalent,
+                                     Helpers.Create<ConcealementMechanics.IgnoreFogConcelement>(),
+                                     library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent<PrerequisiteFeaturesFromList>(), //from celerity
+                                     Helpers.PrerequisiteClassLevel(kineticist_class, 6)
+                                     );
+
+            addWildTalent(windsight);
+        }
+
+
+        static void createAirLeapAndWingsOfAir()
+        {
+            air_leap = Helpers.CreateFeature("AirLeapFeature",
+                                             "Air's Leap",
+                                             "Element: air\nType: utility\nLevel: 1\nBurn: 0\n"
+                                             + "You receive a bonus to your mobility skill equal to half your kineticist level.",
+                                             "",
+                                             Helpers.GetIcon("0087fc2d64b6095478bc7b8d7d512caf"),
+                                             FeatureGroup.KineticWildTalent,
+                                             Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.SkillMobility, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
+                                                                            progression: ContextRankProgression.Div2),
+                                             library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent<PrerequisiteFeaturesFromList>(), //from celerity
+                                             Helpers.PrerequisiteClassLevel(kineticist_class, 1)
+                                             );
+
+            wings_of_air = Helpers.CreateFeature("WingsOfAirFeature",
+                                                 "Wings of Air",
+                                                 "Element: air\nType: utility\nLevel: 3\nBurn: 0\n"
+                                                 +"The air bends to your will, allowing you to soar to great heights. You are constantly under the effects of fly.",
+                                                 "",
+                                                 NewSpells.fly.Icon,
+                                                 FeatureGroup.KineticWildTalent,
+                                                 Common.createAuraFeatureComponent(NewSpells.fly_buff),
+                                                 library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent<PrerequisiteFeaturesFromList>(), //from celerity
+                                                 Helpers.PrerequisiteClassLevel(kineticist_class, 6),
+                                                 Helpers.PrerequisiteFeature(air_leap)
+                                                 );
+
+            addWildTalent(air_leap);
+            addWildTalent(wings_of_air);
+        }
+
+
+        static void createPurifyingFlames()
+        {
+            var neutralzie_poison = library.Get<BlueprintAbility>("e7240516af4241b42b2cd819929ea9da");
+            var purifying_flames_ability = Common.convertToKineticistTalent(neutralzie_poison, "PurifyingFlames", burn_cost: 1);
+            purifying_flames_ability.SetNameDescription("Purifying Flames",
+                                                     "Element: fire\nType: utility\nLevel: 4\nBurn: 1\n"
+                                                     + "You use fire to burn poison from within a creature’s veins. You must attempt a caster level check (1d20 + your kineticist level) against the DC of each poison affecting the target. Success means that the poison is neutralized, as neutralize poison. ");
+
+            purifying_flames = Common.AbilityToFeature(purifying_flames_ability, false);
+
+            purifying_flames.AddComponents(library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>(), //from fox fire
+                                    Helpers.PrerequisiteClassLevel(kineticist_class, 8)
+                                    );
+            purifying_flames.Groups = new FeatureGroup[] { FeatureGroup.KineticWildTalent };
+
+
+            addWildTalent(purifying_flames);
+        }
+
+
+        static void createFlameJetAndFlameJetGreater()
+        {
+            var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
+            var flame_jet_ability = Common.convertToKineticistTalent(dimension_door, "FlameJet");
+            flame_jet_ability.Range = AbilityRange.Custom;
+            flame_jet_ability.CustomRange = 30.Feet();
+            flame_jet_ability.SetNameDescriptionIcon("Flame Jet",
+                                                     "Element: fire\nType: utility\nLevel: 3\nBurn: 0\n"
+                                                     + "You shoot a burst of flame behind you as a standard action, propelling you up to 30 feet in a straight line, including into the air.",
+                                                     LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameJet.png"));
+
+            flame_jet_ability.ReplaceComponent<AbilityCustomDimensionDoor>(a =>
+            {
+                a.CasterDisappearProjectile = library.Get<BlueprintProjectile>("ecf79fc871f15074e95698a3fef47aee");
+                a.CasterAppearProjectile = library.Get<BlueprintProjectile>("ecf79fc871f15074e95698a3fef47aee");
+            });
+
+            flame_jet = Common.AbilityToFeature(flame_jet_ability, false);
+
+            flame_jet.AddComponents(library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>(), //from fox fire
+                                    Helpers.PrerequisiteClassLevel(kineticist_class, 6)
+                                    );
+            flame_jet.Groups = new FeatureGroup[] { FeatureGroup.KineticWildTalent };
+
+            flame_jet_greater = Helpers.CreateFeature("FlameJEtGreaterFeature",
+                                                     "Flame Jet, Greater",
+                                                     "Element: fire\nType: utility\nLevel: 5\nBurn: 0\n"
+                                                     + "You can use flame jet as a move action and can emanate a mild jet of flame, allowing you to hover without spending an action (essentially a fly effect).",
+                                                     "",
+                                                     flame_jet.Icon,
+                                                     FeatureGroup.KineticWildTalent,
+                                                     Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] {flame_jet_ability }),
+                                                     Common.createAuraFeatureComponent(NewSpells.fly_buff),
+                                                     library.Get<BlueprintFeature>("14c699ccd0564e04a9587b1845d16014").GetComponent<PrerequisiteFeaturesFromList>(), //from fox fire
+                                                     Helpers.PrerequisiteClassLevel(kineticist_class, 10),
+                                                     Helpers.PrerequisiteFeature(flame_jet)
+                                                     );
+
+            addWildTalent(flame_jet);
+            addWildTalent(flame_jet_greater);
         }
 
 
@@ -482,10 +974,9 @@ namespace CallOfTheWild
                                           "",
                                           spark_of_life_ability.Icon,
                                           null,
-                                          Common.createAddCondition(UnitCondition.Staggered),
-                                          Helpers.CreateAddFactContextActions(newRound: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => {h.SummonPool = summon_pool; h.Not = true; }),
-                                                                                                                                                                       Helpers.Create<NewMechanics.ContextConditionHasCondtionImmunity>(h => h.condition = UnitCondition.Staggered)
-                                                                                                                                                                       ),
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] {Common.apply_concnetration},
+                                                                              newRound: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => {h.SummonPool = summon_pool; h.Not = true; })
+                                                                                                                                                                     ),
                                                                                                                                     Helpers.Create<ContextActionRemoveSelf>()
                                                                                                                                     ),
                                                                                                          },
@@ -557,7 +1048,7 @@ namespace CallOfTheWild
                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
                                                                            progression: ContextRankProgression.DelayedStartPlusDivStep, type: Kingmaker.Enums.AbilityRankType.StatBonus,
                                                                            startLevel: 10, stepLevel: 2, min: 1, max: 5),
-                                           Common.createAbilityCasterHasNoFacts(buff)
+                                           Common.createAbilityCasterHasNoFacts(Common.concentration_buff)
                                            );
                 concentration_ability.setMiscAbilityParametersRangedDirectional();
                 Common.setAsFullRoundAction(concentration_ability);
@@ -583,8 +1074,14 @@ namespace CallOfTheWild
 
             spark_of_life = Common.AbilityToFeature(spark_of_life_ability, false);
             spark_of_life.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 10));
+            addWildTalent(spark_of_life);
+        }
+
+
+        static void addWildTalent(BlueprintFeature feature)
+        {
             var wild_talent_selection = library.Get<BlueprintFeatureSelection>("5c883ae0cd6d7d5448b7a420f51f8459");
-            wild_talent_selection.AllFeatures = wild_talent_selection.AllFeatures.AddToArray(spark_of_life);
+            wild_talent_selection.AllFeatures = wild_talent_selection.AllFeatures.AddToArray(feature);
         }
 
 
@@ -968,11 +1465,11 @@ namespace CallOfTheWild
             }
 
             Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
-            //__instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
+            __instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
 
             (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
             Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
-            //__instance.Fact.MaybeContext?.RecalculateAbilityParams();
+            __instance.Fact.MaybeContext?.RecalculateAbilityParams();
 
             return false;
         }
@@ -987,7 +1484,7 @@ namespace CallOfTheWild
         {
             var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
             SpellDescriptorComponent component = ability_context?.AssociatedBlueprint?.GetComponent<SpellDescriptorComponent>();
-            component = component ?? evt.Spell.GetComponent<SpellDescriptorComponent>();
+            component = component ?? evt.Spell?.GetComponent<SpellDescriptorComponent>();
             if ((component != null ? (component.Descriptor.HasAnyFlag((SpellDescriptor)__instance.Descriptor) ? 1 : 0) : 0) == 0)
                 return false;
             evt.AddBonusDC(__instance.BonusDC);

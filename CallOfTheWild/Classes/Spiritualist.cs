@@ -101,11 +101,11 @@ namespace CallOfTheWild
         static public BlueprintFeature spell_scourge;
         static public BlueprintFeature ectoplasmic_swarm;
 
+        static public BlueprintFeature charisma_spellcasting;
+        static public BlueprintSpellbook fractured_mind_spellbook;
+        static public BlueprintArchetype fractured_mind;
 
-        //fractured mind x
-        //phantom blade or ectoplasmotist
-        //necrologist
-        //scourge
+        //necrologist, exciter, priest of the fallen
 
         internal static void createSpiritualistClass()
         {
@@ -161,7 +161,8 @@ namespace CallOfTheWild
             createHagHaunted();
             createOnmyoji();
             createScourge();
-            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge};
+            createFracturedMind();
+            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind};
         }
 
 
@@ -431,6 +432,27 @@ namespace CallOfTheWild
         }
 
 
+        static void createFracturedMind()
+        {
+            fractured_mind = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "FracturedMindArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Fractured Mind");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Most spiritualists harbor the spirits of the deceased in their psyches, but a small number of them—known as fractured minds—draw their powers instead from a fraction of their own souls that resonates with extremely powerful emotions. These spiritualists’ phantoms are not spiritual allies, but rather extensions of the fractured minds’ own inner thoughts and emotions.");
+            });
+            Helpers.SetField(fractured_mind, "m_ParentClass", spiritualist_class);
+            library.AddAsset(fractured_mind, "");
+
+            createFracturedMindSpellcasting();
+
+
+            fractured_mind.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, spiritualist_spellcasting)};
+            fractured_mind.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, charisma_spellcasting) };
+            fractured_mind.ReplaceSpellbook = fractured_mind_spellbook;
+
+            spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(charisma_spellcasting);
+        }
+
         static void createOnmyojiSpellcasting()
         {
             onmyoji_spellbook = library.CopyAndAdd(spiritualist_class.Spellbook, "OnmyojiSpellbook", "");
@@ -444,9 +466,29 @@ namespace CallOfTheWild
                                                       "An onmyoji’s spellcasting ability comes from divine rather than psychic power. As a divine caster, the onmyoji’s spells use verbal components instead of thought components, and somatic components instead of emotional components, and she uses an ofuda as a divine focus. Ofudas are scrolls with holy writings written on parchment, cloth, or wood (having the same cost as a wooden holy symbol) or metal (having the same cost as a silver holy symbol).",
                                                       "",
                                                       Helpers.GetIcon("90e59f4a4ada87243b7b3535a06d0638"), //bless
-                                                      FeatureGroup.None
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = onmyoji_spellbook)
                                                       );
+          
+            onmyoji_spellcasting.AddComponents(Common.createCantrips(spiritualist_class, StatType.Wisdom, onmyoji_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            onmyoji_spellcasting.AddComponent(Helpers.CreateAddFacts(onmyoji_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }
+
+
+        static void createFracturedMindSpellcasting()
+        {
+            fractured_mind_spellbook = library.CopyAndAdd(spiritualist_class.Spellbook, "FracturedMindSpellbook", "");
+            fractured_mind_spellbook.CastingAttribute = StatType.Charisma;
+            fractured_mind_spellbook.Name = fractured_mind.LocalizedName;
+
+            charisma_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = fractured_mind_spellbook));
+
+            charisma_spellcasting.AddComponents(Common.createCantrips(spiritualist_class, StatType.Charisma, fractured_mind_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            charisma_spellcasting.AddComponent(Helpers.CreateAddFacts(fractured_mind_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+        }
+
+
+
 
 
         static void createDivineTeachings()
@@ -566,8 +608,11 @@ namespace CallOfTheWild
                                                       "",
                                                       Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
                                                       FeatureGroup.None,
-                                                      Common.createArcaneArmorProficiency(ArmorProficiencyGroup.Light)
+                                                      Common.createArcaneArmorProficiency(ArmorProficiencyGroup.Light),
+                                                      Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = hag_haunted_spellbook)
                                                       );
+            hag_spell_casting.AddComponents(Common.createCantrips(spiritualist_class, StatType.Wisdom, hag_haunted_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            hag_spell_casting.AddComponent(Helpers.CreateAddFacts(hag_haunted_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }
 
 
@@ -665,6 +710,16 @@ namespace CallOfTheWild
 
         static void createSpiritualistProgression()
         {
+            charisma_spellcasting = Helpers.CreateFeature("SpiritualistCharismaSpellcasting",
+                                                          "Emotional Spellcasting",
+                                                          "A fractured mind’s ability to cast spells is tied to the force of her own spirit rather than her connection to the spirit world. As a result, she uses her Charisma score rather than her Wisdom score to determine the highest spell level she can cast, the saving throw DCs of spells and spell-like abilities she casts, and her bonus spells per day.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None
+                                                          );
+
+
+
             createSpiritualistProficiencies();
             createSpiritualistKnacks();
             createPhantom(); //add fractured mind emotional power instead of spell like abilities
@@ -1312,6 +1367,8 @@ namespace CallOfTheWild
                                                    spiritualist_class,
                                                    StatType.Wisdom,
                                                    spiritualist_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray());
+
+            spiritualist_knacks.ComponentsArray = new BlueprintComponent[0];
         }
 
 
@@ -1398,6 +1455,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "4b76d32feb089ad4499c3a1ce8e1ac27", 3), //animate dead
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 3), //blindness
+                new Common.SpellId( NewSpells.cloak_of_winds.AssetGuid, 3),
                 new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 3), //cure serious wounds
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
@@ -1501,7 +1559,7 @@ namespace CallOfTheWild
                                                Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             spiritualist_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = spiritualist_spellbook));
             spiritualist_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
-            spiritualist_spellcasting.AddComponents(Common.createCantrips(spiritualist_class, StatType.Intelligence, spiritualist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            spiritualist_spellcasting.AddComponents(Common.createCantrips(spiritualist_class, StatType.Wisdom, spiritualist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
             spiritualist_spellcasting.AddComponents(Helpers.CreateAddFacts(spiritualist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return spiritualist_spellbook;

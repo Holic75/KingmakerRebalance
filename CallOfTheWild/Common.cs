@@ -60,6 +60,7 @@ using Kingmaker.UnitLogic.Alignments;
 using CallOfTheWild.NewMechanics;
 using Kingmaker.UI._ConsoleUI.Context.InGame;
 using Kingmaker.UI._ConsoleUI.CombatLog;
+using Kingmaker.UnitLogic.Class.Kineticist;
 
 namespace CallOfTheWild
 {
@@ -129,6 +130,16 @@ namespace CallOfTheWild
                                                                 Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }), //echolocation
                                                                 Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                                                 );
+
+        public static BlueprintBuff concentration_buff = Helpers.CreateBuff("ConcentrationBuff",
+                                                        "Concentration",
+                                                        "CHaracter is concentrating on spell or ability and loses a move action each turn.",
+                                                        "4f96aaa746a740f8a133fc8f18f90de8",
+                                                        Helpers.GetIcon("35f3724d4e8877845af488d167cb8a89"),
+                                                        null,
+                                                        Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.Create<NewMechanics.ConsumeMoveAction>()))
+                                                        );
+        public static GameAction apply_concnetration = Common.createContextActionApplyBuff(concentration_buff, Helpers.CreateContextDuration(), false, is_child: true, dispellable: false, is_permanent: true);
 
         public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",
                                                                                 "Dazed",
@@ -4491,6 +4502,17 @@ namespace CallOfTheWild
             return new_progression;
         }
 
+
+        static public BlueprintAbility convertToKineticistTalent(BlueprintAbility spell, string prefix, int burn_cost = 0)
+        {
+            var kineticist = library.Get<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
+            var ability = convertToSpellLike(spell, prefix, new BlueprintCharacterClass[] { kineticist }, StatType.Unknown, no_resource: true, no_scaling: true);
+            ability.AddComponents(Helpers.Create<AbilityKineticist>(a => { a.Amount = burn_cost; a.WildTalentBurnCost = burn_cost; }),
+                                  Common.createContextCalculateAbilityParamsBasedOnClass(kineticist, StatType.Constitution, true)
+                                  );
+            ability.RemoveComponents<SpellListComponent>();
+            return ability;
+        }
 
         static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
                                                           bool no_resource = false,

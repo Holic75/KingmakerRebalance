@@ -258,7 +258,8 @@ namespace CallOfTheWild
                                                                FeatureGroup.None,
                                                                Common.createBlindsense(30),
                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Poison),
-                                                               Common.createSpecificBuffImmunity(NewSpells.suffocation_buff)
+                                                               Common.createSpecificBuffImmunity(NewSpells.suffocation_buff),
+                                                               Common.createSpecificBuffImmunity(NewSpells.fast_suffocation_buff)
                                                                );
             }
 

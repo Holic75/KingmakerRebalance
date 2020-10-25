@@ -169,7 +169,6 @@ namespace CallOfTheWild.Archetypes
             ninja_proficiencies.ReplaceComponent<AddProficiencies>(a => a.WeaponProficiencies = new WeaponCategory[]
                                                                                                 {
                                                                                                     WeaponCategory.Kama,
-                                                                                                    WeaponCategory.DuelingSword,
                                                                                                     WeaponCategory.Nunchaku,
                                                                                                     WeaponCategory.Sai,
                                                                                                     WeaponCategory.Shortbow,
@@ -177,6 +176,7 @@ namespace CallOfTheWild.Archetypes
                                                                                                     WeaponCategory.Shuriken,
                                                                                                     WeaponCategory.Scimitar
                                                                                                 });
+            ninja_proficiencies.AddComponent(Helpers.CreateAddFact(library.Get<BlueprintFeature>("9c37279588fd9e34e9c4cb234857492c")));//duelling sword proficiency
             ninja_proficiencies.SetNameDescription("Ninja Proficiencies",
                                                    "Ninja are proficient with all simple weapons, plus the kama, dueling sword, nunchaku, sai, shortbow, short sword, shuriken, and scimitar. Ninjas are proficient with light armor but not with shields.");
 

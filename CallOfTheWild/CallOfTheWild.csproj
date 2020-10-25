@@ -312,6 +312,7 @@
     <Compile Include="NewMechanics\TeamworkMechanics.cs" />
     <Compile Include="NewMechanics\UndeadMechanics.cs" />
     <Compile Include="NewMechanics\UnitDataBase.cs" />
+    <Compile Include="NewMechanics\UnitMoveMechanics.cs" />
     <Compile Include="NewMechanics\UnitViewMechanics.cs" />
     <Compile Include="NewMechanics\VitalStrikeMechanics.cs" />
     <Compile Include="NewMechanics\WeaponSetSwap.cs" />

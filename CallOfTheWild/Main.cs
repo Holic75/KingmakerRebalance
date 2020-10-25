@@ -360,8 +360,8 @@ namespace CallOfTheWild
 
                     CallOfTheWild.WizardDiscoveries.create(!settings.wizard_discoveries);
                     CallOfTheWild.NewFeats.createPreferredSpell();
-                    CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
+                    CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();

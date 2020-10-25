@@ -2550,6 +2550,7 @@ namespace CallOfTheWild
                 new Common.SpellId( Witch.hermean_potential.AssetGuid, 1),
                 new Common.SpellId( "88367310478c10b47903463c5d0152b0", 1), //hypnotism
                 new Common.SpellId( Witch.ill_omen.AssetGuid, 1),
+                new Common.SpellId( NewSpells.invigorate.AssetGuid, 1),
                 new Common.SpellId( NewSpells.long_arm.AssetGuid, 1),
                 new Common.SpellId( "9e1ad5d6f87d19e4d8883d63a6e35568", 1), //mage armor
                 new Common.SpellId( "4ac47ddb9fa1eaf43a1b6809980cfbd2", 1), //magic missile
@@ -2640,6 +2641,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
                 new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
                 new Common.SpellId( NewSpells.intellect_fortress.AssetGuid, 4),
+                new Common.SpellId( NewSpells.invigorate_mass.AssetGuid, 4),
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
                 new Common.SpellId( NewSpells.mental_barrier[2].AssetGuid, 4),
                 new Common.SpellId( NewSpells.mind_thrust[3].AssetGuid, 4),
