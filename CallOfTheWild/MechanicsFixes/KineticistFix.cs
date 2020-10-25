@@ -974,10 +974,9 @@ namespace CallOfTheWild
                                           "",
                                           spark_of_life_ability.Icon,
                                           null,
-                                          Common.createAddCondition(UnitCondition.Staggered),
-                                          Helpers.CreateAddFactContextActions(newRound: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => {h.SummonPool = summon_pool; h.Not = true; }),
-                                                                                                                                                                       Helpers.Create<NewMechanics.ContextConditionHasCondtionImmunity>(h => h.condition = UnitCondition.Staggered)
-                                                                                                                                                                       ),
+                                          Helpers.CreateAddFactContextActions(activated: new GameAction[] {Common.apply_concnetration},
+                                                                              newRound: new GameAction[] {Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.HasUnitsInSummonPoolFromCaster>(h => {h.SummonPool = summon_pool; h.Not = true; })
+                                                                                                                                                                     ),
                                                                                                                                     Helpers.Create<ContextActionRemoveSelf>()
                                                                                                                                     ),
                                                                                                          },
@@ -1049,7 +1048,7 @@ namespace CallOfTheWild
                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { kineticist_class },
                                                                            progression: ContextRankProgression.DelayedStartPlusDivStep, type: Kingmaker.Enums.AbilityRankType.StatBonus,
                                                                            startLevel: 10, stepLevel: 2, min: 1, max: 5),
-                                           Common.createAbilityCasterHasNoFacts(buff)
+                                           Common.createAbilityCasterHasNoFacts(Common.concentration_buff)
                                            );
                 concentration_ability.setMiscAbilityParametersRangedDirectional();
                 Common.setAsFullRoundAction(concentration_ability);

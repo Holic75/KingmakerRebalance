@@ -129,6 +129,16 @@ namespace CallOfTheWild
                                                                 Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                                                 );
 
+        public static BlueprintBuff concentration_buff = Helpers.CreateBuff("ConcentrationBuff",
+                                                        "Concentration",
+                                                        "CHaracter is concentrating on spell or ability and loses a move action each turn.",
+                                                        "4f96aaa746a740f8a133fc8f18f90de8",
+                                                        Helpers.GetIcon("35f3724d4e8877845af488d167cb8a89"),
+                                                        null,
+                                                        Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.Create<NewMechanics.ConsumeMoveAction>()))
+                                                        );
+        public static GameAction apply_concnetration = Common.createContextActionApplyBuff(concentration_buff, Helpers.CreateContextDuration(), false, is_child: true, dispellable: false, is_permanent: true);
+
         public static BlueprintBuff dazed_non_mind_affecting = Helpers.CreateBuff("DazedNonMindAffectingBuff",
                                                                                 "Dazed",
                                                                                 "The creature is unable to act normally. A dazed creature can take no actions, but has no penalty to AC.\nA dazed condition typically lasts 1 round.",
