@@ -115,7 +115,6 @@ namespace CallOfTheWild
 
         public static Dictionary<Size, BlueprintFeature> size_override_facts = new Dictionary<Size, BlueprintFeature>();
 
-
         public static BlueprintBuff deafened = Helpers.CreateBuff("DeafenedBuff",
                                                                 "Deafened",
                                                                 "Deafened character cannot hear. He takes a –4 penalty on initiative checks, automatically fails Perception checks based on sound, takes a –4 penalty on opposed Perception checks, and has a 20% chance of spell failure when casting spells with verbal components.",
