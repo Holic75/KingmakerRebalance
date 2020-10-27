@@ -729,6 +729,8 @@ namespace CallOfTheWild
                                                 Common.createAbilityCasterHasNoFacts(physical_mutation_buff),
                                                 Helpers.Create<NewMechanics.AbilityCasterHasCondition>(a => { a.Condition = UnitCondition.Fatigued; a.Not = true; }),
                                                 Helpers.Create<NewMechanics.AbilityCasterHasCondition>(a => { a.Condition = UnitCondition.Exhausted; a.Not = true; }),
+                                                Common.createAbilityCasterHasNoFacts(BlueprintRoot.Instance.SystemMechanics.FatigueBuff),
+                                                Common.createAbilityCasterHasNoFacts(BlueprintRoot.Instance.SystemMechanics.ExhaustedBuff),
                                                 resource.CreateResourceLogic()
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
@@ -1488,6 +1490,8 @@ namespace CallOfTheWild
             var primal_fury_toggle = Common.buffToToggle(primal_fury_buff, CommandType.Free, true,
                                                          Helpers.Create<RestrictionHasUnitCondition>(r => { r.Condition = UnitCondition.Fatigued; r.Invert = true; }),
                                                          Helpers.Create<RestrictionHasUnitCondition>(r => { r.Condition = UnitCondition.Exhausted; r.Invert = true; }),
+                                                         Helpers.Create<RestrictionHasFact>(r => { r.Feature = BlueprintRoot.Instance.SystemMechanics.FatigueBuff; r.Not = true; }),
+                                                         Helpers.Create<RestrictionHasFact>(r => { r.Feature = BlueprintRoot.Instance.SystemMechanics.ExhaustedBuff; r.Not = true; }),
                                                          primal_fury_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound)
                                                          );
             primal_fury_toggle.DeactivateIfOwnerDisabled = true;

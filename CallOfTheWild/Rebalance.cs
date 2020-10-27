@@ -45,6 +45,7 @@ using Harmony12;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
+using Kingmaker.Blueprints.Root;
 
 namespace CallOfTheWild
 {
@@ -138,6 +139,16 @@ namespace CallOfTheWild
             SaveGameFix.save_game_actions.Add(save_game_action);
         }
 
+
+
+        internal static void addFatigueBuffRestrictionsToRage()
+        {
+            var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
+
+            rage_ability.AddComponents(Helpers.Create<RestrictionHasFact>(r => { r.Feature = BlueprintRoot.Instance.SystemMechanics.FatigueBuff; r.Not = true; }),
+                                       Helpers.Create<RestrictionHasFact>(r => { r.Feature = BlueprintRoot.Instance.SystemMechanics.ExhaustedBuff; r.Not = true; })
+                                       );
+        }
 
         internal static void fixSpellDescriptors()
         {
@@ -1805,9 +1816,9 @@ namespace CallOfTheWild
                                                 Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = serpentine_arcana; })
                                                 );
 
-            Common.monstrous_humanoid.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = serpentine_arcana; }),
+            /*Common.monstrous_humanoid.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = serpentine_arcana; }),
                                                 Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = serpentine_arcana; })
-                                                );
+                                                );*/
         }
 
         static internal void fixUndeadImmunity()

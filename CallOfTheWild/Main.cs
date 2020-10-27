@@ -236,6 +236,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixBeltsOfPerfectComponents();
                     CallOfTheWild.Rebalance.addMissingImmunities();
                     CallOfTheWild.Rebalance.fixJaethalUndeadFeature();
+                    CallOfTheWild.Rebalance.addFatigueBuffRestrictionsToRage();
+
                     if (settings.secondary_rake_attacks)
                     {
                         Main.logger.Log("Applying -5 penalty to rake attacks.");
