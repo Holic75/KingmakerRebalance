@@ -392,7 +392,7 @@ namespace CallOfTheWild
 
             kinetic_invocation_fluid_form = createKineticInvocationTalent(NewSpells.fluid_form, 6, SpellDescriptor.Cold);
             kinetic_invocation_sleet_storm = createKineticInvocationTalent(NewSpells.sleet_storm, 3, SpellDescriptor.Cold);
-
+            library.AddFeats(kinetic_invocation);
         }
 
 
