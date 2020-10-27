@@ -791,7 +791,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
         static bool Prefix(TurnController __instance, UnitDescriptor unit)
         {
             Main.TraceLog();
-            Main.logger.Log("Trigger");
             if (UnitBody__SetEmptyHandWeapon__Patch.no_animation_action)
             {
                 return false;
