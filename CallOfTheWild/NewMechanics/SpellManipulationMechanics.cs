@@ -568,8 +568,8 @@ namespace CallOfTheWild
                         && __instance.MetamagicData != null
                         && __instance.MetamagicData.NotEmpty) 
                     {
-                        
-                        __result = (__instance.ConvertedFrom.Blueprint?.StickyTouch.TouchDeliveryAbility != __instance.Blueprint);//to avoid issues with touch spells that write their generating spells to ConvertedFrom
+
+                        __result = (__instance.ConvertedFrom.Blueprint?.StickyTouch?.TouchDeliveryAbility != __instance.Blueprint);//to avoid issues with touch spells that write their generating spells to ConvertedFrom
                     }
                 }
 
