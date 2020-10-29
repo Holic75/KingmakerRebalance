@@ -1470,25 +1470,66 @@ namespace CallOfTheWild
             public ModifierDescriptor descriptor;
             public ContextValue bonus;
 
-            public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
+
+            public bool isCorrectModifier(ModifiableValue val, ModifiableValue.Modifier mod)
             {
-                /*var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
-                if (spellContext == null)
+                return  (val.Owner == this.Owner) && mod.ModDescriptor == descriptor || descriptor == ModifierDescriptor.None;
+            }
+
+            public override void OnTurnOn()
+            {
+                int val = bonus.Calculate(this.Fact.MaybeContext);
+                var stats = this.Owner.Stats.GetList();
+                /*List<Fact> sources = new List<Fact>();
+
+                foreach (var s in stats)
+                {                
+                    foreach (var m in s.Modifiers)
+                    {
+                        if (isCorrectModifier(s, m) && m.Source != null && !sources.Contains(m.Source))
+                        {
+                            sources.Add(m.Source);
+                        }
+                    }
+                }
+
+                foreach (var s in sources)
                 {
-                    return;
+                    s.Recalculate();
                 }*/
 
-                if (value.Owner != this.Owner)
+                foreach (var s in stats)
+                {
+                    var tr = Harmony12.Traverse.Create(s);
+                    foreach (var m in s.Modifiers.ToArray())
+                    {
+                        if (isCorrectModifier(s, m))
+                        {
+                            if (m.Remove())
+                            {
+                                m.ModValue += val;
+                                tr.Method("AddModifier", new Type[] { typeof(ModifiableValue.Modifier) }, new object[] { m }).GetValue<ModifiableValue.Modifier>();
+                            }
+                        }
+                    }
+                }
+            }
+
+            public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
+            {
+                if (!isCorrectModifier(value, modifier))
                 {
                     return;
                 }
-
-                if (descriptor != ModifierDescriptor.None && descriptor != modifier.ModDescriptor)
-                {
-                    return;
-                }
-
                 modifier.ModValue += bonus.Calculate(this.Fact.MaybeContext);
+            }
+
+            public void onModifierRemove(ModifiableValue value, ModifiableValue.Modifier modifier)
+            {
+                /*if (isCorrectModifier(value, modifier))
+                {
+                   Main.logger.Log("Removing " + modifier.Source?.Name);
+                }*/
             }
         }
 
@@ -1498,30 +1539,61 @@ namespace CallOfTheWild
             public ModifierDescriptor descriptor;
             public ContextValue bonus;
 
+            public bool isCorrectModifier(ModifiableValue val, ModifiableValue.Modifier mod)
+            {
+                var context = mod.Source?.MaybeContext;
+                if (context == null)
+                {
+                    return false;
+                }
+
+                return context.MaybeCaster == this.Owner?.Unit
+                       && (school == SpellSchool.None || context.SpellSchool == school)
+                       && (mod.ModDescriptor == descriptor || descriptor == ModifierDescriptor.None);
+            }
+
+            public override void OnTurnOn()
+            {
+                int val = bonus.Calculate(this.Fact.MaybeContext);
+
+                //we will need to scan all units that may have buffs from caster
+                var units = Game.Instance.State.Units;
+
+                foreach (var u in units)
+                {
+                    var stats = u.Stats.GetList();
+                    foreach (var s in stats)
+                    {
+                        var tr = Harmony12.Traverse.Create(s);
+                        foreach (var m in s.Modifiers.ToArray())
+                        {
+                            if (isCorrectModifier(s, m))
+                            {
+                                if (m.Remove())
+                                {
+                                    m.ModValue += val;
+                                    tr.Method("AddModifier", new Type[] { typeof(ModifiableValue.Modifier) }, new object[] { m }).GetValue<ModifiableValue.Modifier>();
+                                }
+                            }
+                        }
+                    }
+                }              
+            }
+
+
             public void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier)
             {
-                var spellContext = Helpers.GetMechanicsContext()?.SourceAbilityContext;
-                if (spellContext == null)
-                {
-                    return;
-                }
-
-                if (spellContext.MaybeCaster != this.Owner.Unit)
-                {
-                    return;
-                }
-
-                if (school != SpellSchool.None && spellContext.SpellSchool != school)
-                {
-                    return;
-                }
-
-                if (descriptor != ModifierDescriptor.None && descriptor != modifier.ModDescriptor)
+                if (!isCorrectModifier(value, modifier))
                 {
                     return;
                 }
 
                 modifier.ModValue += bonus.Calculate(this.Fact.MaybeContext);
+            }
+
+            public void onModifierRemove(ModifiableValue value, ModifiableValue.Modifier modifier)
+            {
+                
             }
         }
 
@@ -1529,6 +1601,7 @@ namespace CallOfTheWild
         public interface IOnModifierAdd : IGlobalSubscriber
         {
             void onModifierAdd(ModifiableValue value, ModifiableValue.Modifier modifier);
+            void onModifierRemove(ModifiableValue value, ModifiableValue.Modifier modifier);
         }
 
 
@@ -2094,6 +2167,21 @@ namespace CallOfTheWild
                 EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierAdd(__instance, mod)));
 
                 return true;
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(ModifiableValue))]
+        [Harmony12.HarmonyPatch("RemoveModifier", Harmony12.MethodType.Normal)]
+        [Harmony12.HarmonyPatch(new Type[] { typeof(ModifiableValue.Modifier) })]
+        static class ModifiableValue_RemoveModifier_Patch
+        {
+            internal static void Postfix(ModifiableValue __instance, ModifiableValue.Modifier mod, bool __result)
+            {
+                if (__result)
+                {
+                    EventBus.RaiseEvent<IOnModifierAdd>((Action<IOnModifierAdd>)(h => h.onModifierRemove(__instance, mod)));
+                }
             }
         }
     }

@@ -204,8 +204,7 @@ namespace CallOfTheWild.DeadTargetMechanics
             }
 
             if (transfer_equipment && unit.Body.HandsAreEnabled)
-            {
-                animated_unit.Body.CurrentHandEquipmentSetIndex = unit.Body.CurrentHandEquipmentSetIndex;
+            {   
                 List<ItemSlot> list1 = unit.Body.EquipmentSlots.ToList<ItemSlot>();
                 List<ItemSlot> list2 = animated_unit.Body.EquipmentSlots.ToList<ItemSlot>();
                 for (int index = 0; index < list1.Count && index < list2.Count; ++index)
@@ -214,6 +213,7 @@ namespace CallOfTheWild.DeadTargetMechanics
                     if (maybeItem != null)
                         animated_unit.Body.TryInsertItem(maybeItem.Blueprint, list2[index]);
                 }
+                animated_unit.Body.CurrentHandEquipmentSetIndex = unit.Body.CurrentHandEquipmentSetIndex;
             }
             animated_unit.Descriptor.State.AddCondition(UnitCondition.Unlootable, (Kingmaker.UnitLogic.Buffs.Buff)null);
 
