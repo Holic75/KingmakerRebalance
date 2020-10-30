@@ -1600,10 +1600,10 @@ namespace CallOfTheWild
 
             //imitate full attack action for bombs
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
-            fast_bombs_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.apply_concnetration));
+            //fast_bombs_buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.apply_concnetration));
             //fast_bombs_ability.AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = Common.concentration_buff; r.Not = true; }));
             Helpers.SetField(fast_bombs_ability, "m_ActivateWithUnitCommand", UnitCommand.CommandType.Move);
-            fast_bombs_ability.ActivationType = AbilityActivationType.WithUnitCommand;
+            //fast_bombs_ability.ActivationType = AbilityActivationType.WithUnitCommand;
 
             //fast_bombs_buff.AddComponent(Helpers.Create<FreeActionAbilityUseMechanics.ForceFullRoundOnAbilities>(f => f.abilities = bombs));
             fast_bombs.AddComponent(Helpers.CreateAddFact(new_ability));
