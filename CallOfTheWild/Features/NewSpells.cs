@@ -2641,6 +2641,20 @@ namespace CallOfTheWild
             skeleton.Faction = library.Get<BlueprintFaction>("1b08d9ed04518ec46a9b3e4e23cb5105"); //summoned
             skeleton.RemoveComponents<Experience>();
             skeleton.RemoveComponents<AddTags>();
+            skeleton.AddFacts = skeleton.AddFacts.AddToArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //martial weapons
+                                                             library.Get<BlueprintFeature>("cb8686e7357a68c42bdd9d4e65334633"), //shield prof
+                                                             library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield prof
+                                                             library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132"), //ligth armor prof
+                                                             library.Get<BlueprintFeature>("46f4fb320f35704488ba3d513397789d"), //medium armor prof
+                                                             library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681")); //shield prof
+
+            var exotic_weapon_prof = library.Get<BlueprintFeatureSelection>("9a01b6815d6c3684cb25f30b8bf20932");
+            foreach (var wp in exotic_weapon_prof.AllFeatures)
+            {
+                skeleton.AddFacts = skeleton.AddFacts.AddToArray(wp);
+            }
+
+
             animate_dead_skeleton = skeleton;
 
             var animate_dead = library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27");
