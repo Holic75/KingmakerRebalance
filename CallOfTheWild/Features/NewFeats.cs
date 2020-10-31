@@ -411,7 +411,7 @@ namespace CallOfTheWild
                                                 "Pinpoint Targeting",
                                                 "As a standard action, make a single ranged attack. The target does not gain any armor, natural armor, or shield bonuses to its Armor Class.",
                                                 "",
-                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/ImprovedSpellSharing.png"),
+                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/PinpointTargeting.png"),
                                                 AbilityType.Special,
                                                 Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                 AbilityRange.Weapon,
