@@ -4256,16 +4256,21 @@ namespace CallOfTheWild
         }
 
 
-
-
-
-
-        [ComponentName("Attacks ignore armor and shields")]
+        [ComponentName("Attacks ignore armor natural ac and shields")]
         public class IgnoreAcShieldAndNaturalArmor : RuleInitiatorLogicComponent<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, IInitiatorRulebookSubscriber
         {
             public override void OnEventAboutToTrigger(RuleCalculateAC evt)
             {
                 evt.BrilliantEnergy = this.Fact;
+                int natural_ac_bonus = 0;
+                foreach (ModifiableValue.Modifier modifier in evt.Target.Stats.AC.Modifiers)
+                {
+                    natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmor ? modifier.ModValue : 0;
+                    natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmorEnhancement ? modifier.ModValue : 0;
+                }
+
+                var tr = Harmony12.Traverse.Create(evt);
+                tr.Property("BrilliantEnergyBonus").SetValue(-natural_ac_bonus);
             }
 
             public override void OnEventDidTrigger(RuleCalculateAC evt)

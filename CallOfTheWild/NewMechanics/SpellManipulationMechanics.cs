@@ -1299,13 +1299,20 @@ namespace CallOfTheWild
                     selected_metamagics.Add(metamagics[next_metamagic.Last()]);
 
                     //try to get metamagic data for required cost, return null if impossible
-                    //if impossible we have too much metamagic, remove last added metamagic, increase next_metamagic.last
-                    //else continue adding more metamagics
-                    var metamagic_data = getMetamagicDataForSpecifiedCost(selected_metamagics, spellbook, spell, target_level - spell_level, spell_level);
-                    if (metamagic_data == null)
+                    //if impossible we either have too much or too little metamagic,
+                    //if too much remove last added metamagic, increase next_metamagic.last
+                    //if too little continue adding more metamagics
+                    //else add spell to conversion list
+                    bool need_more;
+                    var metamagic_data = getMetamagicDataForSpecifiedCost(selected_metamagics, spellbook, spell, target_level - spell_level, spell_level, out need_more);
+                    if (metamagic_data == null && !need_more)
                     {
                         selected_metamagics.Remove(selected_metamagics.Last());
                         next_metamagic[next_metamagic.Count - 1]++;
+                    }
+                    else if (need_more)
+                    {
+                        next_metamagic.Add(next_metamagic.Last() + 1);
                     }
                     else
                     {
@@ -1323,8 +1330,9 @@ namespace CallOfTheWild
             }
 
 
-            static MetamagicData getMetamagicDataForSpecifiedCost(List<Metamagic> metamagics, Spellbook spellbook, BlueprintAbility spell, int required_cost, int expected_spell_level)
+            static MetamagicData getMetamagicDataForSpecifiedCost(List<Metamagic> metamagics, Spellbook spellbook, BlueprintAbility spell, int required_cost, int expected_spell_level, out bool add_more)
             {
+                add_more = false;
                 //avoid more than one elemental metamagic
                 if (metamagics.Count(m => (m & (Metamagic)MetamagicFeats.MetamagicExtender.Elemental) != 0) > 1)
                 {
@@ -1340,6 +1348,7 @@ namespace CallOfTheWild
                     cost += m.DefaultCost();
                 }
 
+                
                 for (int i = (metamagics.Contains(Metamagic.Heighten) ? 1 : 0); i < (metamagics.Contains(Metamagic.Heighten) ? 9 : 1); i++)
                 {
                     if (cost + i + expected_spell_level > 9)
@@ -1349,10 +1358,13 @@ namespace CallOfTheWild
                     var rule_apply_metamagic = new RuleApplyMetamagic(spellbook, spell, metamagics, i);
                     rule_apply_metamagic.Result.SpellLevelCost += d_level;
                     var result = Rulebook.Trigger(rule_apply_metamagic).Result;
+
+                    add_more = result.SpellLevelCost < required_cost + d_level;
                     if (result.SpellLevelCost == required_cost + d_level)
                     {
                         return result;
                     }
+                    
                 }
                 return null;
             }
