@@ -207,7 +207,7 @@ namespace CallOfTheWild
 
             var heroism = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
             var heroism_greater = library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31");
-            var heroic_invocation = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
+            var heroic_invocation = library.Get<BlueprintAbility>("43740dab07286fe4aa00a6ee104ce7c1");
             var good_hope = library.Get<BlueprintAbility>("a5e23522eda32dc45801e32c05dc9f96");
             var rage = library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2");
             var bless = library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638");
@@ -255,6 +255,12 @@ namespace CallOfTheWild
             Common.addSpellDescriptor(prayer_buff, SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting);
             Common.addSpellDescriptor(prayer_debuff, SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting);
             Common.addSpellDescriptor(burst_of_glory_buff, SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting);
+
+
+            //fix kingdom compulsion immunity buff
+            var compulsion_immunity_buff = library.Get<BlueprintBuff>("868a0ad22d7fa4d4480deb50a9dca681");
+            compulsion_immunity_buff.GetComponent<BuffDescriptorImmunity>().IgnoreFeature = compulsion_immunity_buff;
+            compulsion_immunity_buff.GetComponent<SpellImmunityToSpellDescriptor>().CasterIgnoreImmunityFact = compulsion_immunity_buff;
         }
 
         internal static void fixFeyStalkerSummonBuff()
