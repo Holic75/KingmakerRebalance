@@ -4268,9 +4268,8 @@ namespace CallOfTheWild
                     natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmor ? modifier.ModValue : 0;
                     natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmorEnhancement ? modifier.ModValue : 0;
                 }
-
-                var tr = Harmony12.Traverse.Create(evt);
-                tr.Property("BrilliantEnergyBonus").SetValue(-natural_ac_bonus);
+                evt.AddBonus(-natural_ac_bonus, this.Fact);
+                
             }
 
             public override void OnEventDidTrigger(RuleCalculateAC evt)
