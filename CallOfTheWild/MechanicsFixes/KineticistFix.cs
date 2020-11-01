@@ -301,6 +301,8 @@ namespace CallOfTheWild
 
             var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Swift, true, Common.createActivatableAbilityRestrictionHasFact(enable_buff));
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff = aura;
+            toggle.SetName("Cold Snap");
 
             var enable_ability = Helpers.CreateAbility("ColdSnapEnableAbility",
                                                        enable_buff.Name,
@@ -371,7 +373,7 @@ namespace CallOfTheWild
             kinetic_invocation = Helpers.CreateFeature("KineticInvocationFeature",
                                                        "Kinetic Invocation",
                                                        "For each kineticist element to which you have access, you treat all spells associated with that element (see below) as utility wild talents of the listed level, which you can select as normal. Each has a burn cost of 1 unless otherwise noted, and any nonpermanent, non-instantaneous effects end when your burn is removed.\n"
-                                                       + "Your caster level for a spell is equal to your kineticist level, and the save DC for any spell is equal to 10 + 1/2 kineticist level + your Constitution modifier."
+                                                       + "Your caster level for a spell is equal to your kineticist level, and the save DC for any spell is equal to 10 + 1/2 kineticist level + your Constitution modifier.\n"
                                                        + "Air: Cloak of Winds (3rd), wind walk (6th).\n"
                                                        + "Earth: Slowing Mud (4th).\n"
                                                        + "Fire: Blessing of the Salamander (5th, self only), Invigorate (1st).\n"
@@ -808,7 +810,7 @@ namespace CallOfTheWild
                 var features = new List<BlueprintFeatureBase>();
                 foreach (var f in rf.Features)
                 {
-                    if (f != infusion_selection)
+                    if (f != infusion_selection || rf.Level == 3)
                     {
                         features.Add(f);
                     }
