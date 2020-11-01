@@ -4864,6 +4864,7 @@ namespace CallOfTheWild
                                                    );
             dazzling_blade.setMiscAbilityParametersTouchFriendly();
             dazzling_blade.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            release_ability.AvailableMetamagic = (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
 
             dazzling_blade_mass = Helpers.CreateAbility("DazzlingBladeMassAbility",
                                                        "Dazzling Blade, Mass",
@@ -4882,7 +4883,7 @@ namespace CallOfTheWild
                                                        Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                        );
             dazzling_blade_mass.setMiscAbilityParametersRangedDirectional();
-            dazzling_blade_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach;
+            dazzling_blade_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
 
             dazzling_blade.AddToSpellList(Helpers.bardSpellList, 1);
             dazzling_blade.AddToSpellList(Helpers.wizardSpellList, 1);

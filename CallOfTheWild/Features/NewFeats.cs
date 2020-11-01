@@ -330,7 +330,7 @@ namespace CallOfTheWild
                                                             (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell,
                                                             components.AddToArray(Helpers.Create<SpellManipulationMechanics.PreferredSpell>(p => p.character_class = @class))
                                                             );
-            feature.AddComponent(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 1));
+            feature.AddComponent(Helpers.Create<SpellManipulationMechanics.NoSpontnaeousMetamagicCastingTimeIncreaseForSelectedSpell>(a => a.max_metamagics = 100));
             feature.Groups = feature.Groups.AddToArray(FeatureGroup.WizardFeat);
             feature.SpellcasterClass = @class;
             feature.BlueprintParameterVariants = library.Get<BlueprintParametrizedFeature>("e69a85f633ae8ca4398abeb6fa11b1fe").BlueprintParameterVariants;
