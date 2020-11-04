@@ -2672,6 +2672,7 @@ namespace CallOfTheWild
                     scaling.CharacterClasses = getDraconicArray();
                     scaling.StatType = StatType.Constitution;
                     buff.AddComponent(scaling);
+                    buff.AddComponent(Helpers.CreateSuppressBuffs(b.wings_prototype));
 
                     var feature = Common.createSwitchActivatableAbilityBuff(b.prefix + "DragonForm", "", "", "",
                                                                             buff,
