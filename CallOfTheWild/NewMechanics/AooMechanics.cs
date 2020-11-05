@@ -328,7 +328,7 @@ namespace CallOfTheWild.AooMechanics
             }
 
             var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
-            if (aoo_part != null && aoo_part.canMakeAoo(null))
+            if (aoo_part != null)
             {
                 return unit.Body?.PrimaryHand;
             }
