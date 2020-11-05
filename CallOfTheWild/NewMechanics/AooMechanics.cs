@@ -23,6 +23,31 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.AooMechanics
 {
+    public class UnitPartAooAgainstAllies : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class AooAgainstAllies : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartAooAgainstAllies>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartAooAgainstAllies>().removeBuff(this.Fact);
+        }
+    }
+
+
+
     public class UnitPartSpecialAttackOfOportunity : AdditiveUnitPart
     {
         public bool canMakeAoo(UnitEntityData enemy)
@@ -202,6 +227,7 @@ namespace CallOfTheWild.AooMechanics
             if (threatHand == null || !unit.IsReach(enemy, threatHand))
             {
                 var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
+
                 if (aoo_part == null || !aoo_part.canMakeAoo(enemy))
                 {
                     return false;
@@ -209,6 +235,26 @@ namespace CallOfTheWild.AooMechanics
             }
             __result = UnitPartConcealment.Calculate(unit, enemy, false) != Concealment.Total;
             return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitCombatEngagementController))]
+    [Harmony12.HarmonyPatch("TickUnit", Harmony12.MethodType.Normal)]
+    class Patch_UnitCombatEngagementControllern__TickUnit
+    {
+        static bool Prefix(UnitCombatEngagementController __instance, UnitEntityData unit)
+        {
+            if ((unit.Get<UnitPartAooAgainstAllies>()?.active()).GetValueOrDefault())
+            {
+                foreach (UnitGroupMemory.UnitInfo enemy in unit.Memory.UnitsList)
+                {
+                    UnitEntityData unit1 = enemy.Unit;
+                    if (unit1.Descriptor.State.IsConscious && unit.IsEngage(unit1) && unit != unit1)
+                        unit.CombatState.Engage(unit1);
+                }
+            }
+            return true;
         }
     }
 
@@ -243,7 +289,7 @@ namespace CallOfTheWild.AooMechanics
             }
 
             var aoo_part = unit.Get<UnitPartSpecialAttackOfOportunity>();
-            if (aoo_part != null && aoo_part.canMakeAoo(enemy))
+            if (aoo_part != null)
             {
                 return unit.Body?.PrimaryHand;
             }

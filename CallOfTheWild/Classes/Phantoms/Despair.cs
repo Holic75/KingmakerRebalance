@@ -93,7 +93,8 @@ namespace CallOfTheWild
             var crushing_despair_ability = Common.convertToSuperNatural(crushing_despair, "DespairPhantom", getPhantomArray(), StatType.Charisma, despairing_shout_resource);
             var despairing_shout = Common.AbilityToFeature(crushing_despair_ability);
             despairing_shout.AddComponent(despairing_shout_resource.CreateAddAbilityResource());
-
+            despairing_shout.SetNameDescription("Despairing Shout",
+                                                "When the spiritualist reaches 12th level, three times per day as a standard action, the phantom can emit a shout that acts as crushing despair. The phantom uses its Hit Dice as its caster level for the effect, and the DC of the effect equals 10 + 1/2 the phantom’s Hit Dice + the phantom’s Charisma modifier. The phantom can use this ability in either ectoplasmic or incorporeal form.");
 
             var powerful_from_despair_phantom = Helpers.CreateFeature("DespairPhantomBaseFeature",
                                                                  "Power from Despair",

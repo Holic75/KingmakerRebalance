@@ -194,7 +194,6 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSpellRanges();
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
-                    CallOfTheWild.Rebalance.fixNeclaceOfDoubleCrosses();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
@@ -233,6 +232,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.addMissingImmunities();
                     CallOfTheWild.Rebalance.fixJaethalUndeadFeature();
                     CallOfTheWild.Rebalance.addFatigueBuffRestrictionsToRage();
+                    CallOfTheWild.Rebalance.fixNecklaceOfDoubleCorses();
 
                     if (settings.secondary_rake_attacks)
                     {

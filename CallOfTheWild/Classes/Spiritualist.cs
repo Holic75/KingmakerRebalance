@@ -1434,7 +1434,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
                 new Common.SpellId( "b7731c2b4fa1c9844a092329177be4c3", 2),//boneshaker
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
-                new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagle's splendor
                 new Common.SpellId( "e1291272c8f48c14ab212a599ad17aac", 2), //effortless armor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
