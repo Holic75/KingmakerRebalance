@@ -422,6 +422,15 @@ namespace CallOfTheWild
             serpentfriend.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(viper_familiar) };
         }
 
+
+        static internal void fixNecklaceOfDoubleCorses()
+        {
+            var neclace_feature = library.Get<BlueprintFeature>("64d5a59feeb292e49a6c459fe37c3953");
+            var sneak = neclace_feature.GetComponent<AdditionalSneakDamageOnHit>();
+            Helpers.SetField(sneak, "m_Weapon", 1);
+            neclace_feature.AddComponent(Helpers.Create<AooMechanics.AooAgainstAllies>());
+        }
+
         internal static void fixSkillPoints()
         {
             //update skillpoints
@@ -1446,12 +1455,6 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixNeclaceOfDoubleCrosses()
-        {
-            var neclace_feature = library.Get<BlueprintFeature>("64d5a59feeb292e49a6c459fe37c3953");
-            var sneak = neclace_feature.GetComponent<AdditionalSneakDamageOnHit>();
-            Helpers.SetField(sneak, "m_Weapon", 1);
-        }
 
 
         public static void fixTristianAngelBuff()

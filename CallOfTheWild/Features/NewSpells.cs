@@ -145,7 +145,6 @@ namespace CallOfTheWild
         static public BlueprintBuff bladed_dash_buff;
 
         static public BlueprintAbility fiery_runes;
-        //static public BlueprintAbility channel_vigor; ?
 
         static public BlueprintAbility lend_judgement;
         static public BlueprintAbility lend_judgement_greater;
@@ -256,13 +255,7 @@ namespace CallOfTheWild
         static public BlueprintAbility shades;
         static public BlueprintAbility wrathful_weapon;
         static public BlueprintAbility blade_tutor;
-        //corrosive consumption
-        //implosion
-        //condensed ether
-        //battle mind link
-        //arcane concordance
-        //oneric horror
-        
+      
         static public BlueprintAbility channel_vigor;
         static public BlueprintAbility control_construct;
 
@@ -277,6 +270,13 @@ namespace CallOfTheWild
 
         //static public BlueprintAbility binding_earth;
         //static public BlueprintAbility binding_earth_mass;
+        //corrosive consumption
+        //implosion
+        //condensed ether
+        //battle mind link
+        //arcane concordance
+        //oneric horror
+        //phantom limbs
 
         static public void load()
         {
@@ -1850,7 +1850,7 @@ namespace CallOfTheWild
 
             inflict_pain.AddToSpellList(Helpers.wizardSpellList, 3);
             inflict_pain.AddToSpellList(Helpers.inquisitorSpellList, 2);
-            inflict_pain.AddToSpellList(Helpers.inquisitorSpellList, 5);
+            inflict_pain_mass.AddToSpellList(Helpers.inquisitorSpellList, 5);
             inflict_pain_mass.AddToSpellList(Helpers.wizardSpellList, 7);
 
             inflict_pain.AddSpellAndScroll("7385837b610622b4d96c87c7b7e63e05"); //inflict light wounds
@@ -4864,6 +4864,7 @@ namespace CallOfTheWild
                                                    );
             dazzling_blade.setMiscAbilityParametersTouchFriendly();
             dazzling_blade.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            release_ability.AvailableMetamagic = (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
 
             dazzling_blade_mass = Helpers.CreateAbility("DazzlingBladeMassAbility",
                                                        "Dazzling Blade, Mass",
@@ -4882,7 +4883,7 @@ namespace CallOfTheWild
                                                        Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                        );
             dazzling_blade_mass.setMiscAbilityParametersRangedDirectional();
-            dazzling_blade_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach;
+            dazzling_blade_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
 
             dazzling_blade.AddToSpellList(Helpers.bardSpellList, 1);
             dazzling_blade.AddToSpellList(Helpers.wizardSpellList, 1);
