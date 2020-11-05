@@ -1179,6 +1179,22 @@ namespace CallOfTheWild
         }
 
 
+        public class AttackTypeCriticalEdgeIncrease : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public AttackTypeAttackBonus.WeaponRangeType Type;
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon == null || !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.Type))
+                    return;
+                evt.DoubleCriticalEdge = true;
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
         public class WeaponTypeSizeChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
         {
             public int SizeCategoryChange;
@@ -1186,7 +1202,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
-                if (!this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type) || this.SizeCategoryChange == 0)
+                if ((!WeaponTypes.Empty() && !this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type)) || this.SizeCategoryChange == 0)
                     return;
                 if (this.SizeCategoryChange > 0)
                 {
@@ -1262,6 +1278,45 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ForbidSpellCastingUnlessHasFacts : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public bool ForbidMagicItems;
+            public BlueprintUnitFact[] allowed_facts;
+            private bool activated = false;
+
+            public override void OnTurnOn()
+            {
+                foreach (var f in allowed_facts)
+                {
+                    if (this.Owner.HasFact(f))
+                    {
+                        return;
+                    }
+                }
+
+                activated = true;
+                this.Owner.State.SpellCastingForbidden.Retain();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Retain();
+            }
+
+            public override void OnTurnOff()
+            {
+                if (!activated)
+                {
+                    return;
+                }
+                activated = false;
+                this.Owner.State.SpellCastingForbidden.Release();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Release();
             }
         }
 

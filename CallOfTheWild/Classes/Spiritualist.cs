@@ -35,8 +35,10 @@ using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -105,6 +107,20 @@ namespace CallOfTheWild
         static public BlueprintSpellbook fractured_mind_spellbook;
         static public BlueprintArchetype fractured_mind;
 
+        static public BlueprintArchetype exciter;
+        static public BlueprintFeatureSelection exciter_phantom_selection;
+        static public BlueprintFeature rapture;
+        static public BlueprintFeatureSelection exciter_potent_phantom;
+        static public BlueprintFeatureSelection rapturous_rage;
+        static public BlueprintFeature greater_rapture;
+        static public BlueprintFeature overwhelming_excitement;
+        static public BlueprintAbilityResource rapture_resource;
+        static public BlueprintFeature perfect_passion;
+        static public BlueprintFeature exciter_shared_conciousness;
+        static public BlueprintBuff rapture_str_con_buff;
+        static public BlueprintBuff rapture_dex_cha_buff;
+
+
         //necrologist, exciter, priest of the fallen
 
         internal static void createSpiritualistClass()
@@ -162,7 +178,229 @@ namespace CallOfTheWild
             createOnmyoji();
             createScourge();
             createFracturedMind();
+            //createExciter();
             spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind};
+        }
+
+
+        static void createExciter()
+        {
+            exciter = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ExciterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Exciter");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Psychic magic draws upon the twin and sometimes opposed powers of thought and emotion, but an exciter cares little for rationality. The phantom that accompanies him fills him with unbridled exultation, as he lets feeling and passion rule and sharpen his mind and body into a glorious fusion.");
+            });
+            Helpers.SetField(onmyoji, "m_ParentClass", spiritualist_class);
+            library.AddAsset(onmyoji, "");
+
+            createMergedPhantom();
+            //createExciterSharedConciousness();
+            createRapture();
+            //createOverwhelmingExcitement();
+
+
+            var fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
+
+
+            exciter.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, emotional_focus_selection, shared_consciousness, etheric_tether, masters_alignment),
+                                                            Helpers.LevelEntry(4, spiritual_inference),
+                                                            Helpers.LevelEntry(10, fused_consciousness),
+                                                            Helpers.LevelEntry(12, greater_spiritual_inference),
+                                                            Helpers.LevelEntry(14, spiritual_bond),
+                                                            Helpers.LevelEntry(20, potent_phantom)};
+            exciter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, exciter_phantom_selection, rapture, fast_movement, exciter_shared_conciousness),
+                                                         Helpers.LevelEntry(4, perfect_passion),
+                                                         Helpers.LevelEntry(10, overwhelming_excitement, rapturous_rage),
+                                                         Helpers.LevelEntry(12, greater_rapture),
+                                                         Helpers.LevelEntry(14, rapturous_rage),
+                                                         Helpers.LevelEntry(18, rapturous_rage),
+                                                         Helpers.LevelEntry(20, exciter_potent_phantom),
+                                                         };
+
+            spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(rapture, rapturous_rage, greater_rapture, rapturous_rage, rapturous_rage));
+            spiritualist_progression.UIGroups[1].Features.Add(exciter_shared_conciousness);
+            spiritualist_progression.UIGroups[1].Features.Add(greater_rapture);
+            spiritualist_progression.UIGroups[1].Features.Add(exciter_potent_phantom);
+            spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(exciter_phantom_selection);
+        }
+
+        static void createRapture()
+        {
+            rapture_resource = Helpers.CreateAbilityResource("RaptureResource", "", "", "", null);
+            rapture_resource.SetIncreasedByLevel(0, 2, getSpiritualistArray());
+            rapture_resource.SetIncreasedByStat(2, StatType.Constitution);
+
+            perfect_passion = Helpers.CreateFeature("PerfectPassionFeature",
+                                                    "Perfect Passion",
+                                                    "At 4th level, an exciter can cast psychic spells even while in his rapture. He can cast these spells defensively and attempt concentration checks for these spells without impairment, despite being in a rapture.",
+                                                    "",
+                                                    Helpers.GetIcon("ce7dad2b25acf85429b6c9550787b2d9"),
+                                                    FeatureGroup.None
+                                                    );
+
+
+            var rapture_casting_allowed_buff = Helpers.CreateBuff("RaptureCastingAllowedBuff",
+                                        "",
+                                        "",
+                                        "",
+                                        null,
+                                        null);
+            rapture_casting_allowed_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_allow_blood_casting = Common.createContextActionApplyBuff(rapture_casting_allowed_buff, Helpers.CreateContextDuration(1), is_child: true, dispellable: false);
+
+            var cast_only_on_self = Common.createContextActionApplyBuff(SharedSpells.can_only_target_self_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
+            var rapture_casting_buff = Helpers.CreateBuff("BloodCastingBuff",
+                                                        "Rapture Casting",
+                                                        "Uupon entering a rapture, exiter can apply the effects of a single spiritualist spell he knows to himself. The spell must have a range of touch or personal, and it must be a 1st- or 2nd-level spell. For every 3 spiritualist levels he has beyond 12th, the maximum spell level of this spell increases by 1.",
+                                                        "",
+                                                        library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon,
+                                                        null,
+                                                        Helpers.Create<TurnActionMechanics.FreeTouchOrPersonalSpellUseFromSpellbook>(f =>
+                                                        {
+                                                            f.allowed_spellbook = spiritualist_class.Spellbook;
+                                                            f.max_spell_level = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                            f.control_buff = rapture_casting_allowed_buff;
+                                                        }
+                                                                                                                                    ),
+                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                        classes: getSpiritualistArray(),
+                                                                                        progression: ContextRankProgression.Custom,
+                                                                                        customProgression: new (int, int)[] { (14, 2), (17, 3), (20, 4) }
+                                                                                        ),
+                                                        Helpers.CreateAddFactContextActions(cast_only_on_self)
+                                                        );
+
+            var rapture_casting_ability = Helpers.CreateActivatableAbility("RaptureCastingToggleAbility",
+                                                                         rapture_casting_buff.Name,
+                                                                         rapture_casting_buff.Description,
+                                                                         "",
+                                                                         rapture_casting_buff.Icon,
+                                                                         rapture_casting_buff,
+                                                                         AbilityActivationType.Immediately,
+                                                                         CommandType.Free,
+                                                                         null,
+                                                                         Helpers.Create<RestrictionHasFact>(r => r.Feature = rapture_casting_allowed_buff));
+            rapture_casting_ability.DeactivateImmediately = true;
+
+            greater_rapture = Helpers.CreateFeature("GreaterRaptureFeature",
+                                        "Greater Rapture",
+                                        "At 12th level, an exciter increases the morale bonus his rapture grants to each applicable ability score by 2 and the morale bonus he gains on Will saves by 1.\n"
+                                        + "In addition, upon entering a rapture, he can apply the effects of a single spiritualist spell he knows to himself. The spell must have a range of touch or personal, and it must be a 1st- or 2nd-level spell. For every 3 spiritualist levels he has beyond 12th, the maximum spell level of this spell increases by 1.",
+                                        "",
+                                        Helpers.GetIcon("ce7dad2b25acf85429b6c9550787b2d9"),
+                                        FeatureGroup.None,
+                                        Helpers.CreateAddFact(rapture_casting_ability)
+                                        );
+
+            var rage_buff = library.Get<BlueprintBuff>("df6a2cce8e3a9bd4592fb1968b83f730");
+            var rapture_str_con_ability = library.CopyAndAdd<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730", "RaptureStrConToggleAbility", "");
+            rapture_str_con_ability.SetNameDescription("Rapture (Strength and Constitution)",
+                                               "An exciter gains the ability to enter an ecstatic state in which he’s consumed and overwhelmed by his passions and driven into a fighting fury. This functions similarly to a barbarian’s rage, treating his spiritualist level as his barbarian level, though he doesn’t qualify for feats or other elements that require rage or bloodrage. When entering a rapture, the exciter loses all other benefits from having his phantom confined in his consciousness (such as the Skill Focus feats and bonus against mind-affecting effects). While in rapture Exciter receives +4 morale bonus to Strength, Constitution and +2 morale bonus on Will saves instead of usual barbarian rage bonuses, but he can choose to exchange the normal +4 morale bonus to his Strength and Constitution scores for a +4 morale bonus to his Dexterity and Charisma."
+                                              );
+            rapture_str_con_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
+            rapture_str_con_buff = library.CopyAndAdd<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613", "RaptureStrConBuff", "");
+            rapture_str_con_buff.RemoveComponent(rapture_str_con_buff.GetComponent<Kingmaker.UnitLogic.FactLogic.ForbidSpellCasting>());
+            rapture_str_con_buff.AddComponent(Helpers.Create<NewMechanics.ForbidSpellCastingUnlessHasFacts>(f => { f.ForbidMagicItems = true; f.allowed_facts = new BlueprintUnitFact[] {perfect_passion}; }));
+            rapture_str_con_buff.SetNameDescription(rapture_str_con_ability);
+            rapture_str_con_ability.Buff.RemoveComponents<NewMechanics.FeatureReplacement>();
+            rapture_str_con_ability.Buff = rapture_str_con_buff;
+            rapture_str_con_ability.ReplaceComponent<ActivatableAbilityResourceLogic>(a => a.RequiredResource = rapture_resource);
+            rapture_str_con_buff.ReplaceComponent<AddFactContextActions>(a =>
+            {
+                a.Activated = Helpers.CreateActionList(a.Activated.Actions.ToList().ToArray().AddToArray(apply_allow_blood_casting));
+                a.NewRound = Helpers.CreateActionList(a.NewRound.Actions.ToList().ToArray());
+                a.Deactivated = Helpers.CreateActionList(a.Deactivated.Actions.ToList().ToArray());
+            });
+            rapture_str_con_buff.RemoveComponents<TemporaryHitPointsPerLevel>();
+            rapture_str_con_buff.RemoveComponents<ContextRankConfig>();
+            rapture_str_con_buff.RemoveComponents<AddContextStatBonus>();
+            rapture_str_con_buff.RemoveComponents<WeaponAttackTypeDamageBonus>();
+            rapture_str_con_buff.RemoveComponents<SpellDescriptorComponent>();
+            rapture_str_con_buff.RemoveComponents<WeaponGroupDamageBonus>();
+            rapture_str_con_buff.RemoveComponents<AttackTypeAttackBonus>();
+            rapture_str_con_buff.AddComponents(Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                               Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                               Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+                                               Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2,
+                                                                              featureList: new BlueprintFeature[] { greater_rapture })
+                                               );
+
+            var barbarian = library.Get<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
+            rapturous_rage = library.CopyAndAdd<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e", "RapturousRageFeatureSelection", "");
+            rapturous_rage.SetNameDescription("Rapturous Rage",
+                                              "At 10th level and every 4 spiritualist levels thereafter, an exciter can select one rage power for which he qualifies, treating his spiritualist level as his barbarian level for all purposes relating to that particular rage power (he still doesn’t qualify for the Extra Rage Power feat or any similar abilities).");
+
+            ClassToProgression.addClassToBuff(spiritualist_class, new BlueprintArchetype[] {exciter }, rage_buff, barbarian);
+            foreach (var f in rapturous_rage.AllFeatures)
+            {
+                ClassToProgression.addClassToFeat(spiritualist_class, new BlueprintArchetype[] {exciter}, ClassToProgression.DomainSpellsType.NoSpells, f, barbarian);
+            }
+
+            if (test_mode)
+            {
+                // allow to use rage out of combat for debug purposes
+                rapture_str_con_ability.IsOnByDefault = false;
+                rapture_str_con_ability.DeactivateIfCombatEnded = false;
+                rapture_str_con_ability.IsOnByDefault = false;
+                rapture_str_con_ability.DeactivateIfCombatEnded = false;
+            }
+
+            var rapture_dex_cha_buff = library.CopyAndAdd(rapture_str_con_buff, "RaptureDexChaBuff", "");
+            rapture_dex_cha_buff.SetIcon(Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a")); //transmutation physical ench dex
+            rapture_dex_cha_buff.SetDescription("Rapture (Dexterity and Charisma)");
+            rapture_dex_cha_buff.RemoveComponents<AddContextStatBonus>();
+            rapture_dex_cha_buff.AddComponents(Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                   Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                   Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2)
+                                   );
+            var rapture_dex_cha_ability = library.CopyAndAdd(rapture_str_con_ability, "RaptureDexChaAbility", "");
+            rapture_dex_cha_ability.SetName(rapture_dex_cha_buff.Name);
+            rapture_dex_cha_ability.SetIcon(rapture_dex_cha_buff.Icon);
+            rapture_dex_cha_ability.Buff = rapture_dex_cha_buff;
+
+            rapture = Helpers.CreateFeature("RaptureFeature",
+                                            "Rapture",
+                                            rapture_str_con_ability.Description,
+                                            "",
+                                            rapture_str_con_ability.Icon,
+                                            FeatureGroup.None,
+                                            rapture_resource.CreateAddAbilityResource(),
+                                            Helpers.CreateAddFacts(rapture_str_con_ability, rapture_dex_cha_ability),
+                                            Common.createClassLevelsForPrerequisites(barbarian, spiritualist_class)
+                                            );
+        }
+
+
+        static void createMergedPhantom()
+        {
+            exciter_phantom_selection = Helpers.CreateFeatureSelection("ExciterPhantomFeatureSelection",
+                                                      "Merged Phantom",
+                                                      "An exciter internalizes his phantom and merges it completely within his mind. He cannot fully manifest his phantom outside of his own body in incorporeal or ectoplasmic form. Emotional focus abilities that affect or require a manifested phantom are lost, except for phantom ability gained at first level and aura gained by the phantom at 7th level; if the phantom gains an aura at 7th level, this aura functions despite the phantom not being manifested, and is centered on the exciter. If phantom ability augments only a phantom's slam attack it augments all exiter's melee attacks instead.",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.AnimalCompanion
+                                                      );
+
+            foreach (var kv in Phantom.exciter_progressions)
+            {
+                exciter_phantom_selection.AllFeatures = exciter_phantom_selection.AllFeatures.AddToArray(kv.Value);
+            }
+
+
+            exciter_potent_phantom = Helpers.CreateFeatureSelection("ExciterPotentPhantomFeatureSelection",
+                                                "Potent Phantom",
+                                                "At 20th level, the spiritualist’s phantom grows ever more complex and sophisticated in its manifestation. The phantom gains a second emotional focus. This does not change the phantom’s saving throws, but the phantom otherwise grants all the skills and powers of the focus.",
+                                                "",
+                                                Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
+                                                FeatureGroup.None);
+
+            foreach (var kv in Phantom.potent_exciter_progressions)
+            {
+                exciter_potent_phantom.AllFeatures = exciter_potent_phantom.AllFeatures.AddToArray(kv.Value);
+            }
         }
 
 

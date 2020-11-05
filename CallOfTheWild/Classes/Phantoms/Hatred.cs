@@ -39,7 +39,7 @@ namespace CallOfTheWild
                                                        Common.createPrefabLink("8de64fbe047abc243a9b4715f643739f"),
                                                        Helpers.Create<AttackBonusAgainstTarget>(a => { a.Value = 2; a.CheckCaster = true; }),
                                                        Helpers.Create<DamageBonusAgainstTarget>(a => { a.Value = Helpers.CreateContextValue(AbilityRankType.Default); a.CheckCaster = true; }),
-                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPhantomArray(), progression: ContextRankProgression.Div2,
+                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPhantomSpiritualistArray(), progression: ContextRankProgression.Div2,
                                                                                        min: 1),
                                                        Helpers.Create<UniqueBuff>()
                                                        );
@@ -158,7 +158,9 @@ namespace CallOfTheWild
                               NewSpells.inflict_pain,
                               library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), //bestow curse,
                               library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f") //enervation,
-                          }
+                          },
+                          hated_target,
+                          hateful_aura
                           );
         }
     }

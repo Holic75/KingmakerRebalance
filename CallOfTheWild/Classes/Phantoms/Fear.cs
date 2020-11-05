@@ -67,7 +67,7 @@ namespace CallOfTheWild
                                                                                                                       wait_for_attack_to_resolve: true,
                                                                                                                       weapon_category: WeaponCategory.OtherNaturalWeapons
                                                                                                                       ),
-                                                         Common.createContextCalculateAbilityParamsBasedOnClass(phantom_class, StatType.Charisma),
+                                                         Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken)
                                                          );
 
@@ -129,7 +129,7 @@ namespace CallOfTheWild
                                                       new BlueprintComponent[]
                                                       {
                                                           aura_component,
-                                                          Common.createContextCalculateAbilityParamsBasedOnClass(phantom_class, StatType.Charisma),
+                                                          Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
                                                           frightened.GetComponent<SpellDescriptorComponent>()
                                                       }
                                                       );
@@ -169,7 +169,9 @@ namespace CallOfTheWild
                               NewSpells.savage_maw,
                               library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampiryc touch
                               library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5") //phantasmal killer
-                          }
+                          },
+                          horryfying_strike,
+                          increase_fear
                           );
         }
     }

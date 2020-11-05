@@ -34,6 +34,16 @@ namespace CallOfTheWild
                                                          //power attack and damage will be added in archetype
                                                          );
 
+            var powerful_strikes_spiritualist = Helpers.CreateFeature("AngerPhantomPowerfulStrikesExciterFeature",
+                                                         powerful_strikes.Name,
+                                                         powerful_strikes.Description,
+                                                         "",
+                                                         powerful_strikes.Icon,
+                                                         FeatureGroup.None,
+                                                         Common.createWeaponTypeSizeChange(1),
+                                                         Helpers.CreateAddFact(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"))
+                                                         );
+
             var aura_of_fury_effect_buff = Helpers.CreateBuff("AngerPhantomAuraOfFuryEffectBuff",
                                                        "Aura of Fury",
                                                        "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot-radius aura of fury. Creatures within the aura gain a +2 bonus on melee attack rolls but take a –2 penalty to AC. Ending the aura is a free action.",
@@ -140,7 +150,9 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), //rage
                               library.Get<BlueprintAbility>("e80a4d6c0efa5774cbd515e3e37095b0"), //longstrider greater
                               library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162") //shout
-                          }
+                          },
+                          powerful_strikes_phantom,
+                          aura_of_fury
                           );
         }
     }
