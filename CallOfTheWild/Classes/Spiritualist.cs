@@ -116,9 +116,10 @@ namespace CallOfTheWild
         static public BlueprintFeature overwhelming_excitement;
         static public BlueprintAbilityResource rapture_resource;
         static public BlueprintFeature perfect_passion;
-        static public BlueprintFeature exciter_shared_conciousness;
+        static public BlueprintFeature exciter_shared_consciousness;
         static public BlueprintBuff rapture_str_con_buff;
         static public BlueprintBuff rapture_dex_cha_buff;
+        static public BlueprintBuff prevent_shared_conciousness_fact;
 
 
         //necrologist, exciter, priest of the fallen
@@ -178,8 +179,8 @@ namespace CallOfTheWild
             createOnmyoji();
             createScourge();
             createFracturedMind();
-            //createExciter();
-            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind};
+            createExciter();
+            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind, exciter};
         }
 
 
@@ -191,13 +192,13 @@ namespace CallOfTheWild
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Exciter");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Psychic magic draws upon the twin and sometimes opposed powers of thought and emotion, but an exciter cares little for rationality. The phantom that accompanies him fills him with unbridled exultation, as he lets feeling and passion rule and sharpen his mind and body into a glorious fusion.");
             });
-            Helpers.SetField(onmyoji, "m_ParentClass", spiritualist_class);
-            library.AddAsset(onmyoji, "");
+            Helpers.SetField(exciter, "m_ParentClass", spiritualist_class);
+            library.AddAsset(exciter, "");
 
             createMergedPhantom();
-            //createExciterSharedConciousness();
+            createExciterSharedConciousness();
             createRapture();
-            //createOverwhelmingExcitement();
+            createOverwhelmingExcitement();
 
 
             var fast_movement = library.Get<BlueprintFeature>("d294a5dddd0120046aae7d4eb6cbc4fc");
@@ -205,11 +206,12 @@ namespace CallOfTheWild
 
             exciter.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, emotional_focus_selection, shared_consciousness, etheric_tether, masters_alignment),
                                                             Helpers.LevelEntry(4, spiritual_inference),
+                                                            Helpers.LevelEntry(6, phantom_recall),
                                                             Helpers.LevelEntry(10, fused_consciousness),
                                                             Helpers.LevelEntry(12, greater_spiritual_inference),
                                                             Helpers.LevelEntry(14, spiritual_bond),
                                                             Helpers.LevelEntry(20, potent_phantom)};
-            exciter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, exciter_phantom_selection, rapture, fast_movement, exciter_shared_conciousness),
+            exciter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, exciter_phantom_selection, rapture, fast_movement, exciter_shared_consciousness),
                                                          Helpers.LevelEntry(4, perfect_passion),
                                                          Helpers.LevelEntry(10, overwhelming_excitement, rapturous_rage),
                                                          Helpers.LevelEntry(12, greater_rapture),
@@ -219,10 +221,132 @@ namespace CallOfTheWild
                                                          };
 
             spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(rapture, rapturous_rage, greater_rapture, rapturous_rage, rapturous_rage));
-            spiritualist_progression.UIGroups[1].Features.Add(exciter_shared_conciousness);
-            spiritualist_progression.UIGroups[1].Features.Add(greater_rapture);
+            spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(fast_movement, perfect_passion, overwhelming_excitement));
+            spiritualist_progression.UIGroups[1].Features.Add(exciter_shared_consciousness);
             spiritualist_progression.UIGroups[1].Features.Add(exciter_potent_phantom);
             spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(exciter_phantom_selection);
+        }
+
+
+        static void createExciterSharedConciousness()
+        {
+            prevent_shared_conciousness_fact = Helpers.CreateBuff("PreventExciterSharedConciousnessFeature",
+                                                                        "",
+                                                                        "",
+                                                                        "",
+                                                                        null,
+                                                                        null
+                                                                      );
+            prevent_shared_conciousness_fact.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            exciter_shared_consciousness = Helpers.CreateFeature("ExciterSharedConsciousnessFeature",
+                                             shared_consciousness.Name,
+                                             shared_consciousness.Description,
+                                             "",
+                                             shared_consciousness.Icon,
+                                             FeatureGroup.None,
+                                             Helpers.Create<RecalculateOnFactsChange>(a => a.CheckedFacts = new BlueprintUnitFact[] {prevent_shared_conciousness_fact} )
+                                             );
+
+            foreach (var kv in Phantom.exciter_progressions)
+            {
+                var exciter_skill_foci_feature = Helpers.CreateFeature("Exciter" + kv.Key + "SharedConsciousnessFeature",
+                                                                       shared_consciousness.Name,
+                                                                       shared_consciousness.Description,
+                                                                       "",
+                                                                       shared_consciousness.Icon,
+                                                                       FeatureGroup.None,
+                                                                       Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.MindAffecting),
+                                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSpiritualistArray(),
+                                                                                                      progression: ContextRankProgression.Custom,
+                                                                                                      customProgression: new (int, int)[] { (11, 4), (20, 8) })
+                                                                      );
+
+                foreach (var sf in Phantom.phantom_skill_foci[kv.Key])
+                {
+                    exciter_skill_foci_feature.AddComponents(Common.createAddFeatureIfHasFactAndNotHasFact(Phantom.exciter_progressions[kv.Key], sf, sf));
+                }
+
+                exciter_shared_consciousness.AddComponent(Common.createAddFeatureIfHasFact(prevent_shared_conciousness_fact,  exciter_skill_foci_feature, not: true));
+            }
+        }
+
+
+        static void createOverwhelmingExcitement()
+        {
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var str_con_effect_buff = Helpers.CreateBuff("OverwhelmingExcitementStrConEffectBuff",
+                                                 "Overwhelming Excitement",
+                                                 "At 10th level, an exciter can share the effects of his rapture with willing allies within 10 feet. He must expend 1 additional round of his rapture each round for each ally sharing its effects. The exciter’s allies share all effects of the rapture except the rage powers; each ally must end its turn within 10 feet of the exciter, or the effects of the rapture end for that ally and it becomes fatigued.",
+                                                 "",
+                                                 Helpers.GetIcon("1bc83efec9f8c4b42a46162d72cbf494"), //burst of glory
+                                                 Common.createPrefabLink("53c86872d2be80b48afc218af1b204d7"), //from rage
+                                                 Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                                 Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                                 Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
+                                                 Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2,
+                                                                              featureList: new BlueprintFeature[] { greater_rapture }),
+                                                 Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false))
+                                               );
+
+            var dex_cha_effect_buff = library.CopyAndAdd(str_con_effect_buff, "OverwhelmingExcitementDexChaEffectBuff", "");
+            dex_cha_effect_buff.RemoveComponents<AddContextStatBonus>();
+            dex_cha_effect_buff.AddComponents(Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                              Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
+                                              Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus)
+                                             );
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "OverwhelmingExcitementAura", "");
+            area.Fx = Common.createPrefabLink("cda35ba5c34a61b499f5858eabcedec7"); //abjuration aoe
+
+            var in_area_effect = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsCaster>(), 
+                                                                                             Helpers.CreateConditionHasFact(fatigued),
+                                                                                             Helpers.CreateConditionHasFact(exhausted)
+                                                                                             ),
+                                                           null,
+                                                           Helpers.CreateConditional(Common.createContextConditionCasterHasFact(rapture_str_con_buff),
+                                                                                     Common.createContextActionApplyBuff(str_con_effect_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                                                     Helpers.CreateConditional(Common.createContextConditionCasterHasFact(rapture_dex_cha_buff),
+                                                                                                               Common.createContextActionApplyBuff(dex_cha_effect_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                               )
+                                                                                    )
+                                                          );
+            area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateAreaEffectRunAction(unitEnter: new GameAction[]{in_area_effect },
+                                                  round: new GameAction[]{in_area_effect },
+                                                  unitExit: new GameAction[]{Common.createContextActionRemoveBuffFromCaster(str_con_effect_buff),
+                                                                             Common.createContextActionRemoveBuffFromCaster(dex_cha_effect_buff)
+                                                                            }
+                                                 )
+            };
+
+            var overwhelming_excitement_buff = Helpers.CreateBuff("OverwhelmingExcitementBuff",
+                                                                   str_con_effect_buff.Name,
+                                                                   str_con_effect_buff.Description,
+                                                                   "",
+                                                                   str_con_effect_buff.Icon,
+                                                                   null,
+                                                                   Common.createAddAreaEffect(area),
+                                                                   Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(prevent_shared_conciousness_fact, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true))
+                                                                   );
+
+            var toggle = Common.buffToToggle(overwhelming_excitement_buff, CommandType.Free, false,
+                                             rapture_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound),
+                                             Helpers.Create<NewMechanics.RestrictionHasFacts>(r =>  r.features = new BlueprintUnitFact[] { rapture_str_con_buff, rapture_dex_cha_buff })
+                                             );
+            
+            overwhelming_excitement = Common.ActivatableAbilityToFeature(toggle, false);
+
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(rapture_str_con_buff,
+                                                                          Helpers.CreateConditional(Common.createContextConditionHasFact(overwhelming_excitement),
+                                                                                                    null,
+                                                                                                    Common.createContextActionApplyBuff(prevent_shared_conciousness_fact, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
+                                                                                                    )
+                                                                          );
         }
 
         static void createRapture()
@@ -251,7 +375,7 @@ namespace CallOfTheWild
             var apply_allow_blood_casting = Common.createContextActionApplyBuff(rapture_casting_allowed_buff, Helpers.CreateContextDuration(1), is_child: true, dispellable: false);
 
             var cast_only_on_self = Common.createContextActionApplyBuff(SharedSpells.can_only_target_self_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
-            var rapture_casting_buff = Helpers.CreateBuff("BloodCastingBuff",
+            var rapture_casting_buff = Helpers.CreateBuff("RaptureCastingBuff",
                                                         "Rapture Casting",
                                                         "Uupon entering a rapture, exiter can apply the effects of a single spiritualist spell he knows to himself. The spell must have a range of touch or personal, and it must be a 1st- or 2nd-level spell. For every 3 spiritualist levels he has beyond 12th, the maximum spell level of this spell increases by 1.",
                                                         "",
@@ -289,12 +413,12 @@ namespace CallOfTheWild
                                         "At 12th level, an exciter increases the morale bonus his rapture grants to each applicable ability score by 2 and the morale bonus he gains on Will saves by 1.\n"
                                         + "In addition, upon entering a rapture, he can apply the effects of a single spiritualist spell he knows to himself. The spell must have a range of touch or personal, and it must be a 1st- or 2nd-level spell. For every 3 spiritualist levels he has beyond 12th, the maximum spell level of this spell increases by 1.",
                                         "",
-                                        Helpers.GetIcon("ce7dad2b25acf85429b6c9550787b2d9"),
+                                        Helpers.GetIcon("df6a2cce8e3a9bd4592fb1968b83f730"), //rage
                                         FeatureGroup.None,
                                         Helpers.CreateAddFact(rapture_casting_ability)
                                         );
 
-            var rage_buff = library.Get<BlueprintBuff>("df6a2cce8e3a9bd4592fb1968b83f730");
+            
             var rapture_str_con_ability = library.CopyAndAdd<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730", "RaptureStrConToggleAbility", "");
             rapture_str_con_ability.SetNameDescription("Rapture (Strength and Constitution)",
                                                "An exciter gains the ability to enter an ecstatic state in which he’s consumed and overwhelmed by his passions and driven into a fighting fury. This functions similarly to a barbarian’s rage, treating his spiritualist level as his barbarian level, though he doesn’t qualify for feats or other elements that require rage or bloodrage. When entering a rapture, the exciter loses all other benefits from having his phantom confined in his consciousness (such as the Skill Focus feats and bonus against mind-affecting effects). While in rapture Exciter receives +4 morale bonus to Strength, Constitution and +2 morale bonus on Will saves instead of usual barbarian rage bonuses, but he can choose to exchange the normal +4 morale bonus to his Strength and Constitution scores for a +4 morale bonus to his Dexterity and Charisma."
@@ -333,7 +457,7 @@ namespace CallOfTheWild
             rapturous_rage.SetNameDescription("Rapturous Rage",
                                               "At 10th level and every 4 spiritualist levels thereafter, an exciter can select one rage power for which he qualifies, treating his spiritualist level as his barbarian level for all purposes relating to that particular rage power (he still doesn’t qualify for the Extra Rage Power feat or any similar abilities).");
 
-            ClassToProgression.addClassToBuff(spiritualist_class, new BlueprintArchetype[] {exciter }, rage_buff, barbarian);
+            ClassToProgression.addClassToBuff(spiritualist_class, new BlueprintArchetype[] {exciter }, rapture_str_con_buff, barbarian);
             foreach (var f in rapturous_rage.AllFeatures)
             {
                 ClassToProgression.addClassToFeat(spiritualist_class, new BlueprintArchetype[] {exciter}, ClassToProgression.DomainSpellsType.NoSpells, f, barbarian);
@@ -348,7 +472,7 @@ namespace CallOfTheWild
                 rapture_str_con_ability.DeactivateIfCombatEnded = false;
             }
 
-            var rapture_dex_cha_buff = library.CopyAndAdd(rapture_str_con_buff, "RaptureDexChaBuff", "");
+            rapture_dex_cha_buff = library.CopyAndAdd(rapture_str_con_buff, "RaptureDexChaBuff", "");
             rapture_dex_cha_buff.SetIcon(Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a")); //transmutation physical ench dex
             rapture_dex_cha_buff.SetDescription("Rapture (Dexterity and Charisma)");
             rapture_dex_cha_buff.RemoveComponents<AddContextStatBonus>();
@@ -1381,7 +1505,7 @@ namespace CallOfTheWild
                                                                                                                 Common.createContextActionApplyBuff(shared_consciousness_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false)
                                                                                                                 )
                                                                                                                 )
-                                                                                                                );
+                                                                                      );
         }
 
         static void createSummonUnsummonPhantom()

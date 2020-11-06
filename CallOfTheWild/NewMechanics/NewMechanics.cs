@@ -1281,6 +1281,36 @@ namespace CallOfTheWild
             }
         }
 
+        public class RestrictionHasFacts : ActivatableAbilityRestriction
+        {
+            public BlueprintUnitFact[] features;
+            public bool not;
+            public bool all;
+
+            public override bool IsAvailable()
+            {
+                bool res = false;
+                foreach (var f in features)
+                {
+                   bool has_fact = this.Owner.HasFact(f);
+                   if (all && !has_fact)
+                   {
+                        res = false;
+                        break;
+                   }
+                  
+                   if (has_fact && !all)
+                   {
+                        res = true;
+                        break;
+                   }
+                    res = res || has_fact;
+                }
+
+                return res != not;
+            }
+        }
+
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ForbidSpellCastingUnlessHasFacts : OwnedGameLogicComponent<UnitDescriptor>

@@ -151,7 +151,7 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("e80a4d6c0efa5774cbd515e3e37095b0"), //longstrider greater
                               library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162") //shout
                           },
-                          powerful_strikes_phantom,
+                          powerful_strikes_spiritualist,
                           aura_of_fury
                           );
         }

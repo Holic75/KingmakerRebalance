@@ -58,7 +58,7 @@ namespace CallOfTheWild
                                                           );
             hated_target_move.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
-            var hated_target = Common.AbilityToFeature(hated_target_move);
+            var hated_target = Common.AbilityToFeature(hated_target_move, false);
             var hated_target_swift = library.CopyAndAdd(hated_target_move, "HatredPhantomHatedTargetSwiftAbility", "");
             hated_target_swift.ActionType = UnitCommand.CommandType.Swift;
             hated_target_swift.SetName(hated_target_buff.Name + " (Swift)");
