@@ -73,6 +73,7 @@ namespace CallOfTheWild
 
         static public BlueprintPortrait phantom_portrait;
 
+        static public Dictionary<string, string> phantom_name_map = new Dictionary<string, string>();
         static public Dictionary<string, BlueprintProgression> exciter_progressions = new Dictionary<string, BlueprintProgression>();
         static public Dictionary<string, BlueprintFeature> potent_exciter_progressions = new Dictionary<string, BlueprintFeature>();
         static public Dictionary<string, BlueprintProgression> phantom_progressions = new Dictionary<string, BlueprintProgression>();
@@ -80,6 +81,7 @@ namespace CallOfTheWild
         static public Dictionary<string, BlueprintFeature> potent_phantom = new Dictionary<string, BlueprintFeature>();
         static public Dictionary<string, List<BlueprintFeature>> phantom_skill_foci = new Dictionary<string, List<BlueprintFeature>>();
         static public Dictionary<BlueprintArchetype, BlueprintArchetype> pain_phantom_archetype_map = new Dictionary<BlueprintArchetype, BlueprintArchetype>();
+        static public Dictionary<string, BlueprintAbility[]> emotion_conduit_spells_map = new Dictionary<string, BlueprintAbility[]>();
 
 
 
@@ -112,9 +114,11 @@ namespace CallOfTheWild
                                   BlueprintFeature feature1, BlueprintFeature feature7, BlueprintFeature feature12, BlueprintFeature feature17,
                                   StatType[] skills, int str_value, int dex_value,
                                   BlueprintAbility[] spell_like_abilities,
-                                  BlueprintFeature exciter_feature1 = null, BlueprintFeature exciter_feature2 = null
+                                  BlueprintFeature exciter_feature1 = null, BlueprintFeature exciter_feature2 = null,
+                                  BlueprintAbility[] emotion_conduit_spells = null
                                   )
         {
+            phantom_name_map[name] = display_name;
             var ghost_fx = library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232");
 
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
@@ -273,42 +277,43 @@ namespace CallOfTheWild
                 }
             }
 
-
-            if (exciter_feature1 == null)
+            emotion_conduit_spells_map[name] = emotion_conduit_spells;
+            if (exciter_feature1 != null)
             {
-                return;
-            }
 
-            var exciter_progression = Helpers.CreateProgression(name + "ExciterProgression",
-                                             "Emotion Focus: " + display_name,
-                                             descripton,
-                                             "",
-                                             icon,
-                                             FeatureGroup.AnimalCompanion
-                                             );
-            exciter_progression.Classes = new BlueprintCharacterClass[] { Spiritualist.spiritualist_class };
-            exciter_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(2, exciter_feature1),
+                var exciter_progression = Helpers.CreateProgression(name + "ExciterProgression",
+                                                 "Emotion Focus: " + display_name,
+                                                 descripton,
+                                                 "",
+                                                 icon,
+                                                 FeatureGroup.AnimalCompanion
+                                                 );
+                exciter_progression.Classes = new BlueprintCharacterClass[] { Spiritualist.spiritualist_class };
+                exciter_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(2, exciter_feature1),
                                                             Helpers.LevelEntry(5, spell_likes[0]),
                                                            Helpers.LevelEntry(7, exciter_feature2, spell_likes[1]),
                                                            Helpers.LevelEntry(9, spell_likes[2]),
                                                            Helpers.LevelEntry(16, spell_likes[3])
                                                            };
-            exciter_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(exciter_feature1, exciter_feature2),
+                exciter_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(exciter_feature1, exciter_feature2),
                                                   Helpers.CreateUIGroup(spell_likes)
                                                  };
-            exciter_progressions[name] = exciter_progression;
+                exciter_progressions[name] = exciter_progression;
 
 
-            var exciter_capstone = Helpers.CreateFeature(name + "ExciterPotentPhantomFeature",
-                                                         "Potent Phantom: " + display_name,
-                                                         descripton,
-                                                         "",
-                                                         icon,
-                                                         FeatureGroup.None,
-                                                         Helpers.CreateAddFacts(exciter_feature1, exciter_feature2),
-                                                         Helpers.PrerequisiteNoFeature(exciter_progression)
-                                                         );
-            potent_exciter_progressions[name] = exciter_capstone;
+                var exciter_capstone = Helpers.CreateFeature(name + "ExciterPotentPhantomFeature",
+                                                             "Potent Phantom: " + display_name,
+                                                             descripton,
+                                                             "",
+                                                             icon,
+                                                             FeatureGroup.None,
+                                                             Helpers.CreateAddFacts(exciter_feature1, exciter_feature2),
+                                                             Helpers.PrerequisiteNoFeature(exciter_progression)
+                                                             );
+                potent_exciter_progressions[name] = exciter_capstone;
+            }
+
+           
         }
 
 

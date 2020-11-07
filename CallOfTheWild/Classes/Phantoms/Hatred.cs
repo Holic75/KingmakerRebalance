@@ -160,7 +160,16 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f") //enervation,
                           },
                           hated_target,
-                          hateful_aura
+                          hateful_aura,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              Witch.ill_omen,
+                              NewSpells.inflict_pain,
+                              library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), //bestow curse,
+                              NewSpells.debilitating_portent,
+                              NewSpells.inflict_pain_mass,
+                              library.Get<BlueprintAbility>("cc09224ecc9af79449816c45bc5be218"), //harm
+                          }
                           );
         }
     }

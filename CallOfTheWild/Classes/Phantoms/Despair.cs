@@ -157,7 +157,16 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903") //crushing despair
                           },
                           miserable_strike,
-                          aura_of_despair
+                          aura_of_despair,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("ad10bfec6d7ae8b47870e3a545cc8900"), //touch of gracelessness
+                              NewSpells.stricken_heart,
+                              NewSpells.ray_of_exhaustion,
+                              library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903"), //crushing despair
+                              NewSpells.suffocation,
+                              library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642"), //eyebite
+                          }
                           );
         }
     }

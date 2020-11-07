@@ -198,7 +198,16 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e") //freedom of movement
                           },
                           ruthless_combatant_spiritualist,
-                          determination_aura
+                          determination_aura,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                              library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762"), //false life
+                              library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                              library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e"), //freedom of movement
+                              library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+                              library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31") //heroism greater
+                          }
                           );
         }
     }

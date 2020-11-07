@@ -132,7 +132,7 @@ namespace CallOfTheWild
                                                                             Helpers.LevelEntry(15, dex_cha_bonus),}
                                                          );
 
-            //burst of adrenaline, rage, howling agony, shout, ?, transformation
+            //burst of adrenaline, rage, howling agony, shout, song of discord, transformation
             createPhantom("Anger",
                           "Anger",
                           "Phantoms with this emotional focus are filled with seething anger from events in their past lives. Phantoms with this focus often take the form of hulking brutes with furrowed brows or of frenzied creatures that always seem ready to strike down those who come too near. Many times, these phantoms exude a bright red aura, especially when they are engaged in combat, or they seem to breathe a red mist in shallow pants from behind clenched, phantasmal teeth.\n"
@@ -152,7 +152,16 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162") //shout
                           },
                           powerful_strikes_spiritualist,
-                          aura_of_fury
+                          aura_of_fury,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              NewSpells.burst_of_adrenaline,
+                              SpellDuplicates.addDuplicateSpell(library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), "EmotionConduitRageSpell"), //rage
+                              NewSpells.howling_agony,
+                              library.Get<BlueprintAbility>("f09453607e683784c8fca646eec49162"), //shout
+                              library.Get<BlueprintAbility>("d38aaf487e29c3d43a3bffa4a4a55f8f"), //song of discord
+                              library.Get<BlueprintAbility>("27203d62eb3d4184c9aced94f22e1806"), //transformation
+                          }
                           );
         }
     }

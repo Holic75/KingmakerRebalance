@@ -122,7 +122,7 @@ namespace CallOfTheWild
         static public BlueprintBuff rapture_share_str_con_buff;
         static public BlueprintBuff rapture_share_dex_cha_buff;
         static public BlueprintBuff prevent_shared_conciousness_fact;
-
+        static public BlueprintFeatureSelection emotional_conduit;
 
         //necrologist, exciter, priest of the fallen
 
@@ -183,6 +183,52 @@ namespace CallOfTheWild
             createFracturedMind();
             createExciter();
             spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind, exciter};
+            createEmotionalConduit();
+        }
+
+
+        static void createEmotionalConduit()
+        {
+            emotional_conduit = Helpers.CreateFeatureSelection("EmotionaConduitFeatureSelection",
+                                                               "Emotional Conduit",
+                                                               "You gain familiarity with a number of additional spells based on the emotional focus of your phantom. These spells are added to both your class spell list (if not already on that list) and your list of spells known; they are in addition to the normal number of spells known for your level.",
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.Feat,
+                                                               Helpers.PrerequisiteClassLevel(spiritualist_class, 1)
+                                                               );
+
+            foreach (var kv in Phantom.emotion_conduit_spells_map)
+            {
+                string spell_string = "You gain the following spells:";
+                foreach (var s in kv.Value)
+                {
+                    spell_string += " " + s.Name +  (s == kv.Value.Last() ? "." : ",");
+                }
+                var feature = Helpers.CreateFeature(kv.Key + "EmotionaConduitFeature",
+                                                    emotional_conduit.Name + ": " + Phantom.phantom_name_map[kv.Key],
+                                                    emotional_conduit.Description + "\n" + spell_string,
+                                                    "",
+                                                    Phantom.phantom_progressions[kv.Key].Icon,
+                                                    FeatureGroup.Feat);
+
+                for (int i = 0; i < kv.Value.Length; i++)
+                {
+                    feature.AddComponent(Helpers.CreateAddKnownSpell(kv.Value[i], spiritualist_class, i + 1));
+                }
+
+                if (Phantom.exciter_progressions.ContainsKey(kv.Key))
+                {
+                    feature.AddComponents(Helpers.PrerequisiteFeaturesFromList(Phantom.phantom_progressions[kv.Key], Phantom.exciter_progressions[kv.Key]));
+                }
+                else
+                {
+                    feature.AddComponent(Helpers.PrerequisiteFeature(Phantom.phantom_progressions[kv.Key]));
+                }
+                emotional_conduit.AllFeatures = emotional_conduit.AllFeatures.AddToArray(feature);
+            }
+
+            library.AddFeats(emotional_conduit);
         }
 
 

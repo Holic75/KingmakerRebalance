@@ -171,7 +171,16 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5") //phantasmal killer
                           },
                           horryfying_strike,
-                          increase_fear
+                          increase_fear,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), //bane
+                              library.Get<BlueprintAbility>("08cb5f4c3b2695e44971bf5c45205df0"), //scare
+                              SpellDuplicates.addDuplicateSpell(library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), "EmotionConduitFearSpell", ""),
+                              library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5"), //phantasmal killer
+                              library.Get<BlueprintAbility>("12fb4a4c22549c74d949e2916a2f0b6a"), //phantasmal web
+                              library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
+                          }
                           );
         }
     }
