@@ -215,7 +215,7 @@ namespace CallOfTheWild
                                                                                                                Common.createContextActionApplyBuff(exceptional_aid_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false)
                                                                                                                )
                                                                                      );
-            //bless, aid, heroism, good hope, waves of ecstasy, greater heroism
+            //bless, blessing of courage and life, good hope, joyful rapture, waves of ecstasy, greater heroism
             createPhantom("Kindness",
                           "Kindness",
                           "A phantom with this emotional focus was a being with a generous heart in life and continues to remain that way well after death. The phantom’s intense generosity compels it to remain a phantom and continue assisting the living, especially relatives or those who had been its good friends during its living years. Kindness phantoms have pleasant and gentle demeanors and speak with a melodic cadence, putting most who see them at ease. Their auras are bright emerald green with occasional fluctuating scarlet or golden hues.\n"
@@ -230,9 +230,18 @@ namespace CallOfTheWild
                           new BlueprintAbility[]
                           {
                               library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
-                               library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0"), //aid
+                              library.Get<BlueprintAbility>("03a9630394d10164a9410882d31572f0"), //aid
                               library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
                               library.Get<BlueprintAbility>("a5e23522eda32dc45801e32c05dc9f96") //good hope
+                          },
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                              library.Get<BlueprintAbility>("c36c1d11771b0584f8e100b92ee5475b"), //blessing of courage and life
+                              library.Get<BlueprintAbility>("a5e23522eda32dc45801e32c05dc9f96"), //good hope
+                              library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+                              library.Get<BlueprintAbility>("1e2d1489781b10a45a3b70192bba9be3"), //waves of ecstasy
+                              library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31") //heroism greater
                           }
                           );
 

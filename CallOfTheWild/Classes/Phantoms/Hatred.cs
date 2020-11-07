@@ -39,7 +39,7 @@ namespace CallOfTheWild
                                                        Common.createPrefabLink("8de64fbe047abc243a9b4715f643739f"),
                                                        Helpers.Create<AttackBonusAgainstTarget>(a => { a.Value = 2; a.CheckCaster = true; }),
                                                        Helpers.Create<DamageBonusAgainstTarget>(a => { a.Value = Helpers.CreateContextValue(AbilityRankType.Default); a.CheckCaster = true; }),
-                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPhantomArray(), progression: ContextRankProgression.Div2,
+                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPhantomSpiritualistArray(), progression: ContextRankProgression.Div2,
                                                                                        min: 1),
                                                        Helpers.Create<UniqueBuff>()
                                                        );
@@ -58,7 +58,7 @@ namespace CallOfTheWild
                                                           );
             hated_target_move.setMiscAbilityParametersSingleTargetRangedHarmful(true);
 
-            var hated_target = Common.AbilityToFeature(hated_target_move);
+            var hated_target = Common.AbilityToFeature(hated_target_move, false);
             var hated_target_swift = library.CopyAndAdd(hated_target_move, "HatredPhantomHatedTargetSwiftAbility", "");
             hated_target_swift.ActionType = UnitCommand.CommandType.Swift;
             hated_target_swift.SetName(hated_target_buff.Name + " (Swift)");
@@ -158,6 +158,17 @@ namespace CallOfTheWild
                               NewSpells.inflict_pain,
                               library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), //bestow curse,
                               library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f") //enervation,
+                          },
+                          hated_target,
+                          hateful_aura,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              Witch.ill_omen,
+                              NewSpells.inflict_pain,
+                              library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), //bestow curse,
+                              NewSpells.debilitating_portent,
+                              NewSpells.inflict_pain_mass,
+                              library.Get<BlueprintAbility>("cc09224ecc9af79449816c45bc5be218"), //harm
                           }
                           );
         }

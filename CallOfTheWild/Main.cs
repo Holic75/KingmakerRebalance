@@ -264,10 +264,11 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
                     CallOfTheWild.Subschools.load();
                     CallOfTheWild.WeaponsFix.load();
+                    CallOfTheWild.SharedSpells.preload();
 
                     bool inquisitions_test = false;
 #if DEBUG
-                    
+                    CallOfTheWild.Spiritualist.test_mode = true;
                     CallOfTheWild.HexEngine.test_mode = true;
                     CallOfTheWild.Bloodrager.test_mode = true;
                     CallOfTheWild.Skald.test_mode = true;

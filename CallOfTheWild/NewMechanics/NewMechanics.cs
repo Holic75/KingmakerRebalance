@@ -1179,6 +1179,22 @@ namespace CallOfTheWild
         }
 
 
+        public class AttackTypeCriticalEdgeIncrease : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public AttackTypeAttackBonus.WeaponRangeType Type;
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (evt.Weapon == null || !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.Type))
+                    return;
+                evt.DoubleCriticalEdge = true;
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
         public class WeaponTypeSizeChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
         {
             public int SizeCategoryChange;
@@ -1186,7 +1202,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
             {
-                if (!this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type) || this.SizeCategoryChange == 0)
+                if ((!WeaponTypes.Empty() && !this.WeaponTypes.Contains(evt.Weapon.Blueprint.Type)) || this.SizeCategoryChange == 0)
                     return;
                 if (this.SizeCategoryChange > 0)
                 {
@@ -1262,6 +1278,75 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
+            }
+        }
+
+        public class RestrictionHasFacts : ActivatableAbilityRestriction
+        {
+            public BlueprintUnitFact[] features;
+            public bool not;
+            public bool all;
+
+            public override bool IsAvailable()
+            {
+                bool res = false;
+                foreach (var f in features)
+                {
+                   bool has_fact = this.Owner.HasFact(f);
+                   if (all && !has_fact)
+                   {
+                        res = false;
+                        break;
+                   }
+                  
+                   if (has_fact && !all)
+                   {
+                        res = true;
+                        break;
+                   }
+                    res = res || has_fact;
+                }
+
+                return res != not;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ForbidSpellCastingUnlessHasFacts : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public bool ForbidMagicItems;
+            public BlueprintUnitFact[] allowed_facts;
+            private bool activated = false;
+
+            public override void OnTurnOn()
+            {
+                foreach (var f in allowed_facts)
+                {
+                    if (this.Owner.HasFact(f))
+                    {
+                        return;
+                    }
+                }
+
+                activated = true;
+                this.Owner.State.SpellCastingForbidden.Retain();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Retain();
+            }
+
+            public override void OnTurnOff()
+            {
+                if (!activated)
+                {
+                    return;
+                }
+                activated = false;
+                this.Owner.State.SpellCastingForbidden.Release();
+                if (!this.ForbidMagicItems)
+                    return;
+                this.Owner.State.MagicItemsForbidden.Release();
             }
         }
 
@@ -4956,6 +5041,42 @@ namespace CallOfTheWild
             }
 
             public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null || !this.Owner.HasFact(this.HasFact) || this.Owner.HasFact(this.NotHasFact))
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfHasFactAndNotHasFactDynamic : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact HasFact;
+            public BlueprintUnitFact NotHasFact;
+            public BlueprintUnitFact Feature;
+
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnTurnOn()
+            {
+                this.Apply();
+            }
+
+            public override void OnTurnOff()
             {
                 this.Owner.RemoveFact(this.m_AppliedFact);
                 this.m_AppliedFact = (Fact)null;

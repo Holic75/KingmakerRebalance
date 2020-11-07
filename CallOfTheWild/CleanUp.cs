@@ -180,6 +180,7 @@ namespace CallOfTheWild
         {
             BlueprintBuff[] rage_buffs = new BlueprintBuff[] { Main.library.Get<BlueprintBuff>("da8ce41ac3cd74742b80984ccc3c9613"), //standart rage
                                                                Bloodrager.bloodrage_buff, //same as all other bloodrages
+                                                               Spiritualist.rapture_str_con_buff, //same as rapture_dex_cha_buff
                                                                Skald.inspired_rage_effect_buff,
                                                                Skald.controlled_rage_str_buff,
                                                                Skald.controlled_rage_dex_buff,
@@ -259,6 +260,8 @@ namespace CallOfTheWild
                                                                                (Skald.controlled_rage_dex_buff, true),
                                                                                (Skald.controlled_rage_con_buff, true),
                                                                                (Skald.insightful_contemplation_buff, true),
+                                                                               (Spiritualist.rapture_share_str_con_buff, true),
+                                                                               (Spiritualist.rapture_share_dex_cha_buff, true),
                                                                                (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("6928adfa56f0dcc468162efde545786b"), false), //rage spell
                                                                                (ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("9ec69854596674a4ba40802e6337894d"), false) //inspire ferocity
                                                                              };

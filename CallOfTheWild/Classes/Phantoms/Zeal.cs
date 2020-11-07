@@ -39,6 +39,15 @@ namespace CallOfTheWild
                                                          Helpers.Create<WeaponTypeCriticalEdgeIncrease>(w => w.WeaponType = library.Get<BlueprintWeaponType>("f18cbcb39a1b35643a8d129b1ec4e716"))
                                                          );
 
+            var ruthless_combatant_spiritualist = Helpers.CreateFeature("ZealPhantomExciterRuthlessCombatantFeature",
+                                             "Ruthless Combatant",
+                                             "The phantom threatens a critical hit with its slam attacks on a roll of 19–20. When the spiritualist reaches 11th level, the phantom’s critical modifier with slam attacks increases to ×3. This doesn’t stack with Improved Critical or similar effects.",
+                                             "",
+                                             Helpers.GetIcon("7812ad3672a4b9a4fb894ea402095167"),//improved unarmed strike
+                                             FeatureGroup.None,
+                                             Helpers.Create<NewMechanics.AttackTypeCriticalEdgeIncrease>(w => w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee)
+                                             );
+
             var ruthless_combatant2 = Helpers.CreateFeature("ZealPhantomRuthlessCombatantFeature2",
                                              "",
                                              "",
@@ -50,6 +59,19 @@ namespace CallOfTheWild
             ruthless_combatant2.HideInCharacterSheetAndLevelUp = true;
             ruthless_combatant2.HideInUI = true;
             ruthless_combatant.AddComponent(ruthless_combatant2.CreateAddFeatureOnClassLevel(9, getPhantomArray()));
+
+            var ruthless_combatant2_spiritualist = Helpers.CreateFeature("ZealPhantomExciterRuthlessCombatantFeature2",
+                                 "",
+                                 "",
+                                 "",
+                                 Helpers.GetIcon("7812ad3672a4b9a4fb894ea402095167"),//improved unarmed strike
+                                 FeatureGroup.None,
+                                 Helpers.Create<AttackTypeCriticalMultiplierIncrease>(w => { w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; w.AdditionalMultiplier = 1; })
+                                 );
+
+            ruthless_combatant2_spiritualist.HideInCharacterSheetAndLevelUp = true;
+            ruthless_combatant2_spiritualist.HideInUI = true;
+            ruthless_combatant_spiritualist.AddComponent(ruthless_combatant2_spiritualist.CreateAddFeatureOnClassLevel(9, Spiritualist.getSpiritualistArray()));
 
             var determination_aura_buff = Helpers.CreateBuff("ZealPhantomDeterminationAuraEffectBuff",
                                                        "Determination Aura",
@@ -166,7 +188,7 @@ namespace CallOfTheWild
                           determination_aura.Icon,
                           zeal_archetype,
                           ruthless_combatant, determination_aura, zeal_haste, zeals_resolve,
-                          new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreNature },
+                          new StatType[] { StatType.SkillMobility, StatType.SkillLoreNature },
                           12, 14,
                           new BlueprintAbility[]
                           {
@@ -174,6 +196,17 @@ namespace CallOfTheWild
                               NewSpells.force_sword,
                               library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113"), //divine favor
                               library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e") //freedom of movement
+                          },
+                          ruthless_combatant_spiritualist,
+                          determination_aura,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                              library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762"), //false life
+                              library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                              library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e"), //freedom of movement
+                              library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
+                              library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31") //heroism greater
                           }
                           );
         }

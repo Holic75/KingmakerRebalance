@@ -62,7 +62,7 @@ namespace CallOfTheWild
                                                                                                                       wait_for_attack_to_resolve: true,
                                                                                                                       weapon_category: WeaponCategory.OtherNaturalWeapons
                                                                                                                       ),
-                                                         Common.createContextCalculateAbilityParamsBasedOnClass(phantom_class, StatType.Charisma),
+                                                         Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
                                                          Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.MindAffecting | Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Fear)
                                                          );
 
@@ -155,6 +155,17 @@ namespace CallOfTheWild
                               NewSpells.stricken_heart,
                               library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
                               library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903") //crushing despair
+                          },
+                          miserable_strike,
+                          aura_of_despair,
+                          emotion_conduit_spells: new BlueprintAbility[]
+                          {
+                              library.Get<BlueprintAbility>("ad10bfec6d7ae8b47870e3a545cc8900"), //touch of gracelessness
+                              NewSpells.stricken_heart,
+                              NewSpells.ray_of_exhaustion,
+                              library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903"), //crushing despair
+                              NewSpells.suffocation,
+                              library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642"), //eyebite
                           }
                           );
         }
