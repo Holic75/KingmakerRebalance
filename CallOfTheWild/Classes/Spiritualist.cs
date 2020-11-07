@@ -352,7 +352,8 @@ namespace CallOfTheWild
 
             var in_area_effect = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsCaster>(), 
                                                                                              Helpers.CreateConditionHasFact(fatigued),
-                                                                                             Helpers.CreateConditionHasFact(exhausted)
+                                                                                             Helpers.CreateConditionHasFact(exhausted),
+                                                                                             Helpers.Create<ContextConditionIsEnemy>()
                                                                                              ),
                                                            null,
                                                            Helpers.CreateConditional(Common.createContextConditionCasterHasFact(rapture_str_con_buff),
