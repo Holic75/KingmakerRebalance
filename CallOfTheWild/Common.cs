@@ -2106,6 +2106,15 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.AddFeatureIfHasFactAndNotHasFactDynamic createAddFeatureIfHasFactAndNotHasFactDynamic(BlueprintUnitFact has_fact, BlueprintUnitFact not_has_fact, BlueprintUnitFact feature)
+        {
+            var a = Helpers.Create<NewMechanics.AddFeatureIfHasFactAndNotHasFactDynamic>();
+            a.HasFact = has_fact;
+            a.NotHasFact = not_has_fact;
+            a.Feature = feature;
+            return a;
+        }
+
         static public BuffExtraAttack createBuffExtraAttack(int num, bool haste)
         {
             var b = Helpers.Create<BuffExtraAttack>();

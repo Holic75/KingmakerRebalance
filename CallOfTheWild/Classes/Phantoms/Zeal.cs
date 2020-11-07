@@ -71,7 +71,7 @@ namespace CallOfTheWild
 
             ruthless_combatant2_spiritualist.HideInCharacterSheetAndLevelUp = true;
             ruthless_combatant2_spiritualist.HideInUI = true;
-            ruthless_combatant2_spiritualist.AddComponent(ruthless_combatant2_spiritualist.CreateAddFeatureOnClassLevel(9, Spiritualist.getSpiritualistArray()));
+            ruthless_combatant_spiritualist.AddComponent(ruthless_combatant2_spiritualist.CreateAddFeatureOnClassLevel(9, Spiritualist.getSpiritualistArray()));
 
             var determination_aura_buff = Helpers.CreateBuff("ZealPhantomDeterminationAuraEffectBuff",
                                                        "Determination Aura",
@@ -188,7 +188,7 @@ namespace CallOfTheWild
                           determination_aura.Icon,
                           zeal_archetype,
                           ruthless_combatant, determination_aura, zeal_haste, zeals_resolve,
-                          new StatType[] { StatType.SkillPersuasion, StatType.SkillLoreNature },
+                          new StatType[] { StatType.SkillMobility, StatType.SkillLoreNature },
                           12, 14,
                           new BlueprintAbility[]
                           {

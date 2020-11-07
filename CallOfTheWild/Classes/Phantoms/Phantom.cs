@@ -74,7 +74,7 @@ namespace CallOfTheWild
         static public BlueprintPortrait phantom_portrait;
 
         static public Dictionary<string, BlueprintProgression> exciter_progressions = new Dictionary<string, BlueprintProgression>();
-        static public Dictionary<string, BlueprintProgression> potent_exciter_progressions = new Dictionary<string, BlueprintProgression>();
+        static public Dictionary<string, BlueprintFeature> potent_exciter_progressions = new Dictionary<string, BlueprintFeature>();
         static public Dictionary<string, BlueprintProgression> phantom_progressions = new Dictionary<string, BlueprintProgression>();
         static public Dictionary<string, BlueprintProgression> pain_phantom_progressions = new Dictionary<string, BlueprintProgression>();
         static public Dictionary<string, BlueprintFeature> potent_phantom = new Dictionary<string, BlueprintFeature>();
@@ -308,6 +308,7 @@ namespace CallOfTheWild
                                                          Helpers.CreateAddFacts(exciter_feature1, exciter_feature2),
                                                          Helpers.PrerequisiteNoFeature(exciter_progression)
                                                          );
+            potent_exciter_progressions[name] = exciter_capstone;
         }
 
 

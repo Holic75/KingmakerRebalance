@@ -40,7 +40,7 @@ namespace CallOfTheWild
                                                          "",
                                                          powerful_strikes.Icon,
                                                          FeatureGroup.None,
-                                                         Common.createWeaponTypeSizeChange(1),
+                                                         Helpers.Create<MeleeWeaponSizeChange>(m => m.SizeCategoryChange = 1),
                                                          Helpers.CreateAddFact(library.Get<BlueprintFeature>("9972f33f977fc724c838e59641b2fca5"))
                                                          );
 

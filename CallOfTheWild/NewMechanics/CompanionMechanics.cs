@@ -434,6 +434,18 @@ namespace CallOfTheWild.CompanionMechanics
     }
 
 
+    public class ActivatableAbilityCompanionUnsummonedOrNoFeature : ActivatableAbilityRestriction
+    {
+        public bool not;
+        public BlueprintFeature feature;
+        public override bool IsAvailable()
+        {
+            var unsummon_part = Owner.Get<UnitPartUnsummonedCompanion>();
+            return ((unsummon_part != null && unsummon_part.active()) || (!Owner.HasFact(feature))) != not;
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintAbility))]
     [AllowMultipleComponents]
     public class ContextActionPetIsAlive : ContextCondition

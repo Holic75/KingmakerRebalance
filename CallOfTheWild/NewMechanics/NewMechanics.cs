@@ -5059,6 +5059,42 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureIfHasFactAndNotHasFactDynamic : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact HasFact;
+            public BlueprintUnitFact NotHasFact;
+            public BlueprintUnitFact Feature;
+
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnTurnOn()
+            {
+                this.Apply();
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.m_AppliedFact != null || !this.Owner.HasFact(this.HasFact) || this.Owner.HasFact(this.NotHasFact))
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.Feature, (MechanicsContext)null, (FeatureParam)null);
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityShowIfCasterHasFacts : BlueprintComponent, IAbilityVisibilityProvider
         {

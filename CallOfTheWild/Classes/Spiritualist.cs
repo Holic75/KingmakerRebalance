@@ -119,6 +119,8 @@ namespace CallOfTheWild
         static public BlueprintFeature exciter_shared_consciousness;
         static public BlueprintBuff rapture_str_con_buff;
         static public BlueprintBuff rapture_dex_cha_buff;
+        static public BlueprintBuff rapture_share_str_con_buff;
+        static public BlueprintBuff rapture_share_dex_cha_buff;
         static public BlueprintBuff prevent_shared_conciousness_fact;
 
 
@@ -252,7 +254,7 @@ namespace CallOfTheWild
             foreach (var kv in Phantom.exciter_progressions)
             {
                 var exciter_skill_foci_feature = Helpers.CreateFeature("Exciter" + kv.Key + "SharedConsciousnessFeature",
-                                                                       shared_consciousness.Name,
+                                                                       shared_consciousness.Name + " (" + Phantom.exciter_progressions[kv.Key].Name + ")",
                                                                        shared_consciousness.Description,
                                                                        "",
                                                                        shared_consciousness.Icon,
@@ -262,13 +264,13 @@ namespace CallOfTheWild
                                                                                                       progression: ContextRankProgression.Custom,
                                                                                                       customProgression: new (int, int)[] { (11, 4), (20, 8) })
                                                                       );
-
+                exciter_skill_foci_feature.HideInCharacterSheetAndLevelUp = true;
                 foreach (var sf in Phantom.phantom_skill_foci[kv.Key])
                 {
                     exciter_skill_foci_feature.AddComponents(Common.createAddFeatureIfHasFactAndNotHasFact(Phantom.exciter_progressions[kv.Key], sf, sf));
                 }
 
-                exciter_shared_consciousness.AddComponent(Common.createAddFeatureIfHasFact(prevent_shared_conciousness_fact,  exciter_skill_foci_feature, not: true));
+                exciter_shared_consciousness.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFactDynamic(Phantom.exciter_progressions[kv.Key], prevent_shared_conciousness_fact,  exciter_skill_foci_feature));
             }
         }
 
@@ -279,7 +281,7 @@ namespace CallOfTheWild
             var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
             var str_con_effect_buff = Helpers.CreateBuff("OverwhelmingExcitementStrConEffectBuff",
                                                  "Overwhelming Excitement",
-                                                 "At 10th level, an exciter can share the effects of his rapture with willing allies within 10 feet. He must expend 1 additional round of his rapture each round for each ally sharing its effects. The exciter’s allies share all effects of the rapture except the rage powers; each ally must end its turn within 10 feet of the exciter, or the effects of the rapture end for that ally and it becomes fatigued.",
+                                                 "At 10th level, an exciter can share the effects of his rapture with willing allies within 10 feet. He must expend 1 additional round of his rapture each round. The exciter’s allies share all effects of the rapture except the rage powers; each ally must end its turn within 10 feet of the exciter, or the effects of the rapture end for that ally and it becomes fatigued.",
                                                  "",
                                                  Helpers.GetIcon("1bc83efec9f8c4b42a46162d72cbf494"), //burst of glory
                                                  Common.createPrefabLink("53c86872d2be80b48afc218af1b204d7"), //from rage
@@ -287,9 +289,9 @@ namespace CallOfTheWild
                                                  Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
                                                  Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                                  Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
-                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2,
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2, type: AbilityRankType.StatBonus,
                                                                               featureList: new BlueprintFeature[] { greater_rapture }),
-                                                 Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false))
+                                                 Helpers.Create<ForbidSpellCasting>(a => a.ForbidMagicItems = true)
                                                );
 
             var dex_cha_effect_buff = library.CopyAndAdd(str_con_effect_buff, "OverwhelmingExcitementDexChaEffectBuff", "");
@@ -318,8 +320,16 @@ namespace CallOfTheWild
             {
                 Helpers.CreateAreaEffectRunAction(unitEnter: new GameAction[]{in_area_effect },
                                                   round: new GameAction[]{in_area_effect },
-                                                  unitExit: new GameAction[]{Common.createContextActionRemoveBuffFromCaster(str_con_effect_buff),
-                                                                             Common.createContextActionRemoveBuffFromCaster(dex_cha_effect_buff)
+                                                  unitExit: new GameAction[]{Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasBuffFromCaster(str_con_effect_buff) },
+                                                                                                       new GameAction[]{ Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false),
+                                                                                                                         Common.createContextActionRemoveBuffFromCaster(str_con_effect_buff)
+                                                                                                                       }
+                                                                                                       ),
+                                                                             Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasBuffFromCaster(dex_cha_effect_buff) },
+                                                                                                       new GameAction[]{ Common.createContextActionApplyBuff(fatigued, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false),
+                                                                                                                         Common.createContextActionRemoveBuffFromCaster(dex_cha_effect_buff)
+                                                                                                                       }
+                                                                                                       ),                                                                             
                                                                             }
                                                  )
             };
@@ -347,6 +357,8 @@ namespace CallOfTheWild
                                                                                                     Common.createContextActionApplyBuff(prevent_shared_conciousness_fact, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true)
                                                                                                     )
                                                                           );
+            rapture_share_str_con_buff = str_con_effect_buff;
+            rapture_share_dex_cha_buff = dex_cha_effect_buff;
         }
 
         static void createRapture()
@@ -387,7 +399,14 @@ namespace CallOfTheWild
                                                             f.max_spell_level = Helpers.CreateContextValue(AbilityRankType.Default);
                                                             f.control_buff = rapture_casting_allowed_buff;
                                                         }
-                                                                                                                                    ),
+                                                        ),
+                                                        Helpers.Create<TurnActionMechanics.FreeTouchOrPersonalSpellUseFromSpellbook>(f =>
+                                                        {
+                                                            f.allowed_spellbook = fractured_mind_spellbook;
+                                                            f.max_spell_level = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                            f.control_buff = rapture_casting_allowed_buff;
+                                                        }                                                                           
+                                                        ),
                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                         classes: getSpiritualistArray(),
                                                                                         progression: ContextRankProgression.Custom,
@@ -448,7 +467,7 @@ namespace CallOfTheWild
                                                Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
                                                Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus),
                                                Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
-                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2,
+                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue, stepLevel: 2, type: AbilityRankType.StatBonus,
                                                                               featureList: new BlueprintFeature[] { greater_rapture })
                                                );
 
@@ -474,7 +493,7 @@ namespace CallOfTheWild
 
             rapture_dex_cha_buff = library.CopyAndAdd(rapture_str_con_buff, "RaptureDexChaBuff", "");
             rapture_dex_cha_buff.SetIcon(Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a")); //transmutation physical ench dex
-            rapture_dex_cha_buff.SetDescription("Rapture (Dexterity and Charisma)");
+            rapture_dex_cha_buff.SetName("Rapture (Dexterity and Charisma)");
             rapture_dex_cha_buff.RemoveComponents<AddContextStatBonus>();
             rapture_dex_cha_buff.AddComponents(Helpers.CreateAddContextStatBonus(StatType.Charisma, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
                                    Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Morale, rankType: AbilityRankType.StatBonus, multiplier: 2),
@@ -1330,7 +1349,7 @@ namespace CallOfTheWild
             bonded_manifestation_resource.SetIncreasedByLevel(3, 1, getSpiritualistArray());
             var toggle = Common.buffToToggle(bonded_manifestation_buff, CommandType.Swift, false,
                                              bonded_manifestation_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound),
-                                             Helpers.Create<CompanionMechanics.ActivatableAbilityCompanionUnsummoned>()
+                                             Helpers.Create<CompanionMechanics.ActivatableAbilityCompanionUnsummonedOrNoFeature>(a => a.feature = emotional_focus_selection)
                                              );
 
             bonded_manifestation = Common.ActivatableAbilityToFeature(toggle, false);
