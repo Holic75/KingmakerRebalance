@@ -268,15 +268,19 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
 
-        //static public BlueprintAbility binding_earth;
-        //static public BlueprintAbility binding_earth_mass;
+        //binding_earth;
+        //binding_earth_mass;
         //corrosive consumption
         //implosion
         //condensed ether
-        //battle mind link
+        //battle mind link ?
         //arcane concordance
         //oneric horror
         //phantom limbs
+        //spirit bound blade
+        //blood rage
+        //smite abomination
+        //
 
         static public void load()
         {
@@ -1374,9 +1378,11 @@ namespace CallOfTheWild
 
             var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
-            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var stun1 = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true));
             var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), is_from_spell: true);
-            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true);
+            var stun1d4 = Helpers.CreateConditionalSaved(sickened1,
+                                                         Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true)
+                                                         );
             synaptic_pulse = Helpers.CreateAbility("SynapticPulseAbility",
                                                    "Synaptic Pulse",
                                                    "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1 round.",
@@ -1413,7 +1419,7 @@ namespace CallOfTheWild
                                        "1d4 rounds",
                                        Helpers.willNegates,
                                        Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                Helpers.CreateConditional(Common.createContextConditionIsCaster(), sickened1, stun1d4)
+                                                                Helpers.CreateConditional(Common.createContextConditionIsCaster(), null, stun1d4)
                                                                 ),
                                        Helpers.CreateSpellComponent(SpellSchool.Enchantment),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),

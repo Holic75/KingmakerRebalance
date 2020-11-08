@@ -374,6 +374,7 @@ New spells:
 - Stunning Barrier, Greater,
 - Synaptic Pulse and Synaptic Pulse, Greater,
 - Synesthesia and Synesthesia, Mass,
+- Undead Anatomy I, II, III,
 - Air Walk and Air Walk, Communal,
 - Archon's Trumpet,
 - Aura of Doom,

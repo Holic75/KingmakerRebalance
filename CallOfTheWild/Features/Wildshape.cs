@@ -134,6 +134,9 @@ namespace CallOfTheWild
         static public BlueprintAbility athach_form_form_spell;
         static public BlueprintAbility giant_formI;
         static public BlueprintAbility giant_formII;
+        static public BlueprintAbility undead_anatomyI;
+        static public BlueprintAbility undead_anatomyII;
+        static public BlueprintAbility undead_anatomyIII;
 
         static public BlueprintAbility shapechange;
 
@@ -181,6 +184,7 @@ namespace CallOfTheWild
             fixAirElementalDC();
             createGiantFormI();
             createGiantFormII();
+            createUndeadAnatomy();
             createShapechange();
 
             fixDruid();
@@ -1022,6 +1026,107 @@ namespace CallOfTheWild
 
             //replace 9th level spell in animal domain
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("23d2f87aa54c89f418e68e790dba11e0"), shapechange, 9);
+        }
+
+
+        static void createUndeadAnatomy()
+        {
+            var icon = Helpers.GetIcon("a1a8bf61cadaa4143b2d4966f2d1142e");
+            var saves_descriptor = SpellDescriptor.MindAffecting | SpellDescriptor.Disease | SpellDescriptor.Poison | SpellDescriptor.Sleep | SpellDescriptor.Paralysis | SpellDescriptor.Stun;
+            var claw1d6 = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645");
+            var bite1d6 = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286");
+            var undead_form1 = Helpers.CreateBuff("UndeadAnatomyIFormBuff",
+                                            "Undead Anatomy I",
+                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
+                                            + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).",
+                                            "",
+                                            icon,
+                                            null,
+                                            Common.createChangeUnitSize(Size.Medium),
+                                            Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Size),
+                                            Helpers.CreateAddStatBonus(StatType.AC, 2,  ModifierDescriptor.NaturalArmor),
+                                            Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
+                                            Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                            Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                            Common.createAddAdditionalLimb(bite1d6), //bite
+                                            Helpers.CreateAddFacts(turn_back)
+                                            );
+
+            var undead_form2 = Helpers.CreateBuff("UndeadAnatomyIIFormBuff",
+                                "Undead Anatomy II",
+                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
+                                + "In this form, you gain a +4 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning.",
+                                "",
+                                icon,
+                                null,
+                                Common.createChangeUnitSize(Size.Large),
+                                Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
+                                Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Penalty),
+                                Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.NaturalArmor),
+                                Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, saves_descriptor),
+                                Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
+                                Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                Common.createContextFormDR(5, PhysicalDamageForm.Bludgeoning),
+                                Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                Common.createAddAdditionalLimb(bite1d6), //bite
+                                Helpers.CreateAddFacts(turn_back)
+                                );
+
+            var undead_form3 = Helpers.CreateBuff("UndeadAnatomyIIIFormBuff",
+                                                "Undead Anatomy III",
+                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/-, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                                + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
+                                                + "In this form, you gain a +8 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning. If the form has a vulnerability to an attack (such as sunlight), you gain that vulnerability.",
+                                                "",
+                                                icon,
+                                                null,
+                                                Common.createChangeUnitSize(Size.Huge),
+                                                Helpers.CreateAddStatBonus(StatType.Strength, 6, ModifierDescriptor.Size),
+                                                Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Penalty),
+                                                Helpers.CreateAddStatBonus(StatType.AC, 6, ModifierDescriptor.NaturalArmor),
+                                                Common.createSavingThrowBonusAgainstDescriptor(8, ModifierDescriptor.UntypedStackable, saves_descriptor),
+                                                Common.createPhysicalDR(5),
+                                                Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
+                                                Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                                Common.createAddAdditionalLimb(bite1d6), //bite
+                                                Helpers.CreateAddFacts(turn_back)
+                                                );
+
+
+            undead_anatomyI = replaceForm(smilodon_form_spell, undead_form1, "UndeadAnatomyIAbility", undead_form1.Name,
+                            undead_form1.Description);
+            undead_anatomyI.RemoveComponents<SpellListComponent>();
+            undead_anatomyI.SetIcon(undead_form1.Icon);
+            undead_anatomyI.AddComponent(Common.createAbilityTargetHasFact(inverted: true, Common.undead, Common.elemental, Common.aberration, Common.construct));
+
+            undead_anatomyII = replaceForm(smilodon_form_spell, undead_form2, "UndeadAnatomyIIAbility", undead_form2.Name,
+                undead_form2.Description);
+            undead_anatomyII.RemoveComponents<SpellListComponent>();
+            undead_anatomyII.SetIcon(undead_form2.Icon);
+            undead_anatomyII.AddComponent(Common.createAbilityTargetHasFact(inverted: true, Common.undead, Common.elemental, Common.aberration, Common.construct));
+
+            undead_anatomyIII = replaceForm(smilodon_form_spell, undead_form3, "UndeadAnatomyIIIAbility", undead_form3.Name,
+                undead_form3.Description);
+            undead_anatomyIII.RemoveComponents<SpellListComponent>();
+            undead_anatomyIII.SetIcon(undead_form3.Icon);
+            undead_anatomyIII.AddComponent(Common.createAbilityTargetHasFact(inverted: true, Common.undead, Common.elemental, Common.aberration, Common.construct));
+
+            undead_anatomyI.AddToSpellList(Helpers.wizardSpellList, 3);
+            undead_anatomyI.AddToSpellList(Helpers.alchemistSpellList, 3);
+            undead_anatomyI.AddToSpellList(Helpers.magusSpellList, 3);
+            Helpers.AddSpellAndScroll(undead_anatomyI, "bc0180b8b29abf9468dea1a24332d159"); //animate dead
+
+            undead_anatomyII.AddToSpellList(Helpers.wizardSpellList, 5);
+            undead_anatomyII.AddToSpellList(Helpers.alchemistSpellList, 5);
+            undead_anatomyII.AddToSpellList(Helpers.magusSpellList, 5);
+            Helpers.AddSpellAndScroll(undead_anatomyII, "bc0180b8b29abf9468dea1a24332d159"); //animate dead
+
+            undead_anatomyIII.AddToSpellList(Helpers.wizardSpellList, 6);
+            undead_anatomyIII.AddToSpellList(Helpers.alchemistSpellList, 6);
+            undead_anatomyIII.AddToSpellList(Helpers.magusSpellList, 6);
+            Helpers.AddSpellAndScroll(undead_anatomyIII, "bc0180b8b29abf9468dea1a24332d159"); //animate dead
         }
 
         static void createGiantFormII()

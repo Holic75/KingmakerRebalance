@@ -261,6 +261,14 @@ namespace CallOfTheWild
             var compulsion_immunity_buff = library.Get<BlueprintBuff>("868a0ad22d7fa4d4480deb50a9dca681");
             compulsion_immunity_buff.GetComponent<BuffDescriptorImmunity>().IgnoreFeature = compulsion_immunity_buff;
             compulsion_immunity_buff.GetComponent<SpellImmunityToSpellDescriptor>().CasterIgnoreImmunityFact = compulsion_immunity_buff;
+
+            //language dependent tag to castigate and castigate mass
+            var castigate = library.Get<BlueprintAbility>("ce4c4e52c53473549ae033e2bb44b51a");
+            var castigate_mass = library.Get<BlueprintAbility>("41236cf0e476d7043bc16a33a9f449bd");
+            var castigate_buff = library.Get<BlueprintBuff>("3a9033dd2a95c0145a54da45070727f3");
+            Common.addSpellDescriptor(castigate, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+            Common.addSpellDescriptor(castigate_mass, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+            Common.addSpellDescriptor(castigate_buff, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
         }
 
         internal static void fixFeyStalkerSummonBuff()
