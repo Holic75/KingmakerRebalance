@@ -7617,7 +7617,11 @@ namespace CallOfTheWild
 
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
-            var apply_attack = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true));
+            var apply_attack = Helpers.CreateConditionalSaved(new GameAction[0],
+                                                              new GameAction[]{Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true),
+                                                                               Helpers.CreateActionDealDamage(StatType.Wisdom, Helpers.CreateContextDiceValue(DiceType.D4, 1, 0))
+                                                                              }
+                                                              );
             var apply_buff = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
                                                        Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(apply_attack))
                                                        );
