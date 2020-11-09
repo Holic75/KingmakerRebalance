@@ -2454,7 +2454,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "BarrowHazeArea", ""); //mind fog
-            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Fx = Common.createPrefabLink("e63a0d8a1f2d74343b374ea4bbf9d951"); //yellow stench cloud ???
             area.Size = 20.Feet();
             area.SpellResistance = false;
 
@@ -6704,7 +6704,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "ObscuringMistFogArea", ""); //mind fog
-            area.Fx = Common.createPrefabLink(/*"597682efc0419a142a3174fd6bb408f7"*/ "e63a0d8a1f2d74343b374ea4bbf9d951"); //mind fog
+            area.Fx = Common.createPrefabLink("9510e38e500ea2a4ca60959687230219"); //mind fog
             area.Size = 20.Feet();
             area.SpellResistance = false;
             obscuring_mist_area = area;
