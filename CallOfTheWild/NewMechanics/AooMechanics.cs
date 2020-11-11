@@ -3,6 +3,7 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Combat;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
 using Kingmaker.Items.Slots;
@@ -257,6 +258,19 @@ namespace CallOfTheWild.AooMechanics
             return true;
         }
     }
+
+    //units with allied aoo should not really engage
+    [Harmony12.HarmonyPatch(typeof(UnitCombatState))]
+    [Harmony12.HarmonyPatch("EngagedBy", Harmony12.MethodType.Getter)]
+    class Patch_UnitCombatState_EngagedBy
+    {
+        static bool Prefix(UnitCombatState __instance, Dictionary<UnitEntityData, TimeSpan> ___m_EngagedBy, ref Dictionary<UnitEntityData, TimeSpan>.KeyCollection __result)
+        {
+            __result = ___m_EngagedBy.Where(kv => !kv.Key.IsAlly(__instance.Unit)).ToDictionary(d => d.Key, d => d.Value).Keys;
+            return false;
+        }
+    }
+
 
 
     [Harmony12.HarmonyPatch(typeof(UnitCombatState))]

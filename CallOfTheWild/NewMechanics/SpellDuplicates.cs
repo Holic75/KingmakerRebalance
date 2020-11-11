@@ -68,6 +68,11 @@ namespace CallOfTheWild
             }
             duplicate_spells.Add(new_spell.AssetGuid, new_list);
 
+            if (new_spell.Type == AbilityType.Spell)
+            {
+                Helpers.AddSpell(new_spell);
+            }
+
             return new_spell;
         }
 

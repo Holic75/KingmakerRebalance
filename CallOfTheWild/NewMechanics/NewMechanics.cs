@@ -5058,6 +5058,21 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class RunActionOnCombatStart : RuleInitiatorLogicComponent<RuleInitiativeRoll>
+        {
+            public ActionList actions;
+
+            public override void OnEventAboutToTrigger(RuleInitiativeRoll evt)
+            {
+                (this.Fact as IFactContextOwner).RunActionInContext(actions, this.Owner.Unit);
+            }
+
+            public override void OnEventDidTrigger(RuleInitiativeRoll evt)
+            {
+            }
+        }
+
 
         [AllowMultipleComponents]
         [AllowedOn(typeof(BlueprintUnitFact))]

@@ -94,7 +94,14 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                 {
                     continue;
                 }
-                foreach (SpellLevelList spellLevel in spellbook.Blueprint.SpellList.SpellsByLevel)
+                foreach (var spell in spellbook.GetAllKnownSpells().Select(s => s.Blueprint).Distinct().ToArray())
+                {
+                    if (unit.GetFeature(feature.Prerequisite, spell.School) != null)
+                    {
+                        yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
+                    }
+                }
+                /*foreach (SpellLevelList spellLevel in spellbook.Blueprint.SpellList.SpellsByLevel)
                 {
                     if (spellLevel.SpellLevel <= spellbook.MaxSpellLevel)
                     {
@@ -106,7 +113,7 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                             }
                         }
                     }
-                }
+                }*/
             }
             yield break;
         }
