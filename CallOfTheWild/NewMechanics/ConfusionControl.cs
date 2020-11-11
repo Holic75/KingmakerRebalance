@@ -56,7 +56,7 @@ using Kingmaker.EntitySystem.Persistence.Versioning;
 using JetBrains.Annotations;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Inspect;
-
+using TurnBased.Controllers;
 
 namespace CallOfTheWild
 {
@@ -122,6 +122,20 @@ namespace CallOfTheWild
             static bool Prefix(UnitConfusionController __instance, UnitEntityData unit)
             {
                 Main.TraceLog();
+                if (CombatController.IsInTurnBasedCombat())
+                {
+                    if (unit.IsCurrentUnit())
+                    {
+                        UnitPartConfusion unitPartConfusion = unit.Get<UnitPartConfusion>();
+                        if ((bool)((UnitPart)unitPartConfusion) && unitPartConfusion.RoundStartTime < Game.Instance.TimeController.GameTime)
+                        {
+                            unitPartConfusion.Cmd?.Interrupt(true);
+                            unitPartConfusion.RoundStartTime = TimeSpan.Zero;
+                        }
+                    }
+                    else if (!CombatController.IsPassing() || unit.IsInCombat)
+                        return false;
+                }
                 var allowed_states = new ConfusionState[0];
                 if (unit.Descriptor.State.HasCondition(UnitCondition.AttackNearest))
                 {
