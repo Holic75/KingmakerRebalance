@@ -81,6 +81,8 @@ namespace CallOfTheWild
         static public BlueprintFeature lich_minor;
         static public BlueprintProgression wolf_scarred_face;
         static public BlueprintFeature wolf_scarred_face_minor;
+        static public BlueprintProgression powerless;
+        static public BlueprintFeature powerless_minor;
 
         static MysteryEngine mystery_engine;
 
@@ -1839,6 +1841,7 @@ namespace CallOfTheWild
             createWolfScarredFace();
             createLich();
             createVampirism();
+            createPowerless();
 
             vampirism_minor.AddComponent(Helpers.PrerequisiteNoFeature(lich));
             lich_minor.AddComponent(Helpers.PrerequisiteNoFeature(vampirism));
@@ -1849,7 +1852,7 @@ namespace CallOfTheWild
                                                            null,
                                                            FeatureGroup.None);
 
-            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism };
+            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless };
 
             minor_curse_selection = Helpers.CreateFeatureSelection("OracleMinorCurseSelection",
                                                "Second Curse",
@@ -1858,7 +1861,79 @@ namespace CallOfTheWild
                                                null,
                                                FeatureGroup.None);
 
-            minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor };
+            minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor, powerless_minor };
+        }
+
+
+        static void createPowerless()
+        {
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var apply_staggered = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
+
+            var uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
+            var improved_uncanny_dodge = library.Get<BlueprintFeature>("3c08d842e802c3e4eb19d15496145709");
+            var vampiric_shadow_shield = library.Get<BlueprintFeature>("485a18c05792521459c7d06c63128c79");
+            var curse = Helpers.CreateFeature("OracleCursePowerless",
+                                              "Powerless Prophecy",
+                                              "You gain uncanny dodge, as the rogue class feature. However, you are always staggered for the entire first round of combat.",
+                                              "",
+                                              staggered.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFact(uncanny_dodge),
+                                              Helpers.Create<NewMechanics.RunActionOnCombatStart>(r => r.actions = Helpers.CreateActionList(apply_staggered))
+                                              );
+
+            powerless_minor = library.CopyAndAdd(curse, "OracleCursePowerlessMinor", "");
+
+            var hindrance = library.CopyAndAdd(powerless_minor, "OracleCursePowerlessHindranceFeature", "");
+            hindrance.RemoveComponents<AddFacts>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, vampirism_minor);
+
+            var curse5 = Helpers.CreateFeature("OracleCurse5Powerless",
+                                               "Powerless Prophecy",
+                                               "At 5th level, you gain a +4 insight bonus on initiative checks.",
+                                               "",
+                                               Helpers.GetIcon("797f25d709f559546b29e7bcb181cc74"), //improved initiative
+                                               FeatureGroup.None,
+                                               Helpers.CreateAddStatBonus(StatType.Initiative, 4, ModifierDescriptor.Insight)
+                                               );
+
+            var curse10 = Helpers.CreateFeature("OracleCurse10Powerless",
+                                                "Powerless Prophecy",
+                                                "At 10th level, you gain improved uncanny dodge as the rogue ability, using your oracle level as your rogue level.",
+                                                "",
+                                                improved_uncanny_dodge.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFact(improved_uncanny_dodge)
+                                                );
+
+            var buff15 = Helpers.CreateBuff("OracleCurse15VPowerlessBuff",
+                                            "Powerless Prophecy",
+                                            "At 15th level, you gain a +4 insight bonus on all your saving throws and to your AC during surprise round.",
+                                            "",
+                                            Helpers.GetIcon("1f01a098d737ec6419aedc4e7ad61fdd"), //foresight
+                                            null,
+                                            Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.Insight),
+                                            Helpers.CreateAddStatBonus(StatType.SaveWill, 4, ModifierDescriptor.Insight),
+                                            Helpers.CreateAddStatBonus(StatType.SaveReflex, 4, ModifierDescriptor.Insight),
+                                            Helpers.CreateAddStatBonus(StatType.SaveFortitude, 4, ModifierDescriptor.Insight)
+                                            );
+            buff15.Stacking = StackingType.Ignore;
+            var curse15 = Helpers.CreateFeature("OracleCurse15VPowerless",
+                                                buff15.Name,
+                                                buff15.Description,
+                                                "",
+                                                buff15.Icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<InitiativeMechanics.ActionInSurpriseRound>(a => a.actions = Helpers.CreateActionList(Common.createContextActionApplyBuff(buff15, Helpers.CreateContextDuration(1), dispellable:false)))
+                                                );
+
+            powerless = createOracleCurseProgression("OraclePowerlessCurseProgression", "Powerless Prophecy",
+                                                    "You are forewarned of danger but can’t act to prevent it.",
+                                                    curse, curse5, curse10, curse15);
+
+            powerless_minor.AddComponent(Helpers.PrerequisiteNoFeature(powerless));
         }
 
 
@@ -1899,7 +1974,7 @@ namespace CallOfTheWild
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Vampirism",
                                                 "Vampirism",
-                                                "At 10th level, you add vampiric touch to your list of 3rd-level oracle spells known and vampiric shadow shield to your list of 5th-level oracle spells known",
+                                                "At 10th level, you add vampiric touch to your list of 3rd-level oracle spells known and vampiric shadow shield to your list of 5th-level oracle spells known.",
                                                 "",
                                                 vampiric_touch.Icon,
                                                 FeatureGroup.None,

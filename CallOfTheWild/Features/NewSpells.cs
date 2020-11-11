@@ -268,15 +268,19 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
 
-        //static public BlueprintAbility binding_earth;
-        //static public BlueprintAbility binding_earth_mass;
+        //binding_earth;
+        //binding_earth_mass;
         //corrosive consumption
         //implosion
         //condensed ether
-        //battle mind link
+        //battle mind link ?
         //arcane concordance
         //oneric horror
         //phantom limbs
+        //spirit bound blade
+        //blood rage
+        //smite abomination
+        //
 
         static public void load()
         {
@@ -1374,9 +1378,11 @@ namespace CallOfTheWild
 
             var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
-            var stun1 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true);
+            var stun1 = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1), is_from_spell: true));
             var sickened1 = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), is_from_spell: true);
-            var stun1d4 = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true);
+            var stun1d4 = Helpers.CreateConditionalSaved(sickened1,
+                                                         Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), is_from_spell: true)
+                                                         );
             synaptic_pulse = Helpers.CreateAbility("SynapticPulseAbility",
                                                    "Synaptic Pulse",
                                                    "You emit a pulsating mental blast that stuns all creatures in range of your psychic shriek for 1 round.",
@@ -1413,7 +1419,7 @@ namespace CallOfTheWild
                                        "1d4 rounds",
                                        Helpers.willNegates,
                                        Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                Helpers.CreateConditional(Common.createContextConditionIsCaster(), sickened1, stun1d4)
+                                                                Helpers.CreateConditional(Common.createContextConditionIsCaster(), null, stun1d4)
                                                                 ),
                                        Helpers.CreateSpellComponent(SpellSchool.Enchantment),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Stun | SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
@@ -2448,7 +2454,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FogCloud.png");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "BarrowHazeArea", ""); //mind fog
-            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Fx = Common.createPrefabLink("e63a0d8a1f2d74343b374ea4bbf9d951"); //yellow stench cloud ???
             area.Size = 20.Feet();
             area.SpellResistance = false;
 
@@ -6698,7 +6704,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "ObscuringMistFogArea", ""); //mind fog
-            area.Fx = Common.createPrefabLink(/*"597682efc0419a142a3174fd6bb408f7"*/ "e63a0d8a1f2d74343b374ea4bbf9d951"); //mind fog
+            area.Fx = Common.createPrefabLink("9510e38e500ea2a4ca60959687230219"); //mind fog
             area.Size = 20.Feet();
             area.SpellResistance = false;
             obscuring_mist_area = area;
@@ -7611,7 +7617,11 @@ namespace CallOfTheWild
 
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
-            var apply_attack = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true));
+            var apply_attack = Helpers.CreateConditionalSaved(new GameAction[0],
+                                                              new GameAction[]{Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true),
+                                                                               Helpers.CreateActionDealDamage(StatType.Wisdom, Helpers.CreateContextDiceValue(DiceType.D4, 1, 0))
+                                                                              }
+                                                              );
             var apply_buff = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionHasFact(undead, not: true), Helpers.CreateConditionHasFact(construct, not: true) },
                                                        Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(apply_attack))
                                                        );
