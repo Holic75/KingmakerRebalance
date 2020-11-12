@@ -129,6 +129,7 @@ namespace CallOfTheWild
                                                                 Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }), //echolocation
                                                                 Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                                                 );
+        public static BlueprintBuff unlootable = library.Get<BlueprintBuff>("0f775c7d5d8b6494197e1ce937754482");
 
         public static BlueprintBuff concentration_buff = Helpers.CreateBuff("ConcentrationBuff",
                                                         "Concentration",

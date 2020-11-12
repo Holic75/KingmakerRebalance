@@ -203,7 +203,7 @@ namespace CallOfTheWild.DeadTargetMechanics
                 level_up_component.LevelUp(animated_unit.Descriptor, level - current_level);
             }
 
-            if (transfer_equipment && unit.Body.HandsAreEnabled)
+            if (transfer_equipment && unit.Body.HandsAreEnabled && !unit.Descriptor.State.HasCondition(UnitCondition.Unlootable))
             {   
                 List<ItemSlot> list1 = unit.Body.EquipmentSlots.ToList<ItemSlot>();
                 List<ItemSlot> list2 = animated_unit.Body.EquipmentSlots.ToList<ItemSlot>();
