@@ -203,7 +203,7 @@ namespace CallOfTheWild.DeadTargetMechanics
                 level_up_component.LevelUp(animated_unit.Descriptor, level - current_level);
             }
 
-            if (transfer_equipment && unit.Body.HandsAreEnabled && !unit.Descriptor.State.HasCondition(UnitCondition.Unlootable))
+            if (transfer_equipment && unit.Body.HandsAreEnabled)
             {   
                 List<ItemSlot> list1 = unit.Body.EquipmentSlots.ToList<ItemSlot>();
                 List<ItemSlot> list2 = animated_unit.Body.EquipmentSlots.ToList<ItemSlot>();
@@ -225,7 +225,7 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             unit.Descriptor.AddFact(Common.no_animate_feature);
 
-            animated_unit.Descriptor.CustomName = animated_unit.Descriptor.CharacterName + $" ({level} HD)";
+            animated_unit.Descriptor.CustomName = "Animated " + unit.Descriptor.CharacterName + $" ({level} HD)";
             EventBus.RaiseEvent<IUnitNameHandler>((Action<IUnitNameHandler>)(h => h.OnUnitNameChanged(animated_unit)));
         }
 
