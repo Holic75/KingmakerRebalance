@@ -190,6 +190,7 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource swift_positve_channel_resource;
 
         static public BlueprintBuff desecrate_buff, consecrate_buff;
+        static List<BlueprintCharacterClass> extra_progressing_classes = new List<BlueprintCharacterClass>();
 
         internal static void init()
         {
@@ -520,23 +521,28 @@ namespace CallOfTheWild
         }
 
 
-        static internal void addHolyVindicatorChannelEnergyProgression()
+        static public void addClassToChannelEnerhyProgression(BlueprintCharacterClass cls)
         {
-            foreach (var c in channel_entires)
-            {
-                addHolyVindicatorChannelEnergyProgressionToChannel(c);
-            }
-        }
-
-
-        static void addHolyVindicatorChannelEnergyProgressionToChannel(ChannelEntry entry)
-        {
-            if (HolyVindicator.holy_vindicator_class == null)
+            if (extra_progressing_classes.Contains(cls))
             {
                 return;
             }
 
-            if (entry.scalesWithClass(HolyVindicator.holy_vindicator_class))
+            foreach (var c in channel_entires)
+            {
+                addClassChannelEnergyProgressionToChannel(c, cls);
+            }
+        }      
+
+
+        static void addClassChannelEnergyProgressionToChannel(ChannelEntry entry, BlueprintCharacterClass cls)
+        {
+            if (cls == null)
+            {
+                return;
+            }
+
+            if (entry.scalesWithClass(cls))
             {
                 return;
             }
@@ -550,14 +556,14 @@ namespace CallOfTheWild
             var classes = Helpers.GetField<BlueprintCharacterClass[]>(context_rank_config, "m_Class");
             if (classes.Length != 0 && classes[0] != null)
             {
-                classes = classes.AddToArray(HolyVindicator.holy_vindicator_class);
+                classes = classes.AddToArray(cls);
                 Helpers.SetField(context_rank_config, "m_Class", classes);
             }
             entry.ability.ReplaceComponent<ContextRankConfig>(context_rank_config);
 
             var scaling = entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>().CreateCopy();
             {
-                scaling.CharacterClasses = scaling.CharacterClasses.AddToArray(HolyVindicator.holy_vindicator_class);
+                scaling.CharacterClasses = scaling.CharacterClasses.AddToArray(cls);
             }
             entry.ability.ReplaceComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(scaling);
 
@@ -922,7 +928,10 @@ namespace CallOfTheWild
             addToBackToTheGrave(entry);
             addToVersatileChanneler(entry);
             addToHolyVindicatorShield(entry);
-            addHolyVindicatorChannelEnergyProgressionToChannel(entry);
+            foreach (var cls in extra_progressing_classes)
+            {
+                addClassChannelEnergyProgressionToChannel(entry, cls);
+            }
             addToStigmataPrerequisites(entry);
 
 
