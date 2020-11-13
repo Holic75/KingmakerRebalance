@@ -158,6 +158,7 @@
     <Compile Include="Archetypes\ZenArcher.cs" />
     <Compile Include="Classes\AnimalFocus.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\DawnflowerAnchorite.cs" />
     <Compile Include="Classes\Eidolons\Agathion.cs" />
     <Compile Include="Classes\Eidolons\AirElemental.cs" />
     <Compile Include="Classes\Eidolons\Angel.cs" />
@@ -176,6 +177,7 @@
     <Compile Include="Classes\Eidolons\Evolutions.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Archetypes\KineticChirurgeon.cs" />
+    <Compile Include="Classes\Mesmerist.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
     <Compile Include="Classes\Mysteries\Bones.cs" />
     <Compile Include="Classes\Mysteries\Dragon.cs" />

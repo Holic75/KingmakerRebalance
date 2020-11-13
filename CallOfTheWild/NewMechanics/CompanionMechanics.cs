@@ -464,6 +464,23 @@ namespace CallOfTheWild.CompanionMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class ContextConditionIsPet : ContextCondition
+    {
+
+        protected override bool CheckCondition()
+        {
+            return this.Target.Unit?.Descriptor?.Master.Value == this.Context.MaybeCaster;
+        }
+
+        protected override string GetConditionCaption()
+        {
+            return "";
+        }
+    }
+
+
     public class CompanionWithinRange : ActivatableAbilityRestriction
     {
         public Feet range;

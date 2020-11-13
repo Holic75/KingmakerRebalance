@@ -6,6 +6,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -57,13 +58,31 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
                 return activatable_ability.ActivateWithUnitCommandType;
             }
 
-            var entry = entries.Find(e => e.group == activatable_ability.Group);
-            if (entry == null)
+            var ability_entries = entries.Where(e => e.group == activatable_ability.Group).ToList();
+
+            if (ability_entries.Empty())
+            {
+                return activatable_ability.ActivateWithUnitCommandType;
+            }
+            var entry = ability_entries.Find(e => e.group == activatable_ability.Group && e.action == UnitCommand.CommandType.Free);
+            if (entry != null)
             {
                 return activatable_ability.ActivateWithUnitCommandType;
             }
 
-            return entry.action;
+            entry = ability_entries.Find(e => e.group == activatable_ability.Group && e.action == UnitCommand.CommandType.Swift);
+            if (entry != null)
+            {
+                return entry.action;
+            }
+
+            entry = ability_entries.Find(e => e.group == activatable_ability.Group && e.action == UnitCommand.CommandType.Move);
+            if (entry != null)
+            {
+                return entry.action;
+            }
+
+            return UnitCommand.CommandType.Standard;
         }
     }
 

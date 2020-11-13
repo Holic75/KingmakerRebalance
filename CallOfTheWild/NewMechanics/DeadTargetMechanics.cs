@@ -225,7 +225,7 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             unit.Descriptor.AddFact(Common.no_animate_feature);
 
-            animated_unit.Descriptor.CustomName = animated_unit.Descriptor.CharacterName + $" ({level} HD)";
+            animated_unit.Descriptor.CustomName = "Animated " + unit.Descriptor.CharacterName + $" ({level} HD)";
             EventBus.RaiseEvent<IUnitNameHandler>((Action<IUnitNameHandler>)(h => h.OnUnitNameChanged(animated_unit)));
         }
 

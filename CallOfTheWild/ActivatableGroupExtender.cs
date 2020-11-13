@@ -46,6 +46,7 @@ namespace CallOfTheWild
             ElementalManipulation,
             Familiar,
             AgonizingWound,
+            SolarInvocation,
 
             ExtraGroup1,
             ExtraGroup2,

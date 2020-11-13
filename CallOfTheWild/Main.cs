@@ -344,6 +344,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
+                    CallOfTheWild.DawnflowerAnchorite.createDawnflowerAnchoriteClass();
 
                     CallOfTheWild.KineticistFix.load(Main.settings.update_kineticist_archetypes);
                     CallOfTheWild.Archetypes.Rake.create();

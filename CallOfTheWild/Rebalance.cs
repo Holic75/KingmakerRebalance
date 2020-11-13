@@ -877,15 +877,6 @@ namespace CallOfTheWild
             strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetEnemies = false;
             strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetFriends = true;
             //fix toggle actions
-            var toggles = new BlueprintActivatableAbility[]
-            {
-                library.Get<BlueprintActivatableAbility>("cb5652d2e74cac14498c2793b1bca857")
-            };
-
-            foreach (var t in toggles)
-            {
-                t.AddComponent(Common.createActivatableAbilityUnitCommand(UnitCommand.CommandType.Standard));
-            }
 
 
             //protection domain
