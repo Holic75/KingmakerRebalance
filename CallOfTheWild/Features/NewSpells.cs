@@ -2647,6 +2647,8 @@ namespace CallOfTheWild
             skeleton.Faction = library.Get<BlueprintFaction>("1b08d9ed04518ec46a9b3e4e23cb5105"); //summoned
             skeleton.RemoveComponents<Experience>();
             skeleton.RemoveComponents<AddTags>();
+            skeleton.Visual = library.Get<BlueprintUnit>("4050be4512d245f40bf9461074b672f4").Visual; //from summoned skeleton
+            skeleton.StartingInventory = new Kingmaker.Blueprints.Items.BlueprintItem[0];
             skeleton.AddFacts = skeleton.AddFacts.AddToArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //martial weapons
                                                              library.Get<BlueprintFeature>("cb8686e7357a68c42bdd9d4e65334633"), //shield prof
                                                              library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield prof
