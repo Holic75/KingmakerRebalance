@@ -104,7 +104,7 @@ namespace CallOfTheWild
             dawnflower_anchorite.FortitudeSave = savesPrestigeLow;
             dawnflower_anchorite.ReflexSave = savesPrestigeHigh;
             dawnflower_anchorite.WillSave = savesPrestigeHigh;
-            dawnflower_anchorite.ClassSkills = new StatType[] { StatType.SkillAthletics, StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillKnowledgeWorld, StatType.SkillKnowledgeArcana };
+            dawnflower_anchorite.ClassSkills = new StatType[] { StatType.SkillAthletics, StatType.SkillPerception, StatType.SkillLoreReligion, StatType.SkillLoreNature, StatType.SkillKnowledgeWorld, StatType.SkillKnowledgeArcana };
             dawnflower_anchorite.IsDivineCaster = true;
             dawnflower_anchorite.IsArcaneCaster = true;
             dawnflower_anchorite.PrestigeClass = true;
@@ -241,8 +241,14 @@ namespace CallOfTheWild
         {
             //add to domains
             var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            var cleric_secondary_domain_selection = library.Get<BlueprintFeatureSelection>("43281c3d7fe18cc4d91928395837cd1e");
+            var druid_domain_selection = library.Get<BlueprintFeatureSelection>("5edfe84c93823d04f8c40ca2b4e0f039");
+            var blight_druid_domain_selection = library.Get<BlueprintFeatureSelection>("096fc02f6cc817a43991c4b437e12b8e");
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, domain_selection, cleric);
+            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, cleric_secondary_domain_selection, cleric);
+            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, blight_druid_domain_selection, cleric);
+            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, druid_domain_selection, cleric);
             ChannelEnergyEngine.addClassToChannelEnerhyProgression(dawnflower_anchorite);
 
             channel_energy_domain_progression = Helpers.CreateFeature("DawnflowerAnchoriteChannelDomainProgressionFeature",
@@ -273,13 +279,13 @@ namespace CallOfTheWild
 
             var effect_buff = Helpers.CreateBuff("SolarInvocationEffectBuff",
                                                  "Solar Invocation",
-                                                 "A Dawnflower anchorite can harness the sun’s life-giving warmth to protect the innocent and smite the wicked. At 1st level, he can invoke the sun as a standard action, granting him a +1 competence bonus on attack rolls and damage rolls against evil creatures and adding 1 to the DC of his spells and domain powers (if any) against evil creatures. The bonus on attack rolls and damage rolls increases to +2 at 5th level and +3 at 9th level. If a Dawnflower anchorite has an animal companion, the companion also gains the competence bonus on attack and damage rolls while this ability is active.\n"
+                                                 "A Dawnflower anchorite can harness the sun’s life-giving warmth to protect the innocent and smite the wicked. At 1st level, he can invoke the sun as a standard action, granting him a +1 competence bonus on attack rolls and damage rolls against evil creatures and adding 1 to the DC of his spells and spell-like abilities against evil creatures. The bonus on attack rolls and damage rolls increases to +2 at 5th level and +3 at 9th level. If a Dawnflower anchorite has an animal companion, the companion also gains the competence bonus on attack and damage rolls while this ability is active.\n"
                                                  + "A Dawnflower anchorite can invoke the sun for a number of rounds per day equal to twice his Dawnflower anchorite class level + his Charisma modifier. Maintaining this ability on subsequent rounds is a free action. These bonuses apply only when the Dawnflower anchorite is standing in an outdoor area.\n",
                                                  "",
                                                  icon,
                                                  null,
                                                  Helpers.Create<NewMechanics.AttackBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; }),
-                                                 Helpers.Create<NewMechanics.SpellsDCBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; }),
+                                                 Helpers.Create<NewMechanics.SpellsDCBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.StatBonus); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; }),
                                                  Helpers.Create<NewMechanics.DamageBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; })
                                                  );
 
@@ -341,7 +347,7 @@ namespace CallOfTheWild
             var toggle = Common.createToggleAreaEffect(effect_buff, 30.Feet(),
                                                       Helpers.CreateConditionsCheckerOr(Common.createContextConditionIsCaster(), 
                                                                                         Helpers.Create<CompanionMechanics.ContextConditionIsPet>(),
-                                                                                        Helpers.Create<NewMechanics.ContextConditionIsAllyAndCasterHasFact>(c => c.fact = solar_invocation)
+                                                                                        Helpers.Create<NewMechanics.ContextConditionIsAllyAndCasterHasFact>(c => c.fact = bask_in_radiance)
                                                                                         ),
                                                       AbilityActivationType.WithUnitCommand,
                                                       UnitCommand.CommandType.Standard,
@@ -351,6 +357,8 @@ namespace CallOfTheWild
             toggle.AddComponents(solar_invocation_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             toggle.DeactivateIfCombatEnded = true;
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            toggle.Group = ActivatableAbilityGroupExtension.SolarInvocation.ToActivatableAbilityGroup();
             solar_invocation = Common.ActivatableAbilityToFeature(toggle, false);
             solar_invocation.AddComponents(solar_invocation_resource.CreateAddAbilityResource());
 
@@ -396,11 +404,15 @@ namespace CallOfTheWild
             dawnflower_invocation = Common.AbilityToFeature(dawnflower_invocation_ability, false);
             dawnflower_invocation.AddComponent(dawnflower_invocation_resource.CreateAddAbilityResource());
 
-            toggle.AddComponent(Common.createActivatableAbilityRestrictionHasFact(dawnflower_invocation_buff, false));
+            toggle.AddComponent(Common.createActivatableAbilityRestrictionHasFact(dawnflower_invocation_buff, not: true));
             var config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList,
                                                                      featureList: new BlueprintFeature[] { solar_invocation, solar_invocation2, solar_invocation3, solar_invocation4 }
                                                                      );
-            effect_buff.AddComponent(config);
+            var config2 = Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, type: AbilityRankType.StatBonus,
+                                                         featureList: new BlueprintFeature[] { solar_invocation, solar_invocation4 }
+                                                         );
+
+            effect_buff.AddComponents(config, config2);
             defense_effect_buff.AddComponent(config);
 
             solar_invocation_move_action = Helpers.CreateFeature("SolarInvocationMoveActionFeature",

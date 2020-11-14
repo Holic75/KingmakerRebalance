@@ -5858,7 +5858,7 @@ namespace CallOfTheWild
             public ContextValue value;
             public ModifierDescriptor descriptor;
 
-            public void ruleSavingThrowTriggered(RuleSavingThrow evt)
+            public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
             {
                 var context = evt.Reason?.Context;
                 if (context == null)
@@ -5888,10 +5888,15 @@ namespace CallOfTheWild
                 }
 
 
-                var bonus = value.Calculate(this.Fact.MaybeContext);
+                var bonus = -value.Calculate(this.Fact.MaybeContext);
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            }
+
+            public void ruleSavingThrowTriggered(RuleSavingThrow evt)
+            {
+
             }
         }
 

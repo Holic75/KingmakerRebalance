@@ -131,6 +131,11 @@ namespace CallOfTheWild.ShadowSpells
         public SpellSchool school = SpellSchool.Illusion;
         public SavingThrowType save_type = SavingThrowType.Will;
 
+        public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
+        {
+
+        }
+
         public void ruleSavingThrowTriggered(RuleSavingThrow evt)
         {
             var context = evt.Reason?.Context;

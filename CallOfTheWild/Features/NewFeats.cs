@@ -2740,7 +2740,7 @@ namespace CallOfTheWild
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.Spell),
                                             Common.createSavingThrowBonusAgainstAbilityType(-2, Common.createSimpleContextValue(0), AbilityType.SpellLike)
                                             );
-            debuff.Stacking = StackingType.Stack;
+            debuff.Stacking = StackingType.Replace;
 
             var debuff_action = Common.createContextActionApplyBuff(debuff,
                                                              Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds),
