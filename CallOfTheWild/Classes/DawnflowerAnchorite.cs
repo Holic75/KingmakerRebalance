@@ -221,7 +221,7 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = solar_invocation_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                                       Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Resource = solar_invocation_resource; i.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus); }),
-                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getDawnflowerAcnchoriteArray()),
+                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getDawnflowerAcnchoriteArray(), progression: ContextRankProgression.MultiplyByModifier, startLevel: 2),
                                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, type: AbilityRankType.StatBonus),
                                                       Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma)
                                                       );
@@ -285,7 +285,7 @@ namespace CallOfTheWild
                                                  icon,
                                                  null,
                                                  Helpers.Create<NewMechanics.AttackBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; }),
-                                                 Helpers.Create<NewMechanics.SpellsDCBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.StatBonus); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; }),
+                                                 Helpers.Create<NewMechanics.SpellsDCBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.StatBonus); a.descriptor = ModifierDescriptor.UntypedStackable; a.alignment = AlignmentComponent.Evil; }),
                                                  Helpers.Create<NewMechanics.DamageBonusAgainstAlignment>(a => { a.value = Helpers.CreateContextValue(AbilityRankType.Default); a.descriptor = ModifierDescriptor.Competence; a.alignment = AlignmentComponent.Evil; })
                                                  );
 
@@ -371,6 +371,8 @@ namespace CallOfTheWild
             solar_invocation3.HideInUI = true;
             solar_invocation4.HideInCharacterSheetAndLevelUp = true;
             solar_invocation4.HideInUI = true;
+            solar_invocation.AddComponents(Helpers.CreateAddFeatureOnClassLevel(solar_invocation2, 5, getDawnflowerAcnchoriteArray()),
+                                           Helpers.CreateAddFeatureOnClassLevel(solar_invocation3, 9, getDawnflowerAcnchoriteArray()));
 
             //add scaling to buffs and dawnflower invocation
 
