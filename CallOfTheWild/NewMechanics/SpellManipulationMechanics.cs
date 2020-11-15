@@ -1448,6 +1448,11 @@ namespace CallOfTheWild
             public SpellSchool school;
             public SavingThrowType save_type;
 
+            public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
+            {
+
+            }
+
             public void ruleSavingThrowTriggered(RuleSavingThrow evt)
             {
                 var context = evt.Reason?.Context;

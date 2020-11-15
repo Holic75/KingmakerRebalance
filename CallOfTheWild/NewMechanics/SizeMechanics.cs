@@ -269,7 +269,7 @@ namespace CallOfTheWild.SizeMechanics
 
             //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
             var base_weapon_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.Damage : evt.Weapon.Blueprint.ScaleDamage(wielder_size);
-            DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : WeaponDamageScaleTable.Scale(evt.WeaponDamageDiceOverride.Value, wielder_size);
+            DiceFormula baseDice = !evt.WeaponDamageDiceOverride.HasValue ? base_weapon_dice : (evt.Initiator.Body.IsPolymorphed ? evt.WeaponDamageDiceOverride.Value : WeaponDamageScaleTable.Scale(evt.WeaponDamageDiceOverride.Value, wielder_size));
 
 
             if (wielder_size == Size.Colossal || wielder_size == Size.Gargantuan)

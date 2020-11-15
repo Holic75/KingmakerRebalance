@@ -732,6 +732,7 @@ namespace CallOfTheWild
         public interface IRuleSavingThrowTriggered : IGlobalSubscriber
         {
             void ruleSavingThrowTriggered(RuleSavingThrow evt);
+            void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt);
         }
 
 
@@ -739,6 +740,13 @@ namespace CallOfTheWild
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
         static class RuleSavingThrow_OnTrigger_Patch
         {
+            internal static bool Prefix(RuleSavingThrow __instance, RulebookEventContext context)
+            {
+                EventBus.RaiseEvent<IRuleSavingThrowTriggered>((Action<IRuleSavingThrowTriggered>)(h => h.ruleSavingThrowBeforeTrigger(__instance)));
+                return true;
+            }
+
+
             internal static void Postfix(RuleSavingThrow __instance, RulebookEventContext context)
             {
                 Main.TraceLog();
