@@ -281,6 +281,9 @@ namespace CallOfTheWild
         }
 
 
+
+
+
         public static void fixBeltsOfPerfectComponents()
         {
             var lesser_extend = library.Get<BlueprintFeature>("23de5684062b01f49a2f310103db5b60");
@@ -1611,7 +1614,7 @@ namespace CallOfTheWild
 
         }
 
-        static internal void fixArchonsAuraToEffectOnlyEnemies()
+        static internal void fixArchonsAuraToEffectOnlyEnemiesAndDescription()
         {
             var area = ResourcesLibrary.TryGetBlueprint<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762");
 
@@ -1625,6 +1628,7 @@ namespace CallOfTheWild
                                                                                 }
                                                                             }
                                             );
+            var archons_aura = library.Get<BlueprintAbility>("e67efd8c84f69d24ab472c9f546fff7e").LocalizedSavingThrow = Helpers.willNegates;
         }
 
 

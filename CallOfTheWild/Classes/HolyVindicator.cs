@@ -217,7 +217,7 @@ namespace CallOfTheWild
 
         static void createChannelEnergyProgression()
         {
-            ChannelEnergyEngine.addClassToChannelEnerhyProgression(holy_vindicator_class);
+            ChannelEnergyEngine.addClassToChannelEnergyProgression(holy_vindicator_class);
 
             channel_energy_progression = Helpers.CreateFeature("ChannelEnergyHolyVindicatorProgression",
                                                                "Channel Energy",
