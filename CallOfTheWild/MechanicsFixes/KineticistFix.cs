@@ -773,10 +773,35 @@ namespace CallOfTheWild
                                                         apply_new_buff,
                                                         apply_buff
                                                       );
-                abilities[i].ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
-                var remove = Common.createContextActionRemoveBuff(new_buff);
-                buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions = buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions.AddToArray(remove);
+                //abilities[i].ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+                //var remove = Common.createContextActionRemoveBuff(new_buff);
+                //buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions = buffs[i].GetComponent<AddFactContextActions>().Deactivated.Actions.AddToArray(remove);
             }
+
+            armor_feature = library.Get<BlueprintFeature>("1ff803cb49f63ea4185490fae2c43ca7");
+            shield_feature = library.Get<BlueprintFeature>("4d8feca11d6e29a499ae761b90eacdba");
+            var base_shroud_of_water = armor_feature.GetComponent<ShroudOfWater>();
+            armor_feature.ReplaceComponent<ShroudOfWater>(Helpers.Create<NewMechanics.ShroudOfWater2>(s =>
+            {
+                s.BaseValue = base_shroud_of_water.BaseValue;
+                s.Descriptor1 = base_shroud_of_water.Descriptor;
+                s.Stat = base_shroud_of_water.Stat;
+                s.UpgradeFeature = base_shroud_of_water.UpgradeFeature;
+                s.Descriptor2 = ModifierDescriptor.ArmorEnhancement;
+                s.kinetic_knight_archetype = kinetic_knight;
+            }));
+
+
+            base_shroud_of_water = shield_feature.GetComponent<ShroudOfWater>();
+            shield_feature.ReplaceComponent<ShroudOfWater>(Helpers.Create<NewMechanics.ShroudOfWater2>(s =>
+            {
+                s.BaseValue = base_shroud_of_water.BaseValue;
+                s.Descriptor1 = base_shroud_of_water.Descriptor;
+                s.Stat = base_shroud_of_water.Stat;
+                s.UpgradeFeature = base_shroud_of_water.UpgradeFeature;
+                s.Descriptor2 = ModifierDescriptor.ShieldEnhancement;
+                s.kinetic_knight_archetype = kinetic_knight;
+            }));
 
             //update description
             var elemental_bastion = library.Get<BlueprintFeature>("82fbdd5eb5ac73b498c572cc71bda48f");

@@ -1584,6 +1584,54 @@ namespace CallOfTheWild
         }
 
 
+        public class ShroudOfWater2 : OwnedGameLogicComponent<UnitDescriptor>
+        {
+            public ModifierDescriptor Descriptor1;
+            public ModifierDescriptor Descriptor2;
+            public StatType Stat;
+            public ContextValue BaseValue;
+            public BlueprintFeature UpgradeFeature;
+            public BlueprintArchetype kinetic_knight_archetype;
+            private ModifiableValue.Modifier m_Modifier;
+            private ModifiableValue.Modifier m_Modifier2;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    return this.Fact.MaybeContext;
+                }
+            }
+
+            public override void OnTurnOn()
+            {
+                ModifiableValue stat = this.Owner.Stats.GetStat(this.Stat);
+                Fact fact = this.Owner.Progression.Features.GetFact((BlueprintFact)this.UpgradeFeature);
+                if ((this.Owner.Progression.GetClassData(kinetic_knight_archetype.GetParentClass())?.Archetypes.Contains(kinetic_knight_archetype)).GetValueOrDefault())
+                {
+                    int base_bonus = this.BaseValue.Calculate(this.Context);
+                    this.m_Modifier = stat.AddModifier(base_bonus, (GameLogicComponent)this, this.Descriptor1);
+                    if (fact != null)
+                    {
+                        int extra_bonus = Math.Min((int)Math.Floor((double)base_bonus * 0.5), fact.GetRank());
+                        this.m_Modifier2 = stat.AddModifier(extra_bonus, (GameLogicComponent)this, this.Descriptor2);
+                    }
+                }
+                else
+                {
+                    int num = fact != null ? Math.Min((int)Math.Floor((double)this.BaseValue.Calculate(this.Context) * 1.5), this.BaseValue.Calculate(this.Context) + fact.GetRank()) : this.BaseValue.Calculate(this.Context);
+                    this.m_Modifier = stat.AddModifier(num, (GameLogicComponent)this, this.Descriptor1);
+                }
+            }
+
+            public override void OnTurnOff()
+            {
+                this.m_Modifier.Remove();
+                this.m_Modifier2?.Remove();
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextWeaponDamageDiceReplacementForSpecificCategory : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
