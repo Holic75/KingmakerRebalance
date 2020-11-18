@@ -395,10 +395,10 @@ namespace CallOfTheWild
             var inquisitors_direction_feat = Common.AbilityToFeature(inquisitors_direction, false);
             inquisitors_direction_feat.AddComponent(Helpers.CreateAddAbilityResource(inquisitors_direction_resource));
 
-
+            var cunning_initiative = library.Get<BlueprintFeature>("6be8b4031d8b9fc4f879b72b5428f1e0");
             var grant_the_initiative_buff = Helpers.CreateBuff("GrantTheInitiativeEffectBuff",
                                                                "Grant the Initiative",
-                                                               "At 8th level, you and all allies within 30 feet may add your Wisdom bonus to your initiative checks.",
+                                                               "At 8th level, you and all your allies within 30 feet may add your Wisdom bonus to initiative checks.",
                                                                "",
                                                                null,
                                                                null,
@@ -411,7 +411,9 @@ namespace CallOfTheWild
             area.ReplaceComponent<AbilityAreaEffectBuff>(a =>
                                                         {
                                                             a.Buff = grant_the_initiative_buff;
-                                                            a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(), Common.createContextConditionIsCaster(not: true));
+                                                            a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>(),
+                                                                                                             Helpers.Create<NewMechanics.ContextConditionIsCasterAndHasFact>(c => { c.Not = true; c.fact = cunning_initiative; })
+                                                                                                             );
                                                         }
                                                         );
             var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "GrantTheInitiativeBuff", "");

@@ -7148,8 +7148,32 @@ namespace CallOfTheWild
             }
         }
 
+        public class ContextConditionIsCasterAndHasFact : ContextCondition
+        {
+            public BlueprintUnitFact fact;
 
-        
+            protected override string GetConditionCaption()
+            {
+                return "Is caster and has fact";
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData maybeCaster = this.Context.MaybeCaster;
+                if (maybeCaster == null)
+                {
+                    UberDebug.LogError((object)"Caster is missing", (object[])Array.Empty<object>());
+                    return false;
+                }
+                UnitEntityData unit = this.Target.Unit;
+                if (unit != null)
+                    return unit == maybeCaster && maybeCaster.Descriptor.HasFact(fact);
+                UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
+
         public class ContextConditionIsAllyAndCasterHasFact : ContextCondition
         {
             public BlueprintUnitFact fact;
