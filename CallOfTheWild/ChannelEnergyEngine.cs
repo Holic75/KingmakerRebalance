@@ -521,7 +521,7 @@ namespace CallOfTheWild
         }
 
 
-        static public void addClassToChannelEnerhyProgression(BlueprintCharacterClass cls)
+        static public void addClassToChannelEnergyProgression(BlueprintCharacterClass cls)
         {
             if (extra_progressing_classes.Contains(cls))
             {

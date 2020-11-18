@@ -204,7 +204,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();
                     CallOfTheWild.Rebalance.fixChannelEnergyHeal();
                     CallOfTheWild.Rebalance.fixElementalWallsToAvoidDealingDamageTwiceOnTheFirstRound();
-                    CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemies();
+                    CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemiesAndDescription();
                     CallOfTheWild.Rebalance.fixDruidDomainUi();
                     CallOfTheWild.Rebalance.fixLethalStance();
                     CallOfTheWild.Rebalance.disallowMultipleFamiliars();

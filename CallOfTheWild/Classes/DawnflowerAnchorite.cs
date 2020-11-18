@@ -249,7 +249,7 @@ namespace CallOfTheWild
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, cleric_secondary_domain_selection, cleric);
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, blight_druid_domain_selection, cleric);
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, druid_domain_selection, cleric);
-            ChannelEnergyEngine.addClassToChannelEnerhyProgression(dawnflower_anchorite);
+            ChannelEnergyEngine.addClassToChannelEnergyProgression(dawnflower_anchorite);
 
             channel_energy_domain_progression = Helpers.CreateFeature("DawnflowerAnchoriteChannelDomainProgressionFeature",
                                                                       "Channel Energy and Domain Progression",
