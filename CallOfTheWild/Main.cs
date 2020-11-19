@@ -26,7 +26,6 @@ namespace CallOfTheWild
             internal bool nerf_animal_companion { get; }
             internal bool reduce_skill_points { get; }
             internal bool sacred_huntsmaster_animal_focus { get; }
-            internal bool use_armor_in_wildshape { get; }
             internal bool swap_weapon_sets_as_move_action { get; }
             internal bool allow_spellcasting_in_elemental_form { get; }
             internal bool fix_teamwork_feats { get; }
@@ -50,7 +49,6 @@ namespace CallOfTheWild
                     //nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
-                    use_armor_in_wildshape = (bool)jo["use_armor_in_wildshape"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
                     allow_spellcasting_in_elemental_form = (bool)jo["allow_spellcasting_in_elemental_form"];
                     fix_teamwork_feats = (bool)jo["fix_teamwork_feats"];
@@ -249,10 +247,7 @@ namespace CallOfTheWild
                         CallOfTheWild.Wildshape.allowElementalsToCast();
                     }
                     CallOfTheWild.Wildshape.load();
-                    if (settings.use_armor_in_wildshape)
-                    {
-                        CallOfTheWild.Wildshape.allowToUseArmorInWildshape();
-                    }
+
                     CallOfTheWild.MetamagicFeats.load();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewRagePowers.load();   

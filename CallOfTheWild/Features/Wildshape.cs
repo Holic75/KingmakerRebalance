@@ -464,13 +464,6 @@ namespace CallOfTheWild
             Helpers.SetField(thudnering_claw, "m_Enchantments", tc_enchants);
         }
 
-
-        internal static void allowToUseArmorInWildshape()
-        {
-            Main.logger.Log("Enabling Wild Armor.");
-            first_wildshape_form.AddComponent(Helpers.CreateAddFact(wild_armor_feature));
-        }
-
         static void createWildArmor()
         {
             allow_wild_armor_buff = Helpers.CreateBuff("AllowWildArmorBuff",
