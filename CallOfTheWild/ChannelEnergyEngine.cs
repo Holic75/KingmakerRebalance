@@ -528,6 +528,10 @@ namespace CallOfTheWild
                 return;
             }
 
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var blessing_of_the_faithful_long = library.Get<BlueprintAbility>("3ef665bb337d96946bcf98a11103f32f");
+            ClassToProgression.addClassToAbility(cls, new BlueprintArchetype[0], blessing_of_the_faithful_long, cleric);
+
             foreach (var c in channel_entires)
             {
                 addClassChannelEnergyProgressionToChannel(c, cls);
