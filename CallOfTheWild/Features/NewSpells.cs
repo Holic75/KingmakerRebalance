@@ -4114,7 +4114,6 @@ namespace CallOfTheWild
 
         static void createFlyAndOverlandFlight()
         {
-            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Fly.png");
             var spawn_fx = library.Get<BlueprintAbility>("f3c0b267dd17a2a45a40805e31fe3cd1").GetComponent<AbilitySpawnFx>();
             var buff = Helpers.CreateBuff("FlyBuff",
@@ -4123,9 +4122,9 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Helpers.CreateAddFact(airborne),
                                           Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)
                                           );
+            buff.AddComponents(FixFlying.airborne.ComponentsArray);
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
             fly = Helpers.CreateAbility("FlyAbility",
@@ -6620,7 +6619,6 @@ namespace CallOfTheWild
             var on_hit = Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(),
                                                                        Helpers.CreateActionList(action)
                                                                        );
-            var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
             var buff = Helpers.CreateBuff("WindsOfVengeanceBuff",
                                           "Winds of Vengeance",
                                           "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you ability to fly and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
@@ -6631,12 +6629,12 @@ namespace CallOfTheWild
                                           icon,
                                           Common.createPrefabLink("40c31beb53bffb845b095542133ac9bc"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.BreathWeapon | SpellDescriptor.Poison | SpellDescriptor.Ground),
-                                          Helpers.CreateAddFact(airborne),
                                           Helpers.CreateAddStatBonus(StatType.Speed, 30, ModifierDescriptor.UntypedStackable),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch }),
                                           on_hit,
                                           Helpers.CreateAddFact(immunity_to_wind)
                                           );
+            buff.AddComponents(FixFlying.airborne.ComponentsArray);
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
             winds_of_vengeance = Helpers.CreateAbility("WindsOfVengeanceAbility",
                                                        buff.Name,

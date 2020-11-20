@@ -1308,7 +1308,7 @@ namespace CallOfTheWild
             var airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
 
             var feature_air = library.Get<BlueprintFeature>("1ae6835b8f568d44c8deb911f74762e4");
-            feature_air.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFact(airborne) };
+            feature_air.ComponentsArray = FixFlying.airborne.ComponentsArray;
 
             feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flying creatures.");
         }

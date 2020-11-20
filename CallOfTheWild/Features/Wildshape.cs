@@ -1325,7 +1325,7 @@ namespace CallOfTheWild
                                                  library.Get<BlueprintItemWeapon>("c76f72a862d168d44838206524366e1c"),
                                                  library.Get<BlueprintItemWeapon>("c76f72a862d168d44838206524366e1c"),
                                                  new BlueprintItemWeapon[] { library.Get<BlueprintItemWeapon>("d53e7995a3ea3f646af020d1b9b56d68"), library.Get<BlueprintItemWeapon>("cc86ff4cd9bf7ff45863c19f7f0cb11f")},
-                                                 library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175")//airborne
+                                                 FixFlying.airborne
                                                  );
             gargoyle_form.AddComponent(Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             monstrous_physiqueI = replaceForm(beast_shape_prototype, gargoyle_form, "MonstrousPhysiqueISpell", "Monstorus Physique I",

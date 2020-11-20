@@ -654,9 +654,7 @@ namespace CallOfTheWild
                                      Helpers.GetIcon("78197196e096c6e4eaed5c62fa108b52"),
                                      Common.createPrefabLink("7662eda306be77a4ab8f57dbf1235cc9"),
                                      true,
-                                     Helpers.CreateAddFact(FixFlying.airborne),
-                                     Common.createAddConditionImmunity(UnitCondition.DifficultTerrain),
-                                     Common.createBuffDescriptorImmunity(SpellDescriptor.Ground)
+                                     FixFlying.airborne.ComponentsArray
                                      );
         }
 
