@@ -1282,12 +1282,6 @@ namespace CallOfTheWild
             var share_old = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>();
             var share_new = Helpers.Create<CompanionMechanics.ShareFeaturesWithCompanion2>(s => s.Features = share_old.Features);
             sh_teamwork_share.ReplaceComponent(share_old, share_new);
-            var familiar = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183");
-
-            foreach (var f in familiar.AllFeatures)
-            {
-                f.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p => p.Features = familiar.AllFeatures.RemoveFromArray(f)));
-            }
         }
 
         internal static void refixBardicPerformanceOverlap()
