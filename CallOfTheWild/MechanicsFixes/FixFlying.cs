@@ -4,8 +4,10 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Combat;
 using Kingmaker.Designers;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
+using Kingmaker.Enums;
 using Kingmaker.Items;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
@@ -14,6 +16,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
@@ -25,11 +28,37 @@ using System.Threading.Tasks;
 namespace CallOfTheWild
 {
 
-    class UnitPartFlying : AdditiveUnitPart
+    class UnitPartFlying : AdditiveUnitPart, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackWithWeapon>, IRulebookHandler<RuleAttackWithWeapon>
     {
         public bool isFlying()
         {
             return !buffs.Empty();
+        }
+
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (evt.Target.Descriptor.HasFact(FixFlying.air_mastery) && isFlying())
+            {
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(-1, FixFlying.flying_fact, null, ModifierDescriptor.UntypedStackable));
+            }
+        }
+
+        public void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+        {
+            if (evt.Target.Descriptor.HasFact(FixFlying.air_mastery) && isFlying())
+            {
+                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalDamage.AddModifier(-1, FixFlying.flying_fact, null, ModifierDescriptor.UntypedStackable));
+            }
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleAttackWithWeapon evt)
+        {
+
         }
     }
 
@@ -76,12 +105,35 @@ namespace CallOfTheWild
     }
 
 
+    public class ContextConditionHasFlying : ContextCondition
+    {
+        public UnitCondition condition;
+
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
+
+        protected override bool CheckCondition()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                return false;
+            }
+
+            return (unit.Get<UnitPartFlying>()?.isFlying()).GetValueOrDefault();
+        }
+    }
+
+
     class FixFlying
     {
         static internal int fly_ac_bonus = 3;
         static LibraryScriptableObject library = Main.library;
         static internal Fact flying_fact;
         static public BlueprintFeature airborne = library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175");
+        static public BlueprintFeature air_mastery = library.Get<BlueprintFeature>("be52ced7ae1c7354a8ee12d9bad47805");
         static public BlueprintFeature pit_spell_immunity;
 
         static internal void load()
@@ -192,11 +244,12 @@ namespace CallOfTheWild
             wing_buffs.Add(library.Get<BlueprintBuff>("775df52784e1d454cba0da8df5f4f59a")); //deva wings
             foreach (var wb in wing_buffs)
             {
-                wb.ReplaceComponent<ACBonusAgainstAttacks>(Helpers.CreateAddFact(airborne));
+                wb.RemoveComponents<ACBonusAgainstAttacks>();
+                wb.AddComponents(airborne.ComponentsArray);
             }
 
             var fiery_body = library.Get<BlueprintBuff>("b574e1583768798468335d8cdb77e94c");
-            fiery_body.AddComponent(Helpers.CreateAddFact(airborne));
+            fiery_body.AddComponents(airborne.ComponentsArray);
 
             fiery_body.SetDescription(fiery_body.Description + " You are also able to fly.");
 
@@ -211,7 +264,7 @@ namespace CallOfTheWild
 
             foreach (var b in buffs_to_add_flying)
             {
-                b.AddComponent(Helpers.CreateAddFact(airborne));
+                b.AddComponents(airborne.ComponentsArray);
             }
 
             var abilities_to_add_flying_description = new BlueprintAbility[]
@@ -234,7 +287,9 @@ namespace CallOfTheWild
             airborne.AddComponent(Common.createSpellImmunityToSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Ground));
             airborne.AddComponent(Helpers.Create<AddFlying>());
             airborne.AddComponent(Helpers.Create<ManeuverImmunity>(m => m.Type = CombatManeuver.Trip));
-            var air_mastery = library.Get<BlueprintFeature>("be52ced7ae1c7354a8ee12d9bad47805");
+            airborne.RemoveComponents<DamageBonusConditional>();
+            airborne.RemoveComponents<AttackBonusConditional>();
+            
 
             BlueprintUnitFact[] facts = new BlueprintUnitFact[]{
                                                                   library.Get<BlueprintBuff>("3689b69a30d6d7c48b90e28228fb7b7c"), //transmuter air elemental 1
@@ -286,7 +341,7 @@ namespace CallOfTheWild
                                                                 };
             for (int i = 0; i < facts.Length; i++)
             {
-                facts[i].AddComponent(Helpers.CreateAddFact(airborne));
+                facts[i].AddComponents(airborne.ComponentsArray);
                 if (i < 12)
                 {
                     facts[i].AddComponent(Helpers.CreateAddFact(air_mastery));
