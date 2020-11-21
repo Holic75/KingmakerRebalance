@@ -111,8 +111,7 @@ namespace CallOfTheWild.Archetypes
         {
             tinkering = library.CopyAndAdd<BlueprintFeature>("dbb6b3bffe6db3547b31c3711653838e", "SeekerSorcererTinkeringFeature", "");
             tinkering.SetNameDescription("Tinkering",
-                                         "Seekers often look to ancient devices, old tomes, and strange magical items in order to learn more about their oracle mysteries. As a result of this curiosity and thanks to an innate knack at deciphering the strange and weird, a seeker gains Trickery as a class skill. In addition, at 1st level, a seeker adds half his oracle level on Perception checks made to locate traps and on all Trickery skill checks (minimum +1). A seeker can use Disable Device to disarm magical traps. If the seeker also possesses levels in rogue or another class that provides the trapfinding ability, those levels stack with his oracle levels for determining his overall bonus on these skill checks.\n"
-                                         + "This ability replaces all of the bonus class skills he would otherwise normally gain from his mystery.\n"
+                                         "Seekers often look to ancient devices, old tomes, and strange magical items in order to learn more about their sorcerous bloodlines. As a result of this curiosity and thanks to an innate knack at deciphering the strange and weird, a seeker gains Disable Device as a class skill. In addition, at 1st level, a seeker adds half his oracle or sorcerer level on Perception checks made to locate traps and on all Disable Device skill checks (minimum +1). A seeker can use Disable Device to disarm magical traps. If the seeker also possesses levels in rogue or another class that provides the trapfinding ability, those levels stack with his sorcerer levels for determining his overall bonus on these skill checks."
                                          );
             tinkering.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", new BlueprintCharacterClass[] { archetype.GetParentClass() }));
             tinkering.AddComponent(Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillThievery));
@@ -123,7 +122,7 @@ namespace CallOfTheWild.Archetypes
         {
             seeker_lore = Helpers.CreateFeature("SorcererSeekerLoreFeature",
                                                 "Seeker Lore",
-                                                "By 3rd level, a seeker has already learned much about his mystery, and is more comfortable using the bonus spells gained by that mystery. He gains a +4 bonus on all concentration checks and on caster level checks made to overcome spell resistance.",
+                                                "By 3rd level, a seeker has already learned much about his bloodline, and is more comfortable using the bonus spells gained by that bloodline. He gains a +4 bonus on all concentration checks, on caster level checks made to overcome spell resistance, and on all Knowledge (arcana) and Spellcraft checks made on topics associated with his bonus spells.",
                                                 "",
                                                 null,
                                                 FeatureGroup.None);
@@ -133,7 +132,7 @@ namespace CallOfTheWild.Archetypes
         {
             seeker_magic = Helpers.CreateFeature("SorcererSeekerMagicFeature",
                                                  "Seeker Magic",
-                                                 "At 15th level, a seeker becomes skilled at modifying his mystery spells with metamagic. When a seeker applies a metamagic feat to any bonus spells granted by his mystery, he reduces the metamagic feat’s spell level adjustment by 1. Thus, applying a Metamagic feat like Still Spell to a spell does not change its effective spell level at all, while applying Quicken Spell only increases the spell’s effective spell level by 3 instead of by 4. This reduction to the spell level adjustment for Metamagic feats does not stack with similar reductions from other abilities.",
+                                                 "At 15th level, a seeker becomes skilled at modifying his bloodline spells with metamagic. When a seeker applies a metamagic feat to any bonus spells granted by his bloodline, he reduces the metamagic feat’s spell level adjustment by 1. Thus, applying a Metamagic feat like Still Spell to a spell does not change its effective spell level at all, while applying Quicken Spell only increases the spell’s effective spell level by 3 instead of by 4. This reduction to the spell level adjustment for Metamagic feats does not stack with similar reductions from other abilities.",
                                                  "",
                                                  Helpers.GetIcon("3524a71d57d99bb4b835ad20582cf613"),
                                                  FeatureGroup.None);

@@ -199,7 +199,7 @@ namespace CallOfTheWild
                                                       "Transmuters use magic to change the world around them.\n"
                                                       +"Physical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\n"
                                                       + $"Augment: {description}\n"
-                                                      + $"Perfection pf Self:{description2}",
+                                                      + $"Perfection of Self:{description2}",
                                                       "",
                                                       Helpers.GetIcon("a970537ea2da20e42ae709c0bb8f793f"), //touch of law
                                                       FeatureGroup.None,

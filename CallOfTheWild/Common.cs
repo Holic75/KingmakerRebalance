@@ -2007,7 +2007,7 @@ namespace CallOfTheWild
             if (share)
             {
                 feat.ReapplyOnLevelUp = true;
-                sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feat);
+                sh_teamwork_share.GetComponent<CompanionMechanics.ShareFeaturesWithCompanion2>().Features = sh_teamwork_share.GetComponent<CompanionMechanics.ShareFeaturesWithCompanion2>().Features.AddToArray(feat);
                 monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts = monster_tactics_buff.GetComponent<AddFactsFromCaster>().Facts.AddToArray(feat);
                 //Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features = Hunter.hunter_tactics.GetComponent<ShareFeaturesWithCompanion>().Features.AddToArray(feats); - same as inquisitor
 

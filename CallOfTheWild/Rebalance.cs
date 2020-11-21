@@ -768,7 +768,7 @@ namespace CallOfTheWild
             var kalikke_acl = kalikke_feature.GetComponent<AddClassLevels>();
             kalikke_acl.Levels = 1;
             kalikke_acl.Selections[0].Features[0] = library.Get<BlueprintFeature>("90e54424d682d104ab36436bd527af09"); //weapon finesse
-            kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
+            //kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
             kalikke_acl.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillLoreNature };
             var kalikke_companion = library.Get<BlueprintUnit>("c807d18a89f96c74f8bb48b31b616323");
             kalikke_companion.Strength = 9;
@@ -1275,6 +1275,21 @@ namespace CallOfTheWild
             }
         }
 
+        internal static void fixSacredmasterHunterTactics()
+        {
+            //do not remove teamwork features that companion does not have
+            var sh_teamwork_share = library.Get<BlueprintFeature>("e1f437048db80164792155102375b62c");
+            var share_old = sh_teamwork_share.GetComponent<ShareFeaturesWithCompanion>();
+            var share_new = Helpers.Create<CompanionMechanics.ShareFeaturesWithCompanion2>(s => s.Features = share_old.Features);
+            sh_teamwork_share.ReplaceComponent(share_old, share_new);
+            var familiar = library.Get<BlueprintFeatureSelection>("363cab72f77c47745bf3a8807074d183");
+
+            foreach (var f in familiar.AllFeatures)
+            {
+                f.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p => p.Features = familiar.AllFeatures.RemoveFromArray(f)));
+            }
+        }
+
 
         //forbid bard song overlap on bardic performance
         [Harmony12.HarmonyPatch(typeof(ActivatableAbility))]
@@ -1311,6 +1326,13 @@ namespace CallOfTheWild
             feature_air.ComponentsArray = FixFlying.airborne.ComponentsArray;
 
             feature_air.SetDescription("At 15th level, you are able to fly. Yoy get immunity to difficult terrain and ground-based effects as well as +3 melee dodge AC bonus against non-flying creatures.");
+        }
+
+
+        internal static void fixDelayPoison()
+        {
+            var delay_poison_buff = library.Get<BlueprintBuff>("51ebd62ee464b1446bb01fa1e214942f");
+            delay_poison_buff.RemoveComponents<BuffDescriptorImmunity>();
         }
 
 

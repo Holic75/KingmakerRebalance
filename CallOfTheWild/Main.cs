@@ -231,6 +231,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixJaethalUndeadFeature();
                     CallOfTheWild.Rebalance.addFatigueBuffRestrictionsToRage();
                     CallOfTheWild.Rebalance.fixNecklaceOfDoubleCorses();
+                    CallOfTheWild.Rebalance.fixDelayPoison();
+                    CallOfTheWild.Rebalance.fixSacredmasterHunterTactics();
 
                     if (settings.secondary_rake_attacks)
                     {
