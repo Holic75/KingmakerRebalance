@@ -65,6 +65,8 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature concentrate_poison;
         static public BlueprintFeature poison_focus;
         static public BlueprintBuff poison_buff;
+        static public BlueprintFeature poison_move_action;
+        static public BlueprintFeature poison_swift_action;
 
         static public void create()
         {
@@ -74,7 +76,7 @@ namespace CallOfTheWild.Archetypes
             {
                 a.name = "ToxicantArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Toxicant");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "In lands where poisons are legal and may be openly studied and sold, some vivisectionists obsess over the myriad ways that poisons and venoms can be applied and delivered. Known as toxicants, these deadly artists induce the production of deadly secretions within their own bodies in order to better inflict crippling conditions upon their foes.");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "In lands where poisons are legal and may be openly studied and sold, some alchemists obsess over the myriad ways that poisons and venoms can be applied and delivered. Known as toxicants, these deadly artists induce the production of deadly secretions within their own bodies in order to better inflict crippling conditions upon their foes.");
             });
             Helpers.SetField(archetype, "m_ParentClass", alchemist_class);
             library.AddAsset(archetype, "");
@@ -93,51 +95,23 @@ namespace CallOfTheWild.Archetypes
             var poison_immunity = library.Get<BlueprintFeature>("202af59b918143a4ab7c33d72c8eb6d5");
             var persistent_mutagen = library.Get<BlueprintFeature>("75ba281feb2b96547a3bfb12ecaff052");
 
-            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bombs, mutagen),
-                                                          Helpers.LevelEntry(2, discovery),
-                                                          Helpers.LevelEntry(3, bombs),
-                                                          Helpers.LevelEntry(4, discovery),
-                                                          Helpers.LevelEntry(5, bombs),
-                                                          Helpers.LevelEntry(6, discovery),
-                                                          Helpers.LevelEntry(7, bombs),
-                                                          Helpers.LevelEntry(8, discovery),
-                                                          Helpers.LevelEntry(9, bombs),
-                                                          Helpers.LevelEntry(10, discovery),
-                                                          Helpers.LevelEntry(11, bombs),
-                                                          Helpers.LevelEntry(12, discovery),
-                                                          Helpers.LevelEntry(13, bombs),
-                                                          Helpers.LevelEntry(14, discovery, persistent_mutagen),
-                                                          Helpers.LevelEntry(15, bombs),
-                                                          Helpers.LevelEntry(16, discovery),
-                                                          Helpers.LevelEntry(17, bombs),
-                                                          Helpers.LevelEntry(18, discovery),
-                                                          Helpers.LevelEntry(19, bombs),
-                                                          Helpers.LevelEntry(20, discovery),
-                                                       };
 
-            archetype.AddFeatures = new LevelEntry[] {    Helpers.LevelEntry(1, poison_secretion, sneak_attack),
-                                                          Helpers.LevelEntry(2, medical_discovery),
-                                                          Helpers.LevelEntry(3, sneak_attack, poison_improvement),
-                                                          Helpers.LevelEntry(4, medical_discovery),
-                                                          Helpers.LevelEntry(5, sneak_attack),
-                                                          Helpers.LevelEntry(6, medical_discovery, poison_improvement),
-                                                          Helpers.LevelEntry(7, sneak_attack),
-                                                          Helpers.LevelEntry(8, medical_discovery),
-                                                          Helpers.LevelEntry(9, sneak_attack, poison_improvement),
-                                                          Helpers.LevelEntry(10, medical_discovery, advance_talents),
-                                                          Helpers.LevelEntry(11, sneak_attack),
-                                                          Helpers.LevelEntry(12, medical_discovery, poison_improvement),
-                                                          Helpers.LevelEntry(13, sneak_attack),
-                                                          Helpers.LevelEntry(14, medical_discovery),
-                                                          Helpers.LevelEntry(15, sneak_attack, poison_improvement),
-                                                          Helpers.LevelEntry(16, medical_discovery),
-                                                          Helpers.LevelEntry(17, sneak_attack),
-                                                          Helpers.LevelEntry(18, medical_discovery, poison_improvement),
-                                                          Helpers.LevelEntry(19, sneak_attack),
-                                                          Helpers.LevelEntry(20, medical_discovery),
+            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mutagen),
+                                                          Helpers.LevelEntry(14, persistent_mutagen)
+                                                        };
+
+
+            archetype.AddFeatures = new LevelEntry[] {    Helpers.LevelEntry(1, poison_secretion),
+                                                          Helpers.LevelEntry(3, poison_improvement, poison_move_action),
+                                                          Helpers.LevelEntry(6, poison_improvement, poison_swift_action),
+                                                          Helpers.LevelEntry(9, poison_improvement),
+                                                          Helpers.LevelEntry(12, poison_improvement),
+                                                          Helpers.LevelEntry(15, poison_improvement),
+                                                          Helpers.LevelEntry(18, poison_improvement),
                                                        };
 
             alchemist_class.Progression.UIGroups = alchemist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(poison_secretion, poison_improvement));
+            alchemist_class.Progression.UIGroups = alchemist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(poison_move_action, poison_swift_action));
             alchemist_class.Archetypes = alchemist_class.Archetypes.AddToArray(archetype);
 
             medical_discovery.AllFeatures = medical_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison, concentrate_poison);
@@ -377,6 +351,38 @@ namespace CallOfTheWild.Archetypes
                                                      );
             poison_weapon.setMiscAbilityParametersTouchFriendly();
             poison_weapon.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend;
+
+            poison_move_action = Helpers.CreateFeature("ToxicantPoisonMoveActionFeature",
+                                                       "Swift Alchemy",
+                                                       "A toxicant can apply poison to a weapon as a move action.",
+                                                       "",
+                                                       Helpers.GetIcon("697291ff99d3fbb448be5b60b5f2a30c"),
+                                                       FeatureGroup.None,
+                                                       Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { poison_weapon })
+                                                       );
+
+            poison_swift_action = Helpers.CreateFeature("ToxicantPoisonSwiftActionFeature",
+                                           "Swift Poisoning",
+                                           "At 6th level, an alchemist can apply a dose of poison to a weapon as a swift action.",
+                                           "",
+                                           Helpers.GetIcon("697291ff99d3fbb448be5b60b5f2a30c"),
+                                           FeatureGroup.None,
+                                           Helpers.Create<TurnActionMechanics.UseAbilitiesAsSwiftAction>(m => m.abilities = new BlueprintAbility[] { poison_weapon })
+                                           );
+
+            //fix previous saves without swift poison
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.Progression.GetClassLevel(archetype.GetParentClass()) >= 3  && unit.Progression.IsArchetype(archetype) && !unit.Progression.Features.HasFact(poison_move_action))
+                {
+                    unit.Progression.Features.AddFeature(poison_move_action);
+                }
+                if (unit.Progression.GetClassLevel(archetype.GetParentClass()) >= 6 && unit.Progression.IsArchetype(archetype) && !unit.Progression.Features.HasFact(poison_swift_action))
+                {
+                    unit.Progression.Features.AddFeature(poison_swift_action);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
 
             poison_secretion = Helpers.CreateFeature("ToxicantPoisonSecreation",
                                                      "Toxic Secretion",

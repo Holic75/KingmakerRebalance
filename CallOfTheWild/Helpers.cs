@@ -1284,6 +1284,22 @@ namespace CallOfTheWild
             return high.ToString("x16") + low.ToString("x16");
         }
 
+
+        public static String MergeIdsMultiple(String[] guids)
+        {
+            // Parse into low/high 64-bit numbers, and then xor the two halves.
+            ulong low = ParseGuidLow(guids[0]);
+            ulong high = ParseGuidHigh(guids[0]);
+
+            for (int i = 1; i < guids.Length; i++)
+            {
+                low ^= ParseGuidLow(guids[i]);
+                high ^= ParseGuidHigh(guids[i]);
+            }
+
+            return high.ToString("x16") + low.ToString("x16");
+        }
+
         // Parses the lowest 64 bits of the Guid (which corresponds to the last 16 characters).
         static ulong ParseGuidLow(String id) => ulong.Parse(id.Substring(id.Length - 16), NumberStyles.HexNumber);
 
