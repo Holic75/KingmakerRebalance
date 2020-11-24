@@ -3273,6 +3273,17 @@ namespace CallOfTheWild
             }
         }
 
+        public class EquipmentRestrictionFeature : EquipmentRestriction
+        {
+            public BlueprintFeature feature;
+            public bool Not;
+
+            public override bool CanBeEquippedBy(UnitDescriptor unit)
+            {
+                return unit.HasFact(feature) != Not;
+            }
+        }
+
 
         public class ContextConditionHasCondtionImmunity : ContextCondition
         {
