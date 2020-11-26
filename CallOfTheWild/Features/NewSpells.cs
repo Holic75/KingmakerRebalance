@@ -592,7 +592,7 @@ namespace CallOfTheWild
                                               Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy)
                                               );
             daze_mass.setMiscAbilityParametersRangedDirectional();
-            daze_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            daze_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
             daze_mass.SpellResistance = true;
 
             daze_mass.AddToSpellList(Helpers.wizardSpellList, 4);
@@ -1404,7 +1404,7 @@ namespace CallOfTheWild
                                                    );
             synaptic_pulse.SpellResistance = true;
             synaptic_pulse.setMiscAbilityParametersSelfOnly();
-            synaptic_pulse.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            synaptic_pulse.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
             Helpers.AddSpell(synaptic_pulse);
 
 
@@ -6673,7 +6673,7 @@ namespace CallOfTheWild
             burst_of_radiance.SetDescription("This spell fills the area with a brilliant flash of shimmering light. Creatures in the area are blinded for 1d4 rounds, or dazzled for 1d4 rounds if they succeed at a Reflex save. Evil creatures in the area of the burst take 1d4 points of damage per caster level (max 5d4), whether they succeed at the Reflex save or not.");
             burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
             burst_of_radiance.Range = AbilityRange.Long;
-            burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness));
 
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
@@ -8160,7 +8160,7 @@ namespace CallOfTheWild
 
             sheet_lightning.setMiscAbilityParametersRangedDirectional();
             sheet_lightning.SpellResistance = true;
-            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             sheet_lightning.AddToSpellList(Helpers.druidSpellList, 3);
             sheet_lightning.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -8639,7 +8639,7 @@ namespace CallOfTheWild
                                             );
 
             command.setMiscAbilityParametersSingleTargetRangedHarmful();
-            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             command.SpellResistance = true;
 
 
