@@ -907,15 +907,25 @@ namespace CallOfTheWild
                 ability1.SetName(spell_name + ": " + enchants[i].Name);
                 ability1.setMiscAbilityParametersTouchFriendly();
                 ability1.RemoveComponents<AbilityDeliverTouch>();
-                var action = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
-                action.Enchantment = enchants[i];
-
+                var action_old = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
+                var action = Common.createItemEnchantmentAction(enchants[i].name + "PrimaryHandWrathfulWeaponBuff",
+                                                                action_old.DurationValue,
+                                                                enchants[i],
+                                                                true,
+                                                                off_hand: false
+                                                                );
+            
                 ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
                 ability1.AddComponent(Helpers.CreateSpellDescriptor(descriptors[i]));
 
                 var ability2 = library.CopyAndAdd(ability1, enchants[i].name + "WrathfulWeaponSecondaryHandAbility", "");
                 ability2.SetName(spell_name + ": " + enchants[i].Name + " (Off-Hand)");
-                var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+                var action2 = Common.createItemEnchantmentAction(enchants[i].name + "SecondaryHandWrathfulWeaponBuff",
+                                                                action_old.DurationValue,
+                                                                enchants[i],
+                                                                true,
+                                                                off_hand: true
+                                                                );
                 ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
                 ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
                 ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
@@ -7708,16 +7718,25 @@ namespace CallOfTheWild
             keen_edge1.SetName("Keen Edge");
             keen_edge1.setMiscAbilityParametersTouchFriendly();
             keen_edge1.RemoveComponents<AbilityDeliverTouch>();
-            var action = (keen_edge1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
-            action.Enchantment = keen_edge_enchant;
-            action.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
+            var action_old = (keen_edge1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
 
+            var action = Common.createItemEnchantmentAction(keen_edge_enchant.name + "PrimaryHandKeenEdgeBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes),
+                                                keen_edge_enchant,
+                                                true,
+                                                off_hand: false
+                                                );
             keen_edge1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
             keen_edge1.LocalizedDuration = Helpers.tenMinPerLevelDuration;
 
             var keen_edge2 = library.CopyAndAdd(keen_edge1, "KeenEdgeSecondaryHandAbility", "");
             keen_edge2.SetName("Keen Edge (Off-Hand)");
-            var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+            var action2 = Common.createItemEnchantmentAction(keen_edge_enchant.name + "SecondaryHandKeenEdgeBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes),
+                                                keen_edge_enchant,
+                                                true,
+                                                off_hand: true
+                                                );
             keen_edge2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
             keen_edge2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
             keen_edge1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));

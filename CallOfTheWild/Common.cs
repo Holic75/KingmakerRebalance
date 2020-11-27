@@ -1995,6 +1995,30 @@ namespace CallOfTheWild
         }
 
 
+        static public ContextActionApplyBuff createItemEnchantmentAction(string buff_name, 
+                                                                         ContextDurationValue duration, BlueprintWeaponEnchantment enchant,
+                                                                         bool is_from_spell,
+                                                                         bool off_hand,
+                                                                         bool is_child = false,
+                                                                         bool is_permanent = false,
+                                                                         bool lock_slot = true,
+                                                                         bool only_non_magical = false,
+                                                                         bool dispellable = true)
+        {
+            var buff = Helpers.CreateBuff(buff_name,
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          off_hand ? Common.createBuffContextEnchantSecondaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, enchant) :
+                                                Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, enchant)
+                                          );
+
+            return Common.createContextActionApplyBuff(buff, duration, is_from_spell, is_child, is_permanent, dispellable);
+        }
+
+
         static public void addTemworkFeats(BlueprintFeature feat, bool share = true)
         {
             var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");

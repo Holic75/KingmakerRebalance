@@ -596,7 +596,11 @@ namespace CallOfTheWild
                 }
 
                 if (hand.HasWeapon)
-                    return !hand.Weapon.Blueprint.IsNatural && !hand.Weapon.Blueprint.IsUnarmed && (!EnchantmentMechanics.Helpers.isSummoned(hand.Weapon) || works_on_summoned);
+                {
+                    bool monk_strike = hand.Weapon.Blueprint.IsUnarmed && (bool)unit.Descriptor.State.Features.ImprovedUnarmedStrike && !off_hand;
+                    return monk_strike || (!hand.Weapon.Blueprint.IsNatural && (!EnchantmentMechanics.Helpers.isSummoned(hand.Weapon) || works_on_summoned));
+                }
+
                 return false;
             }
 
