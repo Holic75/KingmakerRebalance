@@ -4475,6 +4475,31 @@ namespace CallOfTheWild
         }
 
 
+        static public LevelEntry[] removeEntries(LevelEntry[] old_entries, Predicate<BlueprintFeatureBase> predicate, bool keep_empty_entries = false)
+        {
+            List<LevelEntry> level_entries = new List<LevelEntry>();
+
+            for (int i = 0; i < old_entries.Length; i++)
+            {
+                var new_entry = Helpers.LevelEntry(old_entries[i].Level);
+
+                foreach (var f in old_entries[i].Features.ToArray())
+                {
+                    if (!predicate(f))
+                    {
+                        new_entry.Features.Add(f);
+                    }
+                }
+                if (!new_entry.Features.Empty() || keep_empty_entries)
+                {
+                    level_entries.Add(new_entry);
+                }
+            }
+
+            return level_entries.ToArray();
+        }
+
+
         static public BlueprintProgression removeEntriesFromProgression(BlueprintProgression progression, string name, Predicate<BlueprintFeatureBase> predicate)
         {
             List<LevelEntry> level_entries = new List<LevelEntry>();

@@ -74,7 +74,7 @@ namespace CallOfTheWild.Archetypes
             createSlayerTalents();
 
             var nature_sense = library.Get<BlueprintFeature>("3a859e435fdd6d343b80d4970a7664c1");
-            var resis_nature_lure = library.Get<BlueprintFeature>("ad6a5b0e1a65c3540986cf9a7b006388");
+            var resist_nature_lure = library.Get<BlueprintFeature>("ad6a5b0e1a65c3540986cf9a7b006388");
             var venom_immunity = library.Get<BlueprintFeature>("5078622eb5cecaf4683fa16a9b948c2c");
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
             var advanced_talents = library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c");
@@ -85,9 +85,11 @@ namespace CallOfTheWild.Archetypes
             advanced_talents.SetDescription("A character can choose one of the advanced rogue or slayer talents in place of a standard talent.");
 
             
-            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, nature_sense)
-                                                       };
-            archetype.RemoveFeatures = archetype.RemoveFeatures.AddToArray(druid.Progression.LevelEntries.Where(le => le.Level > 1).ToArray());
+            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, nature_sense, Wildshape.druid_wildshapes_progression),
+                                                          Helpers.LevelEntry(2, woodland_stride),
+                                                          Helpers.LevelEntry(4, resist_nature_lure),
+                                                          Helpers.LevelEntry(9, venom_immunity),
+                                                        };
 
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, studied_target),
                                                        Helpers.LevelEntry(4, sneak_attack_give, slayer_talent4),
