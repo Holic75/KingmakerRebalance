@@ -194,14 +194,20 @@ namespace CallOfTheWild
         static void addToPrestigeClasses()
         {
             Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, questioner_spellbook, "EldritchKnightQuestioner",
-                                      Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 3));
+                                      Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1),
+                                      Common.createPrerequisiteClassSpellLevel(investigator_class, 3));
             Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, questioner_spellbook, "ArcaneTricksterQuestioner",
-                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
+                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1),
+                                        Common.createPrerequisiteClassSpellLevel(investigator_class, 2));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, questioner_spellbook, "MysticTheurgeQuestioner",
-                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 2));
+                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1),
+                                        Common.createPrerequisiteClassSpellLevel(investigator_class, 2));
             /*Common.addReplaceSpellbook(Common.MysticTheurgeDivineSpellbookSelection, jinyiwei_spellbook, "MysticTheurgeJinyiwei",
                                         Common.createPrerequisiteArchetypeLevel(investigator_class, jinyiwei_archetype, 2));*/
-            Common.addMTDivineSpellbookProgression(investigator_class, jinyiwei_spellbook, "MysticTheurgeJinyiweiProgression", Common.createPrerequisiteArchetypeLevel(jinyiwei_archetype, 1));
+            Common.addMTDivineSpellbookProgression(investigator_class, jinyiwei_spellbook, "MysticTheurgeJinyiweiProgression", 
+                                                    Common.createPrerequisiteArchetypeLevel(jinyiwei_archetype, 1),
+                                                    Common.createPrerequisiteClassSpellLevel(investigator_class, 2)
+                                                    );
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, questioner_spellbook, "DragonDiscipleQuestioner",
                                        Common.createPrerequisiteArchetypeLevel(investigator_class, questioner_archetype, 1));
         }

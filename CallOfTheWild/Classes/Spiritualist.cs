@@ -627,7 +627,10 @@ namespace CallOfTheWild
             onmyoji.ChangeCasterType = true;
             onmyoji.IsDivineCaster = true;
             spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(onmyoji_spellcasting);
-            Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", Common.createPrerequisiteArchetypeLevel(onmyoji, 1));
+            Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", 
+                                                   Common.createPrerequisiteArchetypeLevel(onmyoji, 1),
+                                                   Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2)
+                                                   );
         }
 
 
@@ -987,13 +990,17 @@ namespace CallOfTheWild
 
             //add to prestige classes
             Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, hag_haunted_spellbook, "EldritchKnightHagHaunted",
-                          Common.createPrerequisiteArchetypeLevel(hag_haunted, 3));
+                          Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                          Common.createPrerequisiteClassSpellLevel(spiritualist_class, 3));
             Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, hag_haunted_spellbook, "ArcaneTricksterHagHaunted",
-                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                        Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, hag_haunted_spellbook, "MysticTheurgeHagHaunted",
-                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                        Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, hag_haunted_spellbook, "DragonDiscipleHagHaunted",
-                                       Common.createPrerequisiteArchetypeLevel(hag_haunted, 1));
+                                       Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                       Common.createPrerequisiteClassSpellLevel(spiritualist_class, 1));
         }
 
 

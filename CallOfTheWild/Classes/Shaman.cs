@@ -309,7 +309,8 @@ namespace CallOfTheWild
                                                      Common.createPrerequisiteClassSpellLevel(shaman_class, 2), Common.prerequisiteNoArchetype(possesed_shaman));
 
             Common.addMTDivineSpellbookProgression(shaman_class, possesed_shaman.ReplaceSpellbook, "MysticTheurgePosessedShaman",
-                                         Common.createPrerequisiteArchetypeLevel(possesed_shaman, 2));
+                                         Common.createPrerequisiteArchetypeLevel(possesed_shaman, 1),
+                                         Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
 
             createSenseSpiritMagic();
             createSpiritCall();

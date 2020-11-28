@@ -915,9 +915,113 @@ namespace CallOfTheWild
         }
 
 
+        public class RunActionOnTargetBasedOnSpellType : AbilityConvertSpell
+        {
+            public ActionList action_divine = Helpers.CreateActionList();
+            public ActionList action_arcane = Helpers.CreateActionList();
+            public ActionList action_alchemist = Helpers.CreateActionList();
+            public ActionList action_psychic = Helpers.CreateActionList();
+            public BlueprintUnitFact context_fact;
+
+            public override void Apply(AbilityExecutionContext context, TargetWrapper target)
+            {
+                if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)
+                    return;
+                else if (context.Ability.ParamSpellSlot.Spell.Spellbook == null)
+                    return;
+                else
+                {
+                    applyEffect(context.Ability.ParamSpellSlot, context, target);
+                }
+            }
+
+
+            private void applyEffect(SpellSlot spell_slot, AbilityExecutionContext context, TargetWrapper target)
+            {
+                spendSpellSlot(spell_slot);
+                var fact = context?.Caster?.Descriptor.GetFact(context_fact);
+                if (context_fact == null)
+                {
+                    return;
+                }
+                if (context.Ability.ParamSpellSlot.Spell.Spellbook.Blueprint.IsArcane)
+                {
+                     (fact as IFactContextOwner).RunActionInContext(action_arcane, target);
+                }
+                else if (context.Ability.ParamSpellSlot.Spell.Spellbook.Blueprint.IsAlchemist)
+                {
+                    (fact as IFactContextOwner).RunActionInContext(action_alchemist, target);
+                }
+                else if (context.Ability.ParamSpellSlot.Spell.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+                {
+                    (fact as IFactContextOwner).RunActionInContext(action_psychic, target);
+                }
+                else
+                {
+                    (fact as IFactContextOwner).RunActionInContext(action_divine, target);
+                }
+            }
+        }
+
+
+        [ComponentName("Increase spell descriptor CL")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseSpellTypeCasterLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public bool apply_to_arcane = false;
+            public bool apply_to_divine = false;
+            public bool apply_to_alchemist = false;
+            public bool apply_to_psychic = false;
+            public ContextValue bonus;
+            public bool remove_after_use;
+            public int max_lvl = 100;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spellbook == null)
+                {
+                    return;
+                }
+                if (evt.AbilityData.SpellLevel > max_lvl)
+                {
+                    return;
+                }
+                if (evt.Spellbook.Blueprint.IsArcane && apply_to_arcane)
+                {
+                    apply(evt);
+                }
+                else if (evt.Spellbook.Blueprint.IsAlchemist)
+                {
+                    apply(evt);
+                }
+                else if (evt.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+                {
+                    apply(evt);
+                }
+                else
+                {
+                    apply(evt);
+                }
+
+            }
+
+            private void apply(RuleCalculateAbilityParams evt)
+            {
+                evt.AddBonusCasterLevel(this.bonus.Calculate(this.Fact.MaybeContext));
+                if (remove_after_use)
+                {
+                    (this.Fact as Buff)?.Remove();
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
         public class ApplySpellOnTarget : AbilityConvertSpell
         {
-
             public override void Apply(AbilityExecutionContext context, TargetWrapper target)
             {
                 if (context.Ability.ParamSpellSlot == null || context.Ability.ParamSpellSlot.Spell == (AbilityData)null)

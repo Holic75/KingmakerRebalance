@@ -102,7 +102,10 @@ namespace CallOfTheWild.Archetypes
 
             var mt_progression = library.Get<BlueprintProgression>("d21a104c204ed7348a51405e68387013");
             mt_progression.AddComponent(Common.prerequisiteNoArchetype(archetype));
-            Common.addMTDivineSpellbookProgression(archetype.GetParentClass(), spellbook, "MysticTheurgeRavenerHunterProgression", Common.createPrerequisiteArchetypeLevel(archetype, 1));
+            Common.addMTDivineSpellbookProgression(archetype.GetParentClass(), spellbook, "MysticTheurgeRavenerHunterProgression", 
+                                                   Common.createPrerequisiteArchetypeLevel(archetype, 1),
+                                                   Common.createPrerequisiteClassSpellLevel(inquisitor_class, 2)
+                                                   );
         }
 
 
