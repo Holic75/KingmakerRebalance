@@ -1979,7 +1979,7 @@ namespace CallOfTheWild
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
             var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
 
-            druid_progression.LevelEntries[2].Features.Add(woodland_stride);
+            druid_progression.LevelEntries[1].Features.Add(woodland_stride);
             druid_progression.UIGroups[0].Features.Add(woodland_stride);
 
             var ranger_progression = library.Get<BlueprintProgression>("97261d609529d834eba4fd4da1bc44dc");

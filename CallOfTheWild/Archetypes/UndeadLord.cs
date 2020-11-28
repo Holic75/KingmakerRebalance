@@ -269,7 +269,7 @@ namespace CallOfTheWild.Archetypes
 
             command_undead = ChannelEnergyEngine.createCommandUndead("UndeadLord", 
                                                                      "Command Undead",
-                                                                     "As a standard action, you can use one of your uses of channel negative energy to enslave one undead creature within close range. Undead receive a Will save to negate the effect. The DC for this Will save is equal to 10 + 1/2 your cleric level + your Charisma modifier. Undead that fail their saves fall under your control, obeying your commands to the best of their ability, as if under the effects of control undead.",
+                                                                     "As a standard action, you can use one of your uses of channel negative energy to enslave one undead creature within close range. Undead creature receives a Will save to negate the effect. The DC for this Will save is equal to 10 + 1/2 your cleric level + your Charisma modifier. Undead that fail its saves fall under your control, obeying your commands to the best of their ability, as if under the effects of control undead.",
                                                                      StatType.Charisma, new BlueprintCharacterClass[] {cleric_class}, resource);
         }
 

@@ -88,7 +88,7 @@ namespace CallOfTheWild.Archetypes
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, druid_bond, spontaneous_summon),
-                                                          Helpers.LevelEntry(3, woodland_stride),
+                                                          Helpers.LevelEntry(2, woodland_stride),
                                                           Helpers.LevelEntry(4, resis_nature_lure),
                                                           Helpers.LevelEntry(9, venom_immunity)
                                                        };

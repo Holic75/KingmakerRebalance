@@ -4690,13 +4690,21 @@ namespace CallOfTheWild
             createSacredClaws();
             createWildShape();
 
-            feral_champion.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, feral_blessing, sacred_claws),
-                                                                  Helpers.LevelEntry(7, wild_shape[0], wild_shape[1]), //wolf, leopard
-                                                                  Helpers.LevelEntry(9, wild_shape[2], wild_shape[3]), //bear, dire wolf
-                                                                  Helpers.LevelEntry(11, wild_shape[4], wild_shape[5], extra_wildshape), //smilodon, mastodon
-                                                                  Helpers.LevelEntry(15, extra_wildshape),
-                                                                  Helpers.LevelEntry(19, extra_wildshape)
-                                                                 };
+            var wildshape_progression = Wildshape.addWildshapeProgression("FeralChampionWildshapeProgression",
+                                                                          new BlueprintCharacterClass[] { warpriest_class },
+                                                                          new BlueprintArchetype[0],
+                                                                          new LevelEntry[]
+                                                                          {
+                                                                             Helpers.LevelEntry(7, wild_shape[0], wild_shape[1]), //wolf, leopard
+                                                                             Helpers.LevelEntry(9, wild_shape[2], wild_shape[3]), //bear, dire wolf
+                                                                             Helpers.LevelEntry(11, wild_shape[4], wild_shape[5], extra_wildshape), //smilodon, mastodon
+                                                                             Helpers.LevelEntry(15, extra_wildshape),
+                                                                             Helpers.LevelEntry(19, extra_wildshape)
+                                                                          }
+                                                                          );
+
+            feral_champion.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, feral_blessing, sacred_claws, wildshape_progression)
+                                                         };
 
 
             warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(feral_blessing);

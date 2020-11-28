@@ -240,6 +240,7 @@ namespace CallOfTheWild
         static void createChannelEnergyDomainProgression()
         {
             //add to domains
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
             var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             var cleric_secondary_domain_selection = library.Get<BlueprintFeatureSelection>("43281c3d7fe18cc4d91928395837cd1e");
             var druid_domain_selection = library.Get<BlueprintFeatureSelection>("5edfe84c93823d04f8c40ca2b4e0f039");
@@ -247,17 +248,48 @@ namespace CallOfTheWild
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, domain_selection, cleric);
             ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, cleric_secondary_domain_selection, cleric);
-            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, blight_druid_domain_selection, cleric);
-            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, druid_domain_selection, cleric);
+            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, blight_druid_domain_selection, druid);
+            ClassToProgression.addClassToDomains(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, druid_domain_selection, druid);
             ChannelEnergyEngine.addClassToChannelEnergyProgression(dawnflower_anchorite);
 
+            foreach (var p in Archetypes.StormDruid.domain_secondary_progressions)
+            {
+                ClassToProgression.addClassToProgression(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, p, druid);
+            }
+
+
+            foreach (var p in Wildshape.wildshape_progressions)
+            {
+                ClassToProgression.addClassToProgression(dawnflower_anchorite, new BlueprintArchetype[0], ClassToProgression.DomainSpellsType.NoSpells, p, p.Classes[0]);
+            }
+
+            //remove dawnflower anchorite from animal domains
+            var domain_animal_companion_progression = library.Get<BlueprintProgression>("125af359f8bc9a145968b5d8fd8159b8");
+            domain_animal_companion_progression.Classes = domain_animal_companion_progression.Classes.RemoveFromArray(dawnflower_anchorite);
+            var druid_animal_domain_selection = library.Get<BlueprintProgression>("a75ad4936e099c54881cf553e2110703");
+            foreach (var a in druid_animal_domain_selection.GetComponents<AddFeatureOnClassLevel>())
+            {
+                a.AdditionalClasses = a.AdditionalClasses.RemoveFromArray(dawnflower_anchorite);
+            }
+
+
+
             channel_energy_domain_progression = Helpers.CreateFeature("DawnflowerAnchoriteChannelDomainProgressionFeature",
-                                                                      "Channel Energy and Domain Progression",
-                                                                      "The character adds his Dawnflower anchorite class levels to his effective class level for the classes that give access to Domains or Channel Energy features.",
+                                                                      "Focused",
+                                                                      "The character adds his Dawnflower anchorite class levels to his effective class level in the corresponding class for the purpose of determining the effects of the following features: "
+                                                                      +"Domains, Channel Energy, Animal Companion and Wildshape.",
                                                                       "",
                                                                       Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96"), //good hope
                                                                       FeatureGroup.None
-                                                                      );                                                          
+                                                                      );
+
+            var animal_companion_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
+            for (int i = 1; i <= 10; i++)
+            {
+                channel_energy_domain_progression.AddComponent(Helpers.CreateAddFeatureOnClassLevel(animal_companion_rank, i, getDawnflowerAcnchoriteArray()));
+            }
+
+
         }
 
 

@@ -592,7 +592,7 @@ namespace CallOfTheWild
                                               Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy)
                                               );
             daze_mass.setMiscAbilityParametersRangedDirectional();
-            daze_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            daze_mass.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
             daze_mass.SpellResistance = true;
 
             daze_mass.AddToSpellList(Helpers.wizardSpellList, 4);
@@ -907,15 +907,25 @@ namespace CallOfTheWild
                 ability1.SetName(spell_name + ": " + enchants[i].Name);
                 ability1.setMiscAbilityParametersTouchFriendly();
                 ability1.RemoveComponents<AbilityDeliverTouch>();
-                var action = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
-                action.Enchantment = enchants[i];
-
+                var action_old = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
+                var action = Common.createItemEnchantmentAction(enchants[i].name + "PrimaryHandWrathfulWeaponBuff",
+                                                                action_old.DurationValue,
+                                                                enchants[i],
+                                                                true,
+                                                                off_hand: false
+                                                                );
+            
                 ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
                 ability1.AddComponent(Helpers.CreateSpellDescriptor(descriptors[i]));
 
                 var ability2 = library.CopyAndAdd(ability1, enchants[i].name + "WrathfulWeaponSecondaryHandAbility", "");
                 ability2.SetName(spell_name + ": " + enchants[i].Name + " (Off-Hand)");
-                var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+                var action2 = Common.createItemEnchantmentAction(enchants[i].name + "SecondaryHandWrathfulWeaponBuff",
+                                                                action_old.DurationValue,
+                                                                enchants[i],
+                                                                true,
+                                                                off_hand: true
+                                                                );
                 ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
                 ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
                 ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
@@ -1404,7 +1414,7 @@ namespace CallOfTheWild
                                                    );
             synaptic_pulse.SpellResistance = true;
             synaptic_pulse.setMiscAbilityParametersSelfOnly();
-            synaptic_pulse.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+            synaptic_pulse.AvailableMetamagic = Metamagic.Quicken | Metamagic.Extend | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
             Helpers.AddSpell(synaptic_pulse);
 
 
@@ -6673,7 +6683,7 @@ namespace CallOfTheWild
             burst_of_radiance.SetDescription("This spell fills the area with a brilliant flash of shimmering light. Creatures in the area are blinded for 1d4 rounds, or dazzled for 1d4 rounds if they succeed at a Reflex save. Evil creatures in the area of the burst take 1d4 points of damage per caster level (max 5d4), whether they succeed at the Reflex save or not.");
             burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
             burst_of_radiance.Range = AbilityRange.Long;
-            burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness));
 
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
@@ -7708,16 +7718,25 @@ namespace CallOfTheWild
             keen_edge1.SetName("Keen Edge");
             keen_edge1.setMiscAbilityParametersTouchFriendly();
             keen_edge1.RemoveComponents<AbilityDeliverTouch>();
-            var action = (keen_edge1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem).CreateCopy();
-            action.Enchantment = keen_edge_enchant;
-            action.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes);
+            var action_old = (keen_edge1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
 
+            var action = Common.createItemEnchantmentAction(keen_edge_enchant.name + "PrimaryHandKeenEdgeBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes),
+                                                keen_edge_enchant,
+                                                true,
+                                                off_hand: false
+                                                );
             keen_edge1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
             keen_edge1.LocalizedDuration = Helpers.tenMinPerLevelDuration;
 
             var keen_edge2 = library.CopyAndAdd(keen_edge1, "KeenEdgeSecondaryHandAbility", "");
             keen_edge2.SetName("Keen Edge (Off-Hand)");
-            var action2 = action.CreateCopy(a => a.Slot = Kingmaker.UI.GenericSlot.EquipSlotBase.SlotType.SecondaryHand);
+            var action2 = Common.createItemEnchantmentAction(keen_edge_enchant.name + "SecondaryHandKeenEdgeBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes),
+                                                keen_edge_enchant,
+                                                true,
+                                                off_hand: true
+                                                );
             keen_edge2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
             keen_edge2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
             keen_edge1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
@@ -8160,7 +8179,7 @@ namespace CallOfTheWild
 
             sheet_lightning.setMiscAbilityParametersRangedDirectional();
             sheet_lightning.SpellResistance = true;
-            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            sheet_lightning.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
             sheet_lightning.AddToSpellList(Helpers.druidSpellList, 3);
             sheet_lightning.AddToSpellList(Helpers.wizardSpellList, 3);
@@ -8639,7 +8658,7 @@ namespace CallOfTheWild
                                             );
 
             command.setMiscAbilityParametersSingleTargetRangedHarmful();
-            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            command.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
             command.SpellResistance = true;
 
 

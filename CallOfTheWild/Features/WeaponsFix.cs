@@ -218,6 +218,11 @@ namespace CallOfTheWild
 
         static void fixMartialExoticWeapons()
         {
+            var oversized_bastard_sword_types = new BlueprintWeaponType[]
+                                              {
+                                                library.Get<BlueprintWeaponType>("1e460a2dc830cf546939b2723aa875e7"), //oversized bastard sword
+                                                library.Get<BlueprintWeaponType>("58dcff8d1dd5d094eb345e8eeb2e4626"), //oversized bastard sword no penalty
+                                              };
             var bastard_sword_type = library.Get<BlueprintWeaponType>("d2fe2c5516b56f04da1d5ea51ae3ddfe");
             Helpers.SetField(bastard_sword_type, "m_IsTwoHanded", true);
             WeaponVisualParameters bs_visuals = Helpers.GetField<WeaponVisualParameters>(bastard_sword_type, "m_VisualParameters");
@@ -227,11 +232,7 @@ namespace CallOfTheWild
                                   {
                                       c.category = WeaponCategory.BastardSword;
                                       c.require_full_proficiency = true;
-                                      c.except_types = new BlueprintWeaponType[]
-                                      {
-                                        library.Get<BlueprintWeaponType>("1e460a2dc830cf546939b2723aa875e7"), //oversized bastard sword
-                                        library.Get<BlueprintWeaponType>("58dcff8d1dd5d094eb345e8eeb2e4626"), //oversized bastard sword no penalty
-                                      };
+                                      c.except_types = oversized_bastard_sword_types;
                                   }));
 
             var dwarven_waraxe_type = library.Get<BlueprintWeaponType>("a6925f5f897801449a648d865637e5a0");
@@ -295,6 +296,13 @@ namespace CallOfTheWild
             //fix units
             var hendrick_bandit = library.Get<BlueprintUnit>("5d7122078d52ec34aa5cc34df345ed51");
             hendrick_bandit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("0ce4b3f4a3d70fa45851313a7f3d233f"); //battle axe +1 instead of bastard sword +1 since he does not have proficiency
+
+            //fix all oversized bastard swords to require exotic weapon proficiency
+            var oversized_bastard_swords = library.GetAllBlueprints().OfType<BlueprintItemWeapon>().Where(w => oversized_bastard_sword_types.Contains(w.Type)).ToArray();
+            foreach (var obs in oversized_bastard_swords)
+            {
+                obs.AddComponent(Helpers.Create<NewMechanics.EquipmentRestrictionFeature>(e => e.feature = bastard_sword_proficiency));
+            }
         }
 
 

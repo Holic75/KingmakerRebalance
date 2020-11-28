@@ -154,6 +154,29 @@ namespace CallOfTheWild
         static public BlueprintFeature greater_weapon_shift;
         static public BlueprintFeature mutated_shape;
 
+        static public List<BlueprintProgression> wildshape_progressions = new List<BlueprintProgression>();
+        static public BlueprintFeature druid_wildshapes_progression;
+
+
+        static public BlueprintFeature addWildshapeProgression(string name, BlueprintCharacterClass[] classes, BlueprintArchetype[] archetypes, LevelEntry[] level_entries)
+        {
+            var progression = Helpers.CreateProgression(name,
+                                                        "",
+                                                        "",
+                                                        "",
+                                                        null,
+                                                        FeatureGroup.None
+                                                        );
+            progression.HideInCharacterSheetAndLevelUp = true;
+            progression.HideInUI = true;
+            progression.Classes = classes;
+            progression.Archetypes = archetypes;
+            progression.LevelEntries = level_entries;
+            
+            wildshape_progressions.Add(progression);
+            return progression;
+        }
+
         static internal void load()
         {
             no_multi_attack = SaveGameFix.createDummyFeature("NoMultiAttack", "f98798c7fa114d8faf7db58497016af2");
@@ -758,19 +781,55 @@ namespace CallOfTheWild
 
             var shape_features = new BlueprintFeature[] {
                                                         wolf_feature,
+                                                        dire_wolf_feature,
                                                         leopard_feature,
                                                         bear_feature,
                                                         shambling_mound_feature,    
                                                         smilodon_feature,        
                                                         small_elemental_feature,
-                                                        medium_elemental_feature,
-                                                        large_elemental_feature,
-                                                        huge_elemental_feature
+                                                        huge_elemental_feature,
+                                                        mandragora_feature,
+                                                        flytrap_feature,
+                                                        treant_feature,
+                                                        mastodon_feature,
+                                                        medium_elemental_add,
+                                                        large_elemental_add,                                                    
                                                         };
             foreach (var s in shape_features)
             {
                 s.SetDescription(description);
+                //s.HideInUI = false;
             }
+            var wildshape_extra_use = library.Get<BlueprintFeature>("f78260b9a089ccc44b55f0fed08b1752");
+
+            var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+
+            druid_wildshapes_progression = addWildshapeProgression("DruidWildshapeProgression",
+                                                                    new BlueprintCharacterClass[] { druid },
+                                                                    new BlueprintArchetype[0],
+                                                                    new LevelEntry[] {Helpers.LevelEntry(4, wolf_feature, leopard_feature),
+                                                                                        Helpers.LevelEntry(6, dire_wolf_feature, bear_feature, small_elemental_feature, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(8, smilodon_feature, mastodon_feature, mandragora_feature, medium_elemental_add, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(10, shambling_mound_feature, large_elemental_add, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(14, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(16, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(18, wildshape_extra_use),
+                                                                                        Helpers.LevelEntry(20, wildshape_extra_use),
+                                                                                        });
+
+            var feyspeaker_wildshape_progression = addWildshapeProgression("FeyspeakerWildshapeProgression",
+                                                            new BlueprintCharacterClass[] { druid },
+                                                            new BlueprintArchetype[0],
+                                                            new LevelEntry[] {Helpers.LevelEntry(6, wolf_feature, leopard_feature),
+                                                                                          Helpers.LevelEntry(8, dire_wolf_feature, bear_feature, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(10, smilodon_feature, mastodon_feature, mandragora_feature, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(12, shambling_mound_feature, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(14, flytrap_feature, treant_feature, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(16, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(18, wildshape_extra_use),
+                                                                                          Helpers.LevelEntry(20, wildshape_extra_use),
+                                                                             });
 
 
             druid_wild_shapes = new BlueprintBuff[] {library.Get<BlueprintBuff>("470fb1a22e7eb5849999f1101eacc5dc"), //wolf
@@ -806,7 +865,10 @@ namespace CallOfTheWild
                                                                 };
 
             var druid_progression = library.Get<BlueprintProgression>("01006f2ac8866764fb7af135e73be81c");
-            druid_progression.LevelEntries[3].Features.Add(leopard_feature);
+
+            druid_progression.LevelEntries = Common.removeEntries(druid_progression.LevelEntries, f => shape_features.Contains(f) || f == wildshape_extra_use, true);
+            druid_progression.LevelEntries[0].Features.Add(druid_wildshapes_progression);
+            /*druid_progression.LevelEntries[3].Features.Add(leopard_feature);
             druid_progression.LevelEntries[5].Features[0] = dire_wolf_feature;
             druid_progression.LevelEntries[5].Features.Insert(0, bear_feature);
             druid_progression.LevelEntries[7].Features[0] = mastodon_feature;
@@ -814,7 +876,7 @@ namespace CallOfTheWild
             druid_progression.LevelEntries[7].Features.Add(mandragora_feature);
             druid_progression.LevelEntries[9].Features.Remove(smilodon_feature);
             druid_progression.LevelEntries[11].Features.Add(flytrap_feature);
-            druid_progression.LevelEntries[11].Features.Add(treant_feature);
+            druid_progression.LevelEntries[11].Features.Add(treant_feature);*/
             druid_progression.UIGroups[0].Features.Remove(library.Get<BlueprintFeature>("19bb148cb92db224abb431642d10efeb"));//remove wolf feature
             var wildshape_ui_groups = new UIGroup[] {Helpers.CreateUIGroup(wolf_feature, dire_wolf_feature, smilodon_feature),
                                                      Helpers.CreateUIGroup(leopard_feature, bear_feature, mastodon_feature, treant_feature),
@@ -824,8 +886,12 @@ namespace CallOfTheWild
 
 
             var feyspeaker = library.Get<BlueprintArchetype>("da69747aa3dd0044ebff5f3d701cdde3");
-            feyspeaker.AddFeatures[2].Features.Add(leopard_feature);
-            feyspeaker.AddFeatures[3].Features[1] = dire_wolf_feature;
+            feyspeaker.RemoveFeatures = Common.removeEntries(feyspeaker.RemoveFeatures, f => shape_features.Contains(f) || f == wildshape_extra_use);
+            feyspeaker.AddFeatures = Common.removeEntries(feyspeaker.AddFeatures, f => shape_features.Contains(f) || f == wildshape_extra_use);
+            feyspeaker.AddFeatures[0].Features.Add(feyspeaker_wildshape_progression);
+            feyspeaker.RemoveFeatures[0].Features.Add(druid_wildshapes_progression);
+
+            /*feyspeaker.AddFeatures[3].Features[1] = dire_wolf_feature;
             feyspeaker.AddFeatures[3].Features.Add(bear_feature);
             feyspeaker.AddFeatures[4].Features[1] = mastodon_feature;
             feyspeaker.AddFeatures[4].Features.Add(smilodon_feature);
@@ -842,7 +908,7 @@ namespace CallOfTheWild
             feyspeaker.RemoveFeatures[3].Features.Add(mandragora_feature);
             feyspeaker.RemoveFeatures[3].Features.Add(mastodon_feature);
             feyspeaker.RemoveFeatures[4].Features[0] = shambling_mound_feature;
-            feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature));
+            feyspeaker.RemoveFeatures = feyspeaker.RemoveFeatures.AddToArray(Helpers.LevelEntry(12, flytrap_feature, treant_feature, huge_elemental_feature));*/
 
             first_wildshape_form = Helpers.CreateFeature("WildshapeFormFeaure",
                                                          "Wild Shape",
@@ -856,16 +922,6 @@ namespace CallOfTheWild
             //fix natural spell requirement
             var natural_spell = library.Get<BlueprintFeature>("c806103e27cce6f429e5bf47067966cf");
             natural_spell.GetComponent<PrerequisiteFeature>().Feature = first_wildshape_form;
-
-            //add wolf form if it is missing
-            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor u)
-            {
-                if (u.HasFact(leopard_feature) && !u.HasFact(wolf_feature))
-                {
-                    u.AddFact(wolf_feature);
-                }
-            };
-            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 

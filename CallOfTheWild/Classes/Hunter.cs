@@ -186,26 +186,34 @@ namespace CallOfTheWild
             createPreciseNatureAlly();
             var feral_hunter_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "FeralHunterAnimalFocusFeature", "");
 
+            var wildshape_progression = Wildshape.addWildshapeProgression("FeralHuntterWildshapeProgression",
+                                                              new BlueprintCharacterClass[] { hunter_class },
+                                                              new BlueprintArchetype[0],
+                                                              new LevelEntry[]
+                                                              {
+                                                                             Helpers.LevelEntry(4, wild_shape[0], wild_shape[1]), //wolf, leopard
+                                                                             Helpers.LevelEntry(6, wild_shape[2], wild_shape[3], extra_wildshape), //bear, dire wolf
+                                                                             Helpers.LevelEntry(8, wild_shape[4], wild_shape[5], extra_wildshape), //smilodon, mastodon
+                                                                             Helpers.LevelEntry(10, extra_wildshape),
+                                                                             Helpers.LevelEntry(12, extra_wildshape),
+                                                                             Helpers.LevelEntry(14, extra_wildshape),
+                                                                             Helpers.LevelEntry(16, extra_wildshape),
+                                                                             Helpers.LevelEntry(18, extra_wildshape),
+                                                                             Helpers.LevelEntry(20, extra_wildshape),
+                                                              }
+                                                              );
+
             feral_hunter_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The feral hunter can apply additional animal focus to herself.");
-            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, /*feral_hunter_animal_focus_additional_use,*/ summon_nature_ally[0]),
+            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, /*feral_hunter_animal_focus_additional_use,*/ summon_nature_ally[0], wildshape_progression),
                                                                 Helpers.LevelEntry(2, precise_nature_ally),
                                                                 Helpers.LevelEntry(3, summon_nature_ally[1]),
-                                                                Helpers.LevelEntry(4, wild_shape[0], wild_shape[1]),
                                                                 Helpers.LevelEntry(5, summon_nature_ally[2]),
-                                                                Helpers.LevelEntry(6, wild_shape[2], wild_shape[3], extra_wildshape),
                                                                 Helpers.LevelEntry(7, summon_nature_ally[3]),
-                                                                Helpers.LevelEntry(8, wild_shape[4], wild_shape[5], extra_wildshape),
                                                                 Helpers.LevelEntry(9, summon_nature_ally[4]),
-                                                                Helpers.LevelEntry(10, extra_wildshape),
                                                                 Helpers.LevelEntry(11, summon_nature_ally[5]),
-                                                                Helpers.LevelEntry(12, extra_wildshape),
                                                                 Helpers.LevelEntry(13, summon_nature_ally[6]),
-                                                                Helpers.LevelEntry(14, extra_wildshape),
                                                                 Helpers.LevelEntry(15, summon_nature_ally[7]),
-                                                                Helpers.LevelEntry(16, extra_wildshape),
                                                                 Helpers.LevelEntry(17, summon_nature_ally[8]),
-                                                                Helpers.LevelEntry(18, extra_wildshape),
-                                                                Helpers.LevelEntry(20, extra_wildshape),
                                                              };
 
 
