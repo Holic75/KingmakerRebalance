@@ -2018,6 +2018,33 @@ namespace CallOfTheWild
             return Common.createContextActionApplyBuff(buff, duration, is_from_spell, is_child, is_permanent, dispellable);
         }
 
+        static public ContextActionApplyBuff createItemEnchantmentsAction(string buff_name,
+                                                                 ContextDurationValue duration, BlueprintWeaponEnchantment[] enchants,
+                                                                 bool is_from_spell,
+                                                                 bool off_hand,
+                                                                 bool is_child = false,
+                                                                 bool is_permanent = false,
+                                                                 bool lock_slot = true,
+                                                                 bool only_non_magical = false,
+                                                                 bool dispellable = true)
+        {
+            var buff = Helpers.CreateBuff(buff_name,
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null
+                                          );
+
+            foreach (var e in enchants)
+            {
+                buff.AddComponent(off_hand ? Common.createBuffContextEnchantSecondaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, e) :
+                                                Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, e));
+            }
+
+            return Common.createContextActionApplyBuff(buff, duration, is_from_spell, is_child, is_permanent, dispellable);
+        }
+
 
         static public void addTemworkFeats(BlueprintFeature feat, bool share = true)
         {

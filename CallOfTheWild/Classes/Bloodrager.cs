@@ -3731,7 +3731,7 @@ namespace CallOfTheWild
             spell_conduit.AddComponent(on_maneuver_action);
             spell_conduit.AddComponent(Helpers.CreateAddFact(conduit_activatable_ability));
 
-            int max_variants = 6; //due to ui limitation
+            int max_variants = 10; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook?.Blueprint == bloodrager_class.Spellbook

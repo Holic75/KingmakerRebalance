@@ -578,6 +578,7 @@ namespace CallOfTheWild
         {
             public bool works_on_summoned = false;
             public bool off_hand = false;
+            public bool only_melee;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 UnitEntityData unit = target.Unit;
@@ -597,9 +598,14 @@ namespace CallOfTheWild
 
                 if (hand.HasWeapon)
                 {
+                    if (only_melee && !hand.Weapon.Blueprint.IsMelee)
+                    {
+                        return false;
+                    }
                     bool monk_strike = hand.Weapon.Blueprint.IsUnarmed && (bool)unit.Descriptor.State.Features.ImprovedUnarmedStrike && !off_hand;
                     return monk_strike || (!hand.Weapon.Blueprint.IsNatural && (!EnchantmentMechanics.Helpers.isSummoned(hand.Weapon) || works_on_summoned));
                 }
+
 
                 return false;
             }

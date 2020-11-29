@@ -1908,6 +1908,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 3),
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
+                new Common.SpellId( NewSpells.spirit_bound_blade.AssetGuid, 3),
                 new Common.SpellId( Wildshape.undead_anatomyI.AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3

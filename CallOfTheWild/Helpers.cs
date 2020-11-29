@@ -2086,11 +2086,20 @@ namespace CallOfTheWild
             return c;
         }
 
-
         public static Conditional CreateConditional(Condition[] condition, GameAction ifTrue, GameAction ifFalse = null)
         {
             var c = Create<Conditional>();
             c.ConditionsChecker = CreateConditionsCheckerAnd(condition);
+            c.IfTrue = CreateActionList(ifTrue);
+            c.IfFalse = CreateActionList(ifFalse);
+            return c;
+        }
+
+
+        public static Conditional CreateConditionalOr(Condition[] condition, GameAction ifTrue, GameAction ifFalse = null)
+        {
+            var c = Create<Conditional>();
+            c.ConditionsChecker = CreateConditionsCheckerOr(condition);
             c.IfTrue = CreateActionList(ifTrue);
             c.IfFalse = CreateActionList(ifFalse);
             return c;

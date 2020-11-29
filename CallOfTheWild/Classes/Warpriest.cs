@@ -1626,7 +1626,7 @@ namespace CallOfTheWild
             major_feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition)));
             major_feature.AddComponent(Helpers.CreateAddFact(major_activatable_ability));
 
-            int max_variants = 6; //due to ui limitation
+            int max_variants = 10; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.SpellLevel <= 3

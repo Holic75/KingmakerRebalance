@@ -267,6 +267,7 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate;
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
+        static public BlueprintAbility spirit_bound_blade;
 
         //binding_earth;
         //binding_earth_mass;
@@ -277,7 +278,6 @@ namespace CallOfTheWild
         //arcane concordance
         //oneric horror
         //phantom limbs
-        //spirit bound blade
         //blood rage
         //smite abomination
         //
@@ -454,6 +454,96 @@ namespace CallOfTheWild
             createDazeMass();
             createInvigorateAndInvigorateMass();
             createCloakOfWinds();
+
+            createSpiritBoundBlade();
+        }
+
+
+        static void createSpiritBoundBlade()
+        {
+            BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56"), //vicious
+                library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"), //keen
+                WeaponEnchantments.cruel,
+                WeaponEnchantments.menacing,
+                WeaponEnchantments.heartseeker
+            };
+
+            UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
+            {
+                library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon,//disruption
+                library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon, //keen
+                Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), //sickened
+                Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87"), //sneak attack
+                Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+            };
+
+            var ghost_touch = library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
+
+            var abilities = new List<BlueprintAbility>();
+            var abilities_off_hand = new List<BlueprintAbility>();
+            var abilities_primary_hand = new List<BlueprintAbility>();
+            var buffs_off_hand = new List<BlueprintBuff>();
+            var buffs_primary_hand = new List<BlueprintBuff>();
+            var spell_name = "Spirit Bound Blade";
+            var spell_description = "You focus emotional energy and weave it into a shroud of hardened ectoplasm around the weapon you touch, infusing it with a ghostly glow and great power. The weapon becomes a ghost touch weapon, and gains one of the following additional enchantments: vicious, keen, cruel, menacing or heartseeker.";
+
+            for (int i = 0; i < enchants.Length; i++)
+            {
+                var ability1 = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", enchants[i].name + "SpiritBoundBladeAbility", "");
+
+                ability1.SetIcon(enchant_icons[i]);
+                ability1.SetDescription(spell_description + "\n" + enchants[i].Description);
+                ability1.SetName(spell_name + ": " + enchants[i].Name);
+                ability1.setMiscAbilityParametersTouchFriendly();
+                ability1.RemoveComponents<AbilityDeliverTouch>();
+                var action_old = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
+                var action = Common.createItemEnchantmentsAction(enchants[i].name + "PrimaryHandSpiritBoundBladeBuff",
+                                                                action_old.DurationValue,
+                                                                new BlueprintWeaponEnchantment[] { enchants[i], ghost_touch },
+                                                                true,
+                                                                off_hand: false
+                                                                );
+                buffs_primary_hand.Add(action.Buff);
+
+                ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+                ability1.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Evocation);
+
+                var ability2 = library.CopyAndAdd(ability1, enchants[i].name + "SpiritBoundBladeSecondaryHandAbility", "");
+                ability2.SetName(spell_name + ": " + enchants[i].Name + " (Off-Hand)");
+                var action2 = Common.createItemEnchantmentsAction(enchants[i].name + "SecondaryHandSpiritBoundBladeBuff",
+                                                                action_old.DurationValue,
+                                                                new BlueprintWeaponEnchantment[] { enchants[i], ghost_touch },
+                                                                true,
+                                                                off_hand: true
+                                                                );
+                buffs_off_hand.Add(action2.Buff);
+                ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
+                ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; a.only_melee = true; }));
+                ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.works_on_summoned = true; a.only_melee = true; }));
+                abilities.Add(ability1);
+                abilities.Add(ability2);
+                abilities_primary_hand.Add(ability1);
+                abilities_off_hand.Add(ability2);
+
+            }
+
+            foreach (var a in abilities_off_hand)
+            {
+                a.ReplaceComponent<AbilityEffectRunAction>(ab => ab.Actions.Actions = new GameAction[] { Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs_off_hand.ToArray()) }.AddToArray(ab.Actions.Actions));
+            }
+            foreach (var a in abilities_primary_hand)
+            {
+                a.ReplaceComponent<AbilityEffectRunAction>(ab => ab.Actions.Actions = new GameAction[] { Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs_primary_hand.ToArray()) }.AddToArray(ab.Actions.Actions));
+            }
+
+
+            spirit_bound_blade = Common.createVariantWrapper("SpiritBoundBladeAbility", "", abilities.ToArray());
+            spirit_bound_blade.SetNameDescriptionIcon(spell_name, spell_description, enchant_icons[0]);
+            spirit_bound_blade.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
+
+            Helpers.AddSpell(spirit_bound_blade);
         }
 
 
@@ -5664,7 +5754,7 @@ namespace CallOfTheWild
             spite_store_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuff(release_buff)));
 
             var apply_release_buff = Common.createContextActionApplyBuff(release_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
@@ -8346,7 +8436,7 @@ namespace CallOfTheWild
             contingency_release.setMiscAbilityParametersSelfOnly();
             contingency_store_buff.AddComponent(Helpers.CreateAddFact(contingency_release));
 
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
@@ -8459,7 +8549,7 @@ namespace CallOfTheWild
             delay_consumption_release.setMiscAbilityParametersSelfOnly();
             delayed_consumption_store_buff.AddComponent(Helpers.CreateAddFact(delay_consumption_release));
 
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null

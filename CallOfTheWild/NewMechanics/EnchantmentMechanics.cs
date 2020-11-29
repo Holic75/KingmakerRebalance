@@ -67,6 +67,53 @@ using Kingmaker.Blueprints.Items.Equipment;
 namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 {
 
+    class UnitPartMenacing : AdditiveUnitPart
+    {
+        public bool isActive()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+
+    public class Menaced : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartMenacing>().addBuff(this.Fact);
+
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartMenacing>().removeBuff(this.Fact);
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(RuleCalculateAttackBonus))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleCalculateAttackBonus__OnTrigger__MenacingPostfix
+    {
+        static void Postfix(RuleCalculateAttackBonus __instance, RulebookEventContext context)
+        {
+            if (__instance.FlankingBonus == 0)
+            {
+                return;
+            }
+            if (!(__instance.Target.Get<UnitPartMenacing>()?.isActive()).GetValueOrDefault())
+            {
+                return;
+            }
+            __instance.FlankingBonus += 2;
+
+            var tr = Harmony12.Traverse.Create(__instance);
+            tr.Property("Result").SetValue(__instance.Result + 2);
+        }
+    }
+
+
+
+
     class WeaponEnchantmentPropertyGetter : PropertyValueGetter
     {
         internal static readonly Lazy<BlueprintUnitProperty> Blueprint = new Lazy<BlueprintUnitProperty>(() =>
@@ -1774,6 +1821,53 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             return true;
         }
 
+    }
+
+
+    [ComponentName("Heartseeker")]
+    [AllowedOn(typeof(BlueprintWeaponEnchantment))]
+    public class HeartSeekerEnchantment : GameLogicComponent, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+    {
+        private RuleAttackRoll m_Attack;
+
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            m_Attack = null;
+            ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+            ItemEntityWeapon weapon = (evt.Reason.Rule as RuleAttackWithWeapon)?.Weapon;
+            if (owner != weapon)
+            {
+                return;
+            }
+
+            var target = evt.Target;
+            if (target == null)
+            {
+                return;
+            }
+
+            if (!evt.Weapon.Blueprint.IsRanged || this.m_Attack != null)
+                return;
+
+            if (target.Descriptor.HasFact(Common.elemental) 
+                || target.Descriptor.HasFact(Common.aberration)
+                || target.Descriptor.HasFact(Common.undead)
+                || target.Descriptor.HasFact(Common.plant))
+            {
+                return;
+            }
+
+            evt.Initiator.Ensure<UnitPartConcealment>().IgnoreAll = true;
+            this.m_Attack = evt;
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+            if (m_Attack == null)
+                return;
+            evt.Initiator.Ensure<UnitPartConcealment>().IgnoreAll = false;
+            m_Attack = null;
+        }
     }
 
 

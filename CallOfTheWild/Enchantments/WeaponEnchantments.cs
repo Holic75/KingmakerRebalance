@@ -2,13 +2,18 @@
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Enums.Damage;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +50,10 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment[] static_enchants;
 
         static public BlueprintEquipmentEnchantment[] unarmed_bonus = new BlueprintEquipmentEnchantment[5];
+
+        static public BlueprintWeaponEnchantment cruel;
+        static public BlueprintWeaponEnchantment heartseeker;
+        static public BlueprintWeaponEnchantment menacing;
         static public void initialize()
         {
             createMetamagicEnchantments();
@@ -52,6 +61,96 @@ namespace CallOfTheWild
             createStaticEnchants();
             //fix weapon enchants to be non cumulative
             fixEnchants();
+
+            createCruelEnchant();
+            createHeartSeekerEnchant();
+            createMenacingEnchant();
+        }
+
+        static void createMenacingEnchant()
+        {
+            var icon = Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87");
+            var menacing_buff = Helpers.CreateBuff("MenacingEncahntBuff",
+                                                   "Menacing",
+                                                   "",
+                                                   "",
+                                                   icon,
+                                                   null,
+                                                   Helpers.Create<NewMechanics.EnchantmentMechanics.Menaced>());
+            menacing_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var aura = Common.createAuraEffectFeature("Menacing",
+                                                      "A menacing weapon helps allies deal with flanked foes. When the wielder is adjacent to a creature that is being flanked by an ally, the flanking bonus on attack rolls for all flanking allies increases by +2. This ability works even if the wielder is not one of the characters flanking the creature.",
+                                                      icon,
+                                                      menacing_buff,
+                                                      7.Feet(),
+                                                      Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                      );
+
+
+                 
+
+            menacing = Common.createWeaponEnchantment("MencaingWeaponEnchantment",
+                                                      aura.Name,
+                                                      aura.Description,
+                                                       "",
+                                                       "",
+                                                       "",
+                                                       5,
+                                                       null,
+                                                       Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = aura)
+                                                      );
+        }
+
+
+        static void createHeartSeekerEnchant()
+        {
+            heartseeker = Common.createWeaponEnchantment("HeartSeekerWeaponEnchantment",
+                                                       "Heartseeker",
+                                                       "A heartseeker weapon is drawn unerringly toward beating hearts. A heartseeker weapon ignores the miss chance for concealment against most living targets, though the attack must still target the proper square. This special ability does not apply against aberrations, oozes, plants, outsiders with the elemental subtype, or any creature specifically noted to lack a heart.",
+                                                       "",
+                                                       "",
+                                                       "",
+                                                       5,
+                                                       null,
+                                                       Helpers.Create<NewMechanics.EnchantmentMechanics.HeartSeekerEnchantment>()
+                                                      );
+        }
+
+
+        static void createCruelEnchant()
+        {
+            var description = "When the wielder strikes a creature that is frightened, shaken, or panicked with a cruel weapon, that creature becomes sickened for 1 round. When the wielder uses the weapon to knock unconscious or kill a creature, he gains 5 temporary hit points that last for 10 minutes.";
+            var temp_hp_buff = Helpers.CreateBuff("CruelTemporaryHpBuff",
+                                                  "Cruel Enchantmnet Temporary HP Bonus",
+                                                  description,
+                                                  "",
+                                                  Helpers.GetIcon("e5cb4c4459e437e49a4cd73fde6b9063"), //inflict light wounds
+                                                  null,
+                                                  Helpers.Create<TemporaryHitPointsFromAbilityValue>(t => { t.Value = 5; t.RemoveWhenHitPointsEnd = true; })
+                                                  );
+
+
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var apply_tmp_hp = Common.createContextActionApplyBuff(temp_hp_buff, Helpers.CreateContextDuration(10, Kingmaker.UnitLogic.Mechanics.DurationRate.Minutes), dispellable: false);
+            var apply_sickened = Helpers.CreateConditionalOr(new Condition[]{Helpers.Create<NewMechanics.ContextConditionHasCondtion>(c => c.condition = UnitCondition.Frightened),
+                                                                             Helpers.Create<NewMechanics.ContextConditionHasCondtion>(c => c.condition = UnitCondition.Shaken)
+                                                                            },
+                                                             Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), dispellable: false)
+                                                             );
+
+
+            cruel = Common.createWeaponEnchantment("CruelWeaponEnchantment",
+                                           "Cruel",
+                                           description,
+                                           "",
+                                           "",
+                                           "",
+                                           5,
+                                           null,
+                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_sickened), wait_for_attack_to_resolve: true),
+                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_tmp_hp), wait_for_attack_to_resolve: true,
+                                                                                            on_initiator: true, reduce_hp_to_zero: true)
+                                          );
         }
 
 
