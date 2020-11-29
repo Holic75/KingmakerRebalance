@@ -1948,6 +1948,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( NewSpells.pain_strike_mass.AssetGuid, 5),
                 new Common.SpellId( "12fb4a4c22549c74d949e2916a2f0b6a", 5), //phantasmal web
+                new Common.SpellId( NewSpells.phantom_limbs.AssetGuid, 5),
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 5), //raise dead
                 new Common.SpellId( "237427308e48c3341b3d532b9d3a001f", 5), //shadow evocation
                 new Common.SpellId( "4fbd47525382517419c66fb548fe9a67", 5), //slay living

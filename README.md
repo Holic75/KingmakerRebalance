@@ -333,6 +333,7 @@ New spells:
 - Flurry of Snowballs,
 - Force Sword,
 - Ghost Touch,
+- Ghostbane Dirge and Ghostbane Dirge, Mass,
 - Ice Slick,
 - Inflict Pain and Inflict Pain Mass,
 - Mental Barrier I, II, III, IV, V,
@@ -411,6 +412,7 @@ New spells:
 - Plant Shape I, II and III,
 - Control Construct,
 - Ice Body,
+- Phantom Limb,
 - Psychic Surgery,
 - Shadow Enchantment, Greater,
 - Song of Discord, Greater

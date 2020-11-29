@@ -264,6 +264,7 @@
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\DemoralizeMechanics.cs" />
     <Compile Include="NewMechanics\FlatFootedMechanics.cs" />
+    <Compile Include="NewMechanics\IncorporealMechanics.cs" />
     <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />

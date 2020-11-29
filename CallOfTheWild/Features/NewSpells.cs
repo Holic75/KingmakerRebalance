@@ -268,16 +268,18 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
         static public BlueprintAbility spirit_bound_blade;
+        static public BlueprintAbility phantom_limbs;
+        static public BlueprintAbility ghostbane_dirge;
+        static public BlueprintAbility ghostbane_dirge_mass;
 
-        //binding_earth;
-        //binding_earth_mass;
+        //binding_earth; ?
+        //binding_earth_mass; ?
         //corrosive consumption
         //implosion
         //condensed ether
         //battle mind link ?
         //arcane concordance
-        //oneric horror
-        //phantom limbs
+        //oneric horror ?
         //blood rage
         //smite abomination
         //
@@ -456,6 +458,113 @@ namespace CallOfTheWild
             createCloakOfWinds();
 
             createSpiritBoundBlade();
+            createPhantomLimbs();
+            createGhostbaneDirge();
+        }
+
+
+        static void createGhostbaneDirge()
+        {
+            var buff = Helpers.CreateBuff("GhostbaneDirgeBuff",
+                                          "Ghostbane Dirge",
+                                          "The target coalesces into a semi-physical form for a short period of time. While subject to the spell, the incorporeal creature takes half damage (50%) from nonmagical attack forms, and full damage from magic weapons, spells, spell-like effects, and supernatural effects.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/GhostbaneDirge.png"),
+                                          Common.createPrefabLink("3cf209e5299921349a1c159f35cfa369"), //faerie fire
+                                          Helpers.Create<IncorporealMechanics.GhostbaneDirge>()
+                                          );
+
+            var apply_buff = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                             Helpers.CreateConditionalSaved(null,
+                                                                                           Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
+                                                                                           )
+                                                            );
+
+            ghostbane_dirge = Helpers.CreateAbility("GhostbaneDirgeAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    Helpers.willNegates,
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                    Common.createAbilityTargetHasFact(Common.incorporeal),
+                                                    Helpers.CreateContextRankConfig()
+                                                    );
+            ghostbane_dirge.SpellResistance = true;
+            ghostbane_dirge.setMiscAbilityParametersSingleTargetRangedHarmful();
+            ghostbane_dirge.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ghostbane_dirge.AddToSpellList(Helpers.bardSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.clericSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.paladinSpellList, 1);
+
+            ghostbane_dirge.AddSpellAndScroll("fa34c6a083cb8f345be3bc4911b733ff");
+            ghostbane_dirge_mass = Helpers.CreateAbility("GhostbaneDirgeMassAbility",
+                                        buff.Name,
+                                        buff.Description,
+                                        "",
+                                        buff.Icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Close,
+                                        Helpers.roundsPerLevelDuration,
+                                        Helpers.willNegates,
+                                        Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(Common.incorporeal),
+                                                                                           apply_buff)
+                                                                ),
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        );
+
+            ghostbane_dirge_mass.SpellResistance = true;
+            ghostbane_dirge_mass.setMiscAbilityParametersRangedDirectional();
+            ghostbane_dirge_mass.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ghostbane_dirge_mass.AddToSpellList(Helpers.bardSpellList, 4);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.clericSpellList, 5);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.inquisitorSpellList, 5);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.paladinSpellList, 3);
+            ghostbane_dirge_mass.AddSpellAndScroll("fa34c6a083cb8f345be3bc4911b733ff");
+        }
+
+
+        static void createPhantomLimbs()
+        {
+            var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
+            var buff = Helpers.CreateBuff("PhantomLimbsBuff",
+                                          "Phantom Limb",
+                                          "The target grows two phantom arms, granting it two extra natural claw attacks; the target cannot use the phantom arms for any other purpose.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
+                                          null,
+                                          Common.createAddAdditionalLimb(claw1d4),
+                                          Common.createAddAdditionalLimb(claw1d4)
+                                          );
+
+
+            phantom_limbs = Helpers.CreateAbility("PhantomLimbsAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Touch,
+                                                  Helpers.tenMinPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes), is_from_spell: true)),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                  Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                  Helpers.CreateContextRankConfig()
+                                                  );
+            phantom_limbs.setMiscAbilityParametersTouchFriendly();
+            phantom_limbs.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            Helpers.AddSpell(phantom_limbs);
         }
 
 

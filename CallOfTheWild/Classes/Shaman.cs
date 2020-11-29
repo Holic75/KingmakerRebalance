@@ -1141,6 +1141,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagle's splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.flame_blade.AssetGuid, 2),
+                new Common.SpellId( NewSpells.ghostbane_dirge.AssetGuid, 2),
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
@@ -1212,6 +1213,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.curse_major.AssetGuid, 5), 
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "f9910c76efc34af41b6e43d5d8752f0f", 5), //flamestrike
+                new Common.SpellId( NewSpells.ghostbane_dirge_mass.AssetGuid, 5),
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 5), //stoneskin
