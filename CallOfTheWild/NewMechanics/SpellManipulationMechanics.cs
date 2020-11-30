@@ -964,6 +964,69 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseSpellTypeDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public bool apply_to_arcane = false;
+            public bool apply_to_divine = false;
+            public bool apply_to_alchemist = false;
+            public bool apply_to_psychic = false;
+            public ContextValue bonus;
+            public bool remove_after_use;
+            public int max_lvl = 100;
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spellbook == null)
+                {
+                    return;
+                }
+                if (evt.AbilityData.SpellLevel > max_lvl)
+                {
+                    return;
+                }
+                if (evt.Spellbook.Blueprint.IsArcane)
+                {
+                    if (apply_to_arcane)
+                    {
+                        apply(evt);
+                    }
+                }
+                else if (evt.Spellbook.Blueprint.IsAlchemist)
+                {
+                    if (apply_to_alchemist)
+                    {
+                        apply(evt);
+                    }
+                }
+                else if (evt.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+                {
+                    if (apply_to_psychic)
+                    {
+                        apply(evt);
+                    }
+                }
+                else if (apply_to_divine)
+                {
+                    apply(evt);
+                }
+            }
+
+            private void apply(RuleCalculateAbilityParams evt)
+            {
+                evt.AddBonusDC(this.bonus.Calculate(this.Fact.MaybeContext));
+                if (remove_after_use)
+                {
+                    (this.Fact as Buff)?.Remove();
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
         [ComponentName("Increase spell descriptor CL")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class IncreaseSpellTypeCasterLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
@@ -986,23 +1049,31 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                if (evt.Spellbook.Blueprint.IsArcane && apply_to_arcane)
+                if (evt.Spellbook.Blueprint.IsArcane)
                 {
-                    apply(evt);
+                    if (apply_to_arcane)
+                    {
+                        apply(evt);
+                    }
                 }
                 else if (evt.Spellbook.Blueprint.IsAlchemist)
                 {
-                    apply(evt);
+                    if (apply_to_alchemist)
+                    {
+                        apply(evt);
+                    }
                 }
                 else if (evt.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
                 {
-                    apply(evt);
+                    if (apply_to_psychic)
+                    {
+                        apply(evt);
+                    }
                 }
-                else
+                else if (apply_to_divine)
                 {
                     apply(evt);
                 }
-
             }
 
             private void apply(RuleCalculateAbilityParams evt)

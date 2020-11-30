@@ -464,6 +464,128 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintBuff))]
+        public class MetamagicOnSpellType : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public bool apply_to_arcane = false;
+            public bool apply_to_divine = false;
+            public bool apply_to_alchemist = false;
+            public bool apply_to_psychic = false;
+            public BlueprintAbilityResource resource = null;
+            public int amount;
+            public BlueprintUnitFact[] cost_reducing_facts = new BlueprintUnitFact[0];
+            private int cost_to_pay;
+            public bool limit_spell_level;
+
+            private int calculate_cost(UnitEntityData caster)
+            {
+                var cost = amount;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (caster.Buffs.HasFact(f))
+                    {
+                        cost--;
+                    }
+                }
+                return cost < 0 ? 0 : cost;
+            }
+
+
+            public override bool CanBeUsedOn(BlueprintAbility ability, [CanBeNull] AbilityData data)
+            {
+                bool is_metamagic_not_available = ability == null || data?.Spellbook == null || ability.Type != AbilityType.Spell
+                                              || ((ability.AvailableMetamagic & Metamagic) == 0);
+
+                if (is_metamagic_not_available)
+                {
+                    return false;
+                }
+
+                if (!checkSpellbook(data?.Spellbook?.Blueprint))
+                {
+                    return false;
+                }
+
+
+                int cost = calculate_cost(this.Owner.Unit);
+                if (resource != null && this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
+                {
+                    return false;
+                }
+
+
+                if (limit_spell_level && data.Spellbook.MaxSpellLevel < data.SpellLevel + Metamagic.DefaultCost())
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                cost_to_pay = 0;
+                if (!CanBeUsedOn(evt.Spell, evt.AbilityData))
+                {
+                    return;
+                }
+                cost_to_pay = calculate_cost(this.Owner.Unit);
+                evt.AddMetamagic(Metamagic);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+                if (cost_to_pay == 0 || evt.Spell.SourceItem != null)
+                {
+                    cost_to_pay = 0;
+                    return;
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCastSpell evt)
+            {
+
+                if (cost_to_pay == 0)
+                {
+                    return;
+                }
+                this.Owner.Resources.Spend(resource, cost_to_pay);
+                cost_to_pay = 0;
+            }
+
+
+            private bool checkSpellbook(BlueprintSpellbook spellbook)
+            {
+                if (spellbook == null)
+                {
+                    return false;
+                }
+
+                if (spellbook.IsArcane)
+                {
+                    return apply_to_arcane;
+                }
+                else if (spellbook.IsAlchemist)
+                {
+                    return apply_to_alchemist;
+                }
+                else if (spellbook.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+                {
+                    return apply_to_psychic;
+                }
+                else
+                {
+                    return apply_to_divine;
+                }
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
         public class MetamagicOnSpellDescriptor : AutoMetamagicExtender, IInitiatorRulebookHandler<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public SpellDescriptorWrapper spell_descriptor;

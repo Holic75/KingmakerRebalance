@@ -272,6 +272,8 @@ namespace CallOfTheWild
         static public BlueprintAbility ghostbane_dirge;
         static public BlueprintAbility ghostbane_dirge_mass;
 
+        static public BlueprintAbility arcane_concordance;
+
         //binding_earth; ?
         //binding_earth_mass; ?
         //corrosive consumption
@@ -460,7 +462,47 @@ namespace CallOfTheWild
             createSpiritBoundBlade();
             createPhantomLimbs();
             createGhostbaneDirge();
+            createArcaneConcordance();
         }
+
+
+        static void createArcaneConcordance()
+        {
+            var buff = Helpers.CreateBuff("ArcaneConcordanceBuff",
+                                          "Arcane Concordance",
+                                          "A shimmering, blue and gold radiance surrounds you, enhancing arcane spells cast by your allies within its area. Any arcane spell cast by a creature within the area gains a +1 enhancement bonus to the DC of any saving throws against the spell, and can be cast as if extend spell metamagic feat was applied to it (without increasing the spell level or casting time).",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/ArcaneConcordance.png"),
+                                          null,
+                                          Helpers.Create<SpellManipulationMechanics.IncreaseSpellTypeDC>(i => { i.apply_to_arcane = true; i.bonus = 1; }),
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellType>(m => { m.Metamagic = Metamagic.Extend; m.apply_to_arcane = true; m.amount = 0; })
+                                          );
+
+            var aura_buff = Common.createBuffAreaEffect(buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()));
+
+            aura_buff.SetBuffFlags(0);
+            aura_buff.SetNameDescriptionIcon(buff);
+            aura_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("cda35ba5c34a61b499f5858eabcedec7"); //abjuration aoe
+
+            arcane_concordance = Helpers.CreateAbility("ArcaneConcordanceAbility",
+                                                       buff.Name,
+                                                       buff.Description,
+                                                       "",
+                                                       buff.Icon,
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       Helpers.roundsPerLevelDuration,
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(aura_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)),
+                                                       Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                       );
+            arcane_concordance.setMiscAbilityParametersSelfOnly();
+            arcane_concordance.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten;
+            arcane_concordance.AddToSpellList(Helpers.bardSpellList, 3);
+            arcane_concordance.AddSpellAndScroll("08cf11d25aaab074388207b66f64a162");
+        }
+
 
 
         static void createGhostbaneDirge()
