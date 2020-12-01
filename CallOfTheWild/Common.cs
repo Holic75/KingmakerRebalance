@@ -4577,11 +4577,75 @@ namespace CallOfTheWild
             return ability;
         }
 
+        static public BlueprintAbility convertToSuperNaturalVariants(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
+                                                     bool no_resource = false, BlueprintArchetype[] archetypes = null, bool self_only = false, int cost = 1)
+        {
+            if (!spell.HasVariants)
+            {
+                var a = convertToSuperNatural(spell, prefix, classes, stat, resource, no_resource, archetypes);
+                if (self_only)
+                {
+                    a.Range = AbilityRange.Personal;
+                }
+                return a;
+            }
+
+            var abilities = new BlueprintAbility[spell.Variants.Length];
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                abilities[i] = convertToSuperNatural(spell.Variants[i], prefix, classes, stat, resource, no_resource, archetypes, cost);
+                if (self_only)
+                {
+                    abilities[i].Range = AbilityRange.Personal;
+                }
+            }
+
+            var wrapper = createVariantWrapper(prefix + spell.name, "", abilities);
+            wrapper.SetNameDescriptionIcon(spell);
+
+            return wrapper;
+        }
+
+        static public BlueprintAbility convertToSpellLikeVariants(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
+                                                  bool no_resource = false,
+                                                  bool no_scaling = false,
+                                                  BlueprintArchetype[] archetypes = null,
+                                                  bool self_only = false,
+                                                  int cost = 1)
+        {
+            if (!spell.HasVariants)
+            {
+                var a = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, no_scaling, "", archetypes, cost);
+                if (self_only)
+                {
+                    a.Range = AbilityRange.Personal;
+                }
+                return a;
+            }
+
+            var abilities = new BlueprintAbility[spell.Variants.Length];
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                abilities[i] = convertToSpellLike(spell.Variants[i], prefix, classes, stat, resource, no_resource, no_scaling, "", archetypes, cost);
+                if (self_only)
+                {
+                    abilities[i].Range = AbilityRange.Personal;
+                }
+            }
+
+            var wrapper = createVariantWrapper(prefix + spell.name, "", abilities);
+            wrapper.SetNameDescriptionIcon(spell);
+            wrapper.AvailableMetamagic = spell.AvailableMetamagic;
+
+            return wrapper;
+        }
+
         static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
                                                           bool no_resource = false,
                                                           bool no_scaling = false,
                                                           string guid = "",
-                                                          BlueprintArchetype[] archetypes = null)
+                                                          BlueprintArchetype[] archetypes = null,
+                                                          int cost = 1)
         {
             var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, guid);
             if (!no_scaling)
@@ -4601,9 +4665,9 @@ namespace CallOfTheWild
                 if (resource2 == null)
                 {
                     resource2 = Helpers.CreateAbilityResource(prefix + spell.name + "Resource", "", "", "", null);
-                    resource2.SetFixedResource(1);
+                    resource2.SetFixedResource(cost);
                 }
-                ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+                ability.AddComponent(Helpers.CreateResourceLogic(resource2, amount: cost));
             }
 
 
@@ -4620,9 +4684,9 @@ namespace CallOfTheWild
 
 
         static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null, 
-                                                             bool no_resource = false, BlueprintArchetype[] archetypes = null)
+                                                             bool no_resource = false, BlueprintArchetype[] archetypes = null, int cost = 1)
         {
-            var ability = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, archetypes: archetypes);
+            var ability = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, archetypes: archetypes, cost: cost);
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
             ability.RemoveComponents<SpellComponent>();

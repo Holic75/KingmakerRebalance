@@ -295,7 +295,7 @@ Bard Masterpieces:
 New spells:
 - Blade Lash,
 - Blade Tutor,
-- Burst of Adrealine,
+- Burst of Adrenaline,
 - Burst of Insight,
 - Command and Command, Greater,
 - Chill Touch,
@@ -348,6 +348,7 @@ New spells:
 - Telekinetic Strikes,
 - Vine Strike,
 - Winter's Grasp,
+- Arcane Concordance,
 - Accursed Glare,
 - Babble,
 - Barrow Haze,
@@ -438,6 +439,14 @@ New spells:
 - Time Stop,
 - Winds of Vengeance,
 - Shades.
+
+New Ki Powers:
+- Burst of Adrenaline,
+- Burst of Insight,
+- Cloak of Winds,
+- Deadly Juggernaut,
+- Akashic Form,
+- Frightful Aspect.
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  

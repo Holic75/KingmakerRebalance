@@ -207,6 +207,7 @@
     <Compile Include="Features\AlchemistDiscoveries.cs" />
     <Compile Include="Features\ArmorsFix.cs" />
     <Compile Include="Features\Deities.cs" />
+    <Compile Include="Features\MonkKiPowers.cs" />
     <Compile Include="Features\SkillUnlocks.cs" />
     <Compile Include="Features\WeaponsFix.cs" />
     <Compile Include="Features\Familiars.cs" />

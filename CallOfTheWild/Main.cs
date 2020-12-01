@@ -322,7 +322,7 @@ namespace CallOfTheWild
                     {
                         CallOfTheWild.AdvancedFighterOptions.prepareLookupData();
                     }
-
+                    CallOfTheWild.MonkKiPowers.load();
                     CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
                     CallOfTheWild.Archetypes.DirgeBard.create();
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
