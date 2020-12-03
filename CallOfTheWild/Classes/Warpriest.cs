@@ -493,7 +493,6 @@ namespace CallOfTheWild
                                                                         cure_light_wounds.GetComponent<SpellDescriptorComponent>(),
                                                                         cure_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                                         cure_light_wounds.GetComponent<AbilitySpawnFx>(),
-                                                                        Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealDamage),
                                                                         context_rank_config,
                                                                         context_rank_config_fcb
                                                                         );
@@ -508,7 +507,8 @@ namespace CallOfTheWild
 
             var fervor_positive_ability_others_sticky = Helpers.CreateTouchSpellCast(fervor_positive_ability_others, "WarpriestFervorPositiveOthersAbility", "");
             fervor_positive_ability_others_sticky.AddComponents(Common.createAbilityTargetHasFact(true, construct_type),
-                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource));
+                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource),
+                                                                Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealDamage));
 
             var fervor_positive_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_positive_ability_others, "WarpriestFervorPositiveSelfAbility", "");
             fervor_positive_ability_self.SetName("Fervor (Positive Energy) Self");
@@ -548,8 +548,7 @@ namespace CallOfTheWild
                                                             inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                             inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                             context_rank_config,
-                                                            context_rank_config_fcb,
-                                                            Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead)
+                                                            context_rank_config_fcb
                                                             );
             fervor_negative_ability_others.CanTargetFriends = true;
             fervor_negative_ability_others.CanTargetEnemies = true;
@@ -562,7 +561,8 @@ namespace CallOfTheWild
 
             var fervor_negative_ability_others_sticky = Helpers.CreateTouchSpellCast(fervor_negative_ability_others, "WarpriestFervorNegativeOthersAbility", "");
             fervor_negative_ability_others_sticky.AddComponents(Common.createAbilityTargetHasFact(true, construct_type),
-                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource));
+                                                                Helpers.CreateResourceLogic(warpriest_fervor_resource),
+                                                                Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealDamage));
 
             var fervor_negative_ability_self = library.CopyAndAdd<BlueprintAbility>(fervor_negative_ability_others, "WarpriestFervorNegativeSelfAbility", "");
             fervor_negative_ability_self.SetName("Fervor (Negative Energy) Self");

@@ -90,6 +90,7 @@ namespace CallOfTheWild.Archetypes
             var discovery = library.Get<BlueprintFeatureSelection>("cd86c437488386f438dcc9ae727ea2a6");
             var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
             var medical_discovery = library.Get<BlueprintFeatureSelection>("67f499218a0e22944abab6fe1c9eaeee");
+            var alchemist_discovery = library.Get<BlueprintFeatureSelection>("cd86c437488386f438dcc9ae727ea2a6");
             var advance_talents = library.Get<BlueprintFeature>("a33b99f95322d6741af83e9381b2391c");
 
             var poison_immunity = library.Get<BlueprintFeature>("202af59b918143a4ab7c33d72c8eb6d5");
@@ -115,6 +116,7 @@ namespace CallOfTheWild.Archetypes
             alchemist_class.Archetypes = alchemist_class.Archetypes.AddToArray(archetype);
 
             medical_discovery.AllFeatures = medical_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison, concentrate_poison);
+            alchemist_discovery.AllFeatures = alchemist_discovery.AllFeatures.AddToArray(sticky_posion, celestial_poison, concentrate_poison);
 
             var dispelling_attack = library.Get<BlueprintFeature>("1b92146b8a9830d4bb97ab694335fa7c");
             ClassToProgression.addClassToFeat(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.NoSpells, dispelling_attack, archetype.GetParentClass());

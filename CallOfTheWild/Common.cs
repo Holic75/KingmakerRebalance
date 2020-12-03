@@ -1172,6 +1172,13 @@ namespace CallOfTheWild
 
 
 
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                             BlueprintCharacterClass[] classes, params Condition[] smite_conditions)
+        {
+            var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
+
+            return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_conditions);
+        }
 
 
         public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
@@ -1182,9 +1189,8 @@ namespace CallOfTheWild
             return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_alignment);
         }
 
-
         public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
-                                             ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
+                                     ContextRankConfig new_context_rank_config, params Condition[] smite_conditions)
         {
             var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name + "Ability", ability_guid);
             var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name + "Feature", guid);
@@ -1209,7 +1215,7 @@ namespace CallOfTheWild
             var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
 
             var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
-            var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false), old_conditional.ConditionsChecker.Conditions[1] };
+            var conditions = smite_conditions.AddToArray(old_conditional.ConditionsChecker.Conditions[1]);
 
             var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
             //make buff take icon and name from parent ability
@@ -1222,6 +1228,13 @@ namespace CallOfTheWild
         }
 
 
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                             ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
+        {
+            return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, Helpers.CreateContextConditionAlignment(smite_alignment));
+        }
+
+
         public static void addConditionToResoundingBlow(ContextCondition new_condtion)
         {
             //add it to resounding blow
@@ -1230,9 +1243,7 @@ namespace CallOfTheWild
             {
                 var cnd = (attack_trigger.Action.Actions[0] as Conditional);
                 cnd.ConditionsChecker.Conditions = cnd.ConditionsChecker.Conditions.AddToArray(new_condtion);
-
             }
-
         }
 
 

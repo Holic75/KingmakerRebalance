@@ -8366,6 +8366,28 @@ namespace CallOfTheWild
 
 
 
+        public class ContextConditionAlignmentUnlessCasterHasFact : ContextCondition
+        {
+            public bool CheckCaster;
+            public AlignmentComponent Alignment;
+            public BlueprintUnitFact fact;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if {0} is {1}", this.CheckCaster ? (object)"caster" : (object)"target", (object)this.Alignment);
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unitEntityData = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unitEntityData != null)
+                    return unitEntityData.Descriptor.Alignment.Value.HasComponent(this.Alignment) || this.Context.MaybeCaster.Descriptor.HasFact(fact);
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintParametrizedFeature))]
         public class SpellPerfectionDoubleFeatBonuses : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookHandler<RuleSpellResistanceCheck>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
         {
