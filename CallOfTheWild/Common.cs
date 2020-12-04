@@ -613,7 +613,7 @@ namespace CallOfTheWild
         }
 
 
-            static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
+        static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
             var b = Helpers.Create<BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
@@ -1038,9 +1038,10 @@ namespace CallOfTheWild
 
 
         static public NewMechanics.AddInitiatorAttackRollTrigger2 createAddInitiatorAttackRollTrigger2(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
-                                                                                              bool sneak_attack = false, 
+                                                                                              bool sneak_attack = false,
                                                                                               bool check_weapon_range_type = false,
                                                                                               bool on_initiator = false,
+                                                                                              bool only_natural20 = false,
                                                                                               AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
             var t = Helpers.Create<NewMechanics.AddInitiatorAttackRollTrigger2>();
@@ -1051,6 +1052,7 @@ namespace CallOfTheWild
             t.CheckWeaponRangeType = check_weapon_range_type;
             t.RangeType = range_type;
             t.OnOwner = on_initiator;
+            t.only_natural20 = only_natural20;
             return t;
         }
 
@@ -1091,6 +1093,34 @@ namespace CallOfTheWild
             t.CheckWeaponCategory = true;
             t.Category = weapon_category;
             return t;
+        }
+
+
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignmentFromAlignment(AlignmentMaskType alignment, bool check_range = false, bool is_ranged = false)
+        {
+            DamageAlignment damage_alignment = 0;
+
+            if ((alignment & AlignmentMaskType.Evil) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Evil;
+            }
+
+            if ((alignment & AlignmentMaskType.Good) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Good;
+            }
+
+            if ((alignment & AlignmentMaskType.Lawful) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Lawful;
+            }
+
+            if ((alignment & AlignmentMaskType.Chaotic) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Chaotic;
+            }
+
+            return createAddOutgoingAlignment(damage_alignment, check_range, is_ranged);
         }
 
 
@@ -1189,6 +1219,51 @@ namespace CallOfTheWild
             return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_alignment);
         }
 
+
+        public static BlueprintFeature createSmiteForAllies(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                     BlueprintCharacterClass[] classes, params Condition[] smite_conditions)
+        {
+            var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
+
+            return createSmiteForAllies(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_conditions);
+        }
+
+        public static BlueprintFeature createSmiteForAllies(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                             ContextRankConfig new_context_rank_config, params Condition[] smite_conditions)
+        {
+            var smite_ability = library.CopyAndAdd<BlueprintAbility>("7a4f0c48829952e47bb1fd1e4e9da83a", name + "Ability", ability_guid);
+            var smite_feature = library.CopyAndAdd<BlueprintFeature>("9f13fdd044ccb8a439f27417481cb00e", name + "Feature", guid);
+
+
+            smite_feature.SetName(display_name);
+            smite_feature.SetDescription(description);
+            smite_feature.SetIcon(icon);
+
+            smite_feature.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>(Helpers.CreateAddFact(smite_ability));
+
+
+            smite_ability.SetName(smite_feature.Name);
+            smite_ability.SetDescription(smite_feature.Description);
+            smite_ability.SetIcon(icon);
+            smite_ability.RemoveComponent(smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
+            var old_context_rank_config = smite_ability.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().Where(a => a.Type == AbilityRankType.DamageBonus).ElementAt(0);
+            Helpers.SetField(new_context_rank_config, "m_Type", AbilityRankType.DamageBonus);
+            smite_ability.ReplaceComponent(old_context_rank_config, new_context_rank_config);
+
+            var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
+            var conditions = smite_conditions.AddToArray(old_conditional.ConditionsChecker.Conditions[1]);
+
+            var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
+            //make buff take icon and name from parent ability
+            smite_buff.SetIcon(null);
+            smite_buff.SetName("");
+            var new_smite_action = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
+            smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
+            return smite_feature;
+        }
+
         public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
                                      ContextRankConfig new_context_rank_config, params Condition[] smite_conditions)
         {
@@ -1257,7 +1332,7 @@ namespace CallOfTheWild
         }
 
 
-        public static PrerequisiteNoArchetype prerequisiteNoArchetype( BlueprintArchetype archetype, bool any = false)
+        public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintArchetype archetype, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteNoArchetype>();
             p.Archetype = archetype;
@@ -1324,6 +1399,38 @@ namespace CallOfTheWild
             feat.Value.ValueType = ContextValueType.Simple;
             feat.Value.Value = dr_value;
             return feat;
+        }
+
+
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextDRFromAlignment(ContextValue value, AlignmentMaskType alignment)
+        {
+            if (alignment == AlignmentMaskType.TrueNeutral)
+            {
+                return createContextPhysicalDR(value);
+            }
+            DamageAlignment damage_alignment = 0;
+
+            if ((alignment & AlignmentMaskType.Good) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Evil;
+            }
+
+            if ((alignment & AlignmentMaskType.Evil) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Good;
+            }
+
+            if ((alignment & AlignmentMaskType.Chaotic) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Lawful;
+            }
+
+            if ((alignment & AlignmentMaskType.Lawful) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Chaotic;
+            }
+
+            return createContextAlignmentDR(value, damage_alignment);
         }
 
 

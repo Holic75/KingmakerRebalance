@@ -278,6 +278,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.VindicativeBastard.createClass();
+                    CallOfTheWild.Antipaladin.creatAntipaldinClass();
                     CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)
                     {

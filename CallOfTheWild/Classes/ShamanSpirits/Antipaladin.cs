@@ -41,6 +41,8 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.ElementsSystem;
+using Kingmaker.UnitLogic.Alignments;
+using Kingmaker.Blueprints.Root;
 
 namespace CallOfTheWild
 {
@@ -66,12 +68,33 @@ namespace CallOfTheWild
         static public BlueprintFeature aura_of_sin;
         static public BlueprintFeature aura_of_deparvity;
         static public BlueprintFeature tip_of_spear;
+        static public BlueprintFeature antipaladin_alignment;
 
         static public BlueprintAbilityResource smite_resource;
         static public BlueprintAbilityResource touch_of_corruption_resource;
+        static public BlueprintAbilityResource fiendish_boon_resource;
 
+        static public BlueprintFeature extra_touch_of_corruption;
+        static public BlueprintFeature extra_channel;
 
         static public BlueprintFeatureSelection cruelty;
+
+        static public BlueprintArchetype insinuator;
+        static public BlueprintFeature invocation;
+        static public BlueprintFeature smite_impudence;
+        static public BlueprintFeature smite_impudence_extra_use;
+        static public BlueprintFeature selfish_healing;
+        static public BlueprintFeature aura_of_ego;
+        static public BlueprintFeature stubborn_health;
+        static public BlueprintFeatureSelection greeds;
+        static public BlueprintFeature insinuator_channel_energy;
+        static public BlueprintFeature aura_of_ambition;
+        static public BlueprintFeature aura_of_glory;
+        static public BlueprintFeature aura_of_belief;
+        static public BlueprintFeature aura_of_indomitability;
+        static public BlueprintFeature personal_champion;
+        static public BlueprintFeatureSelection insinuator_bonus_feat;
+
 
 
         internal class CrueltyEntry
@@ -127,7 +150,7 @@ namespace CallOfTheWild
                 foreach (var b in buffs)
                 {
                     var touch_ability = base_ability.Variants[0].GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility;
-                    var touch_cruelty = library.CopyAndAdd(touch_ability, dispaly_name + touch_ability.Name, "");
+                    var touch_cruelty = library.CopyAndAdd(touch_ability, b.name + touch_ability.name, "");
                     touch_cruelty.SetNameDescriptionIcon("Cruelty: " + b.Name,
                                                          description +"\n" + b.Name + ": " + b.Description,
                                                          b.Icon);
@@ -150,15 +173,15 @@ namespace CallOfTheWild
                     if (divisor > 0)
                     {
                         touch_cruelty.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.DivStep, AbilityRankType.StatBonus,
-                                                                                   stepLevel: divisor));
+                                                                                   stepLevel: divisor, classes: getAntipaladinArray()));
                     }
                     var spell_descriptor_component = b.GetComponent<SpellDescriptorComponent>();
 
                     var cast_cruelty = Helpers.CreateTouchSpellCast(touch_cruelty);
-                    cast_cruelty.AddComponent(base_ability.GetComponent<AbilityResourceLogic>());
+                    cast_cruelty.AddComponent(base_ability.Variants[0].GetComponent<AbilityResourceLogic>());
                     cast_cruelty.AddComponent(Common.createAbilityShowIfCasterHasFact(feature));
-                    cast_cruelty.AddComponent(Common.createAbilityTargetHasFact(true, Common.construct));
-                    cast_cruelty.Parent = base_ability.Parent;
+                    cast_cruelty.AddComponents(Common.createAbilityTargetHasFact(true, Common.construct), Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+                    cast_cruelty.Parent = base_ability;
                     cast_cruelty.Parent.addToAbilityVariants(cast_cruelty);
                     if (spell_descriptor_component != null)
                     {
@@ -186,6 +209,7 @@ namespace CallOfTheWild
             Main.logger.Log("Antipaladin class test mode: " + test_mode.ToString());
             var fighter_class = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
             var paladin_class = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            var inquisitor_class = library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
 
             antipaladin_class = Helpers.Create<BlueprintCharacterClass>();
             antipaladin_class.name = "AntipaladinClass";
@@ -209,22 +233,256 @@ namespace CallOfTheWild
             antipaladin_class.IsDivineCaster = true;
             antipaladin_class.IsArcaneCaster = false;
             antipaladin_class.StartingGold = paladin_class.StartingGold;
-            antipaladin_class.PrimaryColor = paladin_class.PrimaryColor;
-            antipaladin_class.SecondaryColor = paladin_class.SecondaryColor;
+            antipaladin_class.PrimaryColor = inquisitor_class.PrimaryColor;
+            antipaladin_class.SecondaryColor = inquisitor_class.SecondaryColor;
             antipaladin_class.RecommendedAttributes = paladin_class.RecommendedAttributes;
             antipaladin_class.NotRecommendedAttributes = paladin_class.NotRecommendedAttributes;
-            antipaladin_class.EquipmentEntities = fighter_class.EquipmentEntities;
-            antipaladin_class.MaleEquipmentEntities = fighter_class.MaleEquipmentEntities;
-            antipaladin_class.FemaleEquipmentEntities = fighter_class.FemaleEquipmentEntities;
+            antipaladin_class.EquipmentEntities = paladin_class.EquipmentEntities;
+            antipaladin_class.MaleEquipmentEntities = paladin_class.MaleEquipmentEntities;
+            antipaladin_class.FemaleEquipmentEntities = paladin_class.FemaleEquipmentEntities;
             antipaladin_class.ComponentsArray = paladin_class.ComponentsArray.ToArray();
             antipaladin_class.ReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil);
             antipaladin_class.StartingItems = paladin_class.StartingItems;
             createAntipaladinProgression();
             antipaladin_class.Progression = antipaladin_progression;
 
+            createInsinuator();
             antipaladin_class.Archetypes = new BlueprintArchetype[] { }; //blighted myrmidon, insinuator, dread vanguard, knight of the sepulcher, iron tyrant
             Helpers.RegisterClass(antipaladin_class);
-            //fix antipaldin feats
+            fixAntipaladinFeats();
+
+            antipaladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = paladin_class));
+            antipaladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = VindicativeBastard.vindicative_bastard_class));
+            paladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = antipaladin_class));
+            VindicativeBastard.vindicative_bastard_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = antipaladin_class));
+
+            Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
+                                                   Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));
+        }
+
+
+        static void createInsinuator()
+        {
+            createInvocation(); //also aura of belief, aura of indomitobility and personal champion (dr part)
+            //createSmiteImpudence(); //also personal champion smite part and aura of glory
+            //createAuras(); //aura of ego and aura of ambition
+            //createSelfishHealing(); //and greeds
+            //createInsinuatorChannelEnergy(); 
+            //createBonusFeats();
+            //ambitious bond(?)
+
+            insinuator = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "InsinuatorArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Insinuator");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Between the selfless nobility of paladins and the chaotic menace of antipaladins, there exists a path of dedicated self-interest.\nShunning the ties that bind them to a single deity, insinuators embrace whatever forces help them achieve their own agenda and glory, borrowing power to emulate divine warriors.");
+            });
+            Helpers.SetField(insinuator, "m_ParentClass", antipaladin_class);
+            library.AddAsset(antipaladin_class, "");
+            insinuator.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+                                                          Helpers.LevelEntry(2, touch_of_corruption),
+                                                          Helpers.LevelEntry(3, plague_bringer, cruelty, aura_of_cowardice),
+                                                          Helpers.LevelEntry(4, smite_good_extra_use),
+                                                          Helpers.LevelEntry(6, cruelty),
+                                                          Helpers.LevelEntry(7, smite_good_extra_use),
+                                                          Helpers.LevelEntry(8, aura_of_despair),
+                                                          Helpers.LevelEntry(9, cruelty),
+                                                          Helpers.LevelEntry(10, smite_good_extra_use),
+                                                          Helpers.LevelEntry(11, aura_of_vengeance),
+                                                          Helpers.LevelEntry(12, cruelty),
+                                                          Helpers.LevelEntry(13, smite_good_extra_use),
+                                                          Helpers.LevelEntry(14, aura_of_sin),
+                                                          Helpers.LevelEntry(15, cruelty),
+                                                          Helpers.LevelEntry(16, smite_good_extra_use),
+                                                          Helpers.LevelEntry(17, aura_of_deparvity),
+                                                          Helpers.LevelEntry(18, cruelty),
+                                                          Helpers.LevelEntry(19, smite_good_extra_use),
+                                                          Helpers.LevelEntry(20, tip_of_spear)
+                                                         };
+
+            insinuator.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, invocation, smite_impudence),
+                                                       Helpers.LevelEntry(2, selfish_healing),
+                                                       Helpers.LevelEntry(3, greeds, aura_of_ego, stubborn_health),
+                                                       Helpers.LevelEntry(4, insinuator_channel_energy, insinuator_bonus_feat, smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(6, greeds),
+                                                       Helpers.LevelEntry(7, insinuator_bonus_feat, smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(8, aura_of_ambition),
+                                                       Helpers.LevelEntry(9, greeds),
+                                                       Helpers.LevelEntry(10, insinuator_bonus_feat, smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(11, aura_of_glory),
+                                                       Helpers.LevelEntry(12, greeds),
+                                                       Helpers.LevelEntry(13, insinuator_bonus_feat, smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(14, aura_of_belief),
+                                                       Helpers.LevelEntry(15, greeds),
+                                                       Helpers.LevelEntry(16, insinuator_bonus_feat, smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(17, aura_of_indomitability),
+                                                       Helpers.LevelEntry(18, greeds),
+                                                       Helpers.LevelEntry(19, insinuator_bonus_feat,smite_impudence_extra_use),
+                                                       Helpers.LevelEntry(20, personal_champion),
+                                                      };
+
+            antipaladin_progression.UIGroups[0].Features.Add(stubborn_health);
+            antipaladin_progression.UIGroups[1].Features.Add(smite_impudence);
+            antipaladin_progression.UIGroups[1].Features.Add(smite_impudence_extra_use);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_ego);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_ambition);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_glory);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_belief);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_indomitability);
+            antipaladin_progression.UIGroups[2].Features.Add(personal_champion);
+            antipaladin_progression.UIGroups[3].Features.Add(selfish_healing);
+            antipaladin_progression.UIGroups[3].Features.Add(greeds);
+            antipaladin_progression.UIGroups[3].Features.Add(insinuator_channel_energy);
+            antipaladin_progression.UIGroups = antipaladin_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(insinuator_bonus_feat));
+            antipaladin_progression.UIDeterminatorsGroup = antipaladin_progression.UIDeterminatorsGroup.AddToArray(invocation);
+
+            insinuator.RemoveSpellbook = true;
+        }
+
+        
+        static void createInvocation()
+        {
+            invocation = Helpers.CreateFeature("InsinuatorInvocationFeature",
+                                               "Invocation",
+                                               "At the start of each day, an insinuator can meditate to contact and barter with an outsider to empower him for a day. An insinuator can freely invoke an outsider of his own alignment. He can instead invoke an outsider within one step of his own alignment by succeeding at a Diplomacy or Knowledge (religion) skill check (DC = 15 + the insinuator’s antipaladin level). While invoking the power of an outsider, the insinuator radiates an alignment aura that matches that of the outsider’s, and becomes vulnerable to alignment-based effects that target that outsider’s alignment (such as smite evil or chaos hammer). None of an insinuator’s supernatural or spell-like class abilities function unless he has invoked the power of an outsider, and the alignment of the being invoked may affect how some abilities function.",
+                                               "",
+                                               Helpers.GetIcon("d3a4cb7be97a6694290f0dcfbd147113"),
+                                               FeatureGroup.None
+                                               );
+
+            aura_of_belief = Helpers.CreateFeature("AuraOfBeliefFeature",
+                                                   "Aura of Belief",
+                                                   "At 14th level, an insinuator’s weapons are treated as chaos-aligned while he invokes a chaotic outsider, law-aligned when he invokes a lawful outsider, or evil-aligned while he invokes an evil outsider.",
+                                                   "",
+                                                   Helpers.GetIcon("1dca1068d168c204491ca084938a798d"), //bless
+                                                   FeatureGroup.None
+                                                   );
+
+            aura_of_indomitability = Helpers.CreateFeature("AuraOfBeliefFeature",
+                                                           "Aura of Indomitability",
+                                                           "At 17th level, an insinuator gains DR 10 that is bypassed by the alignment opposite of the outsider he has invoked for the day, or DR 5/— while invoking a neutral outsider.",
+                                                           "",
+                                                           Helpers.GetIcon("2a6a2f8e492ab174eb3f01acf5b7c90a"), //defensive stance
+                                                           FeatureGroup.None
+                                                           );
+
+            personal_champion = Helpers.CreateFeature("PersonalChampionFeature",
+                                                       "Personal Champion",
+                                                       "At 20th level, an insinuator becomes a living embodiment of his selfish desires. His damage reduction from aura of indomitability increases to 15 (or 10 while invoking a neutral outsider). Whenever he uses smite impudence, he adds twice his full Charisma bonus to the attack roll and doubles his effective bonus damage gained from the smite. In addition, he can invoke a new outsider patron by meditating again.",
+                                                       "",
+                                                       Helpers.GetIcon("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                                                       FeatureGroup.None
+                                                       );
+
+            var alignments_map = new Dictionary<AlignmentMaskType, AlignmentMaskType>
+            {
+                {AlignmentMaskType.LawfulEvil, AlignmentMaskType.NeutralEvil | AlignmentMaskType.LawfulEvil },
+                {AlignmentMaskType.NeutralEvil, AlignmentMaskType.Evil },
+                {AlignmentMaskType.ChaoticEvil, AlignmentMaskType.NeutralEvil | AlignmentMaskType.ChaoticEvil },
+                {AlignmentMaskType.LawfulNeutral,  AlignmentMaskType.LawfulEvil },
+                {AlignmentMaskType.TrueNeutral,  AlignmentMaskType.NeutralEvil },
+                {AlignmentMaskType.ChaoticNeutral, AlignmentMaskType.ChaoticEvil }
+            };
+
+            List<BlueprintAbility> abilities = new List<BlueprintAbility>();
+            List<BlueprintBuff> buffs = new List<BlueprintBuff>();
+            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
+
+            var cooldown_buff = Helpers.CreateBuff("InvocationCooldownBuff",
+                                                   "Invocation Cooldown",
+                                                   "Insinuator is no longer able to contact outsider to barter for power.",
+                                                   "",
+                                                   invocation.Icon,
+                                                   null
+                                                   );
+            cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.HiddenInUi);
+
+            foreach (var kv in alignments_map)
+            {
+                var buff = Helpers.CreateBuff(kv.Key.ToString() + "InvocationBuff",
+                                              invocation.Name + ": " + UIUtility.GetAlignmentText(kv.Key),
+                                              invocation.Description,
+                                              "",
+                                              invocation.Icon,
+                                              null,
+                                              Helpers.Create<InsinuatorMechanics.InsinuatorOutsiderAlignment>(i => i.alignment = kv.Key)
+                                              );
+                buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+                remove_buffs.Buffs = remove_buffs.Buffs.AddToArray(buff);
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+                var ability = Helpers.CreateAbility(kv.Key.ToString() + "InvocationAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Extraordinary,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(remove_buffs,
+                                                                             Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionAlignmentStrict>(c => c.Alignment = kv.Key),
+                                                                                                       apply_buff,
+                                                                                                       Helpers.Create<SkillMechanics.ContextActionCasterSkillCheck>(c =>
+                                                                                                       {
+                                                                                                           c.CustomDC = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                           c.Success = Helpers.CreateActionList(apply_buff);
+                                                                                                           c.Stat = StatType.CheckDiplomacy;
+                                                                                                       })
+                                                                                                       ),
+                                                                             Helpers.CreateConditional(Common.createContextConditionHasFact(personal_champion, false),
+                                                                                                       Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                       )
+                                                                             ),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.BonusValue, stepLevel: 15,
+                                                                                    classes: getAntipaladinArray()
+                                                                                    ),
+                                                    Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = kv.Value),
+                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasAlignment>(a => a.alignment = kv.Value),
+                                                    Common.createAbilityCasterHasNoFacts(cooldown_buff)
+                                                    );
+                Common.setAsFullRoundAction(ability);
+                ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
+
+                if (kv.Key != AlignmentMaskType.TrueNeutral)
+                {
+                    var aura_of_belief_buff = Helpers.CreateBuff("AuraOfBeliefBuff",
+                                                     aura_of_belief.Name,
+                                                     aura_of_belief.Description,
+                                                     "",
+                                                     aura_of_belief.Icon,
+                                                     null,
+                                                     Common.createAddOutgoingAlignmentFromAlignment(kv.Key)
+                                                     );
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_belief_buff, aura_of_belief);
+                }
+                var aura_of_indomitability_buff = Helpers.CreateBuff("AuraOfIndomitabilityBuff",
+                                                                     aura_of_indomitability.Name,
+                                                                     aura_of_indomitability.Description,
+                                                                     "",
+                                                                     aura_of_indomitability.Icon,
+                                                                     null,
+                                                                     Common.createContextDRFromAlignment(Helpers.CreateContextValue(AbilityRankType.Default), kv.Key),
+                                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureListRanks, ContextRankProgression.MultiplyByModifier, stepLevel: 5,
+                                                                                                     featureList: Enumerable.Repeat(invocation, kv.Key == AlignmentMaskType.TrueNeutral ? 1 : 2).ToArray().AddToArray(personal_champion)
+                                                                                                     )
+                                                                     );
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_indomitability_buff, aura_of_indomitability);
+            }
+        }
+
+
+        static void fixAntipaladinFeats()
+        {
+            extra_touch_of_corruption = library.CopyAndAdd<BlueprintFeature>("a2b2f20dfb4d3ed40b9198e22be82030", "ExtraTouchOfCorruption", "");
+            extra_touch_of_corruption.ReplaceComponent<PrerequisiteFeature>(p => p.Feature = touch_of_corruption);
+            extra_touch_of_corruption.SetNameDescription("Extra Touch of Corruption",
+                                                         "You can use your touch of corruption two additional times per day.\nSpecial: You can gain Extra Touch of Corruption multiple times.Its effects stack.");
+            library.AddFeats(extra_touch_of_corruption);
         }
 
 
@@ -235,26 +493,33 @@ namespace CallOfTheWild
 
         static void createAntipaladinProgression()
         {
-
-            antipaladin_proficiencies = library.CopyAndAdd<BlueprintFeature>("b10ff88c03308b649b50c31611c2fefb", "", "AntipaladinProficiencies");
+            antipaladin_proficiencies = library.CopyAndAdd<BlueprintFeature>("b10ff88c03308b649b50c31611c2fefb", "AntipaladinProficiencies", "");
             antipaladin_proficiencies.SetNameDescription("Antipaladin Proficiencies",
                                                          "Antipaladins are proficient with all simple and martial weapons, with all types of armor (heavy, medium, and light), and with shields (except tower shields).");
             unholy_resilence = library.CopyAndAdd<BlueprintFeature>("8a5b5e272e5c34e41aa8b4facbb746d3", "UnholyResilence", ""); //from divine grace
             unholy_resilence.SetNameDescription("Unholy Resilience",
                                                 "At 2nd level, an antipaladin gains a bonus equal to his Charisma bonus (if any) on all saving throws.");
 
-            plague_bringer = library.CopyAndAdd<BlueprintFeature>("41d1d0de15e672349bf4262a5acf06ce", "UnholyResilence", ""); //from divine health
+            plague_bringer = library.CopyAndAdd<BlueprintFeature>("41d1d0de15e672349bf4262a5acf06ce", "PlagueBearer", ""); //from divine health
             plague_bringer.SetNameDescription("Plague Bringer",
                                               "At 3rd level, the powers of darkness make an antipaladin a beacon of corruption and disease. An antipaladin does not take any damage or take any penalty from diseases. He can still contract diseases and spread them to others, but he is otherwise immune to their effects.");
             plague_bringer.ComponentsArray = new BlueprintComponent[] { Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Disease) };
 
+            antipaladin_alignment = library.CopyAndAdd<BlueprintFeature>("f8c91c0135d5fc3458fcc131c4b77e96", "AntipaladinAlignmentRestriction", "");
+            antipaladin_alignment.SetIcon(NewSpells.aura_of_doom.Icon);
+            antipaladin_alignment.SetDescription("An antipaladin who ceases to be evil loses all antipaladin spells and class features. She cannot thereafter gain levels as an antipaladin until she changes the alignment back.");
+            antipaladin_alignment.ReplaceComponent<ForbidSpellbookOnAlignmentDeviation>(f =>
+            {
+                f.Alignment = AlignmentMaskType.Evil;
+                f.Spellbooks = new BlueprintSpellbook[] { antipaladin_class.Spellbook };
+            });
 
             createAntipaladinDeitySelection();
             createSmiteGood();
             createTouchOfCorruption();
             createChannelEnergy();
-            //createAuras();
-            //createFiendishBoon();
+            createAuras();
+            createFiendishBoon();
 
             antipaladin_progression = Helpers.CreateProgression("AntpladinProgression",
                                                               antipaladin_class.Name,
@@ -267,7 +532,7 @@ namespace CallOfTheWild
 
 
 
-            antipaladin_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, antipaladin_proficiencies, antipaladin_deity, smite_good,
+            antipaladin_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, antipaladin_proficiencies, antipaladin_deity, smite_good, antipaladin_alignment,
                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
                                                                     Helpers.LevelEntry(2, touch_of_corruption, unholy_resilence),
@@ -291,12 +556,267 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(20, tip_of_spear, fiendish_boon[5])
                                                                     };
 
-            antipaladin_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { antipaladin_proficiencies, antipaladin_deity};
+            antipaladin_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { antipaladin_proficiencies, antipaladin_deity, antipaladin_alignment};
             antipaladin_progression.UIGroups = new UIGroup[]  {Helpers.CreateUIGroup(fiendish_boon.AddToArray(unholy_resilence, plague_bringer)),
                                                                 Helpers.CreateUIGroup(smite_good, smite_good_extra_use),
                                                                 Helpers.CreateUIGroup(aura_of_cowardice, aura_of_despair, aura_of_vengeance, aura_of_sin, aura_of_deparvity, tip_of_spear),
                                                                 Helpers.CreateUIGroup(touch_of_corruption, channel_negative_energy, cruelty),
                                                            };
+        }
+
+
+        static void createAuras()
+        {
+            var cowardice_buff = Helpers.CreateBuff("AuraOfCowardiceEffectBuff",
+                                                    "Aura of Cowardice",
+                                                    "At 3rd level, an antipaladin radiates a palpably daunting aura that causes all enemies within 10 feet to take a –4 penalty on saving throws against fear effects. Creatures that are normally immune to fear lose that immunity while within 10 feet of an antipaladin with this ability. This ability functions only while the antipaladin remains conscious, not if he is unconscious or dead.",
+                                                    "",
+                                                    Helpers.GetIcon("08cb5f4c3b2695e44971bf5c45205df0"),
+                                                    null,
+                                                    Common.createSavingThrowBonusAgainstDescriptor(-4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Shaken | SpellDescriptor.Fear)
+                                                    );
+
+            aura_of_cowardice = Common.createAuraEffectFeature(cowardice_buff.Name,
+                                                               cowardice_buff.Description,
+                                                               cowardice_buff.Icon,
+                                                               cowardice_buff,
+                                                               13.Feet(),
+                                                               Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                               );
+
+            var despair_buff = Helpers.CreateBuff("AuraOfDespairEffectBuff",
+                                        "Aura of Despair",
+                                        "At 8th level, enemies within 10 feet of an antipaladin take a –2 penalty on all saving throws. This penalty does not stack with the penalty from aura of cowardice.\nThis ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("4baf4109145de4345861fe0f2209d903"), //crushing despair
+                                        null,
+                                        Common.createSavingThrowBonusAgainstDescriptor(2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Shaken | SpellDescriptor.Fear),
+                                        Helpers.Create<BuffAllSavesBonus>(b => { b.Value = -2; b.Descriptor = ModifierDescriptor.UntypedStackable; })
+                                        );
+
+            aura_of_despair = Common.createAuraEffectFeature(despair_buff.Name,
+                                                             despair_buff.Description,
+                                                             despair_buff.Icon,
+                                                             despair_buff,
+                                                             13.Feet(),
+                                                             Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                             );
+
+            var deparvity_buff = Helpers.CreateBuff("AuraOfDeparvityEffectBuff",
+                                                    "Aura of Deparvity",
+                                                    "At 17th level, an antipaladin gains DR 5/good. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
+                                                    "",
+                                                    Helpers.GetIcon("41cf93453b027b94886901dbfc680cb9"), //overwhelming presence
+                                                    null,
+                                                    Common.createSavingThrowBonusAgainstDescriptor(-2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Compulsion)
+                                                    );
+
+            aura_of_deparvity = Common.createAuraEffectFeature(deparvity_buff.Name,
+                                                             deparvity_buff.Description,
+                                                             deparvity_buff.Icon,
+                                                             deparvity_buff,
+                                                             13.Feet(),
+                                                             Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                             );
+
+            aura_of_deparvity.AddComponent(Common.createAlignmentDR(5, DamageAlignment.Good));
+
+            var sin_buff = Helpers.CreateBuff("AuraOfSinEffectBuff",
+                                        "Aura of Sin",
+                                        "At 14th level, an antipaladin’s weapons are treated as evil-aligned for the purposes of overcoming damage reduction. Any attack made against an enemy within 10 feet of him is treated as evil-aligned for the purposes of overcoming damage reduction. This ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("8bc64d869456b004b9db255cdd1ea734"), //bane
+                                        null,
+                                        library.Get<BlueprintBuff>("f84a39e55230f5e499588c5cd19548cd").GetComponent<AddIncomingDamageWeaponProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Evil)
+                                        );
+
+            aura_of_sin = Common.createAuraEffectFeature(sin_buff.Name,
+                                                         sin_buff.Description,
+                                                         sin_buff.Icon,
+                                                         sin_buff,
+                                                         13.Feet(),
+                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                         );
+            aura_of_sin.AddComponent(library.Get<BlueprintFeature>("0437f4af5ad49b544bccf48aa7a51319").GetComponent<AddOutgoingPhysicalDamageProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Evil));
+        }
+
+
+        static void createFiendishBoon()
+        {
+            fiendish_boon_resource = Helpers.CreateAbilityResource("FiendishBoonResource", "", "", "", null);
+            fiendish_boon_resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 4, 1, 0, 0.0f, getAntipaladinArray());
+
+            var divine_weapon = library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4");
+            var enchants = WeaponEnchantments.temporary_enchants;
+
+            var enhancement_buff = Helpers.CreateBuff("FiendishBondEnchancementBaseBuff",
+                                         "",
+                                         "",
+                                         "",
+                                         null,
+                                         null,
+                                         Common.createBuffRemainingGroupsSizeEnchantPrimaryHandWeapon(ActivatableAbilityGroup.DivineWeaponProperty,
+                                                                                                      false, true,
+                                                                                                      enchants
+                                                                                                      )
+                                         );
+            var fiendish_boon_enhancement_buff = Helpers.CreateBuff("FiendishBondEnchancementSwitchBuff",
+                                                                 "Fiendish Boon",
+                                                                 "Upon reaching 5th level, an antipaladin forms a divine bond with her weapon. As a standard action, she can call upon the aid of a fiendish spirit for 1 minute per antipaladin level.\nAt 5th level, this spirit grants the weapon a +1 enhancement bonus. For every three levels beyond 5th, the weapon gains another +1 enhancement bonus, to a maximum of +6 at 20th level. These bonuses can be added to the weapon, stacking with existing weapon bonuses to a maximum of +5.\nAlternatively, they can be used to add any of the following weapon properties: anarchic, axiomatic, flaming, keen, speed, unholy, vicious and vorpal. Adding these properties consumes an amount of bonus equal to the property's cost. These bonuses are added to any properties the weapon already has, but duplicate abilities do not stack.\nAn antipaladin can use this ability once per day at 5th level, and one additional time per day for every four levels beyond 5th, to a total of four times per day at 17th level.",
+                                                                 "",
+                                                                 NewSpells.magic_weapon_greater.Icon,
+                                                                 null,
+                                                                 Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(enhancement_buff, Helpers.CreateContextDuration(),
+                                                                                                                is_child: true, is_permanent: true, dispellable: false)
+                                                                                                     )
+                                                                 );
+            enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var vicious_enchant = library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56");
+            var vicious = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementVicious",
+                                                                        "Fiendish Boon - Vicious",
+                                                                        "An antipaladin can add the vicious property to a weapon enhanced with her fiendish boon, but this consumes 1 point of enhancement bonus granted to this weapon.\n" + vicious_enchant.Description,
+                                                                        library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon, //disruption
+                                                                        fiendish_boon_enhancement_buff,
+                                                                        vicious_enchant,
+                                                                        1, ActivatableAbilityGroup.DivineWeaponProperty);
+
+            var vorpal = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementVorpal",
+                                                            "Fiendish Boon - Vorpal",
+                                                            "An antipaladin can add the vorpal property to a weapon enhanced with her fiendish boon, but this consumes 5 points of enhancement bonus granted to this weapon.\n" + WeaponEnchantments.vorpal.Description,
+                                                            Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                                                            fiendish_boon_enhancement_buff,
+                                                            WeaponEnchantments.vorpal,
+                                                            5, ActivatableAbilityGroup.DivineWeaponProperty);
+
+            var speed_enchant = library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006");
+            var speed = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementSpeed",
+                                                "Fiendish Boon - Speed",
+                                                "An antipaladin can add the speed property to a weapon enhanced with her fiendish boon, but this consumes 3 points of enhancement bonus granted to this weapon.\n" + speed_enchant.Description,
+                                                library.Get<BlueprintActivatableAbility>("ed1ef581af9d9014fa1386216b31cdae").Icon, //disruption
+                                                fiendish_boon_enhancement_buff,
+                                                speed_enchant,
+                                                3, ActivatableAbilityGroup.DivineWeaponProperty);
+
+            var flaming = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementFlaming",
+                                                                "Fiendish Boon - Flaming",
+                                                                "An antipaladin can add the flaming property to a weapon enhanced with her fiendish boon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA flaming weapon is sheathed in fire that deals an extra 1d6 points of fire damage on a successful hit. The fire does not harm the wielder.",
+                                                                library.Get<BlueprintActivatableAbility>("7902941ef70a0dc44bcfc174d6193386").Icon,
+                                                                fiendish_boon_enhancement_buff,
+                                                                library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121"),
+                                                                1, ActivatableAbilityGroup.DivineWeaponProperty);
+
+            var keen = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementKeen",
+                                                            "Fiendish Boon - Keen",
+                                                            "An antipaladin can add the keen property to a weapon enhanced with her fiendish boon, but this consumes 1 point of enhancement bonus granted to this weapon.\nThe keen property doubles the threat range of a weapon. This benefit doesn't stack with any other effects that expand the threat range of a weapon (such as the keen edge spell or the Improved Critical feat).",
+                                                            library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon,
+                                                            fiendish_boon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"),
+                                                            1, ActivatableAbilityGroup.DivineWeaponProperty);
+
+            var unholy = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementUnholy",
+                                                            "Fiendish Boon - Unholy",
+                                                            "An antipaladin can add the unholy property to a weapon enhanced with her fiendish boon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn unholy weapon is imbued with unholy power. This power makes the weapon evil-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of good alignment.",
+                                                            library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,
+                                                            fiendish_boon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"),
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
+                                                            AlignmentMaskType.Evil);
+
+            var axiomatic = Common.createEnchantmentAbility("FiendishBoonEnchancementAxiomatic",
+                                                            "Fiendish Boon - Axiomatic",
+                                                            "An antipaladin can add the axiomatic property to a weapon enhanced with her fiendish boon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn axiomatic weapon is infused with lawful power. It makes the weapon lawful-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against chaotic creatures.",
+                                                            library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,
+                                                            fiendish_boon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4"),
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
+                                                            AlignmentMaskType.Lawful);
+
+            var anarchic = Common.createEnchantmentAbility("FiendishBoonEnchancementAnarchic",
+                                                            "Fiendish Boon - Anarchic",
+                                                            "An antipaladin can add the anarchic property to a weapon enhanced with her fiendish boon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn anarchic weapon is infused with the power of chaos. It makes the weapon chaotic-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of lawful alignment.",
+                                                            library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,
+                                                            fiendish_boon_enhancement_buff,
+                                                            library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
+                                                            AlignmentMaskType.Chaotic);
+
+           
+            var ability = Helpers.CreateAbility("FiendishBoonSwitchAbility",
+                                                 fiendish_boon_enhancement_buff.Name,
+                                                 fiendish_boon_enhancement_buff.Description,
+                                                 "",
+                                                 fiendish_boon_enhancement_buff.Icon,
+                                                 AbilityType.Supernatural,
+                                                 CommandType.Standard,
+                                                 AbilityRange.Personal,
+                                                 Helpers.minutesPerLevelDuration,
+                                                 "",
+                                                 Helpers.CreateRunActions(Common.createContextActionApplyBuff(fiendish_boon_enhancement_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
+                                                 Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
+                                                 fiendish_boon_resource.CreateResourceLogic()
+                                                 );
+            ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
+            ability.NeedEquipWeapons = true;
+            ability.AddComponents(library.Get<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4").GetComponent<AbilitySpawnFx>());
+
+            fiendish_boon = new BlueprintFeature[6];
+            fiendish_boon[0] = Helpers.CreateFeature("FiendishBoonWeaponEnchancementFeature",
+                                                    "Fiendish Boon +1",
+                                                    fiendish_boon_enhancement_buff.Description,
+                                                    "",
+                                                    fiendish_boon_enhancement_buff.Icon,
+                                                    FeatureGroup.None,
+                                                    Helpers.CreateAddAbilityResource(fiendish_boon_resource),
+                                                    Helpers.CreateAddFacts(ability, flaming, keen, vicious)
+                                                    );
+
+            fiendish_boon[1] = Helpers.CreateFeature("FiendishBoonWeaponEnchancement2Feature",
+                                                    "Fiendish Boon +2",
+                                                    fiendish_boon_enhancement_buff.Description,
+                                                    "",
+                                                    fiendish_boon_enhancement_buff.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty),
+                                                    Helpers.CreateAddFacts(anarchic, axiomatic, unholy)
+                                                    );
+
+            fiendish_boon[2] = Helpers.CreateFeature("FiendishBoonWeaponEnchancement3Feature",
+                                                    "Fiendish Boon +3",
+                                                    fiendish_boon_enhancement_buff.Description,
+                                                    "",
+                                                    fiendish_boon_enhancement_buff.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty),
+                                                    Helpers.CreateAddFacts(speed)
+                                                    );
+
+            fiendish_boon[3] = Helpers.CreateFeature("FiendishBoonWeaponEnchancement4Feature",
+                                                    "Fiendish Boon +4",
+                                                    fiendish_boon_enhancement_buff.Description,
+                                                    "",
+                                                    fiendish_boon_enhancement_buff.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty)
+                                                    );
+
+            fiendish_boon[4] = Helpers.CreateFeature("FiendishBoonWeaponEnchancement5Feature",
+                                                    "Fiendish Boon +5",
+                                                    fiendish_boon_enhancement_buff.Description,
+                                                    "",
+                                                    fiendish_boon_enhancement_buff.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty),
+                                                    Helpers.CreateAddFacts(vorpal)
+                                                    );
+
+            fiendish_boon[5] = Helpers.CreateFeature("FiendishBoonWeaponEnchancement6Feature",
+                                                        "Fiendish Boon +6",
+                                                        fiendish_boon_enhancement_buff.Description,
+                                                        "",
+                                                        fiendish_boon_enhancement_buff.Icon,
+                                                        FeatureGroup.None,
+                                                        Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty)
+                                                        );
         }
 
 
@@ -363,7 +883,7 @@ namespace CallOfTheWild
                                                 + "An antipaladin can also chose to channel corruption into a melee weapon by spending 2 uses of this ability as a swift action. The next enemy struck with this weapon will suffer the effects of this ability.\n"
                                                 + "Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d6 hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
                                                 "",
-                                                inflict_light_wounds.Icon,
+                                                Helpers.GetIcon("989ab5c44240907489aba0a8568d0603"), //bestow curse
                                                 AbilityType.Supernatural,
                                                 CommandType.Standard,
                                                 AbilityRange.Touch,
@@ -381,9 +901,10 @@ namespace CallOfTheWild
                                                 Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
                                                 );
             ability.setMiscAbilityParametersTouchHarmful();
-            var ability_cast = Helpers.CreateTouchSpellCast(ability);
+            var ability_cast = Helpers.CreateTouchSpellCast(ability, touch_of_corruption_resource);
 
             ability_cast.AddComponents(Common.createAbilityTargetHasFact(true, Common.construct),
+                                       Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
                                        Helpers.CreateResourceLogic(touch_of_corruption_resource));
             var wrapper = Common.createVariantWrapper("AntipladinCrueltyBaseAbility", "", ability_cast);
 
@@ -401,7 +922,7 @@ namespace CallOfTheWild
 
             //create channel corruption
             var channels = new List<BlueprintAbility>();
-            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>();
+            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
             foreach (var a in wrapper.Variants)
             {
                 var touch_ability = a.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility;
@@ -452,7 +973,7 @@ namespace CallOfTheWild
             var negative_energy_feature = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
             var context_rank_config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray(), progression: ContextRankProgression.OnePlusDiv2);
             var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getAntipaladinArray(), StatType.Charisma);
-            negative_energy_feature = Helpers.CreateFeature("AntipaladinChannelNegativeEnergyFeature",
+            channel_negative_energy = Helpers.CreateFeature("AntipaladinChannelNegativeEnergyFeature",
                                                             "Channel Negative Energy",
                                                             "When an antipaladin reaches 4th level, he gains the supernatural ability to channel negative energy like a cleric. Using this ability consumes two uses of his touch of corruption ability. An antipaladin uses his level as his effective cleric level when channeling negative energy. This is a Charisma-based ability.",
                                                             "",
@@ -478,11 +999,50 @@ namespace CallOfTheWild
 
             var harm_living_base = Common.createVariantWrapper("AntipaladinNegativeHarmBase", "", harm_living);
             var heal_undead_base = Common.createVariantWrapper("AntipaladinNegativeHealBase", "", heal_undead);
+            harm_living.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_undead.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
 
-            ChannelEnergyEngine.storeChannel(harm_living, negative_energy_feature, ChannelEnergyEngine.ChannelType.NegativeHarm);
-            ChannelEnergyEngine.storeChannel(heal_undead, negative_energy_feature, ChannelEnergyEngine.ChannelType.NegativeHeal);
+            ChannelEnergyEngine.storeChannel(harm_living, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHarm);
+            ChannelEnergyEngine.storeChannel(heal_undead, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHeal);
 
-            negative_energy_feature.AddComponent(Helpers.CreateAddFacts(harm_living_base, heal_undead_base));
+            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(harm_living_base, heal_undead_base));
+
+            //add extra channel
+            var extra_channel_resource = Helpers.CreateAbilityResource("AntipaladinExtraChannelResource", "", "", "", null);
+            extra_channel_resource.SetFixedResource(0);
+
+
+            var harm_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm,
+                                                          "AntipaladinChannelEnergyHarmLivingExtra",
+                                                          harm_living.Name + " (Extra)",
+                                                          harm_living.Description,
+                                                          "",
+                                                          harm_living.GetComponent<ContextRankConfig>(),
+                                                          harm_living.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                                          Helpers.CreateResourceLogic(extra_channel_resource, true, 1));
+
+            var heal_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
+                                              "AntipaladinChannelEnergyHealUndeadExtra",
+                                              heal_undead.Name + " (Extra)",
+                                              heal_undead.Description,
+                                              "",
+                                              heal_undead.GetComponent<ContextRankConfig>(),
+                                              heal_undead.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                              Helpers.CreateResourceLogic(extra_channel_resource, true, 1));
+
+
+            harm_living_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_undead_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+
+            harm_living_base.addToAbilityVariants(harm_living_extra);
+            heal_undead_base.addToAbilityVariants(heal_undead_extra);
+            ChannelEnergyEngine.storeChannel(harm_living_extra, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHarm);
+            ChannelEnergyEngine.storeChannel(heal_undead_extra, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHeal);
+
+            channel_negative_energy.AddComponent(Helpers.CreateAddAbilityResource(extra_channel_resource));
+            extra_channel = ChannelEnergyEngine.createExtraChannelFeat(harm_living_extra, channel_negative_energy, "ExtraChannelAntipaladin", "Extra Channel (Antipaladin)", "");
+
+
         }
 
         static void createSmiteGood()
@@ -504,17 +1064,34 @@ namespace CallOfTheWild
                                             + "The smite evil lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite evil one additional time per day.",
                                             "",
                                             "",
-                                            library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon, //unholy
+                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
                                             getAntipaladinArray(),
                                             Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Good; c.fact = tip_of_spear; })
                                             );
 
             smite_good_extra_use = library.CopyAndAdd<BlueprintFeature>("0f5c99ffb9c084545bbbe960b825d137", "SmiteGoodAdditionalUse", "");
-            smite_good.SetNameDescriptionIcon("Smite Good — Additional Use",
+            smite_good_extra_use.SetNameDescriptionIcon("Smite Good — Additional Use",
                                               smite_good.Description,
                                               smite_good.Icon);
 
             smite_resource = resource;
+
+            var smite_good_ability = smite_good.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            smite_good_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+
+
+            aura_of_vengeance = Common.createSmite("AntipaladinAuraOfVengeance",
+                                "Aura of Vengeance",
+                                "At 11th level, an antipaladin can expend two uses of his smite good ability to grant the ability to smite good to all allies within 10 feet, using his bonuses. Allies must use this smite good ability by the start of the antipaladin’s next turn and the bonuses last for 1 minute. Using this ability is a free action.",
+                                "",
+                                "",
+                                NewSpells.command.Icon,
+                                getAntipaladinArray(),
+                                Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Good; c.fact = tip_of_spear; })
+                                );
+
+            var aura_of_vengeance_ability = aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
         }
 
 

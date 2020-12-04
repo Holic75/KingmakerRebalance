@@ -5140,6 +5140,18 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasAlignment : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public AlignmentMaskType alignment;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return (uint)(ability.Caster.Alignment.Value.ToMask() & this.alignment) > 0U;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilityShowIfCasterKnowsSpell : BlueprintComponent, IAbilityVisibilityProvider
         {
@@ -8364,7 +8376,25 @@ namespace CallOfTheWild
             }
         }
 
+        public class ContextConditionAlignmentStrict : ContextCondition
+        {
+            public bool CheckCaster;
+            public AlignmentMaskType Alignment;
 
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if {0} is {1}", this.CheckCaster ? (object)"caster" : (object)"target", (object)this.Alignment);
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unitEntityData = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unitEntityData != null)
+                    return (unitEntityData.Descriptor.Alignment.Value.ToMask() & this.Alignment) > 0U;
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
 
         public class ContextConditionAlignmentUnlessCasterHasFact : ContextCondition
         {
@@ -8903,6 +8933,7 @@ namespace CallOfTheWild
             [HideIf("CriticalHit")]
             public bool OnlyHit = true;
             public bool CriticalHit;
+            public bool only_natural20;
             public bool SneakAttack;
             public bool OnOwner;
             public bool CheckWeapon;
@@ -8952,6 +8983,11 @@ namespace CallOfTheWild
                 }
 
                 if (this.CheckWeaponRangeType && !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.RangeType))
+                {
+                    return false;
+                }
+
+                if (only_natural20 && evt.Roll != 20)
                 {
                     return false;
                 }

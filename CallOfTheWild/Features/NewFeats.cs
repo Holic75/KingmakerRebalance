@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
@@ -1439,8 +1440,17 @@ namespace CallOfTheWild
                 bastard_unsanctioned_knowledge.ReplaceComponent(c, new_c);
             }
 
-            library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge);
 
+            var antipaladin_unsanctioned_knowledge = library.CopyAndAdd<BlueprintFeature>(NewFeats.unsanctioned_knowledge.AssetGuid, "AntipaladinUnsanctionedKnowledgeFeature", "");
+            antipaladin_unsanctioned_knowledge.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.CharacterClass = Antipaladin.antipaladin_class);
+            antipaladin_unsanctioned_knowledge.SetName("Unsanctioned Knowledge (Antipaladin)");
+            foreach (var c in antipaladin_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
+            {
+                var new_c = c.CreateCopy(asc => asc.spell_book = Antipaladin.antipaladin_class.Spellbook);
+                antipaladin_unsanctioned_knowledge.ReplaceComponent(c, new_c);
+            }
+
+            library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge, antipaladin_unsanctioned_knowledge);
         }
 
 
@@ -2375,13 +2385,14 @@ namespace CallOfTheWild
                                               paladin_harm.GetComponent<ContextRankConfig>(),
                                               paladin_harm.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                               Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1));
+            heal_living_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.LawfulGood));
+            harm_undead_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.LawfulGood));
 
             paladin_heal_base.addToAbilityVariants(heal_living_extra);
             paladin_harm_base.addToAbilityVariants(harm_undead_extra);
             ChannelEnergyEngine.storeChannel(heal_living_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
             ChannelEnergyEngine.storeChannel(harm_undead_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
 
-            paladin_channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_extra, harm_undead_extra));
             paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));
             paladin_channel_extra = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, paladin_channel_energy, "ExtraChannelPaladin", "Extra Channel (Paladin)", "");
         }
