@@ -107,7 +107,7 @@ namespace CallOfTheWild
         static public BlueprintFeature iron_fist;
         static public BlueprintFeatureSelection iron_tyrant_bonus_feat;
         static public BlueprintFeature unstoppable;
-        static public BlueprintFeature fiendish_bond;
+        static public BlueprintFeature[] fiendish_bond;
 
 
 
@@ -172,7 +172,7 @@ namespace CallOfTheWild
                     var duration = Helpers.CreateContextDuration();
                     if (divisor < 0)
                     {
-                        duration = Helpers.CreateContextDuration(divisor);
+                        duration = Helpers.CreateContextDuration(-divisor);
                     }
                     else if (divisor > 0)
                     {
@@ -180,7 +180,7 @@ namespace CallOfTheWild
                     }
 
                     var effect_action = Helpers.CreateActionSavingThrow(save,
-                                                                        new GameAction[] { Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(b, duration, is_permanent: divisor == 0, dispellable: false), null) }
+                                                                        new GameAction[] { Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(b, duration, is_permanent: divisor == 0, dispellable: false)) }
                                                                         );
 
                     touch_cruelty.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(effect_action)));
@@ -262,8 +262,8 @@ namespace CallOfTheWild
 
             createInsinuator();
             createBlightedMyrmidon();
-            //createIronTyrant();
-            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
+            createIronTyrant();
+            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon, iron_tyrant }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
@@ -274,6 +274,225 @@ namespace CallOfTheWild
 
             Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
                                                    Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));
+        }
+
+
+        static void createIronTyrant()
+        {
+            iron_tyrant = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "IronTyrantArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Iron Tyrant");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Covered from head to toe in blackened armor decorated with grotesque shapes and bristling with spikes, iron tyrants make an unmistakable impression on the battlefield. These antipaladins’ armor is an outward symbol of their inner power, and they are rarely seen without it. Iron tyrants seek the strength to rule over domains as unfettered despots, and depend on their armor as protection against those they have not yet cowed.");
+            });
+            Helpers.SetField(iron_tyrant, "m_ParentClass", antipaladin_class);
+            library.AddAsset(iron_tyrant, "");
+
+            createIronFist();
+            createIronTyrantBonusFeats();
+            createUnstoppable();
+            createFiendishBond();
+
+            iron_tyrant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(2, touch_of_corruption),
+                                                          Helpers.LevelEntry(3, cruelty),
+                                                          Helpers.LevelEntry(4, channel_negative_energy),
+                                                          Helpers.LevelEntry(5, fiendish_boon[0]),
+                                                          Helpers.LevelEntry(6, cruelty),
+                                                          Helpers.LevelEntry(8, fiendish_boon[1]),
+                                                          Helpers.LevelEntry(9, cruelty),
+                                                          Helpers.LevelEntry(11, fiendish_boon[2]),
+                                                          Helpers.LevelEntry(12, cruelty),
+                                                          Helpers.LevelEntry(14, fiendish_boon[3]),
+                                                          Helpers.LevelEntry(15, cruelty),
+                                                          Helpers.LevelEntry(17, fiendish_boon[4]),
+                                                          Helpers.LevelEntry(18, cruelty),
+                                                          Helpers.LevelEntry(20, fiendish_boon[5]),
+                                                         };
+
+            iron_tyrant.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, iron_fist),
+                                                       Helpers.LevelEntry(3, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(4, unstoppable),
+                                                       Helpers.LevelEntry(5, fiendish_bond[0]),
+                                                       Helpers.LevelEntry(6, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(8, fiendish_bond[1]),
+                                                       Helpers.LevelEntry(9, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(11, fiendish_bond[2]),
+                                                       Helpers.LevelEntry(12, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(14, fiendish_bond[3]),
+                                                       Helpers.LevelEntry(15, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(17, fiendish_bond[4]),
+                                                       Helpers.LevelEntry(18, iron_tyrant_bonus_feat),
+                                                       Helpers.LevelEntry(20, fiendish_bond[5]),
+                                                      };
+
+            antipaladin_progression.UIGroups[3].Features.Add(iron_fist);
+            antipaladin_progression.UIGroups[3].Features.Add(unstoppable);
+            foreach (var fb in fiendish_bond)
+            {
+                antipaladin_progression.UIGroups[3].Features.Add(fb);
+            }
+            antipaladin_progression.UIGroups = antipaladin_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(iron_tyrant_bonus_feat));
+            antipaladin_progression.UIDeterminatorsGroup = antipaladin_progression.UIDeterminatorsGroup.AddToArray(invocation);
+        }
+
+
+        static void createFiendishBond()
+        {
+            var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
+            var enchants = ArmorEnchantments.temporary_armor_enchantments;
+            var enhancement_buff = Helpers.CreateBuff("IronTyrantArmorEnchancementBaseBuff",
+                                            "",
+                                            "",
+                                            "",
+                                            null,
+                                            null,
+                                            Common.createBuffRemainingGroupSizetEnchantArmor(ActivatableAbilityGroup.DivineWeaponProperty,
+                                                                                            false, true, enchants
+                                                                                            )
+                                            );
+            enhancement_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var fiendish_bond_enhancement_buff = Helpers.CreateBuff("IronTyrantArmorEnhancementSwitchBuff",
+                                                                    "Fiendish Bond",
+                                                                    "At 5th level, instead of forming a fiendish bond with his weapon, an iron tyrant can form a bond with his armor. As a standard action, an iron tyrant can enhance his armor by calling upon a fiendish spirit’s aid. This bond lasts for 1 minute per antipaladin level.\n"
+                                                                    + "At 5th level, the spirit grants the armor a +1 enhancement bonus. For every 3 antipaladin levels beyond 5th, the armor gains another +1 enhancement bonus, to a maximum of +6 at 20th level.\n"
+                                                                    + "These bonuses stack with existing armor enhancement bonuses to a maximum of +5, or they can be used to add any of the following armor special abilities: fortification (heavy, light, or medium) or spell resistance (13, 17, 21, and 25). Adding these special abilities consumes an amount of bonus equal to the special ability’s base price modifier",
+                                                                    "",
+                                                                    mage_armor.Icon,
+                                                                    null,
+                                                                    Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(enhancement_buff, Helpers.CreateContextDuration(),
+                                                                                                                is_child: true, dispellable: false, is_permanent: true)
+                                                                                                        )
+                                                                    );
+            //fortification - light (25% +1), medium(50% +3), heavy (75% +5)
+            //spell resistance (+13 +2), (+17 +3), (+21 +4), (+25, +5)
+
+            var sr_icon = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889").Icon;
+            var fortification_icon = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").Icon; //stoneskin
+
+            List<BlueprintActivatableAbility>[] enchant_abilities = new List<BlueprintActivatableAbility>[6];
+
+            for (int i = 0; i < enchant_abilities.Length; i++)
+            {
+                enchant_abilities[i] = new List<BlueprintActivatableAbility>();
+            }
+
+            foreach (var e in ArmorEnchantments.spell_resistance_enchantments)
+            {
+                int cost = e.EnchantmentCost;
+                var a = Common.createEnchantmentAbility("IrontTyrantFiendishBond" + e.name, "Fiendish Bond - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of armor enhancement bonus.", sr_icon, fiendish_bond_enhancement_buff, e, cost, ActivatableAbilityGroup.DivineWeaponProperty);
+                enchant_abilities[cost - 1].Add(a);
+            }
+
+
+            foreach (var e in ArmorEnchantments.fortification_enchantments)
+            {
+                int cost = e.EnchantmentCost;
+                var a = Common.createEnchantmentAbility("IrontTyrantFiendishBond" + e.name, "Fiendish Bond - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of armor enhancement bonus.", fortification_icon, fiendish_bond_enhancement_buff, e, cost, ActivatableAbilityGroup.DivineWeaponProperty);
+                enchant_abilities[cost - 1].Add(a);
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(fiendish_bond_enhancement_buff,
+                                                                 Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                 dispellable: false);
+            var ability = Helpers.CreateAbility("IronTyrantFiendishBondAbility",
+                                                fiendish_bond_enhancement_buff.Name,
+                                                fiendish_bond_enhancement_buff.Description,
+                                                "",
+                                                fiendish_bond_enhancement_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.minutesPerLevelDuration,
+                                                Helpers.savingThrowNone,
+                                                mage_armor.GetComponent<AbilitySpawnFx>(),
+                                                Helpers.CreateRunActions(apply_buff),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray()),
+                                                Helpers.CreateResourceLogic(fiendish_boon_resource),
+                                                Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>(),
+                                                Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            fiendish_bond = new BlueprintFeature[6];
+            for (int i = 0; i < fiendish_bond.Length; i++)
+            {
+                fiendish_bond[i] = Helpers.CreateFeature($"IronTyrantFiendishBond{i+1}Feature",
+                                                        $"Fiendish Bond +{i}",
+                                                        ability.Description,
+                                                        "",
+                                                        ability.Icon,
+                                                        FeatureGroup.None
+                                                        );
+                if (i == 0)
+                {
+                    fiendish_bond[i].AddComponent(fiendish_boon_resource.CreateAddAbilityResource());
+                    fiendish_bond[i].AddComponent(Helpers.CreateAddFact(ability));
+                }
+                if (enchant_abilities[i].Count > 0)
+                {
+                    fiendish_bond[i].AddComponent(Helpers.CreateAddFacts(enchant_abilities[i].ToArray()));
+                }
+            }
+        }
+
+
+        static void createIronTyrantBonusFeats()
+        {
+            iron_tyrant_bonus_feat = library.CopyAndAdd<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "IronTyrantBonusFeat", "");
+            iron_tyrant_bonus_feat.SetNameDescription("Bonus Feat",
+                                                      "At 3rd level and every 3 antipaladin levels thereafter, an iron tyrant gains a bonus feat in addition to those gained from normal advancement. This feat must be a combat feat that relates to the iron tyrant’s armor or shield, such as Shield Focus, or Armor Focus.");
+            iron_tyrant_bonus_feat.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("ac57069b6bf8c904086171683992a92a"), //shield focus
+                library.Get<BlueprintFeature>("afd05ca5363036c44817c071189b67e1"), //greater shield focus
+                library.Get<BlueprintFeature>("76d4885a395976547a13c5d6bf95b482"), //armor focus
+                library.Get<BlueprintFeature>("121811173a614534e8720d7550aae253"), //shield bash
+                library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d"), //twf
+                library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), //twf improved
+                library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"), //twf greater
+                library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc"), //shield master
+                library.Get<BlueprintFeature>("0b442a7b4aa598d4e912a4ecee0500ff"), //bashing finish
+                library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907"), //shield wall
+                library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
+            };
+            //other feats will be added upon creation
+        }
+
+
+        static void createIronFist()
+        {
+            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
+                                                            new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(1, DiceType.D10),
+                                                            new DiceFormula(2, DiceType.D6),
+                                                            new DiceFormula(2, DiceType.D8)};
+
+            iron_fist = Helpers.CreateFeature("IronFistFeature",
+                                              "Iron Fist",
+                                              "At 2nd level, an iron tyrant gains Improved Unarmed Strike as a bonus feat. In addition, whenever the iron tyrant makes a successful attack with a weapon from fighter close weapons group, the weapon damage is based on his level and not the weapon type, as per the warpriest’s sacred weapon ability.",
+                                              "",
+                                              Helpers.GetIcon("85067a04a97416949b5d1dbf986d93f3"), //stone fist
+                                              FeatureGroup.None,
+                                              Helpers.CreateAddFact(library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167")),
+                                              Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>(c =>
+                                              {
+                                                  c.dice_formulas = diceFormulas;
+                                                  c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                  c.categories = new WeaponCategory[] {WeaponCategory.SpikedHeavyShield, WeaponCategory.SpikedLightShield,
+                                                                                       WeaponCategory.WeaponLightShield, WeaponCategory.WeaponHeavyShield,
+                                                                                       WeaponCategory.UnarmedStrike, WeaponCategory.PunchingDagger};
+                                              }),
+                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                type: AbilityRankType.Default,
+                                                                                progression: ContextRankProgression.DivStep,
+                                                                                stepLevel: 5,
+                                                                                classes: getAntipaladinArray())
+                                              );
+        }
+
+        static void createUnstoppable()
+        {
+            unstoppable = library.CopyAndAdd<BlueprintFeature>("11f4072ea766a5840a46e6660894527d", "UnstoppableIronTyrantFeature", "");
+            unstoppable.SetName("Unstoppable");
         }
 
 
@@ -531,7 +750,7 @@ namespace CallOfTheWild
             ChannelEnergyEngine.storeChannel(heal_living, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
             ChannelEnergyEngine.storeChannel(harm_undead, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
 
-            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
+            channel_positive_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
 
             var heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                           "AntipaladinChannelEnergyHealLivingExtra",
@@ -1188,6 +1407,7 @@ namespace CallOfTheWild
                                                  Helpers.minutesPerLevelDuration,
                                                  "",
                                                  Helpers.CreateRunActions(Common.createContextActionApplyBuff(fiendish_boon_enhancement_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray()),
                                                  Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
                                                  fiendish_boon_resource.CreateResourceLogic(),
                                                  Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>()
@@ -1296,7 +1516,7 @@ namespace CallOfTheWild
             CrueltyEntry.addCruelty("Poisoned", "The target is poisoned, as if the antipaladin had cast poison, using the antipaladin’s level as the caster level if Fortitude save is failed.", 9, "", 0, SavingThrowType.Fortitude, poisoned);
             CrueltyEntry.addCruelty("Blinded", "The target is blinded for 1 round per level of the antipaladin if Fortitude save is failed.", 12, "", 1, SavingThrowType.Fortitude, blinded);
             CrueltyEntry.addCruelty("Deafened", "The target is deafened for 1 round per level of the antipaladin if Fortitude save is failed.", 12, "", 1, SavingThrowType.Fortitude, deafened);
-            CrueltyEntry.addCruelty("Paralyzed", " The target is paralyzed for 1 round. if Will save is failed.", 12, "", -1, SavingThrowType.Will, paralyzed);
+            CrueltyEntry.addCruelty("Paralyzed", " The target is paralyzed for 1 round if Will save is failed.", 12, "", -1, SavingThrowType.Will, paralyzed);
             CrueltyEntry.addCruelty("Stunned", "The target is stunned for 1 round per four levels of the antipaladin if Fortitude save is failed.", 12, "", 1, SavingThrowType.Fortitude, stunned);
 
 
@@ -1346,6 +1566,7 @@ namespace CallOfTheWild
             var wrapper = Common.createVariantWrapper("AntipladinCrueltyBaseAbility", "", ability_cast);
 
             touch_of_corruption = Common.AbilityToFeature(wrapper, false);
+            touch_of_corruption.AddComponent(touch_of_corruption_resource.CreateAddAbilityResource());
 
             cruelty = Helpers.CreateFeatureSelection("CrueltiesFeatureSelection",
                                                      "Cruelty",
@@ -1519,15 +1740,15 @@ namespace CallOfTheWild
             smite_good_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
 
 
-            aura_of_vengeance = Common.createSmite("AntipaladinAuraOfVengeance",
-                                "Aura of Vengeance",
-                                "At 11th level, an antipaladin can expend two uses of his smite good ability to grant the ability to smite good to all allies within 10 feet, using his bonuses. Allies must use this smite good ability by the start of the antipaladin’s next turn and the bonuses last for 1 minute. Using this ability is a free action.",
-                                "",
-                                "",
-                                NewSpells.command.Icon,
-                                getAntipaladinArray(),
-                                Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Good; c.fact = tip_of_spear; })
-                                );
+            aura_of_vengeance = Common.createSmiteForAllies("AntipaladinAuraOfVengeance",
+                                                            "Aura of Vengeance",
+                                                            "At 11th level, an antipaladin can expend two uses of his smite good ability to grant the ability to smite good to all allies within 10 feet, using his bonuses. Allies must use this smite good ability by the start of the antipaladin’s next turn and the bonuses last for 1 minute. Using this ability is a free action.",
+                                                            "",
+                                                            "",
+                                                            NewSpells.command.Icon,
+                                                            getAntipaladinArray(),
+                                                            Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Good; c.fact = tip_of_spear; })
+                                                            );
 
             var aura_of_vengeance_ability = aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
             aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));

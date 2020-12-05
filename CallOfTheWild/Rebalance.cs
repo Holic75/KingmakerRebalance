@@ -2231,5 +2231,16 @@ namespace CallOfTheWild
     }
 
 
+    //fix holy/unholy/axiomatic and anarchic encahntments not to add damage on non-weapon attacks
+    [Harmony12.HarmonyPatch(typeof(WeaponDamageAgainstAlignment), "OnEventAboutToTrigger", typeof(RulePrepareDamage))]
+    class WeaponDamageAgainstAlignment_OnEventAboutToTrigger
+    {
+        static bool Prefix(WeaponDamageAgainstAlignment __instance, RulePrepareDamage evt)
+        {
+            return evt.DamageBundle?.WeaponDamage != null;
+        }
+    }
+
+
 
 }

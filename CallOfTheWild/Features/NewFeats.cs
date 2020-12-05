@@ -602,6 +602,7 @@ namespace CallOfTheWild
 
             prodigious_two_weapon_fighting.Groups = prodigious_two_weapon_fighting.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(prodigious_two_weapon_fighting);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(prodigious_two_weapon_fighting);
         }
 
 
@@ -701,6 +702,7 @@ namespace CallOfTheWild
             tower_shield_specialsit.ReapplyOnLevelUp = true;
             tower_shield_specialsit.Groups = tower_shield_specialsit.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(tower_shield_specialsit);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(tower_shield_specialsit);
         }
 
 
@@ -745,6 +747,7 @@ namespace CallOfTheWild
                                                  );
             shield_brace.Groups = shield_brace.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(shield_brace);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(shield_brace);
         }
 
 
@@ -807,6 +810,8 @@ namespace CallOfTheWild
 
             stumbling_bash.Groups = stumbling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(stumbling_bash);
+
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(stumbling_bash);
         }
 
 
@@ -862,6 +867,7 @@ namespace CallOfTheWild
             
             toppling_bash.Groups = toppling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(toppling_bash);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(toppling_bash);
         }
 
 
@@ -1413,6 +1419,10 @@ namespace CallOfTheWild
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
             Common.excludeSpellsFromList(combined_spell_list, paladin.Spellbook.SpellList);
 
+            var combined_spell_list_antipaldin = Common.combineSpellLists("UnsanctionedKnowledgeAntipaladinSpellList", cleric_spell_list, inquisitor_spell_list, bard_spell_list);
+
+            Common.excludeSpellsFromList(combined_spell_list_antipaldin, Antipaladin.antipaladin_class.Spellbook.SpellList);
+
             unsanctioned_knowledge = Helpers.CreateFeature("UnsanctionedKnowledgeFeature",
                                                             "Unsanctioned Knowledge (Paladin)",
                                                             "Pick one 1st-level spell, one 2nd-level spell, one 3rd-level spell, and one 4th-level spell from the bard, cleric, inquisitor, or oracle spell lists. Add these spells to your paladin spell list as paladin spells of the appropriate level. Once chosen, these spells cannot be changed.",
@@ -1446,7 +1456,7 @@ namespace CallOfTheWild
             antipaladin_unsanctioned_knowledge.SetName("Unsanctioned Knowledge (Antipaladin)");
             foreach (var c in antipaladin_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
             {
-                var new_c = c.CreateCopy(asc => asc.spell_book = Antipaladin.antipaladin_class.Spellbook);
+                var new_c = c.CreateCopy(asc => { asc.spell_book = Antipaladin.antipaladin_class.Spellbook; asc.spell_list = combined_spell_list_antipaldin; });
                 antipaladin_unsanctioned_knowledge.ReplaceComponent(c, new_c);
             }
 

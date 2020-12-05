@@ -1296,6 +1296,7 @@ namespace CallOfTheWild
             //make buff take icon and name from parent ability
             smite_buff.SetIcon(null);
             smite_buff.SetName("");
+            smite_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             var new_smite_action = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
             smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
             smite_feature.GetComponent<AddAbilityResources>().RestoreAmount = true;
