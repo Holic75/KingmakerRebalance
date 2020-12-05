@@ -8418,6 +8418,52 @@ namespace CallOfTheWild
         }
 
 
+        public class ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact : ContextCondition
+        {
+            public bool CheckCaster;
+            public BlueprintUnitFact[] facts = new BlueprintUnitFact[0];
+            public BlueprintCharacterClass[] classes = new BlueprintCharacterClass[0];
+            public BlueprintUnitFact caster_fact;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if target has facts or class levels");
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unit = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unit == null)
+                {
+                    return false;
+                }
+
+                if (caster_fact != null && this.Context.MaybeCaster.Descriptor.HasFact(caster_fact))
+                {
+                    return true;
+                }
+
+                foreach (var f in facts)
+                {
+                    if (unit.Descriptor.HasFact(f))
+                    {
+                        return true;
+                    }
+                }
+
+                foreach (var c in classes)
+                {
+                    if (unit.Descriptor.Progression.Classes.Any(cd => cd.CharacterClass == c && cd.Level > 0))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintParametrizedFeature))]
         public class SpellPerfectionDoubleFeatBonuses : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookHandler<RuleSpellResistanceCheck>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookHandler<RuleCalculateAttackBonusWithoutTarget>, IInitiatorRulebookSubscriber
         {

@@ -98,6 +98,18 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection insinuator_bonus_feat;
 
 
+        static public BlueprintArchetype blighted_myrmidon;
+        static public BlueprintFeature smite_nature;
+        static public BlueprintFeature smite_nature_extra_use;
+        static public BlueprintFeature aura_of_decay;
+
+        static public BlueprintArchetype iron_tyrant;
+        static public BlueprintFeature iron_fist;
+        static public BlueprintFeatureSelection iron_tyrant_bonus_feat;
+        static public BlueprintFeature unstoppable;
+        static public BlueprintFeature fiendish_bond;
+
+
 
         internal class CrueltyEntry
         {
@@ -249,7 +261,9 @@ namespace CallOfTheWild
             antipaladin_class.Progression = antipaladin_progression;
 
             createInsinuator();
-            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator }; //blighted myrmidon, insinuator, dread vanguard, seal breaker, iron tyrant
+            createBlightedMyrmidon();
+            //createIronTyrant();
+            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
@@ -260,6 +274,135 @@ namespace CallOfTheWild
 
             Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
                                                    Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));
+        }
+
+
+        static void createBlightedMyrmidon()
+        {
+            blighted_myrmidon = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "BlightedMyrmidonArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Blighted Myrmidon");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Blighted myrmidons carry the seed of rot in their black hearts and sap life from the natural world.");
+            });
+            Helpers.SetField(blighted_myrmidon, "m_ParentClass", antipaladin_class);
+            library.AddAsset(blighted_myrmidon, "");
+
+            createSmiteNature();
+            createAuraOfDecay();
+
+
+            blighted_myrmidon.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+                                                          Helpers.LevelEntry(4, smite_good_extra_use),
+                                                          Helpers.LevelEntry(7, smite_good_extra_use),
+                                                          Helpers.LevelEntry(10, smite_good_extra_use),
+                                                          Helpers.LevelEntry(11, aura_of_vengeance),
+                                                          Helpers.LevelEntry(13, smite_good_extra_use),
+                                                          Helpers.LevelEntry(16, smite_good_extra_use),
+                                                          Helpers.LevelEntry(19, smite_good_extra_use)
+                                                         };
+
+            blighted_myrmidon.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_nature),
+                                                              Helpers.LevelEntry(4, smite_nature_extra_use),
+                                                              Helpers.LevelEntry(7, smite_nature_extra_use),
+                                                              Helpers.LevelEntry(11, aura_of_decay),
+                                                              Helpers.LevelEntry(13, smite_nature_extra_use),
+                                                              Helpers.LevelEntry(16, smite_nature_extra_use),
+                                                              Helpers.LevelEntry(19, smite_nature_extra_use),
+                                                              };
+
+            antipaladin_progression.UIGroups[1].Features.Add(smite_nature);
+            antipaladin_progression.UIGroups[1].Features.Add(smite_nature_extra_use);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_decay);
+        }
+
+
+        static void createAuraOfDecay()
+        {
+            var deal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), true, true);
+            deal_dmg.ResultSharedValue = AbilitySharedValue.Damage;
+            deal_dmg.WriteResultToSharedValue = true;
+
+            var effect_actions = new GameAction[]{Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, deal_dmg),
+                                                  Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact>(c =>
+                                                                            {
+                                                                                c.facts = new BlueprintUnitFact[] { Common.elemental, Common.fey };
+                                                                                c.classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96"), //druid
+                                                                                            library.Get<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6"), //ranger
+                                                                                            Hunter.hunter_class
+                                                                                        };
+                                                                                c.caster_fact = null;
+                                                                            }),
+                                                                            Common.createContextActionOnContextCaster(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal))))
+                                                                            )
+                                                  };
+            var effect_buff = Helpers.CreateBuff("AuraOfDecayBuff",
+                                      "Aura of Decay Target",
+                                      "At 11th level, as a free action, a blighted myrmidon can expend two uses of her smite nature ability to generate an aura of decay with a range of 10 feet for 1 minute. Living foes of the blighted myrmidon within the aura take 3d6 points of damage unless they succeed at a Fortitude save (DC = half the blighted myrmidon’s level + her Charisma modifier) for half damage. If an elemental, a fey, or a creature with levels in druid, hunter, or ranger takes damage from aura of decay, the blighted myrmidon regains a number of hit points equal to half the amount of damage the creature takes.",
+                                      "",
+                                      NewSpells.explosion_of_rot.Icon,
+                                      Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"), //poison buff
+                                      Helpers.CreateAddFactContextActions(activated: effect_actions, newRound: effect_actions),
+                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.Heal, 0.5),
+                                      Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
+                                     );
+
+            var aura_buff = Common.createBuffAreaEffect(effect_buff, 13.Feet(),
+                                                        Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>(),
+                                                                                            Common.createContextConditionHasFact(Common.undead, false),
+                                                                                            Common.createContextConditionHasFact(Common.construct, false)
+                                                                                            )
+                                                        );
+
+            aura_buff.SetBuffFlags(0);
+            aura_buff.SetNameDescriptionIcon("Aura of Decay", effect_buff.Description, effect_buff.Icon);
+
+            var ability = Helpers.CreateAbility("AuraOfDecayAbility",
+                                                aura_buff.Name,
+                                                aura_buff.Description,
+                                                "",
+                                                aura_buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "Fortitude partial",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(aura_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                smite_resource.CreateResourceLogic(amount: 2)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            aura_of_decay = Common.AbilityToFeature(ability, false);
+        }
+
+
+        static void createSmiteNature()
+        {
+            smite_nature = Common.createSmite("AntipaladinSmiteNature",
+                                                "Smite Nature",
+                                                "A blighted myrmidon can drain the life from a creature tied to nature. As a swift action, the blighted myrmidon chooses one target within sight to smite. Regardless of its alignment, if the target is an animal, elemental, fey, plant, or vermin, or has levels of druid, ranger or hunter, the blighted myrmidon adds her Charisma bonus (if any) on her attack rolls and adds her blighted myrmidon level on damage rolls against the target of her smite. This ability otherwise functions as smite good.",
+                                                "",
+                                                "",
+                                                LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteNature.png"),
+                                                getAntipaladinArray(),
+                                                Helpers.Create<NewMechanics.ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact>(c => 
+                                                {
+                                                    c.facts = new BlueprintUnitFact[] { Common.animal, Common.elemental, Common.fey, Common.plant, Common.vermin };
+                                                    c.classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96"), //druid
+                                                                                                library.Get<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6"), //ranger
+                                                                                                Hunter.hunter_class
+                                                                                            };
+                                                    c.caster_fact = tip_of_spear;
+                                                })
+                                                );
+
+            var smite_nature_ability = smite_nature.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            smite_nature_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+
+            smite_nature_extra_use = library.CopyAndAdd<BlueprintFeature>("0f5c99ffb9c084545bbbe960b825d137", "SmiteNatureAdditionalUse", "");
+            smite_nature_extra_use.SetNameDescriptionIcon("Smite Nature — Additional Use",
+                                              smite_nature.Description,
+                                              smite_nature.Icon);
         }
 
 
@@ -323,7 +466,7 @@ namespace CallOfTheWild
                                                        Helpers.LevelEntry(20, personal_champion),
                                                       };
 
-            antipaladin_progression.UIGroups[0].Features.Add(stubborn_health);
+            //antipaladin_progression.UIGroups[0].Features.Add(stubborn_health);
             antipaladin_progression.UIGroups[1].Features.Add(smite_impudence);
             antipaladin_progression.UIGroups[1].Features.Add(smite_impudence_extra_use);
             antipaladin_progression.UIGroups[2].Features.Add(aura_of_ego);

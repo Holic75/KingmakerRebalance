@@ -891,7 +891,6 @@ namespace CallOfTheWild
         static void createSmiteGoodEvilAC()
         {
             var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CharacterLevel);
-            var umbral_strike = library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716");
             var smite_evil = library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec");
 
             ac_smite_evil_feature = Common.createSmite("SmiteEvilAC",
@@ -908,7 +907,7 @@ namespace CallOfTheWild
                                            "A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.",
                                            "a432066702694b2590260b58426fee28",
                                            "320b92730bd54842b9707931a5dbab18",
-                                           umbral_strike.Icon,
+                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
                                            context_rank_config,
                                            AlignmentComponent.Good);
         }

@@ -278,9 +278,9 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.UndeadLord.create();
                     CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
+                    CallOfTheWild.Hunter.createHunterClass();
                     CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Antipaladin.creatAntipaldinClass();
-                    CallOfTheWild.Hunter.createHunterClass();
                     if (settings.sacred_huntsmaster_animal_focus)
                     {
                         Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
