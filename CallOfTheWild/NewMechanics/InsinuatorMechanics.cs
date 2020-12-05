@@ -153,7 +153,7 @@ namespace CallOfTheWild.InsinuatorMechanics
             {
                 return false;
             }
-            return (unit_part.getSharedAlignment() & (AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral | AlignmentMaskType.ChaoticNeutral)) > 0;
+            return (unit_part.getAlignment() & (AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral | AlignmentMaskType.ChaoticNeutral)) > 0;
         }
 
         public string GetReason()

@@ -879,7 +879,7 @@ namespace CallOfTheWild
                                                    );
 
             var config_dmg = smite_impudence_ability.GetComponents<ContextRankConfig>().Where(c => c.IsBasedOnClassLevel).FirstOrDefault();
-            smite_impudence_ability.ReplaceComponent(config_dmg, config_dmg.CreateCopy(c => Helpers.SetField(c, "m_Progression", ContextRankProgression.Div2)));
+            smite_impudence_ability.ReplaceComponent(config_dmg, config_dmg.CreateCopy(c => { Helpers.SetField(c, "m_Progression", ContextRankProgression.Div2); Helpers.SetField(c, "m_Class", getAntipaladinArray()); }));
 
 
             smite_impudence = Common.AbilityToFeature(smite_impudence_ability, false);
@@ -925,7 +925,9 @@ namespace CallOfTheWild
                                                    "At 11th level, an insinuator can expend two uses of his smite impudence ability to grant the ability to smite impudence to all allies within 10 feet, using his bonuses. Allies must use this smite impudence ability before the start of the insinuator’s next turn, and the bonuses last for 1 minute. Using this ability is a free action.",
                                                    Helpers.GetIcon("7a4f0c48829952e47bb1fd1e4e9da83a")//aura of justice
                                                    );
-            aura_of_glory = Common.AbilityToFeature(aura_of_glory_ability, false);           
+            aura_of_glory = Common.AbilityToFeature(aura_of_glory_ability, false);
+            config_dmg = aura_of_glory_ability.GetComponents<ContextRankConfig>().Where(c => c.IsBasedOnClassLevel).FirstOrDefault();
+            aura_of_glory_ability.ReplaceComponent(config_dmg, config_dmg.CreateCopy(c => { Helpers.SetField(c, "m_Progression", ContextRankProgression.Div2); Helpers.SetField(c, "m_Class", getAntipaladinArray()); }));
         }
 
 
@@ -1020,7 +1022,7 @@ namespace CallOfTheWild
                                                        "Personal Champion",
                                                        "At 20th level, an insinuator becomes a living embodiment of his selfish desires. His damage reduction from aura of indomitability increases to 15 (or 10 while invoking a neutral outsider). Whenever he uses smite impudence, he adds twice his full Charisma bonus to the attack roll and doubles his effective bonus damage gained from the smite. In addition, he can invoke a new outsider patron by meditating again.",
                                                        "",
-                                                       Helpers.GetIcon("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
+                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/PersonalChampion.png"),
                                                        FeatureGroup.None
                                                        );
 
@@ -1111,7 +1113,7 @@ namespace CallOfTheWild
                                                      "",
                                                      aura_of_belief.Icon,
                                                      null,
-                                                     Common.createAddOutgoingAlignmentFromAlignment(kv.Value.Item2)
+                                                     Common.createAddOutgoingAlignmentFromAlignment(kv.Key)
                                                      );
                     Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_belief_buff, aura_of_belief);
                 }
@@ -1121,7 +1123,7 @@ namespace CallOfTheWild
                                                                      "",
                                                                      aura_of_indomitability.Icon,
                                                                      null,
-                                                                     Common.createContextDRFromAlignment(Helpers.CreateContextValue(AbilityRankType.Default), kv.Value.Item2),
+                                                                     Common.createContextDRFromAlignment(Helpers.CreateContextValue(AbilityRankType.Default), kv.Key),
                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureListRanks, ContextRankProgression.MultiplyByModifier, stepLevel: 5,
                                                                                                      featureList: Enumerable.Repeat(invocation, kv.Key == AlignmentMaskType.TrueNeutral ? 1 : 2).ToArray().AddToArray(personal_champion)
                                                                                                      )
