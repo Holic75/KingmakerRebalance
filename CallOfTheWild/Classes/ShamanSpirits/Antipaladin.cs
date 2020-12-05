@@ -1024,14 +1024,14 @@ namespace CallOfTheWild
                                                        FeatureGroup.None
                                                        );
 
-            var alignments_map = new Dictionary<AlignmentMaskType, AlignmentMaskType>
+            var alignments_map = new Dictionary<AlignmentMaskType, (AlignmentMaskType, AlignmentMaskType)>
             {
-                {AlignmentMaskType.LawfulEvil, AlignmentMaskType.NeutralEvil | AlignmentMaskType.LawfulEvil },
-                {AlignmentMaskType.NeutralEvil, AlignmentMaskType.Evil },
-                {AlignmentMaskType.ChaoticEvil, AlignmentMaskType.NeutralEvil | AlignmentMaskType.ChaoticEvil },
-                {AlignmentMaskType.LawfulNeutral,  AlignmentMaskType.LawfulEvil },
-                {AlignmentMaskType.TrueNeutral,  AlignmentMaskType.NeutralEvil },
-                {AlignmentMaskType.ChaoticNeutral, AlignmentMaskType.ChaoticEvil }
+                {AlignmentMaskType.LawfulEvil, (AlignmentMaskType.NeutralEvil | AlignmentMaskType.LawfulEvil, AlignmentMaskType.Lawful | AlignmentMaskType.Evil) },
+                {AlignmentMaskType.NeutralEvil, (AlignmentMaskType.Evil, AlignmentMaskType.Evil) },
+                {AlignmentMaskType.ChaoticEvil, (AlignmentMaskType.NeutralEvil | AlignmentMaskType.ChaoticEvil, AlignmentMaskType.Chaotic | AlignmentMaskType.Evil) },
+                {AlignmentMaskType.LawfulNeutral,  (AlignmentMaskType.LawfulEvil, AlignmentMaskType.Lawful) },
+                {AlignmentMaskType.TrueNeutral,  (AlignmentMaskType.NeutralEvil, AlignmentMaskType.TrueNeutral) },
+                {AlignmentMaskType.ChaoticNeutral, (AlignmentMaskType.ChaoticEvil, AlignmentMaskType.Chaotic) }
             };
 
             List<BlueprintAbility> abilities = new List<BlueprintAbility>();
@@ -1055,7 +1055,7 @@ namespace CallOfTheWild
                                               "",
                                               invocation.Icon,
                                               null,
-                                              Helpers.Create<InsinuatorMechanics.InsinuatorOutsiderAlignment>(i => i.alignment = kv.Key)
+                                              Helpers.Create<InsinuatorMechanics.InsinuatorOutsiderAlignment>(i => { i.alignment = kv.Key; i.shared_alignment = kv.Value.Item2; })
                                               );
                 buff.SetBuffFlags(BuffFlags.RemoveOnRest);
 
@@ -1090,8 +1090,8 @@ namespace CallOfTheWild
                                                                                     classes: getAntipaladinArray()
                                                                                     ),
                                                     Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                    Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = kv.Value),
-                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasAlignment>(a => a.alignment = kv.Value),
+                                                    Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = kv.Value.Item1),
+                                                    Helpers.Create<NewMechanics.AbilityShowIfCasterHasAlignment>(a => a.alignment = kv.Value.Item1),
                                                     Common.createAbilityCasterHasNoFacts(cooldown_buff)
                                                     );
                 Common.setAsFullRoundAction(ability);
@@ -1111,7 +1111,7 @@ namespace CallOfTheWild
                                                      "",
                                                      aura_of_belief.Icon,
                                                      null,
-                                                     Common.createAddOutgoingAlignmentFromAlignment(kv.Key)
+                                                     Common.createAddOutgoingAlignmentFromAlignment(kv.Value.Item2)
                                                      );
                     Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_belief_buff, aura_of_belief);
                 }
@@ -1121,13 +1121,18 @@ namespace CallOfTheWild
                                                                      "",
                                                                      aura_of_indomitability.Icon,
                                                                      null,
-                                                                     Common.createContextDRFromAlignment(Helpers.CreateContextValue(AbilityRankType.Default), kv.Key),
+                                                                     Common.createContextDRFromAlignment(Helpers.CreateContextValue(AbilityRankType.Default), kv.Value.Item2),
                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureListRanks, ContextRankProgression.MultiplyByModifier, stepLevel: 5,
                                                                                                      featureList: Enumerable.Repeat(invocation, kv.Key == AlignmentMaskType.TrueNeutral ? 1 : 2).ToArray().AddToArray(personal_champion)
                                                                                                      )
                                                                      );
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_indomitability_buff, aura_of_indomitability);
             }
+
+            var wrapper = Common.createVariantWrapper("InsinuatorInvocationBaseAbility", "", abilities.ToArray());
+
+            invocation.AddComponent(Helpers.CreateAddFact(wrapper));
+            wrapper.SetName(invocation.Name);
         }
 
 

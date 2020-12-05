@@ -20,9 +20,8 @@ namespace CallOfTheWild.InsinuatorMechanics
     {
         public bool active()
         {
-            return buffs.Empty();
+            return !buffs.Empty();
         }
-
 
         public AlignmentMaskType getAlignment()
         {
@@ -32,6 +31,16 @@ namespace CallOfTheWild.InsinuatorMechanics
             }
 
             return buffs[0].Blueprint.GetComponent<InsinuatorOutsiderAlignment>().alignment;
+        }
+
+        public AlignmentMaskType getSharedAlignment()
+        {
+            if (!active())
+            {
+                return AlignmentMaskType.None;
+            }
+
+            return buffs[0].Blueprint.GetComponent<InsinuatorOutsiderAlignment>().shared_alignment;
         }
 
         public AlignmentMaskType getOppositeAlignment()
@@ -68,7 +77,7 @@ namespace CallOfTheWild.InsinuatorMechanics
                 return false;
             }
 
-            return (unit.Descriptor.Alignment.Value.ToMask() & unit_part.getAlignment()) == 0U;
+            return (unit.Descriptor.Alignment.Value.ToMask() & unit_part.getSharedAlignment()) == 0U;
         }
     }
 
@@ -93,6 +102,7 @@ namespace CallOfTheWild.InsinuatorMechanics
     public class InsinuatorOutsiderAlignment : OwnedGameLogicComponent<UnitDescriptor>
     {
         public AlignmentMaskType alignment;
+        public AlignmentMaskType shared_alignment;
 
         public override void OnFactActivate()
         {
@@ -143,7 +153,7 @@ namespace CallOfTheWild.InsinuatorMechanics
             {
                 return false;
             }
-            return (unit_part.getAlignment() & (AlignmentMaskType.Good | AlignmentMaskType.Evil)) == 0;
+            return (unit_part.getSharedAlignment() & (AlignmentMaskType.LawfulNeutral | AlignmentMaskType.TrueNeutral | AlignmentMaskType.ChaoticNeutral)) > 0;
         }
 
         public string GetReason()
