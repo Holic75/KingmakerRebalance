@@ -1819,6 +1819,22 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintBuff createAuraEffectBuff(BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            var aura_feature_component = createAuraEffectFeatureComponentCustom(buff, radius, conditions);
+            var feature = Helpers.CreateBuff(buff.name + "Buff",
+                                                 "",
+                                                 "",
+                                                 "",
+                                                 null,
+                                                 null,
+                                                 aura_feature_component
+                                                 );
+            feature.SetBuffFlags(BuffFlags.HiddenInUi);
+            return feature;
+        }
+
+
         static public Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();

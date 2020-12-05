@@ -200,6 +200,7 @@ namespace CallOfTheWild.TeamworkMechanics
         public Feet Radius;
         public bool include_dead = false;
         public bool ignore_target;
+        public bool around_caster;
 
         public override string GetCaption()
         {
@@ -213,10 +214,11 @@ namespace CallOfTheWild.TeamworkMechanics
                 return;
             }
 
+            var target = around_caster ? this.Context.MaybeCaster : this.Target.Unit;
 
-            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(this.Target.Unit.Position, this.Target.Unit.Corpulence + this.Radius.Meters, true, include_dead))
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(target.Position, target.Corpulence + this.Radius.Meters, true, include_dead))
             {
-                if (unitEntityData == this.Target.Unit && ignore_target)
+                if (unitEntityData == target && ignore_target)
                 {
                     continue;
                 }
@@ -228,6 +230,9 @@ namespace CallOfTheWild.TeamworkMechanics
             }
         }
     }
+
+
+
 
 
     public class ContextConditionHasSoloTactics : ContextCondition

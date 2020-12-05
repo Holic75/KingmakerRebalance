@@ -76,6 +76,7 @@ namespace CallOfTheWild
 
         static public BlueprintFeature extra_touch_of_corruption;
         static public BlueprintFeature extra_channel;
+        static public BlueprintAbilityResource extra_channel_resource;
 
         static public BlueprintFeatureSelection cruelty;
 
@@ -88,6 +89,7 @@ namespace CallOfTheWild
         static public BlueprintFeature stubborn_health;
         static public BlueprintFeatureSelection greeds;
         static public BlueprintFeature insinuator_channel_energy;
+        static public BlueprintFeature channel_positive_energy;
         static public BlueprintFeature aura_of_ambition;
         static public BlueprintFeature aura_of_glory;
         static public BlueprintFeature aura_of_belief;
@@ -247,7 +249,7 @@ namespace CallOfTheWild
             antipaladin_class.Progression = antipaladin_progression;
 
             createInsinuator();
-            antipaladin_class.Archetypes = new BlueprintArchetype[] { }; //blighted myrmidon, insinuator, dread vanguard, knight of the sepulcher, iron tyrant
+            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator }; //blighted myrmidon, insinuator, dread vanguard, seal breaker, iron tyrant
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
@@ -263,14 +265,6 @@ namespace CallOfTheWild
 
         static void createInsinuator()
         {
-            createInvocation(); //also aura of belief, aura of indomitobility and personal champion (dr part)
-            //createSmiteImpudence(); //also personal champion smite part and aura of glory
-            //createAuras(); //aura of ego and aura of ambition
-            //createSelfishHealing(); //and greeds
-            //createInsinuatorChannelEnergy(); 
-            //createBonusFeats();
-            //ambitious bond(?)
-
             insinuator = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "InsinuatorArchetype";
@@ -278,11 +272,19 @@ namespace CallOfTheWild
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Between the selfless nobility of paladins and the chaotic menace of antipaladins, there exists a path of dedicated self-interest.\nShunning the ties that bind them to a single deity, insinuators embrace whatever forces help them achieve their own agenda and glory, borrowing power to emulate divine warriors.");
             });
             Helpers.SetField(insinuator, "m_ParentClass", antipaladin_class);
-            library.AddAsset(antipaladin_class, "");
-            insinuator.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+            library.AddAsset(insinuator, "");
+
+            createInvocation(); //also aura of belief, aura of indomitobility, aura of ego, aura of ambition and personal champion (dr part)
+            createSmiteImpudence(); //also personal champion smite part and aura of glory
+            createSelfishHealing(); //and greeds
+            createInsinuatorChannelEnergy(); 
+            createBonusFeats();
+            //ambitious bond(?)
+
+            insinuator.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good, antipaladin_deity),
                                                           Helpers.LevelEntry(2, touch_of_corruption),
-                                                          Helpers.LevelEntry(3, plague_bringer, cruelty, aura_of_cowardice),
-                                                          Helpers.LevelEntry(4, smite_good_extra_use),
+                                                          Helpers.LevelEntry(3, cruelty, aura_of_cowardice),
+                                                          Helpers.LevelEntry(4, smite_good_extra_use, channel_negative_energy),
                                                           Helpers.LevelEntry(6, cruelty),
                                                           Helpers.LevelEntry(7, smite_good_extra_use),
                                                           Helpers.LevelEntry(8, aura_of_despair),
@@ -302,7 +304,7 @@ namespace CallOfTheWild
 
             insinuator.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, invocation, smite_impudence),
                                                        Helpers.LevelEntry(2, selfish_healing),
-                                                       Helpers.LevelEntry(3, greeds, aura_of_ego, stubborn_health),
+                                                       Helpers.LevelEntry(3, greeds, aura_of_ego),
                                                        Helpers.LevelEntry(4, insinuator_channel_energy, insinuator_bonus_feat, smite_impudence_extra_use),
                                                        Helpers.LevelEntry(6, greeds),
                                                        Helpers.LevelEntry(7, insinuator_bonus_feat, smite_impudence_extra_use),
@@ -339,7 +341,232 @@ namespace CallOfTheWild
             insinuator.RemoveSpellbook = true;
         }
 
-        
+        static void createBonusFeats()
+        {
+            insinuator_bonus_feat = library.CopyAndAdd<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "InsinuatorBonusFeat", ""); //combat feat
+            insinuator_bonus_feat.AllFeatures = insinuator_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeatureSelection>("c9629ef9eebb88b479b2fbc5e836656a"));
+            insinuator_bonus_feat.SetNameDescription("Bonus Feat",
+                                                     "At 4th level, an insinuator gains one bonus feat, which must be selected from the list of combat feats or Skill Focus. At 7th level and every 3 antipaladin levels thereafter, the insinuator gains one additional combat or Skill Focus feat.");
+        }
+
+        static void createInsinuatorChannelEnergy()
+        {
+            var positive_energy_feature = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var context_rank_config = Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray(), progression: ContextRankProgression.StartPlusDivStep, stepLevel: 4, startLevel: 2);
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getAntipaladinArray(), StatType.Charisma);
+            channel_positive_energy = Helpers.CreateFeature("AntipaladinChannelPositiveEnergyFeature",
+                                                            "Channel Positive Energy",
+                                                            "When an insinuator reaches 4th level, he gains the supernatural ability to channel positive energy like a cleric if she invokes a neutral outsider. Using this ability consumes two uses of his touch of corruption ability. An Insinuator uses half his level as his effective cleric level when channeling positive energy. This is a Charisma-based ability.",
+                                                            "",
+                                                            positive_energy_feature.Icon,
+                                                            FeatureGroup.None);
+
+            var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                                      "AntipaladinChannelEnergyHealLiving",
+                                                                      "",
+                                                                      "Channeling positive energy causes a burst that heals all living creatures in a 30-foot radius centered on the insinuator. The amount of damage healed is equal to 1d6 points of damage plus 1d6 points of damage for every four insinuator levels beyond 2nd (2d6 at 6th, 3d6 at 10th, and so on).",
+                                                                      "",
+                                                                      context_rank_config,
+                                                                      dc_scaling,
+                                                                      Helpers.CreateResourceLogic(touch_of_corruption_resource, amount: 2));
+            var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                                                        "AntipaladinChannelEnergyHarmUndead",
+                                                                        "",
+                                                                        "Channeling positive energy causes a burst that damages all undead creatures in a 30-foot radius centered on the insinuator. The amount of damage inflicted is equal to 1d6 points of damage plus 1d6 points of damage for every four insinuator levels beyond 2nd (2d6 at 6th, 3d6 at 10th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the insinuator's level + the insinuator's Charisma modifier.",
+                                                                        "",
+                                                                        context_rank_config,
+                                                                        dc_scaling,
+                                                                        Helpers.CreateResourceLogic(touch_of_corruption_resource, amount: 2));
+
+            var heal_living_base = Common.createVariantWrapper("AntipaladinPositiveHealBase", "", heal_living);
+            var harm_undead_base = Common.createVariantWrapper("AntipaladinPositiveHarmBase", "", harm_undead);
+            heal_living.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_living.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInsinuatorAlignmentNeutral>());
+            harm_undead.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            harm_undead.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInsinuatorAlignmentNeutral>());
+
+            ChannelEnergyEngine.storeChannel(heal_living, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+            channel_negative_energy.AddComponent(Helpers.CreateAddFacts(heal_living_base, harm_undead_base));
+
+            var heal_living_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
+                                                          "AntipaladinChannelEnergyHealLivingExtra",
+                                                          heal_living.Name + " (Extra)",
+                                                          heal_living.Description,
+                                                          "",
+                                                          heal_living.GetComponent<ContextRankConfig>(),
+                                                          heal_living.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                                          Helpers.CreateResourceLogic(extra_channel_resource, true, 1));
+
+            var harm_undead_extra = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
+                                              "AntipaladinChannelEnergyHarmUndeadExtra",
+                                              harm_undead.Name + " (Extra)",
+                                              harm_undead.Description,
+                                              "",
+                                              harm_undead.GetComponent<ContextRankConfig>(),
+                                              harm_undead.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
+                                              Helpers.CreateResourceLogic(extra_channel_resource, true, 1));
+
+
+            heal_living_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_living_extra.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInsinuatorAlignmentNeutral>());
+            harm_undead_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            harm_undead_extra.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInsinuatorAlignmentNeutral>());
+
+            heal_living_base.addToAbilityVariants(heal_living_extra);
+            harm_undead_base.addToAbilityVariants(harm_undead_extra);
+            ChannelEnergyEngine.storeChannel(heal_living_extra, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(harm_undead_extra, channel_positive_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
+
+
+            insinuator_channel_energy = Helpers.CreateFeature("InsinuatorChannelEnergy",
+                                                              "Channel Energy",
+                                                              "At 4th level, an insinuator can channel negative energy, treating his antipaladin level as his effective cleric level. If he invokes a neutral outsider for the day, he may instead chose to channel positive energy, but treats his effective cleric level as half his antipaladin level. Using this ability consumes two uses of his selfish healing ability. This is a Charisma-based ability.",
+                                                              "",
+                                                              LoadIcons.Image2Sprite.Create(@"AbilityIcons/ChannelEnergy.png"),
+                                                              FeatureGroup.None,
+                                                              Helpers.CreateAddFacts(channel_negative_energy, channel_positive_energy)
+                                                              );
+        }
+
+
+        static void createSelfishHealing()
+        {
+            var ability = library.CopyAndAdd<BlueprintAbility>("8d6073201e5395d458b8251386d72df1", "SelfishHealingAbility", "");
+            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getAntipaladinArray()));
+            ability.SetNameDescription("Selfish Healing",
+                                       "Beginning at 2nd level, an insinuator can heal his wounds by touch. This is treated exactly like the paladin’s lay on hands class feature, except it can be used only to heal the insinuator and cannot be used on other creatures."
+                                       );
+
+            ability.ReplaceComponent<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil);
+            ability.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInvokedOutsider>());
+            selfish_healing = Common.AbilityToFeature(ability, false);
+            selfish_healing.AddComponent(touch_of_corruption_resource.CreateAddAbilityResource());
+
+            greeds = library.CopyAndAdd<BlueprintFeatureSelection>("02b187038a8dce545bb34bbfb346428d", "GreedsSelection", "");
+            greeds.SetNameDescription("Greeds",
+                                      "Beginning at 3rd level, an insinuator can heal himself of certain conditions. This functions as the mercy paladin class ability, but these mercies can only be applied to the insinuator himself."
+                                      );
+            foreach (var f in greeds.AllFeatures)
+            {
+                var prereq = f.GetComponent<PrerequisiteClassLevel>();
+                if (prereq == null)
+                {
+                    continue;
+                }
+                prereq.Group = Prerequisite.GroupType.Any;
+                f.AddComponent(Common.createPrerequisiteArchetypeLevel(insinuator, prereq.Level, any: true));
+            }
+        }
+
+
+
+        static void createSmiteImpudence()
+        {
+            var smite_target_buff = library.CopyAndAdd<BlueprintBuff>("b6570b8cbb32eaf4ca8255d0ec3310b0", "SmiteImpudenceBuff", "");
+            smite_target_buff.RemoveComponents<ACBonusAgainstTarget>();
+            var smite_target_buff2 = library.CopyAndAdd<BlueprintBuff>(smite_target_buff, "SmiteImpudence2Buff", "");
+            smite_target_buff2.SetNameDescriptionIcon(personal_champion);
+
+            var aura_of_glory_buff = library.CopyAndAdd<BlueprintBuff>("ac3c66782859eb84692a8782320ffd2c", "AuaOfGloryBuff", "");
+            aura_of_glory_buff.RemoveComponents<ACBonusAgainstTarget>();
+            var aura_of_glory_buff2 = library.CopyAndAdd<BlueprintBuff>(aura_of_glory_buff, "AuraOfGlory2Buff", "");
+            aura_of_glory_buff2.SetNameDescriptionIcon(personal_champion);
+
+            var hp_buff = Helpers.CreateBuff("SmiteImpudenceHpBuff",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                null,
+                                                Helpers.Create<TemporaryHitPointsFromAbilityValue>(t => 
+                                                { t.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                  t.RemoveWhenHitPointsEnd = true;
+                                                  t.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                }),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray())
+                                                );
+
+            hp_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var smite_impudence_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteImpudenceAbility", "");
+            smite_impudence_ability.ReplaceComponent<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil);
+            smite_impudence_ability.ReplaceComponent<AbilityEffectRunAction>(a =>
+            {
+                a.Actions = Helpers.CreateActionList(Helpers.CreateConditional(new Condition[] {Common.createContextConditionHasFact(smite_target_buff, false),
+                                                                                                Helpers.Create<InsinuatorMechanics.ContextConditionNonOutsiderAlignment>()
+                                                                                               },
+                                                                               new GameAction[] { Common.createContextActionApplyBuff(smite_target_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
+                                                                                                  Common.createContextActionApplyBuffToCaster(hp_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
+                                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(personal_champion),
+                                                                                                                            Common.createContextActionApplyBuff(smite_target_buff2, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true) )
+                                                                                                }
+                                                                               )
+                                                     );
+            }
+            );
+            smite_impudence_ability.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInvokedOutsider>());
+            smite_impudence_ability.SetNameDescriptionIcon("Smite Impudence",
+                                                   "Once per day, an insinuator can beseech the forces empowering him to punish their shared enemies. As a swift action, the insinuator chooses one target within sight to smite.\n"
+                                                   + "An insinuator cannot use smite against a target that shares an alignment with the outsider he has invoked for the day. The insinuator adds his Charisma bonus on his attack rolls and half his insinuator level on all damage rolls made against the target of his smite.\n"
+                                                   + "Regardless of the target, the smite attack automatically bypasses any damage reduction the creature might possess. In addition, each time the insinuator declares a smite, he gains a number of temporary hit points equal to his antipaladin level.\n"
+                                                   + "The smite effect remains until the target is defeated or the next time the insinuator rests and regains his uses of this ability.\n"
+                                                   + "At 4th level and at every 3 levels thereafter, the insinuator can use smite one additional time per day, to a maximum of seven times per day at 19th level.",
+                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteImpudence.png")
+                                                   );
+
+            var config_dmg = smite_impudence_ability.GetComponents<ContextRankConfig>().Where(c => c.IsBasedOnClassLevel).FirstOrDefault();
+            smite_impudence_ability.ReplaceComponent(config_dmg, config_dmg.CreateCopy(c => Helpers.SetField(c, "m_Progression", ContextRankProgression.Div2)));
+
+
+            smite_impudence = Common.AbilityToFeature(smite_impudence_ability, false);
+            smite_impudence.AddComponent(smite_resource.CreateAddAbilityResource());
+
+            smite_impudence_extra_use = library.CopyAndAdd<BlueprintFeature>("0f5c99ffb9c084545bbbe960b825d137", "SmiteImpudenceAdditionalUse", "");
+            smite_impudence_extra_use.SetNameDescriptionIcon("Smite Impudence — Additional Use", smite_impudence.Description, smite_impudence.Icon);
+
+
+
+
+            var aura_of_glory_ability = library.CopyAndAdd<BlueprintAbility>("7a4f0c48829952e47bb1fd1e4e9da83a", "AuraOfGloryAbility", "");
+            aura_of_glory_ability.ReplaceComponent<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil);
+            aura_of_glory_ability.ReplaceComponent<AbilityEffectRunAction>(a =>
+            {
+                a.Actions = Helpers.CreateActionList(Helpers.CreateConditional(new Condition[] {Common.createContextConditionHasFact(aura_of_glory_buff, false),
+                                                                                                Helpers.Create<InsinuatorMechanics.ContextConditionNonOutsiderAlignment>()
+                                                                                               },
+                                                                               new GameAction[] { Common.createContextActionApplyBuff(smite_target_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false),
+                                                                                                  Common.createContextActionApplyBuff(aura_of_glory_buff,Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false),
+                                                                                                  Helpers.Create<TeamworkMechanics.ContextActionOnUnitsWithinRadius>(c =>
+                                                                                                  {
+                                                                                                      c.around_caster = true;
+                                                                                                      c.ignore_target = false;
+                                                                                                      c.Radius = 13.Feet();
+                                                                                                      c.actions = Helpers.CreateActionList(Helpers.CreateConditional(Helpers.Create<ContextConditionIsAlly>(),
+                                                                                                                                                                     Common.createContextActionApplyBuff(hp_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)
+                                                                                                                                                                    )
+                                                                                                                                          );
+                                                                                                  }
+                                                                                                  ),                       
+                                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(personal_champion),
+                                                                                                                            Common.createContextActionApplyBuff(smite_target_buff2, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                                                                  Helpers.CreateConditional(Common.createContextConditionCasterHasFact(personal_champion),
+                                                                                                                            Common.createContextActionApplyBuff(aura_of_glory_buff2, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false) )
+                                                                                                }
+                                                                               )
+                                                     );
+            }
+            );
+            aura_of_glory_ability.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterInvokedOutsider>());
+            aura_of_glory_ability.SetNameDescriptionIcon("Aura of Glory",
+                                                   "At 11th level, an insinuator can expend two uses of his smite impudence ability to grant the ability to smite impudence to all allies within 10 feet, using his bonuses. Allies must use this smite impudence ability before the start of the insinuator’s next turn, and the bonuses last for 1 minute. Using this ability is a free action.",
+                                                   Helpers.GetIcon("7a4f0c48829952e47bb1fd1e4e9da83a")//aura of justice
+                                                   );
+            aura_of_glory = Common.AbilityToFeature(aura_of_glory_ability, false);           
+        }
+
+
         static void createInvocation()
         {
             invocation = Helpers.CreateFeature("InsinuatorInvocationFeature",
@@ -350,21 +577,82 @@ namespace CallOfTheWild
                                                FeatureGroup.None
                                                );
 
+            aura_of_ego = Helpers.CreateFeature("AuraOfEgoFeature",
+                                               "Aura of Ego",
+                                               "At 3rd level, an insinuator radiates an aura that bolsters allies and deters enemies. Each ally within 10 feet gains a +2 morale bonus on saving throws against fear effects. Enemies within 10 feet take a –2 penalty on saving throws against fear effects. This ability functions only while the insinuator is conscious, not if he is unconscious or dead.",
+                                               "",
+                                               Helpers.GetIcon("e45ab30f49215054e83b4ea12165409f"), //aura of courage
+                                               FeatureGroup.None
+                                               );
+
+            var aura_of_ego_enemy_buff = Helpers.CreateBuff("AuraOfEgoEnemyBuff",
+                                                            aura_of_ego.Name,
+                                                            aura_of_ego.Description,
+                                                            "",
+                                                            aura_of_cowardice.Icon,
+                                                            null,
+                                                            Common.createSavingThrowBonusAgainstDescriptor(-2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Fear | SpellDescriptor.Shaken)
+                                                            );
+
+            var aura_of_ego_ally_buff = Helpers.CreateBuff("AuraOfEgoAllyBuff",
+                                                            aura_of_ego.Name,
+                                                            aura_of_ego.Description,
+                                                            "",
+                                                            aura_of_ego.Icon,
+                                                            null,
+                                                            Common.createSavingThrowBonusAgainstDescriptor(2, ModifierDescriptor.Morale, SpellDescriptor.Fear | SpellDescriptor.Shaken)
+                                                            );
+            var aura_of_ego_enemy = Common.createAuraEffectBuff(aura_of_ego_enemy_buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()));
+            var aura_of_ego_ally = Common.createAuraEffectBuff(aura_of_ego_ally_buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()));
+
+            aura_of_ambition = Helpers.CreateFeature("AuraOfAmbitionFeature",
+                                                   "Aura of Ambition",
+                                                   "At 8th level, enemies within 10 feet of an insinuator take a –1 penalty on all saving throws. All allies within 10 feet gain a +1 bonus on all saving throws.\n"
+                                                   + "This penalty does not stack with the penalty from aura of ego. This ability functions only while the insinuator is conscious, not if he is unconscious or dead.",
+                                                   "",
+                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/AuraOfAmbition.png"),
+                                                   FeatureGroup.None
+                                                   );
+
+            var aura_of_ambition_enemy_buff = Helpers.CreateBuff("AuraOfAmbitionEnemyBuff",
+                                                aura_of_ambition.Name,
+                                                aura_of_ambition.Description,
+                                                "",
+                                                aura_of_despair.Icon,
+                                                null,
+                                                Common.createSavingThrowBonusAgainstDescriptor(1, ModifierDescriptor.UntypedStackable, SpellDescriptor.Fear | SpellDescriptor.Shaken),
+                                                Helpers.Create<BuffAllSavesBonus>(b => { b.Value = -1; b.Descriptor = ModifierDescriptor.UntypedStackable; })
+                                                );
+
+            var aura_of_ambition_ally_buff = Helpers.CreateBuff("AuraOfAmbitionAllyBuff",
+                                                            aura_of_ambition.Name,
+                                                            aura_of_ambition.Description,
+                                                            "",
+                                                            aura_of_ambition.Icon,
+                                                            null,
+                                                            Helpers.Create<BuffAllSavesBonus>(b => { b.Value = 1; b.Descriptor = ModifierDescriptor.UntypedStackable; })
+                                                            );
+            var aura_of_ambition_enemy = Common.createAuraEffectBuff(aura_of_ambition_enemy_buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()));
+            var aura_of_ambition_ally = Common.createAuraEffectBuff(aura_of_ambition_ally_buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()));
+
+
             aura_of_belief = Helpers.CreateFeature("AuraOfBeliefFeature",
                                                    "Aura of Belief",
                                                    "At 14th level, an insinuator’s weapons are treated as chaos-aligned while he invokes a chaotic outsider, law-aligned when he invokes a lawful outsider, or evil-aligned while he invokes an evil outsider.",
                                                    "",
-                                                   Helpers.GetIcon("1dca1068d168c204491ca084938a798d"), //bless
+                                                   Helpers.GetIcon("90e59f4a4ada87243b7b3535a06d0638"), //bless
                                                    FeatureGroup.None
                                                    );
 
-            aura_of_indomitability = Helpers.CreateFeature("AuraOfBeliefFeature",
+            aura_of_indomitability = Helpers.CreateFeature("AuraOfIndomitabilityFeature",
                                                            "Aura of Indomitability",
                                                            "At 17th level, an insinuator gains DR 10 that is bypassed by the alignment opposite of the outsider he has invoked for the day, or DR 5/— while invoking a neutral outsider.",
                                                            "",
                                                            Helpers.GetIcon("2a6a2f8e492ab174eb3f01acf5b7c90a"), //defensive stance
                                                            FeatureGroup.None
                                                            );
+
+
 
             personal_champion = Helpers.CreateFeature("PersonalChampionFeature",
                                                        "Personal Champion",
@@ -448,9 +736,14 @@ namespace CallOfTheWild
                 ability.setMiscAbilityParametersSelfOnly();
                 abilities.Add(ability);
 
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_ego_ally, aura_of_ego);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_ego_enemy, aura_of_ego);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_ambition_ally, aura_of_ambition);
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_ambition_enemy, aura_of_ambition);
+
                 if (kv.Key != AlignmentMaskType.TrueNeutral)
                 {
-                    var aura_of_belief_buff = Helpers.CreateBuff("AuraOfBeliefBuff",
+                    var aura_of_belief_buff = Helpers.CreateBuff(kv.Key.ToString() + "AuraOfBeliefBuff",
                                                      aura_of_belief.Name,
                                                      aura_of_belief.Description,
                                                      "",
@@ -460,7 +753,7 @@ namespace CallOfTheWild
                                                      );
                     Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, aura_of_belief_buff, aura_of_belief);
                 }
-                var aura_of_indomitability_buff = Helpers.CreateBuff("AuraOfIndomitabilityBuff",
+                var aura_of_indomitability_buff = Helpers.CreateBuff(kv.Key.ToString() + "AuraOfIndomitabilityBuff",
                                                                      aura_of_indomitability.Name,
                                                                      aura_of_indomitability.Description,
                                                                      "",
@@ -753,7 +1046,8 @@ namespace CallOfTheWild
                                                  "",
                                                  Helpers.CreateRunActions(Common.createContextActionApplyBuff(fiendish_boon_enhancement_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
                                                  Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
-                                                 fiendish_boon_resource.CreateResourceLogic()
+                                                 fiendish_boon_resource.CreateResourceLogic(),
+                                                 Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>()
                                                  );
             ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
             ability.NeedEquipWeapons = true;
@@ -989,7 +1283,7 @@ namespace CallOfTheWild
                                                                       dc_scaling,
                                                                       Helpers.CreateResourceLogic(touch_of_corruption_resource, amount: 2));
             var heal_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
-                                                                        "AntipaladinChannelEnergyHarmUndead",
+                                                                        "AntipaladinChannelEnergyHealUndead",
                                                                         "",
                                                                         "Channeling negative energy causes a burst that heals all undead creatures in a 30-foot radius centered on the antipaladin. The amount of damage healed is equal to 1d6 points of damage plus 1d6 points of damage for every two antipaladin levels beyond 1st (3d6 at 5th, and so on).",
                                                                         "",
@@ -1001,6 +1295,8 @@ namespace CallOfTheWild
             var heal_undead_base = Common.createVariantWrapper("AntipaladinNegativeHealBase", "", heal_undead);
             harm_living.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
             heal_undead.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_undead.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>());
+            harm_living.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>());
 
             ChannelEnergyEngine.storeChannel(harm_living, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHarm);
             ChannelEnergyEngine.storeChannel(heal_undead, channel_negative_energy, ChannelEnergyEngine.ChannelType.NegativeHeal);
@@ -1008,7 +1304,7 @@ namespace CallOfTheWild
             channel_negative_energy.AddComponent(Helpers.CreateAddFacts(harm_living_base, heal_undead_base));
 
             //add extra channel
-            var extra_channel_resource = Helpers.CreateAbilityResource("AntipaladinExtraChannelResource", "", "", "", null);
+            extra_channel_resource = Helpers.CreateAbilityResource("AntipaladinExtraChannelResource", "", "", "", null);
             extra_channel_resource.SetFixedResource(0);
 
 
@@ -1033,6 +1329,8 @@ namespace CallOfTheWild
 
             harm_living_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
             heal_undead_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            heal_undead_extra.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>());
+            harm_living_extra.AddComponent(Helpers.Create<InsinuatorMechanics.AbilityCasterMaybeInvokedOutsider>());
 
             harm_living_base.addToAbilityVariants(harm_living_extra);
             heal_undead_base.addToAbilityVariants(heal_undead_extra);
@@ -1041,8 +1339,6 @@ namespace CallOfTheWild
 
             channel_negative_energy.AddComponent(Helpers.CreateAddAbilityResource(extra_channel_resource));
             extra_channel = ChannelEnergyEngine.createExtraChannelFeat(harm_living_extra, channel_negative_energy, "ExtraChannelAntipaladin", "Extra Channel (Antipaladin)", "");
-
-
         }
 
         static void createSmiteGood()
@@ -1099,6 +1395,7 @@ namespace CallOfTheWild
         {
             antipaladin_deity = library.CopyAndAdd<BlueprintFeatureSelection>("a7c8b73528d34c2479b4bd638503da1d", "AntipaladinDeitySelection", "");
             antipaladin_deity.AllFeatures = new BlueprintFeature[0];
+            antipaladin_deity.Group = FeatureGroup.Deities;
 
             var deities = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4").AllFeatures;
 
