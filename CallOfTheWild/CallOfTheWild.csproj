@@ -197,7 +197,7 @@
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Psychic.cs" />
-    <Compile Include="Classes\ShamanSpirits\Antipaladin.cs" />
+    <Compile Include="Classes\Antipaladin.cs" />
     <Compile Include="Classes\Spiritualist.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="Archetypes\UndeadLord.cs" />

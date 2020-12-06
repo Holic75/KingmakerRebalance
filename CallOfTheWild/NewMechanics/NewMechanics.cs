@@ -151,6 +151,24 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponIsRanged : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster.Body.PrimaryHand.HasWeapon)
+                    return !caster.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return "Ranged weapon required";
+            }
+        }
+
+
         [ComponentName("Increase caster level by value and apply on caster debuff for duration equal to rate*spell_level if it fails saving throw against (dc_base + spell_level + caster_level_increase)")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class ConduitSurge : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>

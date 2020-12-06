@@ -975,6 +975,41 @@ namespace CallOfTheWild
         }
 
 
+        static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                      params BlueprintUnitFact[] facts)
+        {
+            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }*/
+            var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionCasterHasFact[facts.Length];
+            for (int i = 0; i < facts.Length; i++)
+            {
+                condition[i] = Common.createContextConditionCasterHasFact(facts[i]);
+            }
+            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(),
+                                                                                     dispellable: false, is_child: true, is_permanent: true)));
+            addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, action);
+        }
+
+
+        static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add,
+                                                              params BlueprintUnitFact[] facts)
+        {
+            addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(target_buff, buff_to_add, new GameAction[0], facts);
+        }
+
+
+        static public AutoMetamagic autoMetamagicOnAbilities(Metamagic metamagic, params BlueprintAbility[] abilities)
+        {
+            var auto_metmagic = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>().CreateCopy(); //from swift tactician
+            auto_metmagic.Abilities = abilities.ToList();
+            auto_metmagic.Metamagic = metamagic;
+            return auto_metmagic;
+        }
+
+
+
         static public void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, Conditional conditional_action)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)

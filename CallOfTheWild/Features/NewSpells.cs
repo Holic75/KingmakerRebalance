@@ -213,6 +213,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility consecrate;
         static public BlueprintAbility desecrate;
+        static public BlueprintAbilityAreaEffect desecrate_area;
         static public BlueprintAbility animate_dead_lesser;
         static public BlueprintUnit animate_dead_skeleton;
 
@@ -2780,7 +2781,7 @@ namespace CallOfTheWild
             desecrate_undead_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
 
-            var desecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "DesecrateArea", "");
+            desecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "DesecrateArea", "");
             desecrate_area.Size = 20.Feet();
             desecrate_area.Fx = Common.createPrefabLink("8a80d991f3d68e84293e098a6faa7620"); //unholy aoe
             desecrate_area.ComponentsArray = new BlueprintComponent[]
