@@ -1337,6 +1337,8 @@ namespace CallOfTheWild
         {
             var delay_poison_buff = library.Get<BlueprintBuff>("51ebd62ee464b1446bb01fa1e214942f");
             delay_poison_buff.RemoveComponents<BuffDescriptorImmunity>();
+            delay_poison_buff.RemoveComponents<SuppressBuffs>();
+            delay_poison_buff.AddComponent(Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Poison));
         }
 
 

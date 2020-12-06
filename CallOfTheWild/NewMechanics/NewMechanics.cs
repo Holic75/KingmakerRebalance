@@ -6655,7 +6655,6 @@ namespace CallOfTheWild
         }
 
 
-
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
         public class LearnSpellListToSpecifiedSpellbook : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler, IGlobalSubscriber

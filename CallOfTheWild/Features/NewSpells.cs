@@ -752,7 +752,7 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Helpers.Create<SuppressBuffs>(s => { s.Buffs = new BlueprintBuff[] { fatigued, exhaused }; })
+                                          Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => { s.Buffs = new BlueprintBuff[] { fatigued, exhaused }; })
                                           );
 
             invigorate = Helpers.CreateAbility("InvigorateAbility",
@@ -1471,8 +1471,8 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("c4e5e6e8407f1774b97af4957364852c"),
                                           Helpers.Create<SpellFailureMechanics.Silence>(),
                                           Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Sonic | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
-                                          Helpers.Create<SuppressBuffs>(s =>  {s.Descriptor = SpellDescriptor.Sonic; }),
-                                          Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
+                                          Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s =>  {s.Descriptor = SpellDescriptor.Sonic; }),
+                                          Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }) //echolocation
                                           );
             silence_buff.Stacking = StackingType.Stack;
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7f57a1fabe15a3e4f96d1e12f838a476", "SilenceAreaEffect", "");
@@ -1557,7 +1557,7 @@ namespace CallOfTheWild
         {
             var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
             var fascinated = library.Get<BlueprintBuff>("9c70d2ae017665b4b845e6c299cb7439");
-            silence_buff.AddComponent(Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { fascinated }));
+            silence_buff.AddComponent(Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Buffs = new BlueprintBuff[] { fascinated }));
             var immune_to_fascinate = library.Get<BlueprintBuff>("a50373fa77d30d34c8c6efb198b36921");
 
             var apply_fascinate_immune = Common.createContextActionApplyBuff(immune_to_fascinate, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false);
@@ -1590,7 +1590,7 @@ namespace CallOfTheWild
             buff.SetNameDescriptionIcon("", "", null);
             buff.SetBuffFlags(0);
             buff.IsClassFeature = false;
-            silence_buff.AddComponent(Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { buff }));
+            silence_buff.AddComponent(Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Buffs = new BlueprintBuff[] { buff }));
 
             babble = Helpers.CreateAbility("BabbleAbility",
                                            "Babble",
@@ -2989,7 +2989,7 @@ namespace CallOfTheWild
                                                  "",
                                                  icon,
                                                  Common.createPrefabLink("d541609d507424640a84153b89abf210"), //remove fear
-                                                 Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Fear | SpellDescriptor.Emotion | SpellDescriptor.NegativeEmotion)
+                                                 Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Fear | SpellDescriptor.Emotion | SpellDescriptor.NegativeEmotion)
                                                  );
 
 
