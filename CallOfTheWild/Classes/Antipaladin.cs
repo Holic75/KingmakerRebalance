@@ -117,6 +117,9 @@ namespace CallOfTheWild
         static public BlueprintFeature[] dark_emissary;
 
 
+        static public BlueprintFeature ability_focus_touch_of_corruption;
+
+
 
         internal class CrueltyEntry
         {
@@ -342,28 +345,28 @@ namespace CallOfTheWild
                                                    null,
                                                    null
                                                    );
+            immunity_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             dark_emissary = new BlueprintFeature[3];
             for (int i = 0; i < dark_emissary.Length; i++)
             {
                 dark_emissary[i] = Helpers.CreateFeature($"DarkEmissary{(i + 1)}Feature",
                                                           "Dark Emissary",
-                                                          "At 14th level, a dread vanguard becomes a true messenger of the forces of darkness he serves. Once per day, the dread vanguard can expend two uses of his touch of corruption ability to mark one location within 50 feet with the stain of evil. This location can be any point in space, but the ability works best if placed on an altar, shrine, or other site important to a community.\n"
-                                                          + "The location is affected as if by a desecrate spell. Creatures approaching within 30 feet of the site must succeed at a Will save or suffer the effects of crushing despair.\n"
+                                                          "At 14th level, a dread vanguard becomes a true messenger of the forces of darkness he serves. Once per day, the dread vanguard can expend two uses of his touch of corruption ability to mark one location within medium range with the stain of evil. This location can be any point in space, but the ability works best if placed on an altar, shrine, or other site important to a community.\n"
+                                                          + "The location is affected as if by a desecrate spell. Creatures approaching within 20 feet of the site must succeed at a Will save or suffer the effects of crushing despair.\n"
                                                           + "At 17th level, the dread vanguard can also mark the site with a symbol of pain, and at 20th level, he adds a symbol of weakness. If available, all three of these effects overlap.\n"
                                                           + "A location remains marked in this way for up to 1 minute per antipaladin level.\n"
                                                           + "Allies or evil creatures who serve the same power or organization as the dread vanguard are immune to the crushing despair and symbol effects, and automatically know that the location has been marked for their masters.\n"
                                                           + " At 17th and 20th levels, antipaladin can use this ability one additional time per day.",
                                                           "",
                                                           icon,
-                                                          FeatureGroup.None,
-                                                          Helpers.CreateIncreaseResourceAmount(touch_of_corruption_resource, 1)
+                                                          FeatureGroup.None
                                                           );
             }
 
 
             var area = library.CopyAndAdd(NewSpells.desecrate_area, "DarkEmissaryArea", "");
-            area.Size = 50.Feet();
-            area.Fx = Common.createPrefabLink("baa268c6db5723b4fa43c1b65f99bf0f"); //unholy aoe 30 feet
+            //area.Size = 20.Feet();
+            //area.Fx = Common.createPrefabLink("baa268c6db5723b4fa43c1b65f99bf0f"); //unholy aoe 30 feet
 
             var apply_despair = Common.createContextActionApplyBuff(crushing_despair_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
             var apply_pain = Common.createContextActionApplyBuff(pain_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
@@ -377,7 +380,8 @@ namespace CallOfTheWild
                                                        Helpers.CreateActionSavingThrow(SavingThrowType.Will, Helpers.CreateConditionalSaved(null, actions[i]))
                                                       );
             }
-            var effect = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsEnemy>() }, actions);
+            actions = actions.AddToArray(Common.createContextActionApplyBuff(immunity_buff, Helpers.CreateContextDuration(1, DurationRate.Days), dispellable: false));
+            var effect = Helpers.CreateConditional(new Condition[] { /*Helpers.Create<ContextConditionIsEnemy>(),*/ Common.createContextConditionHasFact(immunity_buff, false) }, actions);
 
 
             area.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: effect));
@@ -391,16 +395,17 @@ namespace CallOfTheWild
                                                 dark_emissary[0].Icon,
                                                 AbilityType.SpellLike,
                                                 CommandType.Standard,
-                                                AbilityRange.Personal,
+                                                AbilityRange.Medium,
                                                 Helpers.minutesPerLevelDuration,
                                                 Helpers.willNegates,
                                                 Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getAntipaladinArray()),
                                                 Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma),
                                                 resource.CreateResourceLogic(amount: 2),
-                                                Helpers.Create<NewMechanics.AbilityCasterHasResource>(ab => { ab.resource = touch_of_corruption_resource; ab.amount = 2; })
+                                                Helpers.Create<NewMechanics.AbilityCasterHasResource>(ab => { ab.resource = touch_of_corruption_resource; ab.amount = 2; }),
+                                                Common.createAbilityAoERadius(20.Feet(), TargetType.Enemy)
                                                 );
-            ability.setMiscAbilityParametersSelfOnly();
+            ability.setMiscAbilityParametersRangedDirectional();
 
             dark_emissary[0].AddComponents(Helpers.CreateAddFact(ability),
                                            resource.CreateAddAbilityResource(),
@@ -412,7 +417,7 @@ namespace CallOfTheWild
         static void createBeaconOfEvil()
         {
             var stats_buff = Helpers.CreateBuff("AuraOfBeaconStatsBuff",
-                                                "Aura of Beacon",
+                                                "Beacon of Evil",
                                                 "At 4th level and every 4 level thereafter, a dread vanguard gains one additional use of his touch of corruption ability per day. As a standard action, he can spend a use of his touch of corruption ability to manifest the darkness in his soul as an area of flickering shadows with a 30-foot radius centered on him. These shadows don’t affect visibility. The antipaladin and all allies in the area gain a +1 profane bonus to AC and on attack rolls, damage rolls, and saving throws against fear. This lasts for 1 minute, as long as the dread vanguard is conscious.\n"
                                                 + "At 8th level, the aura grants fast healing 3 to the dread vanguard as well as to his allies while they remain within it. Additionally, while this aura is active, the antipaladin can use his touch of corruption ability against any targets within its radius by making a ranged touch attack.\n"
                                                 + "At 12th level the profane bonus granted to AC and on attack rolls, damage rolls, and saving throws against fear increases to +2.\n"
@@ -479,11 +484,11 @@ namespace CallOfTheWild
 
             var reach_touch_of_corruption_buff = Helpers.CreateBuff("TouchOfCorruptionReachBuff",
                                                                     "Ranged Touch of Corruption",
-                                                                    "You can use Touch of Corruption as a ranged touch attack within the area of Beacon of Evil.",
+                                                                    "You can use touch of corruption as a ranged touch attack within the area of Beacon of Evil.",
                                                                     "",
                                                                     Helpers.GetIcon("450af0402422b0b4980d9c2175869612"), //ray of enfeeblement
                                                                     null,
-                                                                    Common.autoMetamagicOnAbilities(Metamagic.Reach, touch_of_corruption_base.Variants)
+                                                                    Common.autoMetamagicOnAbilities(Metamagic.Reach, touch_of_corruption_base.Variants.AddToArray(touch_of_corruption_base.Variants.Select(v => v.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility)))
                                                                     );
 
             var reach_touch_of_corruption_toggle = Common.buffToToggle(reach_touch_of_corruption_buff, CommandType.Free, true,
@@ -491,13 +496,15 @@ namespace CallOfTheWild
 
             foreach (var a in ranged_channel_wrapper.Variants)
             {
-                a.AddComponent(Common.createAbilityCasterHasFacts(reach_touch_of_corruption_buff));
+                a.AddComponent(Common.createAbilityCasterHasFacts(buff8));
             }
 
             beacon_of_evil[1].AddComponent(Helpers.CreateAddFacts(reach_touch_of_corruption_toggle, ranged_channel_wrapper));
 
             var aura_buff = Common.createAuraEffectBuff(stats_buff, 30.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()));
-            var area = aura_buff.GetComponent<AuraFeatureComponent>().Buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("79cd602c3311fda459f1e7c62d7ec9a1");//conjuration aoe
+            aura_buff.SetNameDescriptionIcon(stats_buff);
+            aura_buff.SetBuffFlags(0);
+            var area = aura_buff.GetComponent<AuraFeatureComponent>().Buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("dfadb7fa26de0384d9d9a6dabb0bea72"/*"79cd602c3311fda459f1e7c62d7ec9a1"*/);
             var ability = Helpers.CreateAbility("BeaconOfEvilAbility",
                                                 stats_buff.Name,
                                                 stats_buff.Description,
@@ -1846,7 +1853,7 @@ namespace CallOfTheWild
                     var touch_ability = a.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility;
                     var actions = new GameAction[] { Helpers.Create<ContextActionCastSpell>(c => c.Spell = touch_ability), Helpers.Create<ContextActionRemoveSelf>() };
                     var buff = Helpers.CreateBuff("Channel" + (i == 0 ? "" : "Ranged") + touch_ability.name + "Buff",
-                                                  (i == 0 ? "" : "Ranged ") + "Channel " + touch_ability.Name,
+                                                  "Channel " + touch_ability.Name + (i == 0 ? "" : " (Ranged)"),
                                                   touch_ability.Description,
                                                   "",
                                                   touch_ability.Icon,
@@ -1904,6 +1911,23 @@ namespace CallOfTheWild
 
             ranged_channel_wrapper = Common.createVariantWrapper("RangedChannelTouchOfCorruptionBase", "", ranged_channels.ToArray());
             ranged_channel_wrapper.SetIcon(LoadIcons.Image2Sprite.Create(@"AbilityIcons/TipOfTheSpear.png"));
+            touch_of_corruption.AddComponent(Helpers.CreateAddFact(channel_wrapper));
+
+
+            ability_focus_touch_of_corruption = Helpers.CreateFeature("TouchOfCorruptionFocusFeature",
+                                                                    "Ability Focus: Cruelty",
+                                                                    "The DC to resist effects of antipaladin cruelties is increased by 2.",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.Feat,
+                                                                    Helpers.PrerequisiteFeature(cruelty),
+                                                                    Helpers.Create<NewMechanics.IncreaseSpellDCForBlueprints>(i => 
+                                                                    {
+                                                                        i.value = 2;
+                                                                        i.blueprints = touch_of_corruption_base.Variants.Skip(1).Select(t => t.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility).ToArray();
+                                                                    })
+                                                                    );
+            library.AddFeats(ability_focus_touch_of_corruption);
         }
 
 
