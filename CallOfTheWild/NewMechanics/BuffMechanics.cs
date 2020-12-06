@@ -75,9 +75,9 @@ namespace CallOfTheWild.BuffMechanics
         public SpellSchool[] Schools;
         public SpellDescriptorWrapper Descriptor;
 
-        public override void OnTurnOn()
+        public override void OnFactActivate()
         {
-            var partBuffSuppress = this.Owner.Ensure<UnitPartBuffSuppress>();
+            var partBuffSuppress = this.Owner.Ensure<UnitPartBuffSuppressSaved>();
             if (this.Descriptor != SpellDescriptor.None)
                 partBuffSuppress.Suppress((SpellDescriptor)this.Descriptor);
             if (!((IList<SpellSchool>)this.Schools).Empty<SpellSchool>())
@@ -86,9 +86,9 @@ namespace CallOfTheWild.BuffMechanics
                 partBuffSuppress.Suppress(buff);
         }
 
-        public override void OnTurnOff()
+        public override void OnFactDeactivate()
         {
-            var partBuffSuppress = this.Owner.Get<UnitPartBuffSuppress>();
+            var partBuffSuppress = this.Owner.Get<UnitPartBuffSuppressSaved>();
             if (!(bool)((UnitPart)partBuffSuppress))
             {
                 UberDebug.LogError((object)"UnitPartSuppressBuff is missing", (object[])Array.Empty<object>());
@@ -227,7 +227,7 @@ namespace CallOfTheWild.BuffMechanics
     }
 
 
-    /*[Harmony12.HarmonyPatch(typeof(Buff))]
+    [Harmony12.HarmonyPatch(typeof(Buff))]
     [Harmony12.HarmonyPatch("Activate", Harmony12.MethodType.Normal)]
     class Buff_Activate_Patch
     {
@@ -240,5 +240,5 @@ namespace CallOfTheWild.BuffMechanics
 
             return true;
         }
-    }*/
+    }
 }
