@@ -144,7 +144,8 @@ New feats:
 - Eldritch Heritage, Improved Eldritch Heritage, Greater Eldritch Heritage,
 - Kinetic Invocation,
 - Emotional Conduit,
-- Theurgy.
+- Theurgy,
+- Ability Focus: Cruelty.
 
 New rage powers:
 - Terrifying Howl
@@ -524,7 +525,8 @@ Original game bug fixes:
 - Fixed issue where certain domains (mostly for druids) did not allow to use non-domain spells if they had lower level than that on domain list (respec is required),
 - Fixed missing druid scaling on 1st level Weather domain ability,
 - Monks no longer gain their AC bonus if using shield and fighting unarmored,
-- (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions.
+- (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions,
+- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer triggers on non weapon attacks.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
@@ -568,7 +570,8 @@ Notable differences from pnp:
 - Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
-- Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes.
+- Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
+- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones.
 
 
 
