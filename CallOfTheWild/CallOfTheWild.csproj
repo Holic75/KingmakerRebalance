@@ -197,6 +197,7 @@
     <Compile Include="Classes\PhrenicAmplifications.cs" />
     <Compile Include="Archetypes\Preservationist.cs" />
     <Compile Include="Classes\Psychic.cs" />
+    <Compile Include="Classes\Antipaladin.cs" />
     <Compile Include="Classes\Spiritualist.cs" />
     <Compile Include="Classes\Summoner.cs" />
     <Compile Include="Archetypes\UndeadLord.cs" />
@@ -207,6 +208,7 @@
     <Compile Include="Features\AlchemistDiscoveries.cs" />
     <Compile Include="Features\ArmorsFix.cs" />
     <Compile Include="Features\Deities.cs" />
+    <Compile Include="Features\MonkKiPowers.cs" />
     <Compile Include="Features\SkillUnlocks.cs" />
     <Compile Include="Features\WeaponsFix.cs" />
     <Compile Include="Features\Familiars.cs" />
@@ -264,6 +266,8 @@
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
     <Compile Include="NewMechanics\DemoralizeMechanics.cs" />
     <Compile Include="NewMechanics\FlatFootedMechanics.cs" />
+    <Compile Include="NewMechanics\IncorporealMechanics.cs" />
+    <Compile Include="NewMechanics\InsinuatorMechanics.cs" />
     <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />

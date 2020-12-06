@@ -2704,6 +2704,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.mental_barrier[4].AssetGuid, 6),
                 new Common.SpellId( NewSpells.mind_thrust[5].AssetGuid, 6),
                 new Common.SpellId( "9f5ada581af3db4419b54db77f44e430", 6), //owls wisdom mass    
+                new Common.SpellId( NewSpells.phantom_limbs.AssetGuid, 6),
                 new Common.SpellId( "07d577a74441a3a44890e3006efcf604", 6), //primal regression
                 new Common.SpellId( NewSpells.psychic_crush[1].AssetGuid, 6),
                 new Common.SpellId( NewSpells.psychic_surgery.AssetGuid, 6),

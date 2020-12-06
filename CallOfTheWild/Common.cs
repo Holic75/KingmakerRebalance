@@ -110,6 +110,7 @@ namespace CallOfTheWild
         public static BlueprintFeature giant_humanoid = library.Get<BlueprintFeature>("f9c388137f4faa74aac9065a68b56880");
         public static BlueprintFeature aberration = library.Get<BlueprintFeature>("3bec99efd9a363242a6c8d9957b75e91");
         public static BlueprintFeature vermin = library.Get<BlueprintFeature>("09478937695300944a179530664e42ec");
+        public static BlueprintFeature incorporeal = library.Get<BlueprintFeature>("c4a7f98d743bc784c9d4cf2105852c39");
         public static BlueprintFeature no_animate_feature;
         public static BlueprintFeature ignore_spell_combat_penalty;
         public static BlueprintSummonPool animate_dead_summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "AnimateDeadSummonPool", "7c60aa48110c4eadbea799516452e816");
@@ -615,7 +616,7 @@ namespace CallOfTheWild
         }
 
 
-            static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
+        static public BuffDescriptorImmunity createBuffDescriptorImmunity(SpellDescriptor descriptor)
         {
             var b = Helpers.Create<BuffDescriptorImmunity>();
             b.Descriptor = descriptor;
@@ -977,6 +978,41 @@ namespace CallOfTheWild
         }
 
 
+        static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
+                                                                      params BlueprintUnitFact[] facts)
+        {
+            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }*/
+            var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionCasterHasFact[facts.Length];
+            for (int i = 0; i < facts.Length; i++)
+            {
+                condition[i] = Common.createContextConditionCasterHasFact(facts[i]);
+            }
+            var action = Helpers.CreateConditional(condition, pre_actions.AddToArray(Common.createContextActionApplyBuff(buff_to_add, Helpers.CreateContextDuration(),
+                                                                                     dispellable: false, is_child: true, is_permanent: true)));
+            addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, action);
+        }
+
+
+        static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add,
+                                                              params BlueprintUnitFact[] facts)
+        {
+            addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(target_buff, buff_to_add, new GameAction[0], facts);
+        }
+
+
+        static public AutoMetamagic autoMetamagicOnAbilities(Metamagic metamagic, params BlueprintAbility[] abilities)
+        {
+            var auto_metmagic = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>().CreateCopy(); //from swift tactician
+            auto_metmagic.Abilities = abilities.ToList();
+            auto_metmagic.Metamagic = metamagic;
+            return auto_metmagic;
+        }
+
+
+
         static public void addContextActionApplyBuffOnConditionToActivatedAbilityBuff(BlueprintBuff target_buff, Conditional conditional_action)
         {
             if (target_buff.GetComponent<AddFactContextActions>() == null)
@@ -1040,9 +1076,10 @@ namespace CallOfTheWild
 
 
         static public NewMechanics.AddInitiatorAttackRollTrigger2 createAddInitiatorAttackRollTrigger2(Kingmaker.ElementsSystem.ActionList action, bool only_hit = true, bool critical_hit = false,
-                                                                                              bool sneak_attack = false, 
+                                                                                              bool sneak_attack = false,
                                                                                               bool check_weapon_range_type = false,
                                                                                               bool on_initiator = false,
+                                                                                              bool only_natural20 = false,
                                                                                               AttackTypeAttackBonus.WeaponRangeType range_type = AttackTypeAttackBonus.WeaponRangeType.Melee)
         {
             var t = Helpers.Create<NewMechanics.AddInitiatorAttackRollTrigger2>();
@@ -1053,6 +1090,7 @@ namespace CallOfTheWild
             t.CheckWeaponRangeType = check_weapon_range_type;
             t.RangeType = range_type;
             t.OnOwner = on_initiator;
+            t.only_natural20 = only_natural20;
             return t;
         }
 
@@ -1093,6 +1131,34 @@ namespace CallOfTheWild
             t.CheckWeaponCategory = true;
             t.Category = weapon_category;
             return t;
+        }
+
+
+        static public Kingmaker.UnitLogic.FactLogic.AddOutgoingPhysicalDamageProperty createAddOutgoingAlignmentFromAlignment(AlignmentMaskType alignment, bool check_range = false, bool is_ranged = false)
+        {
+            DamageAlignment damage_alignment = 0;
+
+            if ((alignment & AlignmentMaskType.Evil) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Evil;
+            }
+
+            if ((alignment & AlignmentMaskType.Good) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Good;
+            }
+
+            if ((alignment & AlignmentMaskType.Lawful) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Lawful;
+            }
+
+            if ((alignment & AlignmentMaskType.Chaotic) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Chaotic;
+            }
+
+            return createAddOutgoingAlignment(damage_alignment, check_range, is_ranged);
         }
 
 
@@ -1174,6 +1240,13 @@ namespace CallOfTheWild
 
 
 
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                             BlueprintCharacterClass[] classes, params Condition[] smite_conditions)
+        {
+            var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
+
+            return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_conditions);
+        }
 
 
         public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
@@ -1185,8 +1258,52 @@ namespace CallOfTheWild
         }
 
 
+        public static BlueprintFeature createSmiteForAllies(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                     BlueprintCharacterClass[] classes, params Condition[] smite_conditions)
+        {
+            var new_context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: classes);
+
+            return createSmiteForAllies(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, smite_conditions);
+        }
+
+        public static BlueprintFeature createSmiteForAllies(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                             ContextRankConfig new_context_rank_config, params Condition[] smite_conditions)
+        {
+            var smite_ability = library.CopyAndAdd<BlueprintAbility>("7a4f0c48829952e47bb1fd1e4e9da83a", name + "Ability", ability_guid);
+            var smite_feature = library.CopyAndAdd<BlueprintFeature>("9f13fdd044ccb8a439f27417481cb00e", name + "Feature", guid);
+
+
+            smite_feature.SetName(display_name);
+            smite_feature.SetDescription(description);
+            smite_feature.SetIcon(icon);
+
+            smite_feature.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.AddFacts>(Helpers.CreateAddFact(smite_ability));
+
+
+            smite_ability.SetName(smite_feature.Name);
+            smite_ability.SetDescription(smite_feature.Description);
+            smite_ability.SetIcon(icon);
+            smite_ability.RemoveComponent(smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.CasterCheckers.AbilityCasterAlignment>());
+            var old_context_rank_config = smite_ability.GetComponents<Kingmaker.UnitLogic.Mechanics.Components.ContextRankConfig>().Where(a => a.Type == AbilityRankType.DamageBonus).ElementAt(0);
+            Helpers.SetField(new_context_rank_config, "m_Type", AbilityRankType.DamageBonus);
+            smite_ability.ReplaceComponent(old_context_rank_config, new_context_rank_config);
+
+            var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
+            var conditions = smite_conditions.AddToArray(old_conditional.ConditionsChecker.Conditions[1]);
+
+            var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
+            //make buff take icon and name from parent ability
+            smite_buff.SetIcon(null);
+            smite_buff.SetName("");
+            var new_smite_action = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
+            smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
+            return smite_feature;
+        }
+
         public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
-                                             ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
+                                     ContextRankConfig new_context_rank_config, params Condition[] smite_conditions)
         {
             var smite_ability = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", name + "Ability", ability_guid);
             var smite_feature = library.CopyAndAdd<BlueprintFeature>("3a6db57fce75b0244a6a5819528ddf26", name + "Feature", guid);
@@ -1211,16 +1328,24 @@ namespace CallOfTheWild
             var smite_action = smite_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
 
             var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
-            var conditions = new Kingmaker.ElementsSystem.Condition[] { Helpers.CreateContextConditionAlignment(smite_alignment, false, false), old_conditional.ConditionsChecker.Conditions[1] };
+            var conditions = smite_conditions.AddToArray(old_conditional.ConditionsChecker.Conditions[1]);
 
             var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
             //make buff take icon and name from parent ability
             smite_buff.SetIcon(null);
             smite_buff.SetName("");
+            smite_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             var new_smite_action = Helpers.CreateConditional(conditions, old_conditional.IfTrue.Actions, old_conditional.IfFalse.Actions);
             smite_ability.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
             smite_feature.GetComponent<AddAbilityResources>().RestoreAmount = true;
             return smite_feature;
+        }
+
+
+        public static BlueprintFeature createSmite(string name, string display_name, string description, string guid, string ability_guid, UnityEngine.Sprite icon,
+                                             ContextRankConfig new_context_rank_config, AlignmentComponent smite_alignment)
+        {
+            return createSmite(name, display_name, description, guid, ability_guid, icon, new_context_rank_config, Helpers.CreateContextConditionAlignment(smite_alignment));
         }
 
 
@@ -1232,9 +1357,7 @@ namespace CallOfTheWild
             {
                 var cnd = (attack_trigger.Action.Actions[0] as Conditional);
                 cnd.ConditionsChecker.Conditions = cnd.ConditionsChecker.Conditions.AddToArray(new_condtion);
-
             }
-
         }
 
 
@@ -1248,7 +1371,7 @@ namespace CallOfTheWild
         }
 
 
-        public static PrerequisiteNoArchetype prerequisiteNoArchetype( BlueprintArchetype archetype, bool any = false)
+        public static PrerequisiteNoArchetype prerequisiteNoArchetype(BlueprintArchetype archetype, bool any = false)
         {
             var p = Helpers.Create<PrerequisiteNoArchetype>();
             p.Archetype = archetype;
@@ -1315,6 +1438,38 @@ namespace CallOfTheWild
             feat.Value.ValueType = ContextValueType.Simple;
             feat.Value.Value = dr_value;
             return feat;
+        }
+
+
+        public static Kingmaker.UnitLogic.FactLogic.AddDamageResistancePhysical createContextDRFromAlignment(ContextValue value, AlignmentMaskType alignment)
+        {
+            if (alignment == AlignmentMaskType.TrueNeutral)
+            {
+                return createContextPhysicalDR(value);
+            }
+            DamageAlignment damage_alignment = 0;
+
+            if ((alignment & AlignmentMaskType.Good) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Evil;
+            }
+
+            if ((alignment & AlignmentMaskType.Evil) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Good;
+            }
+
+            if ((alignment & AlignmentMaskType.Chaotic) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Lawful;
+            }
+
+            if ((alignment & AlignmentMaskType.Lawful) != 0)
+            {
+                damage_alignment = damage_alignment | DamageAlignment.Chaotic;
+            }
+
+            return createContextAlignmentDR(value, damage_alignment);
         }
 
 
@@ -1703,6 +1858,22 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintBuff createAuraEffectBuff(BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            var aura_feature_component = createAuraEffectFeatureComponentCustom(buff, radius, conditions);
+            var feature = Helpers.CreateBuff(buff.name + "Buff",
+                                                 "",
+                                                 "",
+                                                 "",
+                                                 null,
+                                                 null,
+                                                 aura_feature_component
+                                                 );
+            feature.SetBuffFlags(BuffFlags.HiddenInUi);
+            return feature;
+        }
+
+
         static public Kingmaker.UnitLogic.FactLogic.AddProficiencies createAddArmorProficiencies(params ArmorProficiencyGroup[] armor)
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
@@ -2037,6 +2208,33 @@ namespace CallOfTheWild
                                           off_hand ? Common.createBuffContextEnchantSecondaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, enchant) :
                                                 Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, enchant)
                                           );
+
+            return Common.createContextActionApplyBuff(buff, duration, is_from_spell, is_child, is_permanent, dispellable);
+        }
+
+        static public ContextActionApplyBuff createItemEnchantmentsAction(string buff_name,
+                                                                 ContextDurationValue duration, BlueprintWeaponEnchantment[] enchants,
+                                                                 bool is_from_spell,
+                                                                 bool off_hand,
+                                                                 bool is_child = false,
+                                                                 bool is_permanent = false,
+                                                                 bool lock_slot = true,
+                                                                 bool only_non_magical = false,
+                                                                 bool dispellable = true)
+        {
+            var buff = Helpers.CreateBuff(buff_name,
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null
+                                          );
+
+            foreach (var e in enchants)
+            {
+                buff.AddComponent(off_hand ? Common.createBuffContextEnchantSecondaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, e) :
+                                                Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), only_non_magical, lock_slot, e));
+            }
 
             return Common.createContextActionApplyBuff(buff, duration, is_from_spell, is_child, is_permanent, dispellable);
         }
@@ -4572,11 +4770,75 @@ namespace CallOfTheWild
             return ability;
         }
 
+        static public BlueprintAbility convertToSuperNaturalVariants(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
+                                                     bool no_resource = false, BlueprintArchetype[] archetypes = null, bool self_only = false, int cost = 1)
+        {
+            if (!spell.HasVariants)
+            {
+                var a = convertToSuperNatural(spell, prefix, classes, stat, resource, no_resource, archetypes);
+                if (self_only)
+                {
+                    a.Range = AbilityRange.Personal;
+                }
+                return a;
+            }
+
+            var abilities = new BlueprintAbility[spell.Variants.Length];
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                abilities[i] = convertToSuperNatural(spell.Variants[i], prefix, classes, stat, resource, no_resource, archetypes, cost);
+                if (self_only)
+                {
+                    abilities[i].Range = AbilityRange.Personal;
+                }
+            }
+
+            var wrapper = createVariantWrapper(prefix + spell.name, "", abilities);
+            wrapper.SetNameDescriptionIcon(spell);
+
+            return wrapper;
+        }
+
+        static public BlueprintAbility convertToSpellLikeVariants(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
+                                                  bool no_resource = false,
+                                                  bool no_scaling = false,
+                                                  BlueprintArchetype[] archetypes = null,
+                                                  bool self_only = false,
+                                                  int cost = 1)
+        {
+            if (!spell.HasVariants)
+            {
+                var a = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, no_scaling, "", archetypes, cost);
+                if (self_only)
+                {
+                    a.Range = AbilityRange.Personal;
+                }
+                return a;
+            }
+
+            var abilities = new BlueprintAbility[spell.Variants.Length];
+            for (int i = 0; i < abilities.Length; i++)
+            {
+                abilities[i] = convertToSpellLike(spell.Variants[i], prefix, classes, stat, resource, no_resource, no_scaling, "", archetypes, cost);
+                if (self_only)
+                {
+                    abilities[i].Range = AbilityRange.Personal;
+                }
+            }
+
+            var wrapper = createVariantWrapper(prefix + spell.name, "", abilities);
+            wrapper.SetNameDescriptionIcon(spell);
+            wrapper.AvailableMetamagic = spell.AvailableMetamagic;
+
+            return wrapper;
+        }
+
         static public BlueprintAbility convertToSpellLike(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null,
                                                           bool no_resource = false,
                                                           bool no_scaling = false,
                                                           string guid = "",
-                                                          BlueprintArchetype[] archetypes = null)
+                                                          BlueprintArchetype[] archetypes = null,
+                                                          int cost = 1)
         {
             var ability = library.CopyAndAdd<BlueprintAbility>(spell.AssetGuid, prefix + spell.name, guid);
             if (!no_scaling)
@@ -4596,9 +4858,9 @@ namespace CallOfTheWild
                 if (resource2 == null)
                 {
                     resource2 = Helpers.CreateAbilityResource(prefix + spell.name + "Resource", "", "", "", null);
-                    resource2.SetFixedResource(1);
+                    resource2.SetFixedResource(cost);
                 }
-                ability.AddComponent(Helpers.CreateResourceLogic(resource2));
+                ability.AddComponent(Helpers.CreateResourceLogic(resource2, amount: cost));
             }
 
 
@@ -4615,9 +4877,9 @@ namespace CallOfTheWild
 
 
         static public BlueprintAbility convertToSuperNatural(BlueprintAbility spell, string prefix, BlueprintCharacterClass[] classes, StatType stat, BlueprintAbilityResource resource = null, 
-                                                             bool no_resource = false, BlueprintArchetype[] archetypes = null)
+                                                             bool no_resource = false, BlueprintArchetype[] archetypes = null, int cost = 1)
         {
-            var ability = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, archetypes: archetypes);
+            var ability = convertToSpellLike(spell, prefix, classes, stat, resource, no_resource, archetypes: archetypes, cost: cost);
             ability.Type = AbilityType.Supernatural;
             ability.SpellResistance = false;
             ability.RemoveComponents<SpellComponent>();

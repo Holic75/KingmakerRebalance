@@ -397,7 +397,7 @@ namespace CallOfTheWild
             var hit_action = Helpers.CreateActionList(Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = imbue_arrow));
             var miss_action = Helpers.CreateActionList(Helpers.Create<SpellManipulationMechanics.ClearSpellStoredInSpecifiedBuff>(r => r.fact = imbue_arrow));
 
-            int max_variants = 6; //due to ui limitation
+            int max_variants = 10; //due to ui limitation
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return (spell.Blueprint.AoERadius.Meters > 0.01)

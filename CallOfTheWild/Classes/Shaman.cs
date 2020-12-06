@@ -309,7 +309,8 @@ namespace CallOfTheWild
                                                      Common.createPrerequisiteClassSpellLevel(shaman_class, 2), Common.prerequisiteNoArchetype(possesed_shaman));
 
             Common.addMTDivineSpellbookProgression(shaman_class, possesed_shaman.ReplaceSpellbook, "MysticTheurgePosessedShaman",
-                                         Common.createPrerequisiteArchetypeLevel(possesed_shaman, 2));
+                                         Common.createPrerequisiteArchetypeLevel(possesed_shaman, 1),
+                                         Common.createPrerequisiteClassSpellLevel(shaman_class, 2));
 
             createSenseSpiritMagic();
             createSpiritCall();
@@ -1140,6 +1141,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagle's splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.flame_blade.AssetGuid, 2),
+                new Common.SpellId( NewSpells.ghostbane_dirge.AssetGuid, 2),
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( "f0455c9295b53904f9e02fc571dd2ce1", 2), //owl's wisdom
@@ -1194,6 +1196,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
+                new Common.SpellId( NewSpells.spirit_bound_blade.AssetGuid, 4),
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
                 new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "c83db50513abdf74ca103651931fac4b", 4), //summon nature ally IV
@@ -1210,6 +1213,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.curse_major.AssetGuid, 5), 
                 new Common.SpellId( "d7cbd2004ce66a042aeab2e95a3c5c61", 5), //dominate person
                 new Common.SpellId( "f9910c76efc34af41b6e43d5d8752f0f", 5), //flamestrike
+                new Common.SpellId( NewSpells.ghostbane_dirge_mass.AssetGuid, 5),
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflict light wounds mass
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 5), //stoneskin

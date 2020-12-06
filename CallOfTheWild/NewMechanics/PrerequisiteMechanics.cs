@@ -82,6 +82,38 @@ namespace CallOfTheWild.PrerequisiteMechanics
         }
     }
 
+
+    [AllowMultipleComponents]
+    public class CompoundPrerequisites : Prerequisite
+    {
+        public Prerequisite[] prerequisites;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            foreach (var p in prerequisites)
+            {
+                if (!p.Check(selectionState, unit, state))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public override string GetUIText()
+        {
+            var text = prerequisites[0].GetUIText();
+            for (int i = 1; i < prerequisites.Length; i++)
+            {
+                text += " and " + prerequisites[i].GetUIText();
+            }
+            return text;
+        }
+    }
+
     public class PrerequisiteRace : Prerequisite
     {
         public BlueprintRace race;

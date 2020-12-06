@@ -1,7 +1,12 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.EntitySystem.Stats;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +25,13 @@ namespace CallOfTheWild
         static BlueprintFeature extra_spell_synthesis;
         static BlueprintFeature lesser_spell_synthesis;
         static BlueprintFeature extra_lesser_spell_synthesis;
+        static BlueprintFeature theurgy;
 
         public static void load()
         {
             createSpellSynthesis();
             createLesserSpellSynthesis();
+            createTheurgy();
         }
 
 
@@ -134,6 +141,147 @@ namespace CallOfTheWild
             extra_lesser_spell_synthesis.Ranks = 10;
 
             library.AddFeats(lesser_spell_synthesis, extra_lesser_spell_synthesis);
+        }
+
+
+        static void createTheurgy()
+        {
+            var feat_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/Theurgy.png");
+            var feat_name = "Theurgy";
+            var feat_description = " You can augment the power of your divine spells with arcane energy and augment your arcane spells with divine energy.\n"
+                                  + "You may sacrifice an arcane spell slot or arcane prepared spell as a swift action to increase caster level of next divine spell of the same level or lower you will cast in this round.\n"
+                                  + "You may sacrifice a divine spell slot or divine prepared spell as a swift action to increase caster level of next arcane spell of the same level or lower you will cast in this round.\n"
+                                  + "In addition this feat allows to reduce spell level requirement to 1st-level spells for one of the classes when qualifying for Mystic Theurge prestige class.";
+
+            var arcane_buffs_list = new List<BlueprintBuff>();
+            var divine_buffs_list = new List<BlueprintBuff>();
+
+            for (int l = 1; l < 10; l++)
+            {
+                var arcane_buff = Helpers.CreateBuff($"TheurgyArcane{l}Buff",
+                                                 feat_name + $": Arcane Spells Caster Level Bonus ({l})",
+                                                 feat_description,
+                                                 "",
+                                                 feat_icon,
+                                                 null,
+                                                 Helpers.Create<SpellManipulationMechanics.IncreaseSpellTypeCasterLevel>(i => { i.apply_to_arcane = true; i.bonus = 1; i.remove_after_use = true; i.max_lvl = l; })
+                                                 );
+                arcane_buff.Stacking = StackingType.Replace;
+                var divine_buff = Helpers.CreateBuff($"TheurgyDivine{l}Buff",
+                                                     feat_name + $": Divine Spells Caster Level Bonus ({l})",
+                                                     feat_description,
+                                                     "",
+                                                     feat_icon,
+                                                     null,
+                                                     Helpers.Create<SpellManipulationMechanics.IncreaseSpellTypeCasterLevel>(i => { i.apply_to_divine = true; i.bonus = 1; i.remove_after_use = true; i.max_lvl = l; })
+                                                     );
+                divine_buff.Stacking = StackingType.Replace;
+                arcane_buffs_list.Add(arcane_buff);
+                divine_buffs_list.Add(divine_buff);
+            }
+
+            var abilities = new List<BlueprintAbility>();
+            theurgy = Helpers.CreateFeature("TheurgyFeature",
+                                feat_name,
+                                feat_description,
+                                "",
+                                feat_icon,
+                                FeatureGroup.Feat,
+                                Helpers.PrerequisiteStatValue(StatType.Wisdom, 13),
+                                Helpers.PrerequisiteStatValue(StatType.Intelligence, 13, any: true),
+                                Helpers.PrerequisiteStatValue(StatType.Charisma, 13, any: true),
+                                Common.createPrerequisiteCasterTypeSpellLevel(true, 1),
+                                Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(p => { p.RequiredSpellLevel = 1; })
+                                );
+
+            for (int i = 1; i < 10; i++)
+            {
+                int x = i;
+                Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+                {
+                    if (spell.Spellbook == null)
+                    {
+                        return false;
+                    }
+                    if (spell.SpellLevel != x)
+                    {
+                        return false;
+                    }
+                    return spell.Spellbook.Blueprint.IsArcane ||
+                           !(spell.Spellbook.Blueprint.IsAlchemist || spell.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null);
+                };
+
+                var apply_divine = Common.createContextActionApplyBuff(divine_buffs_list[i-1], Helpers.CreateContextDuration(1), dispellable: false);
+                var apply_arcane = Common.createContextActionApplyBuff(arcane_buffs_list[i-1], Helpers.CreateContextDuration(1), dispellable: false);
+                var ability = Helpers.CreateAbility($"Theurgy{i}Ability",
+                                                    feat_name,
+                                                    feat_description,
+                                                    "",
+                                                    feat_icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Swift,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneRoundDuration,
+                                                    "",
+                                                    Helpers.Create<SpellManipulationMechanics.RunActionOnTargetBasedOnSpellType>(r =>
+                                                    {
+                                                        r.action_arcane = Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = divine_buffs_list.ToArray()),
+                                                                                                   apply_divine);
+                                                        r.action_divine = Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = arcane_buffs_list.ToArray()),
+                                                                                                   apply_arcane);
+                                                        r.check_slot_predicate = check_slot_predicate;
+                                                        r.context_fact = theurgy;
+                                                    })
+                                                    );
+                abilities.Add(ability);
+            }
+
+            theurgy.AddComponents(Helpers.CreateAddFacts(abilities.ToArray()));
+            library.AddFeats(theurgy);
+
+            mystic_theurge.RemoveComponents<PrerequisiteCasterTypeSpellLevel>();
+            mystic_theurge.AddComponents(Helpers.Create<PrerequisiteMechanics.CompoundPrerequisites>(p =>
+                                        {
+                                            p.prerequisites = new Prerequisite[]
+                                            {
+                                                Common.createPrerequisiteCasterTypeSpellLevel(true, 2),
+                                                Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(pp => { pp.RequiredSpellLevel = 2; })
+                                            };
+                                            p.Group = Prerequisite.GroupType.Any;
+                                        }),
+                                        Helpers.Create<PrerequisiteMechanics.CompoundPrerequisites>(p =>
+                                        {
+                                            p.prerequisites = new Prerequisite[]
+                                            {
+                                                Common.createPrerequisiteCasterTypeSpellLevel(true, 2),
+                                                Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(pp => { pp.RequiredSpellLevel = 1; }),
+                                                Helpers.PrerequisiteFeature(theurgy)
+                                            };
+                                            p.Group = Prerequisite.GroupType.Any;
+                                        }),
+                                        Helpers.Create<PrerequisiteMechanics.CompoundPrerequisites>(p =>
+                                        {
+                                            p.prerequisites = new Prerequisite[]
+                                            {
+                                                Common.createPrerequisiteCasterTypeSpellLevel(true, 1),
+                                                Helpers.Create<SpellbookMechanics.PrerequisiteDivineCasterTypeSpellLevel>(pp => { pp.RequiredSpellLevel = 2; }),
+                                                Helpers.PrerequisiteFeature(theurgy)
+                                            };
+                                            p.Group = Prerequisite.GroupType.Any;
+                                        })
+                                        );
+
+            var arcane_spellbook_selection = library.Get<BlueprintFeatureSelection>("97f510c6483523c49bc779e93e4c4568");
+            var divine_spellbook_selection = library.Get<BlueprintFeatureSelection>("7cd057944ce7896479717778330a4933");
+
+            foreach (var sb in arcane_spellbook_selection.AllFeatures)
+            {
+                sb.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.RequiredSpellLevel = 1);
+            }
+            foreach (var sb in divine_spellbook_selection.AllFeatures)
+            {
+                sb.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.RequiredSpellLevel = 1);
+            }
         }
 
 

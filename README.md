@@ -29,7 +29,8 @@ It introduces new classes:
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
-- Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter.
+- Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter,
+- Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -142,7 +143,8 @@ New feats:
 - Signature Skill (Heal, Intimidate, Mobility),
 - Eldritch Heritage, Improved Eldritch Heritage, Greater Eldritch Heritage,
 - Kinetic Invocation,
-- Emotional Conduit.
+- Emotional Conduit,
+- Theurgy.
 
 New rage powers:
 - Terrifying Howl
@@ -294,7 +296,7 @@ Bard Masterpieces:
 New spells:
 - Blade Lash,
 - Blade Tutor,
-- Burst of Adrealine,
+- Burst of Adrenaline,
 - Burst of Insight,
 - Command and Command, Greater,
 - Chill Touch,
@@ -332,6 +334,7 @@ New spells:
 - Flurry of Snowballs,
 - Force Sword,
 - Ghost Touch,
+- Ghostbane Dirge and Ghostbane Dirge, Mass,
 - Ice Slick,
 - Inflict Pain and Inflict Pain Mass,
 - Mental Barrier I, II, III, IV, V,
@@ -346,6 +349,7 @@ New spells:
 - Telekinetic Strikes,
 - Vine Strike,
 - Winter's Grasp,
+- Arcane Concordance,
 - Accursed Glare,
 - Babble,
 - Barrow Haze,
@@ -371,6 +375,7 @@ New spells:
 - Resinous Skin,
 - Sheet Lightning,
 - Sleet Storm,
+- Spirit-Bound Blade,
 - Stunning Barrier, Greater,
 - Synaptic Pulse and Synaptic Pulse, Greater,
 - Synesthesia and Synesthesia, Mass,
@@ -409,6 +414,7 @@ New spells:
 - Plant Shape I, II and III,
 - Control Construct,
 - Ice Body,
+- Phantom Limb,
 - Psychic Surgery,
 - Shadow Enchantment, Greater,
 - Song of Discord, Greater
@@ -434,6 +440,14 @@ New spells:
 - Time Stop,
 - Winds of Vengeance,
 - Shades.
+
+New Ki Powers:
+- Burst of Adrenaline,
+- Burst of Insight,
+- Cloak of Winds,
+- Deadly Juggernaut,
+- Akashic Form,
+- Frightful Aspect.
 
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
@@ -553,7 +567,8 @@ Notable differences from pnp:
 - Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis,
 - Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
-- Psychockineticist receives only -1 to wis skils and will savingthrows (optional).
+- Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
+- Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes.
 
 
 

@@ -627,7 +627,10 @@ namespace CallOfTheWild
             onmyoji.ChangeCasterType = true;
             onmyoji.IsDivineCaster = true;
             spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(onmyoji_spellcasting);
-            Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", Common.createPrerequisiteArchetypeLevel(onmyoji, 1));
+            Common.addMTDivineSpellbookProgression(spiritualist_class, onmyoji_spellbook, "MysticTheurgeOnmyojiProgression", 
+                                                   Common.createPrerequisiteArchetypeLevel(onmyoji, 1),
+                                                   Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2)
+                                                   );
         }
 
 
@@ -987,13 +990,17 @@ namespace CallOfTheWild
 
             //add to prestige classes
             Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, hag_haunted_spellbook, "EldritchKnightHagHaunted",
-                          Common.createPrerequisiteArchetypeLevel(hag_haunted, 3));
+                          Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                          Common.createPrerequisiteClassSpellLevel(spiritualist_class, 3));
             Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, hag_haunted_spellbook, "ArcaneTricksterHagHaunted",
-                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                        Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2));
             Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, hag_haunted_spellbook, "MysticTheurgeHagHaunted",
-                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 2));
+                                        Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                        Common.createPrerequisiteClassSpellLevel(spiritualist_class, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, hag_haunted_spellbook, "DragonDiscipleHagHaunted",
-                                       Common.createPrerequisiteArchetypeLevel(hag_haunted, 1));
+                                       Common.createPrerequisiteArchetypeLevel(hag_haunted, 1),
+                                       Common.createPrerequisiteClassSpellLevel(spiritualist_class, 1));
         }
 
 
@@ -1901,6 +1908,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.rigor_mortis.AssetGuid, 3),
                 new Common.SpellId( NewSpells.sands_of_time.AssetGuid, 3),
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
+                new Common.SpellId( NewSpells.spirit_bound_blade.AssetGuid, 3),
                 new Common.SpellId( Wildshape.undead_anatomyI.AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
@@ -1940,6 +1948,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( NewSpells.pain_strike_mass.AssetGuid, 5),
                 new Common.SpellId( "12fb4a4c22549c74d949e2916a2f0b6a", 5), //phantasmal web
+                new Common.SpellId( NewSpells.phantom_limbs.AssetGuid, 5),
                 new Common.SpellId( "a0fc99f0933d01643b2b8fe570caa4c5", 5), //raise dead
                 new Common.SpellId( "237427308e48c3341b3d532b9d3a001f", 5), //shadow evocation
                 new Common.SpellId( "4fbd47525382517419c66fb548fe9a67", 5), //slay living

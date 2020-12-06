@@ -1974,6 +1974,19 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixAuraOfJustice()
+        {
+            //to make paladin also receive benefits
+            var ability = library.Get<BlueprintAbility>("7a4f0c48829952e47bb1fd1e4e9da83a");
+            var smite_buff = library.Get<BlueprintBuff>("b6570b8cbb32eaf4ca8255d0ec3310b0");
+
+            var old_actions = ability.GetComponent<AbilityEffectRunAction>().Actions;
+            old_actions.Actions = Common.addMatchingAction<ContextActionApplyBuff>(old_actions.Actions,
+                                                                           Common.createContextActionApplyBuff(smite_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)
+                                                                           );
+        }
+
+
         static internal void fixDruidWoodlandStride()
         {
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
@@ -2220,6 +2233,17 @@ namespace CallOfTheWild
                     return;
                 }
             }
+        }
+    }
+
+
+    //fix holy/unholy/axiomatic and anarchic encahntments not to add damage on non-weapon attacks
+    [Harmony12.HarmonyPatch(typeof(WeaponDamageAgainstAlignment), "OnEventAboutToTrigger", typeof(RulePrepareDamage))]
+    class WeaponDamageAgainstAlignment_OnEventAboutToTrigger
+    {
+        static bool Prefix(WeaponDamageAgainstAlignment __instance, RulePrepareDamage evt)
+        {
+            return evt.DamageBundle?.WeaponDamage != null;
         }
     }
 

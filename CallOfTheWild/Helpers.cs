@@ -1335,6 +1335,7 @@ namespace CallOfTheWild
                 Warpriest.fighter_feat?.AssetGuid,
                 Oracle.fighter_feat?.AssetGuid,
                 "c5158a6622d0b694a99efb1d0025d2c1", //combat trick
+                Antipaladin.insinuator_bonus_feat?.AssetGuid
             };
 
             if (RogueTalents.feat != null)
@@ -2086,11 +2087,20 @@ namespace CallOfTheWild
             return c;
         }
 
-
         public static Conditional CreateConditional(Condition[] condition, GameAction ifTrue, GameAction ifFalse = null)
         {
             var c = Create<Conditional>();
             c.ConditionsChecker = CreateConditionsCheckerAnd(condition);
+            c.IfTrue = CreateActionList(ifTrue);
+            c.IfFalse = CreateActionList(ifFalse);
+            return c;
+        }
+
+
+        public static Conditional CreateConditionalOr(Condition[] condition, GameAction ifTrue, GameAction ifFalse = null)
+        {
+            var c = Create<Conditional>();
+            c.ConditionsChecker = CreateConditionsCheckerOr(condition);
             c.IfTrue = CreateActionList(ifTrue);
             c.IfFalse = CreateActionList(ifFalse);
             return c;

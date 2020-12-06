@@ -151,6 +151,24 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponIsRanged : BlueprintComponent, IAbilityCasterChecker
+        {
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster.Body.PrimaryHand.HasWeapon)
+                    return !caster.Body.PrimaryHand.Weapon.Blueprint.IsMelee;
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return "Ranged weapon required";
+            }
+        }
+
+
         [ComponentName("Increase caster level by value and apply on caster debuff for duration equal to rate*spell_level if it fails saving throw against (dc_base + spell_level + caster_level_increase)")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class ConduitSurge : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
@@ -578,6 +596,7 @@ namespace CallOfTheWild
         {
             public bool works_on_summoned = false;
             public bool off_hand = false;
+            public bool only_melee;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 UnitEntityData unit = target.Unit;
@@ -597,9 +616,14 @@ namespace CallOfTheWild
 
                 if (hand.HasWeapon)
                 {
+                    if (only_melee && !hand.Weapon.Blueprint.IsMelee)
+                    {
+                        return false;
+                    }
                     bool monk_strike = hand.Weapon.Blueprint.IsUnarmed && (bool)unit.Descriptor.State.Features.ImprovedUnarmedStrike && !off_hand;
                     return monk_strike || (!hand.Weapon.Blueprint.IsNatural && (!EnchantmentMechanics.Helpers.isSummoned(hand.Weapon) || works_on_summoned));
                 }
+
 
                 return false;
             }
@@ -5183,6 +5207,18 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfCasterHasAlignment : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public AlignmentMaskType alignment;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                return (uint)(ability.Caster.Alignment.Value.ToMask() & this.alignment) > 0U;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilityShowIfCasterKnowsSpell : BlueprintComponent, IAbilityVisibilityProvider
         {
@@ -8453,6 +8489,92 @@ namespace CallOfTheWild
             }
         }
 
+        public class ContextConditionAlignmentStrict : ContextCondition
+        {
+            public bool CheckCaster;
+            public AlignmentMaskType Alignment;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if {0} is {1}", this.CheckCaster ? (object)"caster" : (object)"target", (object)this.Alignment);
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unitEntityData = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unitEntityData != null)
+                    return (unitEntityData.Descriptor.Alignment.Value.ToMask() & this.Alignment) > 0U;
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
+        public class ContextConditionAlignmentUnlessCasterHasFact : ContextCondition
+        {
+            public bool CheckCaster;
+            public AlignmentComponent Alignment;
+            public BlueprintUnitFact fact;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if {0} is {1}", this.CheckCaster ? (object)"caster" : (object)"target", (object)this.Alignment);
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unitEntityData = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unitEntityData != null)
+                    return unitEntityData.Descriptor.Alignment.Value.HasComponent(this.Alignment) || this.Context.MaybeCaster.Descriptor.HasFact(fact);
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+                return false;
+            }
+        }
+
+
+        public class ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact : ContextCondition
+        {
+            public bool CheckCaster;
+            public BlueprintUnitFact[] facts = new BlueprintUnitFact[0];
+            public BlueprintCharacterClass[] classes = new BlueprintCharacterClass[0];
+            public BlueprintUnitFact caster_fact;
+
+            protected override string GetConditionCaption()
+            {
+                return string.Format("Check if target has facts or class levels");
+            }
+
+            protected override bool CheckCondition()
+            {
+                UnitEntityData unit = this.CheckCaster ? this.Context.MaybeCaster : this.Target.Unit;
+                if (unit == null)
+                {
+                    return false;
+                }
+
+                if (caster_fact != null && this.Context.MaybeCaster.Descriptor.HasFact(caster_fact))
+                {
+                    return true;
+                }
+
+                foreach (var f in facts)
+                {
+                    if (unit.Descriptor.HasFact(f))
+                    {
+                        return true;
+                    }
+                }
+
+                foreach (var c in classes)
+                {
+                    if (unit.Descriptor.Progression.Classes.Any(cd => cd.CharacterClass == c && cd.Level > 0))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
 
         [AllowedOn(typeof(BlueprintParametrizedFeature))]
@@ -8970,6 +9092,7 @@ namespace CallOfTheWild
             [HideIf("CriticalHit")]
             public bool OnlyHit = true;
             public bool CriticalHit;
+            public bool only_natural20;
             public bool SneakAttack;
             public bool OnOwner;
             public bool CheckWeapon;
@@ -9019,6 +9142,11 @@ namespace CallOfTheWild
                 }
 
                 if (this.CheckWeaponRangeType && !AttackTypeAttackBonus.CheckRangeType(evt.Weapon.Blueprint, this.RangeType))
+                {
+                    return false;
+                }
+
+                if (only_natural20 && evt.Roll != 20)
                 {
                     return false;
                 }

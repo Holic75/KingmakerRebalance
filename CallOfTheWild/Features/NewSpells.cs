@@ -213,6 +213,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility consecrate;
         static public BlueprintAbility desecrate;
+        static public BlueprintAbilityAreaEffect desecrate_area;
         static public BlueprintAbility animate_dead_lesser;
         static public BlueprintUnit animate_dead_skeleton;
 
@@ -267,17 +268,20 @@ namespace CallOfTheWild
         static public BlueprintAbility invigorate;
         static public BlueprintAbility invigorate_mass;
         static public BlueprintAbility cloak_of_winds;
+        static public BlueprintAbility spirit_bound_blade;
+        static public BlueprintAbility phantom_limbs;
+        static public BlueprintAbility ghostbane_dirge;
+        static public BlueprintAbility ghostbane_dirge_mass;
 
-        //binding_earth;
-        //binding_earth_mass;
+        static public BlueprintAbility arcane_concordance;
+
+        //binding_earth; ?
+        //binding_earth_mass; ?
         //corrosive consumption
         //implosion
         //condensed ether
         //battle mind link ?
-        //arcane concordance
-        //oneric horror
-        //phantom limbs
-        //spirit bound blade
+        //oneric horror ?
         //blood rage
         //smite abomination
         //
@@ -454,6 +458,243 @@ namespace CallOfTheWild
             createDazeMass();
             createInvigorateAndInvigorateMass();
             createCloakOfWinds();
+
+            createSpiritBoundBlade();
+            createPhantomLimbs();
+            createGhostbaneDirge();
+            createArcaneConcordance();
+        }
+
+
+        static void createArcaneConcordance()
+        {
+            var buff = Helpers.CreateBuff("ArcaneConcordanceBuff",
+                                          "Arcane Concordance",
+                                          "A shimmering, blue and gold radiance surrounds you, enhancing arcane spells cast by your allies within its area. Any arcane spell cast by a creature within the area gains a +1 enhancement bonus to the DC of any saving throws against the spell, and can be cast as if extend spell metamagic feat was applied to it (without increasing the spell level or casting time).",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/ArcaneConcordance.png"),
+                                          null,
+                                          Helpers.Create<SpellManipulationMechanics.IncreaseSpellTypeDC>(i => { i.apply_to_arcane = true; i.bonus = 1; }),
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellType>(m => { m.Metamagic = Metamagic.Extend; m.apply_to_arcane = true; m.amount = 0; })
+                                          );
+
+            var aura_buff = Common.createBuffAreaEffect(buff, 13.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()));
+
+            aura_buff.SetBuffFlags(0);
+            aura_buff.SetNameDescriptionIcon(buff);
+            aura_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("cda35ba5c34a61b499f5858eabcedec7"); //abjuration aoe
+
+            arcane_concordance = Helpers.CreateAbility("ArcaneConcordanceAbility",
+                                                       buff.Name,
+                                                       buff.Description,
+                                                       "",
+                                                       buff.Icon,
+                                                       AbilityType.Spell,
+                                                       UnitCommand.CommandType.Standard,
+                                                       AbilityRange.Personal,
+                                                       Helpers.roundsPerLevelDuration,
+                                                       "",
+                                                       Helpers.CreateRunActions(Common.createContextActionApplyBuff(aura_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)),
+                                                       Helpers.CreateSpellComponent(SpellSchool.Evocation)
+                                                       );
+            arcane_concordance.setMiscAbilityParametersSelfOnly();
+            arcane_concordance.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten;
+            arcane_concordance.AddToSpellList(Helpers.bardSpellList, 3);
+            arcane_concordance.AddSpellAndScroll("08cf11d25aaab074388207b66f64a162");
+        }
+
+
+
+        static void createGhostbaneDirge()
+        {
+            var buff = Helpers.CreateBuff("GhostbaneDirgeBuff",
+                                          "Ghostbane Dirge",
+                                          "The target coalesces into a semi-physical form for a short period of time. While subject to the spell, the incorporeal creature takes half damage (50%) from nonmagical attack forms, and full damage from magic weapons, spells, spell-like effects, and supernatural effects.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/GhostbaneDirge.png"),
+                                          Common.createPrefabLink("3cf209e5299921349a1c159f35cfa369"), //faerie fire
+                                          Helpers.Create<IncorporealMechanics.GhostbaneDirge>()
+                                          );
+
+            var apply_buff = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                             Helpers.CreateConditionalSaved(null,
+                                                                                           Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true)
+                                                                                           )
+                                                            );
+
+            ghostbane_dirge = Helpers.CreateAbility("GhostbaneDirgeAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    Helpers.willNegates,
+                                                    Helpers.CreateRunActions(apply_buff),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                    Common.createAbilityTargetHasFact(Common.incorporeal),
+                                                    Helpers.CreateContextRankConfig()
+                                                    );
+            ghostbane_dirge.SpellResistance = true;
+            ghostbane_dirge.setMiscAbilityParametersSingleTargetRangedHarmful();
+            ghostbane_dirge.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ghostbane_dirge.AddToSpellList(Helpers.bardSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.clericSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            ghostbane_dirge.AddToSpellList(Helpers.paladinSpellList, 1);
+
+            ghostbane_dirge.AddSpellAndScroll("fa34c6a083cb8f345be3bc4911b733ff");
+            ghostbane_dirge_mass = Helpers.CreateAbility("GhostbaneDirgeMassAbility",
+                                        buff.Name,
+                                        buff.Description,
+                                        "",
+                                        buff.Icon,
+                                        AbilityType.Spell,
+                                        UnitCommand.CommandType.Standard,
+                                        AbilityRange.Close,
+                                        Helpers.roundsPerLevelDuration,
+                                        Helpers.willNegates,
+                                        Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasFact(Common.incorporeal),
+                                                                                           apply_buff)
+                                                                ),
+                                        Helpers.CreateContextRankConfig(),
+                                        Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
+                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation)
+                                        );
+
+            ghostbane_dirge_mass.SpellResistance = true;
+            ghostbane_dirge_mass.setMiscAbilityParametersRangedDirectional();
+            ghostbane_dirge_mass.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            ghostbane_dirge_mass.AddToSpellList(Helpers.bardSpellList, 4);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.clericSpellList, 5);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.inquisitorSpellList, 5);
+            ghostbane_dirge_mass.AddToSpellList(Helpers.paladinSpellList, 3);
+            ghostbane_dirge_mass.AddSpellAndScroll("fa34c6a083cb8f345be3bc4911b733ff");
+        }
+
+
+        static void createPhantomLimbs()
+        {
+            var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
+            var buff = Helpers.CreateBuff("PhantomLimbsBuff",
+                                          "Phantom Limb",
+                                          "The target grows two phantom arms, granting it two extra natural claw attacks; the target cannot use the phantom arms for any other purpose.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
+                                          null,
+                                          Common.createAddAdditionalLimb(claw1d4),
+                                          Common.createAddAdditionalLimb(claw1d4)
+                                          );
+
+
+            phantom_limbs = Helpers.CreateAbility("PhantomLimbsAbility",
+                                                  buff.Name,
+                                                  buff.Description,
+                                                  "",
+                                                  buff.Icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Touch,
+                                                  Helpers.tenMinPerLevelDuration,
+                                                  "",
+                                                  Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes), is_from_spell: true)),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                  Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                  Helpers.CreateContextRankConfig()
+                                                  );
+            phantom_limbs.setMiscAbilityParametersTouchFriendly();
+            phantom_limbs.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+            Helpers.AddSpell(phantom_limbs);
+        }
+
+
+        static void createSpiritBoundBlade()
+        {
+            BlueprintWeaponEnchantment[] enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56"), //vicious
+                library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"), //keen
+                WeaponEnchantments.cruel,
+                WeaponEnchantments.menacing,
+                WeaponEnchantments.heartseeker
+            };
+
+            UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
+            {
+                library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon,//disruption
+                library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon, //keen
+                Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), //sickened
+                Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87"), //sneak attack
+                Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+            };
+
+            var ghost_touch = library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
+
+            var abilities = new List<BlueprintAbility>();
+            var abilities_off_hand = new List<BlueprintAbility>();
+            var abilities_primary_hand = new List<BlueprintAbility>();
+            var buffs_off_hand = new List<BlueprintBuff>();
+            var buffs_primary_hand = new List<BlueprintBuff>();
+            var spell_name = "Spirit Bound Blade";
+            var spell_description = "You focus emotional energy and weave it into a shroud of hardened ectoplasm around the weapon you touch, infusing it with a ghostly glow and great power. The weapon becomes a ghost touch weapon, and gains one of the following additional enchantments: vicious, keen, cruel, menacing or heartseeker.";
+
+            for (int i = 0; i < enchants.Length; i++)
+            {
+                var ability1 = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", enchants[i].name + "SpiritBoundBladeAbility", "");
+
+                ability1.SetIcon(enchant_icons[i]);
+                ability1.SetDescription(spell_description + "\n" + enchants[i].Description);
+                ability1.SetName(spell_name + ": " + enchants[i].Name);
+                ability1.setMiscAbilityParametersTouchFriendly();
+                ability1.RemoveComponents<AbilityDeliverTouch>();
+                var action_old = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
+                var action = Common.createItemEnchantmentsAction(enchants[i].name + "PrimaryHandSpiritBoundBladeBuff",
+                                                                action_old.DurationValue,
+                                                                new BlueprintWeaponEnchantment[] { enchants[i], ghost_touch },
+                                                                true,
+                                                                off_hand: false
+                                                                );
+                buffs_primary_hand.Add(action.Buff);
+
+                ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+                ability1.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Evocation);
+
+                var ability2 = library.CopyAndAdd(ability1, enchants[i].name + "SpiritBoundBladeSecondaryHandAbility", "");
+                ability2.SetName(spell_name + ": " + enchants[i].Name + " (Off-Hand)");
+                var action2 = Common.createItemEnchantmentsAction(enchants[i].name + "SecondaryHandSpiritBoundBladeBuff",
+                                                                action_old.DurationValue,
+                                                                new BlueprintWeaponEnchantment[] { enchants[i], ghost_touch },
+                                                                true,
+                                                                off_hand: true
+                                                                );
+                buffs_off_hand.Add(action2.Buff);
+                ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
+                ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; a.only_melee = true; }));
+                ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.works_on_summoned = true; a.only_melee = true; }));
+                abilities.Add(ability1);
+                abilities.Add(ability2);
+                abilities_primary_hand.Add(ability1);
+                abilities_off_hand.Add(ability2);
+
+            }
+
+            foreach (var a in abilities_off_hand)
+            {
+                a.ReplaceComponent<AbilityEffectRunAction>(ab => ab.Actions.Actions = new GameAction[] { Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs_off_hand.ToArray()) }.AddToArray(ab.Actions.Actions));
+            }
+            foreach (var a in abilities_primary_hand)
+            {
+                a.ReplaceComponent<AbilityEffectRunAction>(ab => ab.Actions.Actions = new GameAction[] { Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = buffs_primary_hand.ToArray()) }.AddToArray(ab.Actions.Actions));
+            }
+
+
+            spirit_bound_blade = Common.createVariantWrapper("SpiritBoundBladeAbility", "", abilities.ToArray());
+            spirit_bound_blade.SetNameDescriptionIcon(spell_name, spell_description, enchant_icons[0]);
+            spirit_bound_blade.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
+
+            Helpers.AddSpell(spirit_bound_blade);
         }
 
 
@@ -2540,7 +2781,7 @@ namespace CallOfTheWild
             desecrate_undead_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
 
-            var desecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "DesecrateArea", "");
+            desecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "DesecrateArea", "");
             desecrate_area.Size = 20.Feet();
             desecrate_area.Fx = Common.createPrefabLink("8a80d991f3d68e84293e098a6faa7620"); //unholy aoe
             desecrate_area.ComponentsArray = new BlueprintComponent[]
@@ -5664,7 +5905,7 @@ namespace CallOfTheWild
             spite_store_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuff(release_buff)));
 
             var apply_release_buff = Common.createContextActionApplyBuff(release_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
@@ -8346,7 +8587,7 @@ namespace CallOfTheWild
             contingency_release.setMiscAbilityParametersSelfOnly();
             contingency_store_buff.AddComponent(Helpers.CreateAddFact(contingency_release));
 
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null
@@ -8459,7 +8700,7 @@ namespace CallOfTheWild
             delay_consumption_release.setMiscAbilityParametersSelfOnly();
             delayed_consumption_store_buff.AddComponent(Helpers.CreateAddFact(delay_consumption_release));
 
-            int max_variants = 6;
+            int max_variants = 10;
             Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
             {
                 return spell.Spellbook != null

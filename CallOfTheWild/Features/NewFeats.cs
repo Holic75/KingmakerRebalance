@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
@@ -601,6 +602,7 @@ namespace CallOfTheWild
 
             prodigious_two_weapon_fighting.Groups = prodigious_two_weapon_fighting.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(prodigious_two_weapon_fighting);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(prodigious_two_weapon_fighting);
         }
 
 
@@ -702,6 +704,7 @@ namespace CallOfTheWild
             tower_shield_specialsit.ReapplyOnLevelUp = true;
             tower_shield_specialsit.Groups = tower_shield_specialsit.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(tower_shield_specialsit);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(tower_shield_specialsit);
         }
 
 
@@ -746,6 +749,7 @@ namespace CallOfTheWild
                                                  );
             shield_brace.Groups = shield_brace.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(shield_brace);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(shield_brace);
         }
 
 
@@ -808,6 +812,8 @@ namespace CallOfTheWild
 
             stumbling_bash.Groups = stumbling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(stumbling_bash);
+
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(stumbling_bash);
         }
 
 
@@ -863,6 +869,7 @@ namespace CallOfTheWild
             
             toppling_bash.Groups = toppling_bash.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(toppling_bash);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(toppling_bash);
         }
 
 
@@ -1414,6 +1421,10 @@ namespace CallOfTheWild
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
             Common.excludeSpellsFromList(combined_spell_list, paladin.Spellbook.SpellList);
 
+            var combined_spell_list_antipaldin = Common.combineSpellLists("UnsanctionedKnowledgeAntipaladinSpellList", cleric_spell_list, inquisitor_spell_list, bard_spell_list);
+
+            Common.excludeSpellsFromList(combined_spell_list_antipaldin, Antipaladin.antipaladin_class.Spellbook.SpellList);
+
             unsanctioned_knowledge = Helpers.CreateFeature("UnsanctionedKnowledgeFeature",
                                                             "Unsanctioned Knowledge (Paladin)",
                                                             "Pick one 1st-level spell, one 2nd-level spell, one 3rd-level spell, and one 4th-level spell from the bard, cleric, inquisitor, or oracle spell lists. Add these spells to your paladin spell list as paladin spells of the appropriate level. Once chosen, these spells cannot be changed.",
@@ -1441,8 +1452,17 @@ namespace CallOfTheWild
                 bastard_unsanctioned_knowledge.ReplaceComponent(c, new_c);
             }
 
-            library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge);
 
+            var antipaladin_unsanctioned_knowledge = library.CopyAndAdd<BlueprintFeature>(NewFeats.unsanctioned_knowledge.AssetGuid, "AntipaladinUnsanctionedKnowledgeFeature", "");
+            antipaladin_unsanctioned_knowledge.ReplaceComponent<PrerequisiteClassSpellLevel>(p => p.CharacterClass = Antipaladin.antipaladin_class);
+            antipaladin_unsanctioned_knowledge.SetName("Unsanctioned Knowledge (Antipaladin)");
+            foreach (var c in antipaladin_unsanctioned_knowledge.GetComponents<NewMechanics.addSpellChoice>())
+            {
+                var new_c = c.CreateCopy(asc => { asc.spell_book = Antipaladin.antipaladin_class.Spellbook; asc.spell_list = combined_spell_list_antipaldin; });
+                antipaladin_unsanctioned_knowledge.ReplaceComponent(c, new_c);
+            }
+
+            library.AddFeats(unsanctioned_knowledge, bastard_unsanctioned_knowledge, antipaladin_unsanctioned_knowledge);
         }
 
 
@@ -2377,13 +2397,14 @@ namespace CallOfTheWild
                                               paladin_harm.GetComponent<ContextRankConfig>(),
                                               paladin_harm.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                               Helpers.CreateResourceLogic(paladin_extra_channel_resource, true, 1));
+            heal_living_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.LawfulGood));
+            harm_undead_extra.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.LawfulGood));
 
             paladin_heal_base.addToAbilityVariants(heal_living_extra);
             paladin_harm_base.addToAbilityVariants(harm_undead_extra);
             ChannelEnergyEngine.storeChannel(heal_living_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHeal);
             ChannelEnergyEngine.storeChannel(harm_undead_extra, paladin_channel_energy, ChannelEnergyEngine.ChannelType.PositiveHarm);
 
-            paladin_channel_energy.AddComponent(Helpers.CreateAddFacts(heal_living_extra, harm_undead_extra));
             paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));
             paladin_channel_extra = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, paladin_channel_energy, "ExtraChannelPaladin", "Extra Channel (Paladin)", "");
         }
