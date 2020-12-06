@@ -416,7 +416,7 @@ namespace CallOfTheWild
             for (int i = 0; i < fiendish_bond.Length; i++)
             {
                 fiendish_bond[i] = Helpers.CreateFeature($"IronTyrantFiendishBond{i+1}Feature",
-                                                        $"Fiendish Bond +{i}",
+                                                        $"Fiendish Bond +{i+1}",
                                                         ability.Description,
                                                         "",
                                                         ability.Icon,
@@ -426,6 +426,10 @@ namespace CallOfTheWild
                 {
                     fiendish_bond[i].AddComponent(fiendish_boon_resource.CreateAddAbilityResource());
                     fiendish_bond[i].AddComponent(Helpers.CreateAddFact(ability));
+                }
+                if (i > 0)
+                {
+                    fiendish_bond[i].AddComponent(Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty));
                 }
                 if (enchant_abilities[i].Count > 0)
                 {
@@ -538,22 +542,22 @@ namespace CallOfTheWild
 
         static void createAuraOfDecay()
         {
-            var deal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), true, true);
-            deal_dmg.ResultSharedValue = AbilitySharedValue.Damage;
-            deal_dmg.WriteResultToSharedValue = true;
-
-            var effect_actions = new GameAction[]{Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, deal_dmg),
-                                                  Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact>(c =>
-                                                                            {
-                                                                                c.facts = new BlueprintUnitFact[] { Common.elemental, Common.fey };
-                                                                                c.classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96"), //druid
-                                                                                            library.Get<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6"), //ranger
-                                                                                            Hunter.hunter_class
-                                                                                        };
-                                                                                c.caster_fact = null;
-                                                                            }),
-                                                                            Common.createContextActionOnContextCaster(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal))))
-                                                                            )
+            var deal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), false, true);
+            var effect = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionHasFactsOrClassLevelsUnlessCasterHasFact>(c =>
+                                                    {
+                                                        c.facts = new BlueprintUnitFact[] { Common.elemental, Common.fey };
+                                                        c.classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96"), //druid
+                                                                                                                                    library.Get<BlueprintCharacterClass>("cda0615668a6df14eb36ba19ee881af6"), //ranger
+                                                                                                                                    Hunter.hunter_class
+                                                                                                                                };
+                                                        c.caster_fact = null;
+                                                    }),
+                                                    Helpers.CreateConditionalSaved(Common.createContextActionOnContextCaster(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.StatBonus)))),
+                                                                                   Common.createContextActionOnContextCaster(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Heal))))
+                                                                                   )
+                                                    );
+            var effect_actions = new GameAction[]{Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, new GameAction[]{deal_dmg, effect }),
+                                                  
                                                   };
             var effect_buff = Helpers.CreateBuff("AuraOfDecayBuff",
                                       "Aura of Decay Target",
@@ -562,7 +566,9 @@ namespace CallOfTheWild
                                       NewSpells.explosion_of_rot.Icon,
                                       Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"), //poison buff
                                       Helpers.CreateAddFactContextActions(activated: effect_actions, newRound: effect_actions),
+                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), AbilitySharedValue.Damage),
                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.Heal, 0.5),
+                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.StatBonus, 0.25),
                                       Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
                                      );
 
@@ -582,7 +588,7 @@ namespace CallOfTheWild
                                                 "",
                                                 aura_buff.Icon,
                                                 AbilityType.Supernatural,
-                                                CommandType.Standard,
+                                                CommandType.Free,
                                                 AbilityRange.Personal,
                                                 Helpers.oneMinuteDuration,
                                                 "Fortitude partial",

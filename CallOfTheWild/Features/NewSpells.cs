@@ -280,7 +280,6 @@ namespace CallOfTheWild
         //implosion
         //condensed ether
         //battle mind link ?
-        //arcane concordance
         //oneric horror ?
         //blood rage
         //smite abomination
