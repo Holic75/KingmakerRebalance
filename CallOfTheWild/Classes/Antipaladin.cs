@@ -1419,7 +1419,7 @@ namespace CallOfTheWild
             plague_bringer = library.CopyAndAdd<BlueprintFeature>("41d1d0de15e672349bf4262a5acf06ce", "PlagueBearer", ""); //from divine health
             plague_bringer.SetNameDescription("Plague Bringer",
                                               "At 3rd level, the powers of darkness make an antipaladin a beacon of corruption and disease. An antipaladin does not take any damage or take any penalty from diseases. He can still contract diseases and spread them to others, but he is otherwise immune to their effects.");
-            plague_bringer.ComponentsArray = new BlueprintComponent[] { Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Disease) };
+            plague_bringer.ComponentsArray = new BlueprintComponent[] { Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Disease) };
 
             antipaladin_alignment = library.CopyAndAdd<BlueprintFeature>("f8c91c0135d5fc3458fcc131c4b77e96", "AntipaladinAlignmentRestriction", "");
             antipaladin_alignment.SetIcon(NewSpells.aura_of_doom.Icon);

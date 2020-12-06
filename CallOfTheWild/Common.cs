@@ -125,7 +125,7 @@ namespace CallOfTheWild
                                                                 Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),
                                                                 Helpers.Create<SpellFailureMechanics.SpellFailureChance>(s => { s.chance = 20; s.ignore_psychic = true; }),
-                                                                Helpers.Create<SuppressBuffs>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }), //echolocation
+                                                                Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Buffs = new BlueprintBuff[] { library.Get<BlueprintBuff>("cbfd2f5279f5946439fe82570fd61df2") }), //echolocation
                                                                 Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                                                 );
 

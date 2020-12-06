@@ -905,7 +905,7 @@ namespace CallOfTheWild
                                          buff1_guid,
                                          hex_ability1.Icon,
                                          null,
-                                         Helpers.Create<SuppressBuffs>(s => s.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
+                                         Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Blindness | SpellDescriptor.Curse | SpellDescriptor.Disease | SpellDescriptor.Poison)
                                          );
 
             var apply_buff1 = Common.createContextActionApplyBuff(hex_ability1_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
