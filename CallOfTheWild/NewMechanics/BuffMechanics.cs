@@ -241,4 +241,20 @@ namespace CallOfTheWild.BuffMechanics
             return true;
         }
     }
+
+    //prevent creating buff fx on suppressed buffs
+    [Harmony12.HarmonyPatch(typeof(Buff))]
+    [Harmony12.HarmonyPatch("SpawnParticleEffect", Harmony12.MethodType.Normal)]
+    class Buff_SpawnParticleEffect_Patch
+    {
+        static bool Prefix(Buff __instance)
+        {
+            if (!__instance.Active)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
 }

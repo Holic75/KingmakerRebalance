@@ -234,6 +234,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixDelayPoison();
                     CallOfTheWild.Rebalance.fixSacredmasterHunterTactics();
                     CallOfTheWild.Rebalance.fixAuraOfJustice();
+                    CallOfTheWild.Rebalance.fixArchetypeKineticistGatherPowerWithShield();
+                    CallOfTheWild.Rebalance.fixSuppressBuffs();
 
                     if (settings.secondary_rake_attacks)
                     {

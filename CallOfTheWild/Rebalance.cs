@@ -46,6 +46,7 @@ using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.UnitLogic.Class.Kineticist;
 
 namespace CallOfTheWild
 {
@@ -486,6 +487,22 @@ namespace CallOfTheWild
 
             skilled_half_orc.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnEvenLevels>());
             skilled_half_orc.SetDescription("Half-orcs gain an additional skill rank at every even level.");
+        }
+
+
+        internal static void fixArchetypeKineticistGatherPowerWithShield()
+        {
+            var base_kineticist_feature = library.Get<BlueprintFeature>("57e3577a0eb53294e9d7cc649d5239a3");
+            var buff = base_kineticist_feature.GetComponent<AddKineticistPart>().CanGatherPowerWithShieldBuff;
+
+            var features = new BlueprintFeature[]{ library.Get<BlueprintFeature>("42c5a9a8661db2f47aedf87fb8b27aaf"), //dark elementalist
+                                                    library.Get<BlueprintFeature>("2fa48527ba627254ba9bf4556330a4d4"), //psychikoneticits
+                                                 };
+
+            foreach (var f in features)
+            {
+                f.GetComponent<AddKineticistPart>().CanGatherPowerWithShieldBuff = buff;
+            }
         }
 
         internal static void fixCompanions()
@@ -1335,6 +1352,29 @@ namespace CallOfTheWild
             delay_poison_buff.RemoveComponents<BuffDescriptorImmunity>();
             delay_poison_buff.RemoveComponents<SuppressBuffs>();
             delay_poison_buff.AddComponent(Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Poison));
+        }
+
+
+        internal static void fixSuppressBuffs()
+        {
+            var buffs = library.GetAllBlueprints().OfType<BlueprintBuff>();
+
+            foreach (var b in buffs)
+            {
+                var c = b.GetComponent<SuppressBuffs>();
+                if (c == null)
+                {
+                    continue;
+                }
+                var new_c = Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s =>
+                {
+                    s.Descriptor = c.Descriptor;
+                    s.Schools = c.Schools;
+                    s.Buffs = c.Buffs;
+                }
+                );
+                b.ReplaceComponent(c, new_c);
+            }
         }
 
 
