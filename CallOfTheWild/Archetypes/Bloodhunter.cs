@@ -87,6 +87,7 @@ namespace CallOfTheWild.Archetypes
             var woodland_stride = library.Get<BlueprintFeature>("11f4072ea766a5840a46e6660894527d");
 
             archetype.RemoveSpellbook = true;
+            archetype.ChangeCasterType = true;
             createFavoredTarget();
             createHuntingGround();
             createBlessedHunterFeats();
