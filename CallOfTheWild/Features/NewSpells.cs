@@ -9448,10 +9448,9 @@ namespace CallOfTheWild
                                               "",
                                               deadly_juggernaut.Icon,
                                               null,
-                                              Common.createAttackTypeAttackBonus(Common.createSimpleContextValue(bonus), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.Luck),
+                                              Common.createAttackTypeAttackBonus(bonus, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.Luck),
                                               Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = bonus; w.Descriptor = ModifierDescriptor.Luck; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
-                                              Helpers.CreateAddStatBonus(StatType.AdditionalDamage, bonus, ModifierDescriptor.Luck),
-                                              Common.createAbilityScoreCheckBonus(Common.createSimpleContextValue(bonus), ModifierDescriptor.Luck, StatType.Strength),
+                                              Common.createAbilityScoreCheckBonus(bonus, ModifierDescriptor.Luck, StatType.Strength),
                                               Helpers.CreateAddStatBonus(StatType.SkillAthletics, bonus, ModifierDescriptor.Luck),
                                               Common.createPhysicalDR(bonus * 2)
                                               );

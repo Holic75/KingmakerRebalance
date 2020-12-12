@@ -555,37 +555,15 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             {
                 return;
             }
-
+            //allow weapon training, arsenal chaplain weapon training and two-handed fighter weapon training to stack 
             if (weapon.Blueprint.IsTwoHanded && weapon.Blueprint.IsMelee)
             {
-                var fact = __instance.Owner.GetFact(two_handed_weapon_training);
-
-                if (fact == null)
-                {
-                    return;
-                }
-                var rank2h = fact.GetRank();
-
-                if (rank2h > __result)
-                {
-                    __result = rank2h;
-                }
+                __result += (__instance.Owner.GetFact(two_handed_weapon_training)?.GetRank()).GetValueOrDefault();   
             }
 
             if (checkFeature(__instance.Owner, weapon.Blueprint.Category, weapon_focus, NewFeats.deity_favored_weapon))
             {
-                var fact = __instance.Owner.GetFact(Warpriest.arsenal_chaplain_weapon_training);
-
-                if (fact == null)
-                {
-                    return;
-                }
-                var rank_swt = fact.GetRank();
-
-                if (rank_swt > __result)
-                {
-                    __result = rank_swt;
-                }
+                __result += (__instance.Owner.GetFact(Warpriest.arsenal_chaplain_weapon_training)?.GetRank()).GetValueOrDefault();           
             }
         }
 
