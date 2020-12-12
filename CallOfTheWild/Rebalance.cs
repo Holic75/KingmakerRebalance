@@ -151,16 +151,32 @@ namespace CallOfTheWild
                                        );
         }
 
+        internal static void removePowerOfWyrmsBuffImmunity()
+        {
+            //power of wyrms in pf:km incorrectly gives corresponding elemental descriptor buff immunity, which interfers with elemental defensive spells, like flame shield or fiery body.
+            //Also by pnp rules (and according to in-game description) it should only give immunity to elemental damage and buffs.
+            var powers = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(f => f.name.Contains("PowerOfWyrms")).ToArray();
+
+            var elemental_descriptors = SpellDescriptor.Fire | SpellDescriptor.Acid | SpellDescriptor.Electricity | SpellDescriptor.Cold;
+            foreach (var p in powers)
+            {
+                p.RemoveComponents<BuffDescriptorImmunity>(s => (s.Descriptor & elemental_descriptors) > 0);
+            }
+        }
+
         internal static void fixSpellDescriptors()
         {
             //fiery body
+            library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
+            //fire belly
+            Common.addSpellDescriptor(library.Get<BlueprintAbility>("5e5b663f988ece84b9346f6d7d541e66"), SpellDescriptor.Fire);
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
             //force descriptors on battering blast and magic missile
             library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
             library.Get<BlueprintAbility>("0a2f7c6aa81bc6548ac7780d8b70bcbc").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
             library.Get<BlueprintAbility>("740d943e42b60f64a8de74926ba6ddf7").ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = s.Descriptor | SpellDescriptor.Compulsion);
             //descriptor to boggard terrifying croak
-            library.Get<BlueprintAbility>("d7ab3a110325b174e90ae6c7b4e96bb9").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken | SpellDescriptor.Emotion));
+            Common.addSpellDescriptor(library.Get<BlueprintAbility>("d7ab3a110325b174e90ae6c7b4e96bb9"), SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken | SpellDescriptor.Emotion);
 
 
             //water descriptor to certain spells

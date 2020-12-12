@@ -166,6 +166,7 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Common.initialize();
+                    CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
                     CallOfTheWild.Rebalance.fixWidomCognatogen();
                     CallOfTheWild.Rebalance.fixTransmutionSchoolPhysicalEnhancement();
                     CallOfTheWild.Rebalance.fixSylvanSorcerorAnimalCompanion();
