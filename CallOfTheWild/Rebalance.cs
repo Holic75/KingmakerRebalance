@@ -144,6 +144,7 @@ namespace CallOfTheWild
 
         internal static void addFatigueBuffRestrictionsToRage()
         {
+            //add explicit fatigue/exhausted buff restrictions to prevent tired character under invigorate effect from entering rage
             var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
 
             rage_ability.AddComponents(Helpers.Create<RestrictionHasFact>(r => { r.Feature = BlueprintRoot.Instance.SystemMechanics.FatigueBuff; r.Not = true; }),
@@ -294,7 +295,6 @@ namespace CallOfTheWild
             var feystalker_master = library.Get<BlueprintFeature>("02357ba2802b8654bb3e824bae68f5c0");
             var feystalker_buff = library.Get<BlueprintBuff>("5a4b6a4be0c7efc4dbc7159152a21447");
             feystalker_master.ReplaceComponent<OnSpawnBuff>(o => o.buff = feystalker_buff);
-
         }
 
 
@@ -326,7 +326,6 @@ namespace CallOfTheWild
             normal_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Empower; m.max_level = 2; }));
             greater_empower.RemoveComponents<AutoMetamagic>();
             greater_empower.AddComponent(Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicUpToSpellLevel>(m => { m.Metamagic = Metamagic.Empower; m.max_level = 3; }));
-
         }
 
 
