@@ -4130,6 +4130,40 @@ namespace CallOfTheWild
 
             var ki_strike_lawful = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "WarpriestSacredFistKiStrikeLawful", "");
             ki_strike_lawful.SetDescription("At 13th level, the sacred fist's unarmed attacks are treated as lawful weapons for the purpose of overcoming damage reduction.");
+            var ki_strike_chaotic = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "WarpriestSacredFistKiStrikeChaotic", "");
+            ki_strike_chaotic.SetNameDescription("Ki Strike — Chaotic", "At 13th level, the sacred fist's unarmed attacks are treated as chaotic weapons for the purpose of overcoming damage reduction.");
+            ki_strike_chaotic.ReplaceComponent<AddOutgoingPhysicalDamageProperty>(a => a.Alignment = DamageAlignment.Chaotic);
+            var ki_strike_good = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "WarpriestSacredFistKiStrikeGood", "");
+            ki_strike_good.SetNameDescription("Ki Strike — Good", "At 13th level, the sacred fist's unarmed attacks are treated as good weapons for the purpose of overcoming damage reduction.");
+            ki_strike_good.ReplaceComponent<AddOutgoingPhysicalDamageProperty>(a => a.Alignment = DamageAlignment.Good);
+            var ki_strike_evil = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "WarpriestSacredFistKiStrikeEvil", "");
+            ki_strike_evil.SetNameDescription("Ki Strike — Evil", "At 13th level, the sacred fist's unarmed attacks are treated as evil weapons for the purpose of overcoming damage reduction.");
+            ki_strike_evil.ReplaceComponent<AddOutgoingPhysicalDamageProperty>(a => a.Alignment = DamageAlignment.Evil);
+
+            var ki_strikes_alignment = new BlueprintFeature[] { ki_strike_lawful, ki_strike_chaotic, ki_strike_good, ki_strike_evil };
+            var deity_alignment = new BlueprintFeature[]{ library.Get<BlueprintFeature>("092714336606cfc45a37d2ab39fabfa8"), //law domain allowed
+                                                          library.Get<BlueprintFeature>("8c7d778bc39fec642befc1435b00f613"), //chaos domain allowed
+                                                          library.Get<BlueprintFeature>("882521af8012fc749930b03dc18a69de"), //good domain allowed
+                                                          library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c") //evil domain allowed
+                                                         };
+
+            for (int i = 0; i < ki_strikes_alignment.Length; i++)
+            {
+                ki_strikes_alignment[i].AddComponents(Helpers.PrerequisiteFeature(deity_alignment[i], any: true),
+                                                    Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(a => { a.Features = deity_alignment; a.Group = Prerequisite.GroupType.Any; })
+                                                    );
+            }
+
+            var ki_strike_alignment = Helpers.CreateFeatureSelection("KiStrikeAlignmentSacredFistFeatureSelection",
+                                                            "Aligned Ki Strike",
+                                                            "At 13th level, the sacred fist's unarmed attacks are treated as weapons having one component of his Deity alignment for the purpose of overcoming damage reduction. If sacred fist's Deity is neutral, he can select any alignment component.",
+                                                            "",
+                                                            null,
+                                                            FeatureGroup.None
+                                                            );
+            ki_strike_alignment.AllFeatures = ki_strikes_alignment;
+                                                            
+
 
             var ki_strike_adamantine = library.CopyAndAdd<BlueprintFeature>("ddc10a3463bd4d54dbcbe993655cf64e", "WarpriestSacredFistKiStrikeAdamantine", "");
             ki_strike_adamantine.SetDescription("At 19th level, the sacred fist's unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.");
@@ -4180,7 +4214,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(9, miraculous_fortitude),
                                                                   Helpers.LevelEntry(10, ki_strike_cold_iron_silver),
                                                                   Helpers.LevelEntry(12, sacred_fist_syle_feat_selection, fist2d6),
-                                                                  Helpers.LevelEntry(13, ki_strike_lawful),
+                                                                  Helpers.LevelEntry(13, ki_strike_alignment),
                                                                   Helpers.LevelEntry(15, flurry15_unlock),
                                                                   Helpers.LevelEntry(16, fist2d8),
                                                                   Helpers.LevelEntry(18, sacred_fist_syle_feat_selection),
@@ -4197,7 +4231,7 @@ namespace CallOfTheWild
             warpriest_progression.UIGroups[2].Features.Add(flurry2_unlock);
             warpriest_progression.UIGroups[2].Features.Add(sacred_fist_ki_pool);
             warpriest_progression.UIGroups[2].Features.Add(ki_strike_cold_iron_silver);
-            warpriest_progression.UIGroups[2].Features.Add(ki_strike_lawful);
+            warpriest_progression.UIGroups[2].Features.Add(ki_strike_alignment);
             warpriest_progression.UIGroups[2].Features.Add(ki_strike_adamantine);
 
             warpriest_progression.UIGroups[3].Features.Add(unlock_ac_bonus);

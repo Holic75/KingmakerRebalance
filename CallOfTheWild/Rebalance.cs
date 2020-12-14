@@ -1371,6 +1371,21 @@ namespace CallOfTheWild
             delay_poison_buff.RemoveComponents<BuffDescriptorImmunity>();
             delay_poison_buff.RemoveComponents<SuppressBuffs>();
             delay_poison_buff.AddComponent(Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s => s.Descriptor = SpellDescriptor.Poison));
+
+            //also fix poisons to work correctly with delay:
+            //make poison buff duration permanent, since they are anyway count number of ticks internally and dispel themselves once max number of ticks is reached;
+            //Delay Poison will stop them from ticking
+            var poisons = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(f => f.name.Contains("PoisonFeature")).ToArray();
+
+            foreach (var p in poisons)
+            {
+                var attack_trigger = p.GetComponent<AddInitiatorAttackWithWeaponTrigger>();
+                if (attack_trigger == null)
+                {
+                    continue;
+                }
+                attack_trigger.Action.Actions = Common.changeAction<ContextActionApplyBuff>(attack_trigger.Action.Actions, a => a.Permanent = true);
+            }
         }
 
 
