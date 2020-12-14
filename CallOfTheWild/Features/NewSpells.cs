@@ -276,15 +276,15 @@ namespace CallOfTheWild
         static public BlueprintAbility arcane_concordance;
 
         //binding_earth; ?
-        //binding_earth_mass; ?
+        //binding_earth_mass ?
+        //battle mind link ?
+
         //corrosive consumption
         //implosion
         //condensed ether
-        //battle mind link ?
-        //oneric horror ?
         //blood rage
         //smite abomination
-        //
+        //etheric shards
 
         static public void load()
         {

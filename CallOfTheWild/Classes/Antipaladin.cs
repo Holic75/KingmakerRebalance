@@ -2068,9 +2068,10 @@ namespace CallOfTheWild
 
             var deities = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4").AllFeatures;
 
-            var allow_evil = library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c");
+            var allow_good = library.Get<BlueprintFeature>("882521af8012fc749930b03dc18a69de");
+            var groetus = library.Get<BlueprintFeature>("c3e4d5681906d5246ab8b0637b98cbfe");
 
-            antipaladin_deity.AllFeatures = deities.Where(d => d.GetComponents<AddFacts>().Aggregate(false, (val, af) => val = val || af.Facts.Contains(allow_evil))).ToArray();
+            antipaladin_deity.AllFeatures = deities.Where(d => d.GetComponents<AddFacts>().Aggregate(true, (val, af) => val = val && !af.Facts.Contains(allow_good))).ToArray().RemoveFromArray(groetus);
             antipaladin_deity.Features = antipaladin_deity.AllFeatures;
         }
 
