@@ -298,13 +298,14 @@ namespace CallOfTheWild.CompanionMechanics
 
     public class UnitPartUnsummonedCompanion : UnitPart
     {
+        static public int min_hp => -1;
         [JsonProperty]
-        private int companion_hp = -1;
+        private int companion_hp = -min_hp;
 
 
         public bool active()
         {
-            return companion_hp > 0;
+            return companion_hp > min_hp;
         }
 
         public void activate()
@@ -317,7 +318,7 @@ namespace CallOfTheWild.CompanionMechanics
             {
                 return;
             }
-            if (this.Owner.Pet.Descriptor.HPLeft < 0)
+            if (this.Owner.Pet.Descriptor.HPLeft <= min_hp)
             {
                 return;
             }
@@ -350,7 +351,7 @@ namespace CallOfTheWild.CompanionMechanics
                 //this.Owner.Pet.Descriptor.AddBuff(BlueprintRoot.Instance.SystemMechanics.ResurrectionBuff, null, new TimeSpan?(1.Rounds().Seconds));
             }
             this.Owner.Pet.Descriptor.State.IsUntargetable.Release();
-            companion_hp = -1;
+            companion_hp = min_hp;
         }
     }
 
@@ -380,6 +381,22 @@ namespace CallOfTheWild.CompanionMechanics
         public override void RunAction()
         {
             this.Target?.Unit?.Ensure<UnitPartUnsummonedCompanion>().deactivate();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionCanBeUnsummoned : BlueprintComponent, IAbilityCasterChecker
+    {
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            return caster.Descriptor.Pet != null && caster.Descriptor.Pet.Descriptor.HPLeft > UnitPartUnsummonedCompanion.min_hp;
+        }
+
+        public string GetReason()
+        {
+            return "Companion is not disabled";
         }
     }
 

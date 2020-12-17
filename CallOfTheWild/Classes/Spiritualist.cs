@@ -1607,7 +1607,8 @@ namespace CallOfTheWild
                                                             "",
                                                             "",
                                                             Helpers.CreateRunActions(Common.createContextActionApplyBuff(unsummon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
-                                                            Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true)
+                                                            Helpers.Create<NewMechanics.AbilityCasterCompanionDead>(a => a.not = true),
+                                                            Helpers.Create<CompanionMechanics.AbilityCasterCompanionCanBeUnsummoned>()
                                                             );
 
             unsummon_companion.setMiscAbilityParametersSelfOnly();
