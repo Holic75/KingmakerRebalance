@@ -624,7 +624,7 @@ namespace CallOfTheWild
                                                  true,
                                                  Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
                                                  Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Size),
-                                                 Helpers.Create<ChangeUnitSize>(c => c.SizeDelta  = 2) 
+                                                 Helpers.Create<ChangeUnitSize>(c => c.SizeDelta  = 2)
                                                  );
 
 

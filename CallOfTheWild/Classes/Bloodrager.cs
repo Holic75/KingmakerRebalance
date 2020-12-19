@@ -677,6 +677,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows
                 new Common.SpellId( "cdb106d53c65bbc4086183d54c3b97c7", 2), //scorching ray
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
+                new Common.SpellId( NewSpells.shadow_claws.AssetGuid, 2),
                 new Common.SpellId( "5181c2ed0190fc34b8a1162783af5bf4", 2), //stone call
                 new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2), 
 

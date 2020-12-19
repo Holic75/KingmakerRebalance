@@ -274,6 +274,8 @@ namespace CallOfTheWild
         static public BlueprintAbility ghostbane_dirge_mass;
 
         static public BlueprintAbility arcane_concordance;
+        static public BlueprintAbility shadow_claws;
+        static public BlueprintAbility second_wind;
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -463,6 +465,77 @@ namespace CallOfTheWild
             createPhantomLimbs();
             createGhostbaneDirge();
             createArcaneConcordance();
+
+            createShadowClaws();
+            createSecondWind();
+        }
+
+
+        static void createSecondWind()
+        {
+            second_wind = Helpers.CreateAbility("SecondWindAbility",
+                                               "Second Wind",
+                                               "You can cast this spell only when you have fewer than one-quarter of your total hit points. With a gasping utterance, you summon invigorating air to fill your lungs. You heal 2d8 points of damage + 1 point per caster level (maximum +10).",
+                                               "",
+                                               Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruction judgment
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Swift,
+                                               AbilityRange.Personal,
+                                               "",
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D8, 2, Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                               Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                               Helpers.CreateContextRankConfig(max: 10),
+                                               Common.createAbilitySpawnFx("e9399b6d57369ab4a9c3d88798d92f33", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Cure | SpellDescriptor.RestoreHP | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
+                                               );
+            second_wind.setMiscAbilityParametersSelfOnly();
+            second_wind.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten;
+            second_wind.AddToSpellList(Helpers.clericSpellList, 3);
+            second_wind.AddToSpellList(Helpers.paladinSpellList, 3);
+            second_wind.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            second_wind.AddToSpellList(Helpers.rangerSpellList, 3);
+            Helpers.AddSpellAndScroll(second_wind, "08cf11d25aaab074388207b66f64a162"); //aid
+        }
+
+
+        static void createShadowClaws()
+        {
+            var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
+
+            var effect = Helpers.CreateActionDealDamage(StatType.Strength, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1));
+            var saved_effect = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, effect));
+            var buff = Helpers.CreateBuff("ShadowClawsBuff",
+                                          "Shadow Claws",
+                                          "You summon a pair of claws over your hands formed from semireal material. This grants you two primary claw attacks dealing 1d4 points of damage if you are Medium (1d3 if Small) plus 1 point of Strength damage. A successful Fortitude saving throw negates the Strength damage (DC = this spell’s DC).",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
+                                          null,
+                                          Common.createEmptyHandWeaponOverride(claw1d4),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw)
+                                          );
+
+            shadow_claws = Helpers.CreateAbility("ShadowClawsAbility",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Personal,
+                                                 Helpers.minutesPerLevelDuration,
+                                                 "",
+                                                 Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                 Helpers.CreateContextRankConfig(),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                 Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                 );
+            shadow_claws.setMiscAbilityParametersSelfOnly();
+            shadow_claws.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            shadow_claws.AddToSpellList(Helpers.wizardSpellList, 2);
+            shadow_claws.AddToSpellList(Helpers.bardSpellList, 2);
+            shadow_claws.AddToSpellList(Helpers.magusSpellList, 2);
+            Helpers.AddSpellAndScroll(shadow_claws, "d1d24c5613bb8c14a9a089c54b77527d");
         }
 
 
@@ -6925,7 +6998,7 @@ namespace CallOfTheWild
             burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
             burst_of_radiance.Range = AbilityRange.Long;
             burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness));
+            burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness | SpellDescriptor.SightBased));
 
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
             var blind = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");

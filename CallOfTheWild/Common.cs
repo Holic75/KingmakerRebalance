@@ -547,6 +547,10 @@ namespace CallOfTheWild
             return c;
         }
 
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplySpellBuff(BlueprintBuff buff, ContextDurationValue duration)
+        {
+            return createContextActionApplyBuff(buff, duration, true);
+        }
 
         static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,
                                                                                                                   bool is_child = false, bool is_permanent = false, bool dispellable = true,

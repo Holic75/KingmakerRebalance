@@ -322,16 +322,30 @@ namespace CallOfTheWild
                Main.library.Get<BlueprintBuff>("b0793973c61a19744a8630468e8f4174"),//reduce
                Main.library.Get<BlueprintBuff>("c84fbb4414925f344b894e9511626296"),//righteous might evil
                Main.library.Get<BlueprintBuff>("17206974f2a2c164db26d1af7fac57d5"),//righteous might good
-               Main.library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a"), //animal growth
-               Main.library.Get<BlueprintBuff>("906262fda0fbda442b27f9b0a04e5aa0"),//frightful aspect
+               Main.library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a"),//animal growth
                Main.library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3"),//legendary proportions
+               Main.library.Get<BlueprintBuff>("6ba82f2c8a7146e6b4880cbe7f8534e8"),//enlarged body mutation mind mutation
             };
 
+            var frightful_aspect = ResourcesLibrary.TryGetBlueprint<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325");
+            frightful_aspect.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Polymorph))));
 
-            var polymorphs = Main.library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b => b.GetComponent<Polymorph>() != null).ToArray();
-            foreach (var p in polymorphs)
+            var polymorphs = Main.library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b =>
+                                                                        {
+                                                                            if (b.GetComponent<Polymorph>() != null)
+                                                                            {
+                                                                                return true;
+                                                                            }
+
+                                                                            var spell_descriptor = b.GetComponent<SpellDescriptorComponent>();
+                                                                            return spell_descriptor != null && ((spell_descriptor.Descriptor.Value & SpellDescriptor.Polymorph) > 0);
+                                                                        }
+                                                                        );
+
+            foreach (var szb in size_buffs)
             {
-                foreach (var szb in size_buffs)
+                Common.addSpellDescriptor(szb, SpellDescriptor.Polymorph, add_to_area: false);
+                foreach (var p in polymorphs)
                 {
                     p.AddComponent(Common.createSpecificBuffImmunity(szb));
                 }
