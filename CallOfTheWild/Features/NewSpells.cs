@@ -276,14 +276,15 @@ namespace CallOfTheWild
         static public BlueprintAbility arcane_concordance;
         static public BlueprintAbility shadow_claws;
         static public BlueprintAbility second_wind;
+        static public BlueprintAbility wracking_ray;
 
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
+        //condensed ether ?
 
         //corrosive consumption
         //implosion
-        //condensed ether
         //blood rage
         //smite abomination
         //etheric shards
@@ -468,6 +469,34 @@ namespace CallOfTheWild
 
             createShadowClaws();
             createSecondWind();
+            createWrackingRay();
+        }
+
+
+        static void createWrackingRay()
+        {
+            wracking_ray = library.CopyAndAdd<BlueprintAbility>("450af0402422b0b4980d9c2175869612", "WrackingRayAbility", "");//ray of enfeeblement
+            wracking_ray.RemoveComponents<SpellListComponent>();
+            wracking_ray.RemoveComponents<AbilityEffectRunAction>();
+            wracking_ray.RemoveComponents<SpellDescriptorComponent>();
+            wracking_ray.LocalizedDuration = Helpers.CreateString("WrackingRay.Duration", "");
+            wracking_ray.LocalizedSavingThrow = Helpers.CreateString("WrackingRay.Savingthrow", "Fortitude half");
+            wracking_ray.SetNameDescription("Wracking Ray",
+                                            "A ray of sickly greenish-gray negative energy issues forth from the palm of your hand. Make a ranged touch attack against the target. A creature hit by this spell is wracked by painful spasms as its muscles and sinews wither and twist. The subject takes 1d4 points of Dexterity and Strength damage per 3 caster levels you possess (maximum 5d4 each). A successful Fortitude save halves the damage.");
+            wracking_ray.Range = AbilityRange.Medium;
+            wracking_ray.AvailableMetamagic = wracking_ray.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral;
+            wracking_ray.CanTargetFriends = true;
+            var dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage));
+            var str_damage = Helpers.CreateActionDealDamage(StatType.Strength, dice, halfIfSaved: true);
+            var dex_damage = Helpers.CreateActionDealDamage(StatType.Dexterity, dice, halfIfSaved: true);
+            wracking_ray.AddComponents(Helpers.CreateRunActions(SavingThrowType.Fortitude, str_damage, dex_damage),
+                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default), 0), AbilitySharedValue.Damage),
+                                       Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 3, max: 5),
+                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Evil)
+                                       );
+
+            wracking_ray.AddToSpellList(Helpers.wizardSpellList, 5);
+            wracking_ray.AddSpellAndScroll("792862674c565ad4fbb1ab0c97c42acd"); //ray of enfeeblement
         }
 
 

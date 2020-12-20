@@ -1409,6 +1409,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "630c8b85d9f07a64f917d79cb5905741", 5), //summon monster 5
                 new Common.SpellId( NewSpells.wall_of_blindness.AssetGuid, 5),
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
+                new Common.SpellId( NewSpells.wracking_ray.AssetGuid, 5),
 
                 new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast
                 new Common.SpellId( "7f71a70d822af94458dc1a235507e972", 6), //cloak of dreams
