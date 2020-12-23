@@ -277,6 +277,7 @@ namespace CallOfTheWild
         static public BlueprintAbility shadow_claws;
         static public BlueprintAbility second_wind;
         static public BlueprintAbility wracking_ray;
+        static public BlueprintAbility smite_abomination;
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -286,8 +287,8 @@ namespace CallOfTheWild
         //corrosive consumption
         //implosion
         //blood rage
-        //smite abomination
         //etheric shards
+        //tactical acumen
 
         static public void load()
         {
@@ -470,6 +471,43 @@ namespace CallOfTheWild
             createShadowClaws();
             createSecondWind();
             createWrackingRay();
+            createSmiteAbomination();
+        }
+
+
+        static void createSmiteAbomination()
+        {
+            smite_abomination = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteAbominationAbility", "");
+
+            smite_abomination.SetName("Smite Abomination");
+            smite_abomination.SetDescription("Drawing upon positive energy, you emulate some of a paladin’s power to smite undead. Choose one undead creature as your target. You gain a bonus equal to your Charisma or Wisdom modifier, whichever is higher, on your attack rolls, and as deflection bonus to your ac against the target, and a bonus equal to your caster level on damage rolls. Your attacks also bypass the target’s damage reduction. These bonuses do not stack with the bonuses from a paladin’s smite.");
+            smite_abomination.LocalizedDuration = Helpers.CreateString("SmiteAbomination.Duration", Helpers.roundsPerLevelDuration);
+            smite_abomination.RemoveComponents<AbilityCasterAlignment>();
+            smite_abomination.RemoveComponents<AbilityResourceLogic>();
+            smite_abomination.RemoveComponents<ContextRankConfig>();
+
+            var wis_cha_property = NewMechanics.HighestStatPropertyGetter.createProperty("SmiteAbominationWisChaUnitProperty", "", StatType.Wisdom, StatType.Charisma);
+            smite_abomination.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, type: AbilityRankType.StatBonus, customProperty: wis_cha_property));
+            smite_abomination.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, max: 20));
+            smite_abomination.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
+
+            var smite_action = smite_abomination.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
+            var conditions = new Condition[] {Common.createContextConditionHasFact(Common.undead), old_conditional.ConditionsChecker.Conditions[1] };
+
+            var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
+            var apply_smite_buff = Common.createContextActionApplyBuff(smite_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus)), is_from_spell: true);
+            var new_smite_action = Helpers.CreateConditional(conditions, new GameAction[] { apply_smite_buff }, null);
+            smite_abomination.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
+            smite_abomination.Type = AbilityType.Spell;
+            smite_abomination.ActionType = UnitCommand.CommandType.Standard;
+
+            smite_abomination.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            smite_abomination.AddToSpellList(Helpers.clericSpellList, 5);
+
+            smite_abomination.AddSpellAndScroll("8f01e5cb9e8ff8244b827185bb9c93f9"); //crusaders edge
+            smite_abomination.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
         }
 
 
@@ -491,7 +529,7 @@ namespace CallOfTheWild
             var dex_damage = Helpers.CreateActionDealDamage(StatType.Dexterity, dice, halfIfSaved: true);
             wracking_ray.AddComponents(Helpers.CreateRunActions(SavingThrowType.Fortitude, str_damage, dex_damage),
                                        Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default), 0), AbilitySharedValue.Damage),
-                                       Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 3, max: 5),
+                                       Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 3, max: 5, feature: MetamagicFeats.intensified_metamagic),
                                        Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Evil)
                                        );
 

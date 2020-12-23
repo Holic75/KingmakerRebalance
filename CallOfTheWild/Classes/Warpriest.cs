@@ -1174,8 +1174,7 @@ namespace CallOfTheWild
                                                                  null,
                                                                  FeatureGroup.None);
             warpriest_blessing_resource = Helpers.CreateAbilityResource("WarpriestBlessingsResource", "", "", "", null);
-            warpriest_blessing_resource.SetIncreasedByLevelStartPlusDivStep(1, 2, 0, 2, 1, 0, 0.0f, getBlessingUsersArray(), new BlueprintArchetype[] {Archetypes.DivineTracker.archetype });
-            warpriest_blessing_resource.SetIncreasedByStat(1, StatType.Wisdom);
+            warpriest_blessing_resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getBlessingUsersArray(), new BlueprintArchetype[] {Archetypes.DivineTracker.archetype });
             add_warpriest_blessing_resource = Helpers.CreateFeature("AddWarpriestBlessingsResource",
                                                                     "",
                                                                     "",

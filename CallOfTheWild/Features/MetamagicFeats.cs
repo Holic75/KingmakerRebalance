@@ -627,6 +627,7 @@ namespace CallOfTheWild
                     switch (progression)
                     {
                         case ContextRankProgression.AsIs:
+                        case ContextRankProgression.BonusValue:
                             max_val_bonus = intensify_watcher;
                             break;
                         case ContextRankProgression.Div2:

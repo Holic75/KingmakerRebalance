@@ -8929,6 +8929,33 @@ namespace CallOfTheWild
             }
         }
 
+        class HighestStatPropertyGetter : PropertyValueGetter
+        {
+            public StatType[] stats;
+            public static BlueprintUnitProperty createProperty(string name, string guid, params StatType[] stats)
+            {
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = name;
+                Main.library.AddAsset(p, guid);
+                p.SetComponents(Helpers.Create<HighestStatPropertyGetter>(a => a.stats = stats));
+                return p;
+            }
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                int val = -100;
+                foreach (var s in stats)
+                {
+                    int bonus = unit.Stats.GetStat<ModifiableValueAttributeStat>(s).Bonus;
+                    if (bonus > val)
+                    {
+                        val = bonus;
+                    }
+                }
+                return val;
+            }
+        }
+
 
         class SneakAttackDiceGetter : PropertyValueGetter
         {
