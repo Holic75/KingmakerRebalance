@@ -13,6 +13,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using System;
@@ -174,7 +175,7 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritualWeapon.png");
             var description = "A weapon made of force appears and attacks foes at a distance, as you direct it, dealing 1d8 force damage per hit, +1 point per three caster levels(maximum + 5 at 15th level). The weapon takes the shape of a weapon favored by your deity or a weapon with some spiritual significance or symbolism to you (see below) and has the same threat range and critical multipliers as a real weapon of its form.It strikes the opponent you designate, starting with one attack in the round the spell is cast and continuing each round thereafter on your turn.It uses your base attack bonus(possibly allowing it multiple attacks per round in subsequent rounds) plus your casting stat modifier as its attack bonus. It strikes as a spell, not as a weapon, so for example, it can damage creatures that have damage reduction.As a force effect, it can strike incorporeal creatures without the reduction in damage associated with incorporeality.The weapon always strikes from your direction.It does not get a flanking bonus or help a combatant get one. Your feats or combat actions do not affect the weapon.\n"
-                                          + "Each round, you can use a move action to redirect the weapon to a new target. If you do not, the weapon continues to attack the previous round’s target. On any round that the weapon switches targets, it gets one attack. Subsequent rounds of attacking that target allow the weapon to make multiple attacks if your base attack bonus would allow it to.";
+                                          + "Each round, you can use a move action to redirect the weapon to a new target. If you do not, the weapon continues to attack the previous round’s target. If the target you directed it at is dead, the weapon will temporary vanish until you point a new target. On any round that the weapon switches targets, it gets one attack. Subsequent rounds of attacking that target allow the weapon to make multiple attacks if your base attack bonus would allow it to.";
 
             
             var mark_buff = Helpers.CreateBuff("SpiritualWeaponMarkBuff",
@@ -252,7 +253,7 @@ namespace CallOfTheWild
                                                      );
             mark_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             mark_ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
-
+            mark_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: clear_summon_pool));
 
             var spiritual_weapon_summoner_buff = Helpers.CreateBuff("SpiritualWeaponSummonerBuff",
                                                                     "Spiritual Weapon Summoner",
