@@ -32,6 +32,31 @@ namespace CallOfTheWild.AooMechanics
         }
     }
 
+
+    public class UnitPartDoesNotEngage : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class DoesNotEngage : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartDoesNotEngage>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartDoesNotEngage>().removeBuff(this.Fact);
+        }
+    }
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class AooAgainstAllies : OwnedGameLogicComponent<UnitDescriptor>
     {
@@ -154,6 +179,21 @@ namespace CallOfTheWild.AooMechanics
 
     [AllowMultipleComponents]
     [AllowedOn(typeof(BlueprintUnitFact))]
+    public class DoNotProvokeAoo : RuleInitiatorLogicComponent<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
+    {
+
+        public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            evt.DoNotProvokeAttacksOfOpportunity = true;
+        }
+
+        public override void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+        }
+    }
+
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
     public class AttackDamageBonusOnAoo : RuleInitiatorLogicComponent<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IInitiatorRulebookSubscriber
     {
         public WeaponCategory[] weapon_categories;
@@ -256,6 +296,17 @@ namespace CallOfTheWild.AooMechanics
                 }
             }
             return true;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitCombatState))]
+    [Harmony12.HarmonyPatch("Engage", Harmony12.MethodType.Normal)]
+    class Patch_UnitCombatState__Engage
+    {
+        static bool Prefix(UnitCombatState __instance, UnitEntityData target)
+        {
+            return __instance.Unit?.Get<UnitPartDoesNotEngage>() == null;
         }
     }
 

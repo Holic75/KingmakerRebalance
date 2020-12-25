@@ -279,6 +279,8 @@ namespace CallOfTheWild
         static public BlueprintAbility wracking_ray;
         static public BlueprintAbility smite_abomination;
 
+
+
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
@@ -289,6 +291,9 @@ namespace CallOfTheWild
         //blood rage
         //etheric shards
         //tactical acumen
+        //spiritual weapon
+        //spiritual ally
+        //twilight knife
 
         static public void load()
         {
@@ -472,6 +477,7 @@ namespace CallOfTheWild
             createSecondWind();
             createWrackingRay();
             createSmiteAbomination();
+            SpiritualWeapons.load();
         }
 
 

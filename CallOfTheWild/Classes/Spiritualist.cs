@@ -1884,6 +1884,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( NewSpells.shadow_claws.AssetGuid, 2),
+                new Common.SpellId( SpiritualWeapons.spiritual_weapon.AssetGuid, 2),
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 2),
                 new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
@@ -1934,6 +1935,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f2115ac1148256b4ba20788f7e966830", 4), //restoration
                 new Common.SpellId( NewSpells.shadow_conjuration.AssetGuid, 4),
                 new Common.SpellId( NewSpells.solid_fog.AssetGuid, 4),
+                new Common.SpellId( SpiritualWeapons.spiritual_ally.AssetGuid, 4),
                 new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "7ed74a3ec8c458d4fb50b192fd7be6ef", 4), //summon monster 4
 

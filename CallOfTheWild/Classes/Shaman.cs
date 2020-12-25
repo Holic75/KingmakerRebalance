@@ -315,6 +315,8 @@ namespace CallOfTheWild
             createSenseSpiritMagic();
             createSpiritCall();
             createFontOfSpiritMagic();
+
+            SpiritualWeapons.spiritual_guardian.AddComponent(Helpers.PrerequisiteFeature(spirit_magic));
         }
 
 
@@ -799,11 +801,12 @@ namespace CallOfTheWild
 
             var spells = new Common.ExtraSpellList(new Common.SpellId("14c90900b690cac429b229efdf416127", 1), //longstrider
                                                    new Common.SpellId("2c38da66e5a599347ac95b3294acbe00", 1), //true strike
-                                                   new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
+                                                   //new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
+                                                   new Common.SpellId(SpiritualWeapons.spiritual_weapon.AssetGuid, 2),
                                                    new Common.SpellId("464a7193519429f48b4d190acb753cf0", 2), //grace,
                                                    new Common.SpellId("5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
-                                                   new Common.SpellId(SpellDuplicates.addDuplicateSpell(NewSpells.sands_of_time, "SpeakerForThePastSendsOfTimeAbility").AssetGuid, 3), //sands of time
-                                                   new Common.SpellId("6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
+                                                   new Common.SpellId(SpellDuplicates.addDuplicateSpell(NewSpells.sands_of_time, "SpeakerForThePastSendsOfTimeAbility").AssetGuid, 3), //sands of time                                                                                                                                                                                     //new Common.SpellId("6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
+                                                   new Common.SpellId(SpiritualWeapons.spiritual_ally.AssetGuid, 4),
                                                    new Common.SpellId(NewSpells.threefold_aspect.AssetGuid, 4),
                                                    new Common.SpellId("90810e5cf53bf854293cbd5ea1066252", 5), //righteous might
                                                    new Common.SpellId("41e8a952da7a5c247b3ec1c2dbb73018", 5), //hold monster

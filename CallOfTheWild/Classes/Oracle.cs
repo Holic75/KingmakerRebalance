@@ -1638,9 +1638,9 @@ namespace CallOfTheWild
             var spells = new BlueprintAbility[]
             {
                 library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00"), //true strike
-                NewSpells.force_sword,
+                SpiritualWeapons.spiritual_weapon,
                 library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
-                library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5"), //phantasmal killer
+                SpiritualWeapons.spiritual_ally,
                 library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252"), //righteous might
                 library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31"), //heroism greater
                 library.Get<BlueprintAbility>("98310a099009bbd4dbdf66bcef58b4cd"), //mass invisibility
