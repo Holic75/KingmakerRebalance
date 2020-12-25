@@ -2721,6 +2721,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2b044152b3620c841badb090e01ed9de", 7), //insanity
                 new Common.SpellId( "98310a099009bbd4dbdf66bcef58b4cd", 7), //invisibility mass
                 new Common.SpellId( "5c8cde7f0dcec4e49bfa2632dfe2ecc0", 7), //ki shout
+                new Common.SpellId( SpiritualWeapons.mages_sword.AssetGuid, 7),
                 new Common.SpellId( "df2a0ba6b6dcecf429cbb80a56fee5cf", 7), //mind blank
                 new Common.SpellId( NewSpells.particulate_form.AssetGuid, 7),
                 new Common.SpellId( "261e1788bfc5ac1419eec68b1d485dbc", 7), //power word blind

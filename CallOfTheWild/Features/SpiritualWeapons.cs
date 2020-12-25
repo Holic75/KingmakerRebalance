@@ -35,7 +35,7 @@ namespace CallOfTheWild
         static public BlueprintAbility spiritual_ally;
         static public BlueprintAbility twilight_knife;
         static public BlueprintAbility mages_sword;
-        static BlueprintUnitProperty  best_mental_stat_property = NewMechanics.HighestStatPropertyGetter.createProperty("SpiritualAllyBestMentalStatProperty", "", StatType.Wisdom, StatType.Charisma, StatType.Intelligence);
+        static BlueprintUnitProperty best_mental_stat_property = NewMechanics.HighestStatPropertyGetter.createProperty("SpiritualAllyBestMentalStatProperty", "", StatType.Wisdom, StatType.Charisma, StatType.Intelligence);
         static BlueprintWeaponEnchantment fx_enchant;
         static public BlueprintFeature spiritual_guardian;
 
@@ -47,6 +47,7 @@ namespace CallOfTheWild
 
             createSpiritualWeapon();
             createSpiritualAlly();
+            createMagesSword();
         }
 
 
@@ -177,7 +178,7 @@ namespace CallOfTheWild
             var description = "A weapon made of force appears and attacks foes at a distance, as you direct it, dealing 1d8 force damage per hit, +1 point per three caster levels(maximum + 5 at 15th level). The weapon takes the shape of a weapon favored by your deity or a weapon with some spiritual significance or symbolism to you (see below) and has the same threat range and critical multipliers as a real weapon of its form.It strikes the opponent you designate, starting with one attack in the round the spell is cast and continuing each round thereafter on your turn.It uses your base attack bonus(possibly allowing it multiple attacks per round in subsequent rounds) plus your casting stat modifier as its attack bonus. It strikes as a spell, not as a weapon, so for example, it can damage creatures that have damage reduction.As a force effect, it can strike incorporeal creatures without the reduction in damage associated with incorporeality.The weapon always strikes from your direction.It does not get a flanking bonus or help a combatant get one. Your feats or combat actions do not affect the weapon.\n"
                                           + "Each round, you can use a move action to redirect the weapon to a new target. If you do not, the weapon continues to attack the previous round’s target. If the target you directed it at is dead, the weapon will temporary vanish until you point a new target. On any round that the weapon switches targets, it gets one attack. Subsequent rounds of attacking that target allow the weapon to make multiple attacks if your base attack bonus would allow it to.";
 
-            
+
             var mark_buff = Helpers.CreateBuff("SpiritualWeaponMarkBuff",
                                                "Spiritual Weapon Target",
                                                description,
@@ -215,7 +216,7 @@ namespace CallOfTheWild
                                                            Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, progression: ContextRankProgression.DivStep,
                                                                                            stepLevel: 3, max: 5),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, type: AbilityRankType.DamageDice,
-                                                                                           featureList: new BlueprintFeature[] {spiritual_guardian, spiritual_guardian })
+                                                                                           featureList: new BlueprintFeature[] { spiritual_guardian, spiritual_guardian })
                                                            );
 
             var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SpiritualWeaponSummonPool", "");
@@ -339,7 +340,7 @@ namespace CallOfTheWild
                                                            Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, progression: ContextRankProgression.DivStep,
                                                                                            stepLevel: 3, max: 5),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, type: AbilityRankType.DamageDice,
-                                                                                           featureList: new BlueprintFeature[] { spiritual_guardian, spiritual_guardian })                                                       
+                                                                                           featureList: new BlueprintFeature[] { spiritual_guardian, spiritual_guardian })
                                                            );
 
             var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "SpiritualAllySummonPool", "");
@@ -414,6 +415,120 @@ namespace CallOfTheWild
             spiritual_ally.AddToSpellList(Helpers.clericSpellList, 4);
             spiritual_ally.AddToSpellList(Helpers.inquisitorSpellList, 4);
             spiritual_ally.AddSpellAndScroll("12f4ee72c02537244b5b2bacfa236bc7");
+        }
+
+
+
+        static void createMagesSword()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritualWeapon.png");
+            var description = "This spell brings into being a shimmering, sword-like plane of force. The sword strikes at any opponent within its range, as you desire, starting in the round that you cast the spell. The sword attacks its designated target once each round on your turn. Its attack bonus is equal to your caster level + your Intelligence bonus or your Charisma bonus (for wizards or sorcerers, respectively) with an additional +3 enhancement bonus. As a force effect, it can strike ethereal and incorporeal creatures. It deals 4d6+3 points of force damage, with a threat range of 19–20 and a critical multiplier of ×2.\n"
+                                          + "The sword always strikes from your direction. It does not get a bonus for flanking or help a combatant get one. If the sword goes beyond the spell range from you, goes out of your sight, or you are not directing it, it returns to you and hovers.\n"
+                                          + "Each round after the first, you can use a move action to switch the sword to a new target. If you do not, the sword continues to attack the previous round’s target.";
+
+
+            var mark_buff = Helpers.CreateBuff("MagesSwordMarkBuff",
+                                               "Mage's Sword Target",
+                                               description,
+                                               "",
+                                               icon,
+                                               null,
+                                               Helpers.Create<UniqueBuff>()
+                                               );
+
+            var apply_mark = Common.createContextActionApplyBuff(mark_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+
+            var mages_sword_buff = Helpers.CreateBuff("MagesSwordUnitBuff",
+                                                           "Mage's Sword",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           null,
+                                                           Helpers.Create<NewMechanics.WeaponDamageChange>(w =>
+                                                           {
+                                                               w.dice_formula = new DiceFormula(4, DiceType.D6);
+                                                               w.bonus_damage = 3;
+                                                               w.damage_type_description = Common.createForceDamageDescription();
+                                                           }),
+                                                           Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => p.enchant = fx_enchant),
+                                                           Helpers.Create<RaiseBAB>(r => r.TargetValue = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                           Helpers.CreateContextRankConfig(),
+                                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
+                                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, type: AbilityRankType.StatBonus, customProperty: best_mental_stat_property)
+                                                           );
+
+            var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "MagesSwordSummonPool", "");
+            var apply_summon_buff = Common.createContextActionApplyBuff(library.Get<BlueprintBuff>("6fcdf014694b2b542a867763b4369cb3"), Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+            var summon_weapon = Helpers.Create<SpiritualAllyMechanics.ContextActionSummonSpiritualAlly>(c =>
+            {
+                c.Blueprint = spiritual_weapon_unit;
+                c.category = WeaponCategory.Greatsword;
+                c.use_deity_weapon = false;
+                c.SummonPool = summon_pool;
+                c.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 1, 1);
+                c.DoNotLinkToCaster = false;
+                c.DurationValue = Helpers.CreateContextDuration(1000);
+                c.AfterSpawn = Helpers.CreateActionList(apply_summon_buff,
+                                                        Common.createContextActionApplyBuff(weapon_metamagic_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
+                                                        Common.createContextActionApplyBuff(mages_sword_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
+                                                        );
+                c.custom_name = "Mage's Sword";
+                c.attack_mark_buff = mark_buff;
+            });
+
+            var clear_summon_pool = Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool);
+            var mark_ability = Helpers.CreateAbility("MagesSwordTargetSelectionAbility",
+                                                     "Mage's Sword Target Change",
+                                                     description,
+                                                     "",
+                                                     icon,
+                                                     AbilityType.SpellLike,
+                                                     UnitCommand.CommandType.Move,
+                                                     AbilityRange.Medium,
+                                                     "",
+                                                     "",
+                                                     Helpers.CreateRunActions(clear_summon_pool, summon_weapon, apply_mark),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                     );
+            mark_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mark_ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
+            mark_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: clear_summon_pool));
+
+            var mages_sword_summoner_buff = Helpers.CreateBuff("MagesSwordSummonerBuff",
+                                                                    "Mage's Sword Summoner",
+                                                                    description,
+                                                                    "",
+                                                                    icon,
+                                                                    null,
+                                                                    Helpers.Create<ReplaceAbilityParamsWithContext>(a => a.Ability = mark_ability),
+                                                                    Helpers.CreateAddFact(mark_ability),
+                                                                    Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool))
+                                                                    );
+            mages_sword_summoner_buff.Stacking = StackingType.Replace;
+            var apply_summoner_buff = Common.createContextActionApplyBuffToCaster(mages_sword_summoner_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
+
+            mages_sword = Helpers.CreateAbility("MagesSwordAbility",
+                                                "Mage's Sword",
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Medium,
+                                                Helpers.roundsPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(clear_summon_pool, apply_summoner_buff, summon_weapon, apply_mark),
+                                                Helpers.CreateContextRankConfig(),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                );
+
+            mages_sword.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            mages_sword.AvailableMetamagic = mark_ability.AvailableMetamagic | Metamagic.Reach | Metamagic.Heighten | Metamagic.Quicken;
+
+            mages_sword.AddToSpellList(Helpers.wizardSpellList, 7);
+            mages_sword.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
         }
     }
 }
