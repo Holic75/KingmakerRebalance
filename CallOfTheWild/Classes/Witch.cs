@@ -1361,6 +1361,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 3), //spit venom
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
+                new Common.SpellId( SpiritualWeapons.twilight_knife.AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
 
                 new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4),

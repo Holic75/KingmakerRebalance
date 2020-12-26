@@ -703,6 +703,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.resinous_skin.AssetGuid, 3),
                 new Common.SpellId( NewSpells.sleet_storm.AssetGuid, 3),
                 new Common.SpellId( "68a9e6d7256f1354289a39003a46d826", 3), //stinking cloud
+                new Common.SpellId( SpiritualWeapons.twilight_knife.AssetGuid, 3),
                 new Common.SpellId( Wildshape.undead_anatomyI.AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampiric touch
 
