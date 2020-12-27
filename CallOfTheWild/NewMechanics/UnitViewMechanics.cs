@@ -109,7 +109,7 @@ namespace CallOfTheWild.UnitViewMechanics
                 Character character = null;
                 if (originalAvatar.BakedCharacter)
                 {
-                    var clone = Helpers.Clone(originalAvatar.gameObject, string.Format("Doll [{0}]", dollName));
+                    var clone = Aux.Clone(originalAvatar.gameObject, string.Format("Doll [{0}]", dollName));
                     //UnityEngine.Object.Instantiate(originalAvatar.gameObject, Vector3.zero, Quaternion.identity);                                                                                    
                     character = clone.AddComponent<Character>();//clone.GetComponent<Character>();
                 } else
