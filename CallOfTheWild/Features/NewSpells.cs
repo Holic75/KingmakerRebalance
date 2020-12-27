@@ -272,8 +272,8 @@ namespace CallOfTheWild
         static public BlueprintAbility phantom_limbs;
         static public BlueprintAbility ghostbane_dirge;
         static public BlueprintAbility ghostbane_dirge_mass;
-
         static public BlueprintAbility arcane_concordance;
+
         static public BlueprintAbility shadow_claws;
         static public BlueprintAbility second_wind;
         static public BlueprintAbility wracking_ray;
@@ -291,9 +291,6 @@ namespace CallOfTheWild
         //blood rage
         //etheric shards
         //tactical acumen
-        //spiritual weapon
-        //spiritual ally
-        //twilight knife
 
         static public void load()
         {
