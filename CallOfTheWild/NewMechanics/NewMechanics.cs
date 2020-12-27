@@ -9024,6 +9024,56 @@ namespace CallOfTheWild
             }
         }
 
+        class HighestStatPropertyGetter : PropertyValueGetter
+        {
+            public StatType[] stats;
+            public static BlueprintUnitProperty createProperty(string name, string guid, params StatType[] stats)
+            {
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = name;
+                Main.library.AddAsset(p, guid);
+                p.SetComponents(Helpers.Create<HighestStatPropertyGetter>(a => a.stats = stats));
+                return p;
+            }
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                int val = -100;
+                foreach (var s in stats)
+                {
+                    int bonus = unit.Stats.GetStat<ModifiableValueAttributeStat>(s).Bonus;
+                    if (bonus > val)
+                    {
+                        val = bonus;
+                    }
+                }
+                return val;
+            }
+        }
+
+
+    [ComponentName("change weapon damage")]
+    public class WeaponDamageChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+    {
+        public DiceFormula dice_formula;
+        public ContextValue bonus_damage;
+        public DamageTypeDescription damage_type_description = null;
+
+        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            evt.WeaponDamageDiceOverride = dice_formula;
+            evt.AddBonusDamage(bonus_damage.Calculate(this.Fact.MaybeContext));
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (damage_type_description != null && evt.DamageDescription.Count() > 0)
+            {
+                evt.DamageDescription[0].TypeDescription = damage_type_description;
+            }
+        }
+    }
+
 
         class SneakAttackDiceGetter : PropertyValueGetter
         {

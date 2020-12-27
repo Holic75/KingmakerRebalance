@@ -911,7 +911,19 @@ namespace CallOfTheWild
             strenght_surge.CanTargetFriends = true;
             strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetEnemies = false;
             strenght_surge.StickyTouch.TouchDeliveryAbility.CanTargetFriends = true;
-            //fix toggle actions
+            //fix aura of madness to be a toggle instead of ability
+            var madness_greater_resource = library.Get<BlueprintAbilityResource>("3289ee86c57f6134d81770865c315e8b");
+            var madness_domain_buff = library.Get<BlueprintBuff>("73192f96dd97b634cb794ae42f92c2ff");
+            var madness_area = library.Get<BlueprintAbilityAreaEffect>("19ee79b1da25ea049ba4fea92c2a4025");
+            var madness_greater_feature = library.Get<BlueprintFeature>("9acc8ab2f313d0e49bb01e030c868e3f");
+
+            madness_greater_resource.SetIncreasedByLevel(0, 1, new BlueprintCharacterClass[] { cleric_class, inquisitor_class });
+            madness_area.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { cleric_class, inquisitor_class }, StatType.Wisdom));
+            var toggle = Common.buffToToggle(madness_domain_buff, UnitCommand.CommandType.Standard, false,
+                                             madness_greater_resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
+            madness_greater_feature.RemoveComponents<ReplaceAbilitiesStat>();
+            madness_greater_feature.ReplaceComponent<AddFacts>(r => r.Facts[0] = toggle);
+
 
 
             //protection domain

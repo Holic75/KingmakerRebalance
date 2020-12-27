@@ -272,19 +272,25 @@ namespace CallOfTheWild
         static public BlueprintAbility phantom_limbs;
         static public BlueprintAbility ghostbane_dirge;
         static public BlueprintAbility ghostbane_dirge_mass;
-
         static public BlueprintAbility arcane_concordance;
+
+        static public BlueprintAbility shadow_claws;
+        static public BlueprintAbility second_wind;
+        static public BlueprintAbility wracking_ray;
+        static public BlueprintAbility smite_abomination;
+
+
 
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
+        //condensed ether ?
 
         //corrosive consumption
         //implosion
-        //condensed ether
         //blood rage
-        //smite abomination
         //etheric shards
+        //tactical acumen
 
         static public void load()
         {
@@ -463,6 +469,143 @@ namespace CallOfTheWild
             createPhantomLimbs();
             createGhostbaneDirge();
             createArcaneConcordance();
+
+            createShadowClaws();
+            createSecondWind();
+            createWrackingRay();
+            createSmiteAbomination();
+            SpiritualWeapons.load();
+        }
+
+
+        static void createSmiteAbomination()
+        {
+            smite_abomination = library.CopyAndAdd<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec", "SmiteAbominationAbility", "");
+
+            smite_abomination.SetName("Smite Abomination");
+            smite_abomination.SetDescription("Drawing upon positive energy, you emulate some of a paladin’s power to smite undead. Choose one undead creature as your target. You gain a bonus equal to your Charisma or Wisdom modifier, whichever is higher, on your attack rolls, and as deflection bonus to your ac against the target, and a bonus equal to your caster level on damage rolls. Your attacks also bypass the target’s damage reduction. These bonuses do not stack with the bonuses from a paladin’s smite.");
+            smite_abomination.LocalizedDuration = Helpers.CreateString("SmiteAbomination.Duration", Helpers.roundsPerLevelDuration);
+            smite_abomination.RemoveComponents<AbilityCasterAlignment>();
+            smite_abomination.RemoveComponents<AbilityResourceLogic>();
+            smite_abomination.RemoveComponents<ContextRankConfig>();
+
+            var wis_cha_property = NewMechanics.HighestStatPropertyGetter.createProperty("SmiteAbominationWisChaUnitProperty", "", StatType.Wisdom, StatType.Charisma);
+            smite_abomination.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, type: AbilityRankType.StatBonus, customProperty: wis_cha_property));
+            smite_abomination.AddComponent(Helpers.CreateContextRankConfig(type: AbilityRankType.DamageBonus, max: 20));
+            smite_abomination.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
+
+            var smite_action = smite_abomination.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityEffectRunAction>();
+
+            var old_conditional = (Kingmaker.Designers.EventConditionActionSystem.Actions.Conditional)smite_action.Actions.Actions[0];
+            var conditions = new Condition[] {Common.createContextConditionHasFact(Common.undead), old_conditional.ConditionsChecker.Conditions[1] };
+
+            var smite_buff = ((ContextActionApplyBuff)old_conditional.IfTrue.Actions[0]).Buff;
+            var apply_smite_buff = Common.createContextActionApplyBuff(smite_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageBonus)), is_from_spell: true);
+            var new_smite_action = Helpers.CreateConditional(conditions, new GameAction[] { apply_smite_buff }, null);
+            smite_abomination.ReplaceComponent(smite_action, Helpers.CreateRunActions(new_smite_action));
+            smite_abomination.Type = AbilityType.Spell;
+            smite_abomination.ActionType = UnitCommand.CommandType.Standard;
+
+            smite_abomination.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            smite_abomination.AddToSpellList(Helpers.clericSpellList, 5);
+
+            smite_abomination.AddSpellAndScroll("8f01e5cb9e8ff8244b827185bb9c93f9"); //crusaders edge
+            smite_abomination.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach;
+        }
+
+
+        static void createWrackingRay()
+        {
+            wracking_ray = library.CopyAndAdd<BlueprintAbility>("450af0402422b0b4980d9c2175869612", "WrackingRayAbility", "");//ray of enfeeblement
+            wracking_ray.RemoveComponents<SpellListComponent>();
+            wracking_ray.RemoveComponents<AbilityEffectRunAction>();
+            wracking_ray.RemoveComponents<SpellDescriptorComponent>();
+            wracking_ray.LocalizedDuration = Helpers.CreateString("WrackingRay.Duration", "");
+            wracking_ray.LocalizedSavingThrow = Helpers.CreateString("WrackingRay.Savingthrow", "Fortitude half");
+            wracking_ray.SetNameDescription("Wracking Ray",
+                                            "A ray of sickly greenish-gray negative energy issues forth from the palm of your hand. Make a ranged touch attack against the target. A creature hit by this spell is wracked by painful spasms as its muscles and sinews wither and twist. The subject takes 1d4 points of Dexterity and Strength damage per 3 caster levels you possess (maximum 5d4 each). A successful Fortitude save halves the damage.");
+            wracking_ray.Range = AbilityRange.Medium;
+            wracking_ray.AvailableMetamagic = wracking_ray.AvailableMetamagic | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral;
+            wracking_ray.CanTargetFriends = true;
+            var dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage));
+            var str_damage = Helpers.CreateActionDealDamage(StatType.Strength, dice, halfIfSaved: true);
+            var dex_damage = Helpers.CreateActionDealDamage(StatType.Dexterity, dice, halfIfSaved: true);
+            wracking_ray.AddComponents(Helpers.CreateRunActions(SavingThrowType.Fortitude, str_damage, dex_damage),
+                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default), 0), AbilitySharedValue.Damage),
+                                       Helpers.CreateContextRankConfig(progression: ContextRankProgression.DivStep, stepLevel: 3, max: 5, feature: MetamagicFeats.intensified_metamagic),
+                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Evil)
+                                       );
+
+            wracking_ray.AddToSpellList(Helpers.wizardSpellList, 5);
+            wracking_ray.AddSpellAndScroll("792862674c565ad4fbb1ab0c97c42acd"); //ray of enfeeblement
+        }
+
+
+        static void createSecondWind()
+        {
+            second_wind = Helpers.CreateAbility("SecondWindAbility",
+                                               "Second Wind",
+                                               "You can cast this spell only when you have fewer than one-quarter of your total hit points. With a gasping utterance, you summon invigorating air to fill your lungs. You heal 2d8 points of damage + 1 point per caster level (maximum +10).",
+                                               "",
+                                               Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruction judgment
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Swift,
+                                               AbilityRange.Personal,
+                                               "",
+                                               "",
+                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D8, 2, Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                               Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                               Helpers.CreateContextRankConfig(max: 10),
+                                               Common.createAbilitySpawnFx("e9399b6d57369ab4a9c3d88798d92f33", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Cure | SpellDescriptor.RestoreHP | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Air)
+                                               );
+            second_wind.setMiscAbilityParametersSelfOnly();
+            second_wind.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Heighten;
+            second_wind.AddToSpellList(Helpers.clericSpellList, 3);
+            second_wind.AddToSpellList(Helpers.paladinSpellList, 3);
+            second_wind.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            second_wind.AddToSpellList(Helpers.rangerSpellList, 3);
+            Helpers.AddSpellAndScroll(second_wind, "08cf11d25aaab074388207b66f64a162"); //aid
+        }
+
+
+        static void createShadowClaws()
+        {
+            var claw1d4 = library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a");
+
+            var effect = Helpers.CreateActionDealDamage(StatType.Strength, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1));
+            var saved_effect = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, effect));
+            var buff = Helpers.CreateBuff("ShadowClawsBuff",
+                                          "Shadow Claws",
+                                          "You summon a pair of claws over your hands formed from semireal material. This grants you two primary claw attacks dealing 1d4 points of damage if you are Medium (1d3 if Small) plus 1 point of Strength damage. A successful Fortitude saving throw negates the Strength damage (DC = this spell’s DC).",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
+                                          null,
+                                          Common.createEmptyHandWeaponOverride(claw1d4),
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw)
+                                          );
+
+            shadow_claws = Helpers.CreateAbility("ShadowClawsAbility",
+                                                 buff.Name,
+                                                 buff.Description,
+                                                 "",
+                                                 buff.Icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Personal,
+                                                 Helpers.minutesPerLevelDuration,
+                                                 "",
+                                                 Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                 Helpers.CreateContextRankConfig(),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                 Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                 );
+            shadow_claws.setMiscAbilityParametersSelfOnly();
+            shadow_claws.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            shadow_claws.AddToSpellList(Helpers.wizardSpellList, 2);
+            shadow_claws.AddToSpellList(Helpers.bardSpellList, 2);
+            shadow_claws.AddToSpellList(Helpers.magusSpellList, 2);
+            Helpers.AddSpellAndScroll(shadow_claws, "d1d24c5613bb8c14a9a089c54b77527d");
         }
 
 
@@ -6925,7 +7068,7 @@ namespace CallOfTheWild
             burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
             burst_of_radiance.Range = AbilityRange.Long;
             burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness));
+            burst_of_radiance.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Good | SpellDescriptor.Blindness | SpellDescriptor.SightBased));
 
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
             var blind = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
@@ -9592,14 +9735,14 @@ namespace CallOfTheWild
         static public BlueprintAbility[] createWishSpellLevelVariants(string name_prefix, string display_name, string description,  UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
                                              UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
                                              bool allow_metamagic = true, bool allow_spells_with_material_components = true, 
-                                             bool full_round =  true, int primary_spellbook_level = 8, int secondary_sepllbook_level = 7, BlueprintAbilityResource resource = null)
+                                             bool full_round =  true, int primary_spellbook_level = 8, int secondary_spellbook_level = 7, BlueprintAbilityResource resource = null)
         {
-            if (secondary_sepllbook_level > primary_spellbook_level)
+            if (secondary_spellbook_level > primary_spellbook_level)
             {
-                throw Main.Error($"primary_spellbook_level < secondary_sepllbook_level");
+                throw Main.Error($"primary_spellbook_level < secondary_spellbook_level");
             }
             var spellbooks = library.GetAllBlueprints().OfType<BlueprintSpellbook>();
-            //create spell lsit of all concerned spells and pick their lowest levels
+            //create spell list of all concerned spells and pick their lowest levels
             Dictionary<string, int> spell_guid_level_map = new Dictionary<string, int>();
 
             foreach (var spellbook in spellbooks)
@@ -9608,7 +9751,7 @@ namespace CallOfTheWild
                 {
                     continue;
                 }
-                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_sepllbook_level;
+                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_spellbook_level;
                 max_level = Math.Min(max_level, (int)spellbook.SpellList?.SpellsByLevel?.Length - 1);
                 for (int i = 1; i <= max_level; i++)
                 {

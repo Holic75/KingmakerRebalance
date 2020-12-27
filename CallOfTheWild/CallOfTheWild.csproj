@@ -210,6 +210,7 @@
     <Compile Include="Features\Deities.cs" />
     <Compile Include="Features\MonkKiPowers.cs" />
     <Compile Include="Features\SkillUnlocks.cs" />
+    <Compile Include="Features\SpiritualWeapons.cs" />
     <Compile Include="Features\WeaponsFix.cs" />
     <Compile Include="Features\Familiars.cs" />
     <Compile Include="Features\MagusArcana.cs" />
@@ -295,6 +296,7 @@
     <Compile Include="NewMechanics\SizeMechanics.cs" />
     <Compile Include="NewMechanics\SkillCheckMechanics.cs" />
     <Compile Include="NewMechanics\SpellFailureMechanics.cs" />
+    <Compile Include="NewMechanics\SpiritualAllyMechanics.cs" />
     <Compile Include="NewMechanics\StatReplacementMechanics.cs" />
     <Compile Include="NewMechanics\TImeStopMechanics.cs" />
     <Compile Include="NewMechanics\TravelMap.cs" />

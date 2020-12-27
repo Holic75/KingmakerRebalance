@@ -2101,8 +2101,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "e5af3674bb241f14b9a9f6b0c7dc3d27", 1), //inflict light wounds
                 new Common.SpellId( NewSpells.magic_weapon.AssetGuid, 1),
                 new Common.SpellId( "433b1faf4d02cc34abb0ade5ceda47c4", 1), //protection from alignment
-                new Common.SpellId( NewSpells.savage_maw.AssetGuid, 1), 
-                //shadow claws
+                new Common.SpellId( NewSpells.savage_maw.AssetGuid, 1),
+                new Common.SpellId( NewSpells.shadow_claws.AssetGuid, 1),
                 //touch of blindness
                 new Common.SpellId( "8fd74eddd9b6c224693d9ab241f25e84", 1), //summon monster I
                 
@@ -2133,7 +2133,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //diplacement instead of shield of darkness
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 3), //inflict moderate wounds        
                 new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 3),
-                //second wind
+                new Common.SpellId( NewSpells.second_wind.AssetGuid, 3),
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampiric touch
 

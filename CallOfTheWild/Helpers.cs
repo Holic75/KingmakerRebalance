@@ -169,6 +169,10 @@ namespace CallOfTheWild
             {
                 guid = Helpers.GuidStorage.getGuid(blueprint.name);
             }
+            else if (guid[0] == '$')
+            {
+                guid = Helpers.GuidStorage.maybeGetGuid(blueprint.name, guid.Remove(0));
+            }
             blueprintScriptableObject_set_AssetId(blueprint, guid);
             // Sanity check that we don't stop on our own GUIDs or someone else's.
             BlueprintScriptableObject existing;
@@ -1517,6 +1521,12 @@ namespace CallOfTheWild
             return a;
         }
 
+
+        public static void SetUnitName(this BlueprintUnit unit, string name)
+        {
+            unit.LocalizedName = unit.LocalizedName.CreateCopy();
+            unit.LocalizedName.String = Helpers.CreateString(unit.name + ".Name", name);
+        }
 
         public static AddFactContextActions CreateEmptyAddFactContextActions()
         {

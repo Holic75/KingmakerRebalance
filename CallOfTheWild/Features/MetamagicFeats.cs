@@ -627,7 +627,40 @@ namespace CallOfTheWild
                 if (Helpers.GetField<bool>(__instance, "m_UseMin"))
                     __result = Math.Max(__result, Helpers.GetField<int>(__instance, "m_Min"));
                 if (Helpers.GetField<bool>(__instance, "m_UseMax"))
-                    __result = Math.Min(__result, Helpers.GetField<int>(__instance, "m_Max") + (intensified_allowed ? intensify_watcher : 0));
+                {
+                    int max_val_bonus = 0;
+                    var progression = Helpers.GetField<ContextRankProgression>(__instance, "m_Progression");
+                    switch (progression)
+                    {
+                        case ContextRankProgression.AsIs:
+                        case ContextRankProgression.BonusValue:
+                            max_val_bonus = intensify_watcher;
+                            break;
+                        case ContextRankProgression.Div2:
+                        case ContextRankProgression.OnePlusDiv2:
+                        case ContextRankProgression.Div2PlusStep:
+                            max_val_bonus = intensify_watcher / 2;
+                            break;
+                        case ContextRankProgression.DelayedStartPlusDivStep:
+                        case ContextRankProgression.DivStep:
+                        case ContextRankProgression.OnePlusDivStep:
+                            max_val_bonus = intensify_watcher / Helpers.GetField<int>(__instance, "m_StepLevel");
+                            break;
+                        case ContextRankProgression.StartPlusDoubleDivStep:
+                            max_val_bonus = 2*(intensify_watcher / Helpers.GetField<int>(__instance, "m_StepLevel"));
+                            break;
+                        case ContextRankProgression.HalfMore:
+                            max_val_bonus = intensify_watcher  + intensify_watcher / 2;
+                            break;
+                        case ContextRankProgression.MultiplyByModifier:
+                            max_val_bonus = intensify_watcher * Helpers.GetField<int>(__instance, "m_StepLevel");
+                            break;
+                        default:
+                            max_val_bonus = 0;
+                            break;
+                    }
+                    __result = Math.Min(__result, Helpers.GetField<int>(__instance, "m_Max") + (intensified_allowed ? max_val_bonus : 0));
+                }
 
                 return false;
             }
