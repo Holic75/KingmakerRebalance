@@ -554,6 +554,7 @@ namespace CallOfTheWild
                                                            Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => p.enchant = fx_enchant),
                                                            Helpers.Create<RaiseBAB>(r => r.TargetValue = Helpers.CreateContextValue(AbilityRankType.Default)),
                                                            Helpers.CreateContextRankConfig(),
+                                                           Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 3, ModifierDescriptor.Enhancement),
                                                            Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, type: AbilityRankType.StatBonus, customProperty: best_mental_stat_property)
                                                            );
