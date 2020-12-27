@@ -9737,14 +9737,14 @@ namespace CallOfTheWild
         static public BlueprintAbility[] createWishSpellLevelVariants(string name_prefix, string display_name, string description,  UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
                                              UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
                                              bool allow_metamagic = true, bool allow_spells_with_material_components = true, 
-                                             bool full_round =  true, int primary_spellbook_level = 8, int secondary_sepllbook_level = 7, BlueprintAbilityResource resource = null)
+                                             bool full_round =  true, int primary_spellbook_level = 8, int secondary_spellbook_level = 7, BlueprintAbilityResource resource = null)
         {
-            if (secondary_sepllbook_level > primary_spellbook_level)
+            if (secondary_spellbook_level > primary_spellbook_level)
             {
-                throw Main.Error($"primary_spellbook_level < secondary_sepllbook_level");
+                throw Main.Error($"primary_spellbook_level < secondary_spellbook_level");
             }
             var spellbooks = library.GetAllBlueprints().OfType<BlueprintSpellbook>();
-            //create spell lsit of all concerned spells and pick their lowest levels
+            //create spell list of all concerned spells and pick their lowest levels
             Dictionary<string, int> spell_guid_level_map = new Dictionary<string, int>();
 
             foreach (var spellbook in spellbooks)
@@ -9753,7 +9753,7 @@ namespace CallOfTheWild
                 {
                     continue;
                 }
-                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_sepllbook_level;
+                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_spellbook_level;
                 max_level = Math.Min(max_level, (int)spellbook.SpellList?.SpellsByLevel?.Length - 1);
                 for (int i = 1; i <= max_level; i++)
                 {

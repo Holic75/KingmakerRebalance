@@ -1153,9 +1153,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "e84fc922ccf952943b5240293669b171", 2), //restoration lesser
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "6c7467f0344004d48848a43d8c078bf8", 2), //sickening entanglement
+                new Common.SpellId( SpiritualWeapons.spiritual_weapon.AssetGuid, 2),
                 new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "298148133cdc3fd42889b99c82711986", 2), //summon nature ally II
-                
                 new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 2),
                 new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2),
                 new Common.SpellId( NewSpells.winter_grasp.AssetGuid, 2),
@@ -1200,6 +1200,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "6b30813c3709fc44b92dc8fd8191f345", 4), //slowing mud
                 new Common.SpellId( "d1afa8bc28c99104da7d784115552de5", 4), //spike stones
                 new Common.SpellId( NewSpells.spirit_bound_blade.AssetGuid, 4),
+                 new Common.SpellId( SpiritualWeapons.spiritual_ally.AssetGuid, 4),
                 new Common.SpellId( "9779c8578acd919419f563c33d7b2af5", 4), //spit venom           
                 new Common.SpellId( "e42b1dbff4262c6469a9ff0a6ce730e3", 4), //summon medium elemental
                 new Common.SpellId( "c83db50513abdf74ca103651931fac4b", 4), //summon nature ally IV

@@ -4,6 +4,8 @@ using Kingmaker.Blueprints.Classes.Experience;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
+using Kingmaker.Designers.EventConditionActionSystem.Actions;
+using Kingmaker.Designers.EventConditionActionSystem.Evaluators;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -100,7 +102,7 @@ namespace CallOfTheWild
 
                 if (weapon != null)
                 {
-                    var spiritual_weapon = library.CopyAndAdd(weapon, "Spiritual" + weapon.name, "");
+                    var spiritual_weapon = library.CopyAndAdd(weapon, "Spiritual" + weapon.name, "$" + Helpers.MergeIds(weapon.AssetGuid, "2b9c3db072994c32b153caa00f2d5d47"));
                     spiritual_weapon.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>(w => w.buff = weapon_metamagic_buff));
                 }
             }
@@ -121,8 +123,8 @@ namespace CallOfTheWild
             target_marked_consideration.name = "SpiritualAllyTargetMarkedConsideration";
             library.AddAsset(target_marked_consideration, "");
 
-            var attack_action = library.CopyAndAdd<Kingmaker.Controllers.Brain.Blueprints.BlueprintAiAction>("866ffa6c34000cd4a86fb1671f86c7d8", "SpiritualAllyAttackAiAction", "");
-            attack_action.TargetConsiderations = attack_action.TargetConsiderations.AddToArray(target_marked_consideration);
+            var attack_action = library.CopyAndAdd<Kingmaker.Controllers.Brain.Blueprints.BlueprintAiAction>("866ffa6c34000cd4a86fb1671f86c7d8", "SpiritualAllyAttAiAction", "");
+            attack_action.TargetConsiderations = new Kingmaker.Controllers.Brain.Blueprints.Considerations.Consideration[] { target_marked_consideration };
 
             var brain = library.CopyAndAdd(unit.Brain, "SpiritualAllyBrain", "");
             brain.Actions = new Kingmaker.Controllers.Brain.Blueprints.BlueprintAiAction[] { attack_action };
@@ -145,14 +147,18 @@ namespace CallOfTheWild
                                                                //Helpers.Create<AddImmortality>(),
                                                                Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
                                                                Helpers.Create<AooMechanics.DoesNotEngage>(),
-                                                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove)
+                                                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove),
+                                                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Unlootable),
+                                                               Helpers.Create<PreciseShot>()
                                                                );
             unit.AddFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] {spiritual_weapon_feature,
                                                                                library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175"), //airborne
                                                                                library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike (for irori)
-                                                                                library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232")}; //ghost fx - to be changed
+                                                                               library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232")}; //ghost fx - to be changed
+            unit.AddComponents(Helpers.Create<UnitViewMechanics.InvisibleUnit>(),
+                               Helpers.Create<UnitViewMechanics.WeaponsAlwaysDrawn>());
             spiritual_weapon_unit = unit;
-
+            spiritual_weapon_unit.SetUnitName("Spiritual Weapon");
 
             var spiritual_ally_feature = Helpers.CreateFeature("SpiritualAllyFeature",
                                                    "",
@@ -166,7 +172,9 @@ namespace CallOfTheWild
                                                    Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.IterativeNaturalAttacks),
                                                    //Helpers.Create<AddImmortality>(),
                                                    Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
-                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove)
+                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove),
+                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Unlootable),
+                                                   Helpers.Create<PreciseShot>()
                                                    );
             spiritual_ally_unit = library.CopyAndAdd<BlueprintUnit>(spiritual_weapon_unit, "SpiritualAllyUnit", "");
             spiritual_ally_unit.AddFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] {spiritual_ally_feature,
@@ -174,7 +182,9 @@ namespace CallOfTheWild
                                                                                library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike (for irori)
                                                                                library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232")}; //ghost fx - to be changed
             spiritual_ally_unit.Prefab = Common.createUnitViewLink("209f5908484cfe348bf1e0eeb49955e8"); //ghost queen
-
+            spiritual_ally_unit.RemoveComponents<UnitViewMechanics.InvisibleUnit>();
+            spiritual_ally_unit.RemoveComponents<UnitViewMechanics.WeaponsAlwaysDrawn>();
+            spiritual_ally_unit.SetUnitName("Spiritual Ally");
 
             var mages_sword_feature = Helpers.CreateFeature("MagesSwordFeature",
                                                            "",
@@ -188,7 +198,9 @@ namespace CallOfTheWild
                                                            Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.IterativeNaturalAttacks),
                                                            //Helpers.Create<AddImmortality>(),
                                                            Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
-                                                           Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity)
+                                                           Helpers.Create<AooMechanics.DoesNotEngage>(),
+                                                           Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
+                                                           Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Unlootable)
                                                            //can move (?)
                                                            );
             mages_sword_unit = library.CopyAndAdd<BlueprintUnit>(spiritual_weapon_unit, "MagesSwordUnit", "");
@@ -197,7 +209,7 @@ namespace CallOfTheWild
                                                                                library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike (for irori)
                                                                                library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232")}; //ghost fx - to be changed
 
-
+            mages_sword_unit.SetUnitName("Mage's Sword");
             var twilight_knife_feature = Helpers.CreateFeature("TwilightKnifeFeature",
                                                    "",
                                                    "",
@@ -211,17 +223,20 @@ namespace CallOfTheWild
                                                    //Helpers.Create<AddImmortality>(),
                                                    Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
                                                    Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
-                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove)
+                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove),
+                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Unlootable)
                                                    );
             twilight_knife_unit = library.CopyAndAdd<BlueprintUnit>(spiritual_weapon_unit, "TwilightKnifeUnit", "");
             twilight_knife_unit.AddFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] {twilight_knife_feature,
                                                                                library.Get<BlueprintFeature>("70cffb448c132fa409e49156d013b175"), //airborne
                                                                                library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike (for irori)
                                                                                library.Get<BlueprintBuff>("20f79fea035330b479fc899fa201d232")}; //ghost fx - to be changed
+            twilight_knife_unit.SetUnitName("Twilight Knife");
         }
 
         static void createSpiritualWeapon()
         {
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3"); //to make only one attack on first round
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritualWeapon.png");
             var description = "A weapon made of force appears and attacks foes at a distance, as you direct it, dealing 1d8 force damage per hit, +1 point per three caster levels(maximum + 5 at 15th level). The weapon takes the shape of a weapon favored by your deity or a weapon with some spiritual significance or symbolism to you (see below) and has the same threat range and critical multipliers as a real weapon of its form.It strikes the opponent you designate, starting with one attack in the round the spell is cast and continuing each round thereafter on your turn.It uses your base attack bonus(possibly allowing it multiple attacks per round in subsequent rounds) plus your casting stat modifier as its attack bonus. It strikes as a spell, not as a weapon, so for example, it can damage creatures that have damage reduction.As a force effect, it can strike incorporeal creatures without the reduction in damage associated with incorporeality.The weapon always strikes from your direction.It does not get a flanking bonus or help a combatant get one. Your feats or combat actions do not affect the weapon.\n"
                                           + "Each round, you can use a move action to redirect the weapon to a new target. If you do not, the weapon continues to attack the previous round’s target. If the target you directed it at is dead, the weapon will temporary vanish until you point a new target. On any round that the weapon switches targets, it gets one attack. Subsequent rounds of attacking that target allow the weapon to make multiple attacks if your base attack bonus would allow it to.";
@@ -238,12 +253,24 @@ namespace CallOfTheWild
             mark_buff.Stacking = StackingType.Stack;
             var apply_mark = Common.createContextActionApplyBuff(mark_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
 
+            var forbid_target_change_buff = Helpers.CreateBuff("SpiritualWeaponForbidTargetChangeBuff",
+                                                               "",
+                                                               "",
+                                                               "",
+                                                               icon,
+                                                               null
+                                                               );
+            forbid_target_change_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            forbid_target_change_buff.Stacking = StackingType.Replace;
+            var forbid_target_change = Common.createContextActionApplyBuffToCaster(forbid_target_change_buff, Helpers.CreateContextDurationNonExtandable(), duration_seconds: 3, dispellable: false);
+
             var spiritual_weapon_buff = Helpers.CreateBuff("SpiritualWeaponUnitBuff",
                                                            "Spiritual Weapon",
                                                            "",
                                                            "",
                                                            null,
                                                            null,
+                                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(forbid_target_change), only_hit: false),
                                                            Helpers.Create<NewMechanics.WeaponDamageChange>(w =>
                                                            {
                                                                w.dice_formula = new DiceFormula(1, DiceType.D8);
@@ -280,7 +307,7 @@ namespace CallOfTheWild
                 c.AfterSpawn = Helpers.CreateActionList(apply_summon_buff,
                                                         Common.createContextActionApplyBuff(weapon_metamagic_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
                                                         Common.createContextActionApplyBuff(spiritual_weapon_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
-                                                        Helpers.Create<NewMechanics.ConsumeMoveAction>());
+                                                        Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDurationNonExtandable(1), dispellable: false, duration_seconds: 3));
                 c.custom_name = "Spiritual Weapon";
                 c.attack_mark_buff = mark_buff;
             });
@@ -298,7 +325,8 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.CreateRunActions(apply_mark, summon_weapon),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                     Common.createAbilityCasterHasNoFacts(forbid_target_change_buff)
                                                      );
             mark_ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             mark_ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
@@ -362,12 +390,24 @@ namespace CallOfTheWild
             mark_buff.Stacking = StackingType.Stack;
             var apply_mark = Common.createContextActionApplyBuff(mark_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
 
+            var forbid_target_change_buff = Helpers.CreateBuff("SpiritualAllyForbidTargetChangeBuff",
+                                                               "",
+                                                               "",
+                                                               "",
+                                                               icon,
+                                                               null
+                                                               );
+            forbid_target_change_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            forbid_target_change_buff.Stacking = StackingType.Replace;
+            var forbid_target_change = Common.createContextActionApplyBuffToCaster(forbid_target_change_buff, Helpers.CreateContextDurationNonExtandable(), duration_seconds: 3, dispellable: false);
+
             var spiritual_ally_buff = Helpers.CreateBuff("SpiritualAllyUnitBuff",
                                                            "Spiritual Ally",
                                                            "",
                                                            "",
                                                            null,
                                                            null,
+                                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(forbid_target_change), only_hit: false),
                                                            Helpers.Create<NewMechanics.WeaponDamageChange>(w =>
                                                            {
                                                                w.dice_formula = new DiceFormula(1, DiceType.D10);
@@ -395,7 +435,7 @@ namespace CallOfTheWild
             var apply_summon_buff = Common.createContextActionApplyBuff(library.Get<BlueprintBuff>("50d51854cf6a3434d96a87d050e1d09a"), Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
             var summon_ally = Helpers.Create<SpiritualAllyMechanics.ContextActionSummonSpiritualAlly>(c =>
             {
-                c.Blueprint = spiritual_weapon_unit;
+                c.Blueprint = spiritual_ally_unit;
                 c.use_deity_weapon = true;
                 c.SummonPool = summon_pool;
                 c.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 1, 1);
@@ -421,7 +461,8 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.CreateRunActions(clear_summon_pool, summon_ally, apply_mark),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                     Common.createAbilityCasterHasNoFacts(forbid_target_change_buff)
                                                      );
             mark_ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             mark_ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;
@@ -486,12 +527,24 @@ namespace CallOfTheWild
             mark_buff.Stacking = StackingType.Stack;
             var apply_mark = Common.createContextActionApplyBuff(mark_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
 
+            var forbid_target_change_buff = Helpers.CreateBuff("MagesSwordForbidTargetChangeBuff",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   icon,
+                                                   null
+                                                   );
+            forbid_target_change_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            forbid_target_change_buff.Stacking = StackingType.Replace;
+            var forbid_target_change = Common.createContextActionApplyBuffToCaster(forbid_target_change_buff, Helpers.CreateContextDurationNonExtandable(), duration_seconds: 3, dispellable: false);
+
             var mages_sword_buff = Helpers.CreateBuff("MagesSwordUnitBuff",
                                                            "Mage's Sword",
                                                            "",
                                                            "",
                                                            null,
                                                            null,
+                                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(forbid_target_change), only_hit: false),
                                                            Helpers.Create<NewMechanics.WeaponDamageChange>(w =>
                                                            {
                                                                w.dice_formula = new DiceFormula(4, DiceType.D6);
@@ -509,7 +562,7 @@ namespace CallOfTheWild
             var apply_summon_buff = Common.createContextActionApplyBuff(library.Get<BlueprintBuff>("0dff842f06edace43baf8a2f44207045"), Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
             var summon_weapon = Helpers.Create<SpiritualAllyMechanics.ContextActionSummonSpiritualAlly>(c =>
             {
-                c.Blueprint = spiritual_weapon_unit;
+                c.Blueprint = mages_sword_unit;
                 c.category = WeaponCategory.Greatsword;
                 c.use_deity_weapon = false;
                 c.SummonPool = summon_pool;
@@ -537,7 +590,8 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.CreateRunActions(apply_mark, summon_weapon),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
+                                                     Common.createAbilityCasterHasNoFacts(forbid_target_change_buff)
                                                      );
             mark_ability.setMiscAbilityParametersSingleTargetRangedHarmful();
             mark_ability.AvailableMetamagic = Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.Toppling | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing;

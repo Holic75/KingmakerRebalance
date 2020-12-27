@@ -464,7 +464,7 @@ namespace CallOfTheWild.Archetypes
 
 
         static void createPsychicPoolAndDualWeapons()
-        {
+        { 
             var abilities = new List<BlueprintAbility>();
             var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("66e9e299c9002ea4bb65b6f300e43770");
             psychic_weapon_enchant = Common.createWeaponEnchantment("ManifestedWeaponEnchant",
@@ -520,12 +520,13 @@ namespace CallOfTheWild.Archetypes
                 {
                     continue;
                 }
-                weapon = library.CopyAndAdd(weapon, "Psychic" + weapon.name, "");
+
+                weapon = library.CopyAndAdd(weapon, "Psychic" + weapon.name, "$" + Helpers.MergeIds(weapon.AssetGuid, "52a5f2eb09f84ea88aaa60c05685c56a"));
                 Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
                 Common.addEnchantment(weapon, psychic_weapon_enchant);
                 if (weapon.Double)
                 {
-                    var second_weapon = library.CopyAndAdd(weapon.SecondWeapon, "Psychic" + weapon.name + "Second", "");
+                    var second_weapon = library.CopyAndAdd(weapon.SecondWeapon, "Psychic" + weapon.name + "Second", "$" + Helpers.MergeIds(weapon.SecondWeapon.AssetGuid, "230f40f9318d4d449fc11ec07110b696"));
                     second_weapon.SecondWeapon = second_weapon;
                     weapon.SecondWeapon = second_weapon;
                     Common.addEnchantment(second_weapon, WeaponEnchantments.summoned_weapon_enchant);
@@ -551,7 +552,7 @@ namespace CallOfTheWild.Archetypes
                 var buff = Helpers.CreateBuff(wc.ToString() + "ManifestWeaponBuff",
                                               "",
                                               "",
-                                              "",
+                                              "$" + Helpers.MergeIds(weapon.AssetGuid, "ad5498957e7f4f7c9f0b848dd2242aaf"),
                                               null,
                                               null,
                                               Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => c.weapon = weapon),
@@ -574,7 +575,7 @@ namespace CallOfTheWild.Archetypes
                 var ability = Helpers.CreateAbility(wc.ToString() + "ManifestWeaponAbility",
                                                     "Manifest " + LocalizedTexts.Instance.Stats.GetText(wc),
                                                     description,
-                                                    "",
+                                                    "$" + Helpers.MergeIds(weapon.AssetGuid, "5fbf184cb3504e87b52db6593acbe940"),
                                                     weapon.Icon,
                                                     AbilityType.Supernatural,
                                                     CommandType.Standard,
@@ -621,7 +622,7 @@ namespace CallOfTheWild.Archetypes
                     var buff2 = Helpers.CreateBuff(wc.ToString() + "ManifestWeaponBothHandsBuff",
                                                   "",
                                                   "",
-                                                  "",
+                                                  "$" + Helpers.MergeIds(weapon.AssetGuid, "e8082c7d2f50417aa8710002c094e043"),
                                                   null,
                                                   null,
                                                   Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => { c.weapon = weapon; }),
@@ -637,7 +638,7 @@ namespace CallOfTheWild.Archetypes
                     var ability2 = Helpers.CreateAbility(wc.ToString() + "ManifestWeaponBothHandsAbility",
                                                         "Manifest " + LocalizedTexts.Instance.Stats.GetText(wc) + " (Both Hands)",
                                                         description,
-                                                        "",
+                                                        "$" + Helpers.MergeIds(weapon.AssetGuid, "f466ab98270c4e2d9ba131cbbf7aace3"),
                                                         weapon.Icon,
                                                         AbilityType.Supernatural,
                                                         CommandType.Standard,

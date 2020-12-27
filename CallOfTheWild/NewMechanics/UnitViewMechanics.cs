@@ -29,6 +29,73 @@ using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
 
 namespace CallOfTheWild.UnitViewMechanics
 {
+    [Harmony12.HarmonyPatch(typeof(EntityViewBase), "SetVisible")]
+    class EntityViewBase_SetVisible_Patch
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_fader = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("set_Visible"));
+
+            codes.Insert(check_fader, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                       new Func<EntityViewBase, bool, bool>(SetVisible).Method
+                                                                       )
+                                                                       );
+            codes.Insert(check_fader - 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0));
+
+            return codes.AsEnumerable();
+        }
+
+
+        internal static bool SetVisible(EntityViewBase view_base, bool visible)
+        {
+            var entity_data = (view_base.Data as UnitEntityData);
+            bool is_invisible_unit = entity_data?.Blueprint?.GetComponent<InvisibleUnit>() != null;
+
+            return is_invisible_unit ? false : visible;
+        }
+    }
+
+
+    /*[Harmony12.HarmonyPatch(typeof(UnitEntityView), "ForcePeacefulLook")]
+    class EntityView_ForcePeacefulLook_Patch
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_peaceful = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("set_PeacefulMode"));
+
+            codes.Insert(check_peaceful, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                       new Func<UnitEntityView, bool, bool>(SetPeaceful).Method
+                                                                       )
+                                                                       );
+            codes.Insert(check_peaceful - 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0));
+
+            return codes.AsEnumerable();
+        }
+
+
+        internal static bool SetPeaceful(UnitEntityView view, bool peaceful)
+        {          
+            bool always_draw_weapons = view?.Blueprint?.GetComponent<WeaponsAlwaysDrawn>() != null;
+            Main.logger.Log(view.Blueprint.CharacterName + " : " + always_draw_weapons.ToString());
+            return always_draw_weapons ? false : peaceful;
+        }
+    }*/
+
+
+
+    class InvisibleUnit : BlueprintComponent
+    {
+
+    };
+
+
+    class WeaponsAlwaysDrawn : BlueprintComponent
+    {
+
+    };
+
 
     [Harmony12.HarmonyPatch(typeof(DollRoom), "CreateAvatar")]
     class DollRoom_CreateAvatar_Patch
@@ -100,7 +167,7 @@ namespace CallOfTheWild.UnitViewMechanics
             var replace_view = unit_entity_data.Descriptor?.Get<UnitPartViewReplacement>()?.buff?.Blueprint.GetComponent<ReplaceUnitView>();
             if (replace_view != null)
             {
-                Helpers.TryReplaceView(unit_entity_data.Descriptor, replace_view.prefab, replace_view.use_master_view);
+                Aux.TryReplaceView(unit_entity_data.Descriptor, replace_view.prefab, replace_view.use_master_view);
             }
         }
     }
@@ -134,7 +201,7 @@ namespace CallOfTheWild.UnitViewMechanics
         {
             //Main.logger.Log("Activate");
             this.Owner.Ensure<UnitPartViewReplacement>().buff = this.Fact;
-            Helpers.TryReplaceView(this.Owner, prefab, use_master_view);
+            Aux.TryReplaceView(this.Owner, prefab, use_master_view);
         }
 
 
@@ -161,7 +228,7 @@ namespace CallOfTheWild.UnitViewMechanics
 
 
 
-    class Helpers
+    class Aux
     {
         static public void TryReplaceView(UnitDescriptor Owner, UnitViewLink Prefab, bool use_master_view)
         {
@@ -223,7 +290,7 @@ namespace CallOfTheWild.UnitViewMechanics
             {
                 var character = newView.GetComponent<Character>();
                 if (character == null)
-                {
+                {                   
                     character = newView.gameObject.AddComponent<Character>();
                     character.AnimatorPrefab = BlueprintRoot.Instance.CharGen.FemaleDoll.AnimatorPrefab;
                     character.BakedCharacter = CreateBakedCharacter(newView.gameObject);
