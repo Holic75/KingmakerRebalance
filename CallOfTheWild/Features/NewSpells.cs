@@ -279,6 +279,7 @@ namespace CallOfTheWild
         static public BlueprintAbility wracking_ray;
         static public BlueprintAbility smite_abomination;
 
+        static public BlueprintAbility corrosive_consumption;
 
 
         //binding_earth; ?
@@ -286,7 +287,6 @@ namespace CallOfTheWild
         //battle mind link ?
         //condensed ether ?
 
-        //corrosive consumption
         //implosion
         //blood rage
         //etheric shards
@@ -475,6 +475,60 @@ namespace CallOfTheWild
             createWrackingRay();
             createSmiteAbomination();
             SpiritualWeapons.load();
+
+            createCorrosiveConsumption();
+        }
+
+
+        static void createCorrosiveConsumption()
+        {
+            var icon = Helpers.GetIcon("1e418794638cf95409f6e33c8c3dbe1a"); //elemental wall acid
+
+            var dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+            var dmg3 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+
+            var buff = Helpers.CreateBuff("CorrosiveConsumptionBuff",
+                                          "Corrosive Consumption",
+                                          "With a touch, this spell causes a small, rapidly growing patch of corrosive acid to appear on the target. On the first round, the acid deals 1 point of acid damage per caster level (maximum 15). On the second round, the acid patch grows and deals 1d4 points of acid damage per caster level (maximum 15d4). On the third and final round, the acid patch covers the entire creature and deals 1d6 points of acid damage per caster level (maximum 15d6). With a touch, this spell causes a small, rapidly growing patch of corrosive acid to appear on the target. On the first round, the acid deals 1 point of acid damage per caster level (maximum 15). On the second round, the acid patch grows and deals 1d4 points of acid damage per caster level (maximum 15d4). On the third and final round, the acid patch covers the entire creature and deals 1d6 points of acid damage per caster level (maximum 15d6).",
+                                          "",
+                                          icon,
+                                          Common.createPrefabLink("4debc3ac7f4781042935ca6c61b1b0e9"), //acid theme
+                                          Helpers.CreateAddFactContextActions(activated: dmg1,
+                                                                              newRound: Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(2), dmg2,
+                                                                                                                  Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(3),
+                                                                                                                                            dmg3
+                                                                                                                                            )
+                                                                                                                  )
+                                                                             ),
+                                          Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Acid)
+                                          );
+
+            var ability = Helpers.CreateAbility("CorrosiveTouchAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Spell,
+                                                UnitCommand.CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "3 rounds",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(3), is_from_spell: true)),
+                                                Helpers.CreateDeliverTouch(),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                Common.createAbilitySpawnFx("524f5d0fecac019469b9e58ce1b8402d", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                );
+            ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
+            ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Reach | Metamagic.Quicken | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+
+            corrosive_consumption = Helpers.CreateTouchSpellCast(ability);
+            corrosive_consumption.AddToSpellList(Helpers.wizardSpellList, 5);
+            corrosive_consumption.AddToSpellList(Helpers.magusSpellList, 5);
+            corrosive_consumption.AddSpellAndScroll("68d5aa212b7323e4e95e0fe731ea50cf");
         }
 
 
