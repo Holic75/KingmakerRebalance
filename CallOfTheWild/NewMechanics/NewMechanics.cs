@@ -6267,6 +6267,8 @@ namespace CallOfTheWild
             public BlueprintAbilityAreaEffect AreaEffect;
             public ContextDurationValue DurationValue;
             public Vector2[] points_around_target;
+            public bool use_caster_as_origin = false;
+            public bool ignore_direction = false;
 
             public override string GetCaption()
             {
@@ -6275,11 +6277,18 @@ namespace CallOfTheWild
 
             public override void RunAction()
             {
-                var pt = (this.Target.Point - this.Context.MaybeCaster.Position).To2D().normalized;
-                var n = new Vector2(-pt.y, pt.x);
+                var origin = use_caster_as_origin ? this.Context.MaybeCaster.Position : this.Target.Point;
+                var nx = new Vector2();
+                var ny = new Vector2();
+                if (!ignore_direction)
+                {
+                    nx = (this.Target.Point - this.Context.MaybeCaster.Position).To2D().normalized;
+                    ny = new Vector2(-nx.y, nx.x);                 
+                }
                 foreach (var p in points_around_target)
                 {
-                    var target = new TargetWrapper(this.Target.Point + (n*UnityEngine.Vector2.Dot(n,p)).To3D());
+                    var dp = ignore_direction ? p : (nx * p.x + ny * p.y);
+                    var target = new TargetWrapper(origin + dp.To3D());
                     AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
                     if (this.AbilityContext == null)
                         return;

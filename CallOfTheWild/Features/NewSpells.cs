@@ -768,9 +768,9 @@ namespace CallOfTheWild
             {
                 library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon,//disruption
                 library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon, //keen
-                Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), //sickened
-                Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87"), //sneak attack
-                Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWCruel.png"),
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
+                Helpers.GetIcon("49083bf0cdd00ec4dacbffb4be26e69a"), //keen light weapon buff
             };
 
             var ghost_touch = library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f");
@@ -1264,9 +1264,9 @@ namespace CallOfTheWild
 
             UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
             {
-                library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,//unholy
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
                 library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon,//holy
-                library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,//chaotic
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
                 library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,//axiomatic
             };
 
@@ -7566,6 +7566,13 @@ namespace CallOfTheWild
                               + "You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. The space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter. Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d4 points of bludgeoning damage per caster level you have (maximum 10d4) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
                               + "This spell can be cast only on a surface of earth, sand, or stone. It has no effect if you are in a wooden or metal structure or if you are not touching the ground.";
 
+            var spawn_in_cone = Helpers.Create<NewMechanics.ContextActionSpawnAreaEffectMultiple>(c =>
+            {
+                c.AreaEffect = area;
+                c.use_caster_as_origin = true;
+                c.points_around_target = new Vector2[] { new Vector2(5.Feet().Meters, 0.0f), new Vector2(10.Feet().Meters,5.Feet().Meters), new Vector2(10.Feet().Meters, -5.Feet().Meters)};
+                c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Hours);
+            });
             var earth_tremor_cone = Helpers.CreateAbility("EarthTremorCone",
                                                  "Earth Tremor: 20-foot Cone",
                                                  description,
@@ -7576,9 +7583,10 @@ namespace CallOfTheWild
                                                  AbilityRange.Projectile,
                                                  "",
                                                  Helpers.reflexHalfDamage,
-                                                 Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, failure_prone_action,
-                                                                          Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1, DurationRate.Hours))
+                                                 Helpers.CreateRunActions(SavingThrowType.Reflex, dmg, failure_prone_action
+                                                                          //,Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(1, DurationRate.Hours))
                                                                           ),
+                                                 Helpers.Create<AbilityEffectRunActionOnClickedTarget>(a => a.Action = Helpers.CreateActionList(spawn_in_cone)),
                                                  Helpers.CreateContextRankConfig(max: 10, feature: MetamagicFeats.intensified_metamagic),
                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                                  Helpers.CreateSpellComponent(SpellSchool.Transmutation),
@@ -7598,12 +7606,42 @@ namespace CallOfTheWild
                 a.Projectiles = new BlueprintProjectile[] { library.Get<BlueprintProjectile>("868f9126707bdc5428528dd492524d52") };//same cone
             });
 
+            var spawn_in_line = Helpers.Create<NewMechanics.ContextActionSpawnAreaEffectMultiple>(c =>
+            {
+                c.AreaEffect = area;
+                c.use_caster_as_origin = true;
+                c.points_around_target = new Vector2[] { new Vector2(5.Feet().Meters, 0.0f), new Vector2(15.Feet().Meters, 0), new Vector2(25.Feet().Meters,0) };
+                c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Hours);
+            });
+            earth_tremor_line.ReplaceComponent<AbilityEffectRunActionOnClickedTarget>(a =>
+            {
+                a.Action = Helpers.CreateActionList(spawn_in_line);
+            }
+            );
+
             var earth_tremor_burst = library.CopyAndAdd<BlueprintAbility>(earth_tremor_cone.AssetGuid, "EarthTremorBurst", "");
             earth_tremor_burst.SetName("Earth Tremor: 10-foot Spread");
             earth_tremor_burst.ReplaceComponent<AbilityDeliverProjectile>(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any,
                                                                                                             Helpers.CreateConditionsCheckerOr(Common.createContextConditionIsCaster(not: true))
                                                                                                             )
                                                                         );
+
+            var spawn_in_burst = Helpers.Create<NewMechanics.ContextActionSpawnAreaEffectMultiple>(c =>
+            {
+                c.AreaEffect = area;
+                c.use_caster_as_origin = true;
+                c.ignore_direction = true;
+                c.points_around_target = new Vector2[] {new Vector2(5.Feet().Meters, 5.Feet().Meters), new Vector2(5.Feet().Meters, -5.Feet().Meters),
+                                                        new Vector2(-5.Feet().Meters, 5.Feet().Meters), new Vector2(-5.Feet().Meters, -5.Feet().Meters)};
+                c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Hours);
+            });
+            earth_tremor_burst.ReplaceComponent<AbilityEffectRunActionOnClickedTarget>(a =>
+            {
+                a.Action = Helpers.CreateActionList(spawn_in_burst);
+            }
+            );
+
+
             earth_tremor_burst.setMiscAbilityParametersSelfOnly();
             earth_tremor_burst.Range = AbilityRange.Personal;
             earth_tremor = Common.createVariantWrapper("EarthTremorAbility", "", earth_tremor_cone, earth_tremor_line, earth_tremor_burst);

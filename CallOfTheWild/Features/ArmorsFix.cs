@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints.Items.Armors;
+﻿using Kingmaker;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Items;
@@ -51,7 +52,8 @@ namespace CallOfTheWild.ArmorFix
                 return;
             }
 
-            if (__instance.Owner.Proficiencies.Contains(__instance.Blueprint.ProficiencyGroup))
+            if (__instance.Owner.Proficiencies.Contains(__instance.Blueprint.ProficiencyGroup) 
+                || !Game.Instance.Player.PartyCharacters.Any(c => c.Value == __instance?.Wielder?.Unit)) //a lot of units in the  game do not have required proficiencies, so we will consider only party members
             {
                 return;
             }

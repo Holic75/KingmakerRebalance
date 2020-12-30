@@ -1599,7 +1599,7 @@ namespace CallOfTheWild
             var vorpal = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementVorpal",
                                                             "Fiendish Boon - Vorpal",
                                                             "An antipaladin can add the vorpal property to a weapon enhanced with her fiendish boon, but this consumes 5 points of enhancement bonus granted to this weapon.\n" + WeaponEnchantments.vorpal.Description,
-                                                            Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
                                                             fiendish_boon_enhancement_buff,
                                                             WeaponEnchantments.vorpal,
                                                             5, ActivatableAbilityGroup.DivineWeaponProperty);
@@ -1608,7 +1608,7 @@ namespace CallOfTheWild
             var speed = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementSpeed",
                                                 "Fiendish Boon - Speed",
                                                 "An antipaladin can add the speed property to a weapon enhanced with her fiendish boon, but this consumes 3 points of enhancement bonus granted to this weapon.\n" + speed_enchant.Description,
-                                                library.Get<BlueprintActivatableAbility>("ed1ef581af9d9014fa1386216b31cdae").Icon, //disruption
+                                                library.Get<BlueprintActivatableAbility>("ed1ef581af9d9014fa1386216b31cdae").Icon, //speed
                                                 fiendish_boon_enhancement_buff,
                                                 speed_enchant,
                                                 3, ActivatableAbilityGroup.DivineWeaponProperty);
@@ -1632,7 +1632,7 @@ namespace CallOfTheWild
             var unholy = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementUnholy",
                                                             "Fiendish Boon - Unholy",
                                                             "An antipaladin can add the unholy property to a weapon enhanced with her fiendish boon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn unholy weapon is imbued with unholy power. This power makes the weapon evil-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of good alignment.",
-                                                            library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,
+                                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
                                                             fiendish_boon_enhancement_buff,
                                                             library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"),
                                                             2, ActivatableAbilityGroup.DivineWeaponProperty,
@@ -1650,7 +1650,7 @@ namespace CallOfTheWild
             var anarchic = Common.createEnchantmentAbility("FiendishBoonEnchancementAnarchic",
                                                             "Fiendish Boon - Anarchic",
                                                             "An antipaladin can add the anarchic property to a weapon enhanced with her fiendish boon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn anarchic weapon is infused with the power of chaos. It makes the weapon chaotic-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of lawful alignment.",
-                                                            library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,
+                                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
                                                             fiendish_boon_enhancement_buff,
                                                             library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
                                                             2, ActivatableAbilityGroup.DivineWeaponProperty,
