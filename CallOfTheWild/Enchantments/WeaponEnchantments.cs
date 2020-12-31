@@ -55,6 +55,8 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment heartseeker;
         static public BlueprintWeaponEnchantment menacing;
         static public BlueprintWeaponEnchantment vorpal;
+
+        static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
         static public void initialize()
         {
             createMetamagicEnchantments();
@@ -67,6 +69,9 @@ namespace CallOfTheWild
             createHeartSeekerEnchant();
             createMenacingEnchant();
             createVorpalEnchant();
+
+            var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("6cbb732b9d638724a960d784634dcdcf"); //plasma
+            dazzling_blade_fx_enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
         }
 
 

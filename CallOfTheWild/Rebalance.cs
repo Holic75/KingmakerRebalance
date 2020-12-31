@@ -2185,6 +2185,24 @@ namespace CallOfTheWild
         }
 
 
+        static public void fixBlindingRay()
+        {
+            //dazzled should be applied for 1 round and not 1 round/level
+            var blinding_ray = library.Get<BlueprintAbility>("9b4d07751dd104243a94b495c571c9dd");
+            var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+
+            blinding_ray.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c =>
+                                                                                                                                        {
+                                                                                                                                            if (c.Buff == dazzled)
+                                                                                                                                            {
+                                                                                                                                                c.DurationValue = Helpers.CreateContextDuration(1);
+                                                                                                                                            }
+                                                                                                                                        })
+                                                                  );
+            blinding_ray.SetDescription("As a standard action, you can fire a shimmering ray at any foe within 30 feet as a ranged touch attack.The ray causes creatures to be blinded for 1 round.Creatures with more Hit Dice than your wizard level are dazzled for 1 round instead.You can use this ability a number of times per day equal to 3 + your Intelligence modifier.");
+        }
+
+
         static internal void fixTactician()
         {
             var tactical_leader_tactician = library.Get<BlueprintFeature>("93e78cad499b1b54c859a970cbe4f585");

@@ -142,18 +142,18 @@ namespace CallOfTheWild
                 side step
             divination: third eye -> sudden insight x
                 danger sight
-                mind eye ?
+                mind eye  TODO
                 in accordance with prophecy
             enchantment: glorious presence -> cloud mind x
                 binding pattern
-                inspired assault ?(1 + 1/4 levels)
+                inspired assault
                 obey 
-            evocation: intense focus -> energy ray
-                energy blast: (5 + 1d6/2 levels)
-                energy ward
+            evocation: intense focus -> energy ray x
+                energy blast: ((1d6 +2)/2 levels)
+                energy ward ?
                 radiance
                 wall of power
-            illusion: distortion (concealement until hit 20 -> 50%) -> color beam (1d4 rounds, will)              
+            illusion: distortion (concealement until hit 20 -> 50%) -> color beam (as blinding ray) x           
                 shadow beast
                 unseen - greater invisibility for 1 minute
                 bedeveling aura (1 round/2 levels)

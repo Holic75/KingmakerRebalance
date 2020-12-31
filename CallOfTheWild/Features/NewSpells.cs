@@ -1491,42 +1491,15 @@ namespace CallOfTheWild
         }
 
 
-        static void addShadowSpells(BlueprintAbility base_ability, SpellDescriptor descriptor,
-                                                 BlueprintSpellList[] spell_lists, int max_level, SpellSchool school, params BlueprintAbility[] except_spells)
+        static public void addShadowSpells(BlueprintAbility base_ability, SpellDescriptor descriptor, params BlueprintAbility[] spells)
         {
             base_ability.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
-            var evocation_spells = new BlueprintAbility[0];
-            foreach (var sl in spell_lists)
-            {
-                for (int i = 1; i <= max_level; i++)
-                {
-                    evocation_spells = evocation_spells.AddToArray(sl.GetSpells(i).Where(a => a.School == school));
-                }
-            }
-            evocation_spells = evocation_spells.Distinct().ToArray();
-
-            var spells = new List<BlueprintAbility>();
-            foreach (var s in evocation_spells)
-            {
-                if (except_spells.Contains(s))
-                {
-                    continue;
-                }
-                if (s.HasVariants)
-                {
-                    spells.AddRange(s.Variants);
-                }
-                else
-                {
-                    spells.Add(s);
-                }
-            }
 
             var ability_variants = base_ability.GetComponent<AbilityVariants>();
             if (ability_variants == null)
             {
                 ability_variants = Helpers.CreateAbilityVariants(base_ability);
-                
+
             }
             foreach (var s in spells)
             {
@@ -1537,7 +1510,7 @@ namespace CallOfTheWild
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
                 Common.addSpellDescriptor(shadow_s, descriptor, false);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
-                                           base_ability.Description+"\n" + s.Description);
+                                           base_ability.Description + "\n" + s.Description);
 
                 var shadow_touch = shadow_s.GetComponent<AbilityEffectStickyTouch>();
                 if (shadow_touch != null)
@@ -1557,6 +1530,40 @@ namespace CallOfTheWild
             }
             base_ability.RemoveComponents<AbilityVariants>();
             base_ability.AddComponent(ability_variants);
+        }
+
+
+        static void addShadowSpells(BlueprintAbility base_ability, SpellDescriptor descriptor,
+                                                 BlueprintSpellList[] spell_lists, int max_level, SpellSchool school, params BlueprintAbility[] except_spells)
+        {
+            var extracted_spells = new BlueprintAbility[0];
+            foreach (var sl in spell_lists)
+            {
+                for (int i = 1; i <= max_level; i++)
+                {
+                    extracted_spells = extracted_spells.AddToArray(sl.GetSpells(i).Where(a => a.School == school));
+                }
+            }
+            extracted_spells = extracted_spells.Distinct().ToArray();
+
+            var spells = new List<BlueprintAbility>();
+            foreach (var s in extracted_spells)
+            {
+                if (except_spells.Contains(s))
+                {
+                    continue;
+                }
+                if (s.HasVariants)
+                {
+                    spells.AddRange(s.Variants);
+                }
+                else
+                {
+                    spells.Add(s);
+                }
+            }
+
+            addShadowSpells(base_ability, descriptor, spells.ToArray());
 
         }
 
@@ -5263,8 +5270,8 @@ namespace CallOfTheWild
 
         static void createDazzlingBlade()
         {
-            var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("6cbb732b9d638724a960d784634dcdcf"); //plasma
-            var enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
+            
+            var enchant = WeaponEnchantments.dazzling_blade_fx_enchant;
             var icon = library.Get<BlueprintBuff>("50d0501ad05f15d498c3aa8d602af273").Icon;
             var blinded = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
             var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
@@ -5300,7 +5307,7 @@ namespace CallOfTheWild
                                           Helpers.Create<NewMechanics.ContextCombatManeuverBonus>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm; c.Bonus = Helpers.CreateContextValue(AbilityRankType.Default); }),
                                           Helpers.Create<NewMechanics.SkillBonusInCombat>(s => { s.value = Helpers.CreateContextValue(AbilityRankType.Default); s.skill = StatType.CheckBluff; s.descriptor = ModifierDescriptor.Competence; }),
                                           Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 3, max: 5),
-                                          Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = enchant; p.secondary_hand = false; })
+                                          Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.enchant = enchant; p.secondary_hand = false; p.only_melee = true; })
                                           );
 
             release_ability.AddComponent(Helpers.CreateRunActions(SavingThrowType.Will, release_action, Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))));

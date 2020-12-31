@@ -125,7 +125,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff(prefix + "InAccordanceWithProphecyBuff",
                                                  "In Accordance with the Prophecy",
                                                  "When you cast a spell, you can expend 1 point of mental focus and publicly declare that your next spell is guided by prophecy. When you do, the spell you cast has a 20% chance of fizzling (1–20 on a d%). If the spell does not fail, treat the spell as if it had been modified by the Empower Spell feat, even if you do not have that feat. At 12th level, the chance that the spell fizzles is reduced to 15% (1–15 on a d%). At 16th level, the chance is reduced to 10% (1–10 on a d%).\n"
-                                                 + "You must be at least 8th level to select this focus power.",
+                                                 + "You must be at least 9th level to select this focus power.",
                                                  "",
                                                  Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"), //divine power
                                                  null,
@@ -148,7 +148,7 @@ namespace CallOfTheWild
                                                         );
             ability.DeactivateImmediately = true;
             var feature = Common.ActivatableAbilityToFeature(ability, false);
-            addMinLevelPrerequisite(feature, 8);
+            addMinLevelPrerequisite(feature, 9);
 
             return feature;
         }

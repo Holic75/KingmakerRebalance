@@ -180,6 +180,7 @@
     <Compile Include="Classes\Implements\Divination.cs" />
     <Compile Include="Classes\Implements\Enchantment.cs" />
     <Compile Include="Classes\Implements\Evocation.cs" />
+    <Compile Include="Classes\Implements\Illusion.cs" />
     <Compile Include="Classes\Implements\ImplementsEngine.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Archetypes\KineticChirurgeon.cs" />

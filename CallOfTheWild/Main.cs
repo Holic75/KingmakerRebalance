@@ -237,6 +237,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixAuraOfJustice();
                     CallOfTheWild.Rebalance.fixArchetypeKineticistGatherPowerWithShield();
                     CallOfTheWild.Rebalance.fixSuppressBuffs();
+                    CallOfTheWild.Rebalance.fixBlindingRay();
 
                     if (settings.secondary_rake_attacks)
                     {
