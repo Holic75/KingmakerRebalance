@@ -1758,7 +1758,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
-                if (evt.Target.CombatState.IsFlanked && evt.DamageBundle.Weapon?.Blueprint.IsMelee == true)
+                if (evt.Target.CombatState.IsFlanked && (evt.DamageBundle.Weapon?.Blueprint.IsMelee).GetValueOrDefault() == true)
                 {
                     evt.DamageBundle.WeaponDamage?.AddBonusTargetRelated(bonus);
                 }
@@ -7504,6 +7504,7 @@ namespace CallOfTheWild
 
             private bool CheckTandemTrip(RuleCombatManeuver evt)
             {
+                //isFlanked here is used to determine that enemy is engaged by at least two units and not for actual flanking
                 if (!evt.Target.CombatState.IsFlanked || evt.Type != CombatManeuver.Trip)
                     return false;
                 bool flag = (bool)this.Owner.State.Features.SoloTactics;

@@ -162,6 +162,7 @@ namespace CallOfTheWild
                 necromantic servant
                 soulbound puppet
                 pain wave
+                spirit shroud
             transmuation: physical enchancement -> legacy weapon
                 mind over gravity (fly + 30 speed bonus)
                 philosopher's touch

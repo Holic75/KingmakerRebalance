@@ -76,7 +76,7 @@ namespace CallOfTheWild
                                                 createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 1, stepLevel: 4),
                                                 Common.createAbilitySpawnFx("224fb8fd952ec4d45b6d3436a77663d9", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.Create<AbilityUseOnRest>(a => a.Type = AbilityUseOnRestType.HealDamage),
-                                                Common.createAbilityTargetHasFact(true, Common.undead),
+                                                Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental),
                                                 resource.CreateResourceLogic(),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Cure | SpellDescriptor.RestoreHP),
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration)
