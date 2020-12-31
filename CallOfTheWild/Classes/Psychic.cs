@@ -1508,7 +1508,7 @@ namespace CallOfTheWild
                                                     library.Get<BlueprintAbility>("2c38da66e5a599347ac95b3294acbe00"), //true strike
                                                     library.Get<BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d"), //bull's strength
                                                     library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
-                                                    library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e"), //freedom of movement
+                                                    library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf"), //freedom of movement
                                                     library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b"), //stoneskin
                                                     library.Get<BlueprintAbility>("27203d62eb3d4184c9aced94f22e1806"), //transformation
                                                     library.Get<BlueprintAbility>("df2a0ba6b6dcecf429cbb80a56fee5cf"), //mind blank
@@ -2642,7 +2642,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
-                new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
+                new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
                 new Common.SpellId( NewSpells.intellect_fortress.AssetGuid, 4),
                 new Common.SpellId( NewSpells.invigorate_mass.AssetGuid, 4),
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater

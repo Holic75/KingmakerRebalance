@@ -723,7 +723,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
-                new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
+                new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
                 new Common.SpellId( NewSpells.intellect_fortress.AssetGuid, 4),
                 new Common.SpellId( NewSpells.invigorate_mass.AssetGuid, 4),
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater

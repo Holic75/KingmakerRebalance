@@ -67,7 +67,10 @@ namespace CallOfTheWild
             ExtraGroup17,
             ExtraGroup18,
             ExtraGroup19,
-            ExtraGroup20
+            ExtraGroup20,
+
+            AegisImplement,
+
         }
 
         public static partial class Extensions

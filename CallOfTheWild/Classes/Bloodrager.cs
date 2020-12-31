@@ -2007,7 +2007,7 @@ namespace CallOfTheWild
                 var shield = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4");
                 var blur = library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1");
                 var protection_from_energy = library.Get<BlueprintAbility>("d2f116cfe05fcdd4a94e80143b67046f");
-                var freedom_of_movement = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e");
+                var freedom_of_movement = library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf");
 
                 var endurance = library.Get<BlueprintFeature>("54ee847996c25cd4ba8773d7b8555174");
                 var diehard = library.Get<BlueprintFeature>("86669ce8759f9d7478565db69b8c19ad");

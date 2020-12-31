@@ -7784,6 +7784,24 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfHasClassLevels : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintCharacterClass[] character_classes;
+            public int level;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                var lvl = 0;
+                foreach (var c in character_classes)
+                {
+                    lvl += ability.Caster.Progression.GetClassLevel(c);
+                }
+                return lvl >= level;
+            }
+        }
+
+
 
         public class ContextConditionEngagedByCaster : ContextCondition
         {
@@ -10439,7 +10457,5 @@ namespace CallOfTheWild
 
             }
         }
-
-
     }
 }

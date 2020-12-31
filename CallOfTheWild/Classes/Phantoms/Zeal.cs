@@ -195,7 +195,7 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
                               NewSpells.force_sword,
                               library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113"), //divine favor
-                              library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e") //freedom of movement
+                              library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf") //freedom of movement
                           },
                           ruthless_combatant_spiritualist,
                           determination_aura,
@@ -204,7 +204,7 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), //bless
                               library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762"), //false life
                               library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63"), //heroism
-                              library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e"), //freedom of movement
+                              library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf"), //freedom of movement
                               library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
                               library.Get<BlueprintAbility>("e15e5e7045fda2244b98c8f010adfe31") //heroism greater
                           }

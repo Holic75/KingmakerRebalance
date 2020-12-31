@@ -175,6 +175,12 @@
     <Compile Include="Classes\Eidolons\Twinned.cs" />
     <Compile Include="Classes\Eidolons\WaterElemental.cs" />
     <Compile Include="Classes\Eidolons\Evolutions.cs" />
+    <Compile Include="Classes\Implements\Abjuration.cs" />
+    <Compile Include="Classes\Implements\Conjuration.cs" />
+    <Compile Include="Classes\Implements\Divination.cs" />
+    <Compile Include="Classes\Implements\Enchantment.cs" />
+    <Compile Include="Classes\Implements\Evocation.cs" />
+    <Compile Include="Classes\Implements\ImplementsEngine.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Archetypes\KineticChirurgeon.cs" />
     <Compile Include="Classes\Mesmerist.cs" />
@@ -186,6 +192,7 @@
     <Compile Include="Classes\Mysteries\Nature.cs" />
     <Compile Include="Classes\Mysteries\Waves.cs" />
     <Compile Include="Classes\Mysteries\Wind.cs" />
+    <Compile Include="Classes\Occultist.cs" />
     <Compile Include="Classes\Oracle.cs" />
     <Compile Include="Classes\Phantoms\Anger.cs" />
     <Compile Include="Classes\Phantoms\Despair.cs" />
@@ -270,6 +277,7 @@
     <Compile Include="NewMechanics\IncorporealMechanics.cs" />
     <Compile Include="NewMechanics\InsinuatorMechanics.cs" />
     <Compile Include="NewMechanics\ItemMechanics.cs" />
+    <Compile Include="NewMechanics\LocalPoolMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />
     <Compile Include="NewMechanics\RandomMechanics.cs" />

@@ -1017,7 +1017,7 @@ namespace CallOfTheWild
                                          "4f8181e7a7f1d904fbaea64220e83379", //expeditious retreat
                                          "de7a025d48ad5da4991e7d3c682cf69d", //cats grace
                                          "486eaff58293f6441a5c2759c4872f98", //haste
-                                         "4c349361d720e844e846ad8c19959b1e", //freedom of movement
+                                         "0087fc2d64b6095478bc7b8d7d512caf", //freedom of movement
                                          "93d9d74dac46b9b458d4d2ea7f4b1911", //polymorph
                                          "1f6c94d56f178b84ead4c02f1b1e1c48", //cats grace mass
                                          "a9fc28e147dbb364ea4a3c1831e7e55f", //polymorph greater

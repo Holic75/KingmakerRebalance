@@ -158,6 +158,7 @@ namespace CallOfTheWild
 
         static public BlueprintAbility accursed_glare;
         static public BlueprintAbility solid_fog;
+        static public BlueprintAbilityAreaEffect solid_fog_area;
         static public BlueprintAbility thirsting_entanglement;
 
         static public BlueprintAbility resinous_skin;
@@ -280,17 +281,19 @@ namespace CallOfTheWild
         static public BlueprintAbility smite_abomination;
 
         static public BlueprintAbility corrosive_consumption;
-
+        
 
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
         //condensed ether ?
 
+        //alied cloak
         //implosion
         //blood rage
         //etheric shards
         //tactical acumen
+        //weapon of awe
 
         static public void load()
         {
@@ -5185,7 +5188,8 @@ namespace CallOfTheWild
                                           Helpers.Create<WeaponParametersAttackBonus>(a => a.AttackBonus = -2),
                                           Helpers.Create<WeaponParametersDamageBonus>(a => a.DamageBonus = -2),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] {AttackType.Ranged}),
-                                          Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged })
+                                          Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed)
                                           );
 
             foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
@@ -5194,7 +5198,7 @@ namespace CallOfTheWild
             }
 
             area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
-
+            solid_fog_area = area;
 
             solid_fog = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "SolidFogAbility", "");
             solid_fog.SpellResistance = false;
@@ -5697,7 +5701,7 @@ namespace CallOfTheWild
 
         static void createBladedDash()
         {
-            var icon = library.Get<BlueprintAbility>("4c349361d720e844e846ad8c19959b1e").Icon; //freedom of movement
+            var icon = library.Get<BlueprintAbility>("0087fc2d64b6095478bc7b8d7d512caf").Icon; //freedom of movement
             dimension_door_free = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "BladedDashTeleportAbility", "");
             dimension_door_free.ActionType = UnitCommand.CommandType.Free;
             dimension_door_free.CanTargetEnemies = true;

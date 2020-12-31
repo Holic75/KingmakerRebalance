@@ -159,7 +159,7 @@ namespace CallOfTheWild.SpiritualAllyMechanics
 
         public override void OnTurnOn()
         {
-            int num = this.Fact.MaybeContext.MaybeCaster.Descriptor.Stats.BaseAttackBonus.BaseValue; //ModifiedValue ?
+            int num = this.Fact.MaybeContext.MaybeCaster.Descriptor.Stats.BaseAttackBonus.ModifiedValue; //Base value ?
 
             if (alternative_feature != null && this.Fact.MaybeContext.MaybeCaster.Descriptor.HasFact(alternative_feature))
             {
