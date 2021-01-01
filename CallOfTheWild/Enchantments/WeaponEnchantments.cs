@@ -60,6 +60,10 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment vicious = library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56");
         static public BlueprintWeaponEnchantment bane = library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a");
 
+        static public BlueprintWeaponEnchantment cold_iron = library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8");
+        static public BlueprintWeaponEnchantment mithral = library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875");
+        static public BlueprintWeaponEnchantment adamantine = library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b");
+
         static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
         static public void initialize()
         {

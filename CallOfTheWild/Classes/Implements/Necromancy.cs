@@ -178,9 +178,10 @@ namespace CallOfTheWild
                                                    );
                 Common.setAsFullRoundAction(ability);
                 ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
             }
 
-            var wrapper = Common.createVariantWrapper(prefix + "SoulboundPuppetAbilityBase", "");
+            var wrapper = Common.createVariantWrapper(prefix + "SoulboundPuppetAbilityBase", "", abilities.ToArray());
             wrapper.SetNameDescription(display_name, description);
 
             return Common.AbilityToFeature(wrapper);

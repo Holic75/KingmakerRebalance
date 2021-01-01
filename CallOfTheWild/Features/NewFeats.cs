@@ -1610,6 +1610,8 @@ namespace CallOfTheWild
             broken_wing_gambit.AddComponents(Helpers.CreateAddFact(broken_wing_ability),
                                              Common.createAddTargetAttackWithWeaponTrigger(null,
                                                                                            Helpers.CreateActionList(on_attack),
+                                                                                           only_hit: false,
+                                                                                           not_reach: false,
                                                                                            wait_for_attack_to_resolve: true)
                                             );
 

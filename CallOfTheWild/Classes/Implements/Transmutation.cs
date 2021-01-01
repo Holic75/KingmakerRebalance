@@ -18,6 +18,7 @@ using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -238,5 +239,107 @@ namespace CallOfTheWild
                                                    );
             return legacy_weapon_features[0];
         }
+
+
+        BlueprintFeature createMindOverGravity()
+        {
+            var ability = Common.convertToSpellLike(NewSpells.fly, prefix, classes, stat, resource, archetypes: getArchetypeArray());
+
+            ability.SetNameDescription("Mind Over Gravity",
+                                       "As a standard action, you can expend 1 point of mental focus to give yourself a an ability to fly and increases your speed by 10 feet. This effect lasts for 1 minute per occultist level you possess. You must be at least 7th level to select this focus power.");
+            var feature = Common.AbilityToFeature(ability, false);
+
+            addMinLevelPrerequisite(feature, 7);
+            return feature;
+        }
+
+
+        BlueprintFeature createPhilosophersTouch()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponMagic.png");
+            List<BlueprintAbility> abilities_single = new List<BlueprintAbility>();
+            List<BlueprintAbility> abilities_multiple = new List<BlueprintAbility>();
+            var enchants = new BlueprintWeaponEnchantment[]
+            {
+                WeaponEnchantments.cold_iron,
+                WeaponEnchantments.mithral,
+                WeaponEnchantments.adamantine
+            };
+
+            foreach (var e in enchants)
+            {
+                var buff = Helpers.CreateBuff(prefix + e.name + "PhilosophersTouchBuff",
+                                              "Philosopher’s Touch: " + e.Name,
+                                              "As a standard action, you can expend 1 point of mental focus and touch a weapon, causing it to gain the properties of a special material. You can cause the weapon to be treated as cold iron or silver for the purposes of overcoming damage reduction for 1 minute per occultist level you possess.\n"
+                                              + "At 8th level, you can affect all weapons in 15-foot burst centered on you (still expending only 1 point of mental focus). At 11th level, you can cause any weapon affected by this ability to act as if it were adamantine instead.",
+                                              "",
+                                              icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.secondary_hand = false; p.only_melee = true; p.enchant = e; })
+                                              );
+
+                var ability_single = Helpers.CreateAbility(prefix + e.name + "PhilosophersTouchSingleAbility",
+                                                           buff.Name,
+                                                           buff.Description,
+                                                           "",
+                                                           buff.Icon,
+                                                           AbilityType.Supernatural,
+                                                           CommandType.Standard,
+                                                           AbilityRange.Touch,
+                                                           Helpers.minutesPerLevelDuration,
+                                                           "",
+                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
+                                                           Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                           resource.CreateResourceLogic()
+                                                           );
+                ability_single.setMiscAbilityParametersTouchFriendly();
+                if (e == WeaponEnchantments.adamantine)
+                {
+                    ability_single.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfHasClassLevels>(a => { a.character_classes = classes; a.level = 11; }));
+                }
+
+                var ability_multiple = library.CopyAndAdd(ability_single, prefix + e.name + "PhilosophersTouchSingleMultiple", "");
+                ability_multiple.Range = AbilityRange.Personal;
+                ability_multiple.AddComponent(Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally));
+
+                abilities_single.Add(ability_single);
+                abilities_multiple.Add(ability_multiple);
+            }
+
+
+            var wrapper_single = Common.createVariantWrapper(prefix + "PhilosophersTouchSingleAbilityBase", "", abilities_single.ToArray());
+            wrapper_single.SetName("Philosopher’s Touch");
+            var wrapper_multiple = Common.createVariantWrapper(prefix + "PhilosophersTouchMultipleAbilityBase", "", abilities_multiple.ToArray());
+            wrapper_multiple.SetName("Philosopher’s Touch");
+
+            var feature_single = Common.AbilityToFeature(wrapper_single);
+            var feature_multiple = Common.AbilityToFeature(wrapper_multiple);
+
+            var feature = Helpers.CreateFeature(prefix + "PhilosophersTouchFeature",
+                                                feature_single.Name,
+                                                feature_single.Description,
+                                                "",
+                                                feature_single.Icon,
+                                                FeatureGroup.None,
+                                                createAddFeatureInLevelRange(feature_single, 0, 7),
+                                                createAddFeatureInLevelRange(feature_single, 8, 100)
+                                                );
+            return feature;
+        }
+
+
+        BlueprintFeature createSuddenSpeed()
+        {
+            var ability = Common.convertToSpellLike(library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379"), prefix, classes, stat, resource, archetypes: getArchetypeArray());
+
+            ability.SetNameDescription("Sudden Speed",
+                                       "As a swift action, you can expend 1 point of mental focus to grant yourself a burst of speed. This increases your land speed by 30 feet for 1 minute. This ability does not stack with itself.");
+            ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes))));
+            ability.ActionType = CommandType.Swift;
+            ability.LocalizedDuration = Helpers.CreateString(ability.name + ".Duration", Helpers.oneMinuteDuration);
+            return Common.AbilityToFeature(ability, false);
+        }
+
+
     }
 }
