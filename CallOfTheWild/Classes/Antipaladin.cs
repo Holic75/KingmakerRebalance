@@ -1591,7 +1591,7 @@ namespace CallOfTheWild
             var vicious = Common.createEnchantmentAbility("FiendishBoonWeaponEnchancementVicious",
                                                                         "Fiendish Boon - Vicious",
                                                                         "An antipaladin can add the vicious property to a weapon enhanced with her fiendish boon, but this consumes 1 point of enhancement bonus granted to this weapon.\n" + vicious_enchant.Description,
-                                                                        library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon, //disruption
+                                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVicious.png"),
                                                                         fiendish_boon_enhancement_buff,
                                                                         vicious_enchant,
                                                                         1, ActivatableAbilityGroup.DivineWeaponProperty);

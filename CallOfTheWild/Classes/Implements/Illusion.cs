@@ -4,13 +4,17 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +42,33 @@ namespace CallOfTheWild
                                        + "This is a mind-affecting illusion effect."
                                        );
  
+            return Common.AbilityToFeature(ability, false);
+        }
+
+
+        BlueprintFeature createTerror()
+        {
+
+            var effect = Helpers.CreateConditional(Helpers.Create<ContextConditionHitDice>(c => { c.HitDice = 0; c.AddSharedValue = true; c.SharedValue = AbilitySharedValue.StatBonus; }),
+                                                   Helpers.Create<AooMechanics.ContextActionProvokeAttackOfOpportunityFromAnyoneExceptCaster>(a => a.max_units = 100));
+            var ability = Helpers.CreateAbility(prefix + "TerrorAbility",
+                                                "Terror",
+                                                "As a standard action, you can make a melee touch attack that causes a creature to be assailed by nightmares only it can see. The creature provokes an attack of opportunity from all your allies. Creatures with more Hit Dice than your occultist level are unaffected. This is a mind-affecting fear effect.",
+                                                "",
+                                                Helpers.GetIcon("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(effect),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                Helpers.CreateDeliverTouch(),
+                                                Common.createAbilitySpawnFx("49a8069c238b1a8429f2123654d4f45b", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                );
+            ability.setMiscAbilityParametersTouchHarmful();
+            var ability_cast = Helpers.CreateTouchSpellCast(ability, resource);
+
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -130,6 +161,46 @@ namespace CallOfTheWild
 
             var feature = Common.AbilityToFeature(wrapper, false);
             addMinLevelPrerequisite(feature, 7);
+            return feature;
+        }
+
+
+        BlueprintFeature createBedevelingAura()
+        {
+            var buff = Helpers.CreateBuff(prefix + "BedevelingAuraEffectBuff",
+                                          "Bedeveling Aura",
+                                          "By expending one point of mental focus, you can emit a 30-foot aura that bedevils your enemies with phantasmal assailants. Enemies within this aura move at half speed, are unable to take attacks of opportunity, and are considered to be flanked. This is a mind-affecting effect. The aura lasts for a number of round equal to 1/2 your occultist level.\n"
+                                          + "You must be at least 9th level to select this focus power.",
+                                          "",
+                                          Helpers.GetIcon("b48674cef2bff5e478a007cf57d8345b"), //remove curse
+                                          null,
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
+                                          Helpers.Create<FlankingMechanics.AlwaysFlanked>(),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                          );
+
+            var area_buff = Common.createBuffAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsEnemy>()));
+            area_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("dfadb7fa26de0384d9d9a6dabb0bea72");
+
+            var ability = Helpers.CreateAbility(prefix + "BedevelingAuraAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "1 round/2 levels",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(area_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                createClassScalingConfig(ContextRankProgression.Div2),
+                                                resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            var feature = Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 9);
             return feature;
         }
     }

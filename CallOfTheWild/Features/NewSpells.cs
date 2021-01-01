@@ -823,7 +823,7 @@ namespace CallOfTheWild
 
             UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
             {
-                library.Get<BlueprintActivatableAbility>("8c714fbd564461e4588330aeed2fbe1d").Icon,//disruption
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
                 library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon, //keen
                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWCruel.png"),
                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),

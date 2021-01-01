@@ -56,6 +56,10 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment menacing;
         static public BlueprintWeaponEnchantment vorpal;
 
+        static public BlueprintWeaponEnchantment thundering = library.Get<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96");
+        static public BlueprintWeaponEnchantment vicious = library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56");
+        static public BlueprintWeaponEnchantment bane = library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a");
+
         static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
         static public void initialize()
         {

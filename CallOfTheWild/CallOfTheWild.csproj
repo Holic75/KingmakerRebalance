@@ -182,6 +182,8 @@
     <Compile Include="Classes\Implements\Evocation.cs" />
     <Compile Include="Classes\Implements\Illusion.cs" />
     <Compile Include="Classes\Implements\ImplementsEngine.cs" />
+    <Compile Include="Classes\Implements\Necromancy.cs" />
+    <Compile Include="Classes\Implements\Transmutation.cs" />
     <Compile Include="Classes\Investigator.cs" />
     <Compile Include="Archetypes\KineticChirurgeon.cs" />
     <Compile Include="Classes\Mesmerist.cs" />

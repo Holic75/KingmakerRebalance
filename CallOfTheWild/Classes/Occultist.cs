@@ -131,44 +131,48 @@ namespace CallOfTheWild
         static void createOccultistProgression()
         {
             /*abjuration: warding talisman -> mind barrier x
-                aegis (as swift action for 2 pts ?)
-                energy shield
+                aegis (as swift action for 2 pts ?) 1
+                energy shield 3
                 globe of negation ?
-                unravelling
+                unravelling lvl 5
             conjuration: casting focus -> servitor x
-                flesh mend
-                psychic fog
-                purge corruption
-                side step
+                flesh mend 3
+                psychic fog 1
+                purge corruption 5
+                side step 7
             divination: third eye -> sudden insight x
-                danger sight
-                mind eye  TODO
-                in accordance with prophecy
+                danger sight 1
+                mind eye 5 TODO 
+                in accordance with prophecy 9
+                ?
             enchantment: glorious presence -> cloud mind x
-                binding pattern
-                inspired assault
-                obey 
+                binding pattern 7
+                inspired assault 1
+                obey 1
+                ?
             evocation: intense focus -> energy ray x
-                energy blast: ((1d6 +2)/2 levels)
+                energy blast: ((1d6 +2)/2 levels) 5
                 energy ward ?
-                radiance
-                wall of power
+                light matrix ?
+                radiance 1
+                wall of power 9
             illusion: distortion (concealement until hit 20 -> 50%) -> color beam (as blinding ray) x           
-                shadow beast
-                unseen - greater invisibility for 1 minute
-                bedeveling aura (1 round/2 levels)
-            necromancy: necromantic focus - > mind fear
-                flesh rot
-                necromantic servant
-                soulbound puppet
-                pain wave
-                spirit shroud
+                shadow beast 9
+                unseen - greater invisibility for 1 minute 7
+                bedeveling aura (1 round/2 levels) 9
+                terror  1
+            necromancy: necromantic focus - > mind fear x
+                flesh rot 3
+                necromantic servant 3
+                soulbound puppet 1
+                pain wave 7
+                spirit shroud 3
             transmuation: physical enchancement -> legacy weapon
-                mind over gravity (fly + 30 speed bonus)
-                philosopher's touch
-                quickness (haste + 1/6 levels)
-                size alteration (enlarge reduce without limitation)
-                sudden speed 
+                mind over gravity (fly + 30 speed bonus) 7
+                philosopher's touch 1
+                quickness (haste + 1/6 levels) 5
+                size alteration (enlarge reduce without limitation) 1
+                sudden speed  1
 
             trappings of the warrior: martial skill -> combat feat (?) 
                 counterstrike

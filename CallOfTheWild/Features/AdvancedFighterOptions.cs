@@ -513,6 +513,39 @@ namespace CallOfTheWild
                                                 library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
                                                 2, warrior_spirit_group);
 
+            var vicious = Common.createEnchantmentAbility("WarriorSpiritEnchancementVicious",
+                                                        "Warrior Spirit - Vicious",
+                                                        $"A fighter can add the vicious property to her weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\n{WeaponEnchantments.vicious.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVicious.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.vicious,
+                                                        1, warrior_spirit_group);
+
+            var vorpal = Common.createEnchantmentAbility("WarriorSpiritEnchancementVorpal",
+                                                        "Warrior Spirit - Vorpal",
+                                                        $"A fighter can add the vorpal property to her weapon, but this consumes 5 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.vorpal.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.vorpal,
+                                                        1, warrior_spirit_group);
+
+            var cruel = Common.createEnchantmentAbility("WarriorSpiritEnchancementCruel",
+                                                        "Warrior Spirit - Cruel",
+                                                        $"A fighter can add the vicious property to her weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\n{WeaponEnchantments.cruel.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWCruel.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.cruel,
+                                                        1, warrior_spirit_group);
+
+            var speed_enchant = library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006");
+            var speed = Common.createEnchantmentAbility("WarriorSpiritEnchancementSpeed",
+                                                            "Warrior Spirit - Speed",
+                                                            "A fighter can add the vicious property to her weapon, but this consumes 3 points of enhancement bonus granted to this weapon.\n" + speed_enchant.Description,
+                                                            library.Get<BlueprintActivatableAbility>("ed1ef581af9d9014fa1386216b31cdae").Icon, //speed
+                                                            weapon_enhancement_buff,
+                                                            speed_enchant,
+                                                            3, warrior_spirit_group);
+
             var warrior_spirit_features = new BlueprintFeature[5];
             warrior_spirit_features[0] = Helpers.CreateFeature("WarriorSpiritEnchancementFeature",
                                                             "Warrior Spirit +1",
@@ -520,7 +553,7 @@ namespace CallOfTheWild
                                                             "",
                                                             weapon_enhancement_buff.Icon,
                                                             FeatureGroup.None,
-                                                            Helpers.CreateAddFacts(flaming, frost, shock, ghost_touch, keen),
+                                                            Helpers.CreateAddFacts(flaming, frost, shock, ghost_touch, keen, cruel, vicious),
                                                             resource.CreateIncreaseResourceAmount(1)
                                                             );
 
@@ -541,6 +574,7 @@ namespace CallOfTheWild
                                                                             "",
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
+                                                                            Helpers.CreateAddFact(speed),
                                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
                                                                             resource.CreateIncreaseResourceAmount(1)
                                                                             );
@@ -562,6 +596,7 @@ namespace CallOfTheWild
                                                                             "",
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
+                                                                            Helpers.CreateAddFact(vorpal),
                                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
                                                                             resource.CreateIncreaseResourceAmount(1)
                                                                             );

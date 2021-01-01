@@ -34,7 +34,7 @@ namespace CallOfTheWild
             var daze_buff = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
             var stagger_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
 
-            var apply_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionHitDice>(c => { c.HitDice = 1; c.AddSharedValue = true; c.SharedValue = AbilitySharedValue.StatBonus; }),
+            var apply_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionHitDice>(c => { c.HitDice = 0; c.AddSharedValue = true; c.SharedValue = AbilitySharedValue.StatBonus; }),
                                                          Common.createContextActionApplyBuff(daze_buff, Helpers.CreateContextDuration(1)),
                                                          Common.createContextActionApplyBuff(stagger_buff, Helpers.CreateContextDuration(1))
                                                          );

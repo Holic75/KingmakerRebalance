@@ -341,7 +341,7 @@ namespace CallOfTheWild
                                                    AbilityType.Supernatural,
                                                    CommandType.Swift,
                                                    AbilityRange.Personal,
-                                                   "One round/2 levels",
+                                                   "1 round/2 levels",
                                                    "",
                                                    Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus), apply_bite_buffs)),
                                                    createClassScalingConfig(progression: ContextRankProgression.Div2, min: 1),

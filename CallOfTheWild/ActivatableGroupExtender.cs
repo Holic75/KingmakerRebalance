@@ -70,6 +70,7 @@ namespace CallOfTheWild
             ExtraGroup20,
 
             AegisImplement,
+            LegacyWeaponImplement
 
         }
 

@@ -83,7 +83,9 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersTouchFriendly();
 
-            return Common.AbilityToFeature(ability, false);
+            var feature =  Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 3);
+            return feature;
         }
 
 
@@ -98,10 +100,9 @@ namespace CallOfTheWild
 
             var wrapper = Common.createVariantWrapper(prefix + "PsychicFogBase", "", fog_cloud, solid_fog);
             wrapper.SetNameDescription("Psychic Fog",
-                                       "As a standard action, you can expend 1 point of mental focus to create a cloud of fog. This fog lasts for 1 minute per occultist level you possess. It functions as fog cloud, except it can’t be dispersed by wind. At 7th level, You can expend 1 additional point of mental focus when creating this fog, causing it to become more tangible and function as solid fog. You must be at least 3rd level to select this focus power.");
+                                       "As a standard action, you can expend 1 point of mental focus to create a cloud of fog. This fog lasts for 1 minute per occultist level you possess. It functions as fog cloud, except it can’t be dispersed by wind. At 7th level, You can expend 1 additional point of mental focus when creating this fog, causing it to become more tangible and function as solid fog.");
 
             var feature = Common.AbilityToFeature(wrapper, false);
-            addMinLevelPrerequisite(feature, 3);
             return feature;
         }
 
