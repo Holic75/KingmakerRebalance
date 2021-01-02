@@ -1430,8 +1430,7 @@ namespace CallOfTheWild
     {
         static bool Prefix(AddAreaDamageTrigger __instance, UnitEntityData target, ref TimeSpan ___m_LastFrameTime, ref HashSet<UnitEntityData> ___m_AffectedThisFrame)
         {
-            var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;      
-            var original_blueprint = __instance.Fact.MaybeContext?.AssociatedBlueprint;
+            AbilityExecutionContext ability_context = null;
 
             TimeSpan gameTime = Game.Instance.TimeController.GameTime;
             if (gameTime != ___m_LastFrameTime)
@@ -1439,28 +1438,33 @@ namespace CallOfTheWild
                 ___m_LastFrameTime = gameTime;
                 ___m_AffectedThisFrame.Clear();
             }
+
             if (!___m_AffectedThisFrame.Add(target) || !__instance.Actions.HasActions)
                 return false;
             if (__instance.OwnerArea != null)
             {
                 ability_context = __instance.OwnerArea.Context?.SourceAbilityContext;
-            }
+                var original_blueprint = __instance.OwnerArea.Context?.AssociatedBlueprint;
+                Helpers.SetField(__instance.OwnerArea.Context, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
+                __instance.OwnerArea.Context?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
 
-            if (ability_context != null)
-            {
+                using (__instance.OwnerArea.Context?.GetDataScope((TargetWrapper)target))
+                    __instance.Actions.Run();
 
+                Helpers.SetField(__instance.OwnerArea.Context, "AssociatedBlueprint", original_blueprint);
+                __instance.OwnerArea.Context?.RecalculateAbilityParams();
             }
             else
             {
-                Main.logger.Log("Context is null");
+                ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                var original_blueprint = __instance.Fact.MaybeContext?.AssociatedBlueprint;
+                Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
+                __instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
+                (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
+                Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
+                __instance.Fact.MaybeContext?.RecalculateAbilityParams();
             }
 
-            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
-            __instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
-
-            (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
-            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
-            __instance.Fact.MaybeContext?.RecalculateAbilityParams();
 
             return false;
         }
