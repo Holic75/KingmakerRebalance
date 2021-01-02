@@ -13,6 +13,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
@@ -341,5 +342,60 @@ namespace CallOfTheWild
         }
 
 
+        BlueprintFeature createSizeAlteration()
+        {
+            var enlarge = library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039");
+            var reduce = library.Get<BlueprintAbility>("4e0e9aba6447d514f88eff1464cc4763");
+
+            var enlarge_sp = Common.convertToSpellLike(enlarge, prefix, classes, stat, resource, archetypes: getArchetypeArray());
+            var reduce_sp = Common.convertToSpellLike(reduce, prefix, classes, stat, resource, archetypes: getArchetypeArray());
+            enlarge_sp.RemoveComponents<CompanionMechanics.AbilityTargetHasFactUnlessPet>();
+            reduce_sp.RemoveComponents<CompanionMechanics.AbilityTargetHasFactUnlessPet>();
+            enlarge_sp.SetName("Size Alteration: " + enlarge_sp.Name);
+            reduce_sp.SetName("Size Alteration: " + reduce_sp.Name);
+            Common.unsetAsFullRoundAction(reduce_sp);
+            Common.unsetAsFullRoundAction(enlarge_sp);
+            var wrapper = Common.createVariantWrapper(prefix + "SizeAlterationAbilityBase", "", enlarge_sp, reduce_sp);
+            wrapper.SetNameDescription("Size Alteration",
+                                       "As a standard action, you can expend 1 point of mental focus and touch a creature to alter its size.\n"
+                                       + "You can increase or decrease the creature’s size by one step, as enlarge person or reduce person but not limited by the creature’s type.");
+
+            return Common.AbilityToFeature(wrapper, false);
+        }
+
+
+        BlueprintFeature createQuickness()
+        {
+            var haste_buff = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280"); //haste
+            var apply_haste = Common.createContextActionApplyBuff(haste_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
+
+            var effect_buff = Helpers.CreateBuff(prefix + "QuicknessBuff",
+                                    "Quickness",
+                                    "As a standard action, you can expend 1 point of mental focus to grant supernatural quickness and reflexes to yourself or a willing living creature you touch.\n"
+                                    + "This functions as haste, but the bonus to attack rolls, AC and on Reflex saving throws increases by 1 for every 6 occultist levels. This effect lasts for 1 round per occultist level you possess. You must be at least 5th level to select this focus power.",
+                                    "",
+                                    haste_buff.Icon,
+                                    null,
+                                    Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable),
+                                    Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.Dodge),
+                                    Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.UntypedStackable),
+                                    createClassScalingConfig(ContextRankProgression.DivStep, stepLevel: 6),
+                                    Helpers.CreateAddFactContextActions(activated: apply_haste)
+                                    );
+
+            var ability = library.CopyAndAdd<BlueprintAbility>("486eaff58293f6441a5c2759c4872f98", prefix + "QuicknessAbility", "");//from haste
+            ability.RemoveComponents<SpellListComponent>();
+            ability.RemoveComponents<AbilityTargetsAround>();
+            ability.Range = AbilityRange.Touch;
+            ability.Type = AbilityType.SpellLike;
+            ability.SetNameDescription(effect_buff.Name, effect_buff.Description);
+            ability.AddComponent(Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental));
+            ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c => c.Buff = effect_buff)));
+            ability.AddComponent(createClassScalingConfig());
+
+            var feature = Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 5);
+            return feature;
+        }
     }
 }

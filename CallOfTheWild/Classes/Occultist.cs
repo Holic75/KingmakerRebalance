@@ -167,7 +167,7 @@ namespace CallOfTheWild
                 soulbound puppet 1
                 pain wave 7
                 spirit shroud 3
-            transmuation: physical enchancement -> legacy weapon
+            transmuation: physical enchancement -> legacy weapon x
                 mind over gravity (fly + 30 speed bonus) 7
                 philosopher's touch 1
                 quickness (haste + 1/6 levels) 5
