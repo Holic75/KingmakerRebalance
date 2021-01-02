@@ -278,6 +278,7 @@
     <Compile Include="NewMechanics\DemoralizeMechanics.cs" />
     <Compile Include="NewMechanics\FlankingMechanics.cs" />
     <Compile Include="NewMechanics\FlatFootedMechanics.cs" />
+    <Compile Include="NewMechanics\ImplementMechanics.cs" />
     <Compile Include="NewMechanics\IncorporealMechanics.cs" />
     <Compile Include="NewMechanics\InsinuatorMechanics.cs" />
     <Compile Include="NewMechanics\ItemMechanics.cs" />

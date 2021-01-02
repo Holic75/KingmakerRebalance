@@ -195,6 +195,13 @@ namespace CallOfTheWild
                                                     );
             ability.setMiscAbilityParametersSelfOnly();
 
+            var ability_swift = library.CopyAndAdd(ability, "Swift" + ability.name, "");
+            ability_swift.ActionType = CommandType.Swift;
+            ability_swift.SetName(ability_swift.Name + " (Swift)");
+            ability_swift.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = 2);
+            var wrapper = Common.createVariantWrapper(prefix + prefix + "LegacyWeaponEnchantmentAbilityBase", "", ability, ability_swift);
+            addFocusInvestmentCheck(wrapper, SpellSchool.Transmutation);
+
             var legacy_weapon_features = new BlueprintFeature[4];
             legacy_weapon_features[0] = Helpers.CreateFeature("LegacyWeaponEnchancementFeature",
                                                             "Legacy Weapon",
@@ -202,7 +209,7 @@ namespace CallOfTheWild
                                                             "",
                                                             weapon_enhancement_buff.Icon,
                                                             FeatureGroup.None,
-                                                            Helpers.CreateAddFacts(ability, flaming, frost, shock, ghost_touch, keen, cruel, vicious)
+                                                            Helpers.CreateAddFacts(wrapper, flaming, frost, shock, ghost_touch, keen, cruel, vicious)
                                                             );
 
             legacy_weapon_features[1] = Helpers.CreateFeature("LegacyWeaponEnchancement2Feature",
@@ -249,7 +256,7 @@ namespace CallOfTheWild
             ability.SetNameDescription("Mind Over Gravity",
                                        "As a standard action, you can expend 1 point of mental focus to give yourself a an ability to fly and increases your speed by 10 feet. This effect lasts for 1 minute per occultist level you possess. You must be at least 7th level to select this focus power.");
             var feature = Common.AbilityToFeature(ability, false);
-
+            addFocusInvestmentCheck(ability, SpellSchool.Transmutation);
             addMinLevelPrerequisite(feature, 7);
             return feature;
         }
@@ -313,6 +320,8 @@ namespace CallOfTheWild
             var wrapper_multiple = Common.createVariantWrapper(prefix + "PhilosophersTouchMultipleAbilityBase", "", abilities_multiple.ToArray());
             wrapper_multiple.SetName("Philosopher’s Touch");
 
+            addFocusInvestmentCheck(wrapper_single, SpellSchool.Transmutation);
+            addFocusInvestmentCheck(wrapper_multiple, SpellSchool.Transmutation);
             var feature_single = Common.AbilityToFeature(wrapper_single);
             var feature_multiple = Common.AbilityToFeature(wrapper_multiple);
 
@@ -338,6 +347,7 @@ namespace CallOfTheWild
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c => c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Minutes))));
             ability.ActionType = CommandType.Swift;
             ability.LocalizedDuration = Helpers.CreateString(ability.name + ".Duration", Helpers.oneMinuteDuration);
+            addFocusInvestmentCheck(ability, SpellSchool.Transmutation);
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -360,6 +370,7 @@ namespace CallOfTheWild
                                        "As a standard action, you can expend 1 point of mental focus and touch a creature to alter its size.\n"
                                        + "You can increase or decrease the creature’s size by one step, as enlarge person or reduce person but not limited by the creature’s type.");
 
+            addFocusInvestmentCheck(wrapper, SpellSchool.Transmutation);
             return Common.AbilityToFeature(wrapper, false);
         }
 
@@ -392,6 +403,7 @@ namespace CallOfTheWild
             ability.AddComponent(Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental));
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c => c.Buff = effect_buff)));
             ability.AddComponent(createClassScalingConfig());
+            addFocusInvestmentCheck(ability, SpellSchool.Transmutation);
 
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 5);

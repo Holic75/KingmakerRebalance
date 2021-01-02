@@ -52,6 +52,7 @@ namespace CallOfTheWild
                                   resource.CreateResourceLogic());
             ability.LocalizedDuration = Helpers.oneMinuteDuration;
             ability.Parent = null;
+            addFocusInvestmentCheck(ability, SpellSchool.Conjuration);
 
             return Common.AbilityToFeature(ability, false);
         }
@@ -82,6 +83,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration)
                                                 );
             ability.setMiscAbilityParametersTouchFriendly();
+            addFocusInvestmentCheck(ability, SpellSchool.Conjuration);
 
             var feature =  Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 3);
@@ -102,6 +104,7 @@ namespace CallOfTheWild
             wrapper.SetNameDescription("Psychic Fog",
                                        "As a standard action, you can expend 1 point of mental focus to create a cloud of fog. This fog lasts for 1 minute per occultist level you possess. It functions as fog cloud, except it can’t be dispersed by wind. At 7th level, You can expend 1 additional point of mental focus when creating this fog, causing it to become more tangible and function as solid fog.");
 
+            addFocusInvestmentCheck(wrapper, SpellSchool.Conjuration);
             var feature = Common.AbilityToFeature(wrapper, false);
             return feature;
         }
@@ -118,6 +121,7 @@ namespace CallOfTheWild
             var wrapper = Common.createVariantWrapper(prefix + "PurgeCorruptionBase", "", neutralize_poison, remove_disease);
             wrapper.SetNameDescription("Purge Corruption", "As a standard action, you can expend 1 point of mental focus to draw out the corruption from a creature.\nThis ability functions as either neutralize poison or remove disease, using your occultist level as the caster level. Each use of this ability can cure only one poison or one disease. You must be at least 5th level to select this focus power.");
 
+            addFocusInvestmentCheck(wrapper, SpellSchool.Conjuration);
             var feature = Common.AbilityToFeature(wrapper, false);
             addMinLevelPrerequisite(feature, 5);
             return feature;
@@ -152,6 +156,7 @@ namespace CallOfTheWild
                 int min_level = i == 1 ? 0 : i;
                 int max_level = i == 20 ? 100 : i + 1;
 
+                addFocusInvestmentCheck(ability, SpellSchool.Conjuration);
                 feature.AddComponent(createAddFeatureInLevelRange(feature_i, min_level, max_level));              
             }
 

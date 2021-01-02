@@ -59,6 +59,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -89,6 +90,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Paralysis)
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             var feature =  Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 7);
             return feature;
@@ -117,6 +119,7 @@ namespace CallOfTheWild
                 s.spells = new BlueprintAbility[] { ability };
                 s.descriptor = ModifierDescriptor.UntypedStackable;
             }));
+            addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             return feature;
         }
 
@@ -157,6 +160,7 @@ namespace CallOfTheWild
                                                 heroism.GetComponent<AbilitySpawnFx>()
                                                 );
             ability.setMiscAbilityParametersTouchFriendly();
+            addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             var feature = Common.AbilityToFeature(ability, false);
             return feature;
         }

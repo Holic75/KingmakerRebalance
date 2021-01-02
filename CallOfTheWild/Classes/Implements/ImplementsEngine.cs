@@ -1,7 +1,10 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using System;
@@ -20,14 +23,16 @@ namespace CallOfTheWild
         StatType stat;
         BlueprintAbilityResource resource;
         string prefix;
+        bool check_invested_focus;
 
-        public ImplementsEngine(string name_prefix, BlueprintAbilityResource ability_resource, BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, BlueprintArchetype scaling_archetype = null)
+        public ImplementsEngine(string name_prefix, BlueprintAbilityResource ability_resource, BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, bool check_focus_investment = true, BlueprintArchetype scaling_archetype = null)
         {
             stat = scaling_stat;
             classes = scaling_classes;
             archetype = scaling_archetype;
             resource = ability_resource;
             prefix = name_prefix + "Implement";
+            check_invested_focus = check_focus_investment;
         }
 
         BlueprintArchetype[] getArchetypeArray()
@@ -97,6 +102,30 @@ namespace CallOfTheWild
                 a.min_level = min_lvl;
                 a.max_level = max_lvl;
             });
+        }
+
+
+        void addFocusInvestmentCheck(BlueprintAbility ability, SpellSchool school)
+        {
+            if (!check_invested_focus)
+            {
+                return; 
+            }
+            var abilities = ability.HasVariants ? ability.Variants : new BlueprintAbility[] {ability};
+            foreach (var a in abilities)
+            {
+                a.AddComponent(Helpers.Create<ImplementMechanics.AbilityCasterInvestedFocus>(ab => ab.school = school));
+            }
+        }
+
+
+        void addFocusInvestmentCheck(BlueprintActivatableAbility ability, SpellSchool school)
+        {
+            if (!check_invested_focus)
+            {
+                return;
+            }
+            ability.AddComponent(Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => r.school = school));
         }
     }
 }

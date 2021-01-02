@@ -156,14 +156,13 @@ namespace CallOfTheWild
             Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
 
             fixRepeatingElements();
-
             if (update_archetypes)
             {
                 Main.logger.Log("Updating base kineticist archetypes");
                 updateKineticistArchetypes();
             }
         }
-
+        
 
         static void fixRepeatingElements()
         {

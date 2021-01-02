@@ -68,6 +68,7 @@ namespace CallOfTheWild
                                                 );
 
             ability.setMiscAbilityParametersSelfOnly();
+            addFocusInvestmentCheck(ability, SpellSchool.Divination);
 
             return Common.AbilityToFeature(ability, false);
         }
@@ -113,7 +114,7 @@ namespace CallOfTheWild
                                                 );
 
             ability.setMiscAbilityParametersSelfOnly();
-
+            addFocusInvestmentCheck(ability, SpellSchool.Divination);
             var feature =  Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 3);
             return feature;
@@ -147,6 +148,7 @@ namespace CallOfTheWild
                                                         resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never)
                                                         );
             ability.DeactivateImmediately = true;
+            addFocusInvestmentCheck(ability, SpellSchool.Divination);
             var feature = Common.ActivatableAbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 9);
 

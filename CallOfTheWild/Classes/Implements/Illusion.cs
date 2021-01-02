@@ -41,7 +41,7 @@ namespace CallOfTheWild
                                        "As a standard action, you can expend 1 point of mental focus to unleash a beam of cascading colors at any one target within 30 feet. Doing so requires a ranged touch attack. If the beam hits, the target is blinded for 1 round if it has a number of Hit Dice equal to or lower than your occultist level. A foe with a number of Hit Dice greater than your occultist level is instead dazzled for 1 round.\n"
                                        + "This is a mind-affecting illusion effect."
                                        );
- 
+            addFocusInvestmentCheck(ability, SpellSchool.Illusion);
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -68,7 +68,7 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersTouchHarmful();
             var ability_cast = Helpers.CreateTouchSpellCast(ability, resource);
-
+            addFocusInvestmentCheck(ability, SpellSchool.Illusion);
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -131,7 +131,7 @@ namespace CallOfTheWild
             }
 
             ability.AddComponent(Helpers.CreateAbilityVariants(ability, abilities));
-
+            addFocusInvestmentCheck(ability, SpellSchool.Illusion);
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 9);
             return feature;
@@ -158,7 +158,7 @@ namespace CallOfTheWild
             ability2.SetName("Unseen (Others)");
             var wrapper = Common.createVariantWrapper(prefix + "UnseenBase", "", ability, ability2);
             wrapper.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
-
+            addFocusInvestmentCheck(wrapper, SpellSchool.Illusion);
             var feature = Common.AbilityToFeature(wrapper, false);
             addMinLevelPrerequisite(feature, 7);
             return feature;
@@ -199,6 +199,7 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
 
+            addFocusInvestmentCheck(ability, SpellSchool.Illusion);
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 9);
             return feature;

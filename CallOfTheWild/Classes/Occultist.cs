@@ -61,11 +61,15 @@ namespace CallOfTheWild
         static public BlueprintProgression occultist_progression;
 
         static public BlueprintFeature occultist_proficiencies;
+        static public BlueprintFeature occultist_knacks;
         static public BlueprintFeature occultist_spellcasting;
+        static public BlueprintFeature mental_focus;
+        static public BlueprintFeature magic_item_skill;
 
 
         static public BlueprintAbilityResource generic_focus_resource;
-        static public Dictionary<SpellSchool, BlueprintAbilityResource> implement_focus;
+        static public Dictionary<SpellSchool, BlueprintAbilityResource> implement_focus_resource;
+        static public BlueprintFeatureSelection implement_mastery;
 
         static public BlueprintFeatureSelection focus_power_selection;
         static public BlueprintFeatureSelection implement_base_selection;
@@ -128,6 +132,11 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintCharacterClass[] getOccultistArray()
+        {
+            return new BlueprintCharacterClass[] { occultist_class };
+        }
+
         static void createOccultistProgression()
         {
             /*abjuration: warding talisman -> mind barrier x
@@ -186,10 +195,94 @@ namespace CallOfTheWild
 
             //repower construct to replace binding circles
 
-            //createKnacks();
-            //createProficiencies();
+
+
+            createKnacks();
+            createProficiencies();
+            createMagicItemSkill();
             //createImplements();
             //createRepowerConstruct();
+
+
+            var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
+
+            occultist_progression = Helpers.CreateProgression("OccultistProgression",
+                                                              occultist_class.Name,
+                                                              occultist_class.Description,
+                                                              "",
+                                                              occultist_class.Icon,
+                                                              FeatureGroup.None);
+            occultist_progression.Classes = getOccultistArray();
+
+            occultist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, occultist_proficiencies, occultist_spellcasting, detect_magic,
+                                                                                         occultist_knacks, implement_base_selection, implement_selection,
+                                                                                         mental_focus, focus_power_selection,
+                                                                                         library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
+                                                                                         library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
+                                                                    Helpers.LevelEntry(2, implement_selection, magic_item_skill),
+                                                                    Helpers.LevelEntry(3, focus_power_selection),
+                                                                    Helpers.LevelEntry(4),
+                                                                    Helpers.LevelEntry(5, focus_power_selection),
+                                                                    Helpers.LevelEntry(6, implement_selection),
+                                                                    Helpers.LevelEntry(7, focus_power_selection),
+                                                                    Helpers.LevelEntry(8/*, repower_construct*/),
+                                                                    Helpers.LevelEntry(9, focus_power_selection),
+                                                                    Helpers.LevelEntry(10, implement_selection),
+                                                                    Helpers.LevelEntry(11, focus_power_selection),
+                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(13, focus_power_selection),
+                                                                    Helpers.LevelEntry(14, implement_selection),
+                                                                    Helpers.LevelEntry(15, focus_power_selection),
+                                                                    Helpers.LevelEntry(16),
+                                                                    Helpers.LevelEntry(17, focus_power_selection),
+                                                                    Helpers.LevelEntry(18, implement_selection),
+                                                                    Helpers.LevelEntry(19, focus_power_selection),
+                                                                    Helpers.LevelEntry(20, implement_mastery)
+                                                                    };
+
+            occultist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] {occultist_proficiencies, occultist_spellcasting, detect_magic,
+                                                                                     occultist_knacks, mental_focus};
+            occultist_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(implement_base_selection, implement_selection),
+                                                            Helpers.CreateUIGroup(focus_power_selection),
+                                                            Helpers.CreateUIGroup(magic_item_skill, repower_construct)
+                                                           };
+        }
+
+
+        static void createMagicItemSkill()
+        {
+            magic_item_skill = Helpers.CreateFeature("MagicItemSkillFeature",
+                                                     "Magic Item Skill",
+                                                     "At 2nd level, an occultist’s knowledge of magic items grants him a bonus when attempting to use them. He gains a bonus on all Use Magic Device checks equal to 1/2 his occultist level.",
+                                                     "",
+                                                     Helpers.GetIcon("f43ffc8e3f8ad8a43be2d44ad6e27914"),
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddContextStatBonus(StatType.SkillUseMagicDevice, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOccultistArray(), progression: ContextRankProgression.Div2)
+                                                     );
+            magic_item_skill.ReapplyOnLevelUp = true;
+        }
+
+        static void createProficiencies()
+        {
+            occultist_proficiencies = library.CopyAndAdd<BlueprintFeature>("c5e479367d07d62428f2fe92f39c0341", "OccultistProficiencies", "");
+            occultist_proficiencies.SetNameDescription("Occultist Proficiencies",
+                                                       "An occultist is proficient with all simple and martial weapons, light armor, medium armor, and shields (except tower shields)."
+                                                       );
+        }
+
+
+        static void createKnacks()
+        {
+            occultist_knacks = Common.createCantrips("OccultistKnacksFeature",
+                                                     "Knacks",
+                                                     "An occultist knows a number of knacks, or 0-level psychic spells. These spells are cast like any other spell, but they can be cast any number of times per day.",
+                                                     Helpers.GetIcon("55f14bc84d7c85446b07a1b5dd6b2b4c"),
+                                                     "",
+                                                     occultist_class, 
+                                                     StatType.Intelligence, 
+                                                     occultist_class.Spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()
+                                                     );
         }
 
 

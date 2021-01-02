@@ -63,7 +63,7 @@ namespace CallOfTheWild
                                                 resource.CreateResourceLogic()
                                                 );
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
-
+            addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
             return Common.AbilityToFeature(ability, false);
         }
 
@@ -98,6 +98,7 @@ namespace CallOfTheWild
             cast_ability.AddComponent(Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental));
             var feature = Common.AbilityToFeature(cast_ability, false);
             addMinLevelPrerequisite(feature, 3);
+            addFocusInvestmentCheck(cast_ability, SpellSchool.Necromancy);
             return feature;
         }
 
@@ -128,7 +129,7 @@ namespace CallOfTheWild
                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Sickened)
                                     );
             ability.setMiscAbilityParametersRangedDirectional();
-
+            addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 7);
             return feature;
@@ -183,7 +184,7 @@ namespace CallOfTheWild
 
             var wrapper = Common.createVariantWrapper(prefix + "SoulboundPuppetAbilityBase", "", abilities.ToArray());
             wrapper.SetNameDescription(display_name, description);
-
+            addFocusInvestmentCheck(wrapper, SpellSchool.Necromancy);
             return Common.AbilityToFeature(wrapper);
         }
 
@@ -212,6 +213,7 @@ namespace CallOfTheWild
                                                 Common.createAbilitySpawnFx("e93261ee4c3ea474e923f6a645a3384f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 createClassScalingConfig()
                                                 );
+            addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 3);
             return feature;
@@ -297,7 +299,8 @@ namespace CallOfTheWild
 
             var feature_single = Common.AbilityToFeature(ability_single);
             var feature_multiple = Common.AbilityToFeature(ability_multiple);
-
+            addFocusInvestmentCheck(ability_single, SpellSchool.Necromancy);
+            addFocusInvestmentCheck(ability_multiple, SpellSchool.Necromancy);
             var feature = Helpers.CreateFeature(prefix + "NecromanticServantFeature",
                                                 dispaly_name,
                                                 description,

@@ -71,6 +71,7 @@ namespace CallOfTheWild
 
             var wrapper = Common.createVariantWrapper(prefix + "EnergyRayAbilityBase", "", abilities);
             wrapper.SetName("Energy Ray");
+            addFocusInvestmentCheck(wrapper, SpellSchool.Evocation);
             return Common.AbilityToFeature(wrapper, false);
         }
 
@@ -143,6 +144,7 @@ namespace CallOfTheWild
 
             var wrapper = Common.createVariantWrapper(prefix + "EnergyBlastAbilityBase", "", abilities);
             wrapper.SetName("Energy Blast");
+            addFocusInvestmentCheck(wrapper, SpellSchool.Evocation);
             var feature = Common.AbilityToFeature(wrapper, false);
             addMinLevelPrerequisite(feature, 5);
             return feature;
@@ -224,6 +226,7 @@ namespace CallOfTheWild
 
             var wrapper = Common.createVariantWrapper(prefix + "WallOfPowerAbilityBase", "", abilities);
             wrapper.SetName("Wall of Power");
+            addFocusInvestmentCheck(wrapper, SpellSchool.Evocation);
             var feature = Common.AbilityToFeature(wrapper, false);
             addMinLevelPrerequisite(feature, 9);
             return feature;
@@ -293,7 +296,7 @@ namespace CallOfTheWild
                                                 createClassScalingConfig()
                                                 );
             ability.setMiscAbilityParametersTouchFriendly();
-
+            addFocusInvestmentCheck(ability, SpellSchool.Evocation);
             return Common.AbilityToFeature(ability, false);
         }
     }

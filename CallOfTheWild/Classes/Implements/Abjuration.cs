@@ -58,6 +58,7 @@ namespace CallOfTheWild
                                                 resource.CreateResourceLogic()
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
+            addFocusInvestmentCheck(ability, SpellSchool.Abjuration);
 
             return Common.AbilityToFeature(ability, false);
         }
@@ -72,6 +73,7 @@ namespace CallOfTheWild
                                        "As a standard action, you can expend 1 point of mental focus to unravel a magical effect. This functions as a targeted dispel magic spell, but you must be adjacent to the effect to unravel it.");
             var feature =  Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 5);
+            addFocusInvestmentCheck(ability, SpellSchool.Abjuration);
             return feature;
         }
 
@@ -111,6 +113,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellComponent(SpellSchool.Abjuration)
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
+            addFocusInvestmentCheck(ability, SpellSchool.Abjuration);
 
             return Common.AbilityToFeature(ability, false);
         }
@@ -218,8 +221,8 @@ namespace CallOfTheWild
             swift_ability.SetName(bond_enhancement_buff.Name + " (Swift)");
             swift_ability.ActionType = CommandType.Swift;
             swift_ability.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = 2);
-            var wrapper = Common.createVariantWrapper(prefix + "SwiftAegisBase", "", ability, swift_ability);
-
+            var wrapper = Common.createVariantWrapper(prefix + "AegisBase", "", ability, swift_ability);
+            addFocusInvestmentCheck(wrapper, SpellSchool.Abjuration);
             var add_enchants = new BlueprintFeature[4];
             for (int i = 0; i < add_enchants.Length; i++)
             {
