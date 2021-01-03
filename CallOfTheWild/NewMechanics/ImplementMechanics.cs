@@ -63,6 +63,7 @@ namespace CallOfTheWild.ImplementMechanics
         public void investFocus(SpellSchool school, int amount = 1)
         {
             invested_focus[school] += amount;
+            invested_focus[SpellSchool.Universalist] -= amount;
         }
 
         public void reset()
@@ -109,6 +110,102 @@ namespace CallOfTheWild.ImplementMechanics
     }
 
 
+    public class FocusLocked : ContextCondition
+    {
+
+        protected override string GetConditionCaption()
+        {
+            return "";
+        }
+
+        protected override bool CheckCondition()
+        {
+            var unit_part = this.Context.MaybeCaster?.Get<UnitPartImplements>();
+            if (unit_part == null)
+            {
+                return false;
+            }
+
+            return unit_part.isLocked();
+        }
+    }
+
+
+    public class ContextActionLockFocus : ContextAction
+    {
+
+        public override string GetCaption() => "Lock focus";
+
+        public override void RunAction()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                UberDebug.LogError("Target is missing");
+                return;
+            }
+
+            var unit_part_focus = unit.Get<UnitPartImplements>();
+            if (unit_part_focus == null || unit_part_focus.isLocked())
+            {
+                return;
+            }
+
+            unit_part_focus.lockFocus();
+        }
+    }
+
+
+    public class ContextActionResetFocus : ContextAction
+    {
+
+        public override string GetCaption() => "Reset focus";
+
+        public override void RunAction()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                UberDebug.LogError("Target is missing");
+                return;
+            }
+
+            var unit_part_focus = unit.Get<UnitPartImplements>();
+            if (unit_part_focus == null || unit_part_focus.isLocked())
+            {
+                return;
+            }
+
+            unit_part_focus.reset();
+        }
+    }
+
+
+    public class ContextActionUnlockFocus : ContextAction
+    {
+
+        public override string GetCaption() => "Unlock focus";
+
+        public override void RunAction()
+        {
+            var unit = this.Target?.Unit;
+            if (unit == null)
+            {
+                UberDebug.LogError("Target is missing");
+                return;
+            }
+
+            var unit_part_focus = unit.Get<UnitPartImplements>();
+            if (unit_part_focus == null || !unit_part_focus.isLocked())
+            {
+                return;
+            }
+
+            unit_part_focus.unlockFocus();
+        }
+    }
+
+
     public class ContextActionInvestFocus : ContextAction
     {
         public BlueprintAbilityResource resource;
@@ -127,10 +224,6 @@ namespace CallOfTheWild.ImplementMechanics
             }
 
             int val = amount.Calculate(this.Context);
-            if (resource != null)
-            {
-                unit.Descriptor.Resources.Restore(resource, val);
-            }
 
             var unit_part_focus = unit.Get<UnitPartImplements>();
             if (unit_part_focus == null || unit_part_focus.isLocked())
@@ -139,6 +232,11 @@ namespace CallOfTheWild.ImplementMechanics
             }
 
             unit_part_focus.investFocus(school, val);
+
+            if (resource != null)
+            {
+                unit.Descriptor.Resources.Restore(resource, val);
+            }
         }
     }
 
@@ -210,24 +308,39 @@ namespace CallOfTheWild.ImplementMechanics
     class InvestedImplementFocusAmountProperty : PropertyValueGetter
     {
         public SpellSchool[] schools;
-        public static BlueprintUnitProperty createProperty(string name, string guid, params SpellSchool[] schools)
+        public ContextValue max_value = null;
+
+        public static BlueprintUnitProperty createProperty(string name, string guid, ContextValue max_value,  params SpellSchool[] schools)
         {
             var p = Helpers.Create<BlueprintUnitProperty>();
             p.name = name;
             Main.library.AddAsset(p, guid);
-            p.SetComponents(Helpers.Create<InvestedImplementFocusAmountProperty>(a => a.schools = schools));
+            p.SetComponents(Helpers.Create<InvestedImplementFocusAmountProperty>(a => { a.schools = schools; a.max_value = max_value; }));
             return p;
         }
 
         public override int GetInt(UnitEntityData unit)
         {
+            
             var unit_part = unit.Get<UnitPartImplements>();
             if (unit_part == null)
             {
                 return 0;
             }
 
-            return unit_part.getInvestedFocusAmount(schools);
+            int val = unit_part.getInvestedFocusAmount(schools);
+
+            if (max_value != null)
+            {
+                var context = Helpers.GetMechanicsContext();
+                if (context != null)
+                {
+                    var max_val = max_value.Calculate(context);
+                    val = Math.Min(max_val, val);
+                }
+            }
+
+            return val;
         }
     }
 }

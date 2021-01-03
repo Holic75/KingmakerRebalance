@@ -68,15 +68,19 @@ namespace CallOfTheWild
 
 
         static public BlueprintAbilityResource generic_focus_resource;
-        static public Dictionary<SpellSchool, BlueprintAbilityResource> implement_focus_resource;
+        static public Dictionary<SpellSchool, BlueprintAbilityResource> mental_focus_resource = new Dictionary<SpellSchool, BlueprintAbilityResource>();
+        static public Dictionary<SpellSchool, BlueprintAbility> invest_focus_abilities = new Dictionary<SpellSchool, BlueprintAbility>();
         static public BlueprintFeatureSelection implement_mastery;
 
         static public BlueprintFeatureSelection focus_power_selection;
         static public BlueprintFeatureSelection implement_base_selection;
         static public BlueprintFeatureSelection implement_selection;
         static public BlueprintFeature repower_construct; //1 round -> 2 rounds -> 1 minute
+        static public Dictionary<SpellSchool, UnityEngine.Sprite> implement_icons = new Dictionary<SpellSchool, UnityEngine.Sprite>();
 
-        internal static void createMesmeristClass()
+        static public BlueprintBuff locked_focus_buff;
+
+        internal static void createOccultistClass()
         {
             Main.logger.Log("Occultist class test mode: " + test_mode.ToString());
             var alchemsit_class = library.TryGet<BlueprintCharacterClass>("0937bec61c0dabc468428f496580c721");
@@ -165,7 +169,7 @@ namespace CallOfTheWild
                 light matrix ?
                 radiance 1
                 wall of power 9
-            illusion: distortion (concealement until hit 20 -> 50%) -> color beam (as blinding ray) x           
+            illusion: distortion (1% or miss chance on any attack, ignored with true sight) -> color beam (as blinding ray) x           
                 shadow beast 9
                 unseen - greater invisibility for 1 minute 7
                 bedeveling aura (1 round/2 levels) 9
@@ -200,8 +204,10 @@ namespace CallOfTheWild
             createKnacks();
             createProficiencies();
             createMagicItemSkill();
+            createMentalFocus();
             //createImplements();
             //createRepowerConstruct();
+            //createImplementMastery();
 
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -244,8 +250,144 @@ namespace CallOfTheWild
                                                                                      occultist_knacks, mental_focus};
             occultist_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(implement_base_selection, implement_selection),
                                                             Helpers.CreateUIGroup(focus_power_selection),
-                                                            Helpers.CreateUIGroup(magic_item_skill, repower_construct)
+                                                            Helpers.CreateUIGroup(magic_item_skill, /*repower_construct,*/ implement_mastery)
                                                            };
+        }
+
+
+        static void createMentalFocus()
+        {
+            implement_icons.Add(SpellSchool.Abjuration, Helpers.GetIcon("c451fde0aec46454091b70384ea91989"));
+            implement_icons.Add(SpellSchool.Conjuration, Helpers.GetIcon("567801abe990faf4080df566fadcd038"));
+            implement_icons.Add(SpellSchool.Divination, Helpers.GetIcon("d7d18ce5c24bd324d96173fdc3309646"));
+            implement_icons.Add(SpellSchool.Enchantment, Helpers.GetIcon("252363458703f144788af49ef04d0803"));
+            implement_icons.Add(SpellSchool.Evocation, Helpers.GetIcon("f8019b7724d72a241a97157bc37f1c3b"));
+            implement_icons.Add(SpellSchool.Illusion, Helpers.GetIcon("24d5402c0c1de48468b563f6174c6256"));
+            implement_icons.Add(SpellSchool.Necromancy, Helpers.GetIcon("e9450978cc9feeb468fb8ee3a90607e3"));
+            implement_icons.Add(SpellSchool.Transmutation, Helpers.GetIcon("b6a604dab356ac34788abf4ad79449ec"));
+            implement_icons.Add(SpellSchool.Universalist, Helpers.GetIcon("0933849149cfc9244ac05d6a5b57fd80"));
+            implement_icons.Add(SpellSchool.None, LoadIcons.Image2Sprite.Create(@"AbilityIcons/SchoolNone.png"));
+
+            mental_focus = Helpers.CreateFeature("MentalFocusResource",
+                                                 "Mental Focus",
+                                                 "An occultist can invest a portion of his mental focus into his chosen implements for the day, allowing him to utilize a variety of abilities depending on the implements and the amount of mental focus invested in them.\n"
+                                                 + "An occultist has a number of points of mental focus equal to his occultist level + his Intelligence modifier; these points refresh each day. He can divide this mental focus between his implements in any way he desires.\n"
+                                                 + "Once mental focus is invested inside an implement, the implement gains the resonant power of its implement school, and the occultist can expend the mental focus stored in the implement to activate the associated focus powers he knows. If a resonant power grants a bonus that varies based on the amount of mental focus invested in the implement, the bonus is determined when the focus is invested, and is not reduced or altered by expending the mental focus invested in the item.\n"
+                                                 + "The occultist refreshes his mental focus once each day after receiving at least 8 hours of sleep.\n"
+                                                 + "The occultist can choose to save generic mental focus inside his own body instead of investing all of it, but expending this focus comes at a higher cost.\n"
+                                                 + "Occultist can expend an amount of generic focus to restore equal amount of an appropriate implement focus that he has already spent.",
+                                                 "",
+                                                 implement_icons[SpellSchool.Universalist],
+                                                 FeatureGroup.None
+                                                 );
+
+            locked_focus_buff = Helpers.CreateBuff("LockedFocusBuff",
+                                                   "Mental Focus Invested",
+                                                   "You have invested mental focus into your implements.",
+                                                   "",
+                                                   implement_icons[SpellSchool.Universalist],
+                                                   null,
+                                                   Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<ImplementMechanics.ContextActionUnlockFocus>())
+                                                   );
+            locked_focus_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.RemoveOnRest | BuffFlags.StayOnDeath);
+
+            var lock_focus_ability = Helpers.CreateAbility("LockFocusAbility",
+                                                           "Lock Invested Mental Focus",
+                                                           "Lock invested mnetal focus until you rest.",
+                                                           "",
+                                                           implement_icons[SpellSchool.Universalist],
+                                                           AbilityType.Special,
+                                                           CommandType.Standard,
+                                                           AbilityRange.Personal,
+                                                           "",
+                                                           "",
+                                                           Helpers.CreateRunActions(Helpers.Create<ImplementMechanics.ContextActionLockFocus>(),
+                                                                                    Common.createContextActionApplyBuff(locked_focus_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
+                                                                                    ),
+                                                           Helpers.Create<ImplementMechanics.AbilityCasterFocusLocked>(a => a.not = true)
+                                                           );
+            lock_focus_ability.setMiscAbilityParametersSelfOnly();
+            Common.setAsFullRoundAction(lock_focus_ability);
+
+            var reset_focus_ability = Helpers.CreateAbility("ResetFocusAbility",
+                                               "Reset Invested Mental Focus",
+                                               "Reset mental focus you invested into your implements and redistribute it anew.",
+                                               "",
+                                               implement_icons[SpellSchool.None],
+                                               AbilityType.Special,
+                                               CommandType.Free,
+                                               AbilityRange.Personal,
+                                               "",
+                                               "",
+                                               Helpers.CreateRunActions(Helpers.Create<ImplementMechanics.ContextActionResetFocus>()),
+                                               Helpers.Create<ImplementMechanics.AbilityCasterFocusLocked>(a => a.not = true)
+                                               );
+            reset_focus_ability.setMiscAbilityParametersSelfOnly();
+
+            List<BlueprintAbility> abilities = new List<BlueprintAbility>();
+            abilities.Add(lock_focus_ability);
+            abilities.Add(reset_focus_ability);
+
+            foreach (SpellSchool school  in Enum.GetValues(typeof(SpellSchool)))
+            {
+                if (school == SpellSchool.None)
+                {
+                    continue;
+                }
+
+                var resource = Helpers.CreateAbilityResource(school.ToString() + "MentalFocusResource", "", "", "", null);
+                if (school == SpellSchool.Universalist)
+                {
+                    resource.SetIncreasedByLevel(0, 1, getOccultistArray());
+                    resource.SetIncreasedByStat(0, StatType.Intelligence);
+                }
+                else
+                {
+                    resource.SetFixedResource(0);
+                }
+                mental_focus_resource[school] = resource;
+                mental_focus.AddComponent(resource.CreateAddAbilityResource());
+                var reset_action = reset_focus_ability.GetComponent<AbilityEffectRunAction>().Actions;
+                reset_action.Actions = reset_action.Actions.AddToArray(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => { c.full = true; c.Resource = resource; }));
+
+                if (school == SpellSchool.Universalist)
+                {
+                    continue;
+                }
+
+                var invest_focus_ability = Helpers.CreateAbility(school.ToString() + "InvestFocusAbility",
+                                                                 "Invest Mental Focus: " + school.ToString(),
+                                                                 "Invest mental focus into specified implement.",
+                                                                 "",
+                                                                 implement_icons[school],
+                                                                 AbilityType.Special,
+                                                                 CommandType.Free,
+                                                                 AbilityRange.Personal,
+                                                                 "",
+                                                                 "",
+                                                                 Helpers.CreateRunActions(Helpers.Create<ImplementMechanics.ContextActionInvestFocus>(c => c.school = school)),
+                                                                 resource.CreateResourceLogic()
+                                                                 //will add show if when will create implement selection
+                                                                 );
+                invest_focus_ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(invest_focus_ability);
+                invest_focus_abilities[school] = invest_focus_ability;
+            }
+
+            var wrapper = Common.createVariantWrapper("MentalFocusAbilityBase", "", abilities.ToArray());
+            wrapper.SetNameDescriptionIcon(mental_focus);
+
+            var generic_focus_property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty("GenericFocusProperty", "", null, SpellSchool.Universalist);
+            mental_focus.AddComponent(Helpers.CreateAddFact(wrapper));
+            mental_focus.AddComponents(Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(r =>
+                                        {
+                                            r.Resource = mental_focus_resource[SpellSchool.Universalist];
+                                            r.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                        }),
+                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty,
+                                                                        customProperty: generic_focus_property
+                                                                        )
+                                        );
         }
 
 

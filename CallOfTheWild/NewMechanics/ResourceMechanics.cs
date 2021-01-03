@@ -82,7 +82,7 @@ namespace CallOfTheWild.ResourceMechanics
             }
             else
             {
-                unit.Descriptor.Resources.Restore(Resource, unit.Descriptor.Resources.GetResourceAmount(Resource));
+                unit.Descriptor.Resources.Restore(Resource);
             }
 
         }
