@@ -527,7 +527,7 @@ namespace CallOfTheWild
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
                                                         weapon_enhancement_buff,
                                                         WeaponEnchantments.vorpal,
-                                                        1, warrior_spirit_group);
+                                                        5, warrior_spirit_group);
 
             var cruel = Common.createEnchantmentAbility("WarriorSpiritEnchancementCruel",
                                                         "Warrior Spirit - Cruel",

@@ -71,6 +71,8 @@ namespace CallOfTheWild
         static public Dictionary<SpellSchool, BlueprintAbilityResource> mental_focus_resource = new Dictionary<SpellSchool, BlueprintAbilityResource>();
         static public Dictionary<SpellSchool, BlueprintAbility> invest_focus_abilities = new Dictionary<SpellSchool, BlueprintAbility>();
         static public BlueprintFeatureSelection implement_mastery;
+        static public Dictionary<SpellSchool, ImplementsEngine> implement_factories = new Dictionary<SpellSchool, ImplementsEngine>();
+        static public Dictionary<SpellSchool, BlueprintFeature> base_implements = new Dictionary<SpellSchool, BlueprintFeature>();
 
         static public BlueprintFeatureSelection focus_power_selection;
         static public BlueprintFeatureSelection implement_base_selection;
@@ -205,7 +207,8 @@ namespace CallOfTheWild
             createProficiencies();
             createMagicItemSkill();
             createMentalFocus();
-            //createImplements();
+            createImplements();
+            //createFocusPowers();
             //createRepowerConstruct();
             //createImplementMastery();
 
@@ -252,6 +255,128 @@ namespace CallOfTheWild
                                                             Helpers.CreateUIGroup(focus_power_selection),
                                                             Helpers.CreateUIGroup(magic_item_skill, /*repower_construct,*/ implement_mastery)
                                                            };
+        }
+
+
+        static void createImplements()
+        {
+            implement_base_selection = Helpers.CreateFeatureSelection("BaseImplementSelection",
+                                                                      "Implements",
+                                                                      "At 1st level, an occultist learns to use two implement schools. At 2nd level and every 4 occultist levels thereafter, the occultist learns to use one additional implement school, to a maximum of seven schools at 18th level. Each implement school adds up to 6 spells of any level of that school of magic to the occultist’s spell list.\n"
+                                                                      + "Each implement schools is represented by a small list of objects. Every day, the occultist selects one item from that school’s list to be his implement for the day for each implement school he knows. The occultist needs only one such item to cast spells of the corresponding school, unless he selected that implement schools multiple times, in which case he needs one item for each set of spells gained from that school. Implements don’t need to be magic items, and non-magical implements don’t take up a magic item slot even if they’re worn. Implements that are not magic items are often of some historical value or of personal significance to the occultist, such as the finger bone of a saint, the broken scepter of a long-dead king, the skull of a mentor’s familiar, or the glass eye of an uncanny ancestor.\n"
+                                                                      + "Whenever an occultist casts a spell, he must have the corresponding implement in his possession and present the implement to the target or toward the area of effect.\n"
+                                                                      + "Each implement schools also grants a base focus power. This power is added to the list of focus powers possessed by the occultist (see Mental Focus below). In addition, each implement schools grants access to a number of other focus powers that the occultist can select from using his mental focus class feature.",
+                                                                      "",
+                                                                      null,
+                                                                      FeatureGroup.Domain
+                                                                      );
+
+            implement_selection = library.CopyAndAdd(implement_base_selection, "ImplementSelection", "");
+
+            //initialize implement engines
+            var schools = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration, SpellSchool.Divination, SpellSchool.Enchantment,
+                                              SpellSchool.Evocation, SpellSchool.Illusion, SpellSchool.Necromancy, SpellSchool.Transmutation };
+
+            foreach (var s in schools)
+            {
+                implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s], getOccultistArray(), StatType.Intelligence);
+            }
+
+            Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data 
+                = new Dictionary<SpellSchool, (string, BlueprintFeature, BlueprintBuff[])>
+            {
+                {SpellSchool.Abjuration, ("Abjuration implements are objects associated with protection and wards." ,
+                                           implement_factories[SpellSchool.Abjuration].createAegis(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Abjuration].createWardingTalisman()}
+                                           )
+                },
+                {SpellSchool.Conjuration, ("Implements used in conjuration allow the occultist to perform magic that transports or calls creatures.",
+                                           implement_factories[SpellSchool.Conjuration].createServitor(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Conjuration].createCastingFocus()}
+                                           )
+                },
+                {SpellSchool.Divination, ("Implements of the divination school grant powers related to foresight and remote viewing.",
+                                           implement_factories[SpellSchool.Divination].createSuddenInsight(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Divination].createThirdEye()}
+                                           )
+                },
+                {SpellSchool.Enchantment, ("Enchantment implements allow the occultist to befuddle the mind and charm his foes.",
+                                           implement_factories[SpellSchool.Enchantment].createCloudMind(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Enchantment].createGloriousPresence()}
+                                           )
+                },
+                {SpellSchool.Evocation, ("Implements focused on evocation grant the ability to create and direct energy to protect and to destroy.",
+                                           implement_factories[SpellSchool.Evocation].createEnergyRay(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Evocation].createIntenseFocus()}
+                                           )
+                },
+                {SpellSchool.Illusion, ("Illusion implements allow the occultist to distort the senses and cloak creatures from sight.",
+                                           implement_factories[SpellSchool.Illusion].createColorBeam(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Illusion].createDistortion()}
+                                           )
+                },
+                {SpellSchool.Necromancy, ("Implements that draw power from necromancy can control undead and harm the living.",
+                                           implement_factories[SpellSchool.Necromancy].createMindFear(),
+                                           new BlueprintBuff[]{implement_factories[SpellSchool.Necromancy].createNecromanticFocus()}
+                                           )
+                },
+                {SpellSchool.Transmutation,("Transmutation implements can alter the properties of both objects and creatures.",
+                                           implement_factories[SpellSchool.Transmutation].createLegacyWeapon(),
+                                           implement_factories[SpellSchool.Transmutation].createPhysicalEnhancement()
+                                           )
+                }
+            };
+
+            foreach (var s in schools)
+            {
+                bool starts_with_vowel = "aeiou".IndexOf(s.ToString(), StringComparison.InvariantCultureIgnoreCase) >= 0;
+                var data = implement_data[s];
+                var description = data.flavor + "\n"
+                                 + $"Resonant Power: Each time the occultist invests mental focus into a{(starts_with_vowel ? "n" : "")} {s.ToString()} implement, the implement grants the following resonant power. The implement’s bearer gains the benefits of this power until the occultist refreshes his focus.\n"
+                                 + (data.resonant_power_buffs.Length > 1 ? "Physical Enhancement" : data.resonant_power_buffs[0].Name) + ": " + data.resonant_power_buffs[0].Description + "\n"
+                                 + $"Base Focus Power: All occultists who learn to use {s.ToString()} implements gain the following focus power.\n"
+                                 + data.base_power.Name + ": " + data.base_power.Description;
+
+                base_implements[s] = Helpers.CreateFeature(s.ToString() + "Implement",
+                                                           s.ToString(),
+                                                           description,
+                                                           "",
+                                                           implement_icons[s],
+                                                           FeatureGroup.Domain,
+                                                           Helpers.CreateAddFact(data.base_power)
+                                                           );
+                invest_focus_abilities[s].AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = base_implements[s]));
+
+                if (s != SpellSchool.Transmutation)
+                {
+                    Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(locked_focus_buff,
+                                                                                              Helpers.CreateConditional(Helpers.Create<ImplementMechanics.ContextConditionInvestedFocusAmount>(c =>
+                                                                                              {
+                                                                                                  c.schools = new SpellSchool[] { s };
+                                                                                                  c.amount = 1;
+                                                                                              }
+                                                                                              ),
+                                                                                              Common.createContextActionApplyChildBuff(data.resonant_power_buffs[0])
+                                                                                              )
+                                                                                              );
+                }
+                else
+                {
+                    var toggles = new List<BlueprintActivatableAbility>();
+                    foreach (var b in data.resonant_power_buffs)
+                    {
+                        var toggle_buff = library.CopyAndAdd(b, "Toggle" + b.name, "");
+                        toggle_buff.SetBuffFlags(toggle_buff.GetBuffFlags() | BuffFlags.HiddenInUi);
+                        toggle_buff.ComponentsArray = new BlueprintComponent[0];
+                        var toggle = Common.buffToToggle(toggle_buff, CommandType.Free, true, Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => { r.amount = 3; r.school = s; }));
+                        toggles.Add(toggle);
+                        toggle.Group = ActivatableAbilityGroupExtension.PhysicalEnhancementResonantPower.ToActivatableAbilityGroup();
+                        Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(locked_focus_buff, b, toggle_buff);
+                    }
+                    base_implements[s].AddComponent(Helpers.CreateAddFacts(toggles.ToArray()));
+                }               
+            }
+            //TODO: add spell selection and create secondary implement (for more spells)
         }
 
 

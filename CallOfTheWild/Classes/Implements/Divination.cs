@@ -28,7 +28,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createSuddenInsight()
+        public BlueprintFeature createSuddenInsight()
         {
             var guidance_buff = library.Get<BlueprintBuff>("ec931b882e806ce42906597e5585c13f");
 
@@ -74,7 +74,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createDangerSight()
+        public BlueprintFeature createDangerSight()
         {
             var guidance_buff = library.Get<BlueprintBuff>("ec931b882e806ce42906597e5585c13f");
 
@@ -121,7 +121,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createInAccordanceWithProphecy()
+        public BlueprintFeature createInAccordanceWithProphecy()
         {
             var buff = Helpers.CreateBuff(prefix + "InAccordanceWithProphecyBuff",
                                                  "In Accordance with the Prophecy",
@@ -153,6 +153,50 @@ namespace CallOfTheWild
             addMinLevelPrerequisite(feature, 9);
 
             return feature;
+        }
+
+        public BlueprintBuff createThirdEye()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "ThirdEyeProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Divination);
+
+            var property_bonus = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "ThirdEyeBonusProperty", "",
+                                                                                      Helpers.CreateContextValue(AbilityRankType.DamageBonus),
+                                                                                      SpellSchool.Divination);
+
+            var buff7 =  library.CopyAndAdd<BlueprintBuff>("0adecbf63b614e846bfe15c33f34507e", prefix + "Thirdeye7Buff", "");
+            buff7.SetBuffFlags(BuffFlags.StayOnDeath | BuffFlags.HiddenInUi);
+            var buff13 = library.CopyAndAdd<BlueprintBuff>(buff7, prefix + "Thirdeye13Buff", "");
+            buff13.ComponentsArray = new BlueprintComponent[] { Common.createBlindsense(60) };
+            var buff19 = library.CopyAndAdd<BlueprintBuff>(buff7, prefix + "Thirdeye19Buff", "");
+            buff19.ComponentsArray = new BlueprintComponent[] { Common.createBlindsight(30),
+                                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.GazeAttack),
+                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.GazeAttack),
+                                                              };
+
+            var buff = Helpers.CreateBuff(prefix + "ThirdEyeBuff",
+                                          "Third Eye",
+                                          "The implement allows its bearer to notice that which can’t easily be seen. The implement grants a +1 insight bonus on Perception checks per 2 points of mental focus stored in it, to a maximum bonus equal to the occultist’s level. If the occultist is 7th level or higher and stores at least 9 points of mental focus in it, the implement also grants the effects of see invisibility. If the occultist is 13th level or higher and stores at least 12 points of mental focus in it, the implement also grants blindsense 60 feet. If the occultist is 19th level or higher and stores at least 15 points of mental focus in it, the implement also grants blindsight 30 feet.",
+                                          "",
+                                          Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.Insight),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2),//2 * lvl
+                                          Helpers.CreateAddFactContextActions(activated: Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.DamageDice),
+                                                                                                                                        Common.createContextActionApplyChildBuff(buff7),
+                                                                                                                                        Common.createContextActionApplyChildBuff(buff13),
+                                                                                                                                        Common.createContextActionApplyChildBuff(buff19)
+                                                                                                                                        )
+                                                                             ),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DelayedStartPlusDivStep, startLevel: 9, stepLevel: 3,
+                                                                          customProperty: property_bonus, type: AbilityRankType.DamageDice),
+                                          createClassScalingConfig(ContextRankProgression.Custom, type: AbilityRankType.DamageBonus,
+                                                                   customProgression: new (int, int)[] {(6, 0), (12, 9), (18, 12)  })
+                                          );
+            return buff;
         }
     }
 }

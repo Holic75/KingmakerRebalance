@@ -31,7 +31,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createMindFear()
+        public BlueprintFeature createMindFear()
         {
             var frightened_buff = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
             var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
@@ -68,7 +68,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFleshRot()
+        public BlueprintFeature createFleshRot()
         {
             var icon = NewSpells.ghoul_touch.Icon;
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
@@ -103,7 +103,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createPainWave()
+        public BlueprintFeature createPainWave()
         {
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
             var apply_sickened = Common.createContextActionApplySpellBuff(sickened, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
@@ -136,7 +136,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createSoulboundPuppet()
+        public BlueprintFeature createSoulboundPuppet()
         {
             var display_name = "Soulbound Puppet";
             var description = "As a full-round action, you can expend 1 point of mental focus to create a soulbound puppet from a bone, doll, or skull. If you use a bone or a skull, your power builds a Tiny or Small flesh puppet around it that vaguely resembles the original creature from which the bones were taken. If the implement is a doll, the doll comes to life. Treat this as a familiar, using your occultist level as your wizard level to determine its powers and abilities. You can have no more than one soulbound puppet active at any given time.\n"
@@ -189,7 +189,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createSpiritShroud()
+        public BlueprintFeature createSpiritShroud()
         {
             var buff = library.CopyAndAdd<BlueprintBuff>("0fdb3cca6744fd94b9436459e6d9b947", prefix + "SpiritShroudBuff", "");
             buff.RemoveComponents<ContextRankConfig>();
@@ -220,7 +220,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createNecromanticServant()
+        public BlueprintFeature createNecromanticServant()
         {
             var dispaly_name = "Necromantic Servant";
             var description = "As a standard action, you can expend 1 point of mental focus to raise a single dead creature as a skeleton to serve you for 10 minutes per occultist level you possess or until it is destroyed, whichever comes first. This servant has a number of HD equal to your occultist level. It also gains a bonus on damage rolls equal to 1/2 your occultist level. At 9th level, you can give the servant the bloody simple template. At 13th level, you can use this ability to animate all the dead bodies in a 10-foot burst. You can have a maximum number of servants in existence equal to 1/2 your occultist level. At 17th level, the servants gain all your teamwork feats.\n"
@@ -311,6 +311,36 @@ namespace CallOfTheWild
                                                 createAddFeatureInLevelRange(feature_multiple, 13, 100)
                                                 );
             return feature;
+        }
+
+
+        public BlueprintBuff createNecromanticFocus()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "NecromanticFocusProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Necromancy);
+            var buff = Helpers.CreateBuff(prefix + "NecromanticFocusBuff",
+                                          "Necromantic Focus",
+                                          "The implement grants its possessor greater power over the undead. Whoever possesses the implement can control an additional 2 Hit Dice of undead for every point of mental focus invested in the item (to a maximum number of Hit Dice equal to 4 × your occultist level).\n"
+                                          + "Undead creatures take a –1 penalty on saving throws against spells cast by the bearer of this implement for every 4 points of mental focus invested in this implement.",
+                                          "",
+                                          NewSpells.control_undead.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.SpellsDCBonusAgainstFact>(s =>
+                                          {
+                                              s.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                              s.descriptor = ModifierDescriptor.UntypedStackable;
+                                              s.fact = Common.undead;
+                                          }
+                                          ),
+                                          Helpers.Create<DeadTargetMechanics.IncreaseMaxUndeadHD>(i => i.value = Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.AsIs,
+                                                                          customProperty: property),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.MultiplyByModifier, type: AbilityRankType.DamageBonus,
+                                                                          customProperty: property, stepLevel: 2),
+                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, startLevel: 2)
+                                          );
+            return buff;
         }
 
     }

@@ -38,6 +38,8 @@ namespace CallOfTheWild.ImplementMechanics
         [JsonProperty]
         private Dictionary<SpellSchool, int> invested_focus = new Dictionary<SpellSchool, int>();
         [JsonProperty]
+        private Dictionary<SpellSchool, int> invested_focus_bonus = new Dictionary<SpellSchool, int>();
+        [JsonProperty]
         private bool focus_locked;
 
         public int getInvestedFocusAmount(SpellSchool school)
@@ -55,7 +57,7 @@ namespace CallOfTheWild.ImplementMechanics
 
             foreach (var s in schools)
             {
-                amount += invested_focus[s];
+                amount += invested_focus[s] + invested_focus_bonus[s];
             }
             return amount;
         }
@@ -64,6 +66,16 @@ namespace CallOfTheWild.ImplementMechanics
         {
             invested_focus[school] += amount;
             invested_focus[SpellSchool.Universalist] -= amount;
+        }
+
+        public void addinvestedFocusBonus(SpellSchool school, int amount = 1)
+        {
+            invested_focus_bonus[school] += amount;
+        }
+
+        public void removeinvestedFocusBonus(SpellSchool school, int amount = 1)
+        {
+            invested_focus_bonus[school] -= amount;
         }
 
         public void reset()
@@ -87,7 +99,7 @@ namespace CallOfTheWild.ImplementMechanics
         }
     }
 
-    public class HasInvestedFocusAmount : ContextCondition
+    public class ContextConditionInvestedFocusAmount : ContextCondition
     {
         public SpellSchool[] schools;
         public int amount;
@@ -255,6 +267,47 @@ namespace CallOfTheWild.ImplementMechanics
             }
 
             return unit_part.getInvestedFocusAmount(school) >= amount;
+        }
+    }
+
+    public class AddImplements : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartImplements>().reset();
+
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Remove<UnitPartImplements>();
+        }
+    }
+
+
+    public class BonusInvestedFocusPoints : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+    {
+        public int value;
+        public SpellSchool school;
+        public BlueprintAbilityResource resource;
+
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartImplements>().addinvestedFocusBonus(school, value);
+
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartImplements>().removeinvestedFocusBonus(school, value);
+        }
+
+
+        public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+        {
+            if (!this.Fact.Active || !((Object)resource == (Object)this.resource))
+                return;
+            bonus += value;
         }
     }
 

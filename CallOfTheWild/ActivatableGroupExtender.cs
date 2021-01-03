@@ -70,7 +70,8 @@ namespace CallOfTheWild
             ExtraGroup20,
 
             AegisImplement,
-            LegacyWeaponImplement
+            LegacyWeaponImplement,
+            PhysicalEnhancementResonantPower,
 
         }
 

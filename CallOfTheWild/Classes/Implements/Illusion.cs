@@ -4,11 +4,13 @@ using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
@@ -26,7 +28,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createColorBeam()
+        public BlueprintFeature createColorBeam()
         {
             var blinding_ray = library.Get<BlueprintAbility>("9b4d07751dd104243a94b495c571c9dd");
 
@@ -46,7 +48,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createTerror()
+        public BlueprintFeature createTerror()
         {
 
             var effect = Helpers.CreateConditional(Helpers.Create<ContextConditionHitDice>(c => { c.HitDice = 0; c.AddSharedValue = true; c.SharedValue = AbilitySharedValue.StatBonus; }),
@@ -73,7 +75,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createShadowBeast()
+        public BlueprintFeature createShadowBeast()
         {
             var wizard_spelllist = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
             var ability = Helpers.CreateAbility(prefix + "ShadowBeasts",
@@ -138,7 +140,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createUnseen()
+        public BlueprintFeature createUnseen()
         {
             var greater_invisibility = library.Get<BlueprintAbility>("ecaa0def35b38f949bd1976a6c9539e0");
 
@@ -165,7 +167,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createBedevelingAura()
+        public BlueprintFeature createBedevelingAura()
         {
             var buff = Helpers.CreateBuff(prefix + "BedevelingAuraEffectBuff",
                                           "Bedeveling Aura",
@@ -203,6 +205,33 @@ namespace CallOfTheWild
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 9);
             return feature;
+        }
+
+
+        public BlueprintBuff createDistortion()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "DistortionProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Illusion);
+            var buff = Helpers.CreateBuff(prefix + "DistortionBuff",
+                                          "Distortion",
+                                          "The implement allows its bearer to distort his form and location, protecting him from harm. Any attack has a chance to miss the bearer equal to 1% per point of mental focus invested into the implement (up to 1% per occultist level).\n"
+                                          + "This works independently of concealement effects. Creatures with see invisibility, true seeing, or similar abilities ignore the miss chance from this ability.",
+                                          "",
+                                          Helpers.GetIcon("903092f6488f9ce45a80943923576ab3"), //displacement
+                                          null,
+                                          Helpers.Create<NewMechanics.AutoMissChance>(c =>
+                                             {
+                                              c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                              c.illusion_effect = true;
+                                                 c.attack_types = new AttackType[] { AttackType.Melee, AttackType.Ranged, AttackType.RangedTouch, AttackType.Touch };
+                                             }
+                                             ),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.AsIs,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.AsIs, type: AbilityRankType.StatBonus)
+                                          );
+            return buff;
         }
     }
 }

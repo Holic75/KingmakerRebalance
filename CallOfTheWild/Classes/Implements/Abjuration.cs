@@ -2,12 +2,14 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -22,7 +24,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createMindBarrier()
+        public BlueprintFeature createMindBarrier()
         {
             var mage_shield = library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4");
 
@@ -64,7 +66,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createUnraveling()
+        public BlueprintFeature createUnraveling()
         {
             var dispel_magic = library.Get<BlueprintAbility>("143775c49ae6b7446b805d3b2e702298");
             var ability = Common.convertToSpellLike(dispel_magic, prefix, classes, stat, resource, archetypes: getArchetypeArray());
@@ -78,7 +80,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createEnergyShield()
+        public BlueprintFeature createEnergyShield()
         {
             var icon = Helpers.GetIcon("d2f116cfe05fcdd4a94e80143b67046f"); //protection from energy
 
@@ -119,7 +121,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createAegis()
+        public BlueprintFeature createAegis()
         {
             var group = ActivatableAbilityGroupExtension.AegisImplement.ToActivatableAbilityGroup();
             var mage_armor = library.Get<BlueprintAbility>("9e1ad5d6f87d19e4d8883d63a6e35568");
@@ -146,7 +148,7 @@ namespace CallOfTheWild
                                                                                                         is_child: true, dispellable: false, is_permanent: true)
                                                                                                 )
                                                             );
-            //fortification - light (25% +1), medium(50% +3)
+            //fortification - light (25% +1), medium(50% +3), heavy (+75%)
          
 
           
@@ -157,7 +159,7 @@ namespace CallOfTheWild
             energy_resistance_icons.Add(DamageEnergyType.Electricity, library.Get<BlueprintAbility>("90987584f54ab7a459c56c2d2f22cee2").Icon);
             energy_resistance_icons.Add(DamageEnergyType.Acid, library.Get<BlueprintAbility>("fedc77de9b7aad54ebcc43b4daf8decd").Icon);
 
-            List<BlueprintActivatableAbility>[] enchant_abilities = new List<BlueprintActivatableAbility>[4];
+            List<BlueprintActivatableAbility>[] enchant_abilities = new List<BlueprintActivatableAbility>[5];
 
             for (int i = 0; i < enchant_abilities.Length; i++)
             {
@@ -167,7 +169,7 @@ namespace CallOfTheWild
             foreach (var e in ArmorEnchantments.fortification_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                if (cost > 4)
+                if (cost > 5)
                 {
                     continue;
                 }
@@ -180,7 +182,7 @@ namespace CallOfTheWild
                 foreach (var e in item.Value)
                 {
                     int cost = e.EnchantmentCost;
-                    if (cost > 4)
+                    if (cost > 5)
                     {
                         continue;
                     }
@@ -223,7 +225,7 @@ namespace CallOfTheWild
             swift_ability.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = 2);
             var wrapper = Common.createVariantWrapper(prefix + "AegisBase", "", ability, swift_ability);
             addFocusInvestmentCheck(wrapper, SpellSchool.Abjuration);
-            var add_enchants = new BlueprintFeature[4];
+            var add_enchants = new BlueprintFeature[5];
             for (int i = 0; i < add_enchants.Length; i++)
             {
                 add_enchants[i] = Helpers.CreateFeature(prefix + $"Aegis{i + 1}Feature",
@@ -249,10 +251,34 @@ namespace CallOfTheWild
 
             add_enchants[0].AddComponents(createAddFeatureInLevelRange(add_enchants[1], 6, 100),
                               createAddFeatureInLevelRange(add_enchants[2], 12, 100),
-                              createAddFeatureInLevelRange(add_enchants[3], 18, 100)
+                              createAddFeatureInLevelRange(add_enchants[3], 18, 100),
+                               createAddFeatureInLevelRange(add_enchants[4], 18, 100)
                               );
 
             return add_enchants[0];
+        }
+
+
+        public BlueprintBuff createWardingTalisman()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "WardingTalismanProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Abjuration);
+            var buff = Helpers.CreateBuff(prefix + "WardingTalismanBuff",
+                                          "Warding Talisman",
+                                          "The implement wards against adverse effects. Whoever wears the implement gains a +1 resistance bonus on saving throws for every 2 points of mental focus invested in the implement, to a maximum bonus of 1 + 1 for every 4 occultist levels you possess.",
+                                          "",
+                                          Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"),
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2)//1 + (lvl + 2)/2 = 2 + lvl/2
+                                          );
+
+            return buff;
         }
     }
 }

@@ -30,6 +30,42 @@ using UnityEngine;
 
 namespace CallOfTheWild.DeadTargetMechanics
 {
+    public class UnitPartIncreaseMaxUndeadHD : AdditiveUnitPart
+    {
+        public int getBonus()
+        {
+            int bonus = 0;
+            foreach (var b in buffs)
+            {
+                b.CallComponents<IncreaseMaxUndeadHD>(i => bonus += i.getBonus());
+            }
+            return bonus;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseMaxUndeadHD : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public ContextValue value;
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartIncreaseMaxUndeadHD>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartIncreaseMaxUndeadHD>().removeBuff(this.Fact);
+        }
+
+
+        public int getBonus()
+        {
+            return this.value.Calculate(this.Fact.MaybeContext);
+        }
+
+    }
+
     [AllowedOn(typeof(BlueprintAbility))]
     public class AbilityTargetCanBeAnimated : BlueprintComponent, IAbilityTargetChecker
     {
@@ -295,6 +331,11 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             //Main.logger.Log("Animate Dead: Remaining HD limit: " + getUsedHD(this.Context, SummonPool).ToString() + "/" + (this.Context.Params.CasterLevel * max_hd_cl_multiplier).ToString());
             int max_total_hd = this.Context.Params.CasterLevel * max_hd_cl_multiplier;
+            var unit_part_max_hd_bonus = this.Context.MaybeCaster?.Get<UnitPartIncreaseMaxUndeadHD>();
+            if (unit_part_max_hd_bonus != null)
+            {
+                max_total_hd += unit_part_max_hd_bonus.getBonus();
+            }
             int used_hd = getUsedHD(this.Context, SummonPool);
             int remaining_hd = max_total_hd - used_hd;
             if ( level > remaining_hd)

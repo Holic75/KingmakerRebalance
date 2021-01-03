@@ -10,6 +10,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -25,7 +26,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createServitor()
+        public BlueprintFeature createServitor()
         {
             string[] summon_monster_guids = new string[] {"8fd74eddd9b6c224693d9ab241f25e84", "7ab27a0d547742741beb5d089f1c3852", "15b5efe371d47c944b58444e7b734ffb",
                                                           "efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
@@ -58,7 +59,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createFleshMend()
+        public BlueprintFeature createFleshMend()
         {
             var icon = Helpers.GetIcon("caae1dc6fcf7b37408686971ee27db13");//lay on hands
 
@@ -91,7 +92,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createPsychicFog()
+        public BlueprintFeature createPsychicFog()
         {
             var fog_cloud = Common.convertToSpellLike(NewSpells.obscuring_mist, prefix, classes, stat, resource, archetypes: getArchetypeArray());
             var solid_fog = Common.convertToSpellLike(NewSpells.solid_fog, prefix, classes, stat, resource, archetypes: getArchetypeArray(), cost: 2);
@@ -110,7 +111,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createPurgeCorruption()
+        public BlueprintFeature createPurgeCorruption()
         {
             var neutralize_poison = library.Get<BlueprintAbility>("e7240516af4241b42b2cd819929ea9da");
             var remove_disease = library.Get<BlueprintAbility>("4093d5a0eb5cae94e909eb1e0e1a6b36");
@@ -128,7 +129,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createSideStep()
+        public BlueprintFeature createSideStep()
         {
             var dimension_door = library.Get<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2");
             var description = "You can create a temporary fissure in space by expending 1 point of mental focus. You can use this ability as a move action. The fissure begins in any square you designate and allows you to teleport to any other square you can see within 10 feet per occultist level.\nYou must be at least 7th level to select this focus power.";
@@ -162,6 +163,26 @@ namespace CallOfTheWild
 
             addMinLevelPrerequisite(feature, 7);
             return feature;
+        }
+
+
+        public BlueprintBuff createCastingFocus()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "CastingFocusProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Conjuration);
+            var buff = Helpers.CreateBuff(prefix + "CastingFocusBuff",
+                                          "Casting Focus",
+                                          "The implement empowers the bearer’s ties to the worlds beyond, allowing his spells to maintain their power for a longer period of time. The bearer can add the implement as an additional focus component to any summoning conjuration spell he casts that has a duration measured in rounds per level. If he does so, he adds 1 to his caster level for every 2 points of mental focus stored in the implement (to a maximum bonus equal to your occultist level). This increase applies only when determining the duration of the spell. Apply this increase after other effects that adjust a spell’s duration, such as Extend Spell.",
+                                          "",
+                                          Helpers.GetIcon("38155ca9e4055bb48a89240a2055dcc3"), //augment summoning
+                                          null,
+                                          Helpers.Create<NewMechanics.AddContextValueToSummonDuration>(a => a.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2)//2 * lvl
+                                          );
+            return buff;
         }
     }
 }

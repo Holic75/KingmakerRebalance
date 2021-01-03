@@ -3192,6 +3192,44 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Weapon Attack Auto Miss")]
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class AutoMissChance : RuleTargetLogicComponent<RuleAttackRoll>, ITargetRulebookHandler<RuleAttackRoll>
+        {
+            public AttackType[] attack_types;
+            public bool illusion_effect;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if ((evt.Initiator.Descriptor.State.HasCondition(UnitCondition.SeeInvisibility) || evt.Initiator.Descriptor.State.HasCondition(UnitCondition.TrueSeeing)) 
+                    && illusion_effect)
+                {
+                    return;
+                }
+
+                var d100 = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100));
+
+                var chance = value.Calculate(this.Fact.MaybeContext);
+
+                if (chance < d100)
+                {
+                    return;
+                }
+
+                if (attack_types.Contains(evt.AttackType))
+                {
+                    evt.AutoMiss = true;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+
+            }
+        }
+
+
         [ComponentName("Outgoing Weapon Attack Auto Miss")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class OutgoingWeaponAttackAutoMiss : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleAttackRoll>
@@ -5922,6 +5960,55 @@ namespace CallOfTheWild
                 }
 
                 if (!evt.Initiator.Descriptor.Alignment.Value.HasComponent(this.alignment))
+                {
+                    return;
+                }
+
+
+                var bonus = -value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            }
+
+            public void ruleSavingThrowTriggered(RuleSavingThrow evt)
+            {
+
+            }
+        }
+
+
+        public class SpellsDCBonusAgainstFact : OwnedGameLogicComponent<UnitDescriptor>, MetamagicFeats.IRuleSavingThrowTriggered
+        {
+            public BlueprintUnitFact fact;
+            public ContextValue value;
+            public ModifierDescriptor descriptor;
+
+            public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
+            {
+                var context = evt.Reason?.Context;
+                if (context == null)
+                {
+                    return;
+                }
+
+                var caster = context.MaybeCaster;
+                if (caster == null)
+                {
+                    return;
+                }
+
+                if (caster != this.Owner.Unit)
+                {
+                    return;
+                }
+
+                if (!(context.SourceAbility?.IsSpell).GetValueOrDefault())
+                {
+                    return;
+                }
+
+                if (!evt.Initiator.Descriptor.HasFact(fact))
                 {
                     return;
                 }
@@ -8814,6 +8901,31 @@ namespace CallOfTheWild
             }
         }
 
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextValueIntenseSpells : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                BaseDamage baseDamage = evt.DamageBundle.FirstOrDefault<BaseDamage>();
+                AbilityData ability = evt.Reason.Ability;
+                if (ability == (AbilityData)null || ability.Blueprint.School != SpellSchool.Evocation || baseDamage == null || evt.ParentRule.Projectile != null && !evt.ParentRule.Projectile.IsFirstProjectile)
+                    return;
+
+                int bonusDamage = value.Calculate(this.Fact.MaybeContext);
+
+                baseDamage.AddBonus(bonusDamage);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
         public class AddClassesLevelToSummonDuration : RuleInitiatorLogicComponent<RuleSummonUnit>
         {
             public BlueprintCharacterClass[] CharacterClasses;
@@ -8831,6 +8943,26 @@ namespace CallOfTheWild
                 }
                 
                 int num = !this.Half ? classLevel : Math.Max(classLevel / 2, 1);
+                evt.BonusDuration += num.Rounds();
+            }
+
+            public override void OnEventDidTrigger(RuleSummonUnit evt)
+            {
+            }
+        }
+
+
+        public class AddContextValueToSummonDuration : RuleInitiatorLogicComponent<RuleSummonUnit>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleSummonUnit evt)
+            {
+                AbilityData ability = evt.Reason.Ability;
+                if (((object)ability != null ? ability.Spellbook : (Spellbook)null) == null || ability.Blueprint.School != SpellSchool.Conjuration)
+                    return;
+
+                int num = value.Calculate(this.Fact.MaybeContext);
                 evt.BonusDuration += num.Rounds();
             }
 

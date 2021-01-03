@@ -31,7 +31,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createEnergyRay()
+        public BlueprintFeature createEnergyRay()
         {
             var rays = new BlueprintAbility[]
             {
@@ -76,7 +76,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createEnergyBlast()
+        public BlueprintFeature createEnergyBlast()
         {
             var fx_id = new string[]
             {
@@ -151,7 +151,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createWallOfPower()
+        public BlueprintFeature createWallOfPower()
         {
             var areas = new BlueprintAbilityAreaEffect[]
             {
@@ -233,7 +233,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createRadiance()
+        public BlueprintFeature createRadiance()
         {
             var icon = library.Get<BlueprintBuff>("50d0501ad05f15d498c3aa8d602af273").Icon; //shocking weapon
             var faerie_fire_buff = library.Get<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54");
@@ -298,6 +298,26 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersTouchFriendly();
             addFocusInvestmentCheck(ability, SpellSchool.Evocation);
             return Common.AbilityToFeature(ability, false);
+        }
+
+
+        public BlueprintBuff createIntenseFocus()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "IntenseFocusProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Evocation);
+            var buff = Helpers.CreateBuff(prefix + "IntenseFocusBuff",
+                                          "Intense Focus",
+                                          "The implement channels and enhances the effects of damaging evocations. A spellcaster who bears the implement can add the implement as an additional focus component for any of his damaging evocation spells or focus powers. If he does so, the spell or focus power deals 1 additional point of damage of the same type to each creature for every 2 points of mental focus invested in the implement, to a maximum of 1 + 1 for every 2 occultist levels you possess.",
+                                          "",
+                                          Helpers.GetIcon("104a9f275539abf44b594e9e36f71694"), //gather power high
+                                          null,
+                                          Helpers.Create<NewMechanics.ContextValueIntenseSpells>(c => c.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.BonusValue, type: AbilityRankType.StatBonus, stepLevel: 2)//2 + lvl => 1 + lvl/2
+                                          );
+            return buff;
         }
     }
 }

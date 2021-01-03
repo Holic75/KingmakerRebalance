@@ -29,7 +29,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createCloudMind()
+        public BlueprintFeature createCloudMind()
         {
             var daze_buff = library.Get<BlueprintBuff>("9934fedff1b14994ea90205d189c8759");
             var stagger_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
@@ -64,7 +64,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createBindingPattern()
+        public BlueprintFeature createBindingPattern()
         {
             var paralyze_buff = library.Get<BlueprintBuff>("2cfcce5b62d3e6d4082ec31b58468cc8");
             var stagger_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
@@ -97,7 +97,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createObey()
+        public BlueprintFeature createObey()
         {
             var ability = Common.convertToSpellLikeVariants(NewSpells.command, prefix, classes, stat, resource, archetypes: getArchetypeArray());
 
@@ -124,7 +124,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createInspiredAssault()
+        public BlueprintFeature createInspiredAssault()
         {
             var heroism = library.Get<BlueprintAbility>("5ab0d42fb68c9e34abae4921822b9d63");
 
@@ -163,6 +163,28 @@ namespace CallOfTheWild
             addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             var feature = Common.AbilityToFeature(ability, false);
             return feature;
+        }
+
+
+        public BlueprintBuff createGloriousPresence()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "GloriousPresenceProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Enchantment);
+            var buff = Helpers.CreateBuff(prefix + "GloriousPresenceBuff",
+                                          "Glorious Presence",
+                                          "The implement invokes the presence of those who have worn it in the past. The implement’s wearer gains a +1 competence bonus on all Charisma-based skill checks and ability checks for every 2 points of mental focus invested in the implement, to a maximum bonus of 1 + 1 for every 4 occultist levels you possess.",
+                                          "",
+                                          Helpers.GetIcon("90e59f4a4ada87243b7b3535a06d0638"), //bless
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.SkillPersuasion, ModifierDescriptor.Competence),
+                                          Helpers.CreateAddContextStatBonus(StatType.SkillUseMagicDevice, ModifierDescriptor.Competence),
+                                          Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.Competence, StatType.Charisma),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
+                                                                          customProperty: property),
+                                          createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2)//1 + (lvl + 2)/2 = 2 + lvl/2
+                                          );
+            return buff;
         }
     }
 }

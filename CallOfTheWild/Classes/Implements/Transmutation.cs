@@ -34,7 +34,7 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
-        BlueprintFeature createLegacyWeapon()
+        public BlueprintFeature createLegacyWeapon()
         {
             var legacy_weapon_group = ActivatableAbilityGroupExtension.LegacyWeaponImplement.ToActivatableAbilityGroup();
 
@@ -169,6 +169,14 @@ namespace CallOfTheWild
                                                         WeaponEnchantments.cruel,
                                                         1, legacy_weapon_group);
 
+            var vorpal = Common.createEnchantmentAbility("WarriorSpiritEnchancementVorpal",
+                                                        "Legacy Weapon - Vorpal",
+                                                        $"An occultist can the vorpal property to her weapon, but this consumes 5 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.vorpal.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.vorpal,
+                                                        5, legacy_weapon_group);
+
             var speed_enchant = library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006");
             var speed = Common.createEnchantmentAbility("WarriorSpiritEnchancementSpeed",
                                                         "Warrior Spirit - Speed",
@@ -241,15 +249,26 @@ namespace CallOfTheWild
                                                                             Common.createIncreaseActivatableAbilityGroupSize(legacy_weapon_group),
                                                                             Helpers.CreateAddFact(brilliant_energy)
                                                                             );
+            legacy_weapon_features[4] = Helpers.CreateFeature("LegacyWeaponEnchancement5Feature",
+                                                                "Legacy Weapon +5",
+                                                                weapon_enhancement_buff.Description,
+                                                                "",
+                                                                weapon_enhancement_buff.Icon,
+                                                                FeatureGroup.None,
+                                                                Common.createIncreaseActivatableAbilityGroupSize(legacy_weapon_group),
+                                                                Helpers.CreateAddFact(vorpal)
+                                                                );
+
             legacy_weapon_features[0].AddComponents(createAddFeatureInLevelRange(legacy_weapon_features[1], 6, 100),
                                                    createAddFeatureInLevelRange(legacy_weapon_features[2], 12, 100),
-                                                   createAddFeatureInLevelRange(legacy_weapon_features[3], 18, 100)
+                                                   createAddFeatureInLevelRange(legacy_weapon_features[3], 18, 100),
+                                                   createAddFeatureInLevelRange(legacy_weapon_features[4], 24, 100)
                                                    );
             return legacy_weapon_features[0];
         }
 
 
-        BlueprintFeature createMindOverGravity()
+        public BlueprintFeature createMindOverGravity()
         {
             var ability = Common.convertToSpellLike(NewSpells.fly, prefix, classes, stat, resource, archetypes: getArchetypeArray());
 
@@ -262,7 +281,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createPhilosophersTouch()
+        public BlueprintFeature createPhilosophersTouch()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponMagic.png");
             List<BlueprintAbility> abilities_single = new List<BlueprintAbility>();
@@ -338,7 +357,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createSuddenSpeed()
+        public BlueprintFeature createSuddenSpeed()
         {
             var ability = Common.convertToSpellLike(library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379"), prefix, classes, stat, resource, archetypes: getArchetypeArray());
 
@@ -352,7 +371,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createSizeAlteration()
+        public BlueprintFeature createSizeAlteration()
         {
             var enlarge = library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039");
             var reduce = library.Get<BlueprintAbility>("4e0e9aba6447d514f88eff1464cc4763");
@@ -375,7 +394,7 @@ namespace CallOfTheWild
         }
 
 
-        BlueprintFeature createQuickness()
+        public BlueprintFeature createQuickness()
         {
             var haste_buff = library.Get<BlueprintBuff>("03464790f40c3c24aa684b57155f3280"); //haste
             var apply_haste = Common.createContextActionApplyBuff(haste_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
@@ -408,6 +427,34 @@ namespace CallOfTheWild
             var feature = Common.AbilityToFeature(ability, false);
             addMinLevelPrerequisite(feature, 5);
             return feature;
+        }
+
+
+        public BlueprintBuff[] createPhysicalEnhancement()
+        {
+            var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "PhysicalEnhancementProperty", "",
+                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  SpellSchool.Transmutation);
+
+            var stats = new StatType[] { StatType.Constitution, StatType.Dexterity, StatType.Strength };
+            var icons = new UnityEngine.Sprite[] { Helpers.GetIcon("99cf556b967c2074ca284e127d815711"), Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a"), Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e") };
+            var buffs = new BlueprintBuff[3];
+
+            for (int i = 0; i < 3; i++)
+            {
+                buffs[i] = Helpers.CreateBuff(prefix + stats[i].ToString() + "PhysicalEnhancementBuff",
+                                              "Physical Enhancement: " + stats[i].ToString(),
+                                              "The implement enhances its bearer’s body. When you invest mental focus in the implement, select a physical ability score. The implement grants a +2 temporary enhancement bonus to that physical ability score for every 3 points of mental focus invested in the implement (to a maximum of +2 at 1st level, plus an additional 2 for every 6 occultist levels you possess).",
+                                              "",
+                                              icons[i],
+                                              null,
+                                              Helpers.CreateAddContextStatBonus(stats[i], ModifierDescriptor.Enhancement, multiplier: 2),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 3,
+                                                                              customProperty: property),
+                                              createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -4, stepLevel: 2)//1 + (lvl + 4)/2 = 3 + lvl/2
+                                              );
+            }
+            return buffs;
         }
     }
 }
