@@ -67,15 +67,17 @@ namespace CallOfTheWild
         static public BlueprintFeature magic_item_skill;
 
 
-        static public BlueprintAbilityResource generic_focus_resource;
         static public Dictionary<SpellSchool, BlueprintAbilityResource> mental_focus_resource = new Dictionary<SpellSchool, BlueprintAbilityResource>();
         static public Dictionary<SpellSchool, BlueprintAbility> invest_focus_abilities = new Dictionary<SpellSchool, BlueprintAbility>();
         static public BlueprintFeatureSelection implement_mastery;
         static public Dictionary<SpellSchool, ImplementsEngine> implement_factories = new Dictionary<SpellSchool, ImplementsEngine>();
         static public Dictionary<SpellSchool, BlueprintFeature> base_implements = new Dictionary<SpellSchool, BlueprintFeature>();
+        static public Dictionary<SpellSchool, BlueprintFeature> second_implements = new Dictionary<SpellSchool, BlueprintFeature>();
+        static public Dictionary<SpellSchool, BlueprintFeatureSelection> new_spells_selection = new Dictionary<SpellSchool, BlueprintFeatureSelection>();
+        static public Dictionary<SpellSchool, BlueprintCharacterClass> implement_mastery_classes = new Dictionary<SpellSchool, BlueprintCharacterClass>();
 
         static public BlueprintFeatureSelection focus_power_selection;
-        static public BlueprintFeatureSelection implement_base_selection;
+        static public BlueprintFeatureSelection first_implement_selection;
         static public BlueprintFeatureSelection implement_selection;
         static public BlueprintFeature repower_construct; //1 round -> 2 rounds -> 1 minute
         static public Dictionary<SpellSchool, UnityEngine.Sprite> implement_icons = new Dictionary<SpellSchool, UnityEngine.Sprite>();
@@ -208,9 +210,9 @@ namespace CallOfTheWild
             createMagicItemSkill();
             createMentalFocus();
             createImplements();
-            //createFocusPowers();
+            createFocusPowers();
             //createRepowerConstruct();
-            //createImplementMastery();
+            createImplementMastery();
 
 
             var detect_magic = library.Get<BlueprintFeature>("ee0b69e90bac14446a4cf9a050f87f2e");
@@ -224,7 +226,7 @@ namespace CallOfTheWild
             occultist_progression.Classes = getOccultistArray();
 
             occultist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, occultist_proficiencies, occultist_spellcasting, detect_magic,
-                                                                                         occultist_knacks, implement_base_selection, implement_selection,
+                                                                                         occultist_knacks, first_implement_selection, implement_selection,
                                                                                          mental_focus, focus_power_selection,
                                                                                          library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                          library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
@@ -251,16 +253,117 @@ namespace CallOfTheWild
 
             occultist_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] {occultist_proficiencies, occultist_spellcasting, detect_magic,
                                                                                      occultist_knacks, mental_focus};
-            occultist_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(implement_base_selection, implement_selection),
+            occultist_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(first_implement_selection, implement_selection),
                                                             Helpers.CreateUIGroup(focus_power_selection),
                                                             Helpers.CreateUIGroup(magic_item_skill, /*repower_construct,*/ implement_mastery)
                                                            };
         }
 
 
+        static void createImplementMastery()
+        {
+            implement_mastery = Helpers.CreateFeatureSelection("ImplementMasterySelection",
+                                              "Implement Mastery",
+                                              "At 20th level, an occultist learns to master one of his implements. He selects one implement school. Whenever he uses a focus power from an implement of that school, the DC to resist any of the effects increases by 2 and he treats his occultist level as 4 higher when determining the effects and duration of that power. In addition, the occultist gains 4 extra points of mental focus, but these points must always be invested in implements of the mastered school. He can’t save these points or expend them for any ability other than the focus powers of those implements.",
+                                              "",
+                                              LoadIcons.Image2Sprite.Create(@"FeatIcons/MagicalSupremacy.png"),
+                                              FeatureGroup.None
+                                              );
+
+            foreach (var kv in implement_mastery_classes)
+            {
+                var feature = Helpers.CreateFeature(kv.Key.ToString() + "ImplementMasteryFeature",
+                                                    kv.Key.ToString() + " " + implement_mastery.Name,
+                                                    implement_mastery.Description,
+                                                    "",
+                                                    implement_icons[kv.Key],
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<ImplementMechanics.BonusInvestedFocusPoints>(b => { b.school = kv.Key; b.value = 4; b.resource = mental_focus_resource[kv.Key]; }),
+                                                    Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = kv.Value; a.value = 4; })
+                                                    );
+                implement_mastery.AllFeatures = implement_mastery.AllFeatures.AddToArray(feature);
+            }
+        }
+
+
+        static void createFocusPowers()
+        {
+            focus_power_selection = Helpers.CreateFeatureSelection("FocusPowerSelection",
+                                                          "Focus Powers",
+                                                          "At 1st level, an occultist learns the base focus power from both of his two implement schools and can select one more focus power from the list of those available to him through those schools.\n"
+                                                          + "Whenever the occultist learns a new implement school, he gains the base power of that school. In addition, at 3rd level and every 2 levels thereafter, he learns a new focus power selected from the options granted by all of the implement schools he knows. The occultist can use focus powers only by expending mental focus.\n"
+                                                          + "Unless otherwise noted, the DC for any saving throw against a focus power equals 10 + 1/2 the occultist’s level + the occultist’s Intelligence modifier. The occultist can’t select a focus power more than once. Some focus powers require him to reach a specific occultist level before he can choose them.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None
+                                                          );
+
+            Dictionary<SpellSchool, BlueprintFeature[]> implement_powers = new Dictionary<SpellSchool, BlueprintFeature[]>()
+            {
+                {SpellSchool.Abjuration, new BlueprintFeature[]{implement_factories[SpellSchool.Abjuration].createAegis(),
+                                                                implement_factories[SpellSchool.Abjuration].createEnergyShield(),
+                                                                implement_factories[SpellSchool.Abjuration].createUnraveling()
+                                                                //globe of negation
+                                                               }
+                },
+                {SpellSchool.Conjuration, new BlueprintFeature[]{implement_factories[SpellSchool.Conjuration].createFleshMend(),
+                                                                 implement_factories[SpellSchool.Conjuration].createPsychicFog(),
+                                                                 implement_factories[SpellSchool.Conjuration].createPurgeCorruption(),
+                                                                 implement_factories[SpellSchool.Conjuration].createSideStep()
+                                                                }
+                },
+                {SpellSchool.Divination, new BlueprintFeature[]{implement_factories[SpellSchool.Divination].createDangerSight(),
+                                                                implement_factories[SpellSchool.Divination].createInAccordanceWithProphecy(),
+                                                                //mind eye
+                                                               }
+                },
+                {SpellSchool.Enchantment, new BlueprintFeature[]{implement_factories[SpellSchool.Enchantment].createBindingPattern(),
+                                                                implement_factories[SpellSchool.Enchantment].createInspiredAssault(),
+                                                                implement_factories[SpellSchool.Enchantment].createObey(),
+                                                                }
+                },
+                {SpellSchool.Evocation, new BlueprintFeature[]{implement_factories[SpellSchool.Evocation].createEnergyBlast(),
+                                                                implement_factories[SpellSchool.Evocation].createRadiance(),
+                                                                implement_factories[SpellSchool.Evocation].createWallOfPower(),
+                                                                //light matrix
+                                                                }
+                },
+                {SpellSchool.Illusion, new BlueprintFeature[]{implement_factories[SpellSchool.Illusion].createBedevelingAura(),
+                                                                implement_factories[SpellSchool.Illusion].createShadowBeast(),
+                                                                implement_factories[SpellSchool.Illusion].createTerror(),
+                                                                implement_factories[SpellSchool.Illusion].createUnseen(),
+                                                                }
+                },
+                {SpellSchool.Necromancy, new BlueprintFeature[]{implement_factories[SpellSchool.Necromancy].createFleshRot(),
+                                                                implement_factories[SpellSchool.Necromancy].createNecromanticServant(),
+                                                                implement_factories[SpellSchool.Necromancy].createPainWave(),
+                                                                implement_factories[SpellSchool.Necromancy].createSoulboundPuppet(),
+                                                                implement_factories[SpellSchool.Necromancy].createSpiritShroud(),
+                                                                }
+                },
+                {SpellSchool.Transmutation, new BlueprintFeature[]{implement_factories[SpellSchool.Transmutation].createMindOverGravity(),
+                                                                implement_factories[SpellSchool.Transmutation].createPhilosophersTouch(),
+                                                                implement_factories[SpellSchool.Transmutation].createQuickness(),
+                                                                implement_factories[SpellSchool.Transmutation].createSizeAlteration(),
+                                                                implement_factories[SpellSchool.Transmutation].createSuddenSpeed(),
+                                                                }
+                },
+            };
+
+            foreach (var kv in implement_powers)
+            {
+                foreach (var f in kv.Value)
+                {
+                    f.AddComponent(Helpers.PrerequisiteFeature(base_implements[kv.Key]));
+                    focus_power_selection.AllFeatures = focus_power_selection.AllFeatures.AddToArray(f);
+                }
+            }
+        }
+
+
         static void createImplements()
         {
-            implement_base_selection = Helpers.CreateFeatureSelection("BaseImplementSelection",
+            first_implement_selection = Helpers.CreateFeatureSelection("BaseImplementSelection",
                                                                       "Implements",
                                                                       "At 1st level, an occultist learns to use two implement schools. At 2nd level and every 4 occultist levels thereafter, the occultist learns to use one additional implement school, to a maximum of seven schools at 18th level. Each implement school adds up to 6 spells of any level of that school of magic to the occultist’s spell list.\n"
                                                                       + "Each implement schools is represented by a small list of objects. Every day, the occultist selects one item from that school’s list to be his implement for the day for each implement school he knows. The occultist needs only one such item to cast spells of the corresponding school, unless he selected that implement schools multiple times, in which case he needs one item for each set of spells gained from that school. Implements don’t need to be magic items, and non-magical implements don’t take up a magic item slot even if they’re worn. Implements that are not magic items are often of some historical value or of personal significance to the occultist, such as the finger bone of a saint, the broken scepter of a long-dead king, the skull of a mentor’s familiar, or the glass eye of an uncanny ancestor.\n"
@@ -270,23 +373,24 @@ namespace CallOfTheWild
                                                                       null,
                                                                       FeatureGroup.Domain
                                                                       );
-
-            implement_selection = library.CopyAndAdd(implement_base_selection, "ImplementSelection", "");
-
+         
             //initialize implement engines
             var schools = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration, SpellSchool.Divination, SpellSchool.Enchantment,
                                               SpellSchool.Evocation, SpellSchool.Illusion, SpellSchool.Necromancy, SpellSchool.Transmutation };
 
             foreach (var s in schools)
             {
-                implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s], getOccultistArray(), StatType.Intelligence);
+                implement_mastery_classes[s] = library.CopyAndAdd(occultist_class, s.ToString() + occultist_class.name, "");
+                implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s], 
+                                                              getOccultistArray().AddToArray(implement_mastery_classes[s]),
+                                                              StatType.Intelligence);
             }
 
             Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data 
                 = new Dictionary<SpellSchool, (string, BlueprintFeature, BlueprintBuff[])>
             {
                 {SpellSchool.Abjuration, ("Abjuration implements are objects associated with protection and wards." ,
-                                           implement_factories[SpellSchool.Abjuration].createAegis(),
+                                           implement_factories[SpellSchool.Abjuration].createMindBarrier(),
                                            new BlueprintBuff[]{implement_factories[SpellSchool.Abjuration].createWardingTalisman()}
                                            )
                 },
@@ -337,14 +441,17 @@ namespace CallOfTheWild
                                  + $"Base Focus Power: All occultists who learn to use {s.ToString()} implements gain the following focus power.\n"
                                  + data.base_power.Name + ": " + data.base_power.Description;
 
-                base_implements[s] = Helpers.CreateFeature(s.ToString() + "Implement",
-                                                           s.ToString(),
+                base_implements[s] = Helpers.CreateFeature(s.ToString() + "ImplementFeature",
+                                                           s.ToString() + " Implement",
                                                            description,
                                                            "",
                                                            implement_icons[s],
-                                                           FeatureGroup.Domain,
-                                                           Helpers.CreateAddFact(data.base_power)
+                                                           FeatureGroup.Domain
                                                            );
+                second_implements[s] = library.CopyAndAdd(base_implements[s], s.ToString() + "SecondImplementFeature", "");
+                base_implements[s].AddComponent(Helpers.CreateAddFact(data.base_power));
+                second_implements[s].AddComponent(Helpers.PrerequisiteFeature(base_implements[s]));
+
                 invest_focus_abilities[s].AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = base_implements[s]));
 
                 if (s != SpellSchool.Transmutation)
@@ -374,9 +481,54 @@ namespace CallOfTheWild
                         Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(locked_focus_buff, b, toggle_buff);
                     }
                     base_implements[s].AddComponent(Helpers.CreateAddFacts(toggles.ToArray()));
-                }               
+                }
+                var spell_selection = createSpellSelection(s);
+                for (int i = 0; i < 6; i++)
+                {
+                    base_implements[s].AddComponent(Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = spell_selection));
+                    second_implements[s].AddComponent(Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = spell_selection));
+                }
             }
-            //TODO: add spell selection and create secondary implement (for more spells)
+
+            first_implement_selection.AllFeatures = base_implements.Values.ToArray().AddToArray(second_implements.Values.ToArray());
+            implement_selection = library.CopyAndAdd(first_implement_selection, "ImplementSelection", "");
+        }
+
+
+
+        static BlueprintFeatureSelection createSpellSelection(SpellSchool school)
+        {
+            var spell_list = Common.combineSpellLists(school.ToString() + "OccultistSpellList",
+                                                      (spell, spelllist, lvl) =>
+                                                      {
+                                                          return spell.School == school;
+                                                      },
+                                                      occultist_class.Spellbook.SpellList);
+
+            BlueprintParametrizedFeature[] learn_spells = new BlueprintParametrizedFeature[6];
+            for (int i = 1; i <= 6; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"Occultist{school.ToString()}Spells{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = occultist_class;
+                learn_spell.SpellList = spell_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = occultist_class; });
+                learn_spell.SetName(Helpers.CreateString($"{learn_spell.name}.Name", $"Learn {school.ToString()} Spell " + $"(level {i})"));
+                learn_spell.SetDescription("The occultist’s selection of spells is limited. For each implement school he learns to use, he can add up to 6 spells of any level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds 6 more spells from that school’s list for each time he has selected that school.");
+                learn_spell.SetIcon(null);
+                learn_spells[i] = learn_spell;
+            }
+
+            var spell_selection = Helpers.CreateFeatureSelection("OccultistSpellSelection",
+                                                                 $"Learn {school.ToString()} Spell",
+                                                                 learn_spells[0].Description,
+                                                                 "",
+                                                                 null,
+                                                                 FeatureGroup.None);
+            spell_selection.AllFeatures = learn_spells;
+            return spell_selection;
         }
 
 
@@ -738,7 +890,7 @@ namespace CallOfTheWild
                                              "An occultist casts psychic spells drawn from the occultist spell list, limited by the implement groups he knows.\n"
                                              + "He can cast any spell he knows without preparing it ahead of time. Every occultist spell has an implement component. To learn or cast a spell, an occultist must have an Intelligence score equal to at least 10 + the spell level. The Difficulty Class for a saving throw against an occultist’s spell equals 10 + the spell level + the occultist’s Intelligence modifier.\n"
                                              + "An occultist can cast only a certain number of spells of each spell level per day. In addition, he gains bonus spells per day if he has a high Intelligence score.\n"
-                                             + "The occultist’s selection of spells is limited. For each implement school he learns to use, he can add 6 spells of any level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds 6 more spells from that school’s list for each time he has selected that school.\n"
+                                             + "The occultist’s selection of spells is limited. For each implement school he learns to use, he can add up to 6 spells of any level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds 6 more spells from that school’s list for each time he has selected that school.\n"
                                              + "An occultist need not prepare his spells in advance. He can cast any spell he knows at any time, assuming he has not yet used up his allotment of spells per day for the spell’s level.",
                                              "",
                                              null,
