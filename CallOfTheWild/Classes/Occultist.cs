@@ -54,7 +54,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
-    class Occultist
+    public class Occultist
     {
         static LibraryScriptableObject library => Main.library;
         internal static bool test_mode = false;
