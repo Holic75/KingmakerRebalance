@@ -396,8 +396,7 @@ namespace CallOfTheWild.ImplementMechanics
         }
 
         public override int GetInt(UnitEntityData unit)
-        {
-            
+        {        
             var unit_part = unit.Get<UnitPartImplements>();
             if (unit_part == null)
             {
@@ -411,7 +410,6 @@ namespace CallOfTheWild.ImplementMechanics
             }
 
             int val = unit_part.getInvestedFocusAmount(schools);
-            Main.logger.Log(schools[0].ToString() + ": " + val.ToString());
             if (max_value != null)
             {
                 var context = Helpers.GetMechanicsContext();
@@ -421,8 +419,6 @@ namespace CallOfTheWild.ImplementMechanics
                     val = Math.Min(max_val, val);
                 }
             }
-            Main.logger.Log(schools[0].ToString() + " capped: " + val.ToString());
-
             return val;
         }
     }
