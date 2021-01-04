@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Mechanics.Properties;
 using Newtonsoft.Json;
@@ -42,18 +43,9 @@ namespace CallOfTheWild.ImplementMechanics
         [JsonProperty]
         private bool focus_locked;
 
-        public int getInvestedFocusAmount(SpellSchool school)
-        {
-            return invested_focus[school];
-        }
-
-        public int getInvestedFocusAmount(SpellSchool[] schools)
+        public int getInvestedFocusAmount(params SpellSchool[] schools)
         {
             int amount = 0;
-            if (!isLocked())
-            {
-                return amount;
-            }
 
             foreach (var s in schools)
             {
@@ -80,7 +72,19 @@ namespace CallOfTheWild.ImplementMechanics
 
         public void reset()
         {
-            invested_focus = new Dictionary<SpellSchool, int>();
+            foreach (SpellSchool school in Enum.GetValues(typeof(SpellSchool)))
+            {
+                invested_focus[school] = 0;
+            }
+        }
+
+        public void init()
+        {
+            reset();
+            foreach (SpellSchool school in Enum.GetValues(typeof(SpellSchool)))
+            {
+                invested_focus_bonus[school] = 0;
+            }
         }
 
         public void lockFocus()
@@ -103,6 +107,7 @@ namespace CallOfTheWild.ImplementMechanics
     {
         public SpellSchool[] schools;
         public int amount;
+        public bool locked_focus = true;
 
         protected override string GetConditionCaption()
         {
@@ -117,6 +122,12 @@ namespace CallOfTheWild.ImplementMechanics
                 return false;
             }
 
+
+            if (locked_focus && !unit_part.isLocked())
+            {
+                return false;
+            }
+
             return unit_part.getInvestedFocusAmount(schools) >= amount;
         }
     }
@@ -124,7 +135,6 @@ namespace CallOfTheWild.ImplementMechanics
 
     public class FocusLocked : ContextCondition
     {
-
         protected override string GetConditionCaption()
         {
             return "";
@@ -145,7 +155,6 @@ namespace CallOfTheWild.ImplementMechanics
 
     public class ContextActionLockFocus : ContextAction
     {
-
         public override string GetCaption() => "Lock focus";
 
         public override void RunAction()
@@ -170,7 +179,6 @@ namespace CallOfTheWild.ImplementMechanics
 
     public class ContextActionResetFocus : ContextAction
     {
-
         public override string GetCaption() => "Reset focus";
 
         public override void RunAction()
@@ -195,7 +203,6 @@ namespace CallOfTheWild.ImplementMechanics
 
     public class ContextActionUnlockFocus : ContextAction
     {
-
         public override string GetCaption() => "Unlock focus";
 
         public override void RunAction()
@@ -257,11 +264,17 @@ namespace CallOfTheWild.ImplementMechanics
     {
         public SpellSchool school;
         public int amount = 1;
+        public bool locked_focus = true;
 
         public override bool IsAvailable()
         {
             var unit_part = this.Owner.Get<UnitPartImplements>();
             if (unit_part == null)
+            {
+                return false;
+            }
+
+            if (locked_focus && !unit_part.isLocked())
             {
                 return false;
             }
@@ -274,7 +287,7 @@ namespace CallOfTheWild.ImplementMechanics
     {
         public override void OnFactActivate()
         {
-            this.Owner.Ensure<UnitPartImplements>().reset();
+            this.Owner.Ensure<UnitPartImplements>().init();
 
         }
 
@@ -324,6 +337,7 @@ namespace CallOfTheWild.ImplementMechanics
             {
                 return false;
             }
+
             return unit_part.isLocked() != not;
         }
 
@@ -340,6 +354,7 @@ namespace CallOfTheWild.ImplementMechanics
     {
         public SpellSchool school;
         public int amount = 1;
+        public bool locked_focus = true;
 
         public bool CorrectCaster(UnitEntityData caster)
         {
@@ -348,6 +363,12 @@ namespace CallOfTheWild.ImplementMechanics
             {
                 return false;
             }
+
+            if (locked_focus && !unit_part.isLocked())
+            {
+                return false;
+            }
+
             return unit_part.getInvestedFocusAmount(school) >= amount;
         }
 
@@ -361,14 +382,16 @@ namespace CallOfTheWild.ImplementMechanics
     class InvestedImplementFocusAmountProperty : PropertyValueGetter
     {
         public SpellSchool[] schools;
-        public ContextValue max_value = null;
+        public ContextRankConfig max_value = null;
+        public bool locked_focus;
 
-        public static BlueprintUnitProperty createProperty(string name, string guid, ContextValue max_value,  params SpellSchool[] schools)
+        public static BlueprintUnitProperty createProperty(string name, string guid, ContextRankConfig max_value,  bool locked_focus, params SpellSchool[] schools)
         {
             var p = Helpers.Create<BlueprintUnitProperty>();
             p.name = name;
             Main.library.AddAsset(p, guid);
-            p.SetComponents(Helpers.Create<InvestedImplementFocusAmountProperty>(a => { a.schools = schools; a.max_value = max_value; }));
+            p.SetComponents(Helpers.Create<InvestedImplementFocusAmountProperty>(a => { a.schools = schools; a.max_value = max_value; a.locked_focus = locked_focus; }));
+
             return p;
         }
 
@@ -381,19 +404,51 @@ namespace CallOfTheWild.ImplementMechanics
                 return 0;
             }
 
-            int val = unit_part.getInvestedFocusAmount(schools);
 
+            if (locked_focus && !unit_part.isLocked())
+            {
+                return 0;
+            }
+
+            int val = unit_part.getInvestedFocusAmount(schools);
+            Main.logger.Log(schools[0].ToString() + ": " + val.ToString());
             if (max_value != null)
             {
                 var context = Helpers.GetMechanicsContext();
                 if (context != null)
                 {
-                    var max_val = max_value.Calculate(context);
+                    var max_val = max_value.GetValue(context);
                     val = Math.Min(max_val, val);
                 }
             }
+            Main.logger.Log(schools[0].ToString() + " capped: " + val.ToString());
 
             return val;
+        }
+    }
+
+    [AllowMultipleComponents]
+    public class IncreaseResourceAmountBasedOnInvestedFocus : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+    {
+        public SpellSchool school;
+        public BlueprintAbilityResource resource;
+        public bool locked_focus = false;
+
+        public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+        {
+            if (!this.Fact.Active || !((Object)resource == (Object)this.resource))
+                return;
+            var unit_part = this.Owner.Get<UnitPartImplements>();
+            if (unit_part == null)
+            {
+                return;
+            }
+
+            if (locked_focus && !unit_part.isLocked())
+            {
+                return;
+            }
+            bonus += unit_part.getInvestedFocusAmount(school);
         }
     }
 }

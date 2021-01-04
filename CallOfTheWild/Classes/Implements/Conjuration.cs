@@ -169,7 +169,8 @@ namespace CallOfTheWild
         public BlueprintBuff createCastingFocus()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "CastingFocusProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2),//2 * lvl
+                                                                                                  false,
                                                                                                   SpellSchool.Conjuration);
             var buff = Helpers.CreateBuff(prefix + "CastingFocusBuff",
                                           "Casting Focus",
@@ -179,8 +180,7 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<NewMechanics.AddContextValueToSummonDuration>(a => a.value = Helpers.CreateContextValue(AbilityRankType.Default)),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2)//2 * lvl
+                                                                          customProperty: property)                                        
                                           );
             return buff;
         }

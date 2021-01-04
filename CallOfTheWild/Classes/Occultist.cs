@@ -14,6 +14,7 @@ using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Equipment;
+using Kingmaker.Blueprints.Items.Shields;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
@@ -126,8 +127,8 @@ namespace CallOfTheWild
             {
                 library.Get<BlueprintItemArmor>("d7963e1fcf260c148877afd3252dbc91"), //scalemail
                 library.Get<BlueprintItemWeapon>("6fd0a849531617844b195f452661b2cd"), //longsword
-                library.Get<BlueprintItemWeapon>("f4cef3ba1a15b0f4fa7fd66b602ff32b"), //shield
-                library.Get<BlueprintItemEquipmentUsable>("201f6150321e09048bd59e9b7f558cb0"), //longbow
+                library.Get<BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b"), //shield
+                library.Get<BlueprintItemWeapon>("201f6150321e09048bd59e9b7f558cb0"), //longbow
                 library.Get<BlueprintItemEquipmentUsable>("d52566ae8cbe8dc4dae977ef51c27d91"), //potion of cure light wounds
                 library.Get<BlueprintItemEquipmentUsable>("f79c3fd5012a3534c8ab36dc18e85fb1"), //sleep
                 library.Get<BlueprintItemEquipmentUsable>("fe244c39bdd5cb64eae65af23c6759de") //cause fear
@@ -266,7 +267,7 @@ namespace CallOfTheWild
                                               "Implement Mastery",
                                               "At 20th level, an occultist learns to master one of his implements. He selects one implement school. Whenever he uses a focus power from an implement of that school, the DC to resist any of the effects increases by 2 and he treats his occultist level as 4 higher when determining the effects and duration of that power. In addition, the occultist gains 4 extra points of mental focus, but these points must always be invested in implements of the mastered school. He can’t save these points or expend them for any ability other than the focus powers of those implements.",
                                               "",
-                                              LoadIcons.Image2Sprite.Create(@"FeatIcons/MagicalSupremacy.png"),
+                                              LoadIcons.Image2Sprite.Create(@"AbilityIcons/MagicalSupremacy.png"),
                                               FeatureGroup.None
                                               );
 
@@ -371,7 +372,7 @@ namespace CallOfTheWild
                                                                       + "Each implement schools also grants a base focus power. This power is added to the list of focus powers possessed by the occultist (see Mental Focus below). In addition, each implement schools grants access to a number of other focus powers that the occultist can select from using his mental focus class feature.",
                                                                       "",
                                                                       null,
-                                                                      FeatureGroup.Domain
+                                                                      FeatureGroup.None
                                                                       );
          
             //initialize implement engines
@@ -381,6 +382,7 @@ namespace CallOfTheWild
             foreach (var s in schools)
             {
                 implement_mastery_classes[s] = library.CopyAndAdd(occultist_class, s.ToString() + occultist_class.name, "");
+                implement_mastery_classes[s].AddComponent(Helpers.Create<FakeClassLevelMechanics.FakeClass>());
                 implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s], 
                                                               getOccultistArray().AddToArray(implement_mastery_classes[s]),
                                                               StatType.Intelligence);
@@ -433,7 +435,7 @@ namespace CallOfTheWild
 
             foreach (var s in schools)
             {
-                bool starts_with_vowel = "aeiou".IndexOf(s.ToString(), StringComparison.InvariantCultureIgnoreCase) >= 0;
+                bool starts_with_vowel = "aeiou".IndexOf(s.ToString().ToLower()) >= 0;
                 var data = implement_data[s];
                 var description = data.flavor + "\n"
                                  + $"Resonant Power: Each time the occultist invests mental focus into a{(starts_with_vowel ? "n" : "")} {s.ToString()} implement, the implement grants the following resonant power. The implement’s bearer gains the benefits of this power until the occultist refreshes his focus.\n"
@@ -449,6 +451,7 @@ namespace CallOfTheWild
                                                            FeatureGroup.Domain
                                                            );
                 second_implements[s] = library.CopyAndAdd(base_implements[s], s.ToString() + "SecondImplementFeature", "");
+                second_implements[s].SetName(base_implements[s].Name + " (Extra Spells)");
                 base_implements[s].AddComponent(Helpers.CreateAddFact(data.base_power));
                 second_implements[s].AddComponent(Helpers.PrerequisiteFeature(base_implements[s]));
 
@@ -461,6 +464,7 @@ namespace CallOfTheWild
                                                                                               {
                                                                                                   c.schools = new SpellSchool[] { s };
                                                                                                   c.amount = 1;
+                                                                                                  c.locked_focus = false;
                                                                                               }
                                                                                               ),
                                                                                               Common.createContextActionApplyChildBuff(data.resonant_power_buffs[0])
@@ -475,23 +479,68 @@ namespace CallOfTheWild
                         var toggle_buff = library.CopyAndAdd(b, "Toggle" + b.name, "");
                         toggle_buff.SetBuffFlags(toggle_buff.GetBuffFlags() | BuffFlags.HiddenInUi);
                         toggle_buff.ComponentsArray = new BlueprintComponent[0];
-                        var toggle = Common.buffToToggle(toggle_buff, CommandType.Free, true, Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => { r.amount = 3; r.school = s; }));
+                        var toggle = Common.buffToToggle(toggle_buff, CommandType.Free, true, Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => { r.amount = 3; r.school = s; r.locked_focus = false; }));
                         toggles.Add(toggle);
                         toggle.Group = ActivatableAbilityGroupExtension.PhysicalEnhancementResonantPower.ToActivatableAbilityGroup();
                         Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(locked_focus_buff, b, toggle_buff);
                     }
                     base_implements[s].AddComponent(Helpers.CreateAddFacts(toggles.ToArray()));
                 }
-                var spell_selection = createSpellSelection(s);
+                //var spell_selection = createSpellSelection(s);
+                var spells_to_pick = createCreateSpellSelectionArrays(s);
+                var spell_list = Common.combineSpellLists(s.ToString() + "OccultistSpellList",
+                                          (spell, spelllist, lvl) =>
+                                          {
+                                              return spell.School == s;
+                                          },
+                                          occultist_class.Spellbook.SpellList);
                 for (int i = 0; i < 6; i++)
                 {
-                    base_implements[s].AddComponent(Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = spell_selection));
-                    second_implements[s].AddComponent(Helpers.Create<EvolutionMechanics.addSelection>(a => a.selection = spell_selection));
+                    if (spells_to_pick[i].Item1)
+                    {
+                        base_implements[s].AddComponent(Helpers.Create<NewMechanics.addSpellChoice>(a => 
+                        {
+                            a.spell_book = occultist_class.Spellbook;
+                            a.spell_level = i + 1;
+                            a.spell_list = spell_list;
+                        })
+                        );
+                    }
+                    if (spells_to_pick[i].Item2)
+                    {
+                        second_implements[s].AddComponent(Helpers.Create<NewMechanics.addSpellChoice>(a =>
+                        {
+                            a.spell_book = occultist_class.Spellbook;
+                            a.spell_level = i + 1;
+                            a.spell_list = spell_list;
+                        })
+                        );
+                    }
                 }
+
+                base_implements[s].AddComponents(Helpers.Create<ImplementMechanics.IncreaseResourceAmountBasedOnInvestedFocus>(r =>
+                                                 {
+                                                    r.resource = mental_focus_resource[s];
+                                                    r.school = s;
+                                                 })
+                                                );
             }
 
             first_implement_selection.AllFeatures = base_implements.Values.ToArray().AddToArray(second_implements.Values.ToArray());
             implement_selection = library.CopyAndAdd(first_implement_selection, "ImplementSelection", "");
+        }
+
+
+        static (bool, bool)[] createCreateSpellSelectionArrays(SpellSchool school)
+        {
+            var num_spells_to_select = new (bool, bool)[6];
+            for (int i = 0; i < 6; i ++)
+            {
+                var num_spells = occultist_class.Spellbook.SpellList.SpellsByLevel[i + 1].Spells.Count(s => s.School == school);
+                num_spells_to_select[i] = (num_spells > 0, num_spells > 1);
+            }
+
+            return num_spells_to_select;
         }
 
 
@@ -516,7 +565,7 @@ namespace CallOfTheWild
                 learn_spell.SpellList = spell_list;
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = occultist_class; });
                 learn_spell.SetName(Helpers.CreateString($"{learn_spell.name}.Name", $"Learn {school.ToString()} Spell " + $"(level {i})"));
-                learn_spell.SetDescription("The occultist’s selection of spells is limited. For each implement school he learns to use, he can add up to 6 spells of any level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds 6 more spells from that school’s list for each time he has selected that school.");
+                learn_spell.SetDescription("The occultist’s selection of spells is limited. For each implement school he learns to use, he can add one spell of each level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds one spell of each level from that school’s list for each time he has selected that school.");
                 learn_spell.SetIcon(null);
                 learn_spells[i] = learn_spell;
             }
@@ -555,7 +604,8 @@ namespace CallOfTheWild
                                                  + "Occultist can expend an amount of generic focus to restore equal amount of an appropriate implement focus that he has already spent.",
                                                  "",
                                                  implement_icons[SpellSchool.Universalist],
-                                                 FeatureGroup.None
+                                                 FeatureGroup.None,
+                                                 Helpers.Create<ImplementMechanics.AddImplements>()
                                                  );
 
             locked_focus_buff = Helpers.CreateBuff("LockedFocusBuff",
@@ -570,7 +620,7 @@ namespace CallOfTheWild
 
             var lock_focus_ability = Helpers.CreateAbility("LockFocusAbility",
                                                            "Lock Invested Mental Focus",
-                                                           "Lock invested mnetal focus until you rest.",
+                                                           "Lock invested mental focus until you rest.",
                                                            "",
                                                            implement_icons[SpellSchool.Universalist],
                                                            AbilityType.Special,
@@ -642,28 +692,28 @@ namespace CallOfTheWild
                                                                  AbilityRange.Personal,
                                                                  "",
                                                                  "",
-                                                                 Helpers.CreateRunActions(Helpers.Create<ImplementMechanics.ContextActionInvestFocus>(c => c.school = school)),
+                                                                 Helpers.CreateRunActions(Helpers.Create<ImplementMechanics.ContextActionInvestFocus>(c => { c.school = school; c.resource = mental_focus_resource[school]; })),
                                                                  resource.CreateResourceLogic()
-                                                                 //will add show if when will create implement selection
                                                                  );
                 invest_focus_ability.setMiscAbilityParametersSelfOnly();
                 abilities.Add(invest_focus_ability);
                 invest_focus_abilities[school] = invest_focus_ability;
             }
 
+            foreach (var ability in abilities)
+            {
+                ability.MaybeReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = mental_focus_resource[SpellSchool.Universalist]);
+            }
+
             var wrapper = Common.createVariantWrapper("MentalFocusAbilityBase", "", abilities.ToArray());
             wrapper.SetNameDescriptionIcon(mental_focus);
 
-            var generic_focus_property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty("GenericFocusProperty", "", null, SpellSchool.Universalist);
             mental_focus.AddComponent(Helpers.CreateAddFact(wrapper));
-            mental_focus.AddComponents(Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(r =>
+            mental_focus.AddComponents(Helpers.Create<ImplementMechanics.IncreaseResourceAmountBasedOnInvestedFocus>(r =>
                                         {
-                                            r.Resource = mental_focus_resource[SpellSchool.Universalist];
-                                            r.Value = Helpers.CreateContextValue(AbilityRankType.Default);
-                                        }),
-                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty,
-                                                                        customProperty: generic_focus_property
-                                                                        )
+                                            r.resource = mental_focus_resource[SpellSchool.Universalist];
+                                            r.school = SpellSchool.Universalist;
+                                        })
                                         );
         }
 
@@ -707,13 +757,13 @@ namespace CallOfTheWild
 
         static BlueprintSpellbook createOccultistSpellbook()
         {
-            var alchemist_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("027d37761f3804042afa96fe3e9086cc");
+            var alchemist_spellbook = ResourcesLibrary.TryGetBlueprint<BlueprintSpellbook>("027d37761f3804042afa96fe3e9086cc");
             var occultist_spellbook = Helpers.Create<BlueprintSpellbook>();
             occultist_spellbook.name = "OccultistSpellbook";
             library.AddAsset(occultist_spellbook, "");
             occultist_spellbook.Name = occultist_class.LocalizedName;
-            occultist_spellbook.SpellsPerDay = alchemist_class.Spellbook.SpellsPerDay;
-            occultist_spellbook.SpellsKnown = alchemist_class.Spellbook.SpellsKnown;
+            occultist_spellbook.SpellsPerDay = alchemist_spellbook.SpellsPerDay;
+            occultist_spellbook.SpellsKnown = alchemist_spellbook.SpellsKnown;
             occultist_spellbook.Spontaneous = true;
             occultist_spellbook.IsArcane = false;
             occultist_spellbook.AllSpellsKnown = false;
@@ -776,6 +826,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
+                new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 3), //mirror image
                 new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
@@ -890,7 +941,7 @@ namespace CallOfTheWild
                                              "An occultist casts psychic spells drawn from the occultist spell list, limited by the implement groups he knows.\n"
                                              + "He can cast any spell he knows without preparing it ahead of time. Every occultist spell has an implement component. To learn or cast a spell, an occultist must have an Intelligence score equal to at least 10 + the spell level. The Difficulty Class for a saving throw against an occultist’s spell equals 10 + the spell level + the occultist’s Intelligence modifier.\n"
                                              + "An occultist can cast only a certain number of spells of each spell level per day. In addition, he gains bonus spells per day if he has a high Intelligence score.\n"
-                                             + "The occultist’s selection of spells is limited. For each implement school he learns to use, he can add up to 6 spells of any level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds 6 more spells from that school’s list for each time he has selected that school.\n"
+                                             + "The occultist’s selection of spells is limited. For each implement school he learns to use, he can add one spell of each level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds one spell of each level from that school’s list for each time he has selected that school.\n"
                                              + "An occultist need not prepare his spells in advance. He can cast any spell he knows at any time, assuming he has not yet used up his allotment of spells per day for the spell’s level.",
                                              "",
                                              null,
@@ -900,7 +951,6 @@ namespace CallOfTheWild
                                                  Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             occultist_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = occultist_spellbook));
             occultist_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
-            occultist_spellcasting.AddComponents(Common.createCantrips(occultist_class, StatType.Charisma, occultist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
             occultist_spellcasting.AddComponents(Helpers.CreateAddFacts(occultist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return occultist_spellbook;

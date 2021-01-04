@@ -29,6 +29,12 @@ namespace CallOfTheWild.FakeClassLevelMechanics
     }
 
 
+    public class FakeClass: BlueprintComponent
+    {
+
+    }
+
+
     public abstract class FakeClassLevelsBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract int getFakeClassLevel(BlueprintCharacterClass character_class);

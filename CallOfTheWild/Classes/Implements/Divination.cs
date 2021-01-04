@@ -158,12 +158,15 @@ namespace CallOfTheWild
         public BlueprintBuff createThirdEye()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "ThirdEyeProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2),//2 * lvl
+                                                                                                  false,
                                                                                                   SpellSchool.Divination);
 
             var property_bonus = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "ThirdEyeBonusProperty", "",
-                                                                                      Helpers.CreateContextValue(AbilityRankType.DamageBonus),
-                                                                                      SpellSchool.Divination);
+                                                                                                        createClassScalingConfig(ContextRankProgression.Custom, type: AbilityRankType.DamageBonus,
+                                                                                                                                 customProgression: new (int, int)[] { (6, 0), (12, 9), (18, 12) }),
+                                                                                                          false,
+                                                                                                          SpellSchool.Divination);
 
             var buff7 =  library.CopyAndAdd<BlueprintBuff>("0adecbf63b614e846bfe15c33f34507e", prefix + "Thirdeye7Buff", "");
             buff7.SetBuffFlags(BuffFlags.StayOnDeath | BuffFlags.HiddenInUi);
@@ -183,8 +186,7 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.Insight),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, stepLevel: 2),//2 * lvl
+                                                                          customProperty: property),                                          
                                           Helpers.CreateAddFactContextActions(activated: Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.DamageDice),
                                                                                                                                         Common.createContextActionApplyChildBuff(buff7),
                                                                                                                                         Common.createContextActionApplyChildBuff(buff13),
@@ -192,9 +194,7 @@ namespace CallOfTheWild
                                                                                                                                         )
                                                                              ),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DelayedStartPlusDivStep, startLevel: 9, stepLevel: 3,
-                                                                          customProperty: property_bonus, type: AbilityRankType.DamageDice),
-                                          createClassScalingConfig(ContextRankProgression.Custom, type: AbilityRankType.DamageBonus,
-                                                                   customProgression: new (int, int)[] {(6, 0), (12, 9), (18, 12)  })
+                                                                          customProperty: property_bonus, type: AbilityRankType.DamageDice)
                                           );
             return buff;
         }

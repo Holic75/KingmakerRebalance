@@ -77,6 +77,10 @@ namespace CallOfTheWild
         {
             foreach (var c in classes)
             {
+                if (c.GetComponent<FakeClassLevelMechanics.FakeClass>() != null)
+                {
+                    continue;
+                }
                 if (archetype != null && archetype.GetParentClass() == c)
                 {
                     feature.AddComponents(Common.createPrerequisiteArchetypeLevel(c, archetype, lvl, any: true));

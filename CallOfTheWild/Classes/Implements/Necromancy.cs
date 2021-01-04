@@ -317,7 +317,8 @@ namespace CallOfTheWild
         public BlueprintBuff createNecromanticFocus()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "NecromanticFocusProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, startLevel: 2),
+                                                                                                  false,
                                                                                                   SpellSchool.Necromancy);
             var buff = Helpers.CreateBuff(prefix + "NecromanticFocusBuff",
                                           "Necromantic Focus",
@@ -337,8 +338,7 @@ namespace CallOfTheWild
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.AsIs,
                                                                           customProperty: property),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.MultiplyByModifier, type: AbilityRankType.DamageBonus,
-                                                                          customProperty: property, stepLevel: 2),
-                                          createClassScalingConfig(ContextRankProgression.MultiplyByModifier, type: AbilityRankType.StatBonus, startLevel: 2)
+                                                                          customProperty: property, stepLevel: 2)                                          
                                           );
             return buff;
         }

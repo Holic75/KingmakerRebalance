@@ -877,7 +877,6 @@ namespace CallOfTheWild
                 abilities.Add(ability2);
                 abilities_primary_hand.Add(ability1);
                 abilities_off_hand.Add(ability2);
-
             }
 
             foreach (var a in abilities_off_hand)

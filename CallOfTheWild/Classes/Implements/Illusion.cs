@@ -211,7 +211,8 @@ namespace CallOfTheWild
         public BlueprintBuff createDistortion()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "DistortionProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.AsIs, type: AbilityRankType.StatBonus),
+                                                                                                  false,
                                                                                                   SpellSchool.Illusion);
             var buff = Helpers.CreateBuff(prefix + "DistortionBuff",
                                           "Distortion",
@@ -228,8 +229,7 @@ namespace CallOfTheWild
                                              }
                                              ),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.AsIs,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.AsIs, type: AbilityRankType.StatBonus)
+                                                                          customProperty: property)
                                           );
             return buff;
         }

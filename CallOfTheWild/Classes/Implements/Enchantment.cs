@@ -169,7 +169,8 @@ namespace CallOfTheWild
         public BlueprintBuff createGloriousPresence()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "GloriousPresenceProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2),//1 + (lvl + 2)/2 = 2 + lvl/2
+                                                                                                  false,
                                                                                                   SpellSchool.Enchantment);
             var buff = Helpers.CreateBuff(prefix + "GloriousPresenceBuff",
                                           "Glorious Presence",
@@ -181,8 +182,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddContextStatBonus(StatType.SkillUseMagicDevice, ModifierDescriptor.Competence),
                                           Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.Competence, StatType.Charisma),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2)//1 + (lvl + 2)/2 = 2 + lvl/2
+                                                                          customProperty: property)                                        
                                           );
             return buff;
         }

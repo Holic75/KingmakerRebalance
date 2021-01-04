@@ -304,7 +304,8 @@ namespace CallOfTheWild
         public BlueprintBuff createIntenseFocus()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "IntenseFocusProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.BonusValue, type: AbilityRankType.StatBonus, stepLevel: 2),//2 + lvl => 1 + lvl/2
+                                                                                                  false,
                                                                                                   SpellSchool.Evocation);
             var buff = Helpers.CreateBuff(prefix + "IntenseFocusBuff",
                                           "Intense Focus",
@@ -314,8 +315,8 @@ namespace CallOfTheWild
                                           null,
                                           Helpers.Create<NewMechanics.ContextValueIntenseSpells>(c => c.value = Helpers.CreateContextValue(AbilityRankType.Default)),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.BonusValue, type: AbilityRankType.StatBonus, stepLevel: 2)//2 + lvl => 1 + lvl/2
+                                                                          customProperty: property)
+                                          
                                           );
             return buff;
         }

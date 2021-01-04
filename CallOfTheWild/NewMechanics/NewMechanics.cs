@@ -74,6 +74,7 @@ using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.AreaLogic.SummonPool;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UI.LevelUp;
 
 namespace CallOfTheWild
 {
@@ -8016,6 +8017,27 @@ namespace CallOfTheWild
                     Log.Error(e);
                 }
             }
+
+
+            public override void OnFactDeactivate()
+            {
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, existingNewSpells - 1);
+                        applied = false;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
         }
 
 
@@ -10589,6 +10611,13 @@ namespace CallOfTheWild
             {
 
             }
+        }
+
+
+
+        public interface IMentalFocusChangedHandler : IGlobalSubscriber
+        {
+            void onMentalFocusChanged(UnitDescriptor unit);
         }
     }
 }

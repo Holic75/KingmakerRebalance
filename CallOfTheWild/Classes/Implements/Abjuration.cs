@@ -262,7 +262,8 @@ namespace CallOfTheWild
         public BlueprintBuff createWardingTalisman()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "WardingTalismanProperty", "",
-                                                                                                  Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                                                  createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2),//1 + (lvl + 2)/2 = 2 + lvl/2
+                                                                                                  false,
                                                                                                   SpellSchool.Abjuration);
             var buff = Helpers.CreateBuff(prefix + "WardingTalismanBuff",
                                           "Warding Talisman",
@@ -274,8 +275,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance),
                                           Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
-                                                                          customProperty: property),
-                                          createClassScalingConfig(ContextRankProgression.StartPlusDivStep, type: AbilityRankType.StatBonus, startLevel: -2, stepLevel: 2)//1 + (lvl + 2)/2 = 2 + lvl/2
+                                                                          customProperty: property)
                                           );
 
             return buff;
