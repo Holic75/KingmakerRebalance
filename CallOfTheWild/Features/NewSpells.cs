@@ -284,6 +284,7 @@ namespace CallOfTheWild
         static public BlueprintAbility warding_weapon;
         static public BlueprintAbility globe_of_invulnerability;
         static public BlueprintAbility globe_of_invulnerability_lesser;
+        static public BlueprintAbility locate_weakness;
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -484,6 +485,43 @@ namespace CallOfTheWild
             createCorrosiveConsumption();
             createWardingWeapon();
             createGlobeOfInvulnerability();
+            createLocateWeakness();
+        }
+
+
+        static void createLocateWeakness()
+        {
+            var buff = Helpers.CreateBuff("LocateWeaknessBuff",
+                              "Locate Weakness",
+                              "You can sense your foes’ weak points, granting you greater damage with critical hits. Whenever you score a critical hit, your weapon damage is maximized.",
+                              "",
+                              Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"),
+                              null,
+                              Helpers.Create<NewMechanics.MaximumWeaponDamageOnCriticalHit>()
+                              );
+
+            locate_weakness = Helpers.CreateAbility("LocateWeaknessAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Personal,
+                                                   Helpers.minutesPerLevelDuration,
+                                                   "",
+                                                   Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
+                                                   Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                   Helpers.CreateContextRankConfig()
+                                                   );
+            locate_weakness.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten;
+            locate_weakness.setMiscAbilityParametersSelfOnly();
+            locate_weakness.AddToSpellList(Helpers.wizardSpellList, 3);
+            locate_weakness.AddToSpellList(Helpers.magusSpellList, 3);
+            locate_weakness.AddToSpellList(Helpers.rangerSpellList, 2);
+            locate_weakness.AddToSpellList(Helpers.inquisitorSpellList, 3);
+            locate_weakness.AddSpellAndScroll("5b6d4c0bbd882074eb6b6996ea77b77c"); //true strike
         }
 
 

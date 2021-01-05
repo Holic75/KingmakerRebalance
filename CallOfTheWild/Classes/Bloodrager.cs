@@ -696,6 +696,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
                 new Common.SpellId( NewSpells.keen_edge.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
+                new Common.SpellId( NewSpells.locate_weakness.AssetGuid, 3),
                 new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 3),
                 new Common.SpellId( NewSpells.pain_strike.AssetGuid, 3),
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy

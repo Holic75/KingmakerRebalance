@@ -2613,6 +2613,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                new Common.SpellId( NewSpells.locate_weakness.AssetGuid, 3),
                 new Common.SpellId( NewSpells.mental_barrier[1].AssetGuid, 3),
                 new Common.SpellId( NewSpells.mind_thrust[2].AssetGuid, 3),
                 new Common.SpellId( "96c9d98b6a9a7c249b6c4572e4977157", 3), //protection from arrows communal

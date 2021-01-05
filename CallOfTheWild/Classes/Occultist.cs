@@ -897,6 +897,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "bd5da98859cf2b3418f6d68ea66cabbe", 3), //inflict serious wounds
                 new Common.SpellId( NewSpells.keen_edge.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
+                new Common.SpellId( NewSpells.locate_weakness.AssetGuid, 3),
                 new Common.SpellId( "2d4263d80f5136b4296d6eb43a221d7d", 3), //magic vestment
                 new Common.SpellId( NewSpells.magic_weapon_greater.AssetGuid, 3),
                 new Common.SpellId( "d2f116cfe05fcdd4a94e80143b67046f", 3), //protection from energy

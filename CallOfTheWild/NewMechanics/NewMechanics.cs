@@ -8994,6 +8994,30 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MaximumWeaponDamageOnCriticalHit : BuffLogic, ITargetRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, ITargetRulebookSubscriber
+        {
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                var weapon_damage = evt.DamageBundle?.WeaponDamage;
+                if (weapon_damage == null)
+                {
+                    return;
+                }
+
+                if (!(evt.ParentRule?.AttackRoll?.IsCriticalConfirmed).GetValueOrDefault())
+                {
+                    return;
+                }
+
+                weapon_damage.Maximized = true;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
         [ComponentName("Armor check penalty increase")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ArmorCheckPenaltyIncrease : RuleInitiatorLogicComponent<RuleCalculateArmorCheckPenalty>

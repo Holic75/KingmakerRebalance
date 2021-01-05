@@ -1350,6 +1350,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
                 new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 3),
                 new Common.SpellId( "d2cff9243a7ee804cb6d5be47af30c73", 3), //lightning bolt
+                new Common.SpellId( NewSpells.locate_weakness.AssetGuid, 3),
                 new Common.SpellId( NewSpells.pain_strike.AssetGuid, 3),
                 new Common.SpellId( "97b991256e43bb140b263c326f690ce2", 3), //rage
                 new Common.SpellId( NewSpells.ray_of_exhaustion.AssetGuid, 3),
