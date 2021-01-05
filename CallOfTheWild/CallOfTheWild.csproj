@@ -275,12 +275,14 @@
     <Compile Include="NewMechanics\BuffMechanics.cs" />
     <Compile Include="NewMechanics\ChargenMechanincs.cs" />
     <Compile Include="NewMechanics\CompanionMechanics.cs" />
+    <Compile Include="NewMechanics\ConcentrationMechanics.cs" />
     <Compile Include="NewMechanics\DemoralizeMechanics.cs" />
     <Compile Include="NewMechanics\FlankingMechanics.cs" />
     <Compile Include="NewMechanics\FlatFootedMechanics.cs" />
     <Compile Include="NewMechanics\ImplementMechanics.cs" />
     <Compile Include="NewMechanics\IncorporealMechanics.cs" />
     <Compile Include="NewMechanics\InsinuatorMechanics.cs" />
+    <Compile Include="NewMechanics\InvulnerabilityMechanics.cs" />
     <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\LocalPoolMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />

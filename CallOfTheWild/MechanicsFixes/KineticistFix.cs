@@ -1361,68 +1361,6 @@ namespace CallOfTheWild
     }
 
 
-    //fix concentration checks for kineticist
-    [Harmony12.HarmonyPatch(typeof(RuleCheckConcentration))]
-    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-    class RuleCheckConcentration__OnTrigger__Patch
-    {
-        static bool Prefix(RuleCheckConcentration __instance, RulebookEventContext context)
-        {
-            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
-            {
-                return true;
-            }
-            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
-            if (kineticist_part == null)
-            {
-                return true;
-            }
-
-            var tr = Harmony12.Traverse.Create(__instance);
-            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
-            var ability_params = rule.Result;
-
-            tr.Property("DC").SetValue(__instance.Damage == null ? 15 + ability_params.SpellLevel : 10 + ability_params.SpellLevel + __instance.Damage.Damage / 2);
-
-            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
-            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
-            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
-            return false;
-        }
-    }
-
-
-    //fix concentration checks for kineticist
-    [Harmony12.HarmonyPatch(typeof(RuleCheckCastingDefensively))]
-    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-    class RuleCheckCastingDefensively__OnTrigger__Patch
-    {
-        static bool Prefix(RuleCheckCastingDefensively __instance, RulebookEventContext context)
-        {
-            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
-            {
-                return true;
-            }
-            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
-            if (kineticist_part == null)
-            {
-                return true;
-            }
-
-            var tr = Harmony12.Traverse.Create(__instance);
-            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
-            var ability_params = rule.Result;
-
-            tr.Property("DC").SetValue(15 + ability_params.SpellLevel * 2);
-
-            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
-            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
-            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
-            return false;
-        }
-    }
-
-
     //fix addAreaDamageTrigger to account for descriptors of ability that provoked it (for (greater) elemental fcous feat)
     [Harmony12.HarmonyPatch(typeof(AddAreaDamageTrigger))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]

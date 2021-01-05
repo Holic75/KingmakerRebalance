@@ -1631,6 +1631,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "970c6db48ff0c6f43afc9dbb48780d03", 2), //summon small elemental
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
+                new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 2),
 
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement

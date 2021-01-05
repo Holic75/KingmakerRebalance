@@ -71,7 +71,7 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersTouchHarmful();
             var ability_cast = Helpers.CreateTouchSpellCast(ability, resource);
             addFocusInvestmentCheck(ability, SpellSchool.Illusion);
-            return Common.AbilityToFeature(ability, false);
+            return Common.AbilityToFeature(ability_cast, false);
         }
 
 

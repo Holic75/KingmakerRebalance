@@ -121,6 +121,45 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createGlobeOfNegation()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png");
+
+            var buff = Helpers.CreateBuff(prefix + "GlobeOfNegationBuff",
+                                          "Globe of Negation",
+                                          "As a standard action, you can expend 3 points of mental focus to create a mobile globe of negation. This globe surrounds yourself and cancels any spell effect that is cast into or through its area. This functions as globe of invulnerability, but it affects spells of any level. The globe can negate a total number of spell levels equal to your occultist level, after which the globe collapses.\n"
+                                          + "You must be at least 11th level to select this focus power.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<InvulnerabilityMechanics.SpellLevelsImmunity>(i => i.spell_levels = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          createClassScalingConfig()
+                                          );
+
+            var ability = Helpers.CreateAbility(prefix + "GlobeOfNegationAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.SpellLike,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                "Until the globe collapses",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true)),
+                                                resource.CreateResourceLogic(amount: 3),
+                                                Common.createAbilitySpawnFx("8475ed069cfb5ed4daedd2945d9d7555", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Helpers.CreateSpellComponent(SpellSchool.Abjuration)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            addFocusInvestmentCheck(ability, SpellSchool.Abjuration);
+
+            var feature =  Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 11);
+            return feature;
+        }
+
+
         public BlueprintFeature createAegis()
         {
             var group = ActivatableAbilityGroupExtension.AegisImplement.ToActivatableAbilityGroup();
@@ -257,6 +296,9 @@ namespace CallOfTheWild
 
             return add_enchants[0];
         }
+
+
+
 
 
         public BlueprintBuff createWardingTalisman()

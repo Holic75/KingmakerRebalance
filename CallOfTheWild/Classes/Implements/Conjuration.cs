@@ -179,6 +179,7 @@ namespace CallOfTheWild
                                           Helpers.GetIcon("38155ca9e4055bb48a89240a2055dcc3"), //augment summoning
                                           null,
                                           Helpers.Create<NewMechanics.AddContextValueToSummonDuration>(a => a.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.Create<OnCastMechanics.IncreaseBuffDurationForSchool>(i => { i.value = Helpers.CreateContextValue(AbilityRankType.Default); i.school = SpellSchool.Conjuration;  }),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 2,
                                                                           customProperty: property)                                        
                                           );

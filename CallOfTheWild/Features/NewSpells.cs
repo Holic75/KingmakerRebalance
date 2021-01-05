@@ -281,7 +281,9 @@ namespace CallOfTheWild
         static public BlueprintAbility smite_abomination;
 
         static public BlueprintAbility corrosive_consumption;
-        
+        static public BlueprintAbility warding_weapon;
+        static public BlueprintAbility globe_of_invulnerability;
+        static public BlueprintAbility globe_of_invulnerability_lesser;
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -480,6 +482,101 @@ namespace CallOfTheWild
             SpiritualWeapons.load();
 
             createCorrosiveConsumption();
+            createWardingWeapon();
+            createGlobeOfInvulnerability();
+        }
+
+
+        static void createGlobeOfInvulnerability()
+        {
+            var buff_lesser = Helpers.CreateBuff("GlobeOfInvulnerabilityLesserBuff",
+                                                  "Globe of Invulnerability, Lesser",
+                                                  "An immobile, faintly shimmering magical sphere surrounds you and excludes all spell effects of 3rd level or lower. The area or effect of any such spells does not include the area of the lesser globe of invulnerability. Such spells fail to affect any target located within the globe. Excluded effects include spell-like abilities and spells or spell-like effects from items. Any type of spell, however, can be cast through or out of the magical globe. Spells of 4th level and higher are not affected by the globe, nor are spells already in effect when the globe is cast. The globe can be brought down by a dispel magic spell. You can leave and return to the globe without penalty.",
+                                                  "",
+                                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                                  null,
+                                                  Helpers.Create<InvulnerabilityMechanics.ImmunityUpToSpellLevel>(i => i.max_spell_level = 3)
+                                                  );
+            var buff = Helpers.CreateBuff("GlobeOfInvulnerabilityBuff",
+                                          "Globe of Invulnerability",
+                                          "This spell functions like lesser globe of invulnerability, except that it also excludes 4th-level spells and spell-like effects.\n"
+                                          + buff_lesser.Name + ": " + buff_lesser.Description,
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png"),
+                                          null,
+                                          Helpers.Create<InvulnerabilityMechanics.ImmunityUpToSpellLevel>(i => i.max_spell_level = 4)
+                                          );
+            var buffs = new BlueprintBuff[] {buff_lesser, buff };
+            var abilities = new BlueprintAbility[2];
+
+            for (int i = 0; i < buffs.Length; i++)
+            {
+                var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buffs[i].name + "Area", "");
+                area.Fx = Common.createPrefabLink("cda35ba5c34a61b499f5858eabcedec7");
+                area.ReplaceComponent<AbilityAreaEffectBuff>(a =>
+                {
+                    a.Buff = buffs[i];
+                    a.Condition = Helpers.CreateConditionsCheckerAnd();
+                });
+
+                abilities[i] = Helpers.CreateAbility(buffs[i].name + "Ability",
+                                                     buffs[i].Name,
+                                                     buffs[i].Description,
+                                                     "",
+                                                     buffs[i].Icon,
+                                                     AbilityType.Spell,
+                                                     UnitCommand.CommandType.Standard,
+                                                     AbilityRange.Personal,
+                                                     Helpers.roundsPerLevelDuration,
+                                                     "",
+                                                     Helpers.CreateRunActions(Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                     Helpers.CreateContextRankConfig(),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                     Common.createAbilityAoERadius(13.Feet(), TargetType.Any)
+                                                     );
+                abilities[i].setMiscAbilityParametersSelfOnly();
+                abilities[i].AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten;
+            }
+
+            globe_of_invulnerability_lesser = abilities[0];
+            globe_of_invulnerability = abilities[1];
+            globe_of_invulnerability.AddToSpellList(Helpers.wizardSpellList, 6);
+            globe_of_invulnerability_lesser.AddToSpellList(Helpers.wizardSpellList, 4);
+            globe_of_invulnerability.AddSpellAndScroll("59110d30bb15dcd4d89f762b6aa9db9b"); //protection from chaos
+            globe_of_invulnerability_lesser.AddSpellAndScroll("59110d30bb15dcd4d89f762b6aa9db9b"); //protection from chaos
+        }
+
+        static void createWardingWeapon()
+        {
+            var buff = Helpers.CreateBuff("WardingWeaponBuff",
+                                          "Warding Weapon",
+                                          "The focus of this spell flies upward above your head and takes a defensive position within your space. It lunges at opponents, as if guided by a martially trained hand, parrying and turning back melee attacks aimed at you, but does not strike back at any opponent nor does it damage them. The weapon serves only as a defense. While it protects you, you can cast spells without provoking attacks of opportunity, without the need to cast them defensively.",
+                                          "",
+                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/WardingWeapon.png"),
+                                          null,
+                                          Helpers.Create<ConcentrationMechanics.DoNotProvokeAooOnSpellCast>()
+                                          );
+
+            warding_weapon = Helpers.CreateAbility("WardingWeaponAbility",
+                                                   buff.Name,
+                                                   buff.Description,
+                                                   "",
+                                                   buff.Icon,
+                                                   AbilityType.Spell,
+                                                   UnitCommand.CommandType.Standard,
+                                                   AbilityRange.Personal,
+                                                   Helpers.roundsPerLevelDuration,
+                                                   "",
+                                                   Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                   Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                   Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                   Helpers.CreateContextRankConfig()
+                                                   );
+            warding_weapon.AvailableMetamagic = Metamagic.Extend | Metamagic.Quicken | Metamagic.Heighten;
+            warding_weapon.setMiscAbilityParametersSelfOnly();
+            warding_weapon.AddToSpellList(Helpers.wizardSpellList, 2);
+            warding_weapon.AddToSpellList(Helpers.magusSpellList, 1);
+            warding_weapon.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
         }
 
 

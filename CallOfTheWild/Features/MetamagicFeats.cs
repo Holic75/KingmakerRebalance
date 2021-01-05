@@ -931,7 +931,7 @@ namespace CallOfTheWild
                 {
                     return true;
                 }
-
+                
                 if (!context.MaybeCaster.IsEnemy(__instance.Owner.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
                 {
                     __result = true;
@@ -956,7 +956,7 @@ namespace CallOfTheWild
                 {
                     return true;
                 }
-
+                
                 if (!context.MaybeCaster.IsEnemy(target.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
                 {
                     return false;

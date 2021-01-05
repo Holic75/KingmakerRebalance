@@ -657,6 +657,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.touch_of_blood_letting.AssetGuid, 1),
                 new Common.SpellId( "ad10bfec6d7ae8b47870e3a545cc8900", 1), //touch of gracelessness
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike
+                new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 1),
 
                 new Common.SpellId( "9a46dfd390f943647ab4395fc997936d", 2), //acid arrow
                 new Common.SpellId( "a900628aea19aa74aad0ece0e65d091a", 2), //bear's endurance

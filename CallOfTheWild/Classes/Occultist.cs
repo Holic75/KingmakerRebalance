@@ -151,7 +151,7 @@ namespace CallOfTheWild
             /*abjuration: warding talisman -> mind barrier x
                 aegis (as swift action for 2 pts ?) 1
                 energy shield 3
-                globe of negation ?
+                globe of negation
                 unravelling lvl 5
             conjuration: casting focus -> servitor x
                 flesh mend 3
@@ -212,7 +212,7 @@ namespace CallOfTheWild
             createMentalFocus();
             createImplements();
             createFocusPowers();
-            //createRepowerConstruct();
+            createRepowerConstruct();
             createImplementMastery();
 
 
@@ -237,7 +237,7 @@ namespace CallOfTheWild
                                                                     Helpers.LevelEntry(5, focus_power_selection),
                                                                     Helpers.LevelEntry(6, implement_selection),
                                                                     Helpers.LevelEntry(7, focus_power_selection),
-                                                                    Helpers.LevelEntry(8/*, repower_construct*/),
+                                                                    Helpers.LevelEntry(8, repower_construct),
                                                                     Helpers.LevelEntry(9, focus_power_selection),
                                                                     Helpers.LevelEntry(10, implement_selection),
                                                                     Helpers.LevelEntry(11, focus_power_selection),
@@ -256,8 +256,51 @@ namespace CallOfTheWild
                                                                                      occultist_knacks, mental_focus};
             occultist_progression.UIGroups = new UIGroup[] {Helpers.CreateUIGroup(first_implement_selection, implement_selection),
                                                             Helpers.CreateUIGroup(focus_power_selection),
-                                                            Helpers.CreateUIGroup(magic_item_skill, /*repower_construct,*/ implement_mastery)
+                                                            Helpers.CreateUIGroup(magic_item_skill, repower_construct, implement_mastery)
                                                            };
+        }
+
+
+        static void createRepowerConstruct()
+        {
+            var summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "RepowerConstructSummonPool", "");
+            var spawn_buff = library.Get<BlueprintBuff>("0dff842f06edace43baf8a2f44207045");
+            var effect1 = Helpers.Create<DeadTargetMechanics.ContextActionAnimateUnit>(c =>
+            {
+                c.AfterSpawn = Helpers.CreateActionList(Common.createContextActionApplyBuff(spawn_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true));
+                c.DurationValue = Helpers.CreateContextDuration(1, DurationRate.Rounds);
+                c.SummonPool = summon_pool;
+            });
+
+            var effect2 = effect1.CreateCopy(e => e.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
+            var effect3 = effect1.CreateCopy(e => e.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
+
+            var effect = Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.StatBonus),
+                                                                        effect1, effect2, effect3);
+            var ability = Helpers.CreateAbility("RepowerConstructAbility",
+                                                "Repower Construct",
+                                                "At 8th level, an occultist can use his mental focus to restore and gain control of a construct. As a swift action, he can expend one point of generic mental focus to animate a broken construct within 30 feet. The construct follows all of the occultist’s orders until the end of the occultists’s next turn or until reduced to 0 or fewer hit points. Afterwards, the construct is completely destroyed and cannot be repowered again, even by another occultist collector. At 12th level, the construct is instead completely destroyed after a number of rounds equal to occultist level. At 16th level, the construct is instead completely destroyed after a number of minutes equal to occultist level.",
+                                                "",
+                                                Helpers.GetIcon("be68c660b41bc9247bcab727b10d2cd1"), //defensive stance
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Medium,
+                                                "Varies",
+                                                "",
+                                                Helpers.CreateRunActions(effect),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOccultistArray(),
+                                                                                type: AbilityRankType.StatBonus,
+                                                                                progression: ContextRankProgression.StartPlusDivStep,
+                                                                                startLevel: 8, stepLevel: 4
+                                                                                ),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOccultistArray()),
+                                                Helpers.Create<DeadTargetMechanics.AbilityTargetCanBeAnimated>(a => { a.max_size = Size.Colossal; a.check_skeleton = false; }),
+                                                Common.createAbilityTargetHasFact(false, Common.construct),
+                                                mental_focus_resource[SpellSchool.Universalist].CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            repower_construct = Common.AbilityToFeature(ability, false);
         }
 
 
@@ -303,8 +346,8 @@ namespace CallOfTheWild
             {
                 {SpellSchool.Abjuration, new BlueprintFeature[]{implement_factories[SpellSchool.Abjuration].createAegis(),
                                                                 implement_factories[SpellSchool.Abjuration].createEnergyShield(),
-                                                                implement_factories[SpellSchool.Abjuration].createUnraveling()
-                                                                //globe of negation
+                                                                implement_factories[SpellSchool.Abjuration].createUnraveling(),
+                                                                implement_factories[SpellSchool.Abjuration].createGlobeOfNegation()
                                                                }
                 },
                 {SpellSchool.Conjuration, new BlueprintFeature[]{implement_factories[SpellSchool.Conjuration].createFleshMend(),
@@ -809,6 +852,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "ab395d2335d3f384e99dddee8562978f", 1), //shocking grasp
                 new Common.SpellId( "bb7ecad2d3d2c8247a38f44855c99061", 1), //sleep
                 new Common.SpellId( "f001c73999fb5a543a199f890108d936", 1), //vanish
+                new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 1),
+                new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike - to compensate for missing spells
 
                 new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
                 //alied cloak
@@ -826,8 +871,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
-                new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 3), //mirror image
+                new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
                 new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison
+                new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows - to compensate small number of spells
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
@@ -875,6 +921,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fire_shield.AssetGuid, 4),
                 new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
+                new Common.SpellId( NewSpells.globe_of_invulnerability_lesser.AssetGuid, 4),
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 4), //hold monster
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflcit critical wounds
@@ -917,6 +964,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "571221cc141bc21449ae96b3944652aa", 6), //cure moderate wounds
                 new Common.SpellId( "4aa7942c3e62a164387a73184bca3fc1", 6), //disintegrate
                 new Common.SpellId( NewSpells.freezing_sphere.AssetGuid, 6),
+                new Common.SpellId( NewSpells.globe_of_invulnerability.AssetGuid, 6),
                 new Common.SpellId( "cc09224ecc9af79449816c45bc5be218", 6), //harm
                 new Common.SpellId( "5da172c4c89f9eb4cbb614f3a67357d3", 6), //heal
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 6), //inflict moderate wounds mass
@@ -951,7 +999,6 @@ namespace CallOfTheWild
                                                  Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             occultist_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = occultist_spellbook));
             occultist_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
-            occultist_spellcasting.AddComponents(Helpers.CreateAddFacts(occultist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return occultist_spellbook;
         }
