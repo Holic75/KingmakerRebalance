@@ -109,7 +109,7 @@ namespace CallOfTheWild
         }
 
 
-        void addFocusInvestmentCheck(BlueprintAbility ability, SpellSchool school)
+        void addFocusInvestmentCheck(BlueprintAbility ability, params SpellSchool[] schools)
         {
             if (!check_invested_focus)
             {
@@ -118,18 +118,24 @@ namespace CallOfTheWild
             var abilities = ability.HasVariants ? ability.Variants : new BlueprintAbility[] {ability};
             foreach (var a in abilities)
             {
-                a.AddComponent(Helpers.Create<ImplementMechanics.AbilityCasterInvestedFocus>(ab => ab.school = school));
+                foreach (var s in schools)
+                {
+                    a.AddComponent(Helpers.Create<ImplementMechanics.AbilityCasterInvestedFocus>(ab => ab.school = s));
+                }
             }
         }
 
 
-        void addFocusInvestmentCheck(BlueprintActivatableAbility ability, SpellSchool school)
+        void addFocusInvestmentCheck(BlueprintActivatableAbility ability, params SpellSchool[] schools)
         {
             if (!check_invested_focus)
             {
                 return;
             }
-            ability.AddComponent(Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => r.school = school));
+            foreach (var s in schools)
+            {
+                ability.AddComponent(Helpers.Create<ImplementMechanics.RestrictionInvestedFocus>(r => r.school = s));
+            }
         }
     }
 }

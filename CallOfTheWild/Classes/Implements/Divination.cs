@@ -28,6 +28,18 @@ namespace CallOfTheWild
 {
     public partial class ImplementsEngine
     {
+        public BlueprintFeature createDivinersFortune()
+        {
+            var diviners_fortune = library.CopyAndAdd<BlueprintAbility>("0d10ea99df0b06249823c760c46029b4", prefix + "DivinersFortuneAbility", "");
+            diviners_fortune.ReplaceComponent<ContextRankConfig>(createClassScalingConfig(progression: ContextRankProgression.Div2, min: 1));
+            diviners_fortune.SetDescription("You can expend 1 point of mental focus and touch any creature as a standard action to give it an insight bonus on all of its attack rolls, skill checks, ability checks, and saving throws equal to 1/2 your occultist level (minimum + 1) for 1 round.");
+            var cast_ability = Helpers.CreateTouchSpellCast(diviners_fortune, resource);       
+            var feature = Common.AbilityToFeature(cast_ability, false);
+            addFocusInvestmentCheck(cast_ability, SpellSchool.Divination);
+            return feature;
+        }
+        
+
         public BlueprintFeature createSuddenInsight()
         {
             var guidance_buff = library.Get<BlueprintBuff>("ec931b882e806ce42906597e5585c13f");

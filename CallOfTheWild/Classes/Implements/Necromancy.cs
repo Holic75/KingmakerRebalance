@@ -335,7 +335,7 @@ namespace CallOfTheWild
                                           }
                                           ),
                                           Helpers.Create<DeadTargetMechanics.IncreaseMaxUndeadHD>(i => i.value = Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
-                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.AsIs,
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.DivStep, stepLevel: 4,
                                                                           customProperty: property),
                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, ContextRankProgression.MultiplyByModifier, type: AbilityRankType.DamageBonus,
                                                                           customProperty: property, stepLevel: 2)                                          

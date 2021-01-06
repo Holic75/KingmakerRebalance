@@ -72,6 +72,8 @@ namespace CallOfTheWild
             AegisImplement,
             LegacyWeaponImplement,
             PhysicalEnhancementResonantPower,
+            MetamagicMaster,
+            SpellPower,
 
         }
 

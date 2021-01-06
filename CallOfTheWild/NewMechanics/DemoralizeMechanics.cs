@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
@@ -96,7 +97,6 @@ namespace CallOfTheWild.DemoralizeMechanics
     class ScopedDemoralizeActions : BlueprintComponent
     {
         public ActionList actions;
-
     }
 
 
@@ -120,12 +120,34 @@ namespace CallOfTheWild.DemoralizeMechanics
                 return;
             }
 
+            var spell_descriptors_to_add = new SpellDescriptor[]
+            {
+                SpellDescriptor.MindAffecting,
+                SpellDescriptor.Fear
+            };
+
+            for (int i = 0; i < spell_descriptors_to_add.Length; i++)
+            {
+                if ((context.SpellDescriptor & spell_descriptors_to_add[i]) > 0)
+                {
+                    spell_descriptors_to_add[i] = SpellDescriptor.None;
+                }
+            }
+
             RuleSavingThrow saving_throw = new RuleSavingThrow(target, SavingThrowType.Will, 10 + intimidate_value);
             context.TriggerRule(saving_throw);
+
+            foreach (var sd in spell_descriptors_to_add)
+            {
+                if (sd != SpellDescriptor.None)
+                {
+                    context.RemoveSpellDescriptor(sd);
+                }
+            }
             if (saving_throw.IsPassed)
             {
                 return;
-            }
+            }         
 
             int duration = intimidate_value < upgrade_value ? 1 : RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D4));
             target.Descriptor.AddBuff(frightened_buff, context, new TimeSpan?(duration.Rounds().Seconds));
@@ -133,7 +155,6 @@ namespace CallOfTheWild.DemoralizeMechanics
     }
 
 
-    //consider summons as allies
     [Harmony12.HarmonyPatch(typeof(Demoralize))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
     class Demoralize_RunAction_Patch

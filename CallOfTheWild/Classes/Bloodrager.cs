@@ -2124,7 +2124,6 @@ namespace CallOfTheWild
                 resource.SetIncreasedByLevelStartPlusDivStep(0, 8, 2, 4, 1, 0, 0.0f, getBloodragerArray());
 
                 var reroll = Helpers.Create<NewMechanics.ModifyD20WithActions>();
-                reroll.DispellOnRerollFinished = true;
                 reroll.Rule = NewMechanics.ModifyD20WithActions.RuleType.AttackRoll;
                 reroll.RollsAmount = 1;
                 reroll.TakeBest = true;
@@ -2147,7 +2146,7 @@ namespace CallOfTheWild
                 certain_strike_ability.ActionType = CommandType.Free;
                 certain_strike_ability.ComponentsArray = new BlueprintComponent[] {Helpers.CreateRunActions(Common.createContextActionApplyBuff(certain_strike_buff,
                                                                                                                                                 Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds),
-                                                                                                                                                is_child: true,
+                                                                                                                                                is_child: false,
                                                                                                                                                 dispellable: false
                                                                                                                                                 )
                                                                                                            ),
@@ -2164,7 +2163,8 @@ namespace CallOfTheWild
                                                               AbilityActivationType.Immediately,
                                                               CommandType.Free,
                                                               null,
-                                                              Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.Never));
+                                                              Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                                              Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => r.resource = resource));
                 toggle.DeactivateImmediately = true;
 
                 addBloodrageRestriction(certain_strike_ability);
@@ -3153,7 +3153,7 @@ namespace CallOfTheWild
                 mr.Metamagic = metamagic;
                 mr.resource = bloodrage_resource;
                 var buff = Helpers.CreateBuff(m.name + "MetaRageBuff",
-                                              m.Name.Replace("Metamagic", "Meta-Rage"),
+                                              "Meta - Rage: " + m.Name,
                                               m.Description,
                                               "",
                                               m.Icon,

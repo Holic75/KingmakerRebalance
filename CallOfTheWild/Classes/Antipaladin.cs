@@ -409,7 +409,7 @@ namespace CallOfTheWild
 
             dark_emissary[0].AddComponents(Helpers.CreateAddFact(ability),
                                            resource.CreateAddAbilityResource(),
-                                           Helpers.Create<ResourceMechanics.ConnectResource>(c => { c.base_resource = resource; c.connected_resource = touch_of_corruption_resource; })
+                                           Helpers.Create<ResourceMechanics.ConnectResource>(c => { c.base_resource = resource; c.connected_resources = new BlueprintAbilityResource[] { touch_of_corruption_resource }; })
                                            );
         }
 

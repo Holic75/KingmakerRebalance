@@ -192,14 +192,16 @@ namespace CallOfTheWild
                 size alteration (enlarge reduce without limitation) 1
                 sudden speed  1
 
-            trappings of the warrior: martial skill -> combat feat (?) 
+            trappings of the warrior: martial skill -> free combat feat (-2 pts)
                 counterstrike
                 warrior's resilence (?)
-                shield ally
-            mage's paraphernalia: scholarly knowledge -> inspiration (convert any spell to wizard divination/evocation/necromancy spell of that level for 1 pt)
-                metamagic knowledge
-                metamagic master
+                shield ally (?)
+            mage's paraphernalia: scholarly knowledge -> inspiration (convert any spell to wizard divination/evocation/necromancy spell of that level for 1 pt /spell level )
+                metamagic knowledge - free metamagic feat (-2 pts)
+                metamagic master 
                 spell power
+            saint's holy regalia: font of healing -> restoring touch
+                guardian aura
             */
 
             //repower construct to replace binding circles
@@ -356,7 +358,8 @@ namespace CallOfTheWild
                                                                  implement_factories[SpellSchool.Conjuration].createSideStep()
                                                                 }
                 },
-                {SpellSchool.Divination, new BlueprintFeature[]{implement_factories[SpellSchool.Divination].createDangerSight(),
+                {SpellSchool.Divination, new BlueprintFeature[]{implement_factories[SpellSchool.Divination].createDivinersFortune(),
+                                                                implement_factories[SpellSchool.Divination].createDangerSight(),
                                                                 implement_factories[SpellSchool.Divination].createInAccordanceWithProphecy(),
                                                                 //mind eye
                                                                }
