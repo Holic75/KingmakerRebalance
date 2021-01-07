@@ -22,12 +22,13 @@ namespace CallOfTheWild.LocalPoolMechanics
         public ContextValue value;
         public bool remove_when_empty = true;
         public int min_value;
+        public int multiplier = 1;
         [JsonProperty]
         private int remaining_value;
 
         public override void OnFactActivate()
         {
-            remaining_value = value.Calculate(this.Fact.MaybeContext);
+            remaining_value = value.Calculate(this.Fact.MaybeContext) * multiplier;
         }
 
         public override void OnFactDeactivate()
@@ -60,10 +61,8 @@ namespace CallOfTheWild.LocalPoolMechanics
 
     [AllowedOn(typeof(BlueprintBuff))]
     [AllowMultipleComponents]
-    public class AddDamageProtectionEnergyFromLocalPool : AddDamageResistanceBase
+    public class AddDamageProtectionEnergyFromLocalPool : AddDamageResistanceEnergy
     {
-        public DamageEnergyType Type;
-
         public override int GetValue()
         {
             int pool = 0;
@@ -77,6 +76,7 @@ namespace CallOfTheWild.LocalPoolMechanics
         {
             this.Fact.CallComponents<BuffLocalPool>(c => c.updatePool(-Math.Min(c.getRemainingPool(), damage)));
         }
+
 
         public override bool Bypassed(BaseDamage damage, ItemEntityWeapon weapon)
         {

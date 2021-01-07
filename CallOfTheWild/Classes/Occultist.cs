@@ -85,9 +85,15 @@ namespace CallOfTheWild
 
         static public BlueprintBuff locked_focus_buff;
 
-        static public SpellSchool trappings_of_the_warrior => (SpellSchool)101;
-        static public SpellSchool mages_paraphernalia => (SpellSchool)102;
-        static public SpellSchool saints_holy_regalia => (SpellSchool)103;
+        static public BlueprintArchetype battle_host;
+        static public BlueprintArchetype reliquarian;
+        static public BlueprintArchetype silksworn;
+        static public BlueprintFeature spirit_warrior;
+        static public BlueprintFeature heroic_splendor;
+        static public BlueprintAbilityResource spirit_warrior_resource;
+        static public BlueprintAbilityResource heroic_splendor_resource;
+        static public BlueprintFeatureSelection bonus_feats;
+        static public BlueprintFeature battle_host_proficiencies;
 
         enum Panoply
         {
@@ -209,8 +215,116 @@ namespace CallOfTheWild
 
             createOccultistProgression();
             occultist_class.Progression = occultist_progression;
-            occultist_class.Archetypes = new BlueprintArchetype[] { };//battle host, silksworn, reliquarian, haunt collector, panoply savant? necrocultist?
+            createBattleHost();
+            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
             Helpers.RegisterClass(occultist_class);
+        }
+
+
+        static void createBattleHost()
+        {
+            createSpiritWarrior();
+            createHeroicSplendor();
+            createBattleHostBonusFeats();
+            battle_host_proficiencies = library.CopyAndAdd<BlueprintFeature>("a23591cc77086494ba20880f87e73970", "BattleHostProficiencies", "");
+            battle_host_proficiencies.SetNameDescription("Battle Host Proficiencies",
+                                                         "Well versed in military history, battlefield lore, and the occult, a battle host forms a supernatural bond with a chosen weapon, suit of armor, or shield, from which he can channel psychic energy to cast spells, conjure the spirit of the object’s former owner, increase his own physical might, and produce a number of other remarkable abilities.");
+
+            battle_host = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "BattleHostArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Battle Host");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some antipaladins serve or ally themselves with villains who are bent on earthly conquest. They care nothing for the intricacies of divine spellcasting, but malevolent energy still surrounds them. Whether alone or at the head of a marauding host, these cruel warriors bring suffering and death—but their presence also heralds the coming of a greater evil.");
+            });
+            Helpers.SetField(battle_host, "m_ParentClass", occultist_class);
+            library.AddAsset(battle_host, "");
+
+            battle_host.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, implement_selection, occultist_proficiencies),
+                                                           Helpers.LevelEntry(2, magic_item_skill),
+                                                           Helpers.LevelEntry(6, implement_selection),
+                                                           Helpers.LevelEntry(8, repower_construct),
+                                                           Helpers.LevelEntry(14, implement_selection),
+                                                          };
+
+            battle_host.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, battle_host_proficiencies),
+                                                       Helpers.LevelEntry(4, bonus_feats),
+                                                       Helpers.LevelEntry(5, spirit_warrior),
+                                                       Helpers.LevelEntry(6, heroic_splendor),
+                                                       Helpers.LevelEntry(8, bonus_feats),
+                                                       Helpers.LevelEntry(12, bonus_feats),
+                                                       Helpers.LevelEntry(16, bonus_feats)
+                                                      };
+
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(bonus_feats));
+            occultist_progression.UIGroups[2].Features.Add(spirit_warrior);
+            occultist_progression.UIGroups[2].Features.Add(heroic_splendor);
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(battle_host_proficiencies);
+        }
+
+
+        static void createBattleHostBonusFeats()
+        {
+            bonus_feats = library.CopyAndAdd<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f", "BattleHostBonusFeatsSelection", "");
+            bonus_feats.SetNameDescription("Bonus Feats",
+                                           "At 4th, 8th, 12th, and 16th levels, a battle host gains a bonus feat in addition to those gained from normal advancement. These bonus feats must be selected from those listed as combat feats. The battle host must meet the prerequisites of these bonus feats.");
+        }
+
+
+        static void createSpiritWarrior()
+        {
+            spirit_warrior_resource = Helpers.CreateAbilityResource("SpiritWarriorResource", "", "", "", null);
+            spirit_warrior_resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 4, 1, 0, 0.0f, getOccultistArray());
+            var ability = Common.convertToSuperNatural(SpiritualWeapons.spiritual_ally, "BattleHost", getOccultistArray(), StatType.Intelligence, spirit_warrior_resource);
+            ability.SetNameDescription("Spirit Warrior",
+                                       "At 5th level, a battle host can call forth the spirit of a dead warrior who once owned one of  his bonded items. Calling the spirit is a standard action. This ability functions as spiritual ally, using the battle host’s occultist level as his caster level and his Intelligence modifier instead of his Wisdom modifier to determine the spell’s effects. The battle host can summon a spirit warrior once per day at 5th level, plus one additional time per day for every 4 occultist levels he possesses beyond 5th.\n"
+                                       + ability.Name + ": " + ability.Description);
+
+            spirit_warrior = Common.AbilityToFeature(ability, false);
+            spirit_warrior.AddComponent(spirit_warrior_resource.CreateAddAbilityResource());
+        }
+
+
+        static void createHeroicSplendor()
+        {
+            heroic_splendor_resource = Helpers.CreateAbilityResource("HeroicSplendorResourceResource", "", "", "", null);
+            heroic_splendor_resource.SetIncreasedByLevelStartPlusDivStep(1, 10, 1, 4, 1, 0, 0.0f, getOccultistArray());
+            StatType[] stats = new StatType[] { StatType.Strength, StatType.Dexterity, StatType.Constitution };
+            var abilities = new List<BlueprintAbility>();
+            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
+
+            foreach (var s in stats)
+            {
+                var buff = Helpers.CreateBuff(s.ToString() + "HeroicSplendorBuff",
+                                              "Heroic Splendor: " + s.ToString(),
+                                              "At 6th level, a battle host can draw power from one of his bonded items to imbue himself with superhuman strength, agility, or resilience. As a swift action, a battle host can grant himself a +4 insight bonus to Strength, Dexterity, or Constitution for 1 minute. The battle host can use this ability once per day at 6th level, plus one additional time per day for every 4 occultist levels he possesses beyond 6th. If he activates heroic splendor again before the duration expires, the new use of heroic splendor replaces the old use.",
+                                              "",
+                                              Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"), //divine power
+                                              Common.createPrefabLink("0c07afb9ee854184cb5110891324e3ad"),
+                                              Helpers.CreateAddStatBonus(s, 4, ModifierDescriptor.Insight)
+                                              );
+                remove_buffs.Buffs = remove_buffs.Buffs.AddToArray(buff);
+                var ability = Helpers.CreateAbility(s.ToString() + "HeroicSplendorAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Swift,
+                                                    AbilityRange.Personal,
+                                                    Helpers.oneMinuteDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(remove_buffs, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                    Common.createAbilitySpawnFx("0c07afb9ee854184cb5110891324e3ad", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    heroic_splendor_resource.CreateResourceLogic()
+                                                    );
+                ability.setMiscAbilityParametersSelfOnly();
+                abilities.Add(ability);
+            }
+
+            var wrapper = Common.createVariantWrapper("HeroicSplendorAbilityBase", "", abilities.ToArray());
+            wrapper.SetName("Heroic Splendor");
+            heroic_splendor = Common.AbilityToFeature(wrapper, false);
+            heroic_splendor.AddComponent(heroic_splendor_resource.CreateAddAbilityResource());
         }
 
 
@@ -221,66 +335,6 @@ namespace CallOfTheWild
 
         static void createOccultistProgression()
         {
-            /*abjuration: warding talisman -> mind barrier x
-                aegis (as swift action for 2 pts ?) 1
-                energy shield 3
-                globe of negation
-                unravelling lvl 5
-            conjuration: casting focus -> servitor x
-                flesh mend 3
-                psychic fog 1
-                purge corruption 5
-                side step 7
-            divination: third eye -> sudden insight x
-                danger sight 1
-                mind eye 5 TODO 
-                in accordance with prophecy 9
-                ?
-            enchantment: glorious presence -> cloud mind x
-                binding pattern 7
-                inspired assault 1
-                obey 1
-                ?
-            evocation: intense focus -> energy ray x
-                energy blast: ((1d6 +2)/2 levels) 5
-                energy ward ?
-                light matrix ?
-                radiance 1
-                wall of power 9
-            illusion: distortion (1% or miss chance on any attack, ignored with true sight) -> color beam (as blinding ray) x           
-                shadow beast 9
-                unseen - greater invisibility for 1 minute 7
-                bedeveling aura (1 round/2 levels) 9
-                terror  1
-            necromancy: necromantic focus - > mind fear x
-                flesh rot 3
-                necromantic servant 3
-                soulbound puppet 1
-                pain wave 7
-                spirit shroud 3
-            transmuation: physical enchancement -> legacy weapon x
-                mind over gravity (fly + 30 speed bonus) 7
-                philosopher's touch 1
-                quickness (haste + 1/6 levels) 5
-                size alteration (enlarge reduce without limitation) 1
-                sudden speed  1
-
-            trappings of the warrior: martial skill -> free combat feat (-2 pts)
-                counterstrike
-                warrior's resilence (?)
-                shield ally (?)
-            mage's paraphernalia: scholarly knowledge -> inspiration (convert any spell to wizard divination/evocation/necromancy spell of that level for 1 pt /spell level )
-                metamagic knowledge - free metamagic feat (-2 pts)
-                metamagic master 
-                spell power
-            saint's holy regalia: font of healing -> restoring touch
-                guardian aura
-            */
-
-            //repower construct to replace binding circles
-
-
-
             createKnacks();
             createProficiencies();
             createMagicItemSkill();
@@ -397,9 +451,10 @@ namespace CallOfTheWild
                                                     "",
                                                     implement_icons[kv.Key],
                                                     FeatureGroup.None,
-                                                    Helpers.Create<ImplementMechanics.BonusInvestedFocusPoints>(b => { b.school = kv.Key; b.value = 4; b.resource = mental_focus_resource[kv.Key]; }),
+                                                    Helpers.Create<ImplementMechanics.BonusInvestedFocusPoints>(b => { b.school = kv.Key; b.value = 4;}),
                                                     Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = kv.Value; a.value = 4; })
                                                     );
+                feature.AddComponent(Helpers.PrerequisiteFeature(base_implements[kv.Key]));
                 implement_mastery.AllFeatures = implement_mastery.AllFeatures.AddToArray(feature);
             }
         }
@@ -679,7 +734,7 @@ namespace CallOfTheWild
                     base_implements[s].AddComponent(Helpers.CreateAddFacts(toggles.ToArray()));
                 }
                 //var spell_selection = createSpellSelection(s);
-                var spells_to_pick = createCreateSpellSelectionArrays(getCorrepsondingSpellSchools(s));
+                //var spells_to_pick = createCreateSpellSelectionArrays(getCorrepsondingSpellSchools(s));
                 var spell_list = Common.combineSpellLists(s.ToString() + "OccultistSpellList",
                                           (spell, spelllist, lvl) =>
                                           {
@@ -688,21 +743,18 @@ namespace CallOfTheWild
                                           occultist_class.Spellbook.SpellList);
                 for (int i = 0; i < 6; i++)
                 {
-                    if (spells_to_pick[i].Item1)
+                    base_implements[s].AddComponent(Helpers.Create<NewMechanics.addClassSpellChoice>(a => 
                     {
-                        base_implements[s].AddComponent(Helpers.Create<NewMechanics.addSpellChoice>(a => 
-                        {
-                            a.spell_book = occultist_class.Spellbook;
-                            a.spell_level = i + 1;
-                            a.spell_list = spell_list;
-                        })
-                        );
-                    }
-                    if (spells_to_pick[i].Item2 && !isPanoply(s))
+                        a.character_class = occultist_class;
+                        a.spell_level = i + 1;
+                        a.spell_list = spell_list;
+                    })
+                    );
+                    if (!isPanoply(s))
                     {
-                        second_implements[s].AddComponent(Helpers.Create<NewMechanics.addSpellChoice>(a =>
+                        second_implements[s].AddComponent(Helpers.Create<NewMechanics.addClassSpellChoice>(a =>
                         {
-                            a.spell_book = occultist_class.Spellbook;
+                            a.character_class = occultist_class;
                             a.spell_level = i + 1;
                             a.spell_list = spell_list;
                         })

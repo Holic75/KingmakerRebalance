@@ -117,7 +117,7 @@ namespace CallOfTheWild
                                                          isAoE: true, halfIfSaved: true);
 
                 var ability = Helpers.CreateAbility(prefix + names[i] + "EnergyBlastAbility",
-                                                    "Energy Blast:" + names[i],
+                                                    "Energy Blast: " + names[i],
                                                     "As a standard action that provokes attacks of opportunity, you can expend 2 points of mental focus to unleash a blast of energy. This blast has a range of 60 feet, and deals 1d6+2 points of energy damage, plus an additional 1d6+2 points for every 2 occultist levels you possess beyond 1st (up to a maximum of 10d6+20 at 19th level). The blast deals damage to each creature in a 20-foot-radius burst, but each affected creature can attempt a Reflex save to halve the damage. When you unleash an energy blast, you must decide what type of damage it deals (acid, cold, electricity, or fire). You must be at least 5th level to select this focus power.",
                                                     "",
                                                     icons[i],

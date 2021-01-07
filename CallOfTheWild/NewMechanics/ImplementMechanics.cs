@@ -253,13 +253,12 @@ namespace CallOfTheWild.ImplementMechanics
             int val = amount.Calculate(this.Context);
 
             var unit_part_focus = unit.Get<UnitPartImplements>();
-            if (unit_part_focus == null || unit_part_focus.isLocked())
+            if (unit_part_focus != null && !unit_part_focus.isLocked())
             {
-                return;
+                unit_part_focus.investFocus(school, val);
             }
 
-            unit_part_focus.investFocus(school, val);
-
+           
             if (resource != null)
             {
                 unit.Descriptor.Resources.Restore(resource, val);
@@ -306,7 +305,7 @@ namespace CallOfTheWild.ImplementMechanics
     }
 
 
-    public class BonusInvestedFocusPoints : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+    public class BonusInvestedFocusPoints : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
         public int value;
         public SpellSchool school;
@@ -321,14 +320,6 @@ namespace CallOfTheWild.ImplementMechanics
         public override void OnFactDeactivate()
         {
             this.Owner.Ensure<UnitPartImplements>().removeinvestedFocusBonus(school, value);
-        }
-
-
-        public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
-        {
-            if (!this.Fact.Active || !((Object)resource == (Object)this.resource))
-                return;
-            bonus += value;
         }
     }
 

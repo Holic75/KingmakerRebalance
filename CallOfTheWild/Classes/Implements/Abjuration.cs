@@ -91,12 +91,13 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.Create<LocalPoolMechanics.BuffLocalPool>(b => b.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                          Helpers.Create<LocalPoolMechanics.BuffLocalPool>(b => { b.value = Helpers.CreateContextValue(AbilityRankType.Default); b.multiplier = 5; }),
                                           Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Acid),
                                           Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Electricity),
                                           Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Fire),
                                           Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Cold),
-                                          Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Sonic)
+                                          Helpers.Create<LocalPoolMechanics.AddDamageProtectionEnergyFromLocalPool>(a => a.Type = DamageEnergyType.Sonic),
+                                          createClassScalingConfig()
                                           );
 
             var ability = Helpers.CreateAbility(prefix + "EnergyShieldAbility",

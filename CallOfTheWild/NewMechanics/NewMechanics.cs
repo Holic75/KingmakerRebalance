@@ -7989,6 +7989,63 @@ namespace CallOfTheWild
         }
 
 
+        public class addClassSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+        {
+            [JsonProperty]
+            bool applied;
+            public BlueprintSpellList spell_list;
+            public int spell_level;
+            public BlueprintCharacterClass character_class;
+
+            public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+            {
+            }
+
+            public override void OnFactActivate()
+            {
+                var spell_book = this.Owner.GetSpellbook(character_class)?.Blueprint;              
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, 1 + existingNewSpells);
+                        applied = true;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+
+
+            public override void OnFactDeactivate()
+            {
+                var spell_book = this.Owner.GetSpellbook(character_class)?.Blueprint;
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, existingNewSpells - 1);
+                        applied = false;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+        }
+
+
 
         public class addSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
         {
