@@ -46,7 +46,7 @@ namespace CallOfTheWild
             for (int i = 0; i < 3; i++)
             {
                 var buff = Helpers.CreateBuff(prefix + $"SpellPowerFeature{i + 1}Buff",
-                                              $"SpellPowerFeature (+{2 + i})",
+                                              $"Spell Power (+{2 + i})",
                                               feature.Description,
                                               "",
                                               feature.Icon,
@@ -59,6 +59,7 @@ namespace CallOfTheWild
                                                  resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never)
                                                  );
                 toggle.AddComponent(Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = 2 + i; }));
+                addFocusInvestmentCheck(toggle, SpellSchool.Divination, SpellSchool.Evocation, SpellSchool.Necromancy);
                 toggle.Group = ActivatableAbilityGroupExtension.SpellPower.ToActivatableAbilityGroup();
 
                 if (i == 0)
@@ -89,7 +90,7 @@ namespace CallOfTheWild
                 var metamagic = m.GetComponent<Kingmaker.UnitLogic.FactLogic.AddMetamagicFeat>().Metamagic;
                 var cost = MetamagicHelper.DefaultCost(metamagic);
                 var buff = Helpers.CreateBuff(prefix + m.name + "MetamagicMasterBuff",
-                                              "Metamagic Master: " + feature.Name,
+                                              "Metamagic Master: " + m.Name,
                                               feature.Description + "\n" + m.Name + ": " + m.Description,
                                               "",
                                               m.Icon,
@@ -116,13 +117,14 @@ namespace CallOfTheWild
                 var feature1 = Common.ActivatableAbilityToFeature(toggle);
 
                 feature.AddComponent(Helpers.Create<NewMechanics.AddFeatureIfHasFactsFromList>(a => { a.Feature = feature1; a.CheckedFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { m }; }));
+                m.AddComponent(Helpers.Create<NewMechanics.AddFeatureIfHasFactsFromList>(a => { a.Feature = feature1; a.CheckedFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { feature }; }));
             }
       
             return feature;
         }
 
 
-        public BlueprintFeature MetamagicKnowledge(BlueprintAbilityResource reduced_resource)
+        public BlueprintFeature createMetamagicKnowledge(BlueprintAbilityResource reduced_resource)
         {
             var metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null)).ToArray();
             var feature = Helpers.CreateFeatureSelection(prefix + "MetamagicKnowledgeFeature",
@@ -145,12 +147,12 @@ namespace CallOfTheWild
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "MagesParaphernaliaFocusProperty", "",
                                                                                                   createClassScalingConfig(ContextRankProgression.MultiplyByModifier, stepLevel: 2),
                                                                                                   false,
-                                                                                                  SpellSchool.Divination, SpellSchool.Evocation, SpellSchool.Evocation);
+                                                                                                  SpellSchool.Divination, SpellSchool.Evocation, SpellSchool.Necromancy);
             var buff = Helpers.CreateBuff(prefix + "MagesParaphernaliaFocusBuff",
                                           "Scholarly Knowledge",
                                           "The panoply grants a +1 bonus on all Knowledge checks for every 4 points of total mental focus invested in all of the associated implements, to a maximum bonus equal to half the occultist’s level.",
                                           "",
-                                          Helpers.GetIcon("30f20e6f850519b48aa59e8c0ff66ae9"),
+                                          Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
                                           null,
                                           Helpers.CreateAddContextStatBonus(StatType.SkillLoreNature, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable),

@@ -322,7 +322,7 @@ namespace CallOfTheWild
                                                  createClassScalingConfig(ContextRankProgression.AsIs, AbilityRankType.DamageDiceAlternative),
                                                  Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
                                                  Helpers.CreateAbilityTargetsAround(20.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
-                                                 Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                                 Common.createAbilitySpawnFx("872f843a900d8f442896e5fdae6d44d1", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                  Helpers.CreateResourceLogic(resource),
                                                  Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(classes, getArchetypeArray(), stat)
                                                 );

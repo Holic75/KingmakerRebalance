@@ -3184,7 +3184,7 @@ namespace CallOfTheWild
 
             var consecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "ConsecrateArea", "");
             consecrate_area.Size = 20.Feet();
-            consecrate_area.Fx = Common.createPrefabLink("bbd6decdae32bce41ae8f06c6c5eb893"); //holy aoe
+            consecrate_area.Fx = Common.createPrefabLink("bbd6decdae32bce41ae8f06c6c5eb893"); //holy holy aoe
             consecrate_area.ComponentsArray = new BlueprintComponent[]
             {
                 Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = consecreate_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); }),

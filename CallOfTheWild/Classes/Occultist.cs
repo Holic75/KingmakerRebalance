@@ -85,6 +85,79 @@ namespace CallOfTheWild
 
         static public BlueprintBuff locked_focus_buff;
 
+        static public SpellSchool trappings_of_the_warrior => (SpellSchool)101;
+        static public SpellSchool mages_paraphernalia => (SpellSchool)102;
+        static public SpellSchool saints_holy_regalia => (SpellSchool)103;
+
+        enum Panoply
+        {
+            TrappingOfTheWarrior = 101,
+            MagesParaphernalia = 102,
+            SaintsRegalia = 103
+        }
+
+
+        static bool isPanoply(SpellSchool s)
+        {
+            return (int)s > 100;
+        }
+
+        static string getString(SpellSchool s)
+        {
+            if (!isPanoply(s))
+            {
+                return s.ToString();
+            }
+
+            var panoply = (Panoply)s;
+            return panoply.ToString();
+        }
+
+
+        static string getHumanString(SpellSchool s)
+        {
+            if (!isPanoply(s))
+            {
+                return s.ToString();
+            }
+
+            var panoply = (Panoply)s;
+            switch (panoply)
+            {
+                case Panoply.TrappingOfTheWarrior:
+                    return "Trappings of the Warrior";
+                case Panoply.MagesParaphernalia:
+                    return "Mage's Paraphernalia";
+                case Panoply.SaintsRegalia:
+                    return "Saint's Holy Regalia";
+                default:
+                    return "";
+            }
+        }
+
+
+        static SpellSchool[] getCorrepsondingSpellSchools(SpellSchool s)
+        {
+            if (!isPanoply(s))
+            {
+                return new SpellSchool[] { s };
+            }
+
+            var panoply = (Panoply)s;
+            switch (panoply)
+            {
+                case Panoply.TrappingOfTheWarrior:
+                    return new SpellSchool[] {SpellSchool.Abjuration, SpellSchool.Transmutation };
+                case Panoply.MagesParaphernalia:
+                    return new SpellSchool[] { SpellSchool.Divination, SpellSchool.Evocation, SpellSchool.Necromancy };
+                case Panoply.SaintsRegalia:
+                    return new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration };
+                default:
+                    return new SpellSchool[0];
+            }
+        }
+
+
         internal static void createOccultistClass()
         {
             Main.logger.Log("Occultist class test mode: " + test_mode.ToString());
@@ -395,6 +468,16 @@ namespace CallOfTheWild
                                                                 implement_factories[SpellSchool.Transmutation].createSuddenSpeed(),
                                                                 }
                 },
+                {(SpellSchool)Panoply.TrappingOfTheWarrior, new BlueprintFeature[]{implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createCombatTrick(mental_focus_resource[SpellSchool.Universalist]),
+                                                                                  }
+                },
+                {(SpellSchool)Panoply.MagesParaphernalia, new BlueprintFeature[]{implement_factories[(SpellSchool)Panoply.MagesParaphernalia].createMetamagicKnowledge(mental_focus_resource[SpellSchool.Universalist]),
+                                                                                 implement_factories[(SpellSchool)Panoply.MagesParaphernalia].createMetamagicMaster(occultist_class)
+                                                                                  }
+                },
+                {(SpellSchool)Panoply.SaintsRegalia, new BlueprintFeature[]{implement_factories[(SpellSchool)Panoply.SaintsRegalia].createGuardianAura()
+                                                                            }
+                },
             };
 
             foreach (var kv in implement_powers)
@@ -423,18 +506,28 @@ namespace CallOfTheWild
          
             //initialize implement engines
             var schools = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration, SpellSchool.Divination, SpellSchool.Enchantment,
-                                              SpellSchool.Evocation, SpellSchool.Illusion, SpellSchool.Necromancy, SpellSchool.Transmutation };
+                                              SpellSchool.Evocation, SpellSchool.Illusion, SpellSchool.Necromancy, SpellSchool.Transmutation,
+                                              (SpellSchool)Panoply.TrappingOfTheWarrior, (SpellSchool)Panoply.MagesParaphernalia, (SpellSchool)Panoply.SaintsRegalia};
 
             foreach (var s in schools)
             {
-                implement_mastery_classes[s] = library.CopyAndAdd(occultist_class, s.ToString() + occultist_class.name, "");
-                implement_mastery_classes[s].AddComponent(Helpers.Create<FakeClassLevelMechanics.FakeClass>());
-                implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s], 
-                                                              getOccultistArray().AddToArray(implement_mastery_classes[s]),
-                                                              StatType.Intelligence);
+                if (!isPanoply(s))
+                {
+                    implement_mastery_classes[s] = library.CopyAndAdd(occultist_class, s.ToString() + occultist_class.name, "");
+                    implement_mastery_classes[s].AddComponent(Helpers.Create<FakeClassLevelMechanics.FakeClass>());
+                    implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s],
+                                              getOccultistArray().AddToArray(implement_mastery_classes[s]),
+                                              StatType.Intelligence);
+                }
+                else
+                {
+                    implement_factories[s] = new ImplementsEngine("Occultist", mental_focus_resource[s],
+                                                                  getOccultistArray(),
+                                                                  StatType.Intelligence);
+                }
             }
 
-            Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data 
+            Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data
                 = new Dictionary<SpellSchool, (string, BlueprintFeature, BlueprintBuff[])>
             {
                 {SpellSchool.Abjuration, ("Abjuration implements are objects associated with protection and wards." ,
@@ -476,43 +569,96 @@ namespace CallOfTheWild
                                            implement_factories[SpellSchool.Transmutation].createLegacyWeapon(),
                                            implement_factories[SpellSchool.Transmutation].createPhysicalEnhancement()
                                            )
-                }
+                },
+                {(SpellSchool)Panoply.TrappingOfTheWarrior,("This panoply is associated with brave and stalwart warriors, martial skill, and the defense of one’s allies.\n"
+                                                            +"Associated implement schools: Abjuration, Transmuation.",
+                                           implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createCounterStrike(),
+                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createMartialSkill()}
+                                           )
+                },
+                {(SpellSchool)Panoply.MagesParaphernalia, ("This panoply is associated with the arcane arts and the masters of manipulating magic.\n"
+                                                          + "Associated implement schools: Divination, Evocation, Necromancy.",
+                                           implement_factories[(SpellSchool)Panoply.MagesParaphernalia].createSpellPower(occultist_class),
+                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.MagesParaphernalia].createScholarlyKnowledge()}
+                                           )
+                },
+                {(SpellSchool)Panoply.SaintsRegalia, ("This panoply is associated with devoted members of a good-aligned faith and the power of belief.\n"
+                                                          + "Associated implement schools: Abjuration, Conjuration.",
+                                           implement_factories[(SpellSchool)Panoply.SaintsRegalia].createRestoringTouch(),
+                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.SaintsRegalia].createFontOfHealing()}
+                                           )
+                },
             };
 
             foreach (var s in schools)
             {
                 bool starts_with_vowel = "aeiou".IndexOf(s.ToString().ToLower()) >= 0;
                 var data = implement_data[s];
-                var description = data.flavor + "\n"
-                                 + $"Resonant Power: Each time the occultist invests mental focus into a{(starts_with_vowel ? "n" : "")} {s.ToString()} implement, the implement grants the following resonant power. The implement’s bearer gains the benefits of this power until the occultist refreshes his focus.\n"
-                                 + (data.resonant_power_buffs.Length > 1 ? "Physical Enhancement" : data.resonant_power_buffs[0].Name) + ": " + data.resonant_power_buffs[0].Description + "\n"
-                                 + $"Base Focus Power: All occultists who learn to use {s.ToString()} implements gain the following focus power.\n"
-                                 + data.base_power.Name + ": " + data.base_power.Description;
+                var description = "";
+                if (!isPanoply(s))
+                {
+                   description = data.flavor + "\n"
+                   + $"Resonant Power: Each time the occultist invests mental focus into a{(starts_with_vowel ? "n" : "")} {s.ToString()} implement, the implement grants the following resonant power. The implement’s bearer gains the benefits of this power until the occultist refreshes his focus.\n"
+                   + (data.resonant_power_buffs.Length > 1 ? "Physical Enhancement" : data.resonant_power_buffs[0].Name) + ": " + data.resonant_power_buffs[0].Description + "\n"
+                   + $"Base Focus Power: All occultists who learn to use {s.ToString()} implements gain the following focus power.\n"
+                   + data.base_power.Name + ": " + data.base_power.Description;
+                }
+                else
+                {
+                    description = data.flavor + "\n"
+                    + $"Resonant Power: Each time the occultist invests mental focus into all of the associated implements, the panoply grants the following resonant power. The panoply’s bearer gains the benefits of this power until the occultist refreshes his focus.\n"
+                    + (data.resonant_power_buffs.Length > 1 ? "Physical Enhancement" : data.resonant_power_buffs[0].Name) + ": " + data.resonant_power_buffs[0].Description + "\n"
+                    + $"Base Focus Power: All occultists who learn to use this panoply gain the following focus power.\n"
+                    + data.base_power.Name + ": " + data.base_power.Description;
+                }
 
-                base_implements[s] = Helpers.CreateFeature(s.ToString() + "ImplementFeature",
-                                                           s.ToString() + " Implement",
+                base_implements[s] = Helpers.CreateFeature(getString(s) + "ImplementFeature",
+                                                           isPanoply(s) ?  getHumanString(s)  : getString(s) + " Implement",
                                                            description,
                                                            "",
                                                            implement_icons[s],
                                                            FeatureGroup.Domain
                                                            );
-                second_implements[s] = library.CopyAndAdd(base_implements[s], s.ToString() + "SecondImplementFeature", "");
-                second_implements[s].SetName(base_implements[s].Name + " (Extra Spells)");
-                base_implements[s].AddComponent(Helpers.CreateAddFact(data.base_power));
-                second_implements[s].AddComponent(Helpers.PrerequisiteFeature(base_implements[s]));
+                if (!isPanoply(s))
+                {
+                    second_implements[s] = library.CopyAndAdd(base_implements[s], s.ToString() + "SecondImplementFeature", "");
+                    second_implements[s].SetName(base_implements[s].Name + " (Extra Spells)");
+                    second_implements[s].AddComponent(Helpers.PrerequisiteFeature(base_implements[s]));
+                    invest_focus_abilities[s].AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = base_implements[s]));
+                }
+                else
+                {
+                    base_implements[s].AddComponent(Helpers.Create<ResourceMechanics.ConnectResource>(c =>
+                    {
+                        c.base_resource = mental_focus_resource[s];
+                        c.connected_resources = mental_focus_resource.Where(r => getCorrepsondingSpellSchools(s).Contains(r.Key)).Select(p => p.Value).ToArray();
+                    })
+                    );
 
-                invest_focus_abilities[s].AddComponent(Helpers.Create<AbilityShowIfCasterHasFact>(a => a.UnitFact = base_implements[s]));
+                    base_implements[s].AddComponents(getCorrepsondingSpellSchools(s).Select(a => Helpers.PrerequisiteFeature(base_implements[a])));
+                    base_implements[s].AddComponent(mental_focus_resource[s].CreateAddAbilityResource());
+                }
+                base_implements[s].AddComponent(Helpers.CreateAddFact(data.base_power));
+
 
                 if (s != SpellSchool.Transmutation)
                 {
+                    var conditions = new List<Condition>();
+                    var focus_condition = Helpers.Create<ImplementMechanics.ContextConditionInvestedFocusAmount>(c =>
+                                                                        {
+                                                                            c.schools = getCorrepsondingSpellSchools(s);
+                                                                            c.amount = 1;
+                                                                            c.locked_focus = false;
+                                                                        }
+                                                                        );
+                    conditions.Add(focus_condition);
+
+                    if (isPanoply(s))
+                    {
+                        conditions.Add(Common.createContextConditionHasFact(base_implements[s]));
+                    }
                     Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(locked_focus_buff,
-                                                                                              Helpers.CreateConditional(Helpers.Create<ImplementMechanics.ContextConditionInvestedFocusAmount>(c =>
-                                                                                              {
-                                                                                                  c.schools = new SpellSchool[] { s };
-                                                                                                  c.amount = 1;
-                                                                                                  c.locked_focus = false;
-                                                                                              }
-                                                                                              ),
+                                                                                              Helpers.CreateConditional(conditions.ToArray(),
                                                                                               Common.createContextActionApplyChildBuff(data.resonant_power_buffs[0])
                                                                                               )
                                                                                               );
@@ -533,11 +679,11 @@ namespace CallOfTheWild
                     base_implements[s].AddComponent(Helpers.CreateAddFacts(toggles.ToArray()));
                 }
                 //var spell_selection = createSpellSelection(s);
-                var spells_to_pick = createCreateSpellSelectionArrays(s);
+                var spells_to_pick = createCreateSpellSelectionArrays(getCorrepsondingSpellSchools(s));
                 var spell_list = Common.combineSpellLists(s.ToString() + "OccultistSpellList",
                                           (spell, spelllist, lvl) =>
                                           {
-                                              return spell.School == s;
+                                              return getCorrepsondingSpellSchools(s).Contains(spell.School);
                                           },
                                           occultist_class.Spellbook.SpellList);
                 for (int i = 0; i < 6; i++)
@@ -552,7 +698,7 @@ namespace CallOfTheWild
                         })
                         );
                     }
-                    if (spells_to_pick[i].Item2)
+                    if (spells_to_pick[i].Item2 && !isPanoply(s))
                     {
                         second_implements[s].AddComponent(Helpers.Create<NewMechanics.addSpellChoice>(a =>
                         {
@@ -564,12 +710,15 @@ namespace CallOfTheWild
                     }
                 }
 
-                base_implements[s].AddComponents(Helpers.Create<ImplementMechanics.IncreaseResourceAmountBasedOnInvestedFocus>(r =>
-                                                 {
-                                                    r.resource = mental_focus_resource[s];
-                                                    r.school = s;
-                                                 })
-                                                );
+                if (!isPanoply(s))
+                {
+                    base_implements[s].AddComponents(Helpers.Create<ImplementMechanics.IncreaseResourceAmountBasedOnInvestedFocus>(r =>
+                                                     {
+                                                         r.resource = mental_focus_resource[s];
+                                                         r.school = s;
+                                                     })
+                                                    );
+                }
             }
 
             first_implement_selection.AllFeatures = base_implements.Values.ToArray().AddToArray(second_implements.Values.ToArray());
@@ -577,53 +726,23 @@ namespace CallOfTheWild
         }
 
 
-        static (bool, bool)[] createCreateSpellSelectionArrays(SpellSchool school)
+        static (bool, bool)[] createCreateSpellSelectionArrays(SpellSchool[] schools)
         {
             var num_spells_to_select = new (bool, bool)[6];
             for (int i = 0; i < 6; i ++)
             {
-                var num_spells = occultist_class.Spellbook.SpellList.SpellsByLevel[i + 1].Spells.Count(s => s.School == school);
-                num_spells_to_select[i] = (num_spells > 0, num_spells > 1);
+                var num_spells = occultist_class.Spellbook.SpellList.SpellsByLevel[i + 1].Spells.Count(s => schools.Contains(s.School));
+                if (schools.Length == 1)
+                {
+                    num_spells_to_select[i] = (num_spells > 0, num_spells > 1);
+                }
+                else
+                {
+                    num_spells_to_select[i] = (num_spells > 2, num_spells > 3);
+                }
             }
 
             return num_spells_to_select;
-        }
-
-
-
-        static BlueprintFeatureSelection createSpellSelection(SpellSchool school)
-        {
-            var spell_list = Common.combineSpellLists(school.ToString() + "OccultistSpellList",
-                                                      (spell, spelllist, lvl) =>
-                                                      {
-                                                          return spell.School == school;
-                                                      },
-                                                      occultist_class.Spellbook.SpellList);
-
-            BlueprintParametrizedFeature[] learn_spells = new BlueprintParametrizedFeature[6];
-            for (int i = 1; i <= 6; i++)
-            {
-                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"Occultist{school.ToString()}Spells{i}ParametrizedFeature", "");
-                learn_spell.SpellLevel = i;
-                learn_spell.SpecificSpellLevel = true;
-                learn_spell.SpellLevelPenalty = 0;
-                learn_spell.SpellcasterClass = occultist_class;
-                learn_spell.SpellList = spell_list;
-                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = occultist_class; });
-                learn_spell.SetName(Helpers.CreateString($"{learn_spell.name}.Name", $"Learn {school.ToString()} Spell " + $"(level {i})"));
-                learn_spell.SetDescription("The occultist’s selection of spells is limited. For each implement school he learns to use, he can add one spell of each level he can cast to his list of spells known, chosen from that school’s spell list. If he selects the same implement school multiple times, he adds one spell of each level from that school’s list for each time he has selected that school.");
-                learn_spell.SetIcon(null);
-                learn_spells[i] = learn_spell;
-            }
-
-            var spell_selection = Helpers.CreateFeatureSelection("OccultistSpellSelection",
-                                                                 $"Learn {school.ToString()} Spell",
-                                                                 learn_spells[0].Description,
-                                                                 "",
-                                                                 null,
-                                                                 FeatureGroup.None);
-            spell_selection.AllFeatures = learn_spells;
-            return spell_selection;
         }
 
 
@@ -639,6 +758,9 @@ namespace CallOfTheWild
             implement_icons.Add(SpellSchool.Transmutation, Helpers.GetIcon("b6a604dab356ac34788abf4ad79449ec"));
             implement_icons.Add(SpellSchool.Universalist, Helpers.GetIcon("0933849149cfc9244ac05d6a5b57fd80"));
             implement_icons.Add(SpellSchool.None, LoadIcons.Image2Sprite.Create(@"AbilityIcons/SchoolNone.png"));
+            implement_icons.Add((SpellSchool)Panoply.TrappingOfTheWarrior, Helpers.GetIcon("9d5d2d3ffdd73c648af3eb3e585b1113")); //divine favor
+            implement_icons.Add((SpellSchool)Panoply.MagesParaphernalia, Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322")); //elven magic
+            implement_icons.Add((SpellSchool)Panoply.SaintsRegalia, Helpers.GetIcon("41c9016596fe1de4faf67425ed691203")); //cure critical wounds
 
             mental_focus = Helpers.CreateFeature("MentalFocusResource",
                                                  "Mental Focus",
@@ -761,6 +883,13 @@ namespace CallOfTheWild
                                             r.school = SpellSchool.Universalist;
                                         })
                                         );
+
+            foreach (var panoply in Enum.GetValues(typeof(Panoply)))
+            {
+                var resource = Helpers.CreateAbilityResource(panoply.ToString() + "MentalFocusResource", "", "", "", null);
+                resource.SetFixedResource(100);
+                mental_focus_resource[(SpellSchool)panoply] = resource;
+            }
         }
 
 
@@ -976,8 +1105,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "093ed1d67a539ad4c939d9d05cfe192c", 6), //sirocco
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation
                 new Common.SpellId( "474ed0aa656cc38499cc9a073d113716", 6), //umbral strike
-
- 
             };
 
             foreach (var spell_id in spells)

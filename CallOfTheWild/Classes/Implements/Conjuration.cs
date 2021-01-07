@@ -75,7 +75,7 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus)))),
                                                 createClassScalingConfig(type: AbilityRankType.DamageBonus),
-                                                createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 1, stepLevel: 4),
+                                                createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 3, stepLevel: 4),
                                                 Common.createAbilitySpawnFx("224fb8fd952ec4d45b6d3436a77663d9", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.Create<AbilityUseOnRest>(a => a.Type = AbilityUseOnRestType.HealDamage),
                                                 Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental),
@@ -146,7 +146,7 @@ namespace CallOfTheWild
             {
                 var ability = library.CopyAndAdd(dimension_door, prefix + $"SideStep{i * 5}Ability", "");
                 ability.Parent = null;
-                ability.ActionType = CommandType.Swift;
+                ability.ActionType = CommandType.Move;
                 ability.Range = AbilityRange.Custom;
                 ability.CustomRange = (i * 10).Feet();
                 ability.Type = AbilityType.Supernatural;
@@ -155,7 +155,7 @@ namespace CallOfTheWild
                 ability.AddComponent(resource.CreateResourceLogic());
                 var feature_i = Common.AbilityToFeature(ability);
                 int min_level = i == 1 ? 0 : i;
-                int max_level = i == 20 ? 100 : i + 1;
+                int max_level = i == 20 ? 100 : i;
 
                 addFocusInvestmentCheck(ability, SpellSchool.Conjuration);
                 feature.AddComponent(createAddFeatureInLevelRange(feature_i, min_level, max_level));              

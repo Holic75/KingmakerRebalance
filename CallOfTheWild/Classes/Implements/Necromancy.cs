@@ -87,7 +87,7 @@ namespace CallOfTheWild
                                                                                                    dmg)
                                                                         ),
                                                 createClassScalingConfig(type: AbilityRankType.DamageBonus),
-                                                createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 1, stepLevel: 4),
+                                                createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 3, stepLevel: 4),
                                                 Common.createAbilitySpawnFx("9a38d742801be084d89bd34318c600e8", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental),
                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy),
@@ -123,7 +123,7 @@ namespace CallOfTheWild
                                      createClassScalingConfig(),                                   
                                      Helpers.CreateRunActions(SavingThrowType.Will, effect),
                                      Helpers.CreateAbilityTargetsAround(20.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any),
-                                     Common.createAbilitySpawnFx("bbd6decdae32bce41ae8f06c6c5eb893", anchor: AbilitySpawnFxAnchor.ClickedTarget),
+                                     Common.createAbilitySpawnFx("872f843a900d8f442896e5fdae6d44d1", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                      Helpers.CreateResourceLogic(resource),
                                      createDCScaling(),
                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Sickened)
@@ -209,9 +209,10 @@ namespace CallOfTheWild
                                                 AbilityRange.Personal,
                                                 Helpers.minutesPerLevelDuration,
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
                                                 Common.createAbilitySpawnFx("e93261ee4c3ea474e923f6a645a3384f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                createClassScalingConfig()
+                                                createClassScalingConfig(),
+                                                resource.CreateResourceLogic()
                                                 );
             addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
             var feature = Common.AbilityToFeature(ability, false);

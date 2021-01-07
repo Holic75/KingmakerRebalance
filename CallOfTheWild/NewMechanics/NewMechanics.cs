@@ -4916,6 +4916,10 @@ namespace CallOfTheWild
 
             private void Apply()
             {
+                if (Owner.HasFact(Feature))
+                {
+                    return;
+                }
                 if (this.m_AppliedFact != null)
                     return;
 

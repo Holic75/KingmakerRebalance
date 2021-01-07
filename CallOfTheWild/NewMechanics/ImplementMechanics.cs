@@ -128,7 +128,15 @@ namespace CallOfTheWild.ImplementMechanics
                 return false;
             }
 
-            return unit_part.getInvestedFocusAmount(schools) >= amount;
+            foreach (var s in schools)
+            {
+                if (unit_part.getInvestedFocusAmount(s) < amount)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
