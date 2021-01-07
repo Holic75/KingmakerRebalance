@@ -95,7 +95,7 @@ namespace CallOfTheWild
         public BlueprintBuff createMartialSkill()
         {
             var property = ImplementMechanics.InvestedImplementFocusAmountProperty.createProperty(prefix + "TrappingOfTheWarriorFocusProperty", "",
-                                                                                                  createClassScalingConfig(ContextRankProgression.AsIs),
+                                                                                                  createClassScalingConfig(ContextRankProgression.BonusValue, stepLevel: 3),
                                                                                                   false,
                                                                                                   SpellSchool.Abjuration, SpellSchool.Transmutation);
             var buff = Helpers.CreateBuff(prefix + "TrappingOfTheWarriorFocusBuff",

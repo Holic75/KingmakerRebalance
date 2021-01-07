@@ -292,7 +292,7 @@ namespace CallOfTheWild
             add_enchants[0].AddComponents(createAddFeatureInLevelRange(add_enchants[1], 6, 100),
                               createAddFeatureInLevelRange(add_enchants[2], 12, 100),
                               createAddFeatureInLevelRange(add_enchants[3], 18, 100),
-                               createAddFeatureInLevelRange(add_enchants[4], 18, 100)
+                               createAddFeatureInLevelRange(add_enchants[4], 24, 100)
                               );
 
             return add_enchants[0];

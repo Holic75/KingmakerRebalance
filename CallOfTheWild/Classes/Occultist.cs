@@ -243,7 +243,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(2, magic_item_skill),
                                                            Helpers.LevelEntry(6, implement_selection),
                                                            Helpers.LevelEntry(8, repower_construct),
-                                                           Helpers.LevelEntry(14, implement_selection),
+                                                          // Helpers.LevelEntry(14, implement_selection),
                                                           };
 
             battle_host.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, battle_host_proficiencies),

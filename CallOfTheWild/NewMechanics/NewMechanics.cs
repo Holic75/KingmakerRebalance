@@ -3212,7 +3212,7 @@ namespace CallOfTheWild
                 var d100 = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100));
 
                 var chance = value.Calculate(this.Fact.MaybeContext);
-
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" {(chance >= d100 ? "fais to overcome" : "overcomes")} miss chance on " + this.Owner.CharacterName + $": {d100}/{chance}");
                 if (chance < d100)
                 {
                     return;

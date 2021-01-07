@@ -50,12 +50,12 @@ namespace CallOfTheWild
         {
             var icon = Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"); //armor focus
             var feature = Helpers.CreateFeature("ArmorSpellStoringFeature",
-                                                "Spell Storing",
+                                                "Spell Storing Armor",
                                                 "This armor allows a spellcaster to store a single touch spell of up to 3rd level in it. Anytime a creature hits the wearer with a melee attack or melee touch attack, the armor can cast the spell on that creature as a swift immediate action if the wearer desires. Once the spell has been cast from the armor, a spellcaster can cast any other targeted touch spell of up to 3rd level into it. The armor magically imparts to the wielder the name of the spell currently stored within it.",
                                                 "",
                                                 icon,
                                                 FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
+                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(a => a.always_hit = true));
 
             var release_buff = Helpers.CreateBuff("ArmorSpellStoringToggleBuff",
                                                   feature.Name + ": Release",

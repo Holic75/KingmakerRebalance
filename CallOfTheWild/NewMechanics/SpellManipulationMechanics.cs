@@ -523,11 +523,7 @@ namespace CallOfTheWild
             public void getStoredSpellName(out string spell_name)
             {
                 spell_name = "";
-                var stored_buff = Owner.Buffs.GetFact(store_fact);
-                if (stored_buff == null)
-                {
-                    stored_buff = Owner.Progression.Features.GetFact(store_fact);
-                }
+                var stored_buff = Owner.GetFact(store_fact);
 
                 if (stored_buff != null)
                 {
@@ -676,12 +672,8 @@ namespace CallOfTheWild
                     return null;
                 }
 
-                var stored_buff = unit.Buffs.GetFact(fact);
-                if (stored_buff == null)
-                {
-                    stored_buff = unit.Progression.Features.GetFact(fact);
-                }
-
+                var stored_buff = unit.GetFact(fact);
+           
                 if (stored_buff == null)
                 {
                     return null;
@@ -699,11 +691,8 @@ namespace CallOfTheWild
 
             public static void storeSpell(UnitDescriptor unit, BlueprintUnitFact fact, AbilityData spell)
             {
-                var store_buff = unit.Buffs.GetFact(fact);
-                if (store_buff == null)
-                {
-                    store_buff = unit.Progression.Features.GetFact(fact);
-                }
+                var store_buff = unit.GetFact(fact);
+
                 if (store_buff != null)
                 {
                     var sticky_touch = spell.Blueprint.GetComponent<AbilityEffectStickyTouch>();
@@ -731,11 +720,8 @@ namespace CallOfTheWild
            
             public override void RunAction()
             {
-                var stored_buff = Context.MaybeOwner.Buffs.GetFact(fact);
-                if (stored_buff == null)
-                {
-                    stored_buff = Context.MaybeOwner.Descriptor.Progression.Features.GetFact(fact);
-                }
+                var stored_buff = Context.MaybeOwner.Descriptor.GetFact(fact);
+
 
                 if (stored_buff != null)
                 {

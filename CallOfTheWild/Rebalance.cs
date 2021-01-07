@@ -2345,4 +2345,17 @@ namespace CallOfTheWild
 
 
 
+    //fixraise bab effect to take into account various bonuses
+    [Harmony12.HarmonyPatch(typeof(RaiseBAB), "OnTurnOn")]
+    class RaiseBABt_OnTurnOn
+    {
+        static bool Prefix(RaiseBAB __instance)
+        {
+            int num = __instance.TargetValue.Calculate(__instance.Fact.MaybeContext) - __instance.Owner.Stats.BaseAttackBonus.ModifiedValue;
+            if (num <= 0)
+                return false;
+            Traverse.Create(__instance).Field("m_Modifier").SetValue(__instance.Owner.Stats.BaseAttackBonus.AddModifier(num, (GameLogicComponent)__instance, ModifierDescriptor.None));
+            return false;
+        }
+    }
 }

@@ -271,9 +271,9 @@ namespace CallOfTheWild
         public BlueprintFeature createMindOverGravity()
         {
             var ability = Common.convertToSpellLike(NewSpells.fly, prefix, classes, stat, resource, archetypes: getArchetypeArray());
-
+            ability.Range = AbilityRange.Personal;
             ability.SetNameDescription("Mind Over Gravity",
-                                       "As a standard action, you can expend 1 point of mental focus to give yourself a an ability to fly and increases your speed by 10 feet. This effect lasts for 1 minute per occultist level you possess. You must be at least 7th level to select this focus power.");
+                                       "As a standard action, you can expend 1 point of mental focus to give yourself an ability to fly and increase your speed by 10 feet. This effect lasts for 1 minute per occultist level you possess. You must be at least 7th level to select this focus power.");
             var feature = Common.AbilityToFeature(ability, false);
             addFocusInvestmentCheck(ability, SpellSchool.Transmutation);
             addMinLevelPrerequisite(feature, 7);
@@ -293,6 +293,7 @@ namespace CallOfTheWild
                 WeaponEnchantments.adamantine
             };
 
+            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
             foreach (var e in enchants)
             {
                 var buff = Helpers.CreateBuff(prefix + e.name + "PhilosophersTouchBuff",
@@ -304,7 +305,7 @@ namespace CallOfTheWild
                                               null,
                                               Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => { p.secondary_hand = false; p.only_melee = true; p.enchant = e; })
                                               );
-
+                remove_buffs.Buffs = remove_buffs.Buffs.AddToArray(buff);
                 var ability_single = Helpers.CreateAbility(prefix + e.name + "PhilosophersTouchSingleAbility",
                                                            buff.Name,
                                                            buff.Description,
@@ -315,9 +316,10 @@ namespace CallOfTheWild
                                                            AbilityRange.Touch,
                                                            Helpers.minutesPerLevelDuration,
                                                            "",
-                                                           Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
+                                                           Helpers.CreateRunActions(remove_buffs, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false)),
                                                            Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                           resource.CreateResourceLogic()
+                                                           resource.CreateResourceLogic(),
+                                                           createClassScalingConfig()
                                                            );
                 ability_single.setMiscAbilityParametersTouchFriendly();
                 if (e == WeaponEnchantments.adamantine)
@@ -351,7 +353,7 @@ namespace CallOfTheWild
                                                 feature_single.Icon,
                                                 FeatureGroup.None,
                                                 createAddFeatureInLevelRange(feature_single, 0, 7),
-                                                createAddFeatureInLevelRange(feature_single, 8, 100)
+                                                createAddFeatureInLevelRange(feature_multiple, 8, 100)
                                                 );
             return feature;
         }
