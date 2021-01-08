@@ -508,7 +508,7 @@ namespace CallOfTheWild
             var anarchic = Common.createEnchantmentAbility("WarriorSpiritEnchancementAnarchic",
                                                 "Warrior Spirit - Anarchic",
                                                 "A fighter can add the anarchic property to her weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn anarchic weapon is infused with the power of chaos. It makes the weapon chaotic-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of lawful alignment.",
-                                                library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,
+                                                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
                                                 weapon_enhancement_buff,
                                                 library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
                                                 2, warrior_spirit_group);

@@ -148,7 +148,7 @@ namespace CallOfTheWild
             var anarchic = Common.createEnchantmentAbility(prefix + "LegacyWeaponEnchancementAnarchic",
                                                 "Legacy Weapon - Anarchic",
                                                 "An occultist can add the anarchic property to her weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn anarchic weapon is infused with the power of chaos. It makes the weapon chaotic-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of lawful alignment.",
-                                                library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,
+                                                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
                                                 weapon_enhancement_buff,
                                                 library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
                                                 2, legacy_weapon_group);
@@ -261,9 +261,9 @@ namespace CallOfTheWild
 
             legacy_weapon_features[0].AddComponents(createAddFeatureInLevelRange(legacy_weapon_features[1], 6, 100),
                                                    createAddFeatureInLevelRange(legacy_weapon_features[2], 12, 100),
-                                                   createAddFeatureInLevelRange(legacy_weapon_features[3], 18, 100),
-                                                   createAddFeatureInLevelRange(legacy_weapon_features[4], 24, 100)
+                                                   createAddFeatureInLevelRange(legacy_weapon_features[3], 18, 100)
                                                    );
+            mastery_features.Add(legacy_weapon_features[4]);
             return legacy_weapon_features[0];
         }
 

@@ -958,10 +958,10 @@ namespace CallOfTheWild
 
             UnityEngine.Sprite[] enchant_icons = new UnityEngine.Sprite[]
             {
-                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVicious.png"),
                 library.Get<BlueprintActivatableAbility>("27d76f1afda08a64d897cc81201b5218").Icon, //keen
                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWCruel.png"),
-                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
+                LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWMenacing.png"),
                 Helpers.GetIcon("49083bf0cdd00ec4dacbffb4be26e69a"), //keen light weapon buff
             };
 

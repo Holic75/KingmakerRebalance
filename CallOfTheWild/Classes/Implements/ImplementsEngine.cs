@@ -24,6 +24,7 @@ namespace CallOfTheWild
         BlueprintAbilityResource resource;
         string prefix;
         bool check_invested_focus;
+        public List<BlueprintFeature> mastery_features = new List<BlueprintFeature>();
 
         public ImplementsEngine(string name_prefix, BlueprintAbilityResource ability_resource, BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, bool check_focus_investment = true, BlueprintArchetype scaling_archetype = null)
         {

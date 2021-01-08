@@ -86,14 +86,29 @@ namespace CallOfTheWild
         static public BlueprintBuff locked_focus_buff;
 
         static public BlueprintArchetype battle_host;
-        static public BlueprintArchetype reliquarian;
-        static public BlueprintArchetype silksworn;
         static public BlueprintFeature spirit_warrior;
         static public BlueprintFeature heroic_splendor;
         static public BlueprintAbilityResource spirit_warrior_resource;
         static public BlueprintAbilityResource heroic_splendor_resource;
         static public BlueprintFeatureSelection bonus_feats;
         static public BlueprintFeature battle_host_proficiencies;
+
+        static public BlueprintArchetype silksworn;
+        static public BlueprintFeature silksworn_proficiencies;
+        static public BlueprintFeature silksworn_spellcasting;
+        static public BlueprintFeature silksworn_mental_focus;
+        static public BlueprintFeatureSelection silksworn_implement;
+        static public BlueprintFeature silksworn_eloquence;
+        static public BlueprintFeature silksworn_arcana;
+        static public BlueprintFeatureSelection silksworn_implement_mastery;
+        static public BlueprintSpellbook silksworn_spellbook;
+
+        static public BlueprintArchetype reliquarian;
+        static public BlueprintSpellbook reliquarian_spellbook;
+        static public BlueprintFeature divine_focus;
+        static public BlueprintFeature reliquarian_spellcasting;
+        static public BlueprintFeatureSelection sacred_implement;
+        static public BlueprintFeatureSelection deity;
 
         enum Panoply
         {
@@ -216,8 +231,223 @@ namespace CallOfTheWild
             createOccultistProgression();
             occultist_class.Progression = occultist_progression;
             createBattleHost();
-            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
+            createSilksworn();
+            createReliquarian();
+            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
             Helpers.RegisterClass(occultist_class);
+        }
+
+        static void createReliquarian()
+        {
+            deity = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
+            reliquarian = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ReliquarianArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Reliquarian");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Not all occultists derive their power from psychic impressions left on objects. Some find faith first, and draw out the divine potential in religious relics. Many see these religious scholars as eccentrics or heretics who pilfer holy magic with their bizarre rituals.");
+            });
+            Helpers.SetField(reliquarian, "m_ParentClass", occultist_class);
+            library.AddAsset(reliquarian, "");
+
+            createReliquarianSpellcasting();
+            createSacredImplement();
+            createDivineFocus();
+
+            reliquarian.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, occultist_spellcasting, implement_selection, mental_focus, focus_power_selection)
+                                                          };
+
+            reliquarian.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, reliquarian_spellcasting, deity, sacred_implement, divine_focus)
+                                                     };
+
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(reliquarian_spellcasting, divine_focus, sacred_implement, deity);
+
+
+
+            reliquarian.ReplaceSpellbook = reliquarian_spellbook;
+            reliquarian.ChangeCasterType = true;
+            reliquarian.IsDivineCaster = true;    
+        }
+
+
+        static void createSacredImplement()
+        {
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            sacred_implement = library.CopyAndAdd<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9", "SacredImplementFeatureSelection", "");
+            ClassToProgression.addClassToDomains(occultist_class, new BlueprintArchetype[] { reliquarian }, ClassToProgression.DomainSpellsType.NormalList, sacred_implement, cleric);
+            sacred_implement.SetNameDescription("Sacred Implements",
+                                                "A reliquarian gains one implement school at 1st level. Additionally, the reliquarian gains a relic of her god, typically a holy symbol of significant age, a fixture from a lost temple, or bone or hair from a prominent historical figure of the religion. This grants the reliquarian access to one of her deity’s domains.  She treats her occultist level as her cleric level for the purposes of access to domain powers and their strength.\n"
+                                                + "Additionally, the reliquarian adds the domain’s spells to her occultist spell list and her spells known."
+                                                );
+        }
+
+
+
+        static void createDivineFocus()
+        {
+            divine_focus = library.CopyAndAdd(mental_focus, "RelequairanMentalFocusFeature", "");
+            divine_focus.SetNameDescription("Divine Focus",
+                                            "A reliquarian uses her Wisdom modifier, rather than her Intelligence modifier, to determine the amount of mental focus available to her each day.");
+            divine_focus.AddComponents(Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Value = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative); i.Resource = mental_focus_resource[SpellSchool.Universalist]; }),
+                                       Helpers.Create<IncreaseResourceAmountBySharedValue>(i => { i.Value = Helpers.CreateContextValue(AbilityRankType.DamageDice); i.Resource = mental_focus_resource[SpellSchool.Universalist]; i.Decrease = true; }),
+                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, type: AbilityRankType.DamageDiceAlternative),
+                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Intelligence, type: AbilityRankType.DamageDice),
+                                       Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Intelligence),
+                                       Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom)
+                                       );
+        }
+
+
+        static void createReliquarianSpellcasting()
+        {
+            reliquarian_spellbook = library.CopyAndAdd(occultist_class.Spellbook, "ReliquarianSpellbook", "");
+
+            reliquarian_spellbook.Name = silksworn.LocalizedName;
+            reliquarian_spellbook.CantripsType = CantripsType.Orisions;
+            reliquarian_spellbook.RemoveComponents<SpellbookMechanics.PsychicSpellbook>();
+
+            reliquarian_spellcasting = Helpers.CreateFeature("ReliquarianSpellcastingFeature",
+                                                          "Reliquarian Spellcasting",
+                                                          "A reliquarian’s spells are considered divine spells, not psychic spells. The reliquarian’s spells use verbal components instead of thought components, and somatic components instead of emotional components, and she uses a sacred implement as a divine focus.",
+                                                          "",
+                                                          Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96"), //good hope
+                                                          FeatureGroup.None
+                                                          );
+            reliquarian_spellcasting.AddComponents(Common.createCantrips(occultist_class, StatType.Intelligence, reliquarian_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            reliquarian_spellcasting.AddComponents(Helpers.CreateAddFacts(reliquarian_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+        }
+
+
+        static void createSilksworn()
+        {
+            silksworn_proficiencies = library.CopyAndAdd<BlueprintFeature>("25c97697236ccf2479d0c6a4185eae7f", "SilkswornProficiencies", "");
+            silksworn_proficiencies.SetNameDescription("Silksworn Proficiencies",
+                                                         "A silksworn is proficient with only simple weapons and isn’t proficient with any armor or shields.");
+
+            silksworn = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SilkswornArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Silksworn");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Occultists who recognize that flashy garb and fashionable accoutrements can be just as powerful as psychically charged relics in the right situations are known as silksworn. They draw their power from wearing luxurious garments, though they often keep their abilities secret.");
+            });
+            Helpers.SetField(silksworn, "m_ParentClass", occultist_class);
+            library.AddAsset(silksworn, "");
+
+            createSilkswornSpellcasting();
+            createSilkswornImplement();
+            createSilkswornMentalFocus();
+            createSilkswornEloquence();
+            createSilkswornArcana();
+            createSilkswornImplementMastery();
+
+            silksworn.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, occultist_spellcasting, mental_focus, occultist_proficiencies),
+                                                           Helpers.LevelEntry(8, repower_construct),
+                                                          };
+
+            silksworn.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, silksworn_spellcasting, silksworn_proficiencies, silksworn_mental_focus, silksworn_implement),
+                                                       Helpers.LevelEntry(8, silksworn_eloquence),
+                                                       Helpers.LevelEntry(16, silksworn_arcana),
+                                                       Helpers.LevelEntry(20, silksworn_implement_mastery)
+                                                      };
+
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(silksworn_eloquence, silksworn_arcana, silksworn_implement_mastery));
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(silksworn_spellcasting, silksworn_proficiencies, silksworn_mental_focus, silksworn_implement);
+
+            silksworn.ReplaceSpellbook = silksworn_spellbook;
+            silksworn.ChangeCasterType = true;
+            silksworn.IsArcaneCaster = true;
+            silksworn.ReplaceClassSkills = true;
+            silksworn.ClassSkills = new StatType[] { StatType.SkillStealth, StatType.SkillThievery,
+                                                      StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld,
+                                                      StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice};
+            silksworn.ReplaceStartingEquipment = true;
+            silksworn.StartingItems = new BlueprintItem[]
+            {
+                library.Get<BlueprintItemWeapon>("511c97c1ea111444aa186b1a58496664"), //light crossbow
+                library.Get<BlueprintItemWeapon>("aa514dbf4c3d61f4e9c0738bd4d373cb"), //dagger
+                library.Get<BlueprintItemEquipmentUsable>("d52566ae8cbe8dc4dae977ef51c27d91"), //potion of cure light wounds
+                library.Get<BlueprintItemEquipmentUsable>("f79c3fd5012a3534c8ab36dc18e85fb1"), //sleep
+                library.Get<BlueprintItemEquipmentUsable>("e8308a74821762e49bc3211358e81016"), //mage armor
+                library.Get<BlueprintItemEquipmentUsable>("fe244c39bdd5cb64eae65af23c6759de") //cause fear
+            };
+        }
+
+
+        static void createSilkswornArcana()
+        {
+            var school_implements = base_implements.Where(kv => !isPanoply(kv.Key)).Select(kv => kv.Value).ToArray();
+            silksworn_arcana = Helpers.CreateFeature("SilkswornArcana",
+                                                        "Silksworn Arcana",
+                                                        "At 16th level, when a silksworn casts a spell, the spell’s saving throw DC increases by 2.",
+                                                        "",
+                                                        Helpers.GetIcon("487af80cdfbaad74b8c2fd644c538233"), //judgment piercing
+                                                        FeatureGroup.None,
+                                                        Helpers.Create<NewMechanics.IncreaseAllSpellsDC>(i => i.Value = 2)
+                                                        );
+        }
+
+
+        static void createSilkswornEloquence()
+        {
+            var school_implements = base_implements.Where(kv => !isPanoply(kv.Key)).Select(kv => kv.Value).ToArray();
+            silksworn_eloquence = Helpers.CreateFeature("SilkswornEloquenceFeature",
+                                                        "Silksworn Eloquence",
+                                                        "At 8th level, a silksworn gains a +1 bonus on Bluff and Diplomacy checks for each of his implement schools of magic.",
+                                                        "",
+                                                        Helpers.GetIcon("1621be43793c5bb43be55493e9c45924"),
+                                                        FeatureGroup.None,
+                                                        Helpers.CreateAddContextStatBonus(StatType.CheckDiplomacy, ModifierDescriptor.UntypedStackable),
+                                                        Helpers.CreateAddContextStatBonus(StatType.CheckBluff, ModifierDescriptor.UntypedStackable),
+                                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, featureList: school_implements)
+                                                        );
+            silksworn_eloquence.ReapplyOnLevelUp = true;
+        }
+
+        static void createSilkswornImplement()
+        {
+            silksworn_implement = library.CopyAndAdd(implement_selection, "SilkswornImplementFeatureSelection", "");
+            silksworn_implement.SetNameDescription("Extra Implement",
+                                                    "At 1st level, the silksworn gains access to three implement schools instead of two.At 2nd level and every 4 occultist levels thereafter, the silksworn gains access to an additional implement school, to a maximum of eight schools at 18th level.");
+
+        }
+
+
+        static void createSilkswornMentalFocus()
+        {
+            silksworn_mental_focus = library.CopyAndAdd(mental_focus, "SilkswornMentalFocusFeature", "");
+            silksworn_mental_focus.SetDescription("The silksworn’s available mental focus is equal to his occultist level + his Intelligence modifier + his Charisma modifier.");
+            silksworn_mental_focus.AddComponents(Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(i => { i.Value = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative); i.Resource = mental_focus_resource[SpellSchool.Universalist]; }),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, type: AbilityRankType.DamageDiceAlternative),
+                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Charisma)
+                                                );
+        }
+
+
+        static void createSilkswornImplementMastery()
+        {
+            silksworn_implement_mastery = library.CopyAndAdd(implement_mastery, "SilkswornImplementMasteryFeatureSelection", "");
+            silksworn_implement_mastery.SetDescription("At 20th level, a silksworn chooses two implement schools instead of one, and implement mastery’s effects apply to both. The silksworn gains 4 additional points of mental focus for each school’s implement.");
+        }
+
+
+        static void createSilkswornSpellcasting()
+        {
+            silksworn_spellbook = library.CopyAndAdd(occultist_class.Spellbook, "SilkswornSpellbook", "");
+            silksworn_spellbook.IsArcane = true;
+            silksworn_spellbook.Name = silksworn.LocalizedName;
+            silksworn_spellbook.CantripsType = CantripsType.Cantrips;
+            silksworn_spellbook.RemoveComponents<SpellbookMechanics.PsychicSpellbook>();
+            silksworn_spellbook.SpellsPerDay = createSilkswornSpellsPerDay();
+
+            silksworn_spellcasting = Helpers.CreateFeature("SilkswornSpellcastingFeature",
+                                                          "Silksworn Spellcasting",
+                                                          "A silksworn’s spells are considered arcane spells, not psychic spells, and his spells use verbal and somatic components instead of thought and emotion components.\n"
+                                                          + "At 8th, 12th, and 16th levels, the silksworn increases the number of spells of each level he can cast each day by one. This does not allow the silksworn to cast spells of a level he does not yet have access to.",
+                                                          "",
+                                                          Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
+                                                          FeatureGroup.None
+                                                          );
+            silksworn_spellcasting.AddComponents(Common.createCantrips(occultist_class, StatType.Intelligence, silksworn_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            silksworn_spellcasting.AddComponents(Helpers.CreateAddFacts(silksworn_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
         }
 
 
@@ -356,7 +586,7 @@ namespace CallOfTheWild
             occultist_progression.Classes = getOccultistArray();
 
             occultist_progression.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, occultist_proficiencies, occultist_spellcasting, detect_magic,
-                                                                                         occultist_knacks, first_implement_selection, implement_selection,
+                                                                                         first_implement_selection, implement_selection,
                                                                                          mental_focus, focus_power_selection,
                                                                                          library.Get<BlueprintFeature>("d3e6275cfa6e7a04b9213b7b292a011c"), // ray calculate feature
                                                                                          library.Get<BlueprintFeature>("62ef1cdb90f1d654d996556669caf7fa")), // touch calculate feature                                                                                      
@@ -454,6 +684,12 @@ namespace CallOfTheWild
                                                     Helpers.Create<ImplementMechanics.BonusInvestedFocusPoints>(b => { b.school = kv.Key; b.value = 4;}),
                                                     Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = kv.Value; a.value = 4; })
                                                     );
+
+                foreach (var mf in implement_factories[kv.Key].mastery_features)
+                {
+                    feature.AddComponent(Helpers.CreateAddFact(mf));
+                }
+
                 feature.AddComponent(Helpers.PrerequisiteFeature(base_implements[kv.Key]));
                 implement_mastery.AllFeatures = implement_mastery.AllFeatures.AddToArray(feature);
             }
@@ -1182,8 +1418,38 @@ namespace CallOfTheWild
                                                  Helpers.CreateAddMechanics(AddMechanicsFeature.MechanicsFeatureType.NaturalSpell));
             occultist_spellcasting.AddComponent(Helpers.Create<SpellbookMechanics.AddUndercastSpells>(p => p.spellbook = occultist_spellbook));
             occultist_spellcasting.AddComponent(Helpers.CreateAddFact(Investigator.center_self));
+            occultist_spellcasting.AddComponents(Common.createCantrips(occultist_class, StatType.Intelligence, occultist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
+            occultist_spellcasting.AddComponents(Helpers.CreateAddFacts(occultist_spellbook.SpellList.SpellsByLevel[0].Spells.ToArray()));
 
             return occultist_spellbook;
+        }
+
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSilkswornSpellsPerDay()
+        {
+            return Common.createSpellsTable("SilkswornSpellsPerDayTable", "",
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(0, 1),  //1
+                                       Common.createSpellsLevelEntry(0, 2),  //2
+                                       Common.createSpellsLevelEntry(0, 3),  //3
+                                       Common.createSpellsLevelEntry(0, 3, 1),  //4
+                                       Common.createSpellsLevelEntry(0, 4, 2), //5
+                                       Common.createSpellsLevelEntry(0, 4, 3), //6
+                                       Common.createSpellsLevelEntry(0, 4, 3, 1), //7
+                                       Common.createSpellsLevelEntry(0, 5, 5, 3), //8 (+1)
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4), //9
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4, 1), //10
+                                       Common.createSpellsLevelEntry(0, 6, 5, 5, 2), //11
+                                       Common.createSpellsLevelEntry(0, 7, 7, 6, 4), //12 (+1)
+                                       Common.createSpellsLevelEntry(0, 7, 7, 6, 4, 1), //13
+                                       Common.createSpellsLevelEntry(0, 7, 7, 6, 5, 2), //14
+                                       Common.createSpellsLevelEntry(0, 7, 7, 7, 5, 3), //15
+                                       Common.createSpellsLevelEntry(0, 8, 8, 8, 6, 4, 2), //16 (+1)
+                                       Common.createSpellsLevelEntry(0, 8, 8, 8, 6, 5, 3), //17
+                                       Common.createSpellsLevelEntry(0, 8, 8, 8, 7, 5, 4), //18
+                                       Common.createSpellsLevelEntry(0, 8, 8, 8, 7, 6, 5), //19
+                                       Common.createSpellsLevelEntry(0, 8, 8, 8, 7, 6, 6) //20
+                                       );
         }
     }
 }
