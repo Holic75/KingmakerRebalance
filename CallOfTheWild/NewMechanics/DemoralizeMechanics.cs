@@ -132,6 +132,10 @@ namespace CallOfTheWild.DemoralizeMechanics
                 {
                     spell_descriptors_to_add[i] = SpellDescriptor.None;
                 }
+                else
+                {
+                    context.AddSpellDescriptor(spell_descriptors_to_add[i]);
+                }
             }
 
             RuleSavingThrow saving_throw = new RuleSavingThrow(target, SavingThrowType.Will, 10 + intimidate_value);
