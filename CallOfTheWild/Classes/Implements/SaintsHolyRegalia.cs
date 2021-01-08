@@ -52,6 +52,7 @@ namespace CallOfTheWild
             caster_buff.SetNameDescriptionIcon(buff);
             caster_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("bbd6decdae32bce41ae8f06c6c5eb893");
             var apply_buff = Common.createContextActionApplySpellBuff(caster_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes));
+            caster_buff.SetBuffFlags(0);
 
             var ability = Helpers.CreateAbility(prefix + "GuardianAuraAbility",
                                                 buff.Name,

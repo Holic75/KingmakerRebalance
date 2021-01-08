@@ -182,6 +182,7 @@ namespace CallOfTheWild
         internal static void createOccultistClass()
         {
             Main.logger.Log("Occultist class test mode: " + test_mode.ToString());
+            var fighter_class = library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd");
             var alchemsit_class = library.TryGet<BlueprintCharacterClass>("0937bec61c0dabc468428f496580c721");
             var bard_class = library.TryGet<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 
@@ -192,7 +193,7 @@ namespace CallOfTheWild
             occultist_class.LocalizedName = Helpers.CreateString("Occultist.Name", "Occultist");
             occultist_class.LocalizedDescription = Helpers.CreateString("Occultist.Description",
                                                                          "The occultist focuses on the world around him, grounded in the powers that flow throughout his environment. He studies the magic that infuses everything, from psychic resonances left in everyday items to powerful incantations that fuel the mightiest spells.\n"
-                                                                         + "The occultist channels his psychic might through implements—items that allow him to focus his power and produce incredible effects. For him, implements are more than simple tools. They are a repository of history and a tie to the events of the past. The occultist uses these implements to influence and change the present, adding his legend to theirs. Though some of these implements might be magic items in their own right, most of them are merely of historical or personal significance to the occultist.The occultist channels his psychic might through implements—items that allow him to focus his power and produce incredible effects. For him, implements are more than simple tools. They are a repository of history and a tie to the events of the past. The occultist uses these implements to influence and change the present, adding his legend to theirs. Though some of these implements might be magic items in their own right, most of them are merely of historical or personal significance to the occultist.\n"
+                                                                         + "The occultist channels his psychic might through implements — items that allow him to focus his power and produce incredible effects. For him, implements are more than simple tools. They are a repository of history and a tie to the events of the past. The occultist uses these implements to influence and change the present, adding his legend to theirs. Though some of these implements might be magic items in their own right, most of them are merely of historical or personal significance to the occultist.The occultist channels his psychic might through implements—items that allow him to focus his power and produce incredible effects. For him, implements are more than simple tools. They are a repository of history and a tie to the events of the past. The occultist uses these implements to influence and change the present, adding his legend to theirs. Though some of these implements might be magic items in their own right, most of them are merely of historical or personal significance to the occultist.\n"
                                                                          + "Role: Occultists are always eager to travel in the company of adventurers, explorers, and archaeologists, as those three groups of people have a knack for finding items with rich histories and great significance."
                                                                          );
             occultist_class.m_Icon = alchemsit_class.Icon;
@@ -208,8 +209,8 @@ namespace CallOfTheWild
                                                       StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice};
             occultist_class.IsDivineCaster = false;
             occultist_class.IsArcaneCaster = false;
-            occultist_class.StartingGold = alchemsit_class.StartingGold;
-            occultist_class.PrimaryColor = alchemsit_class.PrimaryColor;
+            occultist_class.StartingGold = fighter_class.StartingGold;
+            occultist_class.PrimaryColor = fighter_class.PrimaryColor;
             occultist_class.SecondaryColor = alchemsit_class.SecondaryColor;
             occultist_class.RecommendedAttributes = new StatType[] { StatType.Intelligence };
             occultist_class.NotRecommendedAttributes = new StatType[0];

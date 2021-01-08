@@ -184,6 +184,7 @@ namespace CallOfTheWild
 
             var area_buff = Common.createBuffAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsEnemy>()));
             area_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("dfadb7fa26de0384d9d9a6dabb0bea72");
+            area_buff.SetBuffFlags(0);
 
             var ability = Helpers.CreateAbility(prefix + "BedevelingAuraAbility",
                                                 buff.Name,

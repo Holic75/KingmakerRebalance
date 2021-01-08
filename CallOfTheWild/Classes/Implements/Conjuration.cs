@@ -118,8 +118,10 @@ namespace CallOfTheWild
 
             var ability_neutralize_poison = Common.convertToSpellLike(neutralize_poison, prefix, classes, stat, resource, archetypes: getArchetypeArray());
             var ability_remove_disease = Common.convertToSpellLike(remove_disease, prefix, classes, stat, resource, archetypes: getArchetypeArray());
+            ability_neutralize_poison.SetName("Purge Corruption: " + ability_neutralize_poison.Name);
+            ability_remove_disease.SetName("Purge Corruption: " + ability_remove_disease.Name);
 
-            var wrapper = Common.createVariantWrapper(prefix + "PurgeCorruptionBase", "", neutralize_poison, remove_disease);
+            var wrapper = Common.createVariantWrapper(prefix + "PurgeCorruptionBase", "", ability_neutralize_poison, ability_remove_disease);
             wrapper.SetNameDescription("Purge Corruption", "As a standard action, you can expend 1 point of mental focus to draw out the corruption from a creature.\nThis ability functions as either neutralize poison or remove disease, using your occultist level as the caster level. Each use of this ability can cure only one poison or one disease. You must be at least 5th level to select this focus power.");
 
             addFocusInvestmentCheck(wrapper, SpellSchool.Conjuration);
