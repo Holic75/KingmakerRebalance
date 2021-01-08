@@ -8,6 +8,7 @@ using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
+using Kingmaker.UI.LevelUp;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.Mechanics;
@@ -154,5 +155,38 @@ namespace CallOfTheWild.LevelUpMechanics
             this.Apply();
         }
 
+        //allow multiple spontaneous spell choices
+        [Harmony12.HarmonyPatch(typeof(CharBSelectionSwitchSpells))]
+        [Harmony12.HarmonyPatch("ParseSpellSelection", Harmony12.MethodType.Normal)]
+        class CharBSelectionSwitchSpells__ParseSpellSelection__Patch
+        {
+            static bool Prefix(CharBSelectionSwitchSpells __instance, List<SpellSelectionData> ___m_ShowedSpellsCollections, ref bool ___HasEmptyCollections)
+            {
+                var tr = Harmony12.Traverse.Create(__instance);
+                int num = 0;
+                ___HasEmptyCollections = false;
+                foreach (SpellSelectionData spellsCollection in ___m_ShowedSpellsCollections)
+                {
+                    int prev = num;
+                    num = tr.Method("TryParseMemorizersCollections", spellsCollection, num).GetValue<int>(); //num = __instance.TryParseMemorizersCollections(spellsCollection, num);
+                    if (num == prev)
+                    {
+                        num = tr.Method("TryParseSpontaneuosCastersCollections", spellsCollection, num).GetValue<int>();//num = this.TryParseSpontaneuosCastersCollections(spellsCollection, num);
+                    }
+                }
+                ___HasEmptyCollections = num > 0;
+                __instance.HideSelectionViewsFrom(num);
+                if (__instance.HasSelections)
+                {
+                    if (___HasEmptyCollections)
+                        tr.Method("ActivateNextEmptyItem").GetValue();    //__instance.ActivateNextEmptyItem();
+                    else
+                        __instance.ActivateCurrentItem();
+                }
+                else
+                    __instance.Hide();
+                return false;
+            }
+        }
     }
 }

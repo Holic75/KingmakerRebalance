@@ -156,14 +156,13 @@ namespace CallOfTheWild
             Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
 
             fixRepeatingElements();
-
             if (update_archetypes)
             {
                 Main.logger.Log("Updating base kineticist archetypes");
                 updateKineticistArchetypes();
             }
         }
-
+        
 
         static void fixRepeatingElements()
         {
@@ -1397,68 +1396,6 @@ namespace CallOfTheWild
     }
 
 
-    //fix concentration checks for kineticist
-    [Harmony12.HarmonyPatch(typeof(RuleCheckConcentration))]
-    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-    class RuleCheckConcentration__OnTrigger__Patch
-    {
-        static bool Prefix(RuleCheckConcentration __instance, RulebookEventContext context)
-        {
-            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
-            {
-                return true;
-            }
-            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
-            if (kineticist_part == null)
-            {
-                return true;
-            }
-
-            var tr = Harmony12.Traverse.Create(__instance);
-            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
-            var ability_params = rule.Result;
-
-            tr.Property("DC").SetValue(__instance.Damage == null ? 15 + ability_params.SpellLevel : 10 + ability_params.SpellLevel + __instance.Damage.Damage / 2);
-
-            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
-            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
-            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
-            return false;
-        }
-    }
-
-
-    //fix concentration checks for kineticist
-    [Harmony12.HarmonyPatch(typeof(RuleCheckCastingDefensively))]
-    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
-    class RuleCheckCastingDefensively__OnTrigger__Patch
-    {
-        static bool Prefix(RuleCheckCastingDefensively __instance, RulebookEventContext context)
-        {
-            if (__instance.Spell.Blueprint.GetComponent<AbilityKineticist>() == null)
-            {
-                return true;
-            }
-            var kineticist_part = __instance.Initiator.Get<UnitPartKineticist>();
-            if (kineticist_part == null)
-            {
-                return true;
-            }
-
-            var tr = Harmony12.Traverse.Create(__instance);
-            var rule = Rulebook.Trigger<RuleCalculateAbilityParams>(new RuleCalculateAbilityParams(__instance.Initiator, __instance.Spell));
-            var ability_params = rule.Result;
-
-            tr.Property("DC").SetValue(15 + ability_params.SpellLevel * 2);
-
-            var bonus_concentration = Helpers.GetField<int>(rule, "m_BonusConcentration");
-            tr.Property("Concentration").SetValue(bonus_concentration + kineticist_part.ClassLevel + kineticist_part.MainStatBonus);
-            tr.Property("ResultRollRaw").SetValue(RulebookEvent.Dice.D20);
-            return false;
-        }
-    }
-
-
     //fix addAreaDamageTrigger to account for descriptors of ability that provoked it (for (greater) elemental fcous feat)
     [Harmony12.HarmonyPatch(typeof(AddAreaDamageTrigger))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
@@ -1466,8 +1403,7 @@ namespace CallOfTheWild
     {
         static bool Prefix(AddAreaDamageTrigger __instance, UnitEntityData target, ref TimeSpan ___m_LastFrameTime, ref HashSet<UnitEntityData> ___m_AffectedThisFrame)
         {
-            var ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;      
-            var original_blueprint = __instance.Fact.MaybeContext?.AssociatedBlueprint;
+            AbilityExecutionContext ability_context = null;
 
             TimeSpan gameTime = Game.Instance.TimeController.GameTime;
             if (gameTime != ___m_LastFrameTime)
@@ -1475,28 +1411,33 @@ namespace CallOfTheWild
                 ___m_LastFrameTime = gameTime;
                 ___m_AffectedThisFrame.Clear();
             }
+
             if (!___m_AffectedThisFrame.Add(target) || !__instance.Actions.HasActions)
                 return false;
             if (__instance.OwnerArea != null)
             {
                 ability_context = __instance.OwnerArea.Context?.SourceAbilityContext;
-            }
+                var original_blueprint = __instance.OwnerArea.Context?.AssociatedBlueprint;
+                Helpers.SetField(__instance.OwnerArea.Context, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
+                __instance.OwnerArea.Context?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
 
-            if (ability_context != null)
-            {
+                using (__instance.OwnerArea.Context?.GetDataScope((TargetWrapper)target))
+                    __instance.Actions.Run();
 
+                Helpers.SetField(__instance.OwnerArea.Context, "AssociatedBlueprint", original_blueprint);
+                __instance.OwnerArea.Context?.RecalculateAbilityParams();
             }
             else
             {
-                Main.logger.Log("Context is null");
+                ability_context = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                var original_blueprint = __instance.Fact.MaybeContext?.AssociatedBlueprint;
+                Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
+                __instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
+                (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
+                Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
+                __instance.Fact.MaybeContext?.RecalculateAbilityParams();
             }
 
-            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", ability_context?.AssociatedBlueprint);
-            __instance.Fact.MaybeContext?.RecalculateAbilityParams(); //will trigger RuleCalculate ability params since it normally has ContextAbilityParamsCalculator component
-
-            (__instance.Fact as IFactContextOwner)?.RunActionInContext(__instance.Actions, (TargetWrapper)target);
-            Helpers.SetField(__instance.Fact.MaybeContext, "AssociatedBlueprint", original_blueprint);
-            __instance.Fact.MaybeContext?.RecalculateAbilityParams();
 
             return false;
         }

@@ -415,6 +415,46 @@ namespace CallOfTheWild.OnCastMechanics
     }
 
 
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseBuffDurationForSchool : RuleInitiatorLogicComponent<RuleApplyBuff>
+    {
+        public ContextValue value;
+        public SpellSchool school;
+
+        public override void OnEventAboutToTrigger(RuleApplyBuff evt)
+        {
+            var ability = evt.Context.SourceAbilityContext?.Ability;
+            if (ability == null)
+            {
+                return;
+            }
+            if (!ability.Blueprint.IsSpell)
+            {
+                return;
+            }
+
+            if (ability.Blueprint.School != school)
+            {
+                return;
+            }
+
+            TimeSpan rounds = (value.Calculate(this.Fact.MaybeContext) * 6).Seconds();
+
+            if (!evt.Duration.HasValue)
+            {
+                return;
+            }
+            Harmony12.Traverse.Create(evt).Property("Duration").SetValue(evt.Duration + rounds);
+        }
+
+        public override void OnEventDidTrigger(RuleApplyBuff evt)
+        {
+
+        }
+    }
+
+
     public class ForceFocusSpellDamageDiceIncrease : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
     {
         public SpellDescriptorWrapper SpellDescriptor;

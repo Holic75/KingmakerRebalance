@@ -30,10 +30,47 @@ using UnityEngine;
 
 namespace CallOfTheWild.DeadTargetMechanics
 {
+    public class UnitPartIncreaseMaxUndeadHD : AdditiveUnitPart
+    {
+        public int getBonus()
+        {
+            int bonus = 0;
+            foreach (var b in buffs)
+            {
+                b.CallComponents<IncreaseMaxUndeadHD>(i => bonus += i.getBonus());
+            }
+            return bonus;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class IncreaseMaxUndeadHD : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public ContextValue value;
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartIncreaseMaxUndeadHD>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartIncreaseMaxUndeadHD>().removeBuff(this.Fact);
+        }
+
+
+        public int getBonus()
+        {
+            return this.value.Calculate(this.Fact.MaybeContext);
+        }
+
+    }
+
     [AllowedOn(typeof(BlueprintAbility))]
     public class AbilityTargetCanBeAnimated : BlueprintComponent, IAbilityTargetChecker
     {
         public Size max_size = Size.Colossal;
+        public bool check_skeleton = true;
         public bool CanTarget(UnitEntityData caster, TargetWrapper t)
         {
             UnitEntityData unit = t.Unit;
@@ -49,12 +86,17 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             if (unit != null && !unit.IsPlayerFaction && (unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && !unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
             {
-                bool can_raise = !unit.Descriptor.HasFact(Common.aberration)
+                bool can_raise = true;
+                if (check_skeleton)
+                {
+                    can_raise = !unit.Descriptor.HasFact(Common.aberration)
                                  && !unit.Descriptor.HasFact(Common.undead)
                                  && !unit.Descriptor.HasFact(Common.vermin)
                                  && !unit.Descriptor.HasFact(Common.elemental)
                                  && !unit.Descriptor.HasFact(Common.construct)
                                  && !unit.Descriptor.HasFact(Common.plant);
+
+                }
                 return can_raise && !unit.Descriptor.HasFact(Common.no_animate_feature);
             }
 
@@ -67,6 +109,7 @@ namespace CallOfTheWild.DeadTargetMechanics
     public class ContextConditionCanBeAnimated : ContextCondition
     {
         public Size max_size = Size.Colossal;
+        public bool check_skeleton = true;
 
         protected override string GetConditionCaption()
         {
@@ -88,12 +131,17 @@ namespace CallOfTheWild.DeadTargetMechanics
 
             if (unit != null && !unit.IsPlayerFaction && (unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.DeathDoor)) && !unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
             {
-                bool can_raise = !unit.Descriptor.HasFact(Common.aberration)
+                bool can_raise = true;
+                if (check_skeleton)
+                {
+                    can_raise = !unit.Descriptor.HasFact(Common.aberration)
                                  && !unit.Descriptor.HasFact(Common.undead)
                                  && !unit.Descriptor.HasFact(Common.vermin)
                                  && !unit.Descriptor.HasFact(Common.elemental)
                                  && !unit.Descriptor.HasFact(Common.construct)
                                  && !unit.Descriptor.HasFact(Common.plant);
+
+                }
                 return can_raise && !unit.Descriptor.HasFact(Common.no_animate_feature);
             }
 
@@ -101,6 +149,205 @@ namespace CallOfTheWild.DeadTargetMechanics
         }
     }
 
+    public class ContextActionAnimateUnit : ContextAction
+    {
+        public BlueprintSummonPool SummonPool;
+        public ContextDurationValue DurationValue;
+        public bool do_not_link_to_caster = false;
+        public ActionList AfterSpawn;
+
+        public override string GetCaption()
+        {
+            return "Animate Unit";
+        }
+
+        public override void RunAction()
+        {
+            UnitEntityData caster = this.Context.MaybeCaster;
+            if (caster == null)
+            {
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Caster is missing", (object[])Array.Empty<object>());
+            }
+            var unit = this.Target.Unit;
+            if (unit == null || !unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
+            {
+                return;
+            }
+
+            var blueprint = unit.Blueprint;
+            Rounds duration = this.DurationValue.Calculate(this.Context);
+            Vector3 clampedPosition = ObstacleAnalyzer.GetNearestNode(this.Target.Point).clampedPosition;
+            UnitEntityView unitEntityView = blueprint.Prefab.Load(false);
+
+            var target_size = unit.Descriptor.OriginalSize;
+
+            float radius = !((UnityEngine.Object)unitEntityView != (UnityEngine.Object)null) ? 0.5f : unitEntityView.Corpulence;
+            FreePlaceSelector.PlaceSpawnPlaces(1, radius, clampedPosition);
+
+            Vector3 relaxedPosition = FreePlaceSelector.GetRelaxedPosition(0, true);
+            UnitEntityData animated_unit = this.Context.TriggerRule<RuleSummonUnit>(new RuleSummonUnit(caster, blueprint, relaxedPosition, duration, 0)
+            {
+                Context = this.Context,
+                DoNotLinkToCaster = this.do_not_link_to_caster
+            }).SummonedUnit;
+            if (this.SummonPool != null)
+            {
+                GameHelper.RegisterUnitInSummonPool(this.SummonPool, animated_unit);
+            }
+
+            var level_up_component = animated_unit.Blueprint.GetComponent<AddClassLevels>();
+
+            int current_level = level_up_component.Levels;
+
+            animated_unit.Descriptor.State.AddCondition(UnitCondition.Unlootable, (Kingmaker.UnitLogic.Buffs.Buff)null);
+
+            using (this.Context.GetDataScope(animated_unit))
+            {
+                this.AfterSpawn.Run();
+            }
+
+            unit.Descriptor.AddFact(Common.no_animate_feature);
+        }
+    }
+
+
+    public class ContextActionAnimateDeadFixedHD : ContextAction
+    {
+        public BlueprintUnit Blueprint;
+        public BlueprintSummonPool SummonPool;
+        public ContextDurationValue DurationValue;
+        public bool adapt_size = true;
+        public bool do_not_link_to_caster = false;
+        public ActionList AfterSpawn;
+        public int str_bonus = 0;
+        public int dex_bonus = 0;
+        public bool transfer_equipment = false;
+        public ContextValue hd;
+        public ContextValue max_units;
+
+        static BlueprintCharacterClass[] racial_classes = new BlueprintCharacterClass[]
+        {
+            Main.library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"), //animal
+            Main.library.Get<BlueprintCharacterClass>("6ab4526f94d2e3e439af0599a29b6675"), //humanoid
+            Main.library.Get<BlueprintCharacterClass>("f2e6e760ead99fb48ade27c7e9d4ac94"), //fey
+            Main.library.Get<BlueprintCharacterClass>("b9e97f47cb86f2d45a0784a096ff8037"), //magical beast
+            Main.library.Get<BlueprintCharacterClass>("8a3c86893f383214da070e9c84c1e95b"), //monstrous humanoid
+            Main.library.Get<BlueprintCharacterClass>("9a20b40b57f4e684fa20d17c0edfd5ba"), //nymph
+            Main.library.Get<BlueprintCharacterClass>("92ab5f2fe00631b44810deffcc1a97fd"), //outsider
+            Main.library.Get<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc"), //dragon
+        };
+
+        public override string GetCaption()
+        {
+            return string.Format("Animate fixed hd {0} x {1} for {2}", (object)this.Blueprint.name, 1, (object)this.DurationValue);
+        }
+
+        public override void RunAction()
+        {
+            UnitEntityData caster = this.Context.MaybeCaster;
+            if (caster == null)
+            {
+                UberDebug.LogError((UnityEngine.Object)this, (object)"Caster is missing", (object[])Array.Empty<object>());
+            }
+            var unit = this.Target.Unit;
+            if (unit == null || !unit.Descriptor.State.IsDead || unit.Descriptor.State.HasCondition(UnitCondition.Petrified))
+            {
+                return;
+            }
+
+            var total_units = getUsedUnits(this.Context, this.SummonPool);
+            if (total_units >= max_units.Calculate(this.Context))
+            {
+                Common.AddBattleLogMessage($"{caster.CharacterName} can not animate more corpses.");
+                return;
+            }
+
+            Rounds duration = this.DurationValue.Calculate(this.Context);
+
+            int level = hd.Calculate(this.Context);
+          
+            Vector3 clampedPosition = ObstacleAnalyzer.GetNearestNode(this.Target.Point).clampedPosition;
+            UnitEntityView unitEntityView = this.Blueprint.Prefab.Load(false);
+
+            var target_size = unit.Descriptor.OriginalSize;
+
+            float radius = !((UnityEngine.Object)unitEntityView != (UnityEngine.Object)null) ? 0.5f : unitEntityView.Corpulence;
+            FreePlaceSelector.PlaceSpawnPlaces(1, radius, clampedPosition);
+
+            Vector3 relaxedPosition = FreePlaceSelector.GetRelaxedPosition(0, true);
+            UnitEntityData animated_unit = this.Context.TriggerRule<RuleSummonUnit>(new RuleSummonUnit(caster, this.Blueprint, relaxedPosition, duration, 0)
+            {
+                Context = this.Context,
+                DoNotLinkToCaster = this.do_not_link_to_caster
+            }).SummonedUnit;
+            if (this.SummonPool != null)
+            {
+                GameHelper.RegisterUnitInSummonPool(this.SummonPool, animated_unit);
+            }
+
+            var level_up_component = animated_unit.Blueprint.GetComponent<AddClassLevels>();
+
+            int current_level = level_up_component.Levels;
+
+            animated_unit.Stats.Strength.BaseValue = unit.Stats.Strength.BaseValue + str_bonus;
+            animated_unit.Stats.Dexterity.BaseValue = unit.Stats.Dexterity.BaseValue + dex_bonus;
+
+            if (adapt_size)
+            {
+                animated_unit.Descriptor.AddFact(Common.size_override_facts[target_size], null, null);
+            }
+
+            if (current_level < level)
+            {
+                level_up_component.LevelUp(animated_unit.Descriptor, level - current_level);
+            }
+
+            if (transfer_equipment && unit.Body.HandsAreEnabled)
+            {
+                List<ItemSlot> list1 = unit.Body.EquipmentSlots.ToList<ItemSlot>();
+                List<ItemSlot> list2 = animated_unit.Body.EquipmentSlots.ToList<ItemSlot>();
+                for (int index = 0; index < list1.Count && index < list2.Count; ++index)
+                {
+                    ItemEntity maybeItem = list1[index].MaybeItem;
+                    if (maybeItem != null)
+                        animated_unit.Body.TryInsertItem(maybeItem.Blueprint, list2[index]);
+                }
+                animated_unit.Body.CurrentHandEquipmentSetIndex = unit.Body.CurrentHandEquipmentSetIndex;
+            }
+            animated_unit.Descriptor.State.AddCondition(UnitCondition.Unlootable, (Kingmaker.UnitLogic.Buffs.Buff)null);
+
+
+            using (this.Context.GetDataScope(animated_unit))
+            {
+                this.AfterSpawn.Run();
+            }
+
+            unit.Descriptor.AddFact(Common.no_animate_feature);
+
+            animated_unit.Descriptor.CustomName = "Animated " + unit.Descriptor.CharacterName + $" ({level} HD)";
+            EventBus.RaiseEvent<IUnitNameHandler>((Action<IUnitNameHandler>)(h => h.OnUnitNameChanged(animated_unit)));
+        }
+
+        int getUsedUnits(MechanicsContext context, BlueprintSummonPool summon_pool)
+        {
+            ISummonPool pool = Game.Instance.SummonPools.GetPool(this.SummonPool);
+            if (pool == null)
+            {
+                return 0;
+            }
+
+            int units = 0;
+            foreach (UnitEntityData unit in pool.Units)
+            {
+                if (unit.Get<UnitPartSummonedMonster>().Summoner == context.MaybeCaster)
+                {
+                    units += 1;
+                }
+            }
+
+            return units;
+        }
+    }
 
 
     public class ContextActionAnimateDead : ContextAction
@@ -108,7 +355,6 @@ namespace CallOfTheWild.DeadTargetMechanics
         public BlueprintUnit Blueprint;
         public BlueprintSummonPool SummonPool;
         public ContextDurationValue DurationValue;
-        public bool DoNotLinkToCaster;
         public bool adapt_size = true;
         public bool do_not_link_to_caster = false;
         public ActionList AfterSpawn;
@@ -154,12 +400,17 @@ namespace CallOfTheWild.DeadTargetMechanics
             int max_lvl = this.Context.Params.CasterLevel * hd_cl_multiplier * (this.Context.MaybeCaster.Descriptor.HasFact(ChannelEnergyEngine.desecrate_buff) ? 2 : 1);
             if (level > max_lvl)
             {
-                Common.AddBattleLogMessage($"{unit.CharacterName} corpse HD ({level}) is beyond your {caster.CharacterName}'s to animate ({max_lvl}).");
+                Common.AddBattleLogMessage($"{unit.CharacterName} corpse HD ({level}) is beyond {caster.CharacterName}'s capacity to animate ({max_lvl}).");
                 return;
             }
 
             //Main.logger.Log("Animate Dead: Remaining HD limit: " + getUsedHD(this.Context, SummonPool).ToString() + "/" + (this.Context.Params.CasterLevel * max_hd_cl_multiplier).ToString());
             int max_total_hd = this.Context.Params.CasterLevel * max_hd_cl_multiplier;
+            var unit_part_max_hd_bonus = this.Context.MaybeCaster?.Get<UnitPartIncreaseMaxUndeadHD>();
+            if (unit_part_max_hd_bonus != null)
+            {
+                max_total_hd += unit_part_max_hd_bonus.getBonus();
+            }
             int used_hd = getUsedHD(this.Context, SummonPool);
             int remaining_hd = max_total_hd - used_hd;
             if ( level > remaining_hd)

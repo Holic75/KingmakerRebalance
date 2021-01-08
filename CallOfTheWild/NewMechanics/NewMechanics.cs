@@ -74,6 +74,7 @@ using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.AreaLogic.SummonPool;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UI.LevelUp;
 
 namespace CallOfTheWild
 {
@@ -1806,7 +1807,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
-                if (evt.Target.CombatState.IsFlanked && evt.DamageBundle.Weapon?.Blueprint.IsMelee == true)
+                if (evt.Target.CombatState.IsFlanked && (evt.DamageBundle.Weapon?.Blueprint.IsMelee).GetValueOrDefault() == true)
                 {
                     evt.DamageBundle.WeaponDamage?.AddBonusTargetRelated(bonus);
                 }
@@ -3224,6 +3225,44 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
                 if (evt.Weapon == null)
+                {
+                    return;
+                }
+
+                if (attack_types.Contains(evt.AttackType))
+                {
+                    evt.AutoMiss = true;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+
+            }
+        }
+
+
+        [ComponentName("Weapon Attack Auto Miss")]
+        [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+        public class AutoMissChance : RuleTargetLogicComponent<RuleAttackRoll>, ITargetRulebookHandler<RuleAttackRoll>
+        {
+            public AttackType[] attack_types;
+            public bool illusion_effect;
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                if ((evt.Initiator.Descriptor.State.HasCondition(UnitCondition.SeeInvisibility) || evt.Initiator.Descriptor.State.HasCondition(UnitCondition.TrueSeeing)) 
+                    && illusion_effect)
+                {
+                    return;
+                }
+
+                var d100 = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100));
+
+                var chance = value.Calculate(this.Fact.MaybeContext);
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" {(chance >= d100 ? "fais to overcome" : "overcomes")} miss chance on " + this.Owner.CharacterName + $": {d100}/{chance}");
+                if (chance < d100)
                 {
                     return;
                 }
@@ -4926,6 +4965,10 @@ namespace CallOfTheWild
 
             private void Apply()
             {
+                if (Owner.HasFact(Feature))
+                {
+                    return;
+                }
                 if (this.m_AppliedFact != null)
                     return;
 
@@ -6010,6 +6053,55 @@ namespace CallOfTheWild
         }
 
 
+        public class SpellsDCBonusAgainstFact : OwnedGameLogicComponent<UnitDescriptor>, MetamagicFeats.IRuleSavingThrowTriggered
+        {
+            public BlueprintUnitFact fact;
+            public ContextValue value;
+            public ModifierDescriptor descriptor;
+
+            public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
+            {
+                var context = evt.Reason?.Context;
+                if (context == null)
+                {
+                    return;
+                }
+
+                var caster = context.MaybeCaster;
+                if (caster == null)
+                {
+                    return;
+                }
+
+                if (caster != this.Owner.Unit)
+                {
+                    return;
+                }
+
+                if (!(context.SourceAbility?.IsSpell).GetValueOrDefault())
+                {
+                    return;
+                }
+
+                if (!evt.Initiator.Descriptor.HasFact(fact))
+                {
+                    return;
+                }
+
+
+                var bonus = -value.Calculate(this.Fact.MaybeContext);
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.descriptor));
+            }
+
+            public void ruleSavingThrowTriggered(RuleSavingThrow evt)
+            {
+
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class PersistentTemporaryHitPoints : OwnedGameLogicComponent<UnitDescriptor>, ITargetRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, ITargetRulebookSubscriber
         {
@@ -6337,6 +6429,8 @@ namespace CallOfTheWild
             public BlueprintAbilityAreaEffect AreaEffect;
             public ContextDurationValue DurationValue;
             public Vector2[] points_around_target;
+            public bool use_caster_as_origin = false;
+            public bool ignore_direction = false;
 
             public override string GetCaption()
             {
@@ -6345,11 +6439,18 @@ namespace CallOfTheWild
 
             public override void RunAction()
             {
-                var pt = (this.Target.Point - this.Context.MaybeCaster.Position).To2D().normalized;
-                var n = new Vector2(-pt.y, pt.x);
+                var origin = use_caster_as_origin ? this.Context.MaybeCaster.Position : this.Target.Point;
+                var nx = new Vector2();
+                var ny = new Vector2();
+                if (!ignore_direction)
+                {
+                    nx = (this.Target.Point - this.Context.MaybeCaster.Position).To2D().normalized;
+                    ny = new Vector2(-nx.y, nx.x);                 
+                }
                 foreach (var p in points_around_target)
                 {
-                    var target = new TargetWrapper(this.Target.Point + (n*UnityEngine.Vector2.Dot(n,p)).To3D());
+                    var dp = ignore_direction ? p : (nx * p.x + ny * p.y);
+                    var target = new TargetWrapper(origin + dp.To3D());
                     AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
                     if (this.AbilityContext == null)
                         return;
@@ -7589,6 +7690,7 @@ namespace CallOfTheWild
 
             private bool CheckTandemTrip(RuleCombatManeuver evt)
             {
+                //isFlanked here is used to determine that enemy is engaged by at least two units and not for actual flanking
                 if (!evt.Target.CombatState.IsFlanked || evt.Type != CombatManeuver.Trip)
                     return false;
                 bool flag = (bool)this.Owner.State.Features.SoloTactics;
@@ -7870,6 +7972,24 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityShowIfHasClassLevels : BlueprintComponent, IAbilityVisibilityProvider
+        {
+            public BlueprintCharacterClass[] character_classes;
+            public int level;
+
+            public bool IsAbilityVisible(AbilityData ability)
+            {
+                var lvl = 0;
+                foreach (var c in character_classes)
+                {
+                    lvl += ability.Caster.Progression.GetClassLevel(c);
+                }
+                return lvl >= level;
+            }
+        }
+
+
 
         public class ContextConditionEngagedByCaster : ContextCondition
         {
@@ -7964,6 +8084,63 @@ namespace CallOfTheWild
         }
 
 
+        public class addClassSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
+        {
+            [JsonProperty]
+            bool applied;
+            public BlueprintSpellList spell_list;
+            public int spell_level;
+            public BlueprintCharacterClass character_class;
+
+            public void HandleLevelUpComplete(UnitEntityData unit, bool isChargen)
+            {
+            }
+
+            public override void OnFactActivate()
+            {
+                var spell_book = this.Owner.GetSpellbook(character_class)?.Blueprint;              
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, 1 + existingNewSpells);
+                        applied = true;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+
+
+            public override void OnFactDeactivate()
+            {
+                var spell_book = this.Owner.GetSpellbook(character_class)?.Blueprint;
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, existingNewSpells - 1);
+                        applied = false;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+        }
+
+
 
         public class addSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
         {
@@ -7988,6 +8165,27 @@ namespace CallOfTheWild
                         int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
                         spellSelection.SetLevelSpells(spell_level, 1 + existingNewSpells);
                         applied = true;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e);
+                }
+            }
+
+
+            public override void OnFactDeactivate()
+            {
+                try
+                {
+                    var levelUp = Game.Instance.UI.CharacterBuildController?.LevelUpController;
+                    if (Owner == levelUp?.Preview || Owner == levelUp?.Unit)
+                    {
+                        var spellSelection = levelUp.State.DemandSpellSelection(spell_book, spell_list);
+                        int existingNewSpells = spellSelection.LevelCount[spell_level]?.SpellSelections.Length ?? 0;
+                        spellSelection.SetLevelSpells(spell_level, existingNewSpells - 1);
+                        applied = false;
                     }
 
                 }
@@ -8881,6 +9079,31 @@ namespace CallOfTheWild
             }
         }
 
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextValueIntenseSpells : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                BaseDamage baseDamage = evt.DamageBundle.FirstOrDefault<BaseDamage>();
+                AbilityData ability = evt.Reason.Ability;
+                if (ability == (AbilityData)null || ability.Blueprint.School != SpellSchool.Evocation || baseDamage == null || evt.ParentRule.Projectile != null && !evt.ParentRule.Projectile.IsFirstProjectile)
+                    return;
+
+                int bonusDamage = value.Calculate(this.Fact.MaybeContext);
+
+                baseDamage.AddBonus(bonusDamage);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
         public class AddClassesLevelToSummonDuration : RuleInitiatorLogicComponent<RuleSummonUnit>
         {
             public BlueprintCharacterClass[] CharacterClasses;
@@ -8906,6 +9129,50 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class AddContextValueToSummonDuration : RuleInitiatorLogicComponent<RuleSummonUnit>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleSummonUnit evt)
+            {
+                AbilityData ability = evt.Reason.Ability;
+                if (((object)ability != null ? ability.Spellbook : (Spellbook)null) == null || ability.Blueprint.School != SpellSchool.Conjuration)
+                    return;
+
+                int num = value.Calculate(this.Fact.MaybeContext);
+                evt.BonusDuration += num.Rounds();
+            }
+
+            public override void OnEventDidTrigger(RuleSummonUnit evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintBuff))]
+        public class MaximumWeaponDamageOnCriticalHit : BuffLogic, ITargetRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, ITargetRulebookSubscriber
+        {
+            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                var weapon_damage = evt.DamageBundle?.WeaponDamage;
+                if (weapon_damage == null)
+                {
+                    return;
+                }
+
+                if (!(evt.ParentRule?.AttackRoll?.IsCriticalConfirmed).GetValueOrDefault())
+                {
+                    return;
+                }
+
+                weapon_damage.Maximized = true;
+            }
+
+            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
 
         [ComponentName("Armor check penalty increase")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -10527,5 +10794,10 @@ namespace CallOfTheWild
         }
 
 
+
+        public interface IMentalFocusChangedHandler : IGlobalSubscriber
+        {
+            void onMentalFocusChanged(UnitDescriptor unit);
+        }
     }
 }

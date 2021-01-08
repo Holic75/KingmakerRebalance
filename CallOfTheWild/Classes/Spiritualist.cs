@@ -1927,7 +1927,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f34fb78eaaec141469079af124bcfa0f", 4), //enervation
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
-                new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
+                new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
                 new Common.SpellId( "651110ed4f117a948b41c05c5c7624c0", 4), //inflict critical wounds
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
                 new Common.SpellId( "e7240516af4241b42b2cd819929ea9da", 4), //neutralize poison

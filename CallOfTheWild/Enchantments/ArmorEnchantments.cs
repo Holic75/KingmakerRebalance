@@ -18,6 +18,9 @@ using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums.Damage;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
+using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Abilities;
 
 namespace CallOfTheWild
 {
@@ -29,6 +32,7 @@ namespace CallOfTheWild
         public static BlueprintArmorEnchantment[] fortification_enchantments;
         public static BlueprintArmorEnchantment[] spell_resistance_enchantments;
         public static Dictionary<DamageEnergyType, BlueprintArmorEnchantment[]> energy_resistance_enchantments;
+        public static BlueprintArmorEnchantment spell_storing;
 
 
         static internal void initialize()
@@ -38,6 +42,88 @@ namespace CallOfTheWild
             createFortificationEnchantments();
             createSpellResistanceEnchantments();
             createEnergyResistanceEnchantments();
+            createSpellStoring();
+        }
+
+
+        static void createSpellStoring()
+        {
+            var icon = Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"); //armor focus
+            var feature = Helpers.CreateFeature("ArmorSpellStoringFeature",
+                                                "Spell Storing Armor",
+                                                "This armor allows a spellcaster to store a single touch spell of up to 3rd level in it. Anytime a creature hits the wearer with a melee attack or melee touch attack, the armor can cast the spell on that creature as a swift immediate action if the wearer desires. Once the spell has been cast from the armor, a spellcaster can cast any other targeted touch spell of up to 3rd level into it. The armor magically imparts to the wielder the name of the spell currently stored within it.",
+                                                "",
+                                                icon,
+                                                FeatureGroup.None,
+                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(a => a.always_hit = true));
+
+            var release_buff = Helpers.CreateBuff("ArmorSpellStoringToggleBuff",
+                                                  feature.Name + ": Release",
+                                                  feature.Description,
+                                                  "",
+                                                  feature.Icon,
+                                                  null,
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = feature));
+
+            var major_activatable_ability = Helpers.CreateActivatableAbility("ArmorSpellStoringToggleAbility",
+                                                                             feature.Name + ": Release",
+                                                                             feature.Description,
+                                                                             "",
+                                                                             feature.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = feature));
+            major_activatable_ability.DeactivateImmediately = true;
+
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = feature);
+            var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
+            feature.AddComponent(Common.createAddTargetAttackWithWeaponTrigger(action_attacker: Helpers.CreateActionList(release_on_condition), not_reach: false));
+            feature.AddComponent(Helpers.CreateAddFact(major_activatable_ability));
+
+            int max_variants = 10; //due to ui limitation
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.SpellLevel <= 3
+                        && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
+                        && spell.Blueprint.Range != AbilityRange.Personal
+                        && spell.Blueprint.CanTargetEnemies
+                        && !spell.Blueprint.CanTargetPoint
+                        && !spell.Blueprint.IsFullRoundAction
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && !spell.Blueprint.HasAreaEffect()
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent);
+            };
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var ability = Helpers.CreateAbility($"ArmorSpellStoring{i + 1}Ability",
+                                                          feature.Name,
+                                                          feature.Description,
+                                                          "",
+                                                          feature.Icon,
+                                                          AbilityType.Supernatural,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Personal,
+                                                          "",
+                                                          "",
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
+                                                          );
+                ability.setMiscAbilityParametersSelfOnly();
+                feature.AddComponent(Helpers.CreateAddFact(ability));
+            }
+
+            spell_storing = Common.createArmorEnchantment("SpellStoringArmorEnchantment",
+                                                                  "Spell Storing",
+                                                                  feature.Description,
+                                                                  "",
+                                                                  "",
+                                                                  "",
+                                                                  0,
+                                                                  1,
+                                                                  Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = feature)
+                                                                  );
         }
 
 

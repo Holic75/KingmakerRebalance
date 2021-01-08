@@ -361,6 +361,21 @@ namespace CallOfTheWild
             return new BlueprintComponent[] { learn_spells, bind_spells };
         }
 
+
+        public static BlueprintComponent[] createOrisons(BlueprintCharacterClass character_class,
+                       StatType stat, BlueprintAbility[] spells)
+        {
+            var learn_spells = Helpers.Create<LearnSpells>();
+            learn_spells.CharacterClass = character_class;
+            learn_spells.Spells = spells;
+
+            var bind_spells = Helpers.CreateBindToClass(character_class, stat, spells);
+            bind_spells.LevelStep = 1;
+            bind_spells.Cantrip = false;
+
+            return new BlueprintComponent[] { learn_spells, bind_spells };
+        }
+
         public static Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved createContextSavedApplyBuff(BlueprintBuff buff, DurationRate duration_rate,
                                                                                                                         AbilityRankType rank_type = AbilityRankType.Default,
                                                                                                                         bool is_from_spell = true, bool is_permanent = false, bool is_child = false,
@@ -553,6 +568,12 @@ namespace CallOfTheWild
         static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplySpellBuff(BlueprintBuff buff, ContextDurationValue duration)
         {
             return createContextActionApplyBuff(buff, duration, true);
+        }
+
+
+        static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyChildBuff(BlueprintBuff buff)
+        {
+            return createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
         }
 
         static public Kingmaker.UnitLogic.Mechanics.Actions.ContextActionApplyBuff createContextActionApplyBuff(BlueprintBuff buff, ContextDurationValue duration, bool is_from_spell = false,

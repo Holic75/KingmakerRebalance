@@ -166,6 +166,53 @@ namespace CallOfTheWild.HealingMechanics
         }
     }
 
+    public class UnitPartBonusHealing : AdditiveUnitPart
+    {
+        public int getAmount(BlueprintAbility spell)
+        {
+            var amount = 0;
+
+            foreach (var b in buffs)
+            {
+                var comp = b.Blueprint.GetComponent<BonusHealing>();
+                if (comp == null)
+                {
+                    continue;
+                }
+                b.CallComponents<BonusHealing>(a => amount += a.getBonusHealing(spell));
+            }
+
+            return amount;
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class BonusHealing : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
+    {
+        public ContextValue value;
+        public BlueprintAbility[] spells;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartBonusHealing>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartBonusHealing>().removeBuff(this.Fact);
+        }
+
+        public int getBonusHealing(BlueprintAbility spell)
+        {
+            if (spells.Contains(spell))
+            {
+                return value.Calculate(this.Fact.MaybeContext);
+            }
+            return 0;
+        }
+    }
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
@@ -336,6 +383,8 @@ namespace CallOfTheWild.HealingMechanics
 
                 int dice_count = __instance.Value.DiceCountValue.Calculate(context);
                 bonus += target.Descriptor.Ensure<UnitPartReceiveBonusHpPerDie>().getAmount(context.SourceAbility) * dice_count;
+                var extra_bonus = (context.MaybeCaster?.Get<UnitPartBonusHealing>()?.getAmount(context.SourceAbility)).GetValueOrDefault();
+                bonus += extra_bonus;
 
                 if (target.Descriptor.Ensure<UnitPartReceiveBonusCasterLevelHealing>().active() && context.SourceAbility != null && __instance.Value != null)
                 {

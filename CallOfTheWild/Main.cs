@@ -241,6 +241,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixAuraOfJustice();
                     CallOfTheWild.Rebalance.fixArchetypeKineticistGatherPowerWithShield();
                     CallOfTheWild.Rebalance.fixSuppressBuffs();
+                    CallOfTheWild.Rebalance.fixBlindingRay();
 
                     if (settings.secondary_rake_attacks)
                     {
@@ -279,6 +280,7 @@ namespace CallOfTheWild
                     CallOfTheWild.HolyVindicator.test_mode = true;
                     CallOfTheWild.NewFeats.test_mode = true;
                     CallOfTheWild.VindicativeBastard.test_mode = true;
+                    CallOfTheWild.Occultist.test_mode = true;
                     inquisitions_test = true;
                     CallOfTheWild.RogueTalents.test_mode = true;
 #endif
@@ -304,10 +306,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
                     CallOfTheWild.Psychic.createPsychicClass();
+                    CallOfTheWild.Occultist.createOccultistClass();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.BloodlinesFix.load();
                     CallOfTheWild.Archetypes.PrimalSorcerer.create();
-                    CallOfTheWild.Arcanist.createArcanistClass();
+                    CallOfTheWild.Arcanist.createArcanistClass();                    
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.SharedSpells.load();
                     

@@ -1,9 +1,11 @@
 ﻿using Harmony12;
+using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Combat;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
 using Kingmaker.Items.Slots;
@@ -14,6 +16,8 @@ using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
@@ -177,6 +181,41 @@ namespace CallOfTheWild.AooMechanics
     }
 
 
+    public class ContextActionProvokeAttackOfOpportunityFromAnyoneExceptCaster : ContextAction
+    {
+        public int max_units;
+      
+        public override string GetCaption()
+        {
+            return "Target provokes AoO";
+        }
+
+        public override void RunAction()
+        {
+            int available_units = max_units;
+            UnitEntityData unit =  this.Target.Unit;
+            if (unit == null)
+                UberDebug.LogError((object)"Target is missing", (object[])Array.Empty<object>());
+            else
+            {
+                foreach (var u in unit.CombatState.EngagedBy)
+                {
+                    if (u == this.Context.MaybeCaster)
+                    {
+                        continue;
+                    }
+                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(u, unit);
+                    available_units--;
+                    if (available_units <= 0)
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+
     [AllowMultipleComponents]
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class DoNotProvokeAoo : RuleInitiatorLogicComponent<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
@@ -198,7 +237,6 @@ namespace CallOfTheWild.AooMechanics
     {
         public WeaponCategory[] weapon_categories;
         public ContextValue value;
-        public bool only_ranged = true;
 
         public override void OnEventAboutToTrigger(RuleAttackRoll evt)
         {
@@ -209,7 +247,8 @@ namespace CallOfTheWild.AooMechanics
             }
            
             var bonus = value.Calculate(this.Fact.MaybeContext);
-            evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
+            evt.CriticalConfirmationBonus += bonus;
+            //evt.AddTemporaryModifier(evt.Target.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable));
         }
 
         private bool check(RuleAttackWithWeapon evt)
@@ -402,6 +441,47 @@ namespace CallOfTheWild.AooMechanics
             }
 
             return null;
+        }
+    }
+
+
+    public class ApplyActionToCasterAndMakeAttackOfOpportunityOnAttack : RuleTargetLogicComponent<RuleAttackWithWeapon>
+    {
+        public BlueprintAbilityResource required_resource;
+        public bool consume_swift_action;
+        public int resource_amount = 1;
+        public ActionList actions;
+
+        public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+        {
+
+        }
+
+        public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+        {
+            if (this.Owner.Unit.CombatState.AttackOfOpportunityCount <= 0 )
+            {
+                return;
+            }
+
+            if (required_resource != null && this.Owner.Resources.GetResourceAmount(required_resource) < resource_amount)
+            {
+                return;
+            }
+
+            if (consume_swift_action && this.Owner.Unit.CombatState.Cooldown.SwiftAction > 0.0f)
+            {
+                return;
+            }
+
+            if (!this.Owner.Unit.CombatState.IsEngage(evt.Initiator))
+            {
+                return;
+            }
+
+            this.Owner.Resources.Spend(required_resource, resource_amount);
+            (this.Fact as IFactContextOwner).RunActionInContext(actions, this.Owner.Unit);
+            Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);          
         }
     }
 

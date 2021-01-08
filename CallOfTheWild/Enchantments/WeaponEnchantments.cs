@@ -55,6 +55,16 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment heartseeker;
         static public BlueprintWeaponEnchantment menacing;
         static public BlueprintWeaponEnchantment vorpal;
+
+        static public BlueprintWeaponEnchantment thundering = library.Get<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96");
+        static public BlueprintWeaponEnchantment vicious = library.Get<BlueprintWeaponEnchantment>("a1455a289da208144981e4b1ef92cc56");
+        static public BlueprintWeaponEnchantment bane = library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a");
+
+        static public BlueprintWeaponEnchantment cold_iron = library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8");
+        static public BlueprintWeaponEnchantment mithral = library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875");
+        static public BlueprintWeaponEnchantment adamantine = library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b");
+
+        static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
         static public void initialize()
         {
             createMetamagicEnchantments();
@@ -67,6 +77,9 @@ namespace CallOfTheWild
             createHeartSeekerEnchant();
             createMenacingEnchant();
             createVorpalEnchant();
+
+            var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("6cbb732b9d638724a960d784634dcdcf"); //plasma
+            dazzling_blade_fx_enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
         }
 
 
@@ -80,7 +93,7 @@ namespace CallOfTheWild
             vorpal = Common.createWeaponEnchantment("VorpalWeaponEnchantment",
                                           "Vorpal",
                                           "This potent and feared ability allows the weapon to sever the heads of those it strikes.\n"
-                                          + "Upon a roll of natural 20 (followed by a successful roll to confirm the critical hit), the weapon severs the opponent’s head (if it has one) from its body. Some creatures, such as many aberrations and all oozes, have no heads. Others, such as golems and undead creatures other than vampires, are not affected by the loss of their heads. Most other creatures, however, die when their heads are cut off. A vorpal weapon must be a slashing melee weapon. If you roll this special ability randomly for an inappropriate weapon, reroll.",
+                                          + "Upon a roll of natural 20 (followed by a successful roll to confirm the critical hit), the weapon severs the opponent’s head (if it has one) from its body. Some creatures, such as many aberrations and all oozes, have no heads. Others, such as golems and undead creatures other than vampires, are not affected by the loss of their heads. Most other creatures, however, die when their heads are cut off.",
                                            "",
                                            "",
                                            "",

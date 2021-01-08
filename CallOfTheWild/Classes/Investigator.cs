@@ -682,6 +682,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.telekinetic_strikes.AssetGuid, 2),
                 new Common.SpellId( NewSpells.thought_shield[0].AssetGuid, 2),
+                new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 2),
 
                 new Common.SpellId( NewSpells.babble.AssetGuid, 3),
                 new Common.SpellId( "0a2f7c6aa81bc6548ac7780d8b70bcbc", 3), //battering blast (it seems it should be on the list since all force spells are there)
@@ -693,6 +694,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "486eaff58293f6441a5c2759c4872f98", 3), //haste
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
+                new Common.SpellId( NewSpells.locate_weakness.AssetGuid, 3),
                 new Common.SpellId( NewSpells.mental_barrier[1].AssetGuid, 3),
                 new Common.SpellId( NewSpells.mind_thrust[2].AssetGuid, 3),
                 new Common.SpellId( "96c9d98b6a9a7c249b6c4572e4977157", 3), //protection from arrows communal
@@ -723,7 +725,8 @@ namespace CallOfTheWild
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fleshworm_infestation.AssetGuid, 4),
-                new Common.SpellId( "4c349361d720e844e846ad8c19959b1e", 4), //freedom of movement
+                new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
+                new Common.SpellId( NewSpells.globe_of_invulnerability_lesser.AssetGuid, 4),
                 new Common.SpellId( NewSpells.intellect_fortress.AssetGuid, 4),
                 new Common.SpellId( NewSpells.invigorate_mass.AssetGuid, 4),
                 new Common.SpellId( "ecaa0def35b38f949bd1976a6c9539e0", 4), //invisibility greater
@@ -781,6 +784,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "2caa607eadda4ab44934c5c9875e01bc", 6), //eagles splendor mass
                 new Common.SpellId( NewSpells.fluid_form.AssetGuid, 6),
                 new Common.SpellId( "2b24159ad9907a8499c2313ba9c0f615", 6), //fox cunning mass
+                new Common.SpellId( NewSpells.globe_of_invulnerability.AssetGuid, 6),
                 new Common.SpellId( "e15e5e7045fda2244b98c8f010adfe31", 6), //heroism greater
                 new Common.SpellId( NewSpells.inflict_pain_mass.AssetGuid, 6),
                 new Common.SpellId( "15a04c40f84545949abeedef7279751a", 6), //joyful rapture

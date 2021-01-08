@@ -705,7 +705,7 @@ namespace CallOfTheWild
         {
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             //Since it is a bit tricky to provide favored terran damage bonuses as per RAW
-            //I decided to replace this feature with 4 favored enemies at levels 6, 10, 14 and 18 (with rank increases).
+            //I decided to replace this feature with 4 favored enemies at levels 6, 10, 14 and 18 (without rank increases).
             divine_hunter_archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "DivineHunterHunterArchetype";

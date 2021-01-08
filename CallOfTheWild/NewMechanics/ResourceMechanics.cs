@@ -25,7 +25,7 @@ namespace CallOfTheWild.ResourceMechanics
 
     public class UnitPartConnectResource: AdditiveUnitPart
     {
-        public BlueprintAbilityResource getConnectedResource(BlueprintAbilityResource base_resource)
+        public BlueprintAbilityResource[] getConnectedResource(BlueprintAbilityResource base_resource)
         {
             foreach (var b in buffs)
             {
@@ -34,7 +34,7 @@ namespace CallOfTheWild.ResourceMechanics
                 {
                     continue;
                 }
-                return r.connected_resource;
+                return r.connected_resources;
             }
 
             return null;
@@ -45,7 +45,7 @@ namespace CallOfTheWild.ResourceMechanics
     public class ConnectResource: OwnedGameLogicComponent<UnitDescriptor>
     {
         public BlueprintAbilityResource base_resource;
-        public BlueprintAbilityResource connected_resource;
+        public BlueprintAbilityResource[] connected_resources;
 
         public override void OnTurnOn()
         {
@@ -82,7 +82,7 @@ namespace CallOfTheWild.ResourceMechanics
             }
             else
             {
-                unit.Descriptor.Resources.Restore(Resource, unit.Descriptor.Resources.GetResourceAmount(Resource));
+                unit.Descriptor.Resources.Restore(Resource);
             }
 
         }
@@ -333,13 +333,66 @@ namespace CallOfTheWild.ResourceMechanics
         static void Postfix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, int amount)
         {
             var owner = Helpers.GetField<UnitDescriptor>(__instance, "m_Owner");
-            var connected_resource = owner?.Get<UnitPartConnectResource>()?.getConnectedResource(blueprint as BlueprintAbilityResource);
-            if (connected_resource == null)
+            var connected_resources = owner?.Get<UnitPartConnectResource>()?.getConnectedResource(blueprint as BlueprintAbilityResource);
+            if (connected_resources == null || connected_resources.Length == 0)
             {
                 return;
             }
 
-            __instance.Spend(connected_resource, amount);
+            connected_resources = connected_resources.OrderByDescending(c => __instance.GetResourceAmount(c)).ToArray();
+            var max_resource_id = 0;            
+            while (amount > 0)
+            {
+                var next_resource_id = (max_resource_id + 1) % connected_resources.Length;
+                if (__instance.GetResourceAmount(connected_resources[next_resource_id]) > __instance.GetResourceAmount(connected_resources[max_resource_id]))
+                {
+                    max_resource_id = next_resource_id;
+                }
+                __instance.Spend(connected_resources[max_resource_id], 1);
+                amount--;
+            }
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
+    [Harmony12.HarmonyPatch("HasEnoughResource", Harmony12.MethodType.Normal)]
+    class UnitAbilityResourceCollection__HasEnoughResource__Patch
+    {
+        static bool Prefix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, int amount, ref bool __result)
+        {
+            __result = __instance.GetResourceAmount(blueprint) >= amount;
+            return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitAbilityResourceCollection))]
+    [Harmony12.HarmonyPatch("GetResourceAmount", Harmony12.MethodType.Normal)]
+    class UnitAbilityResourceCollection__GetResourceAmount__Patch
+    {
+        static bool Prefix(UnitAbilityResourceCollection __instance, BlueprintScriptableObject blueprint, ref int __result)
+        {
+            var owner = Helpers.GetField<UnitDescriptor>(__instance, "m_Owner");
+            var connected_resources = owner?.Get<UnitPartConnectResource>()?.getConnectedResource(blueprint as BlueprintAbilityResource);
+            if (connected_resources == null)
+            {
+                return true;
+            }
+
+            int val = 0;
+            UnitAbilityResource resource = Harmony12.Traverse.Create(__instance).Method("GetResource", blueprint).GetValue<UnitAbilityResource>();
+            if (resource != null)
+                val = resource.Amount;
+
+            __result = 0;
+            foreach (var cr in connected_resources)
+            {
+                __result += __instance.GetResourceAmount(cr);
+            }
+
+            __result = Math.Min(__result, val);
+            return false;
         }
     }
 }

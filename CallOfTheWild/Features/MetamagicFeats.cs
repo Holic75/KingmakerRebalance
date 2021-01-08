@@ -944,8 +944,16 @@ namespace CallOfTheWild
                 {
                     return true;
                 }
-
+                
                 if (!context.MaybeCaster.IsEnemy(__instance.Owner.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
+                {
+                    __result = true;
+                    return false;
+                }
+
+
+                var unit_part_invulnerability = __instance.Owner.Unit.Get<InvulnerabilityMechanics.UnitPartSpellInvulnerability>();
+                if (unit_part_invulnerability != null && unit_part_invulnerability.isImmune(context.SourceAbilityContext))
                 {
                     __result = true;
                     return false;
@@ -970,8 +978,14 @@ namespace CallOfTheWild
                 {
                     return true;
                 }
-
+                
                 if (!context.MaybeCaster.IsEnemy(target.Unit) && context.HasMetamagic((Metamagic)MetamagicExtender.Selective))
+                {
+                    return false;
+                }
+
+                var unit_part_invulnerability = target.Unit.Get<InvulnerabilityMechanics.UnitPartSpellInvulnerability>();
+                if (unit_part_invulnerability != null && unit_part_invulnerability.isImmune(context))
                 {
                     return false;
                 }

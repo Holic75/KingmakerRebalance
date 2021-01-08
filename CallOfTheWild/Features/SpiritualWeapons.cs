@@ -510,7 +510,7 @@ namespace CallOfTheWild
 
         static void createMagesSword()
         {
-            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritualWeapon.png");
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/MagesSword.png");
             var description = "This spell brings into being a shimmering, sword-like plane of force. The sword strikes at any opponent within its range, as you desire, starting in the round that you cast the spell. The sword attacks its designated target once each round on your turn. Its attack bonus is equal to your caster level + your Intelligence bonus or your Charisma bonus (for wizards or sorcerers, respectively) with an additional +3 enhancement bonus. As a force effect, it can strike ethereal and incorporeal creatures. It deals 4d6+3 points of force damage, with a threat range of 19–20 and a critical multiplier of ×2.\n"
                                           + "The sword always strikes from your direction. It does not get a bonus for flanking or help a combatant get one. If the sword goes beyond the spell range from you, goes out of your sight, or you are not directing it, it returns to you and hovers.\n"
                                           + "Each round after the first, you can use a move action to switch the sword to a new target. If you do not, the sword continues to attack the previous round’s target.";
@@ -554,6 +554,7 @@ namespace CallOfTheWild
                                                            Helpers.Create<NewMechanics.EnchantmentMechanics.PersistentWeaponEnchantment>(p => p.enchant = fx_enchant),
                                                            Helpers.Create<RaiseBAB>(r => r.TargetValue = Helpers.CreateContextValue(AbilityRankType.Default)),
                                                            Helpers.CreateContextRankConfig(),
+                                                           Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 3, ModifierDescriptor.Enhancement),
                                                            Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
                                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, type: AbilityRankType.StatBonus, customProperty: best_mental_stat_property)
                                                            );

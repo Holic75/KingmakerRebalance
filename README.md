@@ -145,7 +145,8 @@ New feats:
 - Kinetic Invocation,
 - Emotional Conduit,
 - Theurgy,
-- Ability Focus: Cruelty.
+- Ability Focus: Cruelty,
+- Spiritual Guardian.
 
 New rage powers:
 - Terrifying Howl
@@ -515,7 +516,8 @@ enchanced attacks,
 - Master Hunter ranger capstone works as standard action attack raher than a buff,
 - Optionally makes all rake (like last 2 smilodon claw attacks) and similar attacks secondary, i.e. they receive -5 penalty (reduced to -2 with multiattack). This is not a pnp-accurate fix, but since rake normally works only on grappled opponents it seems to make sense,
 - all Animal Companions/Eidolons receive multiattack at appropriate levels,
-- Grease spell was changed to work more in line with pnp (uses dc 10 mobility check instead of dc, and only if unit moves).
+- Grease spell was changed to work more in line with pnp (uses dc 10 mobility check instead of dc, and only if unit moves),
+- Aura of Madness lvl 8 Madness domain ability changed to toggle.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
