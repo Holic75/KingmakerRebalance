@@ -465,7 +465,7 @@ namespace CallOfTheWild
             {
                 a.name = "BattleHostArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Battle Host");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some antipaladins serve or ally themselves with villains who are bent on earthly conquest. They care nothing for the intricacies of divine spellcasting, but malevolent energy still surrounds them. Whether alone or at the head of a marauding host, these cruel warriors bring suffering and death—but their presence also heralds the coming of a greater evil.");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Well versed in military history, battlefield lore, and the occult, a battle host forms a supernatural bond with a chosen weapon, suit of armor, or shield, from which he can channel psychic energy to cast spells, conjure the spirit of the object’s former owner, increase his own physical might, and produce a number of other remarkable abilities.");
             });
             Helpers.SetField(battle_host, "m_ParentClass", occultist_class);
             library.AddAsset(battle_host, "");
