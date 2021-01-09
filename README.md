@@ -31,7 +31,7 @@ It introduces new classes:
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
-- Occultist with following archetypes: Battle Host, Silksworn, Reliquarian,
+- Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant,
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:

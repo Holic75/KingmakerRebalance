@@ -113,12 +113,13 @@ namespace CallOfTheWild
 
         void addFocusInvestmentCheck(BlueprintAbility ability, params SpellSchool[] schools)
         {
-            implement_abilities.Add(ability);
+            var abilities = ability.HasVariants ? ability.Variants : new BlueprintAbility[] { ability };
+            implement_abilities.AddRange(abilities);
             if (!check_invested_focus)
             {
                 return; 
             }
-            var abilities = ability.HasVariants ? ability.Variants : new BlueprintAbility[] {ability};
+            
             foreach (var a in abilities)
             {
                 foreach (var s in schools)

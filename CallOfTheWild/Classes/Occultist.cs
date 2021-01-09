@@ -244,6 +244,29 @@ namespace CallOfTheWild
             createPanoplySavant();
             occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
             Helpers.RegisterClass(occultist_class);
+
+            addToPrestigeClasses();
+        }
+
+        static void addToPrestigeClasses()
+        {
+            //add to prestige classes
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, silksworn_spellbook, "EldritchKnightSilksworn",
+                                                      Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                                      Common.createPrerequisiteClassSpellLevel(occultist_class, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, silksworn_spellbook, "ArcaneTricksterSilksworn",
+                                        Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                        Common.createPrerequisiteClassSpellLevel(occultist_class, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, silksworn_spellbook, "MysticTheurgeSilksworn",
+                                        Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                        Common.createPrerequisiteClassSpellLevel(occultist_class, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, silksworn_spellbook, "DragonDiscipleSilksworn",
+                                       Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                       Common.createPrerequisiteClassSpellLevel(occultist_class, 1));
+            Common.addMTDivineSpellbookProgression(occultist_class, reliquarian_spellbook, "MysticTheurgeReliquarianProgression",
+                                       Common.createPrerequisiteArchetypeLevel(reliquarian, 1),
+                                       Common.createPrerequisiteClassSpellLevel(occultist_class, 2)
+                                       );
         }
 
 
@@ -286,6 +309,7 @@ namespace CallOfTheWild
 
             foreach (var kv in panoply_specialization_map)
             {
+                var ability_lists = getCorrepsondingSpellSchools((SpellSchool)kv.Key).Select(s => implement_factories[s].implement_abilities.ToArray()).ToArray();
                 var buff = Helpers.CreateBuff(kv.Key.ToString() + "CombinedPowersBuff",
                                               combined_powers.Name + ": " + getHumanString((SpellSchool)kv.Key),
                                               combined_powers.Description,
@@ -295,8 +319,13 @@ namespace CallOfTheWild
                                               Helpers.Create<TurnActionMechanics.UseAbilitiesWithSameOrLowerActionCostForFree>(u =>
                                               {
                                                   u.num_uses = 2;
-                                                  u.ability_groups = getCorrepsondingSpellSchools((SpellSchool)kv.Key).Select(s => implement_factories[s].implement_abilities.ToArray()).ToArray();
-
+                                                  u.abilities = new BlueprintAbility[0];
+                                                  u.groups = new int[0];
+                                                  for (int i = 0; i < ability_lists.Length; i++)
+                                                  {
+                                                      u.abilities = u.abilities.AddToArray(ability_lists[i]);
+                                                      u.groups = u.groups.AddToArray(Enumerable.Repeat(i, ability_lists[i].Length));
+                                                  }
                                               })
                                               );
                 buff.Stacking = StackingType.Replace;
@@ -311,7 +340,7 @@ namespace CallOfTheWild
                                                             AbilityRange.Personal,
                                                             Helpers.oneRoundDuration,
                                                             "",
-                                                            Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                            Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 9)),
                                                             mental_focus_resource[(SpellSchool)kv.Key].CreateResourceLogic(amount: 2)
                                                             );
                 ability.setMiscAbilityParametersSelfOnly();
@@ -1566,6 +1595,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "ebade19998e1f8542a1b55bd4da766b3", 5), //fire snake
                 new Common.SpellId( NewSpells.ghostbane_dirge_mass.AssetGuid, 5),
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflcit light wounds mass
+                new Common.SpellId( "f63f4d1806b78604a952b3958892ce1c", 5), //instead of roaming pit at level 6
                 new Common.SpellId( NewSpells.inflict_pain_mass.AssetGuid, 5),
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),

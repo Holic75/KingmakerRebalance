@@ -258,11 +258,11 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
-    public class UseAbilitiesWithSameOrLowerActionCostForFree : FreeActionAbilityUseBase, IInitiatorRulebookHandler<RuleCastSpell>, IGlobalSubscriber, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber
+    public class UseAbilitiesWithSameOrLowerActionCostForFree : FreeActionAbilityUseBase, IUnitSubscriber, IInitiatorRulebookHandler<RuleCastSpell>
     {
-        [JsonProperty]
         public int num_uses;
-        public BlueprintAbility[][] ability_groups;
+        public BlueprintAbility[] abilities;
+        public int[] groups;
         [JsonProperty]
         private CommandType command_type;
         [JsonProperty]
@@ -271,7 +271,7 @@ namespace CallOfTheWild.TurnActionMechanics
         [JsonProperty]
         private int remaining_uses;
         [JsonProperty]
-        private bool[] used_groups;
+        private bool[] used_groups = null;
 
         public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
         {
@@ -285,11 +285,11 @@ namespace CallOfTheWild.TurnActionMechanics
                 return false;
             }
 
-            for (int i = 0; i < used_groups.Length; i++)
+            for (int i = 0; i < abilities.Length; i++)
             {
-                if (ability_groups[i].Contains(ability?.Blueprint))
+                if (abilities[i] == ability?.Blueprint)
                 {
-                    if (used_groups[i])
+                    if (used_groups[groups[i]])
                     {
                         return false;
                     }
@@ -309,27 +309,30 @@ namespace CallOfTheWild.TurnActionMechanics
         public override void OnTurnOn()
         {
             base.OnTurnOn();
-            used_groups = new bool[ability_groups.Length];
+            if (used_groups == null)
+            {
+                used_groups = new bool[groups.Max() + 1];
+            }
             remaining_uses = num_uses;
         }
 
 
         public void OnEventAboutToTrigger(RuleCastSpell evt)
         {
-            
         }
 
         public void OnEventDidTrigger(RuleCastSpell evt)
         {
+            
+           
             if (remaining_uses <= 0)
             {
                 return;
             }
-
-            for (int i = 0; i < used_groups.Length; i++)
+            for (int i = 0; i < abilities.Length; i++)
             {
-                if (ability_groups[i].Contains(evt.Spell?.Blueprint) && !used_groups[i])
-                {                  
+                if (abilities[i] == evt.Spell?.Blueprint && !used_groups[groups[i]])
+                {
                     if (remaining_uses == num_uses)
                     {
                         command_type = evt.Spell.Blueprint.ActionType;
@@ -339,9 +342,9 @@ namespace CallOfTheWild.TurnActionMechanics
                     {
                         return;
                     }
-                    used_groups[i] = true;
+                    used_groups[groups[i]] = true;
                     remaining_uses--;
-                    if (num_uses == 0)
+                    if (remaining_uses == 0)
                     {
                         this.Buff.Remove();
                     }
