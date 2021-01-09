@@ -25,6 +25,7 @@ namespace CallOfTheWild
         string prefix;
         bool check_invested_focus;
         public List<BlueprintFeature> mastery_features = new List<BlueprintFeature>();
+        public List<BlueprintAbility> implement_abilities = new List<BlueprintAbility>();
 
         public ImplementsEngine(string name_prefix, BlueprintAbilityResource ability_resource, BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, bool check_focus_investment = true, BlueprintArchetype scaling_archetype = null)
         {
@@ -112,6 +113,7 @@ namespace CallOfTheWild
 
         void addFocusInvestmentCheck(BlueprintAbility ability, params SpellSchool[] schools)
         {
+            implement_abilities.Add(ability);
             if (!check_invested_focus)
             {
                 return; 

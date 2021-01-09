@@ -258,6 +258,100 @@ namespace CallOfTheWild.TurnActionMechanics
     }
 
 
+    public class UseAbilitiesWithSameOrLowerActionCostForFree : FreeActionAbilityUseBase, IInitiatorRulebookHandler<RuleCastSpell>, IGlobalSubscriber, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber
+    {
+        [JsonProperty]
+        public int num_uses;
+        public BlueprintAbility[][] ability_groups;
+        [JsonProperty]
+        private CommandType command_type;
+        [JsonProperty]
+        private bool is_full_round;
+
+        [JsonProperty]
+        private int remaining_uses;
+        [JsonProperty]
+        private bool[] used_groups;
+
+        public override bool canUseOnAbility(AbilityData ability, CommandType actual_action_type)
+        {
+            if (remaining_uses <= 0)
+            {
+                return false;
+            }
+
+            if (remaining_uses == num_uses)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < used_groups.Length; i++)
+            {
+                if (ability_groups[i].Contains(ability?.Blueprint))
+                {
+                    if (used_groups[i])
+                    {
+                        return false;
+                    }
+                    if (num_uses == remaining_uses)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return Aux.isNotSlower(ability.Blueprint.ActionType, ability.Blueprint.IsFullRoundAction, command_type, is_full_round);
+                    }                   
+                }
+            }
+            return false;
+        }
+
+        public override void OnTurnOn()
+        {
+            base.OnTurnOn();
+            used_groups = new bool[ability_groups.Length];
+            remaining_uses = num_uses;
+        }
+
+
+        public void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+            
+        }
+
+        public void OnEventDidTrigger(RuleCastSpell evt)
+        {
+            if (remaining_uses <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < used_groups.Length; i++)
+            {
+                if (ability_groups[i].Contains(evt.Spell?.Blueprint) && !used_groups[i])
+                {                  
+                    if (remaining_uses == num_uses)
+                    {
+                        command_type = evt.Spell.Blueprint.ActionType;
+                        is_full_round = evt.Spell.Blueprint.IsFullRoundAction;
+                    }
+                    else if (!Aux.isNotSlower(evt.Spell.Blueprint.ActionType, evt.Spell.Blueprint.IsFullRoundAction, command_type, is_full_round))
+                    {
+                        return;
+                    }
+                    used_groups[i] = true;
+                    remaining_uses--;
+                    if (num_uses == 0)
+                    {
+                        this.Buff.Remove();
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+
     public class IterativeAttacksWithAbilities : FreeActionAbilityUseBase, IInitiatorRulebookHandler<RuleAttackRoll>, IGlobalSubscriber, IRulebookHandler<RuleAttackRoll>, IInitiatorRulebookSubscriber
     {
         private int m_MainAttacksCount;
@@ -858,6 +952,43 @@ namespace CallOfTheWild.TurnActionMechanics
             if (has_standard && unit.CombatState.Cooldown.StandardAction > 0.0f)
             {
                 return false;
+            }
+
+            return true;
+        }
+    }
+
+
+    public class Aux
+    {
+        //return true if action1 is not slower than action2
+        static public bool isNotSlower(CommandType command1, bool is_full_round1, CommandType command2, bool is_full_round2)
+        {
+            //1 is full round, 2 is not
+            if (is_full_round1 && command1 == CommandType.Standard && !is_full_round2)
+            {
+                return false;
+            }
+
+            //2 is full round
+            if (is_full_round2 && command2 == CommandType.Standard)
+            {
+                return true;
+            }
+
+            if (command1 == CommandType.Standard)
+            {
+                return command2 == CommandType.Standard;
+            }
+
+            if (command1 == CommandType.Move)
+            {
+                return command2 == CommandType.Standard || command2 == CommandType.Move;
+            }
+
+            if (command1 == CommandType.Swift)
+            {
+                return command2 != CommandType.Free;
             }
 
             return true;
