@@ -1007,7 +1007,7 @@ namespace CallOfTheWild.TurnActionMechanics
 
     [Harmony12.HarmonyPatch(typeof(DescriptionTemplatesAbility))]
     [Harmony12.HarmonyPatch("AbilityDescription", Harmony12.MethodType.Normal)]
-    public class MagusController_HandleUnitRunCommand_Patch
+    public class DescriptionTemplatesAbility_AbilityDescription_Patch
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
