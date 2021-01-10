@@ -66,6 +66,7 @@ namespace CallOfTheWild
                                                     createClassScalingConfig(ContextRankProgression.StartPlusDivStep, stepLevel: 2, startLevel: 1),
                                                     resource.CreateResourceLogic()
                                                     );
+                ability.SpellResistance = true;
                 ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
                 abilities[i] = ability;
             }
@@ -140,6 +141,7 @@ namespace CallOfTheWild
                                                     Common.createAbilitySpawnFx(fx_id[i], anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                     Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
                                                     );
+                ability.SpellResistance = true;
                 ability.setMiscAbilityParametersRangedDirectional();
                 abilities[i] = ability;
             }
@@ -205,7 +207,7 @@ namespace CallOfTheWild
                     }),
                     createClassScalingConfig()
                 };
-
+                area.SpellResistance = true;
                 var ability = Helpers.CreateAbility(prefix + names[i] + "WallOfPowerAbility",
                                                     "Wall of Power: " + names[i],
                                                     "By expending 1 point of mental focus as a standard action, you can create a wall of pure energy with a length of up to 5 feet per occultist level you possess. This wall is 10 feet high and 1 foot thick. It doesn’t block passage, line of sight, or line of effect, but does deal damage to anyone passing through it. The wall deals 2d6 points of energy damage + 1 point of energy damage per occultist level you possess. You must select acid, cold, electricity, or fire when you create the wall to determine the type of damage it deals. The wall lasts for 1 round per occultist level you possess. You must be at least 9th level to select this focus power.",
@@ -222,6 +224,7 @@ namespace CallOfTheWild
                                                     createClassScalingConfig(),
                                                     resource.CreateResourceLogic()
                                                     );
+
                 ability.setMiscAbilityParametersRangedDirectional();
                 abilities[i] = ability;
             }

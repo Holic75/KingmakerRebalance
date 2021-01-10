@@ -73,8 +73,8 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection implement_mastery;
         static public Dictionary<SpellSchool, ImplementsEngine> implement_factories = new Dictionary<SpellSchool, ImplementsEngine>();
         static public Dictionary<SpellSchool, BlueprintFeature> base_implements = new Dictionary<SpellSchool, BlueprintFeature>();
+        static public Dictionary<SpellSchool, BlueprintFeature> implement_masteries = new Dictionary<SpellSchool, BlueprintFeature>();
         static public Dictionary<SpellSchool, BlueprintFeature> second_implements = new Dictionary<SpellSchool, BlueprintFeature>();
-        static public Dictionary<SpellSchool, BlueprintFeatureSelection> new_spells_selection = new Dictionary<SpellSchool, BlueprintFeatureSelection>();
         static public Dictionary<SpellSchool, BlueprintCharacterClass> implement_mastery_classes = new Dictionary<SpellSchool, BlueprintCharacterClass>();
 
         static public BlueprintFeatureSelection focus_power_selection;
@@ -116,6 +116,18 @@ namespace CallOfTheWild
         static public Dictionary<Panoply, BlueprintFeature> panoply_specialization_map = new Dictionary<Panoply, BlueprintFeature>();
         static public BlueprintFeature panoptic_harmony;
         static public BlueprintFeature combined_powers;
+
+        static public BlueprintArchetype necroccultist;
+        static public BlueprintFeature necromantic_bond;
+        static public BlueprintFeatureSelection necromantic_bond_spells;
+        static public BlueprintFeature necromantic_bond_dc_bonus;
+        static public BlueprintFeature necromantic_bond_mastery;
+        static public BlueprintFeature ghostly_horde;
+        static public BlueprintFeature life_drain;
+        static public BlueprintAbilityResource ghostly_horde_resource;
+        static public BlueprintAbilityResource life_drain_resource;
+
+
 
         public enum Panoply
         {
@@ -242,11 +254,13 @@ namespace CallOfTheWild
             createSilksworn();
             createReliquarian();
             createPanoplySavant();
-            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
+            createNecroccultist();
+            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant, necroccultist};
             Helpers.RegisterClass(occultist_class);
 
             addToPrestigeClasses();
         }
+
 
         static void addToPrestigeClasses()
         {
@@ -267,6 +281,140 @@ namespace CallOfTheWild
                                        Common.createPrerequisiteArchetypeLevel(reliquarian, 1),
                                        Common.createPrerequisiteClassSpellLevel(occultist_class, 2)
                                        );
+        }
+
+
+        static void createNecroccultist()
+        {
+            necroccultist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "NecroccultistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Necroccultist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Necroccultists’ fascination with death and the undead drives them to explore the forbidden necromantic arts as they search for secrets they can use to manipulate the natural cycle of life and death. They contact and learn from the dead, rather than from items or outsiders, allowing them to drain the life of their foes to feed their own power, and even call forth phantasmal hordes of spirits to destroy their enemies.");
+            });
+            Helpers.SetField(necroccultist, "m_ParentClass", occultist_class);
+            library.AddAsset(necroccultist, "");
+
+            createNecromanticBond();
+            createNecromanticBondSpells();
+
+
+            necroccultist.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, first_implement_selection, implement_selection, focus_power_selection),
+                                                             Helpers.LevelEntry(8, repower_construct),
+                                                             Helpers.LevelEntry(14, implement_selection),
+                                                             Helpers.LevelEntry(20, implement_mastery)
+                                                          };
+
+            necroccultist.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, focus_power_selection, necromantic_bond, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(3, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(5, necromantic_bond_spells, ghostly_horde),
+                                                          Helpers.LevelEntry(7, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(8, repower_construct, life_drain),
+                                                          Helpers.LevelEntry(9, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(11, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(13, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(14, necromantic_bond_dc_bonus),
+                                                          Helpers.LevelEntry(15, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(17, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(19, necromantic_bond_spells),
+                                                          Helpers.LevelEntry(20, necromantic_bond_mastery)
+                                                          };
+
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(necromantic_bond);
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(ghostly_horde, life_drain, necromantic_bond_dc_bonus, necromantic_bond_mastery));
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(necromantic_bond_spells));
+        }
+
+
+        static void createNecromanticBondSpells()
+        {
+            var wizard_spell_list = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
+
+            var necromantic_bond_list = Common.combineSpellLists("NecromanticBondSpellList",
+                                                                (spell, spell_list, lvl) =>
+                                                                {
+                                                                    if (occultist_class.Spellbook.SpellList.Contains(spell)
+                                                                        && occultist_class.Spellbook.SpellList.GetLevel(spell) != lvl)
+                                                                    {
+                                                                        return false;
+                                                                    }
+                                                                    if (lvl > 6)
+                                                                    {
+                                                                        return false;
+                                                                    }
+                                                                    return spell.School == SpellSchool.Necromancy;
+                                                                },
+                                                                wizard_spell_list
+                                                                );
+
+
+            necromantic_bond_spells = Helpers.CreateFeatureSelection("NecromanticBondSpellsFeatureSelection",
+                                                                    "Necromantic Bond Bonus Spells",
+                                                                    "At 1st level and every 2 levels thereafter, a necroccultist can add one necromancy spell from the wizard spell list to his occultist spell list and his list of spells known. The necroccultist can’t choose a spell of a higher level than he is able to cast, and he adds the spell at the same spell level it appears on the wizard spell list.",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.None);
+
+            for (int i = 1; i <= 6; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"NecromanticBondSpells{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = occultist_class;
+                learn_spell.SpellList = necromantic_bond_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = necromantic_bond_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = occultist_class; });
+                learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(occultist_class, i)
+                                            );
+                learn_spell.SetName(Helpers.CreateString($"NecromanticBondSpells{i}.Name", "Necromantic Bond Bonus Spells: " + $"(Level {i})"));
+                learn_spell.SetDescription(necromantic_bond_spells.Description);
+                learn_spell.SetIcon(necromantic_bond_spells.Icon);
+
+                necromantic_bond_spells.AllFeatures = necromantic_bond_spells.AllFeatures.AddToArray(learn_spell);
+            }
+        }
+
+
+        static void createNecromanticBond()
+        {
+            necromantic_bond = Helpers.CreateFeature("NecromanticBondFeature",
+                                                     "Necromantic Bond",
+                                                     "At 1st level, a necroccultist gains access to only the necromancy school of implements.",
+                                                     "",
+                                                     implement_icons[SpellSchool.Necromancy],
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(base_implements[SpellSchool.Necromancy])
+                                                     );
+
+            necromantic_bond_dc_bonus = Helpers.CreateFeature("NecromanticBondDCBonusFeature",
+                                         "Necromantic Bond",
+                                         "At 14th level, the DCs of saving throws to resist a necroccultist’s necromancy spells and necromancy focus powers increase by 2.",
+                                         "",
+                                         implement_icons[SpellSchool.Necromancy],
+                                         FeatureGroup.None,
+                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c =>
+                                         {
+                                             c.abilities = implement_factories[SpellSchool.Necromancy].implement_abilities.ToArray();
+                                             c.Value = 2;
+                                         }
+                                         ),
+                                         Helpers.Create<NewMechanics.ContextIncreaseSchoolSpellsDC>(c =>
+                                         {
+                                             c.school = SpellSchool.Necromancy;
+                                             c.Value = 2;
+                                         }
+                                         )
+                                         );
+
+            necromantic_bond_mastery = Helpers.CreateFeature("NecromanticBondMasteryFeature",
+                                                             "Necromantic Bond Mastery",
+                                                             "Necrocultist must select necromancy for his implement mastery.",
+                                                             "",
+                                                             implement_icons[SpellSchool.Necromancy],
+                                                             FeatureGroup.None,
+                                                             Helpers.CreateAddFact(implement_masteries[SpellSchool.Necromancy])
+                                                             );
+
         }
 
 
@@ -920,6 +1068,7 @@ namespace CallOfTheWild
 
                 feature.AddComponent(Helpers.PrerequisiteFeature(base_implements[kv.Key]));
                 implement_mastery.AllFeatures = implement_mastery.AllFeatures.AddToArray(feature);
+                implement_masteries[kv.Key] = feature;
             }
         }
 
@@ -1007,6 +1156,30 @@ namespace CallOfTheWild
                     focus_power_selection.AllFeatures = focus_power_selection.AllFeatures.AddToArray(f);
                 }
             }
+
+
+            ghostly_horde_resource = Helpers.CreateAbilityResource("NecroccultistGhostlyHordeResource", "", "", "", null);
+            ghostly_horde_resource.SetIncreasedByLevelStartPlusDivStep(1, 10, 1, 5, 1, 0, 0.0f, getOccultistArray());
+            ghostly_horde = implement_factories[SpellSchool.Necromancy].createGhostlyHorde(ghostly_horde_resource);
+            ghostly_horde.AddComponents(ghostly_horde_resource.CreateAddAbilityResource(),
+                                        Helpers.Create<ResourceMechanics.ConnectResource>(c =>
+                                        {
+                                            c.base_resource = ghostly_horde_resource;
+                                            c.connected_resources = new BlueprintAbilityResource[] { mental_focus_resource[SpellSchool.Necromancy] };
+                                        })
+                                        );
+
+            life_drain_resource = Helpers.CreateAbilityResource("NecroccultistLifeDrainResource", "", "", "", null);
+            life_drain_resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 3, 1, 0, 0.0f, getOccultistArray());
+            life_drain = implement_factories[SpellSchool.Necromancy].createLifeDrain(life_drain_resource);
+            life_drain.AddComponents(life_drain_resource.CreateAddAbilityResource(),
+                                        Helpers.Create<ResourceMechanics.ConnectResource>(c =>
+                                        {
+                                            c.base_resource = life_drain_resource;
+                                            c.connected_resources = new BlueprintAbilityResource[] { mental_focus_resource[SpellSchool.Necromancy] };
+                                        })
+                                        );
+
         }
 
 
@@ -1503,8 +1676,9 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 1),
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike - to compensate for missing spells
 
+                new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2), //instead of flaming sphere
                 new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
-                //alied cloak
+                //allied cloak
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
                 new Common.SpellId( NewSpells.blade_tutor.AssetGuid, 2), //should probablyalso be there due to flavor
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
@@ -1516,6 +1690,7 @@ namespace CallOfTheWild
                 //frost fall
                 new Common.SpellId( NewSpells.ghostbane_dirge.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
+                new Common.SpellId( NewSpells.ice_slick.AssetGuid, 2), //instead of frost fall ?
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.inflict_pain.AssetGuid, 2),
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
@@ -1526,6 +1701,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare
                 new Common.SpellId( "c3893092a333b93499fd0a21845aa265", 2), //sound burst
+                new Common.SpellId( NewSpells.weapon_of_awe.AssetGuid, 2), //weapon of awe
                 //tactical acumen
 
                 new Common.SpellId( "4b76d32feb089ad4499c3a1ce8e1ac27", 3), //animate dead
@@ -1554,7 +1730,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( SpiritualWeapons.twilight_knife.AssetGuid, 3),
 
-
+                new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4), //instead of flaming sphere greater
                 new Common.SpellId( NewSpells.air_walk.AssetGuid, 4),
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion

@@ -199,7 +199,7 @@ namespace CallOfTheWild.Archetypes
             for (int i = 1; i <= 6; i++)
             {
                 natural_magic[i-1] = Helpers.CreateFeatureSelection($"NatureBondedMagusNaturalMagic{i}FeatureSelection",
-                                                "Natural Magic " + $"(level {i})",
+                                                "Natural Magic " + $"(Level {i})",
                                                 "A nature - bonded magus adds one 1st - level spell from the druid spell list to his spellbook. Each time a nature - bonded magus gains the ability to cast a new level of spells, he can add one spell of that level from the druid spell list to his spellbook.",
                                                 "",
                                                 Helpers.GetIcon("0fd00984a2c0e0a429cf1a911b4ec5ca"), //entangle
@@ -211,7 +211,7 @@ namespace CallOfTheWild.Archetypes
                 learn_spell.SpellcasterClass = magus_class;
                 learn_spell.SpellList = combined_spell_list;
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = combined_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = magus_class; });
-                learn_spell.SetName(Helpers.CreateString($"NatureBondedMagusNaturalMagic{i}ParametrizedFeature.Name", "Natural Magic " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString($"NatureBondedMagusNaturalMagic{i}ParametrizedFeature.Name", "Natural Magic " + $"(Level {i})"));
                 learn_spell.SetDescription(natural_magic[i - 1].Description);
                 learn_spell.SetIcon(natural_magic[i - 1].Icon);
                 natural_magic[i - 1].AllFeatures = new BlueprintFeature[] { learn_spell };

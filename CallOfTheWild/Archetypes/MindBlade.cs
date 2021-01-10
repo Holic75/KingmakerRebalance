@@ -221,7 +221,7 @@ namespace CallOfTheWild.Archetypes
                 learn_spell.AddComponents(
                                           Common.createPrerequisiteClassSpellLevel(archetype.GetParentClass(), i)
                                           );
-                learn_spell.SetName(Helpers.CreateString( $"PsychicAccessParametrizedFeature{i + 1}.Name", "Psychic Access " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString( $"PsychicAccessParametrizedFeature{i + 1}.Name", "Psychic Access " + $"(Level {i})"));
                 learn_spell.SetDescription(psychic_access.Description);
                 learn_spell.SetIcon(psychic_access.Icon);
 

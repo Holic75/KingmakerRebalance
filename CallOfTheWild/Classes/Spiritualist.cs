@@ -944,7 +944,7 @@ namespace CallOfTheWild
                 learn_spell.SpellList = cleric_spell_list;
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = cleric_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = spiritualist_class; });
                 learn_spell.AddComponent(Common.createPrerequisiteClassSpellLevel(spiritualist_class, i));
-                learn_spell.SetName(Helpers.CreateString( $"DivineTeachingsParametrizedFeature{i}.Name", "Divine Teachings " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString( $"DivineTeachingsParametrizedFeature{i}.Name", "Divine Teachings " + $"(Level {i})"));
                 learn_spell.SetDescription(divine_teachings.Description);
                 learn_spell.SetIcon(divine_teachings.Icon);
 

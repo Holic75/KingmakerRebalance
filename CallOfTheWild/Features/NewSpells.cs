@@ -286,17 +286,21 @@ namespace CallOfTheWild
         static public BlueprintAbility globe_of_invulnerability_lesser;
         static public BlueprintAbility locate_weakness;
 
+        static public BlueprintAbility weapon_of_awe;
+        static public BlueprintAbility frost_fall;
+
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
         //condensed ether ?
 
-        //alied cloak
+        //allied cloak
         //implosion
         //blood rage
         //etheric shards
         //tactical acumen
         //weapon of awe
+        //flaming sphere (greater)
 
         static public void load()
         {
@@ -486,6 +490,67 @@ namespace CallOfTheWild
             createWardingWeapon();
             createGlobeOfInvulnerability();
             createLocateWeakness();
+
+            createWeaponOfAwe();
+        }
+
+
+        static void createWeaponOfAwe()
+        {
+            var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+
+            var enchant = Common.createWeaponEnchantment("WeaponOfAweEnchantment",
+                                          "Weapon of Awe",
+                                          "You transform a single weapon into an awe-inspiring instrument. The weapon gains a +2 sacred bonus on damage rolls, and if the weapon scores a critical hit, the target of that critical hit becomes shaken for 1 round with no saving throw. This is a mind-affecting fear effect. A ranged weapon affected by this spell applies these effects to its ammunition.",
+                                           "",
+                                           "",
+                                           "",
+                                           5,
+                                           null,
+                                           Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageBonus>(c => c.damage  = 2),
+                                           Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(1))), critical_hit: true)
+                                          );
+
+
+            var icon = Helpers.GetIcon("24fe1f546e07987418557837b0e0f8f5"); //keen light weapon
+
+            var ability1 = library.CopyAndAdd<BlueprintAbility>("831e942864e924846a30d2e0678e438b", "WeaponOfAwePrimaryHandAbility", "");
+
+            ability1.SetNameDescriptionIcon(enchant.Name, enchant.Description, icon);
+
+            ability1.setMiscAbilityParametersTouchFriendly();
+            ability1.RemoveComponents<AbilityDeliverTouch>();
+            var action_old = (ability1.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionEnchantWornItem);
+
+            var action = Common.createItemEnchantmentAction(enchant.name + "PrimaryHandWeaponOfAweBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                enchant,
+                                                true,
+                                                off_hand: false
+                                                );
+            ability1.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action));
+            ability1.LocalizedDuration = Helpers.minutesPerLevelDuration;
+
+            var ability2 = library.CopyAndAdd(ability1, "WeaponOfAweSecondaryHandAbility", "");
+            ability2.SetName("Weapon of Awe (Off-Hand)");
+            var action2 = Common.createItemEnchantmentAction(enchant.name + "SecondaryHandWeaponOfAweBuff",
+                                                Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                enchant,
+                                                true,
+                                                off_hand: true
+                                                );
+            ability2.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(action2));
+            ability2.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => { a.off_hand = true; a.works_on_summoned = true; }));
+            ability1.AddComponent(Helpers.Create<NewMechanics.AbilitTargetManufacturedWeapon>(a => a.works_on_summoned = true));
+
+            weapon_of_awe = Common.createVariantWrapper("WeaponOfAweAbility", "", ability1, ability2);
+            weapon_of_awe.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Transmutation));
+            weapon_of_awe.AddToSpellList(Helpers.inquisitorSpellList, 2);
+            weapon_of_awe.AddToSpellList(Helpers.clericSpellList, 2);
+            weapon_of_awe.AddToSpellList(Helpers.paladinSpellList, 2);
+
+            weapon_of_awe.AddSpellAndScroll("fbdd06f0414c3ef458eb4b2a8072e502");
+
         }
 
 

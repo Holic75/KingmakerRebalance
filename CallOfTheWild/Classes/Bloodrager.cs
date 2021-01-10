@@ -3625,7 +3625,7 @@ namespace CallOfTheWild
                 learn_spell.SpellList = combined_spell_list;
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = combined_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = bloodrager_class; });
                 learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(bloodrager_class, i));
-                learn_spell.SetName(Helpers.CreateString($"AdoptedMagic{i}ParametrizedFeature.Name", "Adopted Magic " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString($"AdoptedMagic{i}ParametrizedFeature.Name", "Adopted Magic " + $"(Level {i})"));
                 learn_spell.SetDescription(adopted_magic.Description);
                 learn_spell.SetIcon(adopted_magic.Icon);
 

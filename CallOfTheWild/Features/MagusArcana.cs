@@ -108,7 +108,7 @@ namespace CallOfTheWild
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = wizard_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = magus; });
                 learn_spell.AddComponents(Helpers.Create<PrerequisiteClassSpellLevel>(p => { p.CharacterClass = magus; p.RequiredSpellLevel = i; })
                                           );
-                learn_spell.SetName(Helpers.CreateString($"SpellBlending{i}ParametrizedFeature.Name", "Spell Blending " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString($"SpellBlending{i}ParametrizedFeature.Name", "Spell Blending " + $"(Level {i})"));
                 learn_spell.SetDescription(spell_blending.Description);
                 learn_spell.SetIcon(spell_blending.Icon);
 
@@ -135,7 +135,7 @@ namespace CallOfTheWild
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = Archetypes.MindBlade.extra_psychic_spell_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = magus; });
                 learn_spell.AddComponents(Helpers.Create<PrerequisiteClassSpellLevel>(p => { p.CharacterClass = magus; p.RequiredSpellLevel = i; })
                                           );
-                learn_spell.SetName(Helpers.CreateString($"SpellBlendingMindblade{i}ParametrizedFeature.Name", "Spell Blending " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString($"SpellBlendingMindblade{i}ParametrizedFeature.Name", "Spell Blending " + $"(Level {i})"));
                 learn_spell.SetDescription(spell_blending.Description);
                 learn_spell.SetIcon(spell_blending.Icon);
 

@@ -89,6 +89,7 @@ namespace CallOfTheWild
                                                 createDCScaling(),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion | SpellDescriptor.Paralysis)
                                                 );
+            ability.SpellResistance = true;
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             var feature =  Common.AbilityToFeature(ability, false);
@@ -159,6 +160,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Compulsion),
                                                 heroism.GetComponent<AbilitySpawnFx>()
                                                 );
+            ability.SpellResistance = true;
             ability.setMiscAbilityParametersTouchFriendly();
             addFocusInvestmentCheck(ability, SpellSchool.Enchantment);
             var feature = Common.AbilityToFeature(ability, false);
