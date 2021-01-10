@@ -45,7 +45,7 @@ namespace CallOfTheWild.FlankingMechanics
                 __result = true;
                 return false;
             }
-            return false;
+            return true;
         }
     }
 }
