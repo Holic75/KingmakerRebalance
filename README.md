@@ -540,7 +540,7 @@ Original game bug fixes:
 - Fixed missing druid scaling on 1st level Weather domain ability,
 - Monks no longer gain their AC bonus if using shield and fighting unarmored,
 - (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions,
-- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer triggers on non weapon attacks.
+- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
@@ -562,10 +562,9 @@ Notable differences from pnp:
 - Blood Armor and Magic Vestment spells do not work on targets without body piece of equipment,
 - jiniywei does not get judgements,
 - eidolons can not get extra limbs evolutions (serpentines are assumed to have it as base one instead of those corresponding to the base form of their subtype, and can only add claws to it),
-- skald inspired rage is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage
-- powers, although same rage powers do not stack) with skald inspiring rage,
+- skald inspired rage is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers, although same rage powers do not stack) with skald inspiring rage,
 - shaman/spirit guide oracle wandering spirits are actually not wandering and can be selected only once,
-- shaman lore spirit Arcane Enlightenment  is not a hex but a greater spirit ability and allows you to select one spell per 2 levels (you will need to have charisma and intelligence equal to at least 10 + level of the spell),
+- shaman lore spirit Arcane Enlightenment is not a hex but a greater spirit ability and allows you to select one spell per 2 levels (you will need to have charisma and intelligence equal to at least 10 + level of the spell),
 - arcanist quick study allows you to replace all the spells of specified level instead of only one,
 - Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
 - Wind Walk increases speed to only 20mph instead of 60,
@@ -575,7 +574,6 @@ Notable differences from pnp:
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,
 - Lore Warden Hair's Breadth ability grants a permanent bonus to AC against critical hits equal to 1/3 of mobility skill
 - Lore Warden maneuver mastery gives same bonus to all combat maneuvers,
-- Psychic magic spells can not be undercast,
 - Warrior Spirit Advanced Weapon Training option allows to apply any number of enchantments as long as their combined cost fits into available amount,
 - Condition removal DC for Master Healing Technique ability of divine herbalist oracle is increased by 5,
 - Monk/Ninja ki pools do not stack,

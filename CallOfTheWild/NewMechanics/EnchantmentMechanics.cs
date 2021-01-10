@@ -941,6 +941,22 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
+
+    public class WeaponDamageBonus : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+    {
+        public int damage;
+        public void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (evt.Weapon != this.Owner)
+                return;
+            evt.AddBonusDamage(damage);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+    }
+
     [ComponentName("Remove Weapon Damage Stat")]
     public class Immaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RuleAttackRoll>, IRulebookHandler<RuleAttackRoll>
     {
