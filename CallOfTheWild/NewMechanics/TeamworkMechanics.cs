@@ -12,6 +12,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -367,7 +368,7 @@ namespace CallOfTheWild.TeamworkMechanics
 
             for (int i = 0; i < facts.Count; i++)
             {
-                if (maybeCaster.Descriptor.HasFact(facts[i]) && maybeCaster.Descriptor.HasFact(prerequsites[i]))
+                if (maybeCaster.Descriptor.HasFact(facts[i]) && maybeCaster.Descriptor.HasFact(prerequsites[i]) && !this.Owner.HasFact(facts[i]))
                 {
                     this.m_AppliedFacts.Add(this.Owner.Logic.AddFact((BlueprintFact)facts[i], this.Context));
                 }
@@ -377,6 +378,25 @@ namespace CallOfTheWild.TeamworkMechanics
         public override void OnFactDeactivate()
         {
             this.m_AppliedFacts.ForEach(new Action<Fact>(((FactCollection)this.Owner.Logic).RemoveFact));
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(AddFactsFromCaster))]
+    [Harmony12.HarmonyPatch("OnFactActivate", Harmony12.MethodType.Normal)]
+    class AddFactsFromCaster__OnFactActivate__Patch
+    {
+        static bool Prefix(AddFactsFromCaster __instance, ref List<Fact> ___m_AppliedFacts)
+        {
+            UnitEntityData maybeCaster = __instance.Fact.MaybeContext?.MaybeCaster;
+            if (maybeCaster == null)
+                return false;
+            foreach (BlueprintUnitFact fact in __instance.Facts)
+            {
+                if (maybeCaster.Descriptor.HasFact(fact) && !__instance.Owner.HasFact(fact))
+                    ___m_AppliedFacts.Add(__instance.Owner.Logic.AddFact((BlueprintFact)fact, __instance.Context));
+            }
+            return false;
         }
     }
 }

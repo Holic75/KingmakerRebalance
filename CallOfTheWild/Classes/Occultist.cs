@@ -110,7 +110,14 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection sacred_implement;
         static public BlueprintFeatureSelection deity;
 
-        enum Panoply
+
+        static public BlueprintArchetype panoply_savant;
+        static public BlueprintFeatureSelection panoply_specialization;
+        static public Dictionary<Panoply, BlueprintFeature> panoply_specialization_map = new Dictionary<Panoply, BlueprintFeature>();
+        static public BlueprintFeature panoptic_harmony;
+        static public BlueprintFeature combined_powers;
+
+        public enum Panoply
         {
             TrappingOfTheWarrior = 101,
             MagesParaphernalia = 102,
@@ -234,9 +241,229 @@ namespace CallOfTheWild
             createBattleHost();
             createSilksworn();
             createReliquarian();
-            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
+            createPanoplySavant();
+            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant };//battle host, silksworn, reliquarian, panoply savant? occult historian ?
             Helpers.RegisterClass(occultist_class);
+
+            addToPrestigeClasses();
         }
+
+        static void addToPrestigeClasses()
+        {
+            //add to prestige classes
+            Common.addReplaceSpellbook(Common.EldritchKnightSpellbookSelection, silksworn_spellbook, "EldritchKnightSilksworn",
+                                                      Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                                      Common.createPrerequisiteClassSpellLevel(occultist_class, 3));
+            Common.addReplaceSpellbook(Common.ArcaneTricksterSelection, silksworn_spellbook, "ArcaneTricksterSilksworn",
+                                        Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                        Common.createPrerequisiteClassSpellLevel(occultist_class, 2));
+            Common.addReplaceSpellbook(Common.MysticTheurgeArcaneSpellbookSelection, silksworn_spellbook, "MysticTheurgeSilksworn",
+                                        Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                        Common.createPrerequisiteClassSpellLevel(occultist_class, 2));
+            Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, silksworn_spellbook, "DragonDiscipleSilksworn",
+                                       Common.createPrerequisiteArchetypeLevel(silksworn, 1),
+                                       Common.createPrerequisiteClassSpellLevel(occultist_class, 1));
+            Common.addMTDivineSpellbookProgression(occultist_class, reliquarian_spellbook, "MysticTheurgeReliquarianProgression",
+                                       Common.createPrerequisiteArchetypeLevel(reliquarian, 1),
+                                       Common.createPrerequisiteClassSpellLevel(occultist_class, 2)
+                                       );
+        }
+
+
+        static void createPanoplySavant()
+        {
+            panoply_savant = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PanoplySavantArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Panoply Savant");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some occultists specialize in a particular panoply, fully dedicating themselves to mastering the secrets of the psychic resonance of each of its component implements, as well as the way they interact with one another.");
+            });
+            Helpers.SetField(panoply_savant, "m_ParentClass", occultist_class);
+            library.AddAsset(panoply_savant, "");
+
+            createPanoplySpecialization();
+            createPanopticHarmony();
+            createCombinedPowers();
+
+            panoply_savant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(8, repower_construct)
+                                                          };
+
+            panoply_savant.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, panoply_specialization),
+                                                           Helpers.LevelEntry(8, panoptic_harmony),
+                                                           Helpers.LevelEntry(16, combined_powers),
+                                                          };
+
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(panoply_specialization);
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(panoptic_harmony, combined_powers));
+        }
+
+
+        static void createCombinedPowers()
+        {
+            combined_powers = Helpers.CreateFeature("CombinedPowersFeature",
+                                            "Combined Powers",
+                                            "At 16th level, whenever a panoply savant uses a focus power from one of his chosen panoply’s associated implements, he can expend 2 additional points of mental focus to also use a focus power from one of his chosen panoply’s other associated implements as part of the same action. The second focus power must take the same amount of time or less to activate than the first focus power, and the panoply savant must expend the normal mental focus cost to use the second focus power.",
+                                            "",
+                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),
+                                            FeatureGroup.None);
+
+            foreach (var kv in panoply_specialization_map)
+            {
+                var ability_lists = getCorrepsondingSpellSchools((SpellSchool)kv.Key).Select(s => implement_factories[s].implement_abilities.ToArray()).ToArray();
+                var buff = Helpers.CreateBuff(kv.Key.ToString() + "CombinedPowersBuff",
+                                              combined_powers.Name + ": " + getHumanString((SpellSchool)kv.Key),
+                                              combined_powers.Description,
+                                              "",
+                                              combined_powers.Icon,
+                                              null,
+                                              Helpers.Create<TurnActionMechanics.UseAbilitiesWithSameOrLowerActionCostForFree>(u =>
+                                              {
+                                                  u.num_uses = 2;
+                                                  u.abilities = new BlueprintAbility[0];
+                                                  u.groups = new int[0];
+                                                  for (int i = 0; i < ability_lists.Length; i++)
+                                                  {
+                                                      u.abilities = u.abilities.AddToArray(ability_lists[i]);
+                                                      u.groups = u.groups.AddToArray(Enumerable.Repeat(i, ability_lists[i].Length));
+                                                  }
+                                              })
+                                              );
+                buff.Stacking = StackingType.Replace;
+
+                var ability = Helpers.CreateAbility(kv.Key.ToString() + "CombinedPowersAbility",
+                                                            combined_powers.Name + ": " + getHumanString((SpellSchool)kv.Key),
+                                                            combined_powers.Description,
+                                                            "",
+                                                            combined_powers.Icon,
+                                                            AbilityType.Supernatural,
+                                                            CommandType.Free,
+                                                            AbilityRange.Personal,
+                                                            Helpers.oneRoundDuration,
+                                                            "",
+                                                            Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 9)),
+                                                            mental_focus_resource[(SpellSchool)kv.Key].CreateResourceLogic(amount: 2)
+                                                            );
+                ability.setMiscAbilityParametersSelfOnly();
+                var feature = Common.AbilityToFeature(ability);
+                combined_powers.AddComponent(Common.createAddFeatureIfHasFact(kv.Value, feature));
+            }
+        }
+
+
+        static void createPanopticHarmony()
+        {
+            panoptic_harmony = Helpers.CreateFeature("PanopticHarmonyFeature",
+                                                        "Panoptic Harmony",
+                                                        "At 8th level, a panoply savant can empower his abilities by harnessing the harmonic resonance between his chosen panoply’s associated implements.Whenever he casts a spell or uses a focus power with one of his chosen panoply’s associated implements, he treats it as though his caster level were 2 higher than it actually is, but only if on his previous turn, he cast a spell with or used a focus power from a different one of his chosen panoply’s associated implements.",
+                                                        "",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/AuraOfAmbition.png"),
+                                                        FeatureGroup.None);
+
+            foreach (var kv in panoply_specialization_map)
+            {
+                var feature = Helpers.CreateFeature(kv.Key.ToString() + "PanopticHarmonyFeature",
+                                                            panoptic_harmony.Name + ": " + getHumanString((SpellSchool)kv.Key),
+                                                            panoptic_harmony.Description,
+                                                            "",
+                                                            panoptic_harmony.Icon,
+                                                            FeatureGroup.None);
+
+                var panoply_schools = getCorrepsondingSpellSchools((SpellSchool)kv.Key);
+                foreach (var s in panoply_schools)
+                {
+                    var buff = Helpers.CreateBuff(kv.Key.ToString() + s.ToString() + "PanopticHarmonyBuff",
+                                                          panoptic_harmony.Name + ": " + s.ToString(),
+                                                          panoptic_harmony.Description,
+                                                          "",
+                                                          panoptic_harmony.Icon,
+                                                          null,
+                                                          Helpers.Create<SpellManipulationMechanics.IncreaseSpellSchoolCasterLevel>(i =>
+                                                          {
+                                                              i.school = s;
+                                                              i.bonus = 2;
+                                                              i.extra_spells = implement_factories[s].implement_abilities.ToArray();
+                                                          })
+                                                          );
+                    buff.Stacking = StackingType.Replace;
+
+                    var prebuff = Helpers.CreateBuff(kv.Key.ToString() + s.ToString() + "PanopticHarmonyPreBuff",
+                                                          panoptic_harmony.Name + ": " + s.ToString(),
+                                                          panoptic_harmony.Description,
+                                                          "",
+                                                          panoptic_harmony.Icon,
+                                                          null,
+                                                          Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false))
+                                                          );
+                    prebuff.SetBuffFlags(BuffFlags.HiddenInUi);
+                    prebuff.Stacking = StackingType.Ignore;
+
+                    var action = Helpers.CreateActionList(Common.createContextActionApplyBuff(prebuff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 3));
+
+                    foreach (var s2 in panoply_schools.Where(sc => sc != s))
+                    {
+                        feature.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterSpellCastBasedOnLevel>(r =>
+                        {
+                            r.actions = new ActionList[] { action };
+                            r.specific_class = occultist_class;
+                            r.school = s2;
+                        })
+                        );
+                        feature.AddComponent(Helpers.Create<OnCastMechanics.RunActionAfterAbilityUse>(r =>
+                        {
+                            r.action = action;
+                            r.specific_abilities = implement_factories[s2].implement_abilities.ToArray();
+                        })
+                        );
+                    }
+                }
+                panoptic_harmony.AddComponent(Common.createAddFeatureIfHasFact(kv.Value, feature));
+            }         
+        }
+
+
+        static void createPanoplySpecialization()
+        {
+            panoply_specialization = Helpers.CreateFeatureSelection("PanoplySpecializationFeatureSelection",
+                                                                    "Panoply Specialization",
+                                                                    "At 1st level, the panoply savant must choose (but doesn’t learn how to use) a single panoply. When learning new implement schools, he must choose either schools associated with his chosen panoply or the chosen panoply itself. Once he has learned to use the chosen panoply, he can learn any further implement schools freely.",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.AasimarHeritage);
+
+            foreach (Panoply p in Enum.GetValues(typeof(Panoply)))
+            {
+                var panoply_school = (SpellSchool)p;
+                var feature = Helpers.CreateFeature(p.ToString() + "PanoplySpecializationFeature",
+                                                   panoply_specialization.Name + ": " + getHumanString(panoply_school),
+                                                   panoply_specialization.Description,
+                                                   "",
+                                                   implement_icons[panoply_school],
+                                                   FeatureGroup.AasimarHeritage);
+
+                panoply_specialization.AllFeatures = panoply_specialization.AllFeatures.AddToArray(feature);
+
+                panoply_specialization_map[p] = feature;
+
+                var schools = getCorrepsondingSpellSchools(panoply_school).AddToArray(panoply_school);
+                foreach (var kv in base_implements)
+                {
+                    if (schools.Contains(kv.Key) || isPanoply(kv.Key))
+                    {
+                        continue;
+                    }
+
+                    kv.Value.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequsiteOrAlternative>(pa =>
+                    {
+                        pa.base_prerequsite = Helpers.PrerequisiteNoFeature(feature);
+                        pa.alternative_prerequsite = Helpers.PrerequisiteFeature(base_implements[panoply_school]);
+                    })
+                    );
+                }
+            }
+
+        }
+
+
 
         static void createReliquarian()
         {
@@ -459,13 +686,13 @@ namespace CallOfTheWild
             createBattleHostBonusFeats();
             battle_host_proficiencies = library.CopyAndAdd<BlueprintFeature>("a23591cc77086494ba20880f87e73970", "BattleHostProficiencies", "");
             battle_host_proficiencies.SetNameDescription("Battle Host Proficiencies",
-                                                         "Well versed in military history, battlefield lore, and the occult, a battle host forms a supernatural bond with a chosen weapon, suit of armor, or shield, from which he can channel psychic energy to cast spells, conjure the spirit of the object’s former owner, increase his own physical might, and produce a number of other remarkable abilities.");
+                                                         "A battle host is proficient with all simple and martial weapons and with all types of armor (heavy, light, and medium) and shields (including tower shields). This replaces the occultist’s weapon and armor proficiency.");
 
             battle_host = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "BattleHostArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Battle Host");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some antipaladins serve or ally themselves with villains who are bent on earthly conquest. They care nothing for the intricacies of divine spellcasting, but malevolent energy still surrounds them. Whether alone or at the head of a marauding host, these cruel warriors bring suffering and death—but their presence also heralds the coming of a greater evil.");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Well versed in military history, battlefield lore, and the occult, a battle host forms a supernatural bond with a chosen weapon, suit of armor, or shield, from which he can channel psychic energy to cast spells, conjure the spirit of the object’s former owner, increase his own physical might, and produce a number of other remarkable abilities.");
             });
             Helpers.SetField(battle_host, "m_ParentClass", occultist_class);
             library.AddAsset(battle_host, "");
@@ -1368,6 +1595,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "ebade19998e1f8542a1b55bd4da766b3", 5), //fire snake
                 new Common.SpellId( NewSpells.ghostbane_dirge_mass.AssetGuid, 5),
                 new Common.SpellId( "9da37873d79ef0a468f969e4e5116ad2", 5), //inflcit light wounds mass
+                new Common.SpellId( "f63f4d1806b78604a952b3958892ce1c", 5), //instead of roaming pit at level 6
                 new Common.SpellId( NewSpells.inflict_pain_mass.AssetGuid, 5),
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),

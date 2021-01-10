@@ -64,6 +64,32 @@ using Kingmaker.Blueprints.Root.Strings;
 
 namespace CallOfTheWild.OnCastMechanics
 {
+    [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
+    public class RunActionAfterAbilityUse : RuleInitiatorLogicComponent<RuleCastSpell>
+    {
+        public ActionList action;
+        public BlueprintAbility[] specific_abilities = new BlueprintAbility[0];
+
+        public override void OnEventAboutToTrigger(RuleCastSpell evt)
+        {
+
+        }
+
+        public override void OnEventDidTrigger(RuleCastSpell evt)
+        {
+            if (!evt.Success)
+            {
+                return;
+            }
+
+            if (!specific_abilities.Empty() && !specific_abilities.Contains(evt.Spell.Blueprint))
+            {
+                return;
+            }
+
+            (this.Fact as IFactContextOwner).RunActionInContext(action, this.Owner.Unit);
+        }
+    }
 
     [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
     public class RunActionAfterSpellCastBasedOnLevel : RuleInitiatorLogicComponent<RuleCastSpell>

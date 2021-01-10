@@ -1013,6 +1013,32 @@ namespace CallOfTheWild
             }
         }
 
+        [ComponentName("Increase spell descriptor CL")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IncreaseSpellSchoolCasterLevel : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue bonus;
+            public SpellSchool school;
+            public BlueprintAbility[] extra_spells = new BlueprintAbility[0];
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Spell == null)
+                {
+                    return;
+                }
+                if ((evt.Spellbook == null || evt.Spell.School != school) && !extra_spells.Contains(evt.Spell))
+                {
+                    return;
+                }
+                evt.AddBonusCasterLevel(this.bonus.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
 
         [ComponentName("Increase spell descriptor CL")]
         [AllowedOn(typeof(BlueprintUnitFact))]

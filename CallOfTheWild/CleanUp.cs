@@ -67,6 +67,7 @@ namespace CallOfTheWild
             fixDomainSpells(cleric.Spellbook.SpellList, domain_selection, 9);
             fixDomainSpells(druid.Spellbook.SpellList, domain_selection, 9);
             fixDomainSpells(Hunter.hunter_class.Spellbook.SpellList, domain_selection, 6);
+            fixDomainSpells(Occultist.occultist_class.Spellbook.SpellList, domain_selection, 6);
 
             if (Main.settings.deity_for_everyone)
             {

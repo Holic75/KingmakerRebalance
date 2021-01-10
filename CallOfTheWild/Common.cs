@@ -2015,7 +2015,7 @@ namespace CallOfTheWild
             progression.SetName(spellbook.Name);
 
             List<BlueprintFeature> sp_features = new List<BlueprintFeature>();
-            if (spellbook.Spontaneous)
+            if (spellbook.Spontaneous && spellbook != Occultist.reliquarian_spellbook)
             {
                 sp_features = CreateSpontaneousDivineCasterSpellSelectionForMt(name, @class, spellbook);
             }

@@ -4167,8 +4167,18 @@ namespace CallOfTheWild
 
             var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AggressiveThundercloudGreaterStunBuff", "");
             stunned.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
+            var caster_dmg_done = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterDamageDoneBuff",
+                                                      "Aggressive Thundercloud Greater (Attacked This Turn)",
+                                                      "",
+                                                      "",
+                                                      icon,
+                                                      null
+                                                      );
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 6));
+
+
+            
             var apply_stun = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
 
             var stun_allowed = Helpers.CreateBuff("AggressiveThundercloudGreaterStunAllowedBuff",
@@ -4188,13 +4198,19 @@ namespace CallOfTheWild
                                                                          }
                                                        );
 
-            var dmg_action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Reflex, 
+            var dmg_save_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
                                                                                             Helpers.CreateActionList(Helpers.CreateConditionalSaved(new GameAction[0],
                                                                                                                                                     new GameAction[] { dmg, stun_action }
                                                                                                                                                    )
-                                                                                                                    )
                                                                                             )
-                                                     );
+                                                                         );
+            var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
+                                                      new GameAction[0],
+                                                      new GameAction[]{dmg_save_action,
+                                                                       Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                       }
+                                                                       )
+                                          );
 
             area.ComponentsArray = new BlueprintComponent[]
             {
@@ -4237,7 +4253,8 @@ namespace CallOfTheWild
                                                      Helpers.CreateRunActions(spawn_area),
                                                      Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity)
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
+                                                     Common.createAbilityCasterHasNoFacts(caster_dmg_done)
                                                      );
 
             move_ability.setMiscAbilityParametersRangedDirectional();
@@ -4290,8 +4307,22 @@ namespace CallOfTheWild
             area.Size = 2.Feet();
             area.Fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"); //will o wisp fx
 
+            var caster_dmg_done = Helpers.CreateBuff("AggressiveThundercloudCasterDamageDoneBuff",
+                                      "Aggressive Thundercloud (Attacked This Turn)",
+                                      "",
+                                      "",
+                                      icon,
+                                      null
+                                      );
+
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 3));
-            var dmg_action = Helpers.CreateActionList(Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))));
+            var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
+                                                     new GameAction[0], 
+                                                     new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))),
+                                                                        Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                       }
+                                                                       )
+                                                      );
 
             area.ComponentsArray = new BlueprintComponent[]
             {            
@@ -4332,7 +4363,8 @@ namespace CallOfTheWild
                                                      Helpers.CreateRunActions(spawn_area),
                                                      Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity)
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
+                                                     Common.createAbilityCasterHasNoFacts(caster_dmg_done)
                                                      );
 
             move_ability.setMiscAbilityParametersRangedDirectional();
