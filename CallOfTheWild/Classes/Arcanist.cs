@@ -311,7 +311,7 @@ namespace CallOfTheWild
                 learn_spell.ReplaceComponent<LearnSpellParametrized>(Helpers.Create<SpellManipulationMechanics.AddExtraArcanistSpellParametrized>(a => a.spell_list = halcyon_lore_spell_list));
                 learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(arcanist_class, i)
                                           );
-                learn_spell.SetName(Helpers.CreateString($"HalcyonSpellLore{i}.Name", "Halcyon Spell Lore " + $"(level {i})"));
+                learn_spell.SetName(Helpers.CreateString($"HalcyonSpellLore{i}.Name", "Halcyon Spell Lore " + $"(Level {i})"));
                 learn_spell.SetDescription(halcyon_spell_lore.Description);
                 learn_spell.SetIcon(halcyon_spell_lore.Icon);
 

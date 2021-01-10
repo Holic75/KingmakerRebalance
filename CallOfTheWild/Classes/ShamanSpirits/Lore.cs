@@ -278,7 +278,7 @@ namespace CallOfTheWild
                                               Helpers.PrerequisiteStatValue(secondary_stat, 10 + i),
                                               Common.createPrerequisiteClassSpellLevel(hex_engine.hex_classes[0], i)
                                               );
-                    learn_spell.SetName(Helpers.CreateString(prefix + $"ArcaneEnlightenmentParametrizedFeature{i + 1}.Name", "Arcane Enlightenment " + $"(level {i})"));
+                    learn_spell.SetName(Helpers.CreateString(prefix + $"ArcaneEnlightenmentParametrizedFeature{i + 1}.Name", "Arcane Enlightenment " + $"(Level {i})"));
                     learn_spell.SetDescription(learn_selection.Description);
                     learn_spell.SetIcon(learn_selection.Icon);
 

@@ -972,7 +972,7 @@ namespace CallOfTheWild
             for (int i = 1; i <= 9; i++)
             {
                 primal_magic[i - 1] = Helpers.CreateFeatureSelection($"MagaambyanTelepathPrimalMagic{i}FeatureSelection",
-                                                "Primal Spells " + $"(level {i})",
+                                                "Primal Spells " + $"(Level {i})",
                                                 "A Magaambyan telepath adds one 1st-level spell from the druid spell list to the psychic spell list and her spells known. Each time a Magaambyan telepath gains the ability to cast a new level of spell, she can add one spell of that level from the druid spell list to both the psychic spell list and her spells known. She casts these spells as psychic spells, and once the spells are selected these choices cannot be changed.\n"
                                                 + "A Magaambyan telepath does not gain discipline spells.",
                                                 "",

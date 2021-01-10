@@ -33,7 +33,7 @@ namespace CallOfTheWild
             var blinding_ray = library.Get<BlueprintAbility>("9b4d07751dd104243a94b495c571c9dd");
 
             var ability = library.CopyAndAdd(blinding_ray, prefix + "ColorBeam", "");
-
+            ability.SpellResistance = true;
             ability.RemoveComponents<AbilityResourceLogic>();
             ability.RemoveComponents<ContextRankConfig>();
             ability.AddComponent(createClassScalingConfig(type: AbilityRankType.DamageDice));

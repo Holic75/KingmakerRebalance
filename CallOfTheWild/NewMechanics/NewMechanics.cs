@@ -1028,6 +1028,56 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("Increase context spells DC by descriptor")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class ContextIncreaseSchoolSpellsDC : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+        {
+            public ContextValue Value;
+            public SpellSchool school;
+            public BlueprintSpellbook spellbook = null;
+            public BlueprintCharacterClass specific_class = null;
+            public bool only_spells = true;
+
+            private MechanicsContext Context
+            {
+                get
+                {
+                    MechanicsContext context = (this.Fact as Buff)?.Context;
+                    if (context != null)
+                        return context;
+                    return (this.Fact as Feature)?.Context;
+                }
+            }
+
+            public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                if (evt.Initiator == null)
+                {
+                    return;
+                }
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, evt.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+
+                if (evt.Spellbook?.Blueprint == null && only_spells)
+                {
+                    return;
+                }
+                if (this.school != (evt.AbilityData?.Blueprint?.School).GetValueOrDefault())
+                {
+                        return;
+                }
+                evt.AddBonusDC(this.Value.Calculate(this.Context));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
+
+
 
         [ComponentName("Increase context spells DC by descriptor")]
         [AllowedOn(typeof(BlueprintUnitFact))]

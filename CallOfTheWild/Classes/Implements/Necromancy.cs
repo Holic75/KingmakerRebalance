@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
@@ -16,6 +17,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
@@ -62,6 +64,7 @@ namespace CallOfTheWild
                                                 Common.createAbilityTargetHasFact(true, Common.undead, Common.construct),
                                                 resource.CreateResourceLogic()
                                                 );
+            ability.SpellResistance = true;
             ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
             return Common.AbilityToFeature(ability, false);
@@ -94,6 +97,7 @@ namespace CallOfTheWild
                                                 Helpers.CreateDeliverTouch()
                                                 );
             ability.setMiscAbilityParametersTouchHarmful();
+            ability.SpellResistance = true;
             var cast_ability = Helpers.CreateTouchSpellCast(ability, resource);
             cast_ability.AddComponent(Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental));
             var feature = Common.AbilityToFeature(cast_ability, false);
@@ -344,5 +348,172 @@ namespace CallOfTheWild
             return buff;
         }
 
+
+        public BlueprintFeature createLifeDrain(BlueprintAbilityResource initial_resource)
+        {
+            var enervation = library.Get<BlueprintAbility>("f34fb78eaaec141469079af124bcfa0f");
+
+            var actions = new ActionList[4];
+
+            for (int i = 0; i < actions.Length; i++)
+            {
+                var level_drain = Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, i + 1),
+                                                                  Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                  Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary
+                                                                  );
+
+                var recover_hp = Common.createContextActionOnContextCaster(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default))));
+
+                var effect = Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.undead, Common.elemental, Common.construct),
+                                                       new GameAction[0],
+                                                       new GameAction[] { level_drain}.AddToArray(Enumerable.Repeat(recover_hp, i + 1))
+                                                       );
+                actions[i] = Helpers.CreateActionList(effect);
+            }
+
+            var ability = Helpers.CreateAbility(prefix + "LifeDrainAbility",
+                                                "Life Drain",
+                                                "At 8th level, a necroccultist can expend 1 point of mental focus from a necromancy implement to unleash a life-draining ray as a ranged touch attack that causes the target to accrue 1d4 negative levels. The ray has a medium range. The negative levels last a number of minutes equal to the necroccultist’s occultist level.\n"
+                                                + "For each negative level this attack gives a target, the necroccultist regains a number of hit points equal to his occultist level. The necroccultist can use this ability once per day at 8th level, plus one additional time per day for every 3 occultist levels thereafter.",
+                                                "",
+                                                enervation.Icon,
+                                                AbilityType.SpellLike,
+                                                CommandType.Standard,
+                                                AbilityRange.Medium,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionRandomize(actions)),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                enervation.GetComponent<AbilityDeliverProjectile>(),
+                                                createClassScalingConfig(),
+                                                createDCScaling(),
+                                                initial_resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            ability.SpellResistance = true;
+
+            addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
+
+            return Common.AbilityToFeature(ability, false);
+        }
+
+
+        public BlueprintFeature createGhostlyHorde(BlueprintAbilityResource initial_resource)
+        {
+            var display_name = "Ghostly Horde";
+            var description = "At 5th level, a necroccultist can spend 1 point of mental focus from a necromancy implement to summon a mob of ghostly spirits to harass his enemies.\n"
+                               + "Summoning the ghostly horde is a standard action that doesn’t provoke attacks of opportunity. The ghostly horde appears within 60 feet of the necroccultist, fills an area 20 feet in diameter, and always hovers a few inches off the ground (thus ignoring any difficult terrain). The necroccultist can command the ghostly horde to move up to 30 feet each round as a move action, though the farthest edge of the ghostly horde can never be more than 60 feet from the necroccultist.\n"
+                               + "Any creature caught inside the ghostly horde takes 1d6 points of damage per 2 occultist levels at the start of its turn(up to a maximum of 10d6 points of damage at 20th level). A successful Fortitude save (DC = 10 + 1/2 the necroccultist’s occultist level +the necroccultist’s Intelligence modifier) halves this damage.This damage is not negative energy—it manifests in the form of physical wounds and aches as if from supernatural aging.Nonliving creatures and creatures immune to magical aging are immune to this damage, but otherwise the damage bypasses all forms of damage reduction. The ghostly horde remains for 1 round, though at the beginning of his turn, the necroccultist can expend 1 point of mental focus as a swift action to extend the duration for 1 additional round. The necroccultist can use this ability once per day at 5th level, plus one additional time per day for every 5 occultist levels thereafter.";
+            var icon = library.Get<BlueprintAbility>("b24583190f36a8442b212e45226c54fc").Icon; //wail of banshee
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("6fa0adacca8d00f4aaba1e8df77a318f", prefix + "GhostlyHordeArea", "");
+
+
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true, isAoE: true);
+            
+
+            var actions = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionHasFacts(false, Common.undead, Common.elemental, Common.construct),
+                                                                             null,
+                                                                             Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, dmg))
+                                                  );
+
+            area.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a =>
+                {
+                    a.UnitEnter = Helpers.CreateActionList();
+                    a.Round = actions;
+                    a.FirstRound = Helpers.CreateActionList();
+                }),
+                Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                createDCScaling(),
+                createClassScalingConfig()
+            };
+
+            var caster_buff = Helpers.CreateBuff(prefix + "GhostlyHordeCasterBuff",
+                                                  display_name + " (Caster)",
+                                                  description,
+                                                  "",
+                                                  icon,
+                                                  null
+                                                  );
+            caster_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.RemoveUniqueArea>(a => a.feature = caster_buff)));
+            area.AddComponent(Helpers.Create<UniqueAreaEffect>(u => u.Feature = caster_buff));
+            caster_buff.Stacking = StackingType.Summ;
+
+            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
+
+
+            var move_ability = Helpers.CreateAbility(prefix + "GhostlyHordeMoveAbility",
+                                                     display_name,
+                                                     description,
+                                                     "",
+                                                     icon,
+                                                     AbilityType.Supernatural,
+                                                     UnitCommand.CommandType.Move,
+                                                     AbilityRange.Medium,
+                                                     "",
+                                                     "Fortitude half",
+                                                     Helpers.CreateRunActions(spawn_area),
+                                                     Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                     Common.createAbilityCasterHasFacts(caster_buff)
+                                                     );
+
+            move_ability.setMiscAbilityParametersRangedDirectional();
+          
+            //caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
+            caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
+
+
+            var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(1));
+            var apply_caster_buff_init = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(), duration_seconds: 9);
+
+            var ability = Helpers.CreateAbility(prefix + "GhostlyHordeAbility",
+                                                 display_name,
+                                                 description,
+                                                 "",
+                                                 icon,
+                                                 AbilityType.Supernatural,
+                                                 UnitCommand.CommandType.Standard,
+                                                 AbilityRange.Medium,
+                                                 Helpers.oneRoundDuration,
+                                                 "Fortitude half",
+                                                 Helpers.CreateRunActions(spawn_area),
+                                                 createDCScaling(),
+                                                 Common.createAbilityAoERadius(20.Feet(), TargetType.Any),
+                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                 Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff_init)),
+                                                 initial_resource.CreateResourceLogic()
+                                                 );
+            ability.setMiscAbilityParametersRangedDirectional();
+
+            var prolong_ability = Helpers.CreateAbility(prefix + "GhostlyHordeProlongAbility",
+                                                 display_name + " Prolongation",
+                                                 description,
+                                                 "",
+                                                 icon,
+                                                 AbilityType.Spell,
+                                                 UnitCommand.CommandType.Swift,
+                                                 AbilityRange.Personal,
+                                                 Helpers.oneRoundDuration,
+                                                 "",
+                                                 Helpers.CreateRunActions(apply_caster_buff),
+                                                 resource.CreateResourceLogic(),
+                                                 Common.createAbilityCasterHasFacts(caster_buff)
+                                                 );
+
+            prolong_ability.setMiscAbilityParametersSelfOnly();
+
+            addFocusInvestmentCheck(ability, SpellSchool.Necromancy);
+           
+
+            var wrapper = Common.createVariantWrapper(prefix + "GhostlyHordeBaseAbility", "", ability, move_ability, prolong_ability);
+            var feature = Common.AbilityToFeature(wrapper, false);
+            return feature;
+        }
     }
 }
