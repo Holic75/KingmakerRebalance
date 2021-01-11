@@ -323,7 +323,7 @@ namespace CallOfTheWild
                                                      AbilityRange.Medium,
                                                      "",
                                                      "",
-                                                     Helpers.CreateRunActions(apply_mark, summon_weapon),
+                                                     Helpers.CreateRunActions(clear_summon_pool, apply_mark, summon_weapon),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                      Common.createAbilityCasterHasNoFacts(forbid_target_change_buff)
@@ -340,7 +340,7 @@ namespace CallOfTheWild
                                                                     null,
                                                                     Helpers.Create<ReplaceAbilityParamsWithContext>(a => a.Ability = mark_ability),
                                                                     Helpers.CreateAddFact(mark_ability),
-                                                                    Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.ContextActionClearSummonPoolFromCaster>(c => c.SummonPool = summon_pool))
+                                                                    Helpers.CreateAddFactContextActions(deactivated: clear_summon_pool)
                                                                     );
             spiritual_weapon_summoner_buff.Stacking = StackingType.Replace;
             var apply_summoner_buff = Common.createContextActionApplyBuffToCaster(spiritual_weapon_summoner_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), dispellable: false);
@@ -355,7 +355,7 @@ namespace CallOfTheWild
                                                      AbilityRange.Medium,
                                                      Helpers.roundsPerLevelDuration,
                                                      "",
-                                                     Helpers.CreateRunActions(apply_summoner_buff, apply_mark, summon_weapon),
+                                                     Helpers.CreateRunActions(clear_summon_pool, apply_summoner_buff, apply_mark, summon_weapon),
                                                      Helpers.CreateContextRankConfig(),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
@@ -589,7 +589,7 @@ namespace CallOfTheWild
                                                      AbilityRange.Medium,
                                                      "",
                                                      "",
-                                                     Helpers.CreateRunActions(apply_mark, summon_weapon),
+                                                     Helpers.CreateRunActions(clear_summon_pool, apply_mark, summon_weapon),
                                                      Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                      Common.createAbilityCasterHasNoFacts(forbid_target_change_buff)
@@ -621,7 +621,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Medium,
                                                 Helpers.roundsPerLevelDuration,
                                                 "",
-                                                Helpers.CreateRunActions(apply_mark, apply_summoner_buff, summon_weapon),
+                                                Helpers.CreateRunActions(clear_summon_pool, apply_mark, apply_summoner_buff, summon_weapon),
                                                 Helpers.CreateContextRankConfig(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Force)
@@ -705,7 +705,7 @@ namespace CallOfTheWild
             mark_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: clear_summon_pool));
 
             var action = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(mark_buff, not: true),
-                                                   new GameAction[] { apply_mark, summon_weapon }
+                                                   new GameAction[] { clear_summon_pool, apply_mark, summon_weapon }
                                                    );
             var twilight_knife_summoner_buff = Helpers.CreateBuff("TwilightKnifeSummonerBuff",
                                                                     "Twilight Knife Summoner",
