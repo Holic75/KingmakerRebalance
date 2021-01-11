@@ -287,7 +287,8 @@ namespace CallOfTheWild
         static public BlueprintAbility locate_weakness;
 
         static public BlueprintAbility weapon_of_awe;
-        static public BlueprintAbility frost_fall;
+        static public BlueprintAbility allied_cloak;
+
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -492,6 +493,42 @@ namespace CallOfTheWild
             createLocateWeakness();
 
             createWeaponOfAwe();
+            createAlliedCloak();
+        }
+
+        static void createAlliedCloak()
+        {
+            var buff = Helpers.CreateBuff("AlliedCloakBuff",
+                                          "Allied Cloak",
+                                          "You cause a cloak, shawl, poncho, or other outer garment you are wearing to animate to aid and defend you. The cloak provides a +2 shield bonus to your AC. In addition, once each round during your turn, you can take a free action to direct your cloak to use the aid another action to assist your attack roll, or AC.",
+                                          "",
+                                          Rebalance.aid_self_free.Icon,
+                                          null,
+                                          Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.Shield),
+                                          Helpers.CreateAddFact(Rebalance.aid_self_free)
+                                         );
+
+            allied_cloak = Helpers.CreateAbility("AlliedCloakAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Abjuration),
+                                                    Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)
+                                                    );
+            allied_cloak.setMiscAbilityParametersSelfOnly();
+            allied_cloak.AddToSpellList(Helpers.wizardSpellList, 3);
+            allied_cloak.AddToSpellList(Helpers.bardSpellList, 3);
+            allied_cloak.AddToSpellList(Helpers.magusSpellList, 3);
+
+            allied_cloak.AddSpellAndScroll("04011c80b5ffb054ba3027c32d07f8f8"); //cape of wasps
+
         }
 
 

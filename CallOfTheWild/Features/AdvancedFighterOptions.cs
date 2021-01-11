@@ -537,6 +537,14 @@ namespace CallOfTheWild
                                                         WeaponEnchantments.cruel,
                                                         1, warrior_spirit_group);
 
+            var bane = Common.createEnchantmentAbility("WarriorSpiritEnchancementBane",
+                                                        "Warrior Spirit - Bane",
+                                                        $"A fighter can add the bane property to her weapon, but this consumes 4 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.bane.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWBane.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.bane,
+                                                        4, warrior_spirit_group);
+
             var speed_enchant = library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006");
             var speed = Common.createEnchantmentAbility("WarriorSpiritEnchancementSpeed",
                                                             "Warrior Spirit - Speed",
@@ -574,7 +582,7 @@ namespace CallOfTheWild
                                                                             "",
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
-                                                                            Helpers.CreateAddFact(speed),
+                                                                            Helpers.CreateAddFacts(speed),
                                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
                                                                             resource.CreateIncreaseResourceAmount(1)
                                                                             );
@@ -586,7 +594,7 @@ namespace CallOfTheWild
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
                                                                             Common.createIncreaseActivatableAbilityGroupSize(warrior_spirit_group),
-                                                                            Helpers.CreateAddFact(brilliant_energy),
+                                                                            Helpers.CreateAddFacts(brilliant_energy, bane),
                                                                             resource.CreateIncreaseResourceAmount(1)
                                                                             );
 

@@ -1677,10 +1677,10 @@ namespace CallOfTheWild
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike - to compensate for missing spells
 
                 new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2), //instead of flaming sphere
+                new Common.SpellId( NewSpells.allied_cloak.AssetGuid, 2),
                 new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
-                //allied cloak
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
-                new Common.SpellId( NewSpells.blade_tutor.AssetGuid, 2), //should probablyalso be there due to flavor
+                new Common.SpellId( NewSpells.blade_tutor.AssetGuid, 2), //should probably also be there due to flavor
                 new Common.SpellId( "6b90c773a6543dc49b2505858ce33db5", 2), //cure moderate wounds
                 new Common.SpellId( "b48b4c5ffb4eab0469feba27fc86a023", 2), //delay poison
                 new Common.SpellId( "e1291272c8f48c14ab212a599ad17aac", 2), //effortless armor
@@ -1696,7 +1696,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "89940cde01689fb46946b2f8cd7b66b7", 2), //invisibility
                 new Common.SpellId( "3e4ab69ada402d145a5e0ad3ad4b8564", 2), //mirror image
                 new Common.SpellId( "dee3074b2fbfb064b80b973f9b56319e", 2), //pernicious poison
-                new Common.SpellId( "c28de1f98a3f432448e52e5d47c73208", 2), //protection from arrows - to compensate small number of spells
                 new Common.SpellId( "21ffef7791ce73f468b6fca4d9371e8b", 2), //resist energy
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( "08cb5f4c3b2695e44971bf5c45205df0", 2), //scare

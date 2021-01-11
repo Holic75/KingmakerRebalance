@@ -680,8 +680,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "30e5dc243f937fc4b95d2f8f4e1b7ff3", 2), //see invisibility
                 new Common.SpellId( NewSpells.shadow_claws.AssetGuid, 2),
                 new Common.SpellId( "5181c2ed0190fc34b8a1162783af5bf4", 2), //stone call
-                new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2), 
+                new Common.SpellId( NewSpells.vine_strike.AssetGuid, 2),
 
+                new Common.SpellId( NewSpells.allied_cloak.AssetGuid, 3),
                 new Common.SpellId( "61a7ed778dd93f344a5dacdbad324cc9", 3), //beast shape 1
                 new Common.SpellId( NewSpells.channel_vigor.AssetGuid, 3),
                 new Common.SpellId( NewSpells.cloak_of_winds.AssetGuid, 3),
