@@ -7,6 +7,7 @@ using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.EventConditionActionSystem.Actions;
 using Kingmaker.Designers.EventConditionActionSystem.Evaluators;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
@@ -223,7 +224,6 @@ namespace CallOfTheWild
                                                    //Helpers.Create<AddImmortality>(),
                                                    Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
                                                    Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
-                                                   Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantMove),
                                                    Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Unlootable)
                                                    );
             twilight_knife_unit = library.CopyAndAdd<BlueprintUnit>(spiritual_weapon_unit, "TwilightKnifeUnit", "");
@@ -705,8 +705,7 @@ namespace CallOfTheWild
             mark_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: clear_summon_pool));
 
             var action = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(mark_buff, not: true),
-                                                   apply_mark,
-                                                   summon_weapon
+                                                   new GameAction[] { apply_mark, summon_weapon }
                                                    );
             var twilight_knife_summoner_buff = Helpers.CreateBuff("TwilightKnifeSummonerBuff",
                                                                     "Twilight Knife Summoner",

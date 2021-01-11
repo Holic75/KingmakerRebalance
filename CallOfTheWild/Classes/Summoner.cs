@@ -1633,6 +1633,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1724061e89c667045a6891179ee2e8e7", 2), //summon monster 2
                 new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 2),
 
+                new Common.SpellId( NewSpells.allied_cloak.AssetGuid, 3),
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement
                 //evoution surge

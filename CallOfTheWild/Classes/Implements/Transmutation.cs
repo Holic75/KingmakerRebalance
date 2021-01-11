@@ -171,7 +171,7 @@ namespace CallOfTheWild
 
             var vorpal = Common.createEnchantmentAbility(prefix + "LegacyWeaponEnchancementVorpal",
                                                         "Legacy Weapon - Vorpal",
-                                                        $"An occultist can the vorpal property to her weapon, but this consumes 5 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.vorpal.Description}",
+                                                        $"An occultist can add the vorpal property to her weapon, but this consumes 5 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.vorpal.Description}",
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWVorpal.png"),
                                                         weapon_enhancement_buff,
                                                         WeaponEnchantments.vorpal,
@@ -185,6 +185,14 @@ namespace CallOfTheWild
                                                         weapon_enhancement_buff,
                                                         speed_enchant,
                                                         3, legacy_weapon_group);
+
+            var bane = Common.createEnchantmentAbility(prefix + "LegacyWeaponEnchancementBane",
+                                                        "Legacy Weapon - Bane",
+                                                        $"An occultist can add the bane property to her weapon, but this consumes 4 points of enhancement bonus granted to this weapon.\n{WeaponEnchantments.bane.Description}",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWBane.png"),
+                                                        weapon_enhancement_buff,
+                                                        WeaponEnchantments.bane,
+                                                        4, legacy_weapon_group);
 
             var apply_buff = Common.createContextActionApplyBuff(weapon_enhancement_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
 
@@ -236,7 +244,7 @@ namespace CallOfTheWild
                                                                 "",
                                                                 weapon_enhancement_buff.Icon,
                                                                 FeatureGroup.None,
-                                                                Helpers.CreateAddFact(speed),
+                                                                Helpers.CreateAddFacts(speed),
                                                                 Common.createIncreaseActivatableAbilityGroupSize(legacy_weapon_group)
                                                                 );
 
@@ -247,7 +255,7 @@ namespace CallOfTheWild
                                                                             weapon_enhancement_buff.Icon,
                                                                             FeatureGroup.None,
                                                                             Common.createIncreaseActivatableAbilityGroupSize(legacy_weapon_group),
-                                                                            Helpers.CreateAddFact(brilliant_energy)
+                                                                            Helpers.CreateAddFacts(brilliant_energy, bane)
                                                                             );
             legacy_weapon_features[4] = Helpers.CreateFeature(prefix + "LegacyWeaponEnchancement5Feature",
                                                                 "Legacy Weapon +5",

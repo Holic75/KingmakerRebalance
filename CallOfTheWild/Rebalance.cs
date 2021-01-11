@@ -57,6 +57,7 @@ namespace CallOfTheWild
         static public BlueprintBuff[] aid_another_buffs = new BlueprintBuff[2];
         static public ContextRankConfig aid_another_config;
         static public BlueprintAbility aid_another;
+        static public BlueprintAbility aid_self_free;
 
         static internal void createAidAnother()
         {
@@ -96,6 +97,15 @@ namespace CallOfTheWild
             aid_another_buffs[1].Stacking = StackingType.Stack;
 
             BlueprintAbility[] aid_another_abilities = new BlueprintAbility[aid_another_buffs.Length];
+            BlueprintAbility[] aid_self_abilities = new BlueprintAbility[aid_another_buffs.Length];
+            var cooldown = Helpers.CreateBuff("AlliedCloakAidAnotherCooldownBuff",
+                                              "Allied Cloak (Cooldown)",
+                                              aid_another_buffs[0].Description,
+                                              "",
+                                              Helpers.GetIcon("e418c20c8ce362943a8025d82c865c1c"), //cape of wasps
+                                              null
+                                             );
+            var apply_cooldown = Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), dispellable: false);
 
             for (int i = 0; i < aid_another_buffs.Length; i++)
             {
@@ -113,9 +123,24 @@ namespace CallOfTheWild
                                                                  Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(aid_another_buffs[i]), apply_buff)
                                                                  );
                 aid_another_abilities[i].setMiscAbilityParametersTouchFriendly(works_on_self: false);
+
+                aid_self_abilities[i] = Helpers.CreateAbility($"AlliedCloak{i + 1}Ability",
+                                                                "Allied Cloak: " + aid_another_buffs[i].Name,
+                                                                aid_another_buffs[i].Description,
+                                                                "",
+                                                                cooldown.Icon,
+                                                                AbilityType.Special,
+                                                                UnitCommand.CommandType.Free,
+                                                                AbilityRange.Personal,
+                                                                Helpers.oneRoundDuration,
+                                                                "",
+                                                                Helpers.CreateRunActions(Common.createContextActionRemoveBuffFromCaster(aid_another_buffs[i]), apply_buff, apply_cooldown),
+                                                                Common.createAbilityCasterHasNoFacts(cooldown)
+                                                             );
+                aid_self_abilities[i].setMiscAbilityParametersSelfOnly();
             }
 
-            var wrapper = Common.createVariantWrapper("AidAnotherAbilityBase", "ab00871bf2914b3ba492fdb2f1af8875", aid_another_abilities);
+            var wrapper = Common.createVariantWrapper("AidAnotherAbilityBase", "", aid_another_abilities);
             wrapper.SetName("Aid Another");
             var feature = Helpers.CreateFeature("AidAnotherFeature",
                                                 "Aid Another",
@@ -129,6 +154,9 @@ namespace CallOfTheWild
             var basic_feat_progression = library.Get<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
             basic_feat_progression.LevelEntries[0].Features.Add(feature);
             aid_another = wrapper;
+
+            aid_self_free = Common.createVariantWrapper("AidSelfFreeAbilityBase", "", aid_self_abilities);
+            aid_self_free.SetName("Allied Cloak");
 
             Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
             {
