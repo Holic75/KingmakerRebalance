@@ -101,7 +101,7 @@ namespace CallOfTheWild.WildArmorMechanics
     class Patch_UnitBody_CancelPolymorphEffect
     {
         static public BlueprintItem thundering_claw = Main.library.Get<BlueprintItem>("e5b46c4b36c2ca74d8a30f68a93bc77c");
-        static public void Prefix(UnitBody __instance)
+        static public bool Prefix(UnitBody __instance)
         {
             Main.TraceLog();
             if (__instance.Owner.Ensure<UnitPartWildArmor>().active())
@@ -111,6 +111,7 @@ namespace CallOfTheWild.WildArmorMechanics
                     __instance.Armor.RetainDeactivateFlag();
                 }
             }
+            return true;
         }
 
 
