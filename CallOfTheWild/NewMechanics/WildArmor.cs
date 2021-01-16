@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Kingmaker.Items;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Items;
+using Kingmaker.Items.Slots;
 
 namespace CallOfTheWild.WildArmorMechanics
 {
@@ -57,13 +58,13 @@ namespace CallOfTheWild.WildArmorMechanics
             }
             var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
             var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
-            if (primary_hand != null 
+            if (primary_hand != null
                 && (!primary_hand.HasShield || !hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
                 && (primary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
                 primary_hand.RetainDeactivateFlag();
             }
-            if (secondary_hand != null 
+            if (secondary_hand != null
                 && (!secondary_hand.HasShield || !hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
                 && (secondary_hand.MaybeItem?.Blueprint != thundering_claw))
             {
@@ -111,6 +112,7 @@ namespace CallOfTheWild.WildArmorMechanics
                     __instance.Armor.RetainDeactivateFlag();
                 }
             }
+
             return true;
         }
 
@@ -119,19 +121,35 @@ namespace CallOfTheWild.WildArmorMechanics
         {
             var primary_hand = __instance.CurrentHandsEquipmentSet?.PrimaryHand;
             var secondary_hand = __instance.CurrentHandsEquipmentSet?.SecondaryHand;
-            if (primary_hand != null 
+            if (primary_hand != null
                 && (!primary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(primary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
                 && (primary_hand.MaybeItem?.Blueprint != thundering_claw)
                 && primary_hand.Disabled)//?????
             {
                 primary_hand.ReleaseDeactivateFlag();
             }
-            if (secondary_hand != null 
+            if (secondary_hand != null
                 && (!secondary_hand.HasShield || !Patch_UnitBody_ApplyPolymorphEffect.hasWildEnchant(secondary_hand.Shield?.ArmorComponent) || !__instance.Owner.Ensure<UnitPartWildArmor>().active())
                 && (secondary_hand.MaybeItem?.Blueprint != thundering_claw)
                 && secondary_hand.Disabled)//????
             {
                 secondary_hand.ReleaseDeactivateFlag();
+            }
+
+        }
+    }
+
+    //fix lock of items slots of polymorphed character on save game load
+    [Harmony12.HarmonyPatch(typeof(UnitBody))]
+    [Harmony12.HarmonyPatch("PostLoad", Harmony12.MethodType.Normal)]
+    class Patch_UnitBody_Postload
+    {
+        static public void Postfix(UnitBody __instance)
+        {
+            Main.TraceLog();
+            if (__instance.IsPolymorphed)
+            {
+                Harmony12.Traverse.Create(__instance).Method("SetPolymorphSlotsLock", false).GetValue();
             }
         }
     }

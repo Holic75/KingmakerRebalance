@@ -1936,7 +1936,7 @@ namespace CallOfTheWild
                 Main.TraceLog();
                 foreach (ItemSlot itemSlot in __instance.AllSlots)
                 {
-                    itemSlot.Lock.Release();
+                    itemSlot?.Lock.Release();
                 }
             }
         }
@@ -1944,14 +1944,14 @@ namespace CallOfTheWild
 
         [Harmony12.HarmonyPatch(typeof(Kingmaker.Items.UnitBody))]
         [Harmony12.HarmonyPatch("CancelPolymorphEffect", Harmony12.MethodType.Normal)]
-        class Patch_FixPolymorphLockingTemporaryItems_
+        class Patch_FixPolymorphLockingTemporaryItems_UnitBody_CancelPolymorphEffect
         {
             static public void Prefix(Kingmaker.Items.UnitBody __instance)
             {
                 Main.TraceLog();
                 foreach (ItemSlot itemSlot in __instance.AllSlots)
                 {
-                    itemSlot.Lock.Retain();
+                    itemSlot?.Lock.Retain();
                 }
             }
         }
