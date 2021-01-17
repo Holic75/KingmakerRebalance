@@ -415,8 +415,11 @@ namespace CallOfTheWild
                                                     martial_performance.Icon,
                                                     FeatureGroup.None,
                                                     Common.createAddParametrizedFeatures(library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), category),
-                                                    Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] { category })
-                                                    );
+                                                    Helpers.Create<PrerequisiteProficiency>(p =>
+                                                    {
+                                                        p.WeaponProficiencies = new WeaponCategory[] { category };
+                                                        p.ArmorProficiencies = new ArmorProficiencyGroup[0];
+                                                    }));
                 martial_performance.AllFeatures = martial_performance.AllFeatures.AddToArray(feature);
             }       
         }
