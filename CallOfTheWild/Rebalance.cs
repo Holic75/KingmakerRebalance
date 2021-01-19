@@ -1291,7 +1291,7 @@ namespace CallOfTheWild
             foreach (var h in heals)
             {
                 var new_actions = Common.changeAction<ContextActionHealTarget>(h.GetComponent<AbilityEffectRunAction>().Actions.Actions,
-                                                               c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                                                               c => c.Value = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0));
 
                 h.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
             }

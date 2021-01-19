@@ -1349,7 +1349,7 @@ namespace CallOfTheWild
             var damage_value = new ContextValue();
             damage_value.ValueType = ContextValueType.Simple;
             damage_value.Value = 3;
-            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D8, damage_value), halfIfSaved: true);
+            var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), damage_value), halfIfSaved: true);
 
             var sleep_buff = library.Get<BlueprintBuff>("c9937d7846aa9ae46991e9f298be644a");
             var ice_tomb_buff = library.CopyAndAdd<BlueprintBuff>("6f0e450771cc7d446aea798e1fef1c7a", name_prefix + "HexBuff", buff_guid);//icy prison buff
@@ -1506,7 +1506,7 @@ namespace CallOfTheWild
             var death_effect_conditional = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionConditionalSaved>();
             death_effect_conditional.Failed = Helpers.CreateActionList(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionKillTarget>());
 
-            var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(4), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(4), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
             death_effect_conditional.Succeed = Helpers.CreateActionList(Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage));
             death_effect.Actions = Helpers.CreateActionList(death_effect_conditional, 
                                                             Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionRemoveSelf>());

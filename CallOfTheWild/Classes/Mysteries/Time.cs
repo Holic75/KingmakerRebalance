@@ -32,7 +32,7 @@ namespace CallOfTheWild
 
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
-            var construct_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, DiceType.D6.CreateContextDiceValue(Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+            var construct_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, BalanceFixes.getDamageDie(DiceType.D6).CreateContextDiceValue(Helpers.CreateContextValue(AbilityRankType.DamageDice)));
             construct_damage.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
             var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(construct),
                                                    construct_damage,

@@ -60,7 +60,7 @@ namespace CallOfTheWild
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 3, 1, 3, 1, 0, 0, classes, getArchetypeArray());
-            var construct_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, DiceType.D6.CreateContextDiceValue(Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+            var construct_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, BalanceFixes.getDamageDie(DiceType.D6).CreateContextDiceValue(Helpers.CreateContextValue(AbilityRankType.DamageDice)));
             construct_damage.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
 
             var effect = Helpers.CreateConditional(Common.createContextConditionHasFact(Common.construct), construct_damage);

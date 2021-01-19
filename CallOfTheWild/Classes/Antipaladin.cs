@@ -808,12 +808,12 @@ namespace CallOfTheWild
                                                   };
             var effect_buff = Helpers.CreateBuff("AuraOfDecayBuff",
                                       "Aura of Decay Target",
-                                      "At 11th level, as a free action, a blighted myrmidon can expend two uses of her smite nature ability to generate an aura of decay with a range of 10 feet for 1 minute. Living foes of the blighted myrmidon within the aura take 3d6 points of damage unless they succeed at a Fortitude save (DC = half the blighted myrmidon’s level + her Charisma modifier) for half damage. If an elemental, a fey, or a creature with levels in druid, hunter, or ranger takes damage from aura of decay, the blighted myrmidon regains a number of hit points equal to half the amount of damage the creature takes.",
+                                      $"At 11th level, as a free action, a blighted myrmidon can expend two uses of her smite nature ability to generate an aura of decay with a range of 10 feet for 1 minute. Living foes of the blighted myrmidon within the aura take 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage unless they succeed at a Fortitude save (DC = half the blighted myrmidon’s level + her Charisma modifier) for half damage. If an elemental, a fey, or a creature with levels in druid, hunter, or ranger takes damage from aura of decay, the blighted myrmidon regains a number of hit points equal to half the amount of damage the creature takes.",
                                       "",
                                       NewSpells.explosion_of_rot.Icon,
                                       Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"), //poison buff
                                       Helpers.CreateAddFactContextActions(activated: effect_actions, newRound: effect_actions),
-                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), AbilitySharedValue.Damage),
+                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3, 0), AbilitySharedValue.Damage),
                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.Heal, 0.5),
                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.StatBonus, 0.25),
                                       Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
@@ -1785,7 +1785,7 @@ namespace CallOfTheWild
             touch_of_corruption_resource = library.Get<BlueprintAbilityResource>("9dedf41d995ff4446a181f143c3db98c");
             ClassToProgression.addClassToResource(antipaladin_class, new BlueprintArchetype[0], touch_of_corruption_resource, paladin);
 
-            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), 0);
+            var dice = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice), 0);
             var heal_action = Common.createContextActionHealTarget(dice);
             var damage_undead_action = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, dice);
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
@@ -1797,9 +1797,9 @@ namespace CallOfTheWild
             var inflict_light_wounds = library.Get<BlueprintAbility>("244a214d3b0188e4eb43d3a72108b67b");
             var ability = Helpers.CreateAbility("TouchOfCorruptionAbility",
                                                 "Touch of Corruption",
-                                                "Beginning at 2nd level, an antipaladin surrounds his hand with a fiendish flame, causing terrible wounds to open on those he touches. Each day he can use this ability a number of times equal to 1/2 his antipaladin level + his Charisma modifier. As a touch attack, an antipaladin can cause 1d6 points of damage for every two antipaladin levels he possesses. Using this ability is a standard action that does not provoke attacks of opportunity.\n"
+                                                $"Beginning at 2nd level, an antipaladin surrounds his hand with a fiendish flame, causing terrible wounds to open on those he touches. Each day he can use this ability a number of times equal to 1/2 his antipaladin level + his Charisma modifier. As a touch attack, an antipaladin can cause 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every two antipaladin levels he possesses. Using this ability is a standard action that does not provoke attacks of opportunity.\n"
                                                 + "An antipaladin can also chose to channel corruption into a melee weapon by spending 2 uses of this ability as a swift action. The next enemy struck with this weapon will suffer the effects of this ability.\n"
-                                                + "Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d6 hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
+                                                + $"Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
                                                 "",
                                                 Helpers.GetIcon("989ab5c44240907489aba0a8568d0603"), //bestow curse
                                                 AbilityType.Supernatural,

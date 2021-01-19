@@ -38,6 +38,7 @@ namespace CallOfTheWild
             internal bool metamagic_for_spontaneous_spell_conversion { get; }
             internal bool remove_solo_tactics_from_sacred_huntsmaster { get; }
             internal bool update_kineticist_archetypes { get; }
+            internal bool balance_fixes { get; }
             internal Settings()
             {
 
@@ -60,6 +61,7 @@ namespace CallOfTheWild
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
                     remove_solo_tactics_from_sacred_huntsmaster = (bool)jo["remove_solo_tactics_from_sacred_huntsmaster"];
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
+                    balance_fixes = (bool)jo["balance_fixes"];
                 }
             }
         }
@@ -194,6 +196,9 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
+                    CallOfTheWild.BalanceFixes.fixSpellDamage("979f63920af22344d81da5099c9ec32e", //death domain bleed
+                                                                   "ad9a6a7ee08ce73469dff703a17f8934" //medium elemental burn
+                                                                   );
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();

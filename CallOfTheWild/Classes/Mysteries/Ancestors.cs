@@ -300,9 +300,9 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0, classes, getArchetypeArray());
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice)), 
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.DamageDice)), 
                                                      halfIfSaved: true, isAoE: true);
-            var dmg_undead = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative)),
+            var dmg_undead = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative)),
                                                              halfIfSaved: true, isAoE: true);
             var undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
 

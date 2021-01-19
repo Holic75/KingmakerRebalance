@@ -612,14 +612,13 @@ namespace CallOfTheWild
 
         static internal void createGreaterSpiritTotem()
         {
-
             var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
             area_effect.name = "GreaterSpiritTotemAura";
             area_effect.AffectEnemies = true;
             area_effect.AggroEnemies = true;
             area_effect.Size = 5.Feet();
             area_effect.Shape = AreaEffectShape.Cylinder;
-            var damage = Helpers.CreateContextDiceValue(DiceType.D8, Common.createSimpleContextValue(1));
+            var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Common.createSimpleContextValue(1));
             var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage, isAoE: true);
             var conditional_damage = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsEnemy>() },
                                                                                  damage_action);
@@ -650,7 +649,7 @@ namespace CallOfTheWild
 
             greater_spirit_totem = Helpers.CreateFeature("GreaterSpiritTotemFeature",
                                                 "Sprit Totem, Greater",
-                                                "While raging, the spirits that surround the barbarian become dangerous to any enemy adjacent to the barbarian. Living enemies adjacent to the barbarian at the start of her turn take 1d8 points of negative energy damage. In addition slam attack deals 1d6 points of negative energy damage.",
+                                                $"While raging, the spirits that surround the barbarian become dangerous to any enemy adjacent to the barbarian. Living enemies adjacent to the barbarian at the start of her turn take 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of negative energy damage. In addition slam attack deals 1d6 points of negative energy damage.",
                                                 "",
                                                 lesser_spirit_totem.Icon,
                                                 FeatureGroup.RagePower,

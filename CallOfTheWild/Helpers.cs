@@ -339,6 +339,7 @@ namespace CallOfTheWild
         }
 
         static readonly FastSetter blueprintUnitFact_set_Description = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_Description");
+        static readonly FastSetter blueprintItem_set_Description = Helpers.CreateFieldSetter<BlueprintItem>("m_DescriptionText");
         static readonly FastSetter blueprintUnitFact_set_Icon = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_Icon");
         static readonly FastSetter blueprintUnitFact_set_DisplayName = Helpers.CreateFieldSetter<BlueprintUnitFact>("m_DisplayName");
         static readonly FastGetter blueprintUnitFact_get_Description = Helpers.CreateFieldGetter<BlueprintUnitFact>("m_Description");
@@ -389,6 +390,11 @@ namespace CallOfTheWild
         public static void SetDescription(this BlueprintUnitFact feature, String description)
         {
             blueprintUnitFact_set_Description(feature, Helpers.CreateString(feature.name + ".Description", description));
+        }
+
+        public static void SetDescription(this BlueprintItem item, String description)
+        {
+            blueprintItem_set_Description(item, Helpers.CreateString(item.name + ".Description", description));
         }
 
         public static void SetDescription(this BlueprintUnitFact feature, LocalizedString description)

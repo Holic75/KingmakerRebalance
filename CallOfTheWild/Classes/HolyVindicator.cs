@@ -429,7 +429,7 @@ namespace CallOfTheWild
         {
             bloodfire = Helpers.CreateFeature("BloodFireHolyVindicatorFeature",
                                               "Bloodfire",
-                                              "At 5th level, while a vindicator’s stigmata are bleeding, his blood runs down his weapons like sacred or profane liquid energy; when he uses Channel Smite, the damage increases by 1d6, and if the target fails its save, it is sickened and takes 1d6 points of bleed damage each round on its turn. The target can attempt a new save every round to end the sickened and bleed effects.",
+                                              $"At 5th level, while a vindicator’s stigmata are bleeding, his blood runs down his weapons like sacred or profane liquid energy; when he uses Channel Smite, the damage increases by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}, and if the target fails its save, it is sickened and takes 1d6 points of bleed damage each round on its turn. The target can attempt a new save every round to end the sickened and bleed effects.",
                                               "",
                                               null,
                                               FeatureGroup.None);
@@ -444,7 +444,7 @@ namespace CallOfTheWild
 
             bloodrain = Helpers.CreateFeature("BloodRainHolyVindicatorFeature",
                                   "Bloodrain",
-                                  "At 9th level, while his stigmata are bleeding, the vindicator’s harmful channeled energy is accompanied by a burst of sacred or profane liquid energy, increasing the damage by 1d6. Creatures failing their saves against the channeled energy become sickened and take 1d6 points of bleed damage each round. Affected creatures can attempt a new save every round to end the sickened and bleed effects.",
+                                  $"At 9th level, while his stigmata are bleeding, the vindicator’s harmful channeled energy is accompanied by a burst of sacred or profane liquid energy, increasing the damage by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}. Creatures failing their saves against the channeled energy become sickened and take 1d6 points of bleed damage each round. Affected creatures can attempt a new save every round to end the sickened and bleed effects.",
                                   "",
                                   null,
                                   FeatureGroup.None);
@@ -488,8 +488,8 @@ namespace CallOfTheWild
             ;
                                                                            );*/
 
-            var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1), IgnoreCritical: true);
-            var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1), IgnoreCritical: true);
+            var positive_damage = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1), IgnoreCritical: true);
+            var negative_damage = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1), IgnoreCritical: true);
 
             var smite_positive_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { positive_damage, save_failed_action });
             var smite_negative_action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(bloodfire_buff), new GameAction[] { negative_damage, save_failed_action });

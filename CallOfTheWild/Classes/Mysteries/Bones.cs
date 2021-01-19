@@ -158,6 +158,11 @@ namespace CallOfTheWild
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
             var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+            if (Main.settings.balance_fixes)
+            {
+                dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+            }
 
             var channel_resistance = Helpers.CreateBuff(name_prefix + "ChannelResistanceBuff",
                                                         "",
@@ -192,7 +197,7 @@ namespace CallOfTheWild
                                                 inflict_light_wounds.GetComponent<AbilityTargetHasFact>(),
                                                 inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                 inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
-                                                createClassScalingConfig(progression: ContextRankProgression.Div2)
+                                                createClassScalingConfig(progression: Main.settings.balance_fixes ? ContextRankProgression.OnePlusDiv2 : ContextRankProgression.Div2)
                                                 );
             ability.setMiscAbilityParametersTouchHarmful(true);
 

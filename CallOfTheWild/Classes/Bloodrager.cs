@@ -990,7 +990,7 @@ namespace CallOfTheWild
                 area_effect.AggroEnemies = true;
                 area_effect.Size = 5.Feet();
                 area_effect.Shape = AreaEffectShape.Cylinder;
-                var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+                var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
                 var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, damage, isAoE: true);
                 var conditional_damage = Helpers.CreateConditional(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionIsMainTarget>(),
                                                                     null,
@@ -1011,7 +1011,7 @@ namespace CallOfTheWild
 
                 var demonic_aura_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicAuraBuff",
                                                                               "Demonic Aura",
-                                                                              "At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d6 + your Constitution modifier points of fire damage to creatures that end their turns within it.",
+                                                                              $"At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} + your Constitution modifier points of fire damage to creatures that end their turns within it.",
                                                                               "44d877ef2428424082761e94dd3d55b3",
                                                                               null,
                                                                               null,
@@ -3271,10 +3271,10 @@ namespace CallOfTheWild
             string[] roman_id = new string[4] { "I", "II", "III", "IV" };
             for (int i = 0; i < spell_eating_spells.Length; i++)
             {
-                var dice_value = Helpers.CreateContextDiceValue(dice: DiceType.D8, diceCount: Common.createSimpleContextValue(i + 1));
+                var dice_value = Helpers.CreateContextDiceValue(dice: BalanceFixes.getDamageDie(DiceType.D8), diceCount: Common.createSimpleContextValue(i + 1));
                 var spell = Helpers.CreateAbility("SpellEating" + (i + 1).ToString() + "Ability",
                                                   "Spell Eating " + roman_id[i],
-                                                  $"As a swift action, the spelleater can consume one unused bloodrager spell slot to heal {i + 1}d8 damage.",
+                                                  $"As a swift action, the spelleater can consume one unused bloodrager spell slot to heal {i + 1}d{BalanceFixes.getDamageDieString(DiceType.D8)} damage.",
                                                   "",
                                                   renewed_vigor.Icon,
                                                   AbilityType.Special,

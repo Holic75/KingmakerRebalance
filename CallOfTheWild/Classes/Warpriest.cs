@@ -468,7 +468,7 @@ namespace CallOfTheWild
             fervor_fcb.Ranks = 10;
 
 
-            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            var dice = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
             var heal_action = Common.createContextActionHealTarget(dice);
             var damage_undead_action = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, dice);
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
@@ -479,7 +479,7 @@ namespace CallOfTheWild
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersTouchAbility",
                                                                         "Fervor (Positive Energy) Others",
-                                                                        "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
+                                                                        $"At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d{BalanceFixes.getDamageDieString(DiceType.D6)} at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
                                                                         "",
                                                                         cure_light_wounds.Icon,
                                                                         AbilityType.Supernatural,

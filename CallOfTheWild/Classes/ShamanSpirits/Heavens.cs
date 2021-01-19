@@ -188,7 +188,7 @@ namespace CallOfTheWild
 
                 starburn = hex_engine.createStarburn(prefix + "Starburn",
                                                     "Starburn",
-                                                    "As a standard action, the shaman causes one creature within close range to burn like a star. The creature takes 1d6 points of fire damage for every 2 levels the shaman possesses and emits bright light as per faerie fire spell for 1 round. A successful Fortitude saving throw halves the damage and negates the emission of light. The shaman can use this hex a number of times per day equal to her Charisma modifier + 1, but must wait 1d4 rounds between uses."
+                                                    $"As a standard action, the shaman causes one creature within close range to burn like a star. The creature takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage for every 2 levels the shaman possesses and emits bright light as per faerie fire spell for 1 round. A successful Fortitude saving throw halves the damage and negates the emission of light. The shaman can use this hex a number of times per day equal to her Charisma modifier + 1, but must wait 1d4 rounds between uses."
                                                    );
                 hexes = new BlueprintFeature[]
                 {

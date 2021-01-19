@@ -12,5 +12,6 @@
   "one_sneak_attack_per_target_per_spell": true,
   "metamagic_for_spontaneous_spell_conversion": true,
   "remove_solo_tactics_from_sacred_huntsmaster": true,
-  "update_kineticist_archetypes":  true
+  "update_kineticist_archetypes": true,
+  "balance_fixes":  true
 }
