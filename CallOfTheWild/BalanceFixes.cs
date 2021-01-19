@@ -50,7 +50,7 @@ namespace CallOfTheWild
             fixFeatures();
             manualTextFixes();
             fixLowerLevelBlasts();
-
+            manualFixes();
             //fix manually:
             //channel energy selection for clerics
             //lesser elemental/rune domain abilities
@@ -59,6 +59,24 @@ namespace CallOfTheWild
             //base school abilities description
         }
 
+
+        static void manualFixes()
+        {
+            var buff_asset_ids = new string[]
+            {//elemental assesor ids
+                "19e4cb7ff0bef034e819ee27649cf8f8",
+                "8f57c7d7bdf4d8e43a8efb51a7ffd306",
+                "7389f35292798914cab1238d0f10e821",
+                "8a34bbb5f5117924687a3c887478ad9f"
+            };
+
+            foreach (var s in buff_asset_ids)
+            {
+                var buff = library.Get<BlueprintBuff>(s);
+                HashSet<DiceType> processed_local = new HashSet<DiceType>();
+                fixSpellDamageBuff(buff, processed_local);
+            }
+        }
 
         static public DiceType getDamageDie(DiceType dice)
         {
