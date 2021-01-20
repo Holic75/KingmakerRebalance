@@ -3412,6 +3412,10 @@ namespace CallOfTheWild
             BlueprintAbility[] runes = library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5").GetComponent<AbilityVariants>().Variants; //from rune domain
 
             string description = "At 1st level, you can create a blast rune in any adjacent square. Any creature entering this square takes an amount of damage equal to 1d6 + 1/2 your warpriest level. This rune deals either acid, cold, electricity, or fire damage, designated when you create the rune. The rune is invisible, and lasts a number of rounds equal to your warpriest level or until discharged.";
+            if (Main.settings.balance_fixes)
+            {
+                description = $"At 1st level, you can create a blast rune in any adjacent square. Any creature entering this square takes an amount of damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} + 1d{BalanceFixes.getDamageDieString(DiceType.D6)} per two warpriest levels beyond the first. This rune deals either acid, cold, electricity, or fire damage, designated when you create the rune. The rune is invisible, and lasts a number of rounds equal to your warpriest level or until discharged.";
+            }
             var minor_ability = Helpers.CreateAbility("WarpriestRuneBlessingMinorAbility",
                                           "Blast Rune",
                                           description,
@@ -3423,7 +3427,7 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.savingThrowNone);
             minor_ability.setMiscAbilityParametersRangedDirectional();
-
+            List<BlueprintAbilityAreaEffect> areas = new List<BlueprintAbilityAreaEffect>();
             for (int i = 0; i < runes.Length; i++)
             {
                 var rune = library.CopyAndAdd<BlueprintAbility>(runes[i].AssetGuid, $"WarpriestRuneBlessingMinor{i + 1}Ability", "");
@@ -3432,6 +3436,7 @@ namespace CallOfTheWild
                 rune.RemoveComponents<AbilityResourceLogic>();
                 var area_action = (rune.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnAreaEffect);
                 var area = library.CopyAndAdd(area_action.AreaEffect, $"WarpriestRuneBlessingMinor{i + 1}Area", "");
+                areas.Add(area);
                 foreach (var c in rune.GetComponents<ContextRankConfig>().ToArray())
                 {
                     var new_c = c.CreateCopy();
@@ -3446,6 +3451,15 @@ namespace CallOfTheWild
                 addBlessingResourceLogic("Rune", rune, quicken: true, parent: minor_ability);
                 rune.SetDescription(description);
                 runes[i] = rune;
+            }
+
+            for (int i = 0; i < runes.Length; i++)
+            {
+                foreach (var a in areas)
+                {
+                    library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5").GetComponent<AbilityVariants>().Variants[i].AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(atp => atp.area_effect = a));
+                    runes[i].AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(atp => atp.area_effect = a));
+                }
             }
 
             minor_ability.AddComponent(minor_ability.CreateAbilityVariants(runes));

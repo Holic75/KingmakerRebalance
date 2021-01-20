@@ -412,6 +412,40 @@ namespace CallOfTheWild
                 ddp.SetDescription(ddp.Description.Replace("d10", $"d{getDamageDieString(DiceType.D10)}"));
                 ddp.SetDescription(ddp.Description.Replace("d8", $"d{getDamageDieString(DiceType.D8)}"));
             }
+
+
+
+            //fix runes
+            {
+                var base_ability = library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5");
+                base_ability.SetDescription(base_ability.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond the first"));
+
+                List<BlueprintAbilityAreaEffect> areas = new List<BlueprintAbilityAreaEffect>();
+                foreach (var v in base_ability.Variants)
+                {
+                    v.SetDescription(base_ability.Description);
+                    var area = (v.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnAreaEffect).AreaEffect;
+                    area.ReplaceComponent<AbilityAreaEffectRunAction>(a => a.UnitEnter.Actions = Common.changeAction<ContextActionDealDamage>(a.UnitEnter.Actions,
+                                                                                                                                              ca => ca.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageBonus), 0))
+                                                                                                                                              );
+                    areas.Add(area);
+                }
+
+                foreach (var v in base_ability.Variants)
+                {
+                    foreach (var a in areas)
+                    {
+                        v.AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(atp => atp.area_effect = a));
+                    }
+                }
+
+                var base_feature = library.Get<BlueprintFeature>("b74c64a0152c7ee46b13ecdd72dda6f3");
+                var domain = library.Get<BlueprintProgression>("6d4dac497c182754d8b1f49071cca3fd");
+                var domain2 = library.Get<BlueprintProgression>("8d176f8fe5616a64ca37835be7c2ccfe");
+                base_feature.SetDescription(base_feature.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond the first"));
+                domain.SetDescription(base_feature.Description);
+                domain2.SetDescription(base_feature.Description);
+            }
         }
 
 
