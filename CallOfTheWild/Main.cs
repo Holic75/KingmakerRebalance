@@ -197,9 +197,10 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
-                    CallOfTheWild.BalanceFixes.fixSpellDamage("979f63920af22344d81da5099c9ec32e", //death domain bleed
-                                                                   "ad9a6a7ee08ce73469dff703a17f8934" //medium elemental burn
-                                                                   );
+                    CallOfTheWild.BalanceFixes.load("979f63920af22344d81da5099c9ec32e", //death domain bleed
+                                                    "ad9a6a7ee08ce73469dff703a17f8934", //medium elemental burn
+                                                    "7d0f50b37b787ea4d8f5a09dd2f30a4e" //mirrow bow damage 
+                                                     );
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();

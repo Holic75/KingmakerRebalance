@@ -48,7 +48,7 @@ namespace CallOfTheWild
         static Dictionary<BlueprintAbility, HashSet<DiceType>> processed_abilities = new Dictionary<BlueprintAbility, HashSet<DiceType>>();
         static HashSet<BlueprintBuff> processed_buffs = new HashSet<BlueprintBuff>();
         static HashSet<string> black_list;
-        static internal void fixSpellDamage(params string[]  guids_black_list)
+        static internal void load(params string[]  guids_black_list)
         {
             black_list = new HashSet<string>();
             black_list.AddRange(guids_black_list);
@@ -592,19 +592,26 @@ namespace CallOfTheWild
             {
                 return;
             }
-            if (area.GetComponent<AbilityAreaEffectRunAction>() == null)
-            {
-                return;
-            }
 
             if (processed_areas.Contains(area))
             {
                 return;
             }
 
-           
+            var area_effect_buff = area.GetComponent<AbilityAreaEffectBuff>();
+
+            if (area.GetComponent<AbilityAreaEffectRunAction>() == null && area_effect_buff == null)
+            {
+                return;
+            }
+
             processed_areas.Add(area);
             HashSet<DiceType> processed_local = new HashSet<DiceType>();
+
+            if (area_effect_buff?.Buff != null)
+            {
+                fixSpellDamageBuff(area_effect_buff.Buff, processed_local);
+            }
 
             var run_actions_array = new GameAction[][] { area.GetComponent<AbilityAreaEffectRunAction>()?.Round?.Actions, area.GetComponent<AbilityAreaEffectRunAction>()?.UnitEnter?.Actions, area.GetComponent<AbilityAreaEffectRunAction>()?.UnitExit?.Actions, area.GetComponent<AbilityAreaEffectRunAction>()?.UnitMove?.Actions };
             for (int i = 0; i < run_actions_array.Length; i++)
@@ -623,7 +630,7 @@ namespace CallOfTheWild
                 return;
             }
 
-            area.ReplaceComponent<AbilityAreaEffectRunAction>(af =>
+            area.MaybeReplaceComponent<AbilityAreaEffectRunAction>(af =>
             {
                 af.Round.Actions = run_actions_array[0];
                 af.UnitEnter.Actions = run_actions_array[1];
@@ -680,8 +687,7 @@ namespace CallOfTheWild
 
 
         static void fixSpellDamageAbility(BlueprintAbility ability, HashSet<DiceType> processed)
-        {
-            
+        {           
             if (black_list.Contains(ability.AssetGuid))
             {
                 return;
@@ -712,11 +718,19 @@ namespace CallOfTheWild
             }
             
             var run_actions = ability.GetComponent<AbilityEffectRunAction>()?.Actions?.Actions;
-            if (run_actions == null)
+            var clicked_actions = ability.GetComponent<AbilityEffectRunActionOnClickedTarget>()?.Action?.Actions;
+            if (run_actions == null && clicked_actions == null)
             {
                 return;
             }
-            var new_actions = processActions(run_actions, ability.GetComponents<ContextCalculateSharedValue>().ToArray(), processed_local);
+            if (run_actions != null)
+            {
+                run_actions = processActions(run_actions, ability.GetComponents<ContextCalculateSharedValue>().ToArray(), processed_local);
+            }
+            if (clicked_actions != null)
+            {
+                clicked_actions = processActions(clicked_actions, ability.GetComponents<ContextCalculateSharedValue>().ToArray(), processed_local);
+            }
 
             if (processed_local.Empty())
             {
@@ -725,7 +739,8 @@ namespace CallOfTheWild
 
             processed.AddRange(processed_local);
 
-            ability.ReplaceComponent<AbilityEffectRunAction>(ra => ra.Actions = Helpers.CreateActionList(new_actions));
+            ability.MaybeReplaceComponent<AbilityEffectRunAction>(ra => ra.Actions = Helpers.CreateActionList(run_actions));
+            ability.MaybeReplaceComponent<AbilityEffectRunActionOnClickedTarget>(ra => ra.Action = Helpers.CreateActionList(clicked_actions));
 
             foreach (var p in processed_local)
             {
@@ -746,8 +761,7 @@ namespace CallOfTheWild
                 return;
             }
 
-
-            if (buff.GetComponent<AddFactContextActions>() == null)
+            if (buff.GetComponent<AddFactContextActions>() == null && buff.GetComponent<AddFallProneTrigger>() == null)
             {
                 return;
             }
@@ -760,7 +774,7 @@ namespace CallOfTheWild
 
             processed_buffs.Add(buff);
 
-            var run_actions_array = new GameAction[][] { buff.GetComponent<AddFactContextActions>()?.Activated?.Actions, buff.GetComponent<AddFactContextActions>()?.Deactivated?.Actions, buff.GetComponent<AddFactContextActions>()?.NewRound?.Actions };
+            var run_actions_array = new GameAction[][] { buff.GetComponent<AddFactContextActions>()?.Activated?.Actions, buff.GetComponent<AddFactContextActions>()?.Deactivated?.Actions, buff.GetComponent<AddFactContextActions>()?.NewRound?.Actions, buff.GetComponent<AddFallProneTrigger>()?.Action?.Actions };
             for (int i = 0;  i < run_actions_array.Length; i++)
             {
                 var run_actions = run_actions_array[i];
@@ -777,11 +791,17 @@ namespace CallOfTheWild
                 return;
             }
 
-            buff.ReplaceComponent<AddFactContextActions>(af =>
+            buff.MaybeReplaceComponent<AddFactContextActions>(af =>
             {
                 af.Activated.Actions = run_actions_array[0];
                 af.Deactivated.Actions = run_actions_array[1];
                 af.NewRound.Actions = run_actions_array[2];
+            }
+            );
+
+            buff.MaybeReplaceComponent<AddFallProneTrigger>(af =>
+            {
+                af.Action = Helpers.CreateActionList(run_actions_array[3]);
             }
             );
 
