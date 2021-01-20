@@ -273,7 +273,7 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("e7c530f8137630f4d9d7ee1aa7b1edc0"), //cone of cold
                                               FeatureGroup.None,
-                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.Descriptor = SpellDescriptor.Cold; c.Value = 1; })
+                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.Descriptor = SpellDescriptor.Cold; c.Value = 1; c.specific_class = witch_class; })
                                               );
             createColdFlesh();
 

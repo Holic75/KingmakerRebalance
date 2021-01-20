@@ -8607,7 +8607,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == school))
+                if (feature != null && this.Owner.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => p.Blueprint == feature).Any(p => p.Param == school))
                 {
                     foreach (BaseDamage baseDamage in evt.DamageBundle)
                         baseDamage.AddBonus(baseDamage.Dice.Rolls);
@@ -10753,6 +10753,93 @@ namespace CallOfTheWild
         public interface IMentalFocusChangedHandler : IGlobalSubscriber
         {
             void onMentalFocusChanged(UnitDescriptor unit);
+        }
+
+
+
+
+        class ContextValueWithLimitProperty : PropertyValueGetter
+        {
+            public ContextRankConfig base_value;
+            public ContextRankConfig max_value = null;
+            public BlueprintUnitFact parent_feature;
+
+            public static BlueprintUnitProperty createProperty(string name, string guid, ContextRankConfig base_value, ContextRankConfig max_value, BlueprintUnitFact parent_fact)
+            {
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = name;
+                Main.library.AddAsset(p, guid);
+                p.SetComponents(Helpers.Create<ContextValueWithLimitProperty>(a => { a.base_value = base_value; a.max_value = max_value; a.parent_feature = parent_fact; }));
+
+                return p;
+            }
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                var context = parent_feature == null ? Helpers.GetMechanicsContext() : unit.Descriptor?.GetFact(parent_feature)?.MaybeContext;
+
+                if (context == null)
+                {
+                    return 0;
+                }
+
+                int val = base_value.GetValue(context);
+                if (max_value != null)
+                {
+                    var max_val = max_value.GetValue(context);
+                    val = Math.Min(max_val, val);
+                }
+                return val;
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class TwoWeaponRendFeature : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        {
+            public DiceFormula RendDamage;
+            private bool can_rend;
+
+            public override void OnTurnOn()
+            {
+                this.Owner.State.HasRend.Retain();
+            }
+
+            public override void OnTurnOff()
+            {
+                this.Owner.State.HasRend.Release();
+            }
+
+            public override void OnEventAboutToTrigger(RuleAttackWithWeapon evt)
+            {
+            }
+
+            public override void OnEventDidTrigger(RuleAttackWithWeapon evt)
+            {
+                if (evt.IsFirstAttack)
+                {
+                    can_rend = true;
+                }
+
+                if (!can_rend)
+                {
+                    return;
+                }
+
+                if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
+                    return;
+                if (!evt.IsRend || !evt.AttackRoll.IsHit)
+                    return;
+                if (this.Owner.Body.SecondaryHand.MaybeWeapon?.Blueprint == null)
+                {
+                    return;
+                }
+
+                
+                BaseDamage damage = this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.DamageType.GetDamageDescriptor(this.RendDamage, (int)((double)this.Owner.Stats.Strength.Bonus * 1.5)).CreateDamage();
+                Game.Instance.Rulebook.TriggerEvent<RuleDealDamage>(new RuleDealDamage(this.Owner.Unit, evt.Target, (DamageBundle)damage));
+                can_rend = false;
+            }
         }
     }
 }

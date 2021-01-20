@@ -43,6 +43,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.ElementsSystem;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 
 namespace CallOfTheWild
 {
@@ -698,13 +699,16 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("76d4885a395976547a13c5d6bf95b482"), //armor focus
                 library.Get<BlueprintFeature>("121811173a614534e8720d7550aae253"), //shield bash
                 library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d"), //twf
-                library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), //twf improved
-                library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"), //twf greater
                 library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc"), //shield master
                 library.Get<BlueprintFeature>("0b442a7b4aa598d4e912a4ecee0500ff"), //bashing finish
                 library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907"), //shield wall
                 library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
             };
+            //add itwf and gtwf only if blance fixes are not enabled
+            if (!Main.settings.balance_fixes)
+            {
+                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"));
+            }
             //other feats will be added upon creation
         }
 
@@ -1414,7 +1418,23 @@ namespace CallOfTheWild
                                                          "Antipaladins are proficient with all simple and martial weapons, with all types of armor (heavy, medium, and light), and with shields (except tower shields).");
             unholy_resilence = library.CopyAndAdd<BlueprintFeature>("8a5b5e272e5c34e41aa8b4facbb746d3", "UnholyResilence", ""); //from divine grace
             unholy_resilence.SetNameDescription("Unholy Resilience",
-                                                "At 2nd level, an antipaladin gains a bonus equal to his Charisma bonus (if any) on all saving throws.");
+                                                $"At 2nd level, an antipaladin gains a bonus equal to his Charisma bonus (if any{(Main.settings.balance_fixes ? ", up to his antipaladin level" : "")}) on all saving throws.");
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            if (unholy_resilence.GetComponent<ContextRankConfig>() != null)
+            {
+                var unholy_resilence_property = NewMechanics.ContextValueWithLimitProperty.createProperty("UnholyResilenceProperty", "39ab94d65a1a45dca3575c432f2a4163",
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
+                                                                                                      stat: Kingmaker.EntitySystem.Stats.StatType.Charisma,
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.Default),
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                                      classes: new BlueprintCharacterClass[] { antipaladin_class },
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.DamageDiceAlternative),
+                                                                       unholy_resilence
+                                                                      );
+                unholy_resilence.ReplaceComponent<ContextRankConfig>(a => Helpers.SetField(a, "m_CustomProperty", unholy_resilence_property));
+            }
 
             plague_bringer = library.CopyAndAdd<BlueprintFeature>("41d1d0de15e672349bf4262a5acf06ce", "PlagueBearer", ""); //from divine health
             plague_bringer.SetNameDescription("Plague Bringer",

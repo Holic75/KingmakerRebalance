@@ -169,6 +169,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal void removeDescriptionsFromMonkACFeatures()
+        {
+            var monk_ac = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
+            var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
+            monk_ac.SetDescription("");
+            scaled_fist_ac.SetDescription("");
+        }
+
 
         internal static void addFatigueBuffRestrictionsToRage()
         {

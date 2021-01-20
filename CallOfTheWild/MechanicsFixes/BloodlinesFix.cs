@@ -424,11 +424,11 @@ namespace CallOfTheWild
             NewMechanics.BloodHavoc.spell_asset_id_feature_map = spell_asset_id_feature_map;
             blood_havoc = Helpers.CreateFeature("BloodHavocFeature",
                                                 "Blood Havoc",
-                                                "Whenever you cast a bloodrager or sorcerer spell that deals damage, add 1 point of damage per die rolled. This benefit applies only to damaging spells that belong to schools you have selected with Spell Focus or that are bloodline spells for your bloodline.",
+                                                $"Whenever you cast a bloodrager or sorcerer spell that deals damage, add 1 point of damage per die rolled. This benefit applies only to damaging spells {(Main.settings.balance_fixes ? "" : "that belong to schools you have selected with Spell Focus or ")}that are bloodline spells for your bloodline.",
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
-                                                Helpers.Create<NewMechanics.BloodHavoc>(b => { b.feature = library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe");}),
+                                                Helpers.Create<NewMechanics.BloodHavoc>(b => b.feature = Main.settings.balance_fixes ? null : library.Get<BlueprintParametrizedFeature>("16fa59cc9a72a6043b566b49184f53fe")),
                                                 Helpers.PrerequisiteClassLevel(sorcerer, 1, any: true),
                                                 Helpers.PrerequisiteClassLevel(Bloodrager.bloodrager_class, 4, any: true)//,
                                                 //Common.createPrerequisiteArchetypeLevel(magus, eldritch_scion, 1, any: true)

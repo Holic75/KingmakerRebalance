@@ -42,6 +42,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -4089,6 +4090,17 @@ namespace CallOfTheWild
 
         static void createSacredFist()
         {
+            sacred_fist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SacredFistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sacred Fist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Unlike many warpriests, sacred fists leave behind armor and shield and instead rely on their fists and whatever protection their deity bestows on them.");
+            });
+            Helpers.SetField(sacred_fist_archetype, "m_ParentClass", warpriest_class);
+            library.AddAsset(sacred_fist_archetype, "");
+
+
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             createSacredFistProficiencies();
             createSacredFistFakeMonkLevels();
             //unarmed damage
@@ -4100,20 +4112,31 @@ namespace CallOfTheWild
             var fist2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
             var fist2d10 = library.Get<BlueprintFeature>("df38e56fa8b3f0f469d55f9aa26b3f5c");
 
-            var ac_bonus = library.CopyAndAdd<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4", "ACBonusSacredFistACBonusFeature", "");
-            ac_bonus.SetDescription("When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            var ac_bonus_old = library.CopyAndAdd<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4", "ACBonusSacredFistACBonusFeature", "");
+            ac_bonus_old.SetDescription("When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            ac_bonus_old.ComponentsArray = new BlueprintComponent[0];
+            var ac_bonus = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
             foreach (var c in ac_bonus.GetComponents<ContextRankConfig>().ToArray())
             {
                 if (c.IsBasedOnClassLevel)
                 {
-                    var new_c = c.CreateCopy();
+                    ClassToProgression.addClassToContextRankConfig(warpriest_class, new BlueprintArchetype[] { sacred_fist_archetype }, c, "SacredFist", monk);
+                    /*var new_c = c.CreateCopy();
                     Helpers.SetField(new_c, "m_Class", getWarpriestArray());
                     ac_bonus.ReplaceComponent(c, new_c);
-                    break;
+                    break;*/
+                }
+                if (c.IsBasedOnCustomProperty) //for balance fixes (class level limiter on wisdom)
+                {
+                    var property = Helpers.GetField<BlueprintUnitProperty>(c, "m_CustomProperty");
+                    var cfg = property.GetComponent<NewMechanics.ContextValueWithLimitProperty>().max_value;
+                    ClassToProgression.addClassToContextRankConfig(warpriest_class, new BlueprintArchetype[] { sacred_fist_archetype }, cfg, "SacredFist", monk);
                 }
             }
 
-            var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus, false);
+            var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus_old, false);
+            unlock_ac_bonus.ReplaceComponent<MonkNoArmorFeatureUnlock>(m => m.NewFact = ac_bonus);
+            unlock_ac_bonus.SetDescription($"When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any{(Main.settings.balance_fixes ? ", up to his sacred fist level" : "")}) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
             var flurry2 = library.CopyAndAdd<BlueprintFeature>("332362f3bd39ebe46a740a36960fdcb4", "WarpriestSacredFistFlurryOfBlows1Feature", "");
             flurry2.SetDescription("At 2nd level, a sacred fist can make a flurry of blows as a full attack. When making a flurry of blows, the sacred fist can make one additional attack at his highest base attack bonus. This additional attack stacks with the bonus attacks from haste and other similar effects. When using this ability, the sacred fist can make these attacks with any combination of his unarmed strikes and weapons that have the monk special weapon quality. He takes no penalty for using multiple weapons when making a flurry of blows, but he does not gain any additional attacks beyond what's already granted by the flurry for doing so. (He can still gain additional attacks from a high base attack bonus, from this ability, and from haste and similar effects).\nAt 15th level, a sacred fist can make an additional attack at his highest base attack bonus whenever he makes a flurry of blows. This stacks with the first attack from this ability and additional attacks from haste and similar effects.");
             var flurry15 = library.CopyAndAdd<BlueprintFeature>("de25523acc24b1448aa90f74d6512a08", "WarpriestSacredFistFlurryOfBlows2Feature", "");
@@ -4173,14 +4196,7 @@ namespace CallOfTheWild
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
-            sacred_fist_archetype = Helpers.Create<BlueprintArchetype>(a =>
-            {
-                a.name = "SacredFistArchetype";
-                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sacred Fist");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Unlike many warpriests, sacred fists leave behind armor and shield and instead rely on their fists and whatever protection their deity bestows on them.");
-            });
-            Helpers.SetField(sacred_fist_archetype, "m_ParentClass", warpriest_class);
-            library.AddAsset(sacred_fist_archetype, "");
+
             sacred_fist_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
                                                                                         warpriest_fighter_feat_prerequisite_replacement,
                                                                                         weapon_focus_selection,

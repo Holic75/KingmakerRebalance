@@ -1,13 +1,19 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Equipment;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Enums;
+using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Damage;
+using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -51,12 +57,194 @@ namespace CallOfTheWild
             manualTextFixes();
             fixLowerLevelBlasts();
             manualFixes();
-            //fix manually:
-            //channel energy selection for clerics
-            //lesser elemental/rune domain abilities
-            //base kineticist blast description
-            //base dragonkind I, II, III breath weapon description
-            //base school abilities description
+
+            fixSorcererDraconicBloodlineArcana();
+            fixFeats();
+            fixClassFeatures();
+            fixTwf();
+        }
+
+
+        static void fixTwf()
+        {
+            //two weapon fighting now allows you to make up to 3 three iterative attacks if your bab allows it
+            var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
+            var itwf = library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8");
+            var gtwf = library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629");
+
+            //remove itwf and gtwf from selections
+            var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();
+
+            foreach (var s in selections)
+            {
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(itwf).RemoveFromArray(gtwf);
+                s.Features = s.Features.RemoveFromArray(itwf).RemoveFromArray(gtwf);
+            }
+
+            var twf_basic_mechanics = library.Get<BlueprintFeature>("6948b379c0562714d9f6d58ccbfa8faa");
+            twf_basic_mechanics.ReplaceComponent<TwoWeaponFightingAttacks>(Helpers.Create<IterativeTwoWeaponFightingAttacks>());
+        }
+
+
+        static void fixClassFeatures()
+        {
+            //fix monk ac bonuses
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            var monk_ac_unlock = library.Get<BlueprintFeature>("2615c5f87b3d72b42ac0e73b56d895e0");
+            monk_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Wisdom bonus(if any, up to his monk level) to his AC and CMD. In addition, a monk gains a + 1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of + 5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat - footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.") ;
+            var monk_ac = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
+            var monk_ac_property = NewMechanics.ContextValueWithLimitProperty.createProperty("MonkAcProperty", "b8ba561529dc4143b014994ea3f234fe",
+                                                                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
+                                                                                                                              stat: Kingmaker.EntitySystem.Stats.StatType.Wisdom,
+                                                                                                                              min: 0,
+                                                                                                                              type: AbilityRankType.Default),
+                                                                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                                                              classes: new BlueprintCharacterClass[] { monk },
+                                                                                                                              min: 0,
+                                                                                                                              type: AbilityRankType.DamageDiceAlternative),
+                                                                                              monk_ac
+                                                                                              );
+
+            foreach (var c in monk_ac.GetComponents<ContextRankConfig>().ToArray())
+            {
+                if (c.IsBasedOnStatBonus)
+                {
+                    var new_c = Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, customProperty: monk_ac_property, type: c.Type);
+                    monk_ac.ReplaceComponent(c, new_c);
+                }
+            }
+
+            var scaled_fist_ac_unlock = library.Get<BlueprintFeature>("2a8922e28b3eba54fa7a244f7b05bd9e");
+            scaled_fist_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Charisma bonus (if any, up to his monk level) to his AC and CMD. In addition, a monk gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of +5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat-footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.");
+            var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
+            var sf_ac_property = NewMechanics.ContextValueWithLimitProperty.createProperty("ScaledFistAcProperty", "d58a65251b2c4ce9829ae82ca896861d",
+                                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
+                                                                                                                  stat: Kingmaker.EntitySystem.Stats.StatType.Charisma,
+                                                                                                                  min: 0,
+                                                                                                                  type: AbilityRankType.Default),
+                                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                                                  classes: new BlueprintCharacterClass[] { monk },
+                                                                                                                  min: 0,
+                                                                                                                  type: AbilityRankType.DamageDiceAlternative),
+                                                                                   scaled_fist_ac
+                                                                                  );
+
+            foreach (var c in scaled_fist_ac.GetComponents<ContextRankConfig>().ToArray())
+            {
+                if (c.IsBasedOnStatBonus)
+                {
+                    var new_c = Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, customProperty: sf_ac_property, type: c.Type);
+                    scaled_fist_ac.ReplaceComponent(c, new_c);
+                }
+            }
+
+            scaled_fist_ac.SetDescription("");
+
+
+            //fix paladin saves
+            var divine_grace = library.Get<BlueprintFeature>("8a5b5e272e5c34e41aa8b4facbb746d3");
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            var paladin_saves_property = NewMechanics.ContextValueWithLimitProperty.createProperty("DivineGraceSavesProperty", "97e5940097ed4f2f989d531bda77df2f",
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
+                                                                                                      stat: Kingmaker.EntitySystem.Stats.StatType.Charisma,
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.DamageDice),
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                                      classes: new BlueprintCharacterClass[] { paladin },
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.DamageDiceAlternative),
+                                                                      divine_grace
+                                                                      );
+
+            divine_grace.RemoveComponents<DerivativeStatBonus>();
+            divine_grace.AddComponents(Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.SaveFortitude, ModifierDescriptor.UntypedStackable),
+                                       Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.SaveReflex, ModifierDescriptor.UntypedStackable),
+                                       Helpers.CreateAddContextStatBonus(Kingmaker.EntitySystem.Stats.StatType.SaveWill, ModifierDescriptor.UntypedStackable),
+                                       Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, customProperty: paladin_saves_property)
+                                       );
+            divine_grace.SetDescription("At 2nd level, a paladin gains a bonus equal to her Charisma bonus (if any, up to her paladin level) on all saving throws.");
+        }
+
+
+        static void fixSorcererDraconicBloodlineArcana()
+        {
+            var sorcerer = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var eldritch_scion = library.Get<BlueprintArchetype>("d078b2ef073f2814c9e338a789d97b73");
+
+            var guids = new string[]
+            {
+                "5515ae09c952ae2449410ab3680462ed", //black
+                "0f0cb88a2ccc0814aa64c41fd251e84e", //blue
+                "153e9b6b5b0f34d45ae8e815838aca80", //brass
+                "677ae97f60d26474bbc24a50520f9424", //bronze
+                "2a8ed839d57f31a4983041645f5832e2", //copper
+                "ac04aa27a6fd8b4409b024a6544c4928", //gold
+                "caebe2fa3b5a94d4bbc19ccca86d1d6f", //green
+                "a8baee8eb681d53438cc17bd1d125890", //red
+                "1af96d3ab792e3048b5e0ca47f3a524b", //silver
+                "456e305ebfec3204683b72a45467d87c", //white
+            };
+
+            var bloodline_classes = new BlueprintCharacterClass[] { library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf"), //sorcerer
+                                                                   library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780")}; //magus
+
+            foreach (var guid in guids)
+            {
+                var f = library.Get<BlueprintFeature>(guid);
+                var arcana = f.GetComponent<DraconicBloodlineArcana>();
+                f.ReplaceComponent(arcana,
+                                   Helpers.Create<DraconicBloodlineArcanaClassSpells>(d =>
+                                   {
+                                       d.SpellDescriptor = arcana.SpellDescriptor;
+                                       d.classes = bloodline_classes;
+                                   }));
+            }
+
+
+            //reduce DC bonuses from fey and infernal bloodline to 1 and make them work only on sorcerer spells
+            var arcanas = new BlueprintFeature[]{library.Get<BlueprintFeature>("67f151cdb9f0c9d4092ccfd5a9ccc6c9"),
+                                                 library.Get<BlueprintFeature>("6fe1c3f9437d88749a07e294c08799b9")
+                                                };
+
+            foreach (var a in arcanas)
+            {
+                var increase_spell_descriptor = a.GetComponent<IncreaseSpellDescriptorDC>();
+                a.ReplaceComponent(increase_spell_descriptor,
+                                   Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c =>
+                                                                                                   {
+                                                                                                       c.specific_class = sorcerer;
+                                                                                                       c.Value = 1;
+                                                                                                       c.Descriptor = increase_spell_descriptor.Descriptor;
+                                                                                                   }
+                                                                                                 )
+                                   );
+                a.AddComponent(Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c =>
+                                                                                                {
+                                                                                                    c.spellbook = eldritch_scion.ReplaceSpellbook;
+                                                                                                    c.Value = 1;
+                                                                                                    c.Descriptor = increase_spell_descriptor.Descriptor;
+                                                                                                }
+                                                                                                 )
+                                                                                            );
+                a.SetDescription(a.Description.Replace("2", "1"));
+            }
+
+
+            var school_power_selection = library.Get<BlueprintFeatureSelection>("3524a71d57d99bb4b835ad20582cf613");
+            var school_power_feature = library.Get<BlueprintParametrizedFeature>("8891303b67eb273428f1691864b08cf8");
+            school_power_feature.GetComponent<SpellFocusParametrized>().BonusDC = 1;
+            school_power_selection.SetDescription(school_power_selection.Description.Replace("2", "1"));
+            school_power_feature.SetDescription(school_power_feature.Description.Replace("2", "1"));
+        }
+
+        static internal void fixFeats()
+        {
+            //remove pbs from precise shot feat
+            var precise_shot = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");
+            precise_shot.RemoveComponents<PrerequisiteFeature>();
+            //no itwf, gtwf
+
+            //free weapon finesse (?)
         }
 
 
@@ -107,13 +295,13 @@ namespace CallOfTheWild
                 var actions = force_missile_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
                 actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
                 {
-                    a.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D4), Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
                 });
                 force_missile_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
                 force_missile_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                force_missile_ability.SetDescription("As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d6 points of damage plus 1d6 points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power.[LONGSTART] This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
-                evocation_base.SetDescription("Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\nIntense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\nForce Missile: As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d6 points of damage plus 1d6 points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power. This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nElemental Wall: At 8th level, one per day you can create a wall of energy. You can choose fire, cold, acid or electricity damage. The elemental wall otherwise functions like wall of fire. At 12th level and every 4 levels thereafter, you can use this ability one additional time per day, to a maximum of 4 times at level 20.");
+                force_missile_ability.SetDescription($"As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power.[LONGSTART] This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
+                evocation_base.SetDescription($"Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\nIntense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\nForce Missile: As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power. This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nElemental Wall: At 8th level, one per day you can create a wall of energy. You can choose fire, cold, acid or electricity damage. The elemental wall otherwise functions like wall of fire. At 12th level and every 4 levels thereafter, you can use this ability one additional time per day, to a maximum of 4 times at level 20.");
                 evocation_progression.SetDescription(evocation_base.Description);
             }
 
@@ -127,15 +315,15 @@ namespace CallOfTheWild
                 var actions = telekinetic_fist_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
                 actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
                 {
-                    a.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D4), Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
                 });
                 telekinetic_fist_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
                 telekinetic_fist_ability.RemoveComponents<ContextRankConfig>();
                 telekinetic_fist_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                telekinetic_fist_ability.SetDescription("As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d6 points of bludgeoning damage plus 1d6 points of damage for every two wizard levels you possess beyond the first.[LONGSTART] You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
+                telekinetic_fist_ability.SetDescription($"As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond the first.[LONGSTART] You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
                 telekinetic_fist_feature.SetDescription(telekinetic_fist_ability.Description);
-                transmutation_base.SetDescription("Transmuters use magic to change the world around them.\nPhysical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\nTelekinetic Fist: As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d6 points of bludgeoning damage plus 1d6 points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nChange Shape: At 8th level, you can change your shape for a number of rounds per day equal to your wizard level. These rounds do not need to be consecutive. This ability otherwise functions like beast shape II or elemental body I. At 12th level, this ability functions like beast shape III or elemental body II.");
+                transmutation_base.SetDescription($"Transmuters use magic to change the world around them.\nPhysical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\nTelekinetic Fist: As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nChange Shape: At 8th level, you can change your shape for a number of rounds per day equal to your wizard level. These rounds do not need to be consecutive. This ability otherwise functions like beast shape II or elemental body I. At 12th level, this ability functions like beast shape III or elemental body II.");
                 transmutation_progression.SetDescription(transmutation_base.Description);
             }
 
@@ -149,15 +337,15 @@ namespace CallOfTheWild
                 var actions = acid_dart_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
                 actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
                 {
-                    a.Value = Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D6), Helpers.CreateContextValue(Kingmaker.Enums.AbilityRankType.Default), 0);
                 });
                 acid_dart_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
                 acid_dart_ability.RemoveComponents<ContextRankConfig>();
                 acid_dart_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                acid_dart_ability.SetDescription("As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d8 points of acid damage plus 1d8 points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.");
+                acid_dart_ability.SetDescription($"As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.");
                 acid_dart_feature.SetDescription(acid_dart_ability.Description);
-                conjuration_base.SetDescription("The conjurer focuses on the study of summoning monsters and magic alike to bend to his will.\nSummoner's Charm: Whenever you cast a conjuration (summoning) spell, increase the duration by a number of rounds equal to 1/2 your wizard level (minimum 1). This increase is not doubled by Extend Spell.\nAcid Dart: As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d8 points of acid damage plus 1d8 points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.\nDimensional Steps: At 8th level, you can use this ability to teleport up to 30 feet as a move action. You can use this ability a total number of times per day equal to your wizard level.");
+                conjuration_base.SetDescription($"The conjurer focuses on the study of summoning monsters and magic alike to bend to his will.\nSummoner's Charm: Whenever you cast a conjuration (summoning) spell, increase the duration by a number of rounds equal to 1/2 your wizard level (minimum 1). This increase is not doubled by Extend Spell.\nAcid Dart: As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.\nDimensional Steps: At 8th level, you can use this ability to teleport up to 30 feet as a move action. You can use this ability a total number of times per day equal to your wizard level.");
                 conjuration_progression.SetDescription(conjuration_base.Description);
             }
 
@@ -165,13 +353,13 @@ namespace CallOfTheWild
             fixDomainAbility(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), library.Get<BlueprintProgression>("2bd6aa3c4979fd045bbbda8da586d3fb"),
                              library.Get<BlueprintProgression>("562567d7c244fae43ac61df3d55547ca"),
                              library.Get<BlueprintFeature>("42cc125d570c5334c89c6499b55fc0a3"), library.Get<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9"),
-                             DiceType.D8);
+                             getDamageDie(DiceType.D6));
 
             //fix healing domain
             fixDomainAbility(library.Get<BlueprintProgression>("881b2137a1779294c8956fe5b497cc35"), library.Get<BlueprintProgression>("2bd6aa3c4979fd045bbbda8da586d3fb"),
                              library.Get<BlueprintProgression>("562567d7c244fae43ac61df3d55547ca"),
                              library.Get<BlueprintFeature>("42cc125d570c5334c89c6499b55fc0a3"), library.Get<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9"),
-                             DiceType.D8);
+                             getDamageDie(DiceType.D6));
 
             //fix water domain
             fixDomainAbility(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), library.Get<BlueprintProgression>("f05fb4f417465f94fb1b4d6c48ea42cf"),
@@ -183,19 +371,19 @@ namespace CallOfTheWild
             fixDomainAbility(library.Get<BlueprintProgression>("750bfcd133cd52f42acbd4f7bc9cc365"), library.Get<BlueprintProgression>("d7169e8978d9e9d418398eab946c49e5"),
                              library.Get<BlueprintProgression>("3aef017b78329db4fa53fe8560069886"),
                              library.Get<BlueprintFeature>("39b0c7db785560041b436b558c9df2bb"), library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f"),
-                             DiceType.D8);
+                             getDamageDie(DiceType.D6));
 
             //fix earth domain
             fixDomainAbility(library.Get<BlueprintProgression>("08bbcbfe5eb84604481f384c517ac800"), library.Get<BlueprintProgression>("4132a011b835a36479d6bc19a1b962e6"),
                              library.Get<BlueprintProgression>("a3217dc55003b914aa296da7ada029bc"),
                              library.Get<BlueprintFeature>("828d82a0e8c5a944bbdb6b12f802ff02"), library.Get<BlueprintAbility>("3ff40918d33219942929f0dbfe5d1dee"),
-                             DiceType.D8);
+                             getDamageDie(DiceType.D6));
 
             //fix weather domain
             fixDomainAbility(library.Get<BlueprintProgression>("c18a821ee662db0439fb873165da25be"), library.Get<BlueprintProgression>("d124d29c7c96fc345943dd17e24990e8"),
                              library.Get<BlueprintProgression>("4a3516fdc4cda764ebd1279b22d10205"),
                              library.Get<BlueprintFeature>("1c37869ee06ca33459f16f23f4969e7d"), library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"),
-                             DiceType.D8);
+                             getDamageDie(DiceType.D6));
 
             //fix rune domain base ability
 
@@ -206,13 +394,13 @@ namespace CallOfTheWild
             fixDomainAbility(library.Get<BlueprintProgression>("b0a26ee984b6b6945b884467aa2f1baa"), library.Get<BlueprintProgression>("599fb0d60358c354d8c5c4304a73e19a"),
                              library.Get<BlueprintProgression>("599fb0d60358c354d8c5c4304a73e19a"),
                              library.Get<BlueprintFeature>("303cf1c933f343c4d91212f8f4953e3c"), library.Get<BlueprintAbility>("18f734e40dd7966438ab32086c3574e1"),
-                             DiceType.D6, AbilityRankType.DamageBonus);
+                             getDamageDie(DiceType.D4), AbilityRankType.DamageBonus);
 
             //do not fix community domain, it is already powerful (just description)
             var community_domain_progressions = new BlueprintProgression[] { library.Get<BlueprintProgression>("b8bbe42616d61ac419971b7910d79fc8"), library.Get<BlueprintProgression>("3a397e27682edfd409cb73ff12de7c51") };
             foreach (var cdp in community_domain_progressions)
             {
-                cdp.SetDescription(cdp.Description.Replace("d6", "d8"));
+                cdp.SetDescription(cdp.Description.Replace($"d6", $"d{getDamageDieString(DiceType.D6)}"));
             }
 
             //fix darkness greater ability description
@@ -221,8 +409,8 @@ namespace CallOfTheWild
                                                                             library.Get<BlueprintProgression>("bfdc224a1362f2b4688b57f70adcc26f") };
             foreach (var ddp in darkness_domain_progressions)
             {
-                ddp.SetDescription(ddp.Description.Replace("d10", "d20"));
-                ddp.SetDescription(ddp.Description.Replace("d8", "d12"));
+                ddp.SetDescription(ddp.Description.Replace("d10", $"d{getDamageDieString(DiceType.D10)}"));
+                ddp.SetDescription(ddp.Description.Replace("d8", $"d{getDamageDieString(DiceType.D8)}"));
             }
         }
 
@@ -687,6 +875,70 @@ namespace CallOfTheWild
 
 
             return new_actions;
+        }
+    }
+
+
+    public class DraconicBloodlineArcanaClassSpells : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+    {
+        public SpellDescriptorWrapper SpellDescriptor;
+        public BlueprintCharacterClass[] classes;
+
+        public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+        {
+            MechanicsContext context = evt.Reason.Context;
+            if ((Object)context?.SourceAbility == (Object)null || !context.SpellDescriptor.HasAnyFlag((Kingmaker.Blueprints.Classes.Spells.SpellDescriptor)this.SpellDescriptor) || !context.SourceAbility.IsSpell )
+                return;
+
+            var spellbook = context.SourceAbilityContext?.Ability?.Spellbook;
+            if (spellbook == null)
+            {
+                return;
+            }
+            spellbook = SpellbookMechanics.Helpers.getClassSpellbook(spellbook, this.Owner);
+            bool spellbook_ok = false;
+
+            foreach (var c in classes)
+            {
+                var sb = this.Owner.GetSpellbook(c);
+                if (sb == spellbook)
+                {
+                    spellbook_ok = true;
+                    break;
+                }
+            }
+
+
+            if (!spellbook_ok)
+            {
+                return;
+            }
+            foreach (BaseDamage baseDamage in evt.DamageBundle)
+                baseDamage.AddBonus(baseDamage.Dice.Rolls);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateDamage evt)
+        {
+        }
+    }
+
+
+    public class IterativeTwoWeaponFightingAttacks : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
+    {
+        public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
+        {
+            if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
+                return;
+
+            var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
+            if (bab > 5)
+                ++evt.SecondaryHand.PenalizedAttacks;
+            if (bab > 10)
+                ++evt.SecondaryHand.PenalizedAttacks;
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
+        {
         }
     }
 }

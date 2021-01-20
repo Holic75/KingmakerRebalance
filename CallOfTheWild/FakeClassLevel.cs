@@ -102,7 +102,7 @@ namespace CallOfTheWild.FakeClassLevelMechanics
             switch (___m_BaseValueType)
             {
                 case ContextRankBaseValueType.ClassLevel:
-                    __result += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context.MaybeCaster.Descriptor, ___m_Class, new BlueprintArchetype[0]);
+                    __result += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context?.MaybeCaster?.Descriptor, ___m_Class, new BlueprintArchetype[0]);
                     return;
                 case ContextRankBaseValueType.MaxClassLevelWithArchetype:
                     if (___m_ExceptClasses)
@@ -118,7 +118,7 @@ namespace CallOfTheWild.FakeClassLevelMechanics
                         if ((___m_ExceptClasses && !(___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass) || !___m_ExceptClasses && (___m_Class).HasItem<BlueprintCharacterClass>(classData.CharacterClass)) && (!((IEnumerable<BlueprintArchetype>)classData.CharacterClass.Archetypes).Contains<BlueprintArchetype>(___Archetype) || classData.Archetypes.Contains(___Archetype)))
                             num3 += classData.Level + context.Params.RankBonus;
                     }
-                    num3 += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context.MaybeCaster.Descriptor, ___m_Class, new BlueprintArchetype[] { ___Archetype });
+                    num3 += FakeClassLevelMechanics.Helpers.calculateFakeClassLevel(context?.MaybeCaster?.Descriptor, ___m_Class, new BlueprintArchetype[] { ___Archetype });
                     __result = num3;
                     return;
                 case ContextRankBaseValueType.OwnerSummClassLevelWithArchetype:

@@ -20,25 +20,25 @@ namespace CallOfTheWild
 {
     public class Main
     {
-        internal class Settings
+        public class Settings
         {
-            internal bool update_companions { get; }
-            internal bool nerf_animal_companion { get; }
-            internal bool reduce_skill_points { get; }
-            internal bool sacred_huntsmaster_animal_focus { get; }
-            internal bool swap_weapon_sets_as_move_action { get; }
-            internal bool allow_spellcasting_in_elemental_form { get; }
-            internal bool fix_teamwork_feats { get; }
-            internal bool fix_ecclesitheurge_class { get; }
-            internal bool advanced_fighter_options { get; }
-            internal bool wizard_discoveries { get; }
-            internal bool deity_for_everyone { get; }
-            internal bool secondary_rake_attacks { get; }
-            internal bool one_sneak_attack_per_target_per_spell { get; }
-            internal bool metamagic_for_spontaneous_spell_conversion { get; }
-            internal bool remove_solo_tactics_from_sacred_huntsmaster { get; }
-            internal bool update_kineticist_archetypes { get; }
-            internal bool balance_fixes { get; }
+            public bool update_companions { get; }
+            public bool nerf_animal_companion { get; }
+            public bool reduce_skill_points { get; }
+            public bool sacred_huntsmaster_animal_focus { get; }
+            public bool swap_weapon_sets_as_move_action { get; }
+            public bool allow_spellcasting_in_elemental_form { get; }
+            public bool fix_teamwork_feats { get; }
+            public bool fix_ecclesitheurge_class { get; }
+            public bool advanced_fighter_options { get; }
+            public bool wizard_discoveries { get; }
+            public bool deity_for_everyone { get; }
+            public bool secondary_rake_attacks { get; }
+            public bool one_sneak_attack_per_target_per_spell { get; }
+            public bool metamagic_for_spontaneous_spell_conversion { get; }
+            public bool remove_solo_tactics_from_sacred_huntsmaster { get; }
+            public bool update_kineticist_archetypes { get; }
+            public bool balance_fixes { get; }
             internal Settings()
             {
 
@@ -66,7 +66,7 @@ namespace CallOfTheWild
             }
         }
 
-        static internal Settings settings = new Settings();
+        static public Settings settings = new Settings();
         internal static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
         internal static Harmony12.HarmonyInstance harmony;
         public static LibraryScriptableObject library;
@@ -168,6 +168,7 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Common.initialize();
+                    CallOfTheWild.Rebalance.removeDescriptionsFromMonkACFeatures();
                     CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
                     CallOfTheWild.Rebalance.fixWidomCognatogen();
                     CallOfTheWild.Rebalance.fixTransmutionSchoolPhysicalEnhancement();

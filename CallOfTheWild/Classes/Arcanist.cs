@@ -994,7 +994,7 @@ namespace CallOfTheWild
             createShiftCaster();
             createItemBond();
             
-            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
                                                                  flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing, sonic_blast, swift_consume,
                                                                  spell_resistance, wooden_flesh, shift_caster,
                                                                  energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
@@ -1008,9 +1008,16 @@ namespace CallOfTheWild
                                                  FeatureGroup.None);
             arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
             {
-                quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
+                quick_study_wizard, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh, item_bond
             };
+
+
+            if (!Main.settings.balance_fixes)
+            {
+                arcane_exploits_wizard.AllFeatures = arcane_exploits_wizard.AllFeatures.AddToArray(potent_magic);
+                arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(potent_magic);
+            }
         }
 
 
