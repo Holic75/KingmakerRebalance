@@ -80,6 +80,16 @@ namespace CallOfTheWild
 
             var brilliant_energy = library.Get<BlueprintWeaponEnchantment>("6cbb732b9d638724a960d784634dcdcf"); //plasma
             dazzling_blade_fx_enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
+
+            addDamageOverrideToMaterialEnchants();
+        }
+
+
+        static void addDamageOverrideToMaterialEnchants()
+        {
+            cold_iron.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.AddWeaponDamageMaterial>(a => a.material = PhysicalDamageMaterial.ColdIron));
+            mithral.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.AddWeaponDamageMaterial>(a => a.material = PhysicalDamageMaterial.Silver));
+            adamantine.AddComponent(Helpers.Create<NewMechanics.EnchantmentMechanics.AddWeaponDamageMaterial>(a => a.material = PhysicalDamageMaterial.Adamantite));
         }
 
 

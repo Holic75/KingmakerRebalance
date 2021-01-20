@@ -1228,6 +1228,34 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     }
 
 
+    [ComponentName("change weapon damage")]
+    public class AddWeaponDamageMaterial : WeaponEnchantmentLogic, IInitiatorRulebookHandler<RulePrepareDamage>, IRulebookHandler<RulePrepareDamage>, IInitiatorRulebookSubscriber
+    {
+        public PhysicalDamageMaterial material = PhysicalDamageMaterial.Adamantite;
+
+        public void OnEventAboutToTrigger(RulePrepareDamage evt)
+        {
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (weapon != this.Owner)
+            {
+                return;
+            }
+
+            foreach (BaseDamage baseDamage in evt.DamageBundle)
+            {
+                var physical_dmg = baseDamage as PhysicalDamage;
+                physical_dmg?.AddMaterial(material);
+            }
+        }
+
+        public void OnEventDidTrigger(RulePrepareDamage evt)
+        {
+
+            
+        }
+    }
+
+
     [AllowedOn(typeof(BlueprintBuff))]
     public class CreateWeapon : BuffLogic
     {
