@@ -300,8 +300,8 @@ namespace CallOfTheWild
                 force_missile_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
                 force_missile_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                force_missile_ability.SetDescription($"As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power.[LONGSTART] This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
-                evocation_base.SetDescription($"Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\nIntense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\nForce Missile: As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond the first, plus the damage from your intense spells evocation power. This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nElemental Wall: At 8th level, one per day you can create a wall of energy. You can choose fire, cold, acid or electricity damage. The elemental wall otherwise functions like wall of fire. At 12th level and every 4 levels thereafter, you can use this ability one additional time per day, to a maximum of 4 times at level 20.");
+                force_missile_ability.SetDescription($"As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond first, plus the damage from your intense spells evocation power.[LONGSTART] This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
+                evocation_base.SetDescription($"Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\nIntense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\nForce Missile: As a standard action, you can unleash a force missile that automatically strikes a foe, as magic missile. The force missile deals 1d{getDamageDieString(DiceType.D4)} points of damage plus 1d{getDamageDieString(DiceType.D4)} points of damage per 2 wizard levels beyond first, plus the damage from your intense spells evocation power. This is a force effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nElemental Wall: At 8th level, one per day you can create a wall of energy. You can choose fire, cold, acid or electricity damage. The elemental wall otherwise functions like wall of fire. At 12th level and every 4 levels thereafter, you can use this ability one additional time per day, to a maximum of 4 times at level 20.");
                 evocation_progression.SetDescription(evocation_base.Description);
             }
 
@@ -321,9 +321,9 @@ namespace CallOfTheWild
                 telekinetic_fist_ability.RemoveComponents<ContextRankConfig>();
                 telekinetic_fist_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                telekinetic_fist_ability.SetDescription($"As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond the first.[LONGSTART] You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
+                telekinetic_fist_ability.SetDescription($"As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond first.[LONGSTART] You can use this ability a number of times per day equal to 3 + your Intelligence modifier.[LONGEND]");
                 telekinetic_fist_feature.SetDescription(telekinetic_fist_ability.Description);
-                transmutation_base.SetDescription($"Transmuters use magic to change the world around them.\nPhysical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\nTelekinetic Fist: As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nChange Shape: At 8th level, you can change your shape for a number of rounds per day equal to your wizard level. These rounds do not need to be consecutive. This ability otherwise functions like beast shape II or elemental body I. At 12th level, this ability functions like beast shape III or elemental body II.");
+                transmutation_base.SetDescription($"Transmuters use magic to change the world around them.\nPhysical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\nTelekinetic Fist: As a standard action, you can strike with a telekinetic fist, targeting any foe within 30 feet as a ranged touch attack. The telekinetic fist deals 1d{getDamageDieString(DiceType.D4)} points of bludgeoning damage plus 1d{getDamageDieString(DiceType.D4)} points of damage for every two wizard levels you possess beyond first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nChange Shape: At 8th level, you can change your shape for a number of rounds per day equal to your wizard level. These rounds do not need to be consecutive. This ability otherwise functions like beast shape II or elemental body I. At 12th level, this ability functions like beast shape III or elemental body II.");
                 transmutation_progression.SetDescription(transmutation_base.Description);
             }
 
@@ -343,9 +343,9 @@ namespace CallOfTheWild
                 acid_dart_ability.RemoveComponents<ContextRankConfig>();
                 acid_dart_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { wizard },
                                                                                    progression: ContextRankProgression.OnePlusDiv2));
-                acid_dart_ability.SetDescription($"As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.");
+                acid_dart_ability.SetDescription($"As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.");
                 acid_dart_feature.SetDescription(acid_dart_ability.Description);
-                conjuration_base.SetDescription($"The conjurer focuses on the study of summoning monsters and magic alike to bend to his will.\nSummoner's Charm: Whenever you cast a conjuration (summoning) spell, increase the duration by a number of rounds equal to 1/2 your wizard level (minimum 1). This increase is not doubled by Extend Spell.\nAcid Dart: As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond the first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.\nDimensional Steps: At 8th level, you can use this ability to teleport up to 30 feet as a move action. You can use this ability a total number of times per day equal to your wizard level.");
+                conjuration_base.SetDescription($"The conjurer focuses on the study of summoning monsters and magic alike to bend to his will.\nSummoner's Charm: Whenever you cast a conjuration (summoning) spell, increase the duration by a number of rounds equal to 1/2 your wizard level (minimum 1). This increase is not doubled by Extend Spell.\nAcid Dart: As a standard action, you can unleash an acid dart targeting any foe within 30 feet as a ranged touch attack. The acid dart deals 1d{getDamageDieString(DiceType.D6)} points of acid damage plus 1d{getDamageDieString(DiceType.D6)} points of damage for every two wizard levels you possess beyond first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier. This attack ignores spell resistance.\nDimensional Steps: At 8th level, you can use this ability to teleport up to 30 feet as a move action. You can use this ability a total number of times per day equal to your wizard level.");
                 conjuration_progression.SetDescription(conjuration_base.Description);
             }
 
@@ -418,7 +418,7 @@ namespace CallOfTheWild
             //fix runes
             {
                 var base_ability = library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5");
-                base_ability.SetDescription(base_ability.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond the first"));
+                base_ability.SetDescription(base_ability.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond first"));
 
                 List<BlueprintAbilityAreaEffect> areas = new List<BlueprintAbilityAreaEffect>();
                 foreach (var v in base_ability.Variants)
@@ -442,7 +442,7 @@ namespace CallOfTheWild
                 var base_feature = library.Get<BlueprintFeature>("b74c64a0152c7ee46b13ecdd72dda6f3");
                 var domain = library.Get<BlueprintProgression>("6d4dac497c182754d8b1f49071cca3fd");
                 var domain2 = library.Get<BlueprintProgression>("8d176f8fe5616a64ca37835be7c2ccfe");
-                base_feature.SetDescription(base_feature.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond the first"));
+                base_feature.SetDescription(base_feature.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{getDamageDieString(DiceType.D6)} points of damage per two levels of the class that gave you access to this domain beyond first"));
                 domain.SetDescription(base_feature.Description);
                 domain2.SetDescription(base_feature.Description);
             }
@@ -476,8 +476,8 @@ namespace CallOfTheWild
             base_ability.RemoveComponents<ContextRankConfig>();
             base_ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: domain_classes, type: rank,
                                                                                progression: ContextRankProgression.OnePlusDiv2));
-            base_ability.SetDescription(base_ability.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{(int)dice} points of damage per two levels of the class that gave you access to this domain beyond the first"));
-            base_feature.SetDescription(base_feature.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{(int)(dice)} points of damage per two levels of the class that gave you access to this domain beyond the first"));
+            base_ability.SetDescription(base_ability.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{(int)dice} points of damage per two levels of the class that gave you access to this domain beyond first"));
+            base_feature.SetDescription(base_feature.Description.Replace("+ 1 point for every two levels you possess in the class that gave you access to this domain", $"plus 1d{(int)(dice)} points of damage per two levels of the class that gave you access to this domain beyond first"));
             druid_progression.SetDescription(base_feature.Description);
             cleric_progression.SetDescription(druid_progression.Description);
             cleric_progression2.SetDescription(cleric_progression.Description);
@@ -507,18 +507,18 @@ namespace CallOfTheWild
 
             var dragon_form1 = library.Get<BlueprintAbility>("f767399367df54645ac620ef7b2062bb");
             var dragon_form1_feature = library.Get<BlueprintFeature>("b10c54491148de84b858763588664a8a");
-            dragon_form1.SetDescription(dragon_form1.Description.Replace("6d8", "6d12"));
-            dragon_form1_feature.SetDescription(dragon_form1_feature.Description.Replace("6d8", "6d12"));
+            dragon_form1.SetDescription(dragon_form1.Description.Replace("6d8", $"1d{getDamageDieString(DiceType.D8)}"));
+            dragon_form1_feature.SetDescription(dragon_form1_feature.Description.Replace("6d8", $"6d{getDamageDieString(DiceType.D8)}"));
 
             var dragon_form2 = library.Get<BlueprintAbility>("666556ded3a32f34885e8c318c3a0ced");
             var dragon_form2_feature = library.Get<BlueprintFeature>("5b13008bdc18a0c4db321ae9f04ba77f");
-            dragon_form2.SetDescription(dragon_form2.Description.Replace("8d8", "8d12"));
-            dragon_form2_feature.SetDescription(dragon_form2_feature.Description.Replace("8d8", "8d12"));
+            dragon_form2.SetDescription(dragon_form2.Description.Replace("8d8", $"8d{getDamageDieString(DiceType.D8)}"));
+            dragon_form2_feature.SetDescription(dragon_form2_feature.Description.Replace("8d8", $"8d{getDamageDieString(DiceType.D8)}"));
 
             var dragon_form3 = library.Get<BlueprintAbility>("1cdc4ad4c208246419b98a35539eafa6");
             var dragon_form3_feature = library.Get<BlueprintFeature>("a5e3c6ee70f04c6489fd0bac3582db74");
-            dragon_form3.SetDescription(dragon_form3.Description.Replace("12d8", "12d12"));
-            dragon_form3_feature.SetDescription(dragon_form3_feature.Description.Replace("12d8", "12d12"));
+            dragon_form3.SetDescription(dragon_form3.Description.Replace("12d8", $"12d{getDamageDieString(DiceType.D8)}"));
+            dragon_form3_feature.SetDescription(dragon_form3_feature.Description.Replace("12d8", $"12d{getDamageDieString(DiceType.D8)}"));
 
             var kinetic_blast_feature = library.Get<BlueprintFeature>("93efbde2764b5504e98e6824cab3d27c");
             kinetic_blast_feature.SetDescription(replaceString(kinetic_blast_feature.Description, DiceType.D6));
@@ -547,6 +547,11 @@ namespace CallOfTheWild
 
             var alchemist_bombs = library.Get<BlueprintFeature>("c59b2f256f5a70a4d896568658315b7d");
             alchemist_bombs.SetDescription(replaceString(alchemist_bombs.Description, DiceType.D6));
+
+            var firebelly = library.Get<BlueprintAbility>("b065231094a21d14dbf1c3832f776871");
+            var firebelly_buff = library.Get<BlueprintBuff>("7c33de68880aa444bbb916271b653016");
+            firebelly.SetDescription(firebelly.Description.Replace("1d4", $"1d{getDamageDieString(DiceType.D4)}"));
+            firebelly_buff.SetDescription(firebelly_buff.Description.Replace("1d4", $"1d{getDamageDieString(DiceType.D4)}"));
         }
 
        

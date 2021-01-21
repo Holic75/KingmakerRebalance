@@ -213,7 +213,7 @@ namespace CallOfTheWild
                 touch_of_acid.SpellResistance = false;
                 touch_of_acid.SetNameDescriptionIcon("Touch of Acid",
                                                       Main.settings.balance_fixes
-                                                      ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of acid damage plus 1d8 points for every 2 shaman levels she possesses beyond the first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                      ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of acid damage plus 1d8 points for every 2 shaman levels she possesses beyond first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
                                                       : "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of acid damage plus 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 touch_of_acid.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));

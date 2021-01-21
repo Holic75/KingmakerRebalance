@@ -561,6 +561,15 @@ namespace CallOfTheWild
             //change stats of certain companions
             //Valerie 
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
+            /* var valerie_scar_protrait = library.Get<BlueprintPortrait>("8134f34ef1cc67c498f1ae616995023d");
+            Action<UnitDescriptor> fix_action_v = delegate (UnitDescriptor u)
+            {
+                if (u.Blueprint == valerie_companion)
+                {
+                    u.UISettings.SetPortrait(valerie_scar_protrait);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(fix_action_v);*/
             valerie_companion.Strength = 16;//+2
             valerie_companion.Dexterity = 10;
             valerie_companion.Constitution = 14;
@@ -683,6 +692,10 @@ namespace CallOfTheWild
             var linzi_class_levels = linzi_feature.GetComponent<AddClassLevels>();
             linzi_class_levels.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillThievery, StatType.SkillKnowledgeArcana, StatType.SkillMobility };
             linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extra performance
+            if (Main.settings.balance_fixes)
+            {
+                linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");//precise shot
+            }
             //change octavia
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
@@ -697,7 +710,14 @@ namespace CallOfTheWild
             octavia_feature.RemoveComponents<AddClassLevels>(a => a != octavia_acl);
             //octavia_acl.CharacterClass = Arcanist.arcanist_class;
             octavia_acl.Archetypes = new BlueprintArchetype[] { Arcanist.exploiter_wizard_archetype };
-            Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            if (Main.settings.balance_fixes)
+            {
+                Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.item_bond);
+            }
+            else
+            {
+                Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            }
             //Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.bloodline_selection, library.Get<BlueprintFeature>("4d491cf9631f7e9429444f4aed629791"));
             //Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("BloodlineArcaneArcaneBondFeature"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"));
             octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillMobility };
@@ -787,6 +807,10 @@ namespace CallOfTheWild
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
             //jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
             jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"); //point blank shot
+            if (Main.settings.balance_fixes)
+            {
+                jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665"); //precise shot
+            }
             jaethal_selections.Selections[2].Features[0] = Inquisitions.conversion;
             var jaethal_unit = library.Get<BlueprintUnit>("32d2801eddf236b499d42e4a7d34de23");
             jaethal_unit.Strength = 12;

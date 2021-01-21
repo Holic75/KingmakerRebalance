@@ -226,7 +226,7 @@ namespace CallOfTheWild
                 ice_splinter.SpellResistance = false;
                 ice_splinter.SetNameDescription("Ice Splinter",
                                                 Main.settings.balance_fixes
-                                                ? "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d8 points of cold damage plus 1d8 points for every 2 shaman levels she has beyond the first.\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                ? "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d8 points of cold damage plus 1d8 points for every 2 shaman levels she has beyond first.\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
                                                 : "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d6 points of cold damage plus 1 point for every 2 shaman levels she has.\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
                                                 );
                 ice_splinter.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));

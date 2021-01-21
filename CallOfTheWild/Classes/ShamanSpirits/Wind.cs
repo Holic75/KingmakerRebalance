@@ -216,7 +216,7 @@ namespace CallOfTheWild
                 shocking_touch.SpellResistance = false;
                 shocking_touch.SetNameDescriptionIcon("Shocking Touch",
                                                        Main.settings.balance_fixes 
-                                                       ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of electricity damage + 1d8 points for every 2 shaman levels she possesses beyond the first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                       ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of electricity damage + 1d8 points for every 2 shaman levels she possesses beyond first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
                                                        : "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
