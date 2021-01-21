@@ -263,6 +263,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Wildshape.load();
 
                     CallOfTheWild.MetamagicFeats.load();
+                    CallOfTheWild.Rebalance.fixUniversalistMetamagicMastery();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();

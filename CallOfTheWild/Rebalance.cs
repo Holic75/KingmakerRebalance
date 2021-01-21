@@ -556,6 +556,55 @@ namespace CallOfTheWild
             }
         }
 
+        internal static void fixUniversalistMetamagicMastery()
+        {
+            BlueprintFeature[] metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
+
+            var resource = library.Get<BlueprintAbilityResource>("42fd5b455f986f94293b15b13f38d6a5");
+            var feature = Helpers.CreateFeature("UniversalistMetamagicFeature",
+                                                "Metamagic Mastery",
+                                                "At 8th level, you can apply any one metamagic feat that you know to a spell you are about to cast. This does not alter the level of the spell or the casting time. You can use this ability once per day at 8th level and one additional time per day for every two wizard levels you possess beyond 8th. Any time you use this ability to apply a metamagic feat that increases the spell level by more than 1, you must use an additional daily usage for each level above 1 that the feat adds to the spell. Even though this ability does not modify the spell’s actual level, you cannot use this ability to cast a spell whose modified spell level would be above the level of the highest-level spell that you are capable of casting.",
+                                                "",
+                                                Helpers.GetIcon("541bb8d595532ec419343b7a93cdb449"),
+                                                FeatureGroup.None,
+                                                resource.CreateAddAbilityResource()
+                                                );
+
+            var universalist_progression = library.Get<BlueprintProgression>("0933849149cfc9244ac05d6a5b57fd80");
+            universalist_progression.LevelEntries = universalist_progression.LevelEntries.Where(le => le.Level < 8).ToArray();
+            universalist_progression.LevelEntries = universalist_progression.LevelEntries.AddToArray(Helpers.LevelEntry(8, feature)
+                                                                                                     );
+            foreach (var mf in metamagics)
+            {
+                var metamagic_enum = mf.GetComponent<AddMetamagicFeat>().Metamagic;
+                var cost = metamagic_enum.DefaultCost();
+                var buff = Helpers.CreateBuff(mf.name + "MetamagicMasteryBuff",
+                                              "Metamagic Mastery - " + mf.Name,
+                                              feature.Description + "\n" + mf.Name + ": " + mf.Description,
+                                              "",
+                                              mf.Icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(mm =>
+                                              {
+                                                  mm.Metamagic = metamagic_enum;
+                                                  mm.limit_spell_level = true;
+                                                  mm.resource = resource;
+                                                  mm.amount = cost;
+                                              })
+                                              );
+                var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                                 resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                                 Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = cost; }));
+                toggle.Group = ActivatableAbilityGroupExtension.MetamagicMastery.ToActivatableAbilityGroup();
+                var add_toggle = Common.ActivatableAbilityToFeature(toggle);
+                var level = 2 * (cost - 1) + 8;
+
+                mf.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFact(feature, add_toggle, add_toggle));
+                feature.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFact(mf, add_toggle, add_toggle));
+            }
+            universalist_progression.SetDescription("Wizards who do not specialize (known as as universalists) have the most diversity of all arcane spellcasters.\nHand of the Apprentice: You cause your melee weapon to fly from your grasp and strike a foe before instantly returning to you. As a standard action, you can make a single attack using a melee weapon at a range of 30 feet. This attack is treated as a ranged attack with a thrown weapon, except that you add your Intelligence modifier on the attack roll instead of your Dexterity modifier (damage still relies on Strength). This ability cannot be used to perform a combat maneuver. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nMetamagic Mastery: " + feature.Description);
+        }
+
         internal static void fixCompanions()
         {
             //change stats of certain companions

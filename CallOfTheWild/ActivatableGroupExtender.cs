@@ -74,6 +74,7 @@ namespace CallOfTheWild
             PhysicalEnhancementResonantPower,
             MetamagicMaster,
             SpellPower,
+            MetamagicMastery
 
         }
 
