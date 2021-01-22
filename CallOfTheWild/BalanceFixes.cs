@@ -487,7 +487,7 @@ namespace CallOfTheWild
         static string replaceString(string s, params DiceType[] dice)
         {
             var new_s = s;
-            foreach (var d in dices)
+            foreach (var d in dice)
             {
                 var old_dice = (int)d;
                 var new_dice = (int)dices_shift[d];
@@ -538,7 +538,7 @@ namespace CallOfTheWild
             };
 
             kinetic_diadem.SetDescription(replaceString(kinetic_diadem.Description, DiceType.D6));
-            kinetic_diadem_lesser.SetDescription(replaceString(kinetic_diadem.Description, DiceType.D6));
+            kinetic_diadem_lesser.SetDescription(replaceString(kinetic_diadem_lesser.Description, DiceType.D6));
 
             foreach (var p in phylacteries)
             {
