@@ -544,6 +544,14 @@ namespace CallOfTheWild
                         c_typed.classes = c_typed.classes.AddToArray(class_to_add).Distinct().ToArray();
                     }
                 }
+                else if (c is ArcaneBloodlineArcanaOnSpecificClass)
+                {
+                    var c_typed = c as ArcaneBloodlineArcanaOnSpecificClass;
+                    if (!c_typed.classes.Contains(class_to_add) && c_typed.classes.Contains(class_to_check))
+                    {
+                        c_typed.classes = c_typed.classes.AddToArray(class_to_add).Distinct().ToArray();
+                    }
+                }
                 else if (c is NewMechanics.ContextIncreaseDescriptorSpellsDC)
                 {
                     var c_typed = c as NewMechanics.ContextIncreaseDescriptorSpellsDC;

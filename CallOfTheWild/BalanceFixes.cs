@@ -12,8 +12,10 @@ using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -58,7 +60,7 @@ namespace CallOfTheWild
             fixLowerLevelBlasts();
             manualFixes();
 
-            fixSorcererDraconicBloodlineArcana();
+            fixSorcererBloodlineArcana();
             fixFeats();
             fixClassFeatures();
             fixTwf();
@@ -166,7 +168,7 @@ namespace CallOfTheWild
         }
 
 
-        static void fixSorcererDraconicBloodlineArcana()
+        static void fixSorcererBloodlineArcana()
         {
             var sorcerer = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
             var eldritch_scion = library.Get<BlueprintArchetype>("d078b2ef073f2814c9e338a789d97b73");
@@ -199,6 +201,9 @@ namespace CallOfTheWild
                                        d.classes = bloodline_classes;
                                    }));
             }
+
+            var arance_bloodline_arcana = library.Get<BlueprintFeature>("e8e4f56618dd8b04490aa6a0b75ac24f");
+            arance_bloodline_arcana.ComponentsArray = new BlueprintComponent[] { Helpers.Create<ArcaneBloodlineArcanaOnSpecificClass>(a => { a.classes = bloodline_classes; }) };
 
 
             //reduce DC bonuses from fey and infernal bloodline to 1 and make them work only on sorcerer spells
@@ -620,7 +625,7 @@ namespace CallOfTheWild
                 f.SetDescription(f.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));
             }
             f.SetDescription(f.Description.Replace("dxxx", "d"));
-            Main.logger.Log("Processed:" + f.name);
+            Main.logger.Log("Fixed damage for: " + f.name);
             processed.AddRange(processed_local);
         }
 
@@ -679,7 +684,7 @@ namespace CallOfTheWild
             );
             processed.AddRange(processed_local);
 
-            Main.logger.Log("Processed:" + area.name);
+            Main.logger.Log("Fixed damage for: " + area.name);
         }
 
         static void fixSpellDamageAbilities()
@@ -715,7 +720,7 @@ namespace CallOfTheWild
                         a.SetDescription(a.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));
                     }
                     a.SetDescription(a.Description.Replace("dxxx", "d"));
-                    Main.logger.Log("Processed:" + a.name);
+                    Main.logger.Log("Fixed damage for: " + a.name);
                 }
                 else
                 {
@@ -789,7 +794,7 @@ namespace CallOfTheWild
             }
             ability.SetDescription(ability.Description.Replace("dxxx", "d"));
 
-            Main.logger.Log("Processed:" + ability.name);
+            Main.logger.Log("Fixed damage for: " + ability.name);
         }
 
 
@@ -852,7 +857,7 @@ namespace CallOfTheWild
                 buff.SetDescription(buff.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));                    
             }
             buff.SetDescription(buff.Description.Replace("dxxx", "d"));
-            Main.logger.Log("Processed:" + buff.name);
+            Main.logger.Log("Fixed damage for: " + buff.name);
         }
 
 
@@ -983,7 +988,7 @@ namespace CallOfTheWild
 
 
     public class IterativeTwoWeaponFightingAttacks : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
-    {
+    {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
         {
             if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
@@ -997,6 +1002,44 @@ namespace CallOfTheWild
         }
 
         public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
+        {
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class ArcaneBloodlineArcanaOnSpecificClass : RuleInitiatorLogicComponent<RuleCalculateAbilityParams>
+    {
+        public BlueprintCharacterClass[] classes;
+
+        public override void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+        {
+            if (!((Object)evt.Spell != (Object)null) || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
+                return;
+
+            var spellbook = SpellbookMechanics.Helpers.getClassSpellbook(evt.Spellbook, this.Owner);
+            bool spellbook_ok = false;
+
+            foreach (var c in classes)
+            {
+                var sb = this.Owner.GetSpellbook(c);
+                if (sb == spellbook)
+                {
+                    spellbook_ok = true;
+                    break;
+                }
+            }
+            if (!spellbook_ok)
+            {
+                return;
+            }
+
+            AbilityData abilityData = evt.AbilityData;
+            if (((object)abilityData != null ? abilityData.MetamagicData : (MetamagicData)null) == null || !evt.AbilityData.MetamagicData.NotEmpty || evt.AbilityData.HasMetamagic(Metamagic.Heighten))
+                return;
+            evt.AddBonusDC(1);
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
         {
         }
     }
