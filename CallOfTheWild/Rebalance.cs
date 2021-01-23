@@ -191,7 +191,7 @@ namespace CallOfTheWild
         internal static void removePowerOfWyrmsBuffImmunity()
         {
             //power of wyrms in pf:km incorrectly gives corresponding elemental descriptor buff immunity, which interfers with elemental defensive spells, like flame shield or fiery body.
-            //Also by pnp rules (and according to in-game description) it should only give immunity to elemental damage and buffs.
+            //Also by pnp rules (and according to in-game description) it should only give immunity to elemental damage.
             var powers = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(f => f.name.Contains("PowerOfWyrms")).ToArray();
 
             var elemental_descriptors = SpellDescriptor.Fire | SpellDescriptor.Acid | SpellDescriptor.Electricity | SpellDescriptor.Cold;
