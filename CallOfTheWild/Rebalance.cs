@@ -2357,7 +2357,7 @@ namespace CallOfTheWild
                                        + "At 12th level, a tactical leader can use the tactician ability as a swift action. At 18th level, whenever the tactical leader uses this ability, he grants any two teamwork feats that he knows. He can select from any of his teamwork feats, not just his bonus feats.");
 
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff), a.Actions.Actions[0]));
-
+            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_StartLevel", -4));
 
             var extra_tactician = Helpers.CreateFeature("TacticalLeaderExtraTactician",
                                                         "",
