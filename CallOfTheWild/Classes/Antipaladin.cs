@@ -43,6 +43,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.ElementsSystem;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.Blueprints.Root;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 
 namespace CallOfTheWild
 {
@@ -698,13 +699,16 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("76d4885a395976547a13c5d6bf95b482"), //armor focus
                 library.Get<BlueprintFeature>("121811173a614534e8720d7550aae253"), //shield bash
                 library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d"), //twf
-                library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), //twf improved
-                library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"), //twf greater
                 library.Get<BlueprintFeature>("dbec636d84482944f87435bd31522fcc"), //shield master
                 library.Get<BlueprintFeature>("0b442a7b4aa598d4e912a4ecee0500ff"), //bashing finish
                 library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907"), //shield wall
                 library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
             };
+            //add itwf and gtwf only if blance fixes are not enabled
+            if (!Main.settings.balance_fixes)
+            {
+                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"));
+            }
             //other feats will be added upon creation
         }
 
@@ -808,12 +812,12 @@ namespace CallOfTheWild
                                                   };
             var effect_buff = Helpers.CreateBuff("AuraOfDecayBuff",
                                       "Aura of Decay Target",
-                                      "At 11th level, as a free action, a blighted myrmidon can expend two uses of her smite nature ability to generate an aura of decay with a range of 10 feet for 1 minute. Living foes of the blighted myrmidon within the aura take 3d6 points of damage unless they succeed at a Fortitude save (DC = half the blighted myrmidon’s level + her Charisma modifier) for half damage. If an elemental, a fey, or a creature with levels in druid, hunter, or ranger takes damage from aura of decay, the blighted myrmidon regains a number of hit points equal to half the amount of damage the creature takes.",
+                                      $"At 11th level, as a free action, a blighted myrmidon can expend two uses of her smite nature ability to generate an aura of decay with a range of 10 feet for 1 minute. Living foes of the blighted myrmidon within the aura take 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage unless they succeed at a Fortitude save (DC = half the blighted myrmidon’s level + her Charisma modifier) for half damage. If an elemental, a fey, or a creature with levels in druid, hunter, or ranger takes damage from aura of decay, the blighted myrmidon regains a number of hit points equal to half the amount of damage the creature takes.",
                                       "",
                                       NewSpells.explosion_of_rot.Icon,
                                       Common.createPrefabLink("fbf39991ad3f5ef4cb81868bb9419bff"), //poison buff
                                       Helpers.CreateAddFactContextActions(activated: effect_actions, newRound: effect_actions),
-                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), AbilitySharedValue.Damage),
+                                      Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3, 0), AbilitySharedValue.Damage),
                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.Heal, 0.5),
                                       Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilitySharedValue.Damage)), AbilitySharedValue.StatBonus, 0.25),
                                       Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
@@ -980,7 +984,7 @@ namespace CallOfTheWild
             var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                                       "AntipaladinChannelEnergyHealLiving",
                                                                       "",
-                                                                      "Channeling positive energy causes a burst that heals all living creatures in a 30-foot radius centered on the insinuator. The amount of damage healed is equal to 1d6 points of damage plus 1d6 points of damage for every four insinuator levels beyond 2nd (2d6 at 6th, 3d6 at 10th, and so on).",
+                                                                      $"Channeling positive energy causes a burst that heals all living creatures in a 30-foot radius centered on the insinuator. The amount of damage healed is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage for every four insinuator levels beyond 2nd (2d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 6th, 3d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 10th, and so on).",
                                                                       "",
                                                                       context_rank_config,
                                                                       dc_scaling,
@@ -988,7 +992,7 @@ namespace CallOfTheWild
             var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                                         "AntipaladinChannelEnergyHarmUndead",
                                                                         "",
-                                                                        "Channeling positive energy causes a burst that damages all undead creatures in a 30-foot radius centered on the insinuator. The amount of damage inflicted is equal to 1d6 points of damage plus 1d6 points of damage for every four insinuator levels beyond 2nd (2d6 at 6th, 3d6 at 10th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the insinuator's level + the insinuator's Charisma modifier.",
+                                                                        $"Channeling positive energy causes a burst that damages all undead creatures in a 30-foot radius centered on the insinuator. The amount of damage inflicted is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage for every four insinuator levels beyond 2nd (2d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 6th, 3d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 10th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the insinuator's level + the insinuator's Charisma modifier.",
                                                                         "",
                                                                         context_rank_config,
                                                                         dc_scaling,
@@ -1414,7 +1418,23 @@ namespace CallOfTheWild
                                                          "Antipaladins are proficient with all simple and martial weapons, with all types of armor (heavy, medium, and light), and with shields (except tower shields).");
             unholy_resilence = library.CopyAndAdd<BlueprintFeature>("8a5b5e272e5c34e41aa8b4facbb746d3", "UnholyResilence", ""); //from divine grace
             unholy_resilence.SetNameDescription("Unholy Resilience",
-                                                "At 2nd level, an antipaladin gains a bonus equal to his Charisma bonus (if any) on all saving throws.");
+                                                $"At 2nd level, an antipaladin gains a bonus equal to his Charisma bonus (if any{(Main.settings.balance_fixes ? ", up to his antipaladin level" : "")}) on all saving throws.");
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            if (unholy_resilence.GetComponent<ContextRankConfig>() != null)
+            {
+                var unholy_resilence_property = NewMechanics.ContextValueWithLimitProperty.createProperty("UnholyResilenceProperty", "39ab94d65a1a45dca3575c432f2a4163",
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
+                                                                                                      stat: Kingmaker.EntitySystem.Stats.StatType.Charisma,
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.Default),
+                                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                                      classes: new BlueprintCharacterClass[] { antipaladin_class },
+                                                                                                      min: 0,
+                                                                                                      type: AbilityRankType.DamageDiceAlternative),
+                                                                       unholy_resilence
+                                                                      );
+                unholy_resilence.ReplaceComponent<ContextRankConfig>(a => Helpers.SetField(a, "m_CustomProperty", unholy_resilence_property));
+            }
 
             plague_bringer = library.CopyAndAdd<BlueprintFeature>("41d1d0de15e672349bf4262a5acf06ce", "PlagueBearer", ""); //from divine health
             plague_bringer.SetNameDescription("Plague Bringer",
@@ -1785,7 +1805,7 @@ namespace CallOfTheWild
             touch_of_corruption_resource = library.Get<BlueprintAbilityResource>("9dedf41d995ff4446a181f143c3db98c");
             ClassToProgression.addClassToResource(antipaladin_class, new BlueprintArchetype[0], touch_of_corruption_resource, paladin);
 
-            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), 0);
+            var dice = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice), 0);
             var heal_action = Common.createContextActionHealTarget(dice);
             var damage_undead_action = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, dice);
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
@@ -1797,9 +1817,9 @@ namespace CallOfTheWild
             var inflict_light_wounds = library.Get<BlueprintAbility>("244a214d3b0188e4eb43d3a72108b67b");
             var ability = Helpers.CreateAbility("TouchOfCorruptionAbility",
                                                 "Touch of Corruption",
-                                                "Beginning at 2nd level, an antipaladin surrounds his hand with a fiendish flame, causing terrible wounds to open on those he touches. Each day he can use this ability a number of times equal to 1/2 his antipaladin level + his Charisma modifier. As a touch attack, an antipaladin can cause 1d6 points of damage for every two antipaladin levels he possesses. Using this ability is a standard action that does not provoke attacks of opportunity.\n"
+                                                $"Beginning at 2nd level, an antipaladin surrounds his hand with a fiendish flame, causing terrible wounds to open on those he touches. Each day he can use this ability a number of times equal to 1/2 his antipaladin level + his Charisma modifier. As a touch attack, an antipaladin can cause 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every two antipaladin levels he possesses. Using this ability is a standard action that does not provoke attacks of opportunity.\n"
                                                 + "An antipaladin can also chose to channel corruption into a melee weapon by spending 2 uses of this ability as a swift action. The next enemy struck with this weapon will suffer the effects of this ability.\n"
-                                                + "Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d6 hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
+                                                + $"Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
                                                 "",
                                                 Helpers.GetIcon("989ab5c44240907489aba0a8568d0603"), //bestow curse
                                                 AbilityType.Supernatural,
@@ -1946,7 +1966,7 @@ namespace CallOfTheWild
             var harm_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm,
                                                                       "AntipaladinChannelEnergyHarmLiving",
                                                                       "",
-                                                                      "Channeling negative energy causes a burst that damages all living creatures in a 30 - foot radius centered on the antipaladin. The amount of damage inflicted is equal to 1d6 points of damage plus 1d6 points of damage for every two antipaladin levels beyond 1st (3d6 at 5th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1 / 2 the antipaladin's level + the antipaladin's Charisma modifier.",
+                                                                      $"Channeling negative energy causes a burst that damages all living creatures in a 30 - foot radius centered on the antipaladin. The amount of damage inflicted is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage for every two antipaladin levels beyond 1st (3d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 5th, and so on). Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1 / 2 the antipaladin's level + the antipaladin's Charisma modifier.",
                                                                       "",
                                                                       context_rank_config,
                                                                       dc_scaling,
@@ -1954,7 +1974,7 @@ namespace CallOfTheWild
             var heal_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal,
                                                                         "AntipaladinChannelEnergyHealUndead",
                                                                         "",
-                                                                        "Channeling negative energy causes a burst that heals all undead creatures in a 30-foot radius centered on the antipaladin. The amount of damage healed is equal to 1d6 points of damage plus 1d6 points of damage for every two antipaladin levels beyond 1st (3d6 at 5th, and so on).",
+                                                                        $"Channeling negative energy causes a burst that heals all undead creatures in a 30-foot radius centered on the antipaladin. The amount of damage healed is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage for every two antipaladin levels beyond 1st (3d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 5th, and so on).",
                                                                         "",
                                                                         context_rank_config,
                                                                         dc_scaling,

@@ -212,7 +212,9 @@ namespace CallOfTheWild
                 touch_of_acid.Range = AbilityRange.Touch;
                 touch_of_acid.SpellResistance = false;
                 touch_of_acid.SetNameDescriptionIcon("Touch of Acid",
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of acid damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
+                                                      Main.settings.balance_fixes
+                                                      ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of acid damage plus 1d8 points for every 2 shaman levels she possesses beyond first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                      : "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of acid damage plus 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 touch_of_acid.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 var touch_of_acid_sticky = Helpers.CreateTouchSpellCast(touch_of_acid, resource);
@@ -231,7 +233,7 @@ namespace CallOfTheWild
 
                 spirit_ability = Helpers.CreateFeature(prefix + "TouchOfAcidFeature",
                                                        touch_of_acid.Name,
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of acid damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a corrosive weapon.",
+                                                       touch_of_acid.Description + " At 11th level, any weapon she wields is treated as a corrosive weapon.",
                                                        "",
                                                        touch_of_acid.Icon,
                                                        FeatureGroup.None,
@@ -251,13 +253,13 @@ namespace CallOfTheWild
 
                 var cooldown_buff = Helpers.CreateBuff(prefix + "BodyOfEarthCooldownBuff",
                                                        "Body of Earth: Cooldown",
-                                                       "As a standard action, she can cause jagged pieces of stone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage per 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                                       $"As a standard action, she can cause jagged pieces of stone to explode from her body in a 10-foot-radius burst. This deals 1d{BalanceFixes.getDamageDie(DiceType.D6)} points of piercing damage per 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                        "",
                                                        icon,
                                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
                 var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing,
-                                                                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                     Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)),
                                                                                      isAoE: true, halfIfSaved: true);
 
                 var effect = Helpers.CreateConditional(Common.createContextConditionIsCaster(),

@@ -173,6 +173,7 @@ namespace CallOfTheWild
             foreach (var kv in phantom_mercy_map)
             {
                 kv.Value.RemoveComponents<PrerequisiteClassLevel>();
+                kv.Value.RemoveComponents<PrerequisiteArchetypeLevel>();
                 kv.Value.MaybeReplaceComponent<PrerequisiteFeature>(p => p.Feature = phantom_mercy_map[p.Feature]);
                 phantom_mercy_selection.AllFeatures = phantom_mercy_selection.AllFeatures.AddToArray(kv.Value);
             }

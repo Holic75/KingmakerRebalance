@@ -42,6 +42,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -468,7 +469,7 @@ namespace CallOfTheWild
             fervor_fcb.Ranks = 10;
 
 
-            var dice = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+            var dice = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
             var heal_action = Common.createContextActionHealTarget(dice);
             var damage_undead_action = Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy, dice);
             var damage_living_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, dice);
@@ -479,7 +480,7 @@ namespace CallOfTheWild
 
             var fervor_positive_ability_others = Helpers.CreateAbility("WarpriestFervorPositiveOthersTouchAbility",
                                                                         "Fervor (Positive Energy) Others",
-                                                                        "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
+                                                                        $"At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d{BalanceFixes.getDamageDieString(DiceType.D6)} at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.",
                                                                         "",
                                                                         cure_light_wounds.Icon,
                                                                         AbilityType.Supernatural,
@@ -532,7 +533,7 @@ namespace CallOfTheWild
             var deaths_embrace_living = library.Get<BlueprintFeature>("fd7c08ccd3c7773458eb9613db3e93ad");
             var fervor_negative_ability_others = Helpers.CreateAbility("WarpriestFervorNegativeTouchOthersAbility",
                                                             "Fervor (Negative Energy) Others",
-                                                            "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, an evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
+                                                            $"At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, an evil warpriest (or one who worships an evil deity) can touch a living creature and deal to it 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to heal an undead creature for same amount of damage he would otherwise deal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Living creatures do not receive a saving throw against this damage. This counts as negative energy.",
                                                             "",
                                                             inflict_light_wounds.Icon,
                                                             AbilityType.Supernatural,
@@ -584,7 +585,7 @@ namespace CallOfTheWild
 
             warpriest_fervor = Helpers.CreateFeature("WarpriestFervorFeature",
                                                      "Fervor",
-                                                     "At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d6 points of damage, plus an additional 1d6 points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d6 at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.\n"
+                                                     $"At 2nd level, a warpriest can draw upon the power of his faith to heal wounds or harm foes. This ability can be used a number of times per day equal to 1/2 his warpriest level + his Wisdom modifier. By expending one use of this ability, a good warpriest (or one who worships a good deity) can touch a creature to heal it of 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage, plus an additional 1d6{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every 3 warpriest levels he possesses above 2nd (to a maximum of 7d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 20th level). Using this ability is a standard action (unless the warpriest targets himself, in which case it’s a swift action). Alternatively, the warpriest can use this ability to harm an undead creature, dealing the same amount of damage he would otherwise heal with a melee touch attack. Using fervor in this way is a standard action that provokes an attack of opportunity. Undead do not receive a saving throw against this damage. This counts as positive energy.\n"
                                                      + "An evil warpriest(or one who worships an evil deity) can use this ability to instead deal damage to living creatures with a melee touch attack and heal undead creatures with a touch.This counts as negative energy.\n"
                                                      + "A neutral warpriest who worships a neutral deity(or one who is not devoted to a particular deity) uses this ability as a good warpriest if he chose to spontaneously cast cure spells or as an evil warpriest if he chose to spontaneously cast inflict spells.\n"
                                                      + "As a swift action, a warpriest can expend one use of this ability to cast any one single target warpriest spell he has prepared with a casting time of 1 round or shorter. When cast in this way, the spell can target only the warpriest, even if it could normally affect other targets. Spells cast in this way ignore somatic components and do not provoke attacks of opportunity. The warpriest does not need to have a free hand to cast a spell in this way.",
@@ -3411,6 +3412,10 @@ namespace CallOfTheWild
             BlueprintAbility[] runes = library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5").GetComponent<AbilityVariants>().Variants; //from rune domain
 
             string description = "At 1st level, you can create a blast rune in any adjacent square. Any creature entering this square takes an amount of damage equal to 1d6 + 1/2 your warpriest level. This rune deals either acid, cold, electricity, or fire damage, designated when you create the rune. The rune is invisible, and lasts a number of rounds equal to your warpriest level or until discharged.";
+            if (Main.settings.balance_fixes)
+            {
+                description = $"At 1st level, you can create a blast rune in any adjacent square. Any creature entering this square takes an amount of damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} + 1d{BalanceFixes.getDamageDieString(DiceType.D6)} per two warpriest levels beyond first. This rune deals either acid, cold, electricity, or fire damage, designated when you create the rune. The rune is invisible, and lasts a number of rounds equal to your warpriest level or until discharged.";
+            }
             var minor_ability = Helpers.CreateAbility("WarpriestRuneBlessingMinorAbility",
                                           "Blast Rune",
                                           description,
@@ -3422,7 +3427,7 @@ namespace CallOfTheWild
                                           "",
                                           Helpers.savingThrowNone);
             minor_ability.setMiscAbilityParametersRangedDirectional();
-
+            List<BlueprintAbilityAreaEffect> areas = new List<BlueprintAbilityAreaEffect>();
             for (int i = 0; i < runes.Length; i++)
             {
                 var rune = library.CopyAndAdd<BlueprintAbility>(runes[i].AssetGuid, $"WarpriestRuneBlessingMinor{i + 1}Ability", "");
@@ -3431,6 +3436,7 @@ namespace CallOfTheWild
                 rune.RemoveComponents<AbilityResourceLogic>();
                 var area_action = (rune.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionSpawnAreaEffect);
                 var area = library.CopyAndAdd(area_action.AreaEffect, $"WarpriestRuneBlessingMinor{i + 1}Area", "");
+                areas.Add(area);
                 foreach (var c in rune.GetComponents<ContextRankConfig>().ToArray())
                 {
                     var new_c = c.CreateCopy();
@@ -3445,6 +3451,15 @@ namespace CallOfTheWild
                 addBlessingResourceLogic("Rune", rune, quicken: true, parent: minor_ability);
                 rune.SetDescription(description);
                 runes[i] = rune;
+            }
+
+            for (int i = 0; i < runes.Length; i++)
+            {
+                foreach (var a in areas)
+                {
+                    library.Get<BlueprintAbility>("56ad05dedfd9df84996f62108125eed5").GetComponent<AbilityVariants>().Variants[i].AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(atp => atp.area_effect = a));
+                    runes[i].AddComponent(Helpers.Create<NewMechanics.AbilityTargetPointDoesNotContainAreaEffect>(atp => atp.area_effect = a));
+                }
             }
 
             minor_ability.AddComponent(minor_ability.CreateAbilityVariants(runes));
@@ -4089,6 +4104,17 @@ namespace CallOfTheWild
 
         static void createSacredFist()
         {
+            sacred_fist_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SacredFistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sacred Fist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Unlike many warpriests, sacred fists leave behind armor and shield and instead rely on their fists and whatever protection their deity bestows on them.");
+            });
+            Helpers.SetField(sacred_fist_archetype, "m_ParentClass", warpriest_class);
+            library.AddAsset(sacred_fist_archetype, "");
+
+
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             createSacredFistProficiencies();
             createSacredFistFakeMonkLevels();
             //unarmed damage
@@ -4100,20 +4126,31 @@ namespace CallOfTheWild
             var fist2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
             var fist2d10 = library.Get<BlueprintFeature>("df38e56fa8b3f0f469d55f9aa26b3f5c");
 
-            var ac_bonus = library.CopyAndAdd<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4", "ACBonusSacredFistACBonusFeature", "");
-            ac_bonus.SetDescription("When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            var ac_bonus_old = library.CopyAndAdd<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4", "ACBonusSacredFistACBonusFeature", "");
+            ac_bonus_old.SetDescription("When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            ac_bonus_old.ComponentsArray = new BlueprintComponent[0];
+            var ac_bonus = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
             foreach (var c in ac_bonus.GetComponents<ContextRankConfig>().ToArray())
             {
                 if (c.IsBasedOnClassLevel)
                 {
-                    var new_c = c.CreateCopy();
+                    ClassToProgression.addClassToContextRankConfig(warpriest_class, new BlueprintArchetype[] { sacred_fist_archetype }, c, "SacredFist", monk);
+                    /*var new_c = c.CreateCopy();
                     Helpers.SetField(new_c, "m_Class", getWarpriestArray());
                     ac_bonus.ReplaceComponent(c, new_c);
-                    break;
+                    break;*/
+                }
+                if (c.IsBasedOnCustomProperty) //for balance fixes (class level limiter on wisdom)
+                {
+                    var property = Helpers.GetField<BlueprintUnitProperty>(c, "m_CustomProperty");
+                    var cfg = property.GetComponent<NewMechanics.ContextValueWithLimitProperty>().max_value;
+                    ClassToProgression.addClassToContextRankConfig(warpriest_class, new BlueprintArchetype[] { sacred_fist_archetype }, cfg, "SacredFist", monk);
                 }
             }
 
-            var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus, false);
+            var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus_old, false);
+            unlock_ac_bonus.ReplaceComponent<MonkNoArmorFeatureUnlock>(m => m.NewFact = ac_bonus);
+            unlock_ac_bonus.SetDescription($"When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any{(Main.settings.balance_fixes ? ", up to his sacred fist level" : "")}) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
             var flurry2 = library.CopyAndAdd<BlueprintFeature>("332362f3bd39ebe46a740a36960fdcb4", "WarpriestSacredFistFlurryOfBlows1Feature", "");
             flurry2.SetDescription("At 2nd level, a sacred fist can make a flurry of blows as a full attack. When making a flurry of blows, the sacred fist can make one additional attack at his highest base attack bonus. This additional attack stacks with the bonus attacks from haste and other similar effects. When using this ability, the sacred fist can make these attacks with any combination of his unarmed strikes and weapons that have the monk special weapon quality. He takes no penalty for using multiple weapons when making a flurry of blows, but he does not gain any additional attacks beyond what's already granted by the flurry for doing so. (He can still gain additional attacks from a high base attack bonus, from this ability, and from haste and similar effects).\nAt 15th level, a sacred fist can make an additional attack at his highest base attack bonus whenever he makes a flurry of blows. This stacks with the first attack from this ability and additional attacks from haste and similar effects.");
             var flurry15 = library.CopyAndAdd<BlueprintFeature>("de25523acc24b1448aa90f74d6512a08", "WarpriestSacredFistFlurryOfBlows2Feature", "");
@@ -4173,14 +4210,7 @@ namespace CallOfTheWild
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
-            sacred_fist_archetype = Helpers.Create<BlueprintArchetype>(a =>
-            {
-                a.name = "SacredFistArchetype";
-                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Sacred Fist");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Unlike many warpriests, sacred fists leave behind armor and shield and instead rely on their fists and whatever protection their deity bestows on them.");
-            });
-            Helpers.SetField(sacred_fist_archetype, "m_ParentClass", warpriest_class);
-            library.AddAsset(sacred_fist_archetype, "");
+
             sacred_fist_archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_proficiencies,
                                                                                         warpriest_fighter_feat_prerequisite_replacement,
                                                                                         weapon_focus_selection,

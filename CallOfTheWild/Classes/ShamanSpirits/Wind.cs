@@ -215,7 +215,9 @@ namespace CallOfTheWild
                 shocking_touch.Range = AbilityRange.Touch;
                 shocking_touch.SpellResistance = false;
                 shocking_touch.SetNameDescriptionIcon("Shocking Touch",
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
+                                                       Main.settings.balance_fixes 
+                                                       ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of electricity damage + 1d8 points for every 2 shaman levels she possesses beyond first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                       : "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 shocking_touch.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 var shocking_touch_sticky = Helpers.CreateTouchSpellCast(shocking_touch, resource);
@@ -234,7 +236,7 @@ namespace CallOfTheWild
 
                 spirit_ability = Helpers.CreateFeature(prefix + "ShockingTouchFeature",
                                                        shocking_touch.Name,
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of electricity damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a shocking weapon.",
+                                                       shocking_touch.Description + " At 11th level, any weapon she wields is treated as a shocking weapon.",
                                                        "",
                                                        shocking_touch.Icon,
                                                        FeatureGroup.None,

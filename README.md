@@ -147,7 +147,8 @@ New feats:
 - Emotional Conduit,
 - Theurgy,
 - Ability Focus: Cruelty,
-- Spiritual Guardian.
+- Spiritual Guardian,
+- Two-Weapon Rend.
 
 New rage powers:
 - Terrifying Howl
@@ -524,7 +525,8 @@ enchanced attacks,
 - Optionally makes all rake (like last 2 smilodon claw attacks) and similar attacks secondary, i.e. they receive -5 penalty (reduced to -2 with multiattack). This is not a pnp-accurate fix, but since rake normally works only on grappled opponents it seems to make sense,
 - all Animal Companions/Eidolons receive multiattack at appropriate levels,
 - Grease spell was changed to work more in line with pnp (uses dc 10 mobility check instead of dc, and only if unit moves),
-- Aura of Madness lvl 8 Madness domain ability changed to toggle.
+- Aura of Madness lvl 8 Madness domain ability changed to toggle,
+- Universalist wizard Metamagic Mastery change to work as per pnp.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -587,6 +589,16 @@ Notable differences from pnp:
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
 - Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones.
 
+Optional balance fixes:
+- Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
+- Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist arcanist spells
+- Two-Weapon fighting automatically give iterative off-hand attacks once you reachs 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
+- Blood havoc affects only bloodline spells
+- Fey/Inferanl bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/cl
+- Potent Magic arcane exploit is removed from the game
+- Precise Shot no longer requires Point-Blank Shot
+- Damage of basic domain/school powers scales a bit better
+- Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6).
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

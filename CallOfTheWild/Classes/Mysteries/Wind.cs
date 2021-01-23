@@ -96,7 +96,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, classes, getArchetypeArray());
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default)),
                                          isAoE: true, halfIfSaved: true);
 
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
@@ -170,7 +170,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource(name_prefix + "Resource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 11, 1, 4, 1, 0, 0.0f, classes, getArchetypeArray());
 
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)),
                                          isAoE: true, halfIfSaved: true);
 
             var apply_deafened = Helpers.CreateConditionalSaved(null,

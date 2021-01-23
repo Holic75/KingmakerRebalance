@@ -51,7 +51,7 @@ namespace CallOfTheWild
                 var dmg_type = (rays[i].GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as ContextActionDealDamage).DamageType.Energy;
                 var ability = Helpers.CreateAbility(prefix + names[i] + "EnergyRayAbility",
                                                     "Energy Ray: " + names[i],
-                                                    "As a standard action that provokes attacks of opportunity, you can expend 1 point of mental focus to unleash a ray of pure energy as a ranged touch attack. This ray has a range of 25 feet. The ray deals an amount of energy damage equal to 1d6 points + 1d6 points for every 2 occultist levels you possess beyond 1st (2d6 at 3rd level, 3d6 at 5th, and so on, to a maximum of 10d6 at 19th level). When you unleash an energy ray, you must decide what type of damage it deals (acid, cold, electricity, or fire).",
+                                                    $"As a standard action that provokes attacks of opportunity, you can expend 1 point of mental focus to unleash a ray of pure energy as a ranged touch attack. This ray has a range of 25 feet. The ray deals an amount of energy damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points + 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points for every 2 occultist levels you possess beyond 1st (2d{BalanceFixes.getDamageDieString(DiceType.D6)} at 3rd level, 3d{BalanceFixes.getDamageDieString(DiceType.D6)} at 5th, and so on, to a maximum of 10d{BalanceFixes.getDamageDie(DiceType.D6)} at 19th level). When you unleash an energy ray, you must decide what type of damage it deals (acid, cold, electricity, or fire).",
                                                     "",
                                                     rays[i].Icon,
                                                     AbilityType.SpellLike,
@@ -59,7 +59,7 @@ namespace CallOfTheWild
                                                     AbilityRange.Close,
                                                     "",
                                                     "",
-                                                    Helpers.CreateRunActions(Helpers.CreateActionDealDamage(dmg_type, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0))),
+                                                    Helpers.CreateRunActions(Helpers.CreateActionDealDamage(dmg_type, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0))),
                                                     rays[i].GetComponent<AbilityDeliverProjectile>().CreateCopy(a => { a.Projectiles = new BlueprintProjectile[] { a.Projectiles[0] }; a.UseMaxProjectilesCount = false; }),
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                     rays[i].GetComponent<SpellDescriptorComponent>(),
@@ -113,14 +113,14 @@ namespace CallOfTheWild
             for (int i = 0; i < abilities.Length; i++)
             {
                 var dmg = Helpers.CreateActionDealDamage(energy[i], 
-                                                         Helpers.CreateContextDiceValue(DiceType.D6, 
+                                                         Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), 
                                                                                         Helpers.CreateContextValue(AbilityRankType.Default),
-                                                                                        Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                                                        0),
                                                          isAoE: true, halfIfSaved: true);
 
                 var ability = Helpers.CreateAbility(prefix + names[i] + "EnergyBlastAbility",
                                                     "Energy Blast: " + names[i],
-                                                    "As a standard action that provokes attacks of opportunity, you can expend 2 points of mental focus to unleash a blast of energy. This blast has a range of 60 feet, and deals 1d6+2 points of energy damage, plus an additional 1d6+2 points for every 2 occultist levels you possess beyond 1st (up to a maximum of 10d6+20 at 19th level). The blast deals damage to each creature in a 20-foot-radius burst, but each affected creature can attempt a Reflex save to halve the damage. When you unleash an energy blast, you must decide what type of damage it deals (acid, cold, electricity, or fire). You must be at least 5th level to select this focus power.",
+                                                    $"As a standard action that provokes attacks of opportunity, you can expend 2 points of mental focus to unleash a blast of energy. This blast has a range of 60 feet, and deals 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of energy damage per occultist level. The blast deals damage to each creature in a 20-foot-radius burst, but each affected creature can attempt a Reflex save to halve the damage. When you unleash an energy blast, you must decide what type of damage it deals (acid, cold, electricity, or fire). You must be at least 5th level to select this focus power.",
                                                     "",
                                                     icons[i],
                                                     AbilityType.SpellLike,
@@ -132,11 +132,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                     Helpers.CreateSpellDescriptor(descriptors[i]),
                                                     createDCScaling(),
-                                                    createClassScalingConfig(ContextRankProgression.StartPlusDivStep, stepLevel: 2, startLevel: 1),
-                                                    createClassScalingConfig(ContextRankProgression.Custom, type: AbilityRankType.DamageBonus, 
-                                                                             customProgression: new (int, int)[] {(2, 2), (4, 4), (6, 6), (8, 8), (10, 10),
-                                                                                                                 (12, 12), (14, 14), (16, 16), (18, 18), (20, 20),
-                                                                                                                 (22, 22), (24, 24), (26, 26), (28, 28), (30, 30)}),
+                                                    createClassScalingConfig(),
                                                     resource.CreateResourceLogic(amount: 2),
                                                     Common.createAbilitySpawnFx(fx_id[i], anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                                     Helpers.CreateAbilityTargetsAround(20.Feet(), TargetType.Any)
@@ -191,7 +187,7 @@ namespace CallOfTheWild
             for (int i = 0; i < abilities.Length; i++)
             {
                 var dmg = Helpers.CreateActionDealDamage(energy[i],
-                                                         Helpers.CreateContextDiceValue(DiceType.D6,
+                                                         Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6),
                                                                                         2,
                                                                                         Helpers.CreateContextValue(AbilityRankType.Default)),
                                                          isAoE: true);
@@ -210,7 +206,7 @@ namespace CallOfTheWild
                 area.SpellResistance = true;
                 var ability = Helpers.CreateAbility(prefix + names[i] + "WallOfPowerAbility",
                                                     "Wall of Power: " + names[i],
-                                                    "By expending 1 point of mental focus as a standard action, you can create a wall of pure energy with a length of up to 5 feet per occultist level you possess. This wall is 10 feet high and 1 foot thick. It doesn’t block passage, line of sight, or line of effect, but does deal damage to anyone passing through it. The wall deals 2d6 points of energy damage + 1 point of energy damage per occultist level you possess. You must select acid, cold, electricity, or fire when you create the wall to determine the type of damage it deals. The wall lasts for 1 round per occultist level you possess. You must be at least 9th level to select this focus power.",
+                                                    $"By expending 1 point of mental focus as a standard action, you can create a wall of pure energy with a length of up to 5 feet per occultist level you possess. This wall is 10 feet high and 1 foot thick. It doesn’t block passage, line of sight, or line of effect, but does deal damage to anyone passing through it. The wall deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of energy damage + 1 point of energy damage per occultist level you possess. You must select acid, cold, electricity, or fire when you create the wall to determine the type of damage it deals. The wall lasts for 1 round per occultist level you possess. You must be at least 9th level to select this focus power.",
                                                     "",
                                                     icons[i],
                                                     AbilityType.SpellLike,

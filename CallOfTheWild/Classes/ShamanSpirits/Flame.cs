@@ -189,7 +189,7 @@ namespace CallOfTheWild
 
                 ward_of_flames = hex_engine.createFlameWardHex(prefix + "FlameWard",
                                                                 "Flame Ward",
-                                                                "The shaman touches a willing creature (including herself ) and grants a ward of flames. The next time the warded creature is struck with a melee attack, the creature making the attack takes 1d6 points of fire damage + 1 point of fire damage for every 2 shaman levels she possesses. This ward lasts for 1 minute, after which it fades away if not already expended. At 8th and 16th levels, the ward lasts for one additional attack. A creature affected by this hex cannot be affected by it again for 24 hours."
+                                                                $"The shaman touches a willing creature (including herself) and grants a ward of flames. The next time the warded creature is struck with a melee attack, the creature making the attack takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage + 1 point of fire damage for every 2 shaman levels she possesses. This ward lasts for 1 minute, after which it fades away if not already expended. At 8th and 16th levels, the ward lasts for one additional attack. A creature affected by this hex cannot be affected by it again for 24 hours."
                                                                );
                 hexes = new BlueprintFeature[]
                 {
@@ -235,7 +235,9 @@ namespace CallOfTheWild
                 touch_of_flames.Type = AbilityType.Supernatural;
                 touch_of_flames.SpellResistance = false;
                 touch_of_flames.SetNameDescriptionIcon("Touch of Flames",
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of fire damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
+                                                       Main.settings.balance_fixes 
+                                                       ? "As a standard action, the shaman can make a melee touch attack that deals 1d8 points of fire damage plus 1d8 points for every 2 shaman levels she possesses beyond first. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                       : "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of fire damage plus 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier.",
                                                        icon);
                 touch_of_flames.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
                 var touch_of_flames_sticky = Helpers.CreateTouchSpellCast(touch_of_flames, resource);
@@ -254,7 +256,7 @@ namespace CallOfTheWild
 
                 spirit_ability = Helpers.CreateFeature(prefix + "TouchOfFlameFeature",
                                                        touch_of_flames.Name,
-                                                       "As a standard action, the shaman can make a melee touch attack that deals 1d6 points of fire damage + 1 point for every 2 shaman levels she possesses. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a flaming weapon.",
+                                                       touch_of_flames.Description + " At 11th level, any weapon she wields is treated as a flaming weapon.",
                                                        "",
                                                        touch_of_flames.Icon,
                                                        FeatureGroup.None,

@@ -994,7 +994,7 @@ namespace CallOfTheWild
             createShiftCaster();
             createItemBond();
             
-            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
+            arcane_exploits.AllFeatures = new BlueprintFeature[] { quick_study, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting,
                                                                  flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, metamixing, sonic_blast, swift_consume,
                                                                  spell_resistance, wooden_flesh, shift_caster,
                                                                  energy_absorption, lingering_acid, burning_flame, icy_tomb, dancing_electricity, greater_metamagic_knowledge,
@@ -1008,9 +1008,16 @@ namespace CallOfTheWild
                                                  FeatureGroup.None);
             arcane_exploits_wizard.AllFeatures = new BlueprintFeature[]
             {
-                quick_study_wizard, potent_magic, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
+                quick_study_wizard, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh, item_bond
             };
+
+
+            if (!Main.settings.balance_fixes)
+            {
+                arcane_exploits_wizard.AllFeatures = arcane_exploits_wizard.AllFeatures.AddToArray(potent_magic);
+                arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(potent_magic);
+            }
         }
 
 
@@ -1776,14 +1783,14 @@ namespace CallOfTheWild
             var buff = Common.deafened;
 
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic,
-                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
+                                     Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false);
             var extra_effect = Helpers.CreateConditionalSaved(null, apply_buff);
 
             var sonic_blast_ability = Helpers.CreateAbility("SonicBlastExploitAbility",
                                                         "Sonic Blast",
-                                                        "The arcanist can loose a deafening blast of sonic energy by expending 1 point from her arcane reservoir at any one target within close range. The blast deals an amount of sonic damage equal to 1d6 + the arcanist’s Charisma modifier, plus an additional 1d6 points of sonic damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target is also deafened for 1 minute. The target can attempt a Fortitude save to halve the damage and negate the deafness.",
+                                                        $"The arcanist can loose a deafening blast of sonic energy by expending 1 point from her arcane reservoir at any one target within close range. The blast deals an amount of sonic damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDie(DiceType.D6)} points of sonic damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target is also deafened for 1 minute. The target can attempt a Fortitude save to halve the damage and negate the deafness.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
@@ -1869,10 +1876,10 @@ namespace CallOfTheWild
         static void createLightningLanceAndDancingElectricity()
         {
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity,
-                                                 Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                                                 Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             var outgoing_concealement_buff = Helpers.CreateBuff("LightningLanceBuff",
                                                                 "Lightning Lance",
-                                                                "The arcanist can unleash a lance of lightning by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of electricity damage + the arcanist’s Charisma modifier, plus 1d6 points of electricity damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target’s vision is also impaired, causing the target to treat all creatures as if they had concealment (20%) for 1 round. It can attempt a Fortitude saving throw to negate the impaired vision.",
+                                                                $"The arcanist can unleash a lance of lightning by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage + the arcanist’s Charisma modifier, plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of electricity damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 19th level). The target’s vision is also impaired, causing the target to treat all creatures as if they had concealment (20%) for 1 round. It can attempt a Fortitude saving throw to negate the impaired vision.",
                                                                 "",
                                                                 library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f").Icon, //air domain base ability
                                                                 null,
@@ -1907,7 +1914,7 @@ namespace CallOfTheWild
             lightning_lance = Common.AbilityToFeature(lightning_lance_ability, false);
 
             var adjacent_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity,
-                                                 Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
+                                                 Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), halfIfSaved: true);
             adjacent_damage.Half = true;
 
             var adjacent_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(adjacent_damage));
@@ -1936,14 +1943,14 @@ namespace CallOfTheWild
         static void createIceMissileAndIcyTomb()
         {
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold,
-                                                             Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+                                                             Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
             var apply_staggered = Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1), dispellable: false);
             var extra_effect = Helpers.CreateConditionalSaved(null, apply_staggered);
             var icon = library.Get<BlueprintAbility>("5e1db2ef80ff361448549beeb7785791").Icon; //ice ray from water domain
             var ice_missile_ability = Helpers.CreateAbility("IceMissileExploitAbility",
                                                         "Ice Missile",
-                                                        "The arcanist can unleash a freezing projectile by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of cold damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of cold damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). In addition, the target is staggered for 1 round. It can attempt a Fortitude saving throw to negate the staggered condition.",
+                                                        $"The arcanist can unleash a freezing projectile by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). In addition, the target is staggered for 1 round. It can attempt a Fortitude saving throw to negate the staggered condition.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
@@ -2004,12 +2011,12 @@ namespace CallOfTheWild
             var force_missile = library.Get<BlueprintAbility>("3d55cc710cc497843bb51788057cd93f");
             var magic_missile = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2");
 
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), 1, Helpers.CreateContextValue(AbilityRankType.Default)));
             damage.DamageType = Common.createForceDamageDescription();
 
             var ability = Helpers.CreateAbility("ForceStrikeExploitAbility",
                                                 "Force Strike",
-                                                "The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d4 points of force damage, plus 1 point of damage per arcanist level. Spells and effects that negate magic missile also negate this effect.",
+                                                $"The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of force damage, plus 1 point of damage per arcanist level. Spells and effects that negate magic missile also negate this effect.",
                                                 "",
                                                 force_missile.Icon,
                                                 AbilityType.Supernatural,
@@ -2045,7 +2052,7 @@ namespace CallOfTheWild
         static void createHolyWaterJet()
         {
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Holy,
-                                                             Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                             Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                                              isAoE: true, halfIfSaved: true);
             var damage = Helpers.CreateConditional(Common.createContextConditionHasFact(Common.undead),
                                                    base_damage,
@@ -2057,7 +2064,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/HolyWaterJet.png");
             var ability = Helpers.CreateAbility("HolyWaterJetExploitAbility",
                                                         "Holy Water Jet",
-                                                        "The arcanist can unleash a jet of holy water by expending 1 point from her arcane reservoir. This creates a 30-foot line of water that deals damage equal to 1d8 points of damage plus the arcanist’s Charisma modifier, plus an additional 1d8 points of damage for every 2 levels beyond 1st (to a maximum of 10d8 at 19th level) to each target in the line that would normally take damage from holy water. Creatures in the area of effect can attempt a Reflex saving throw to halve the damage.",
+                                                        $"The arcanist can unleash a jet of holy water by expending 1 point from her arcane reservoir. This creates a 30-foot line of water that deals damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage plus the arcanist’s Charisma modifier, plus an additional 1d8 points of damage for every 2 levels beyond 1st (to a maximum of 10d8 at 19th level) to each target in the line that would normally take damage from holy water. Creatures in the area of effect can attempt a Reflex saving throw to halve the damage.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
@@ -2080,12 +2087,12 @@ namespace CallOfTheWild
         static void createFlameArcAndBurningFlame()
         {
             var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, 
-                                                             Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                             Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                                              isAoE: true, halfIfSaved: true);                                  
             var icon = library.Get<BlueprintAbility>("ebade19998e1f8542a1b55bd4da766b3").Icon;
             var flame_arc_ability = Helpers.CreateAbility("FlameArcExploitAbility",
                                                         "Flame Arc",
-                                                        "The arcanist can unleash an arc of flame by expending 1 point from her arcane reservoir. This creates a 30-foot line of flame that deals 1d6 points of fire damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of fire damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level) to each target in the line. Creatures in the area of effect may attempt a Reflex saving throw to halve the damage.",
+                                                        $"The arcanist can unleash an arc of flame by expending 1 point from her arcane reservoir. This creates a 30-foot line of flame that deals 1d{BalanceFixes.getDamageDie(DiceType.D6)} points of fire damage + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of fire damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 19th level) to each target in the line. Creatures in the area of effect may attempt a Reflex saving throw to halve the damage.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
@@ -2202,14 +2209,14 @@ namespace CallOfTheWild
         static void createAcidJetAndLingeringAcid()
         {
             var acid_arrow = library.Get<BlueprintAbility>("9a46dfd390f943647ab4395fc997936d");
-            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var base_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
             var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1), dispellable: false);                                                                                                    
             var extra_effect = Helpers.CreateConditionalSaved(null, new GameAction[] { apply_sickened});
 
             var acid_jet_ability = Helpers.CreateAbility("AcidJetExploitAbility",
                                                         "Acid Jet",
-                                                        "The arcanist can unleash a jet of acid by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d6 points of acid damage + the arcanist’s Charisma modifier, plus an additional 1d6 points of acid damage for every 2 levels beyond 1st (to a maximum of 10d6 at 19th level). The target is also sickened for 1d4 rounds. It can attempt a Fortitude saving throw to negate the sickened condition.",
+                                                        $"The arcanist can unleash a jet of acid by expending 1 point from her arcane reservoir and making a ranged touch attack against any one target within close range. If the attack hits, it deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of acid damage + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D6)} at 19th level). The target is also sickened for 1d4 rounds. It can attempt a Fortitude saving throw to negate the sickened condition.",
                                                         "",
                                                         acid_arrow.Icon,
                                                         AbilityType.Supernatural,
@@ -2239,7 +2246,7 @@ namespace CallOfTheWild
 
             lingering_acid = Helpers.CreateFeature("LingeringAcidExploitFeature",
                                                    "Lingering Acid",
-                                                   "Whenever the arcanist uses the acid jet exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, the target takes additional damage on the following rounds if it fails its saving throw. The target takes 1d6 points of acid damage on the following round for every 2d6 points of acid damage dealt by the initial attack. On subsequent rounds, the target continues to take 1d6 points of acid damage for every 2d6 points of acid damage dealt on the previous round. The damage continues until the amount of acid damage dealt on the previous round by this effect is 1d6. For example, a 9th level arcanist would deal 5d6 points of acid damage + the arcanist’s Charisma modifier, 2d6 points of acid damage on the following round, and 1d6 points of acid damage on the third and final round. The arcanist must have the acid jet exploit to select this exploit.",
+                                                   $"Whenever the arcanist uses the acid jet exploit, she can expend 2 points from her arcane reservoir instead of one. If she does, the target takes additional damage on the following rounds if it fails its saving throw. The target takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage on the following round for every 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage dealt by the initial attack. On subsequent rounds, the target continues to take 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage for every 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage dealt on the previous round. The damage continues until the amount of acid damage dealt on the previous round by this effect is 1d{BalanceFixes.getDamageDieString(DiceType.D6)}. For example, a 9th level arcanist would deal 5d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage + the arcanist’s Charisma modifier, 2d6 points of acid damage on the following round, and 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage on the third and final round. The arcanist must have the acid jet exploit to select this exploit.",
                                                    "",
                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
                                                    FeatureGroup.None,
@@ -2263,13 +2270,13 @@ namespace CallOfTheWild
                 if ((i + 1) / 2 > 0)
                 {
                     var apply_extra_buff = Common.createContextActionApplyBuff(damage_buffs[(i + 1) / 2 - 1], Helpers.CreateContextDuration(1), dispellable: false);
-                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: new GameAction[] { Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0)),
+                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: new GameAction[] { Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), i + 1, 0)),
                                                                                         apply_extra_buff })
                                                 );
                 }
                 else
                 {
-                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, i + 1, 0))));
+                    damage_buffs[i].AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), i + 1, 0))));
                 }
                
                 apply_extra_damage_buff_actions[i] = Helpers.CreateActionList(Common.createContextActionApplyBuff(damage_buffs[i], Helpers.CreateContextDuration(1), dispellable: false));

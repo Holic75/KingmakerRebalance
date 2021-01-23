@@ -65,7 +65,7 @@ namespace CallOfTheWild
 
             var ability = Helpers.CreateAbility(prefix + "FleshMendAbility",
                                                 "Flesh Mend",
-                                                "As a standard action, you can expend 1 point of mental focus to heal a living creature with a touch. The creature is healed an amount of damage equal to 1d8 + your occultist level. For every 4 occultist levels you possess beyond 3rd, the creature is healed an additional 1d8 points of damage, to a maximum of 5d8+19 at 19th level. This has no effect on undead creatures. You must be at least 3rd level to select this focus power.",
+                                                $"As a standard action, you can expend 1 point of mental focus to heal a living creature with a touch. The creature is healed an amount of damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D8)} + your occultist level. For every 4 occultist levels you possess beyond 3rd, the creature is healed an additional 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage, to a maximum of 5d{BalanceFixes.getDamageDieString(DiceType.D8)}+19 at 19th level. This has no effect on undead creatures. You must be at least 3rd level to select this focus power.",
                                                 "",
                                                 icon,
                                                 AbilityType.SpellLike,
@@ -73,7 +73,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Touch,
                                                 "",
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus)))),
+                                                Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageBonus)))),
                                                 createClassScalingConfig(type: AbilityRankType.DamageBonus),
                                                 createClassScalingConfig(type: AbilityRankType.DamageDice, progression: ContextRankProgression.StartPlusDivStep, startLevel: 3, stepLevel: 4),
                                                 Common.createAbilitySpawnFx("224fb8fd952ec4d45b6d3436a77663d9", anchor: AbilitySpawnFxAnchor.SelectedTarget),

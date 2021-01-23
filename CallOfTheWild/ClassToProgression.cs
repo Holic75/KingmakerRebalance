@@ -536,6 +536,30 @@ namespace CallOfTheWild
                         c_typed.CharacterClasses = c_typed.CharacterClasses.AddToArray(class_to_add).Distinct().ToArray();
                     }
                 }
+                else if (c is DraconicBloodlineArcanaClassSpells)
+                {
+                    var c_typed = c as DraconicBloodlineArcanaClassSpells;
+                    if (!c_typed.classes.Contains(class_to_add) && c_typed.classes.Contains(class_to_check))
+                    {
+                        c_typed.classes = c_typed.classes.AddToArray(class_to_add).Distinct().ToArray();
+                    }
+                }
+                else if (c is ArcaneBloodlineArcanaOnSpecificClass)
+                {
+                    var c_typed = c as ArcaneBloodlineArcanaOnSpecificClass;
+                    if (!c_typed.classes.Contains(class_to_add) && c_typed.classes.Contains(class_to_check))
+                    {
+                        c_typed.classes = c_typed.classes.AddToArray(class_to_add).Distinct().ToArray();
+                    }
+                }
+                else if (c is NewMechanics.ContextIncreaseDescriptorSpellsDC)
+                {
+                    var c_typed = c as NewMechanics.ContextIncreaseDescriptorSpellsDC;
+                    if (c_typed == class_to_check)
+                    {
+                        feat.AddComponent(c_typed.CreateCopy(cc => cc.specific_class = class_to_add));
+                    }
+                }
                 else if (c is LearnSpellList && spells_type == DomainSpellsType.NormalList)
                 {
                     if ((c as LearnSpellList).CharacterClass == class_to_check)

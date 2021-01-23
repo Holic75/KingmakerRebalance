@@ -306,8 +306,9 @@ namespace CallOfTheWild
 
             var spell_list = library.CopyAndAdd<BlueprintSpellList>("eba577470b8ee8443bb4552433451990", "StormsSubdomainSpellList", "700ec962456941d79fc50144be87c97a");
             Common.excludeSpellsFromList(spell_list, a => false);
+            var storm_burst_ability = library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9");
             storm_domain = createSubdomain("StormsSubdomain", "Storms Subdomain",
-                                               "With power over storm and sky, you can call down the wrath of the gods upon the world below.\nStorm Burst: As a standard action, you can create a storm burst targeting any foe within 30 feet as a ranged touch attack. The storm burst deals 1d6 points of damage + 1 point for every two levels you possess in the class that gave you access to this domain. In addition, the target is buffeted by winds and rain, causing it to take a –2 penalty on attack rolls for 1 round. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\n"
+                                               $"With power over storm and sky, you can call down the wrath of the gods upon the world below.\n{storm_burst_ability.Name}: {storm_burst_ability.Description}\n"
                                                + ability.Name + ": " + ability.Description + "\n"
                                                + "Domain Spells: Obscuring Mist, Summon Small Elemental, Call Lightning, Sleet Storm, Call Lightning Storm, Sirocco, Scouring Winds, Sunburst, Tsunami.",
                                                weather_domain,
@@ -405,9 +406,9 @@ namespace CallOfTheWild
 
             var spell_list = library.CopyAndAdd<BlueprintSpellList>("9678d121f669f864d9da5dabf1ca1ce0", "LightningSubdomainSpellList", "");
             Common.excludeSpellsFromList(spell_list, a => false);
-
+            var lightning_arc_ability = library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f");
             lightning_domain = createSubdomain("LightningSubdomain", "Lightning Subdomain",
-                                               "You can manipulate lightning, mist, and wind, and are resistant to electricity damage.\nLightning Arc: As a standard action, you can unleash an arc of electricity targeting any foe within 30 feet as a ranged touch attack. This arc of electricity deals 1d6 points of electricity damage + 1 point for every two levels you possess in the class that gave you access to this domain. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\n"
+                                               $"You can manipulate lightning, mist, and wind, and are resistant to electricity damage.\n{lightning_arc_ability.Name}: {lightning_arc_ability.Description}\n"
                                                + ability.Name + ": " + ability.Description + "\n"
                                                + "Domain Spells: Shocking Grasp, Flame Blade (deals electricity damage and gains the electricity descriptor instead of fire), Lightning Bolt, Air Walk, Cloudkill, Chain Lightning, Elemental Body IV (Air), Shout, Greater, Elemental Swarm (Air).",
                                                air_domain,

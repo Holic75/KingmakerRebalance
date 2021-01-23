@@ -725,12 +725,12 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("1e418794638cf95409f6e33c8c3dbe1a"); //elemental wall acid
 
             var dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default)));
-            var dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default), 0));
-            var dmg3 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+            var dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default), 0));
+            var dmg3 = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0));
 
             var buff = Helpers.CreateBuff("CorrosiveConsumptionBuff",
                                           "Corrosive Consumption",
-                                          "With a touch, this spell causes a small, rapidly growing patch of corrosive acid to appear on the target. On the first round, the acid deals 1 point of acid damage per caster level (maximum 15). On the second round, the acid patch grows and deals 1d4 points of acid damage per caster level (maximum 15d4). On the third and final round, the acid patch covers the entire creature and deals 1d6 points of acid damage per caster level (maximum 15d6). With a touch, this spell causes a small, rapidly growing patch of corrosive acid to appear on the target. On the first round, the acid deals 1 point of acid damage per caster level (maximum 15). On the second round, the acid patch grows and deals 1d4 points of acid damage per caster level (maximum 15d4). On the third and final round, the acid patch covers the entire creature and deals 1d6 points of acid damage per caster level (maximum 15d6).",
+                                          $"With a touch, this spell causes a small, rapidly growing patch of corrosive acid to appear on the target. On the first round, the acid deals 1 point of acid damage per caster level (maximum 15). On the second round, the acid patch grows and deals 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of acid damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D4)}). On the third and final round, the acid patch covers the entire creature and deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D6)}).",
                                           "",
                                           icon,
                                           Common.createPrefabLink("4debc3ac7f4781042935ca6c61b1b0e9"), //acid theme
@@ -839,7 +839,7 @@ namespace CallOfTheWild
         {
             second_wind = Helpers.CreateAbility("SecondWindAbility",
                                                "Second Wind",
-                                               "You can cast this spell only when you have fewer than one-quarter of your total hit points. With a gasping utterance, you summon invigorating air to fill your lungs. You heal 2d8 points of damage + 1 point per caster level (maximum +10).",
+                                               $"You can cast this spell only when you have fewer than one-quarter of your total hit points. With a gasping utterance, you summon invigorating air to fill your lungs. You heal 2d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage + 1 point per caster level (maximum +10).",
                                                "",
                                                Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruction judgment
                                                AbilityType.Spell,
@@ -847,7 +847,7 @@ namespace CallOfTheWild
                                                AbilityRange.Personal,
                                                "",
                                                "",
-                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D8, 2, Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), 2, Helpers.CreateContextValue(AbilityRankType.Default)))),
                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
                                                Helpers.CreateContextRankConfig(max: 10),
                                                Common.createAbilitySpawnFx("e9399b6d57369ab4a9c3d88798d92f33", anchor: AbilitySpawnFxAnchor.SelectedTarget),
@@ -2188,7 +2188,7 @@ namespace CallOfTheWild
             var dazed = Common.dazed_non_mind_affecting;
             var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
             dmg.DamageType.Type = DamageType.Force;
 
             var effect = Helpers.CreateConditionalSaved(null,
@@ -2199,7 +2199,7 @@ namespace CallOfTheWild
 
             telekinetic_storm = Helpers.CreateAbility("TelekineticStorm",
                                                       "Telekinetic Storm",
-                                                      "You generate a storm of telekinetic energy that emanates from you, ripping through the spell’s area of effect with devastating force. Any creature caught in the spell’s radius takes 1d6 points of damage per caster level (maximum 20d6) and is dazed and stunned for 1 round. A successful Fortitude save reduces the damage by half and negates the dazed and stunned effects.\n"
+                                                      $"You generate a storm of telekinetic energy that emanates from you, ripping through the spell’s area of effect with devastating force. Any creature caught in the spell’s radius takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per caster level (maximum 20d{BalanceFixes.getDamageDieString(DiceType.D6)}) and is dazed and stunned for 1 round. A successful Fortitude save reduces the damage by half and negates the dazed and stunned effects.\n"
                                                       + "You can designate any number of creatures to be immune to the spell’s effect, though you must be capable of targeting those creatures.",
                                                       "",
                                                       burst_of_force.Icon,
@@ -2464,12 +2464,12 @@ namespace CallOfTheWild
             var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false, is_child: true, is_from_spell: true);
             var dot = Helpers.CreateBuff("PainStrikeBuff",
                                          "Pain Strike",
-                                         "Pain strike racks the targeted creature with agony, inflicting 1d6 points of damage per round for 1 round per level (maximum 10 rounds). Additionally, the affected creature is sickened for the spell’s duration.",
+                                         $"Pain strike racks the targeted creature with agony, inflicting 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per round for 1 round per level (maximum 10 rounds). Additionally, the affected creature is sickened for the spell’s duration.",
                                          "",
                                          sickened.Icon,
                                          null,
                                          Helpers.CreateAddFactContextActions(activated: apply_sickened,
-                                                                             newRound: Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 1, 0), IgnoreCritical: true)
+                                                                             newRound: Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, 0), IgnoreCritical: true)
                                                                              ),
                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
                                         );
@@ -2619,7 +2619,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("137af566f68fd9b428e2e12da43c1482");
 
             var spawn_fx = Common.createContextActionSpawnFx(Common.createPrefabLink("2a37573c2eb79f04a85d3832f1195962"));
-            var dmg1 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 3, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg1 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect1 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
                                                           Helpers.CreateConditionalSaved(new GameAction[] { dmg1, apply_sickened },
                                                                                          new GameAction[] { Helpers.Create<ContextActionKillTarget>() }
@@ -2629,7 +2629,7 @@ namespace CallOfTheWild
 
             psychic_crush[0] = Helpers.CreateAbility("PsychicCrush1Ability",
                                                      "Psychic Crush I",
-                                                     "Using your psychic power, you invade the mind of the target and tear it asunder, causing massive internal damage to both its mind and body. If the target succeeds at the initial Will save, it is sickened for 1 round. If the target fails its Will save, it must attempt a Fortitude save (with a +4 circumstance bonus on this save if it has more than half its total hit points remaining). If it also fails the Fortitude save, the target is reduced to –1 hit points and is dying. If the target succeeds at its Fortitude save, it instead takes 3d6 points of damage + 1 point of damage per caster level, which cannot reduce the target below –1 hit point, and the target is sickened for 1 round. This attack has no effect on creatures without an Intelligence score.",
+                                                     $"Using your psychic power, you invade the mind of the target and tear it asunder, causing massive internal damage to both its mind and body. If the target succeeds at the initial Will save, it is sickened for 1 round. If the target fails its Will save, it must attempt a Fortitude save (with a +4 circumstance bonus on this save if it has more than half its total hit points remaining). If it also fails the Fortitude save, the target is reduced to –1 hit points and is dying. If the target succeeds at its Fortitude save, it instead takes 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per caster level, which cannot reduce the target below –1 hit point, and the target is sickened for 1 round. This attack has no effect on creatures without an Intelligence score.",
                                                      "",
                                                      icon,
                                                      AbilityType.Spell,
@@ -2650,7 +2650,7 @@ namespace CallOfTheWild
             psychic_crush[0].setMiscAbilityParametersSingleTargetRangedHarmful(true);
             psychic_crush[0].AvailableMetamagic = Metamagic.Empower | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
 
-            var dmg2 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 5, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg2 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 5, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect2 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
                                                           Helpers.CreateConditionalSaved(new GameAction[] { dmg2, apply_sickened },
                                                                                          new GameAction[] { Helpers.Create<ContextActionKillTarget>() }
@@ -2665,7 +2665,7 @@ namespace CallOfTheWild
 
             psychic_crush[1] = Helpers.CreateAbility("PsychicCrush2Ability",
                                                      "Psychic Crush II",
-                                                     "This functions as psychic crush I, but on a successful Fortitude save, the target takes 5d6 points of damage + 1 point of damage per caster level. In addition, the target receives a +4 circumstance bonus on the Fortitude save only if it is at full hit points; otherwise, it gains a +2 bonus if it has more than half its total hit points remaining.\n"
+                                                     $"This functions as psychic crush I, but on a successful Fortitude save, the target takes 5d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per caster level. In addition, the target receives a +4 circumstance bonus on the Fortitude save only if it is at full hit points; otherwise, it gains a +2 bonus if it has more than half its total hit points remaining.\n"
                                                      + psychic_crush[0].Name + ": " + psychic_crush[0].Description,
                                                      "",
                                                      icon,
@@ -2688,7 +2688,7 @@ namespace CallOfTheWild
             psychic_crush[1].AvailableMetamagic = psychic_crush[0].AvailableMetamagic;
 
 
-            var dmg3 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 7, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg3 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 7, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect3 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
                                                           Helpers.CreateConditionalSaved(new GameAction[] { dmg3, apply_sickened },
                                                                                          new GameAction[] { Helpers.Create<ContextActionKillTarget>() }
@@ -2700,7 +2700,7 @@ namespace CallOfTheWild
 
             psychic_crush[2] = Helpers.CreateAbility("PsychicCrush3Ability",
                                                      "Psychic Crush III",
-                                                     "This functions as psychic crush I, but the target takes 7d6 points of damage + 1 point of damage per caster level on a successful Fortitude save and 1 point of damage per caster level on a successful Will save. The target receives a +2 circumstance bonus on the Fortitude save if it is at full hit points, and no bonus if it has taken any damage.\n"
+                                                     $"This functions as psychic crush I, but the target takes 7d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per caster level on a successful Fortitude save and 1 point of damage per caster level on a successful Will save. The target receives a +2 circumstance bonus on the Fortitude save if it is at full hit points, and no bonus if it has taken any damage.\n"
                                                      + psychic_crush[0].Name + ": " + psychic_crush[0].Description,
                                                      "",
                                                      icon,
@@ -2723,7 +2723,7 @@ namespace CallOfTheWild
             psychic_crush[2].AvailableMetamagic = psychic_crush[0].AvailableMetamagic;
 
 
-            var dmg4 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 9, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg4 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 9, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect4_1 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
                                                           Helpers.CreateConditionalSaved(new GameAction[] { dmg4, apply_sickened },
                                                                                          new GameAction[] { Helpers.Create<ContextActionKillTarget>() }
@@ -2736,7 +2736,7 @@ namespace CallOfTheWild
 
             psychic_crush[3] = Helpers.CreateAbility("PsychicCrush4Ability",
                                                      "Psychic Crush IV",
-                                                     "This functions as psychic crush I, but the target takes 9d6 points of damage + 1 point of damage per caster level on a successful Fortitude or Will save. The target does not receive any saving throw bonus because of its hit points. If it is at fewer than half its total hit points, it doesn’t gain a Fortitude save to resist this spell but instead proceeds as if it had automatically failed its Fortitude save.\n"
+                                                     $"This functions as psychic crush I, but the target takes 9d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per caster level on a successful Fortitude or Will save. The target does not receive any saving throw bonus because of its hit points. If it is at fewer than half its total hit points, it doesn’t gain a Fortitude save to resist this spell but instead proceeds as if it had automatically failed its Fortitude save.\n"
                                                      + psychic_crush[0].Name + ": " + psychic_crush[0].Description,
                                                      "",
                                                      icon,
@@ -2760,7 +2760,7 @@ namespace CallOfTheWild
 
 
 
-            var dmg5 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, 11, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dmg5 = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 11, Helpers.CreateContextValue(AbilityRankType.Default)));
             var effect5_1 = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude,
                                                           Helpers.CreateConditionalSaved(new GameAction[] { dmg5, apply_sickened },
                                                                                          new GameAction[] { Helpers.Create<ContextActionKillTarget>() }
@@ -2783,7 +2783,7 @@ namespace CallOfTheWild
 
             psychic_crush[4] = Helpers.CreateAbility("PsychicCrush5Ability",
                                                      "Psychic Crush V",
-                                                     "This functions as psychic crush IV, but on a successful Fortitude or Will save, the target takes 11d6 points of damage + 1 point of damage per caster level. If it is at fewer than half its total hit points, the target takes a –2 penalty on the Will save to resist this spell.\n"
+                                                     $"This functions as psychic crush IV, but on a successful Fortitude or Will save, the target takes 11d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per caster level. If it is at fewer than half its total hit points, the target takes a –2 penalty on the Will save to resist this spell.\n"
                                                      + psychic_crush[3].Name + ": " + psychic_crush[3].Description,
                                                      "",
                                                      icon,
@@ -2821,7 +2821,7 @@ namespace CallOfTheWild
         
         static void createBurstOfForce()
         {
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
             dmg.DamageType.Type = DamageType.Force;
 
             var effect = Helpers.CreateActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateConditionalSaved(null,
@@ -2831,7 +2831,7 @@ namespace CallOfTheWild
 
             burst_of_force = Helpers.CreateAbility("BurstOfForceAbility",
                                                     "Burst of Force",
-                                                    "With a burst of telekinetic force, you deal 1d6 points of force damage per caster level (maximum 15d6 points of damage) to all other creatures in the affected area. A successful Fortitude save reduces the damage taken by half. A creature that fails its Fortitude save must also succeed at a Reflex save or be knocked prone.",
+                                                    $"With a burst of telekinetic force, you deal 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of force damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage) to all other creatures in the affected area. A successful Fortitude save reduces the damage taken by half. A creature that fails its Fortitude save must also succeed at a Reflex save or be knocked prone.",
                                                     "",
                                                     Helpers.GetIcon("3cf0a759bc612264fb9b03aa2f90b24b"), //fragmentation
                                                     AbilityType.Spell,
@@ -2872,7 +2872,7 @@ namespace CallOfTheWild
 
             var synapse_overload_touch = Helpers.CreateAbility("SynapseOverloadAbility",
                                                              "Synapse Overload",
-                                                             "You cause the target’s mind to unleash a vast overflowing torrent of information throughout the target’s body, causing the target’s synapses to violently trigger. The target takes 1d6 points of electrical damage per caster level (maximum 15d6) and is staggered for 1 minute. A successful Fortitude saving throw doesn’t reduce the damage, but it negates the staggered effect.",
+                                                             $"You cause the target’s mind to unleash a vast overflowing torrent of information throughout the target’s body, causing the target’s synapses to violently trigger. The target takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electrical damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D6)}) and is staggered for 1 minute. A successful Fortitude saving throw doesn’t reduce the damage, but it negates the staggered effect.",
                                                              "",
                                                              LoadIcons.Image2Sprite.Create(@"AbilityIcons/TemporalStasis.png"),
                                                              AbilityType.Spell,
@@ -2881,7 +2881,7 @@ namespace CallOfTheWild
                                                              Helpers.oneMinuteDuration,
                                                              "Fortitude partial",
                                                              Helpers.CreateRunActions(SavingThrowType.Fortitude,
-                                                                                       Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, false),
+                                                                                       Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, false),
                                                                                        Helpers.CreateConditionalSaved(null,
                                                                                                                       Common.createContextActionApplyBuff(stagger, Helpers.CreateContextDuration(1, DurationRate.Minutes), is_from_spell: true)
                                                                                                                       )
@@ -3000,7 +3000,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource("FieryShurikenResource", "", "", "", null);
             resource.SetFixedResource(8);
 
-            var description = "You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd (to a maximum of eight shuriken at 15th level), which hover in front of you. When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d8 points of fire damage.You provoke no attacks of opportunity when launching them. Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken. If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
+            var description = $"You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd (to a maximum of eight shuriken at 15th level), which hover in front of you. When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of fire damage. You provoke no attacks of opportunity when launching them. Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken. If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
             var one_projectile_spell_swift = library.CopyAndAdd(fire_bolt, "FieryShurikenSingleProjectileAbility", "");
             one_projectile_spell_swift.SetNameDescription("Fiery Shuriken (1 Projectile, Swift)", description);
 
@@ -3012,7 +3012,7 @@ namespace CallOfTheWild
             one_projectile_spell_swift.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
             one_projectile_spell_swift.RemoveComponents<ContextRankConfig>();
             one_projectile_spell_swift.RemoveComponents<AbilityEffectRunAction>();
-            one_projectile_spell_swift.AddComponent(Helpers.CreateRunActions(Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D8, 1, 0))));
+            one_projectile_spell_swift.AddComponent(Helpers.CreateRunActions(Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), 1, 0))));
             one_projectile_spell_swift.LocalizedDuration = Helpers.CreateString("FireShurikenSingleProjectile.Duration", "");
             one_projectile_spell_swift.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Conjuration));
             one_projectile_spell_swift.AvailableMetamagic = Metamagic.Reach | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime;
@@ -3589,7 +3589,7 @@ namespace CallOfTheWild
 
             mind_thrust[0] = Helpers.CreateAbility("MindThrust1Ability",
                                                    "Mind Thrust I",
-                                                   "You divine the most vulnerable portions of your opponent’s mind and overload it with a glut of psychic information.\nThis attack deals 1d6 points of damage per caster level (maximum 5d6). The target receives a Will save for half damage.",
+                                                   $"You divine the most vulnerable portions of your opponent’s mind and overload it with a glut of psychic information.\nThis attack deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per caster level (maximum 5d{BalanceFixes.getDamageDieString(DiceType.D6)}). The target receives a Will save for half damage.",
                                                    "",
                                                    icon,
                                                    AbilityType.Spell,
@@ -3598,7 +3598,7 @@ namespace CallOfTheWild
                                                    "",
                                                    "Will half",
                                                    Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                             ),
                                                    Helpers.CreateContextRankConfig(max: 5, feature: MetamagicFeats.intensified_metamagic),
                                                    Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
@@ -3614,7 +3614,7 @@ namespace CallOfTheWild
 
             mind_thrust[1] = Helpers.CreateAbility("MindThrust2Ability",
                                        "Mind Thrust II",
-                                       "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 5d8).",
+                                       $"This functions as mind thrust I, but the target takes 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage per caster level (maximum 5d{BalanceFixes.getDamageDieString(DiceType.D8)}).",
                                        "",
                                        icon,
                                        AbilityType.Spell,
@@ -3623,7 +3623,7 @@ namespace CallOfTheWild
                                        "",
                                        "Will half",
                                        Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                                 ),
                                        Helpers.CreateContextRankConfig(max: 5, feature: MetamagicFeats.intensified_metamagic),
                                        Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
@@ -3638,7 +3638,7 @@ namespace CallOfTheWild
 
             mind_thrust[2] = Helpers.CreateAbility("MindThrust3Ability",
                            "Mind Thrust III",
-                           "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 10d8).",
+                           $"This functions as mind thrust I, but the target takes 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage per caster level (maximum 10d{BalanceFixes.getDamageDieString(DiceType.D8)}).",
                            "",
                            icon,
                            AbilityType.Spell,
@@ -3647,7 +3647,7 @@ namespace CallOfTheWild
                            "",
                            "Will half",
                            Helpers.CreateRunActions(SavingThrowType.Will,
-                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
+                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true)
                                                     ),
                            Helpers.CreateContextRankConfig(max: 10, feature: MetamagicFeats.intensified_metamagic),
                            Common.createAbilitySpawnFx("c388856d0e8855f429a83ccba67944ba", anchor: AbilitySpawnFxAnchor.SelectedTarget),
@@ -3662,7 +3662,7 @@ namespace CallOfTheWild
 
             mind_thrust[3] = Helpers.CreateAbility("MindThrust4Ability",
                                                    "Mind Thrust IV",
-                                                   "This functions as mind thrust I, but the target takes 1d8 points of damage per caster level (maximum 15d8) and is fatigued for 1 round if it fails its save.",
+                                                   $"This functions as mind thrust I, but the target takes 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D8)}) and is fatigued for 1 round if it fails its save.",
                                                    "",
                                                    icon,
                                                    AbilityType.Spell,
@@ -3671,7 +3671,7 @@ namespace CallOfTheWild
                                                    "",
                                                    "Will half",
                                                    Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                                            Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                                             Helpers.CreateConditionalSaved(null, apply_fatigued)                                                                            
                                                                             ),
                                                    Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
@@ -3687,7 +3687,7 @@ namespace CallOfTheWild
 
             mind_thrust[4] = Helpers.CreateAbility("MindThrust5Ability",
                                        "Mind Thrust V",
-                                       "This functions as mind thrust IV, but the target is also exhausted for 1 round if it fails its save and fatigued for 1 round if it succeeds at its save.",
+                                       $"This functions as mind thrust IV, but the target is also exhausted for 1 round if it fails its save and fatigued for 1 round if it succeeds at its save.",
                                        "",
                                        icon,
                                        AbilityType.Spell,
@@ -3696,7 +3696,7 @@ namespace CallOfTheWild
                                        "",
                                        "Will partial",
                                        Helpers.CreateRunActions(SavingThrowType.Will,
-                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                                Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                                 Helpers.CreateConditionalSaved(apply_fatigued, apply_exhausted)
                                                                 ),
                                        Helpers.CreateContextRankConfig(max: 15, feature: MetamagicFeats.intensified_metamagic),
@@ -3712,7 +3712,7 @@ namespace CallOfTheWild
 
             mind_thrust[5] = Helpers.CreateAbility("MindThrust6Ability",
                            "Mind Thrust VI",
-                           "This functions as mind thrust V, but the target takes 1d8 points of damage per caster level (maximum 20d8) and is exhausted and stunned for 1 round if it fails its save.",
+                           $"This functions as mind thrust V, but the target takes 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage per caster level (maximum 20d{BalanceFixes.getDamageDieString(DiceType.D8)}) and is exhausted and stunned for 1 round if it fails its save.",
                            "",
                            icon,
                            AbilityType.Spell,
@@ -3721,7 +3721,7 @@ namespace CallOfTheWild
                            "",
                            "Will partial",
                            Helpers.CreateRunActions(SavingThrowType.Will,
-                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
+                                                    Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default), 0), false, true),
                                                     Helpers.CreateConditionalSaved(new GameAction[] { apply_fatigued }, new GameAction[] { apply_stunned, apply_exhausted })
                                                     ),
                            Helpers.CreateContextRankConfig(max: 20, feature: MetamagicFeats.intensified_metamagic),
@@ -4129,7 +4129,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff("SandsOfTimeBuff",
                                           "Sands of Time",
                                           "You temporarily age the target, immediately advancing it to the next age category. The target immediately takes the age penalties to Strength, Dexterity, and Constitution for its new age category, but does not gain the bonuses for that category. A creature whose age is unknown is treated as if the spell advances it to old age (-2 to Strength, Dexterity and Constitution). Ageless or immortal creatures are immune to this spell.\n"
-                                          + "If you cast this on an object, construct, or undead creature, it takes 3d6 points of damage + 1 point per caster level (maximum + 15) as time weathers and corrodes it. This version of the spell has an instantaneous duration.",
+                                          + $"If you cast this on an object, construct, or undead creature, it takes 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point per caster level (maximum + 15) as time weathers and corrodes it. This version of the spell has an instantaneous duration.",
                                           "",
                                           icon,
                                           null,
@@ -4138,7 +4138,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.Constitution, -2, ModifierDescriptor.UntypedStackable)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.TenMinutes), is_from_spell: true);
-            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 3, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3, Helpers.CreateContextValue(AbilityRankType.Default)));
 
             var action = Helpers.CreateConditional(Common.createContextConditionHasFacts(all: false, Common.undead, Common.construct), deal_damage, apply_buff);
             var sands_of_time_touch = Helpers.CreateAbility("SandsOfTimeTouchAbility",
@@ -4277,7 +4277,7 @@ namespace CallOfTheWild
                                                       null
                                                       );
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 6));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 6));
 
 
             
@@ -4329,7 +4329,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterBuff",
                                                   "Aggressive Thundercloud, Greater",
-                                                  "This spell functions as aggressive thundercloud, except it deals 6d6 points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
+                                                  $"This spell functions as aggressive thundercloud, except it deals 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
                                                   + "Aggressive Thundercloud: " + aggressive_thundercloud.Description,
                                                   "",
                                                   icon,
@@ -4417,7 +4417,7 @@ namespace CallOfTheWild
                                       null
                                       );
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D6, 3));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3));
             var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
                                                      new GameAction[0], 
                                                      new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))),
@@ -4440,7 +4440,7 @@ namespace CallOfTheWild
 
             var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
                                                   "Aggressive Thundercloud",
-                                                  "A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d6 points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
+                                                  $"A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
                                                   + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
                                                   "",
                                                   icon,
@@ -4515,7 +4515,7 @@ namespace CallOfTheWild
             var buff = Helpers.CreateBuff("ScouringWindsTargetBuff",
                               "Scouring Winds",
                               "This spell brings forth a windstorm of stinging sand that blocks all vision. You can move the storm to any area within medium range of you as move action.\n"
-                              + "Any creature in the area takes 3d6 points of piercing damage each round. The area is considered a windstorm, creatures of medium size or smaller need to make a DC 10 Strength check or be unable to move. Creatures of small size or smaller are knocked prone and take additional 2d6 bludgeoning damage unless they succeed on a DC 15 Strength check.\n"
+                              + $"Any creature in the area takes 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of piercing damage each round. The area is considered a windstorm, creatures of medium size or smaller need to make a DC 10 Strength check or be unable to move. Creatures of small size or smaller are knocked prone and take additional 2d{BalanceFixes.getDamageDieString(DiceType.D6)} bludgeoning damage unless they succeed on a DC 15 Strength check.\n"
                               + "Ranged attacks are impossible in the area.",
                               "",
                               icon,
@@ -4546,7 +4546,7 @@ namespace CallOfTheWild
 
             var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
 
-            var dmg_regular = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, Helpers.CreateContextDiceValue(DiceType.D6, 3, 0), isAoE: true);
+            var dmg_regular = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3, 0), isAoE: true);
             var check_movement = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
                                                                            Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
                                                            Common.createContextActionSkillCheck(StatType.Strength,
@@ -4557,7 +4557,7 @@ namespace CallOfTheWild
                                                                         Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
                                                Common.createContextActionSkillCheck(StatType.Strength,
                                                                                     failure: Helpers.CreateActionList(Helpers.Create<ContextActionKnockdownTarget>(), 
-                                                                                                                      Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2, 0))
+                                                                                                                      Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 2, 0))
                                                                                                                      ),
                                                                                     custom_dc: 15)
                                                );
@@ -4658,7 +4658,7 @@ namespace CallOfTheWild
 
             wall_of_fire = library.CopyAndAdd<BlueprintAbility>("77d255c06e4c6a745b807400793cf7b1", "WallOfFireSpellAbility", "");
             wall_of_fire.SetNameDescriptionIcon("Wall of Fire",
-                                                "An immobile, blazing curtain of shimmering violet fire springs into existence. The wall deals 2d6 points of fire damage + 1 point of fire damage per caster level (maximum +20) to any creature that attempts to pass through and to any creature that ends turn in its area. The wall deals double damage to undead creatures.",
+                                                $"An immobile, blazing curtain of shimmering violet fire springs into existence. The wall deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage + 1 point of fire damage per caster level (maximum +20) to any creature that attempts to pass through and to any creature that ends turn in its area. The wall deals double damage to undead creatures.",
                                                 icon);
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
 
@@ -4690,7 +4690,7 @@ namespace CallOfTheWild
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>(obscuring_mist_area.AssetGuid, "IncendiaryCloudAbilityArea", "");
             area.AddComponent(Helpers.CreateAreaEffectRunAction(round: Helpers.CreateActionSavingThrow(SavingThrowType.Reflex,
                                                                                                        Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
-                                                                                                       Helpers.CreateContextDiceValue(DiceType.D6, 6, 0), halfIfSaved: true, isAoE: true))));
+                                                                                                       Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 6, 0), halfIfSaved: true, isAoE: true))));
             area.Fx = steam_cloud_area.Fx;
             area.AffectEnemies = true;
             area.AggroEnemies = true;
@@ -4698,7 +4698,7 @@ namespace CallOfTheWild
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
             incendiary_cloud = Helpers.CreateAbility("IncendiaryCloudAbility",
                                                      "Incendiary Cloud",
-                                                     "An incendiary cloud spell creates a cloud of roiling smoke shot through with white-hot embers. The smoke obscures all sight as a fog cloud does. In addition, the white-hot embers within the cloud deal 6d6 points of fire damage to everything within the cloud on your turn each round. All targets can make Reflex saves each round to take half damage.",
+                                                     $"An incendiary cloud spell creates a cloud of roiling smoke shot through with white-hot embers. The smoke obscures all sight as a fog cloud does. In addition, the white-hot embers within the cloud deal 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage to everything within the cloud on your turn each round. All targets can make Reflex saves each round to take half damage.",
                                                      "",
                                                      icon,
                                                      AbilityType.Spell,
@@ -5066,11 +5066,11 @@ namespace CallOfTheWild
                                              null);
             on_hit_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 24), true, true);
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 24), true, true);
             var main_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(damage));
             Common.addConditionalDCIncrease(main_action, Helpers.CreateConditionsCheckerOr(Common.createContextConditionHasBuffFromCaster(on_hit_buff)), 4);
 
-            var on_hit_actions = new GameAction[]{Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2)),
+            var on_hit_actions = new GameAction[]{Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 2)),
                                                   Common.createContextActionApplyBuff(on_hit_buff, Helpers.CreateContextDuration(1)),
                                                  };
 
@@ -5079,8 +5079,8 @@ namespace CallOfTheWild
             meteor_swarm = Helpers.CreateAbility("MeteorSwarmAbility",
                                                  "Meteor Swarm",
                                                  "Meteor swarm is a very powerful and spectacular spell that is similar to fireball in many aspects.\n"
-                                                 + "When you cast it, a rain of meteors falls on the area. You make a ranged touch attack against creatures in the area to see if meteors has stuck them. Any creature struck by a meteor takes 2d6 points of bludgeoning damage (no save) and takes a -4 penalty on the saving throw against the meteor’s fire damage (see below). If a meteor misses its target, it simply explodes at the nearest corner of the target’s space.\n"
-                                                 + "Once meteors land, they explode, dealing 24d6 damage to each creature in the area.",
+                                                 + $"When you cast it, a rain of meteors falls on the area. You make a ranged touch attack against creatures in the area to see if meteors has stuck them. Any creature struck by a meteor takes 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of bludgeoning damage (no save) and takes a -4 penalty on the saving throw against the meteor’s fire damage (see below). If a meteor misses its target, it simply explodes at the nearest corner of the target’s space.\n"
+                                                 + $"Once meteors land, they explode, dealing 24d{BalanceFixes.getDamageDieString(DiceType.D6)} damage to each creature in the area.",
                                                  "",
                                                  icon,
                                                  AbilityType.Spell,
@@ -5217,7 +5217,7 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon;//charged blast
             var deliver_projectile = library.Get<BlueprintAbility>("963da934d652bdc41900ed68f63ca1fa").GetComponent<AbilityDeliverProjectile>(); //from water blast
 
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true, halfIfSaved: true);
             var knock_out = Helpers.CreateConditional(Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
                                                       Helpers.Create<ContextActionKnockdownTarget>());
             var move = Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(c => c.distance_dice = Helpers.CreateContextDiceValue(DiceType.D4, 5, 0));
@@ -5225,7 +5225,7 @@ namespace CallOfTheWild
 
             tidal_surge = Helpers.CreateAbility("TidalSurgeAbility",
                                                 "Tidal Surge",
-                                                "You create an onrushing surge of water 10 feet high in a 30 - foot cone that deals 1d6 points of bludgeoning damage for every 2 caster levels you have (maximum 10d6 at 20th level). In addition to taking damage, creatures that fail their Reflex saves are pushed 1d4×5 feet away from you, and Medium or smaller creatures are also knocked prone.",
+                                                $"You create an onrushing surge of water 10 feet high in a 30 - foot cone that deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of bludgeoning damage for every 2 caster levels you have (maximum 10d{BalanceFixes.getDamageDieString(DiceType.D6)} at 20th level). In addition to taking damage, creatures that fail their Reflex saves are pushed 1d4×5 feet away from you, and Medium or smaller creatures are also knocked prone.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -5918,8 +5918,8 @@ namespace CallOfTheWild
             var activatable_ability = Helpers.CreateActivatableAbility("FieryRunesDischargeActivatableAbility",
                                                                        "Fiery Runes: Discharge",
                                                                        "You charge a target's weapon with a magic rune of fire.\n"
-                                                                       + "When the wielder of the weapon successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d4 + 1 points of fire damage to the target. This damage isn’t multiplied on a critical hit.\n"
-                                                                       + "For every 2 caster levels beyond 3rd the caster possesses, the rune deals an additional 1d4 + 1 points of fire damage (2d4 + 2 at caster level 5th, 3d4 + 3 at 7th, and so on) to a maximum of 5d4 + 5 points of fire damage at caster level 11th.",
+                                                                       + $"When the wielder of the weapon successfully strikes a foe in melee with the weapon, it can discharge the rune as a swift action to deal 1d{BalanceFixes.getDamageDieString(DiceType.D4)} + 1 points of fire damage to the target. This damage isn’t multiplied on a critical hit.\n"
+                                                                       + $"For every 2 caster levels beyond 3rd the caster possesses, the rune deals an additional 1d{BalanceFixes.getDamageDieString(DiceType.D4)} + 1 points of fire damage (2d{BalanceFixes.getDamageDieString(DiceType.D4)} + 2 at caster level 5th, 3d{BalanceFixes.getDamageDieString(DiceType.D4)} + 3 at 7th, and so on) to a maximum of 5d{BalanceFixes.getDamageDieString(DiceType.D4)} + 5 points of fire damage at caster level 11th.",
                                                                        "",
                                                                        icon,
                                                                        allow_buff,
@@ -5927,7 +5927,7 @@ namespace CallOfTheWild
                                                                        UnitCommand.CommandType.Swift,
                                                                        null
                                                                        );
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                                                      IgnoreCritical: true);
 
             var effect = Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionMainTargetHasFact>(c => c.Fact = allow_buff), dmg);
@@ -6063,11 +6063,11 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Rebuke.png");
 
-            var sonic_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)),
+            var sonic_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default)),
                             isAoE: true, halfIfSaved: true);
             sonic_dmg1.Half = true;
 
-            var holy_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)),
+            var holy_dmg1 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default)),
                 isAoE: true, halfIfSaved: true);
             holy_dmg1.Half = true;
 
@@ -6076,11 +6076,11 @@ namespace CallOfTheWild
             var effect1 = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(staggered, Helpers.CreateContextDuration(1)));
 
 
-            var sonic_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+            var sonic_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Sonic, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                 isAoE: true, halfIfSaved: true);
             sonic_dmg2.Half = true;
 
-            var holy_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+            var holy_dmg2 = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                 isAoE: true, halfIfSaved: true);
             holy_dmg2.Half = true;
 
@@ -6099,7 +6099,7 @@ namespace CallOfTheWild
             rebuke = Helpers.CreateAbility("RebukeAbility",
                                            "Rebuke",
                                            "Your wrathful words cause physical harm to your enemies.\n"
-                                           + "Your enemies take 1d8 points of damage per two caster levels(maximum 5d8) and are staggered for 1 round. Half of this damage is sonic damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to sonic - based attacks.Rebuke is especially devastating to foes who worship your god, inflicting 1d6 points of damage per caster level(maximum 10d6) and stunning them for 1d4 rounds. A successful Fortitude save halves the damage and negates the staggering or stunning effect.",
+                                           + $"Your enemies take 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage per two caster levels (maximum 5d{BalanceFixes.getDamageDieString(DiceType.D8)}) and are staggered for 1 round. Half of this damage is sonic damage, but the other half results directly from divine power and is therefore not subject to being reduced by resistance to sonic - based attacks.Rebuke is especially devastating to foes who worship your god, inflicting 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per caster level (maximum 10d{BalanceFixes.getDamageDieString(DiceType.D6)}) and stunning them for 1d4 rounds. A successful Fortitude save halves the damage and negates the staggering or stunning effect.",
                                            "",
                                            icon,
                                            AbilityType.Spell,
@@ -6133,7 +6133,7 @@ namespace CallOfTheWild
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, 1, 0));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, 0));
             dmg.DamageType.Type = DamageType.Direct;
 
             var dex_dmg = Helpers.CreateActionDealDamage(StatType.Dexterity, Helpers.CreateContextDiceValue(DiceType.Zero, 0, 2));
@@ -6162,7 +6162,7 @@ namespace CallOfTheWild
 
             var ability = Helpers.CreateAbility("FleshwormInfestationAbility",
                                                 "Fleshworm Infestation",
-                                                "With a touch, you cause an infestation of ravenous worms to manifest in the target’s flesh. The target must make a Fortitude save every round. Failure means it takes 1d6 hit points of damage and 2 points of Dexterity damage, and is staggered for 1 round. If it makes the save, it takes no hit point or Dexterity damage and is only sickened for 1 round rather than staggered. Fleshworm infestation cannot be ended early by remove disease or heal, as the infestation starts anew if the current worms are slain. Protection from evil negates this spell’s effects for as long as the two durations overlap.",
+                                                $"With a touch, you cause an infestation of ravenous worms to manifest in the target’s flesh. The target must make a Fortitude save every round. Failure means it takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points of damage and 2 points of Dexterity damage, and is staggered for 1 round. If it makes the save, it takes no hit point or Dexterity damage and is only sickened for 1 round rather than staggered. Fleshworm infestation cannot be ended early by remove disease or heal, as the infestation starts anew if the current worms are slain. Protection from evil negates this spell’s effects for as long as the two durations overlap.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -6279,7 +6279,7 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ForcefulStrike.png");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Holy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
             dmg.DamageType.Type = DamageType.Force;
 
             var bull_rush = Helpers.Create<ContextActionCombatManeuver>(c => { c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.BullRush; c.IgnoreConcealment = true; c.OnSuccess = Helpers.CreateActionList(); });
@@ -6313,7 +6313,7 @@ namespace CallOfTheWild
 
             forceful_strike = Helpers.CreateAbility("ForcefulStrikeAbility",
                                                     "Forceful Strike",
-                                                    "You cast this spell as you strike a creature with a melee weapon, unarmed strike, or natural attack to unleash a concussive blast of force. You deal normal weapon damage from the blow, but also deal an additional amount of force damage equal to 1d4 points per caster level (maximum of 10d4). The force of the blow may be enough to knock the target backward as well. To determine if the target is pushed back, make a combat maneuver check with a bonus equal to your caster level to resolve a bull rush attempt against the creature struck. You do not move as a result of this free bull rush, but it can push the target back if it defeats the target’s CMD. A successful Fortitude save halves the force damage and negates the bull rush effect.",
+                                                    $"You cast this spell as you strike a creature with a melee weapon, unarmed strike, or natural attack to unleash a concussive blast of force. You deal normal weapon damage from the blow, but also deal an additional amount of force damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points per caster level (maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D4)}). The force of the blow may be enough to knock the target backward as well. To determine if the target is pushed back, make a combat maneuver check with a bonus equal to your caster level to resolve a bull rush attempt against the creature struck. You do not move as a result of this free bull rush, but it can push the target back if it defeats the target’s CMD. A successful Fortitude save halves the force damage and negates the bull rush effect.",
                                                     "",
                                                     icon,
                                                     AbilityType.Spell,
@@ -6494,8 +6494,8 @@ namespace CallOfTheWild
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/FreezingSphere.png");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
-            var dmg_water = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
+            var dmg_water = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
 
             var stagger_buff = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
             var apply_staggered = Common.createContextActionApplyBuff(stagger_buff, Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1));
@@ -6507,7 +6507,7 @@ namespace CallOfTheWild
 
             freezing_sphere = Helpers.CreateAbility("FreezingSphereAbility",
                                                     "Freezing Sphere",
-                                                    "Freezing sphere creates a frigid globe of cold energy that streaks from your fingertips to the location you select, where it explodes in a 40-foot-radius burst, dealing 1d6 points of cold damage per caster level (maximum 15d6) to each creature in the area. A creature of the water subtype instead takes 1d8 points of cold damage per caster level (maximum 15d8) and is staggered for 1d4 rounds.",
+                                                    $"Freezing sphere creates a frigid globe of cold energy that streaks from your fingertips to the location you select, where it explodes in a 40-foot-radius burst, dealing 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D6)}) to each creature in the area. A creature of the water subtype instead takes 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of cold damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D8)}) and is staggered for 1d4 rounds.",
                                                     "",
                                                     icon,
                                                     AbilityType.Spell,
@@ -6624,7 +6624,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("ParticulateFormBuff",
                                           "Particulate Form",
-                                          "The targets’ physical forms undergo a bizarre transformation. They look and function normally, but are composed of countless particles that separate and reconnect to remain whole. Each target gains fast healing 1 and is immune to bleed damage, critical hits, sneak attacks, and other forms of precision damage. The value of this fast healing increases by 1 at caster levels 10th, 15th, and 20th. Any target can end the spell effect on itself as a swift action; the target then regains 5d6 hit points.",
+                                          $"The targets’ physical forms undergo a bizarre transformation. They look and function normally, but are composed of countless particles that separate and reconnect to remain whole. Each target gains fast healing 1 and is immune to bleed damage, critical hits, sneak attacks, and other forms of precision damage. The value of this fast healing increases by 1 at caster levels 10th, 15th, and 20th. Any target can end the spell effect on itself as a swift action; the target then regains 5d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points.",
                                           "",
                                           icon,
                                           null,
@@ -6646,7 +6646,7 @@ namespace CallOfTheWild
                                                                AbilityRange.Personal,
                                                                "",
                                                                "",
-                                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, 5)),
+                                                               Helpers.CreateRunActions(Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 5)),
                                                                                         Common.createContextActionRemoveBuff(buff)
                                                                                         )
                                                                );
@@ -6930,18 +6930,18 @@ namespace CallOfTheWild
             resource.SetFixedResource(30);
 
             var alchemist_bomb = library.Get<BlueprintAbility>("5fa0111ac60ed194db82d3110a9d0352");
-            var description = "Acorns turn into special thrown splash weapons. An acorn grenade has a range of 25 feet. A ranged touch attack roll is required to strike the intended target. Together, the acorns are capable of dealing 1d4 points of fire damage per caster level (maximum 20d4) divided among the acorns as you wish. No acorn can deal more than 10d4 points of damage.\n"
+            var description = $"Acorns turn into special thrown splash weapons. An acorn grenade has a range of 25 feet. A ranged touch attack roll is required to strike the intended target. Together, the acorns are capable of dealing 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of fire damage per caster level (maximum 20d{BalanceFixes.getDamageDieString(DiceType.D4)}) divided among the acorns as you wish. No acorn can deal more than 10d{BalanceFixes.getDamageDieString(DiceType.D4)} points of damage.\n"
                               + "Each acorn grenade explodes upon striking any hard surface. In addition to its regular fire damage, all creatures adjacent to the explosion take 1 point of fire damage per die of the explosion.This explosion of fire ignites any combustible materials adjacent to the target.";
 
             for (int i = 1; i <= 10; i++)
             {
-                var primary_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D4, i));
+                var primary_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), i));
                 var secondary_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.Zero, 0, i));
 
                 var conditional = Helpers.CreateConditional(Helpers.Create<ContextConditionIsMainTarget>(), new GameAction[] { primary_damage, secondary_damage }, new GameAction[] { secondary_damage });
 
                 var ability = Helpers.CreateAbility($"FireSeeds{i}Ability",
-                                                    $"Fire Seeds ({i}d4)",
+                                                    $"Fire Seeds ({i}d{BalanceFixes.getDamageDieString(DiceType.D4)})",
                                                     description,
                                                     "",
                                                     icon,
@@ -7098,13 +7098,13 @@ namespace CallOfTheWild
             var construct = library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f");
             var elemental = library.Get<BlueprintFeature>("198fd8924dabcb5478d0f78bd453c586");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                                      halfIfSaved: true);
             dmg.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
 
             var buff = Helpers.CreateBuff("RigorMortisBuff",
                                           "Rigor Mortis",
-                                          "The joints of a creature affected by this spell stiffen and swell, making movement painful and slow. The target takes 1d6 points of damage per caster level. Additionally, the target takes a –4 penalty to Dexterity and its movement speed decreases by 10 feet; these additional effects last for 1 minute per caster level. A successful save halves the damage and negates the penalty to Dexterity and movement.",
+                                          $"The joints of a creature affected by this spell stiffen and swell, making movement painful and slow. The target takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per caster level. Additionally, the target takes a –4 penalty to Dexterity and its movement speed decreases by 10 feet; these additional effects last for 1 minute per caster level. A successful save halves the damage and negates the penalty to Dexterity and movement.",
                                           "",
                                           icon,
                                           null,
@@ -7151,7 +7151,7 @@ namespace CallOfTheWild
 
             var burn1d6 = library.Get<BlueprintBuff>("e92ecaa76b5db674fa5b0aaff5b21bc9");
             var apply_burn = Common.createContextActionApplyBuff(burn1d6, Helpers.CreateContextDuration(), is_permanent: true);
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)), isAoE: true);
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice)), isAoE: true);
             var saved_dmg = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(new GameAction[0], 
                                                                                                                                                   new GameAction[] { dmg, apply_burn })));
 
@@ -7165,7 +7165,7 @@ namespace CallOfTheWild
             area.SpellResistance = true;
             flashfire = Helpers.CreateAbility("FlashfireAbility",
                                                 "Flashfire",
-                                                "You cause flames to spring up in a 30-ft line, these flames deal 1d6 points of fire damage for every 3 caster levels you have (maximum 5d6) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire.",
+                                                $"You cause flames to spring up in a 30-ft line, these flames deal 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage for every 3 caster levels you have (maximum 5d{BalanceFixes.getDamageDieString(DiceType.D6)}) to each creature that enters a burning area or begins its turn in the area; these creatures also catch on fire. A creature that succeeds at a Reflex save negates the damage and avoids catching on fire.",
                                                 "",
                                                 icon,
                                                 AbilityType.Spell,
@@ -7235,12 +7235,12 @@ namespace CallOfTheWild
         static void createStrickenHeart()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/StrickenHeart.png");
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, 2, 0));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 2, 0));
 
             var frigid_touch = library.Get<BlueprintAbility>("c83447189aabc72489164dfc246f3a36");
             var ability = Helpers.CreateAbility("StrickenHeartAbility",
                                                "Stricken Heart",
-                                               "This spell covers your hand with a writhing black aura. As part of casting the spell, you can make a melee touch attack that deals 2d6 points of negative energy damage and causes the target to be staggered for 1 round. If the attack is a critical hit, the target is staggered for 1 minute instead. Creatures immune to precision damage are immune to the staggered effect.",
+                                               $"This spell covers your hand with a writhing black aura. As part of casting the spell, you can make a melee touch attack that deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of negative energy damage and causes the target to be staggered for 1 round. If the attack is a critical hit, the target is staggered for 1 minute instead. Creatures immune to precision damage are immune to the staggered effect.",
                                                "",
                                                icon,
                                                AbilityType.Spell,
@@ -7267,9 +7267,8 @@ namespace CallOfTheWild
 
         static void createRiverOfWind()
         {
-
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 4), true, true);
-            var dmg2 = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D6, 2), true, true);
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 4), true, true);
+            var dmg2 = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 2), true, true);
             var saved = Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKnockdownTarget>());
             var effect = Helpers.CreateConditional(Helpers.CreateConditionHasFact(immunity_to_wind),
                                                    null,
@@ -7287,8 +7286,8 @@ namespace CallOfTheWild
             area.SpellResistance = true;
             river_of_wind = Helpers.CreateAbility("RiverOfWindAbility",
                                                   "River of Wind",
-                                                  "Summoning up the power of the tempest, you direct a current of forceful winds where you please. This spell creates a 5-foot-diameter 60-foot length line of wind where you designate, it remains constant in that direction for the spell duration. Creatures caught in a river of wind take 4d6 bludgeoning damage and are knocked prone. A successful Fortitude save halves the damage and prevents being knocked prone.\n"
-                                                  + "On every next round a creature that is wholly or partially within a river of wind must make a Fortitude save or take 2d6 bludgeoning damage, and be knocked prone - a successful Fortitude save means the creature merely takes 1d6 bludgeoning damage. Creatures under the effect of freedom of movement and creatures with the air subtype are unaffected by a river of wind.",
+                                                  $"Summoning up the power of the tempest, you direct a current of forceful winds where you please. This spell creates a 5-foot-diameter 60-foot length line of wind where you designate, it remains constant in that direction for the spell duration. Creatures caught in a river of wind take 4d{BalanceFixes.getDamageDieString(DiceType.D6)} bludgeoning damage and are knocked prone. A successful Fortitude save halves the damage and prevents being knocked prone.\n"
+                                                  + $"On every next round a creature that is wholly or partially within a river of wind must make a Fortitude save or take 2d{BalanceFixes.getDamageDieString(DiceType.D6)} bludgeoning damage, and be knocked prone - a successful Fortitude save means the creature merely takes 1d6 bludgeoning damage. Creatures under the effect of freedom of movement and creatures with the air subtype are unaffected by a river of wind.",
                                                   "",
                                                   icon,
                                                   AbilityType.Spell,
@@ -7328,7 +7327,7 @@ namespace CallOfTheWild
         {
             var icon = library.Get<BlueprintFeature>("f2fa7541f18b8af4896fbaf9f2a21dfe").Icon;//cyclone infusion
 
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D8, 5), false, true);
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), 5), false, true);
             var saved = Helpers.CreateConditionalSaved(null, Helpers.Create<ContextActionKnockdownTarget>());
             var cooldown_buff = Helpers.CreateBuff("WindsOfVengeanceCooldownBuff",
                                                    "Winds of Vengeance: Cooldown",
@@ -7350,7 +7349,7 @@ namespace CallOfTheWild
                                           "Winds of Vengeance",
                                           "You surround yourself with a buffeting shroud of supernatural, tornado-force winds. These winds grant you ability to fly and a 30-ft bonus to speed.  The winds shield you from any other wind effects, and form a shell of breathable air around you, allowing you to fly and breathe underwater or in outer space.\n"
                                           + "Ranged weapons (including giant - thrown boulders, siege weapon projectiles, and other massive ranged weapons) passing through the winds are deflected by the winds and automatically miss you. Gases and most gaseous breath weapons cannot pass though the winds.\n"
-                                          + "In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d8 points of bludgeoning damage and be knocked prone.\n"
+                                          + $"In addition, once per round, when a creature hits you with a melee attack, winds lash out at that creature. The creature must make a Fortitude Saving Throw or take 5d{BalanceFixes.getDamageDieString(DiceType.D8)} points of bludgeoning damage and be knocked prone.\n"
                                           + "On a successful save, the damage is halved and the creature is not knocked prone.",
                                           "",
                                           icon,
@@ -7397,7 +7396,7 @@ namespace CallOfTheWild
 
             burst_of_radiance.RemoveComponents<SpellListComponent>();
             burst_of_radiance.SetName("Burst of Radiance");
-            burst_of_radiance.SetDescription("This spell fills the area with a brilliant flash of shimmering light. Creatures in the area are blinded for 1d4 rounds, or dazzled for 1d4 rounds if they succeed at a Reflex save. Evil creatures in the area of the burst take 1d4 points of damage per caster level (max 5d4), whether they succeed at the Reflex save or not.");
+            burst_of_radiance.SetDescription($"This spell fills the area with a brilliant flash of shimmering light. Creatures in the area are blinded for 1d4 rounds, or dazzled for 1d4 rounds if they succeed at a Reflex save. Evil creatures in the area of the burst take 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of damage per caster level (max 5d{BalanceFixes.getDamageDieString(DiceType.D4)}), whether they succeed at the Reflex save or not.");
             burst_of_radiance.LocalizedSavingThrow = Helpers.CreateString("BurstOfRadianceAbility.SavingThrow", "Reflex partial");
             burst_of_radiance.Range = AbilityRange.Long;
             burst_of_radiance.AvailableMetamagic = Metamagic.Quicken | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Empower | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral  | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
@@ -7410,7 +7409,7 @@ namespace CallOfTheWild
             var effect = Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(dazzled, duration, is_from_spell: true),
                                                         Common.createContextActionApplyBuff(blind, duration, is_from_spell: true));
 
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true);
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default)), isAoE: true);
 
             var apply_damage = Helpers.CreateConditional(Helpers.CreateContextConditionAlignment(AlignmentComponent.Evil),
                                                          damage);
@@ -7601,8 +7600,8 @@ namespace CallOfTheWild
             var entnagle_buff = library.Get<BlueprintBuff>("f7f6330726121cf4b90a6086b05d2e38");
 
             var dmg = Helpers.CreateConditional(Helpers.CreateConditionHasFact(entnagle_buff),
-                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 4), halfIfSaved: true),
-                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D6, 2), halfIfSaved: true)
+                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 4), halfIfSaved: true),
+                                                Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 2), halfIfSaved: true)
                                                );
             var save_action = Helpers.CreateActionSavingThrow(SavingThrowType.Reflex, dmg);
 
@@ -7629,7 +7628,7 @@ namespace CallOfTheWild
             burning_entanglement.AvailableMetamagic = burning_entanglement.AvailableMetamagic | Metamagic.Empower | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental;
 
             burning_entanglement.SetNameDescriptionIcon("Burning Entanglement",
-                                                        "This spell functions as per entangle, except it sets the foliage on fire. A creature that begins its turn entangled by the spell takes 4d6 points of fire damage (Reflex half), and a creature that begins its turn in the area but is not entangled takes 2d6 points of fire damage (Reflex negates). Smoke rising from the vines partially obscures visibility. Creatures can see things in the smoke within 5 feet clearly, but attacks against anything farther away in the smoke must contend with concealment (20% miss chance). When the spell’s duration expires, the vines burn away entirely.",
+                                                        $"This spell functions as per entangle, except it sets the foliage on fire. A creature that begins its turn entangled by the spell takes 4d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage (Reflex half), and a creature that begins its turn in the area but is not entangled takes 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage (Reflex negates). Smoke rising from the vines partially obscures visibility. Creatures can see things in the smoke within 5 feet clearly, but attacks against anything farther away in the smoke must contend with concealment (20% miss chance). When the spell’s duration expires, the vines burn away entirely.",
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/BurningEntanglement.png")
                                                         );
             burning_entanglement.LocalizedDuration = Helpers.CreateString("BurningEntanglementAbility.Duration", Helpers.roundsPerLevelDuration);
@@ -7837,9 +7836,9 @@ namespace CallOfTheWild
         static void createExplosionOfRot()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/ExplosionOfRot.png");
-            var normal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+            var normal_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                                                      isAoE: true, halfIfSaved: true);
-            var plant_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+            var plant_dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Unholy, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice), Helpers.CreateContextValue(AbilityRankType.DamageDice)));
 
             var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
 
@@ -7855,7 +7854,7 @@ namespace CallOfTheWild
 
             explosion_of_rot = Helpers.CreateAbility("ExplosionOfRotAbility",
                                                      "Explosion of Rot",
-                                                     "You call forth a burst of decay that ravages all creatures in the area. Even nonliving creatures such as constructs and undead crumble or wither in this malignant eruption of rotting energy. Creatures in the area of effect take 1d6 points of damage per caster level (maximum 15d6) and are staggered for 1d4 rounds. A target that succeeds at a Reflex saving throw takes half damage and negates the staggered effect. Plant creatures are particularly susceptible to this rotting effect; a plant creature caught in the burst takes a –2 penalty on the saving throw and takes 1 extra point of damage per die.",
+                                                     $"You call forth a burst of decay that ravages all creatures in the area. Even nonliving creatures such as constructs and undead crumble or wither in this malignant eruption of rotting energy. Creatures in the area of effect take 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per caster level (maximum 15d{BalanceFixes.getDamageDieString(DiceType.D6)}) and are staggered for 1d4 rounds. A target that succeeds at a Reflex saving throw takes half damage and negates the staggered effect. Plant creatures are particularly susceptible to this rotting effect; a plant creature caught in the burst takes a –2 penalty on the saving throw and takes 1 extra point of damage per die.",
                                                      "",
                                                      icon,
                                                      AbilityType.Spell,
@@ -7887,7 +7886,7 @@ namespace CallOfTheWild
             area.AddComponent(Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = difficult_terrain; a.Condition = Helpers.CreateConditionsCheckerOr(); }));
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
 
-            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
+            var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Bludgeoning, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default)),
                                                      isAoE: true, halfIfSaved: true);
 
             var apply_prone = Helpers.Create<ContextActionKnockdownTarget>();
@@ -7896,7 +7895,7 @@ namespace CallOfTheWild
                                                           );
 
             var description = "You strike the ground and unleash a tremor of seismic force, hurling up earth, rock, and sand.\n"
-                              + "You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. The space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter. Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d4 points of bludgeoning damage per caster level you have (maximum 10d4) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
+                              + $"You choose whether the earth tremor affects a 30 - foot line, a 20 - foot cone - shaped spread, or a 10 - foot - radius spread centered on you. The space you occupy is not affected by earth tremor.the area you choose becomes dense rubble that costs 2 squares of movement to enter. Dense rubble and is considered as difficult terrain. Creatures on the ground in the area take 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of bludgeoning damage per caster level you have (maximum 10d{BalanceFixes.getDamageDieString(DiceType.D4)}) or half damage on a successful save. Medium or smaller creatures that fail their saves are knocked prone.\n"
                               + "This spell can be cast only on a surface of earth, sand, or stone. It has no effect if you are in a wooden or metal structure or if you are not touching the ground.";
 
             var spawn_in_cone = Helpers.Create<NewMechanics.ContextActionSpawnAreaEffectMultiple>(c =>
@@ -8312,7 +8311,7 @@ namespace CallOfTheWild
 
             var chill_buff = Helpers.CreateBuff("WinterGraspChillBuff",
                                                 "Winter's Grasp",
-                                                "Ice encrusts the ground, radiating supernatural cold and making it hard for creatures to maintain their balance. This icy ground is treated as difficult terrain. A creature that begins its turn in the affected area takes 1d6 points of cold damage and takes a –2 penalty on saving throws against spells with the cold descriptor for 1 round.",
+                                                $"Ice encrusts the ground, radiating supernatural cold and making it hard for creatures to maintain their balance. This icy ground is treated as difficult terrain. A creature that begins its turn in the affected area takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage and takes a –2 penalty on saving throws against spells with the cold descriptor for 1 round.",
                                                 "",
                                                 icon,
                                                 Common.createPrefabLink("d7f055790fceee34e87c4902877c894f"), //cold creature
@@ -8324,7 +8323,7 @@ namespace CallOfTheWild
             area.Fx.AssetId = "fd21d914e9f6f5e4faa77365549ad0a7";
             area.ReplaceComponent<AbilityAreaEffectBuff>(a => a.Buff = difficult_terrain);
             area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Cold));
-            var area_effect = Helpers.CreateAreaEffectRunAction(round: new GameAction[]{Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 1)),
+            var area_effect = Helpers.CreateAreaEffectRunAction(round: new GameAction[]{Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1)),
                                                                                         Common.createContextActionApplyBuff(chill_buff, Helpers.CreateContextDuration(1), is_child: true)
                                                                                         }
                                                                );
@@ -8951,8 +8950,8 @@ namespace CallOfTheWild
             flurry_of_snowballs.SpellResistance = false;
             flurry_of_snowballs.SetName("Flurry of Snowballs");
             flurry_of_snowballs.SetDescription("You send a flurry of snowballs hurtling at your foes.\n"
-                                                + "Any creature in the area takes 4d6 points of cold damage from being pelted with the icy spheres.");
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 4), true, true);
+                                                + $"Any creature in the area takes 4d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage from being pelted with the icy spheres.");
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 4), true, true);
             flurry_of_snowballs.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(damage));
             var cold_cone30 = library.Get<BlueprintProjectile>("72b45860bdfb81f4284aa005c04594dd");
             flurry_of_snowballs.ReplaceComponent<AbilityDeliverProjectile>(a => { a.Projectiles = new BlueprintProjectile[] { cold_cone30 }; a.Length = 30.Feet(); });
@@ -8984,12 +8983,12 @@ namespace CallOfTheWild
             slick_area.ReplaceComponent<AbilityAreaEffectRunAction>(area_effect);
             slick_area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground));
 
-            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.DamageBonus)), true, true);
+            var deal_damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, Helpers.CreateContextValue(AbilityRankType.DamageBonus)), true, true);
             var spawn_area = Common.createContextActionSpawnAreaEffect(slick_area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes));
             ice_slick = Helpers.CreateAbility("IceSlickAbility",
                                               "Ice Slick",
                                               "You create a blast of intense cold, coating all solid surfaces in the area with a thin coating of ice.\n"
-                                              + "Any creature in the area when the spell is cast takes 1d6 points of cold damage + 1 point per caster level (maximum +10) and falls prone; creatures that succeed at a Reflex save take half damage and don’t fall prone. Spell resistance applies to this initial effect.\n"
+                                              + $"Any creature in the area when the spell is cast takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of cold damage + 1 point per caster level (maximum +10) and falls prone; creatures that succeed at a Reflex save take half damage and don’t fall prone. Spell resistance applies to this initial effect.\n"
                                               + "A creature can walk within or through the area of ice at half its normal speed with a successful DC 10 Mobility check. Failure means the creature can’t move and  it falls. Creatures that do not move on their turn do not need to attempt this check.",
                                               "",
                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/IceSlick.png"),
@@ -9303,7 +9302,7 @@ namespace CallOfTheWild
             for (int i = 0; i < shields.Length; i++)
             {
                 var deal_damage = Helpers.CreateActionDealDamage(energy[i],
-                                                                 Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(1), Helpers.CreateContextValue(AbilityRankType.DamageBonus))
+                                                                 Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(1), Helpers.CreateContextValue(AbilityRankType.DamageBonus))
                                                                  );
 
                 var dmg_component = shield_of_dawn_buff.GetComponent<AddTargetAttackRollTrigger>().CreateCopy();
@@ -9350,7 +9349,7 @@ namespace CallOfTheWild
             fire_shield = Helpers.CreateAbility("FireShieldAbility",
                                                 "Fire Shield",
                                                 "This spell wreathes you in flame and causes damage to each creature that attacks you in melee. The flames also protect you from either cold-based or fire-based attacks, depending on if you choose cool or warm flames for your fire shield.\n"
-                                                + "Any creature striking you with its body or a hand - held weapon deals normal damage, but at the same time the attacker takes 1d6 points of damage + 1 point per caster level(maximum + 15). This damage is either cold damage (if you choose a chill shield) or fire damage (if you choose a warm shield). If the attacker has spell resistance, it applies to this effect. Creatures wielding melee weapons with reach are not subject to this damage if they attack you.",
+                                                + $"Any creature striking you with its body or a hand - held weapon deals normal damage, but at the same time the attacker takes 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point per caster level (maximum + 15). This damage is either cold damage (if you choose a chill shield) or fire damage (if you choose a warm shield). If the attacker has spell resistance, it applies to this effect. Creatures wielding melee weapons with reach are not subject to this damage if they attack you.",
                                                 "",
                                                 shield_of_dawn.Icon,
                                                 AbilityType.Spell,
@@ -9794,14 +9793,14 @@ namespace CallOfTheWild
                 var produce_flame_enchant = Helpers.Create<NewMechanics.EnchantmentMechanics.WeaponDamageChange>(w =>
                 {
                     w.bonus_damage = 1 + i;
-                    w.dice_formula = new DiceFormula(1, DiceType.D6);
+                    w.dice_formula = new DiceFormula(1, BalanceFixes.getDamageDie(DiceType.D6));
                     w.damage_type_description = fire_damage;
                 });
 
                 produce_flame_enchantments[i] = Common.createWeaponEnchantment($"ProduceFlame{i}Enchantment",
                                                                              "Produce Flame",
                                                                              "Flames as bright as a torch appear in your open hand. The flames harm neither you nor your equipment.\n"
-                                                                             + "In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d6 + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n"
+                                                                             + $"In addition to providing illumination, the flames can be hurled or used to touch enemies. You can strike an opponent with a melee touch attack, dealing fire damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} + 1 point per caster level (maximum +5). Alternatively, you can hurl the flames up to 40 feet as a thrown weapon. When doing so, you attack with a ranged touch attack (with no range penalty) and deal the same damage as with the melee attack. No sooner do you hurl the flames than a new set appears in your hand. Each attack you make reduces the remaining duration by 1 minute. If an attack reduces the remaining duration to 0 minutes or less, the spell ends after the attack resolves.\n"
                                                                              + "Your primary hand must be free when you cast this spell.",
                                                                              "",
                                                                              "",

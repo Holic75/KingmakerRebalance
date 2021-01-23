@@ -100,7 +100,7 @@ namespace CallOfTheWild
                                                                           Helpers.Create<ContextConditionIsAlly>()},
                                                        new GameAction[0],
                                                        new GameAction[] {Helpers.Create<ContextActionSpawnFx>(c => c.PrefabLink = Common.createPrefabLink("61602c5b0ac793d489c008e9cb58f631")),
-                                                                         Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.Default)))
+                                                                         Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, Helpers.CreateContextValue(AbilityRankType.Default)))
                                                                         }
                                              );
             var aura_of_healing = library.Get<BlueprintAbilityAreaEffect>("be47154a20220f64f9bea767587e700a");
@@ -112,7 +112,7 @@ namespace CallOfTheWild
                                       );
             var undead_damage = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(),
                                                           Helpers.CreateActionDealDamage(DamageEnergyType.PositiveEnergy,
-                                                                                         Helpers.CreateContextDiceValue(DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                         Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, Helpers.CreateContextValue(AbilityRankType.Default)),
                                                                                          IgnoreCritical: true
                                                                                          )
                                                          );

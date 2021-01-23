@@ -225,7 +225,9 @@ namespace CallOfTheWild
                 ice_splinter.Type = AbilityType.Supernatural;
                 ice_splinter.SpellResistance = false;
                 ice_splinter.SetNameDescription("Ice Splinter",
-                                                "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d6 points of piercing damage + 1 point for every 2 shaman levels she has."
+                                                Main.settings.balance_fixes
+                                                ? "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d8 points of cold damage plus 1d8 points for every 2 shaman levels she has beyond first.\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
+                                                : "As a standard action, the shaman can shoot razor-sharp icicles at an enemy within 30 feet as a ranged touch attack. This barrage deals 1d6 points of cold damage plus 1 point for every 2 shaman levels she has.\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier."
                                                 );
                 ice_splinter.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", hex_engine.hex_classes));
 
@@ -244,7 +246,7 @@ namespace CallOfTheWild
 
                 spirit_ability = Helpers.CreateFeature(prefix + "IceSplinterFeature",
                                                        ice_splinter.Name,
-                                                       ice_splinter.Description + "\nThe shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon she wields is treated as a frost weapon.",
+                                                       ice_splinter.Description + " At 11th level, any weapon she wields is treated as a frost weapon.",
                                                        "",
                                                        ice_splinter.Icon,
                                                        FeatureGroup.None,
@@ -263,12 +265,12 @@ namespace CallOfTheWild
                 resource.SetFixedResource(3);
                 var cooldown_buff = Helpers.CreateBuff(prefix + "FrigidBlastCooldownBuff",
                                        "Frigid Blast: Cooldown",
-                                       "As a standard action, she can summon an icy blast in a 20-foot-radius burst originating from a point she can see within 30 feet. This blast deals cold damage equal to 1d6 per shaman level she has to each creature caught in the burst. Each target can attempt a Reflex saving throw to halve this damage. The shaman can use this ability three times per day, but she must wait at least 1d4 rounds between each use.",
+                                       $"As a standard action, she can summon an icy blast in a 20-foot-radius burst originating from a point she can see within 30 feet. This blast deals cold damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)} per shaman level she has to each creature caught in the burst. Each target can attempt a Reflex saving throw to halve this damage. The shaman can use this ability three times per day, but she must wait at least 1d4 rounds between each use.",
                                        "",
                                        icon,
                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
-                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
+                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), true, true);
                 var frigid_blast = Helpers.CreateAbility(prefix + "FrigidBlastAbility",
                                                          "Frigid Blast",
                                                          cooldown_buff.Description,

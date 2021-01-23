@@ -138,6 +138,7 @@ namespace CallOfTheWild
         static public BlueprintFeature vicious_stomp;
 
         static public BlueprintFeature steadfast_personality;
+        static public BlueprintFeature two_weapon_rend;
 
         static internal void load()
         {
@@ -209,6 +210,7 @@ namespace CallOfTheWild
             createShieldBrace();
             createUnhinderingShield();
             createTowerShieldSpecialist();
+            createTwoWeaponRend();
             createProdigalTwoWeaponFighting();
             createImprovedSpellSharing();
             createAnimalAlly();
@@ -222,6 +224,42 @@ namespace CallOfTheWild
 
             createViciousStomp();
             createSteadfastPersonality();
+        }
+
+
+        static void createTwoWeaponRend()
+        {
+            var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
+            var double_slice = library.Get<BlueprintFeature>("8a6a1920019c45d40b4561f05dcb3240");
+
+            two_weapon_rend = Helpers.CreateFeature("TwoWeaponRendFeature",
+                                                    "Two-Weapon Rend",
+                                                    "Benefit: If you hit an opponent with both your primary hand and your off-hand weapon, you deal an additional 1d10 points of damage plus 1-1/2 times your Strength modifier. You can only deal this additional damage once each round.",
+                                                    "",
+                                                    Helpers.GetIcon("c126adbdf6ddd8245bda33694cd774e8"), //gtwf
+                                                    FeatureGroup.CombatFeat,
+                                                    Helpers.Create<NewMechanics.TwoWeaponRendFeature>(),
+                                                    Helpers.PrerequisiteStatValue(StatType.Dexterity, 17),
+                                                    Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 11),
+                                                    Helpers.PrerequisiteFeature(twf),
+                                                    Helpers.PrerequisiteFeature(double_slice)
+                                                    );
+            two_weapon_rend.Groups = two_weapon_rend.Groups.AddToArray(FeatureGroup.Feat);
+            library.AddCombatFeats(two_weapon_rend);
+
+            var ranger_style10 = library.Get<BlueprintFeatureSelection>("ee907845112b8aa4e907cf326e6142a6");
+            ranger_style10.AllFeatures = ranger_style10.AllFeatures.AddToArray(two_weapon_rend);
+            Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(two_weapon_rend);
+
+            var ranger_styles = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("019e68517c95c5447bff125b8a91c73f"),
+                                                       library.Get<BlueprintFeatureSelection>("59d5445392ac62245a5ece9b01c05ee8"),
+                                                       library.Get<BlueprintFeatureSelection>("ee907845112b8aa4e907cf326e6142a6")
+                                                      };
+
+            foreach (var rs in ranger_styles)
+            {
+                rs.SetDescription("At 2nd level, the ranger can select from Double Slice, Shield Bash, and Two-Weapon Fighting.\nAt 6th level, he adds Improved Two-Weapon Fighting to the list.\nAt 10th level, he adds Greater Two-Weapon Fighting and Two-Weapon Rend to the list.");
+            }
         }
 
 
@@ -582,7 +620,7 @@ namespace CallOfTheWild
             var gtwf = library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8");
             var double_slice = library.Get<BlueprintFeature>("8a6a1920019c45d40b4561f05dcb3240");
 
-            var twf_feats = new BlueprintFeature[] { twf, itwf, gtwf, double_slice };
+            var twf_feats = new BlueprintFeature[] { twf, itwf, gtwf, double_slice, two_weapon_rend };
 
             //fix twf prerequisites
             foreach (var feat in twf_feats)
@@ -603,6 +641,23 @@ namespace CallOfTheWild
             prodigious_two_weapon_fighting.Groups = prodigious_two_weapon_fighting.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(prodigious_two_weapon_fighting);
             Antipaladin.iron_tyrant_bonus_feat.AllFeatures = Antipaladin.iron_tyrant_bonus_feat.AllFeatures.AddToArray(prodigious_two_weapon_fighting);
+
+            if (Main.settings.balance_fixes)
+            {
+                var ranger_styles = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("019e68517c95c5447bff125b8a91c73f"),
+                                                       library.Get<BlueprintFeatureSelection>("59d5445392ac62245a5ece9b01c05ee8"),
+                                                       library.Get<BlueprintFeatureSelection>("ee907845112b8aa4e907cf326e6142a6")
+                                                      };
+
+                var rs1 = library.Get<BlueprintFeatureSelection>("019e68517c95c5447bff125b8a91c73f");
+
+                rs1.AllFeatures = rs1.AllFeatures.RemoveFromArray(double_slice);
+                foreach (var rs in ranger_styles)
+                {
+                    rs.AllFeatures = rs.AllFeatures.AddToArray(prodigious_two_weapon_fighting);
+                    rs.SetDescription("At 2nd level, the ranger can select Prodigious Two-Weapon Fighting, Shield Bash, and Two-Weapon Fighting.\nAt 6th level, he adds Double Slice to the list.\nAt 10th level, he adds Two-Weapon Rend to the list.");
+                }
+            }
         }
 
 

@@ -273,7 +273,7 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("e7c530f8137630f4d9d7ee1aa7b1edc0"), //cone of cold
                                               FeatureGroup.None,
-                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.Descriptor = SpellDescriptor.Cold; c.Value = 1; })
+                                              Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c => { c.Descriptor = SpellDescriptor.Cold; c.Value = 1; c.specific_class = witch_class; })
                                               );
             createColdFlesh();
 
@@ -1951,7 +1951,7 @@ namespace CallOfTheWild
         static void createIceTomb()
         {
             ice_tomb = hex_engine.createIceTomb("WitchIceTomb", "Ice Tomb",
-                                                "Effect: A storm of ice and freezing wind envelops the target, which takes 3d8 points of cold damage (Fortitude half). If the target fails its save, it is paralyzed and unconscious but does not need to eat or breathe while the ice lasts. Destroying the ice, by dealing any damage to it, frees the creature, which is staggered for 1d4 rounds after being released. Whether or not the target’s saving throw is successful, it cannot be the target of this hex again for 1 day.",
+                                                $"Effect: A storm of ice and freezing wind envelops the target, which takes 3d{BalanceFixes.getDamageDieString(DiceType.D8)} points of cold damage (Fortitude half). If the target fails its save, it is paralyzed and unconscious but does not need to eat or breathe while the ice lasts. Destroying the ice, by dealing any damage to it, frees the creature, which is staggered for 1d4 rounds after being released. Whether or not the target’s saving throw is successful, it cannot be the target of this hex again for 1 day.",
                                                 "a680c3c5fd7646499f1b7e8d95b0f5df",
                                                 "7e75ef2ae6984d80a98f47f7a5a2a8a8",
                                                 "f983760c33db49b5ae58e3c60ad0014b",
@@ -1988,7 +1988,7 @@ namespace CallOfTheWild
         {
             death_curse = hex_engine.createDeathCurse("WitchDeathCurse", "Death Curse",
                                                       "This powerful hex seizes a creature’s heart, causing death within just a few moments.\n"
-                                                      + "Effect: This hex has a range of 30 feet. The hexed creature receives a Will save to negate the effect. If this save is failed, the creature becomes fatigued the first round of the hex. On the second round of the hex, the creature becomes exhausted. On the third round, the creature dies unless it succeeds at a Fort save. Creatures that fail the first save but succeed at the second remain exhausted and take 4d6 points of damage + 1 point of damage per level of the witch. Slaying the witch that hexed the creature ends the effect, but any fatigue or exhaustion remains. Whether or not the saves are successful, a creature cannot be the target of this hex again for 1 day.",
+                                                      + $"Effect: This hex has a range of 30 feet. The hexed creature receives a Will save to negate the effect. If this save is failed, the creature becomes fatigued the first round of the hex. On the second round of the hex, the creature becomes exhausted. On the third round, the creature dies unless it succeeds at a Fort save. Creatures that fail the first save but succeed at the second remain exhausted and take 4d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage + 1 point of damage per level of the witch. Slaying the witch that hexed the creature ends the effect, but any fatigue or exhaustion remains. Whether or not the saves are successful, a creature cannot be the target of this hex again for 1 day.",
                                                       "6913bcf974004951a0542e906b4c201c",
                                                       "617290b83ca04f01adc23e0416758dfb",
                                                       "cf27f36d30cd4ce8baaa3a52cf9e08f1",

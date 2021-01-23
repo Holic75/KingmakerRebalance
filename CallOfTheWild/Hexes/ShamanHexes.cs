@@ -11,6 +11,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
@@ -638,7 +639,7 @@ namespace CallOfTheWild
             var actions = new ActionList[3];
 
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
-                                                      Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, 1, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
+                                                      Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, Helpers.CreateContextValue(AbilityRankType.DamageBonus)),
                                                       IgnoreCritical: true);
 
             var buff = Helpers.CreateBuff(name_prefix + "Buff",
@@ -1143,7 +1144,7 @@ namespace CallOfTheWild
         {
             var mind_blank = library.Get<BlueprintAbility>("eabf94e4edc6e714cabd96aa69f8b207");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
             dmg.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
             var action = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg)));
             var ability = Helpers.CreateAbility(name_prefix + "Ability",
@@ -1459,7 +1460,7 @@ namespace CallOfTheWild
         {
             var touch_of_slime = library.Get<BlueprintAbility>("1e481e03d9cf1564bae6b4f63aed2d1a");
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.DamageBonus)), 
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Divine, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageBonus)), 
                                                      halfIfSaved: true);
             dmg.DamageType.Type = Kingmaker.RuleSystem.Rules.Damage.DamageType.Direct;
             var action = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg));
@@ -1918,7 +1919,7 @@ namespace CallOfTheWild
             var faerie_fire_buff = library.Get<BlueprintBuff>("cc383a9eaae4d2b45a925d442b367b54");
    
             var apply_buff = Common.createContextActionApplyBuff(faerie_fire_buff, Helpers.CreateContextDuration(1), dispellable: false);
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(Kingmaker.RuleSystem.DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)), halfIfSaved: true);
 
             var action = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(damage, Helpers.CreateConditionalSaved(null, apply_buff)));
             var cooldown_buff = Helpers.CreateBuff(name_prefix + "CooldownBuff",

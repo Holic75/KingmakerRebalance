@@ -169,6 +169,14 @@ namespace CallOfTheWild
         }
 
 
+        static internal void removeDescriptionsFromMonkACFeatures()
+        {
+            var monk_ac = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
+            var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
+            monk_ac.SetDescription("");
+            scaled_fist_ac.SetDescription("");
+        }
+
 
         internal static void addFatigueBuffRestrictionsToRage()
         {
@@ -183,7 +191,7 @@ namespace CallOfTheWild
         internal static void removePowerOfWyrmsBuffImmunity()
         {
             //power of wyrms in pf:km incorrectly gives corresponding elemental descriptor buff immunity, which interfers with elemental defensive spells, like flame shield or fiery body.
-            //Also by pnp rules (and according to in-game description) it should only give immunity to elemental damage and buffs.
+            //Also by pnp rules (and according to in-game description) it should only give immunity to elemental damage.
             var powers = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(f => f.name.Contains("PowerOfWyrms")).ToArray();
 
             var elemental_descriptors = SpellDescriptor.Fire | SpellDescriptor.Acid | SpellDescriptor.Electricity | SpellDescriptor.Cold;
@@ -548,11 +556,69 @@ namespace CallOfTheWild
             }
         }
 
+        internal static void fixUniversalistMetamagicMastery()
+        {
+            BlueprintFeature[] metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
+
+            var resource = library.Get<BlueprintAbilityResource>("42fd5b455f986f94293b15b13f38d6a5");
+            var feature = Helpers.CreateFeature("UniversalistMetamagicFeature",
+                                                "Metamagic Mastery",
+                                                "At 8th level, you can apply any one metamagic feat that you know to a spell you are about to cast. This does not alter the level of the spell or the casting time. You can use this ability once per day at 8th level and one additional time per day for every two wizard levels you possess beyond 8th. Any time you use this ability to apply a metamagic feat that increases the spell level by more than 1, you must use an additional daily usage for each level above 1 that the feat adds to the spell. Even though this ability does not modify the spell’s actual level, you cannot use this ability to cast a spell whose modified spell level would be above the level of the highest-level spell that you are capable of casting.",
+                                                "",
+                                                Helpers.GetIcon("541bb8d595532ec419343b7a93cdb449"),
+                                                FeatureGroup.None,
+                                                resource.CreateAddAbilityResource()
+                                                );
+
+            var universalist_progression = library.Get<BlueprintProgression>("0933849149cfc9244ac05d6a5b57fd80");
+            universalist_progression.LevelEntries = universalist_progression.LevelEntries.Where(le => le.Level < 8).ToArray();
+            universalist_progression.LevelEntries = universalist_progression.LevelEntries.AddToArray(Helpers.LevelEntry(8, feature)
+                                                                                                     );
+            foreach (var mf in metamagics)
+            {
+                var metamagic_enum = mf.GetComponent<AddMetamagicFeat>().Metamagic;
+                var cost = metamagic_enum.DefaultCost();
+                var buff = Helpers.CreateBuff(mf.name + "MetamagicMasteryBuff",
+                                              "Metamagic Mastery - " + mf.Name,
+                                              feature.Description + "\n" + mf.Name + ": " + mf.Description,
+                                              "",
+                                              mf.Icon,
+                                              null,
+                                              Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicOnSpellDescriptor>(mm =>
+                                              {
+                                                  mm.Metamagic = metamagic_enum;
+                                                  mm.limit_spell_level = true;
+                                                  mm.resource = resource;
+                                                  mm.amount = cost;
+                                              })
+                                              );
+                var toggle = Common.buffToToggle(buff, UnitCommand.CommandType.Free, true,
+                                                 resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                                 Helpers.Create<ResourceMechanics.RestrictionHasEnoughResource>(r => { r.resource = resource; r.amount = cost; }));
+                toggle.Group = ActivatableAbilityGroupExtension.MetamagicMastery.ToActivatableAbilityGroup();
+                var add_toggle = Common.ActivatableAbilityToFeature(toggle);
+                var level = 2 * (cost - 1) + 8;
+
+                mf.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFact(feature, add_toggle, add_toggle));
+                feature.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFact(mf, add_toggle, add_toggle));
+            }
+            universalist_progression.SetDescription("Wizards who do not specialize (known as as universalists) have the most diversity of all arcane spellcasters.\nHand of the Apprentice: You cause your melee weapon to fly from your grasp and strike a foe before instantly returning to you. As a standard action, you can make a single attack using a melee weapon at a range of 30 feet. This attack is treated as a ranged attack with a thrown weapon, except that you add your Intelligence modifier on the attack roll instead of your Dexterity modifier (damage still relies on Strength). This ability cannot be used to perform a combat maneuver. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nMetamagic Mastery: " + feature.Description);
+        }
+
         internal static void fixCompanions()
         {
             //change stats of certain companions
             //Valerie 
             var valerie_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765");
+            /* var valerie_scar_protrait = library.Get<BlueprintPortrait>("8134f34ef1cc67c498f1ae616995023d");
+            Action<UnitDescriptor> fix_action_v = delegate (UnitDescriptor u)
+            {
+                if (u.Blueprint == valerie_companion)
+                {
+                    u.UISettings.SetPortrait(valerie_scar_protrait);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(fix_action_v);*/
             valerie_companion.Strength = 16;//+2
             valerie_companion.Dexterity = 10;
             valerie_companion.Constitution = 14;
@@ -675,6 +741,10 @@ namespace CallOfTheWild
             var linzi_class_levels = linzi_feature.GetComponent<AddClassLevels>();
             linzi_class_levels.Skills = new StatType[] { StatType.SkillPersuasion, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillThievery, StatType.SkillKnowledgeArcana, StatType.SkillMobility };
             linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab");//point blank shot instead of extra performance
+            if (Main.settings.balance_fixes)
+            {
+                linzi_class_levels.Selections[1].Features[0] = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");//precise shot
+            }
             //change octavia
             var octavia_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9161aa0b3f519c47acbce01f53ee217");
             octavia_companion.Dexterity = 16;
@@ -689,7 +759,14 @@ namespace CallOfTheWild
             octavia_feature.RemoveComponents<AddClassLevels>(a => a != octavia_acl);
             //octavia_acl.CharacterClass = Arcanist.arcanist_class;
             octavia_acl.Archetypes = new BlueprintArchetype[] { Arcanist.exploiter_wizard_archetype };
-            Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            if (Main.settings.balance_fixes)
+            {
+                Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.item_bond);
+            }
+            else
+            {
+                Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.arcane_exploits_wizard, Arcanist.potent_magic);
+            }
             //Common.addFeatureSelectionToAcl(octavia_acl, Arcanist.bloodline_selection, library.Get<BlueprintFeature>("4d491cf9631f7e9429444f4aed629791"));
             //Common.addFeatureSelectionToAcl(octavia_acl, library.Get<BlueprintFeatureSelection>("BloodlineArcaneArcaneBondFeature"), library.Get<BlueprintFeature>("97dff21a036e80948b07097ad3df2b30"));
             octavia_acl.Skills = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillUseMagicDevice, StatType.SkillMobility };
@@ -779,6 +856,10 @@ namespace CallOfTheWild
             jaethal_selections.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillMobility, StatType.SkillLoreReligion, StatType.SkillAthletics };
             //jaethal_selections.Selections[1].Features = jaethal_selections.Selections[1].Features.Skip(1).ToArray();
             jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"); //point blank shot
+            if (Main.settings.balance_fixes)
+            {
+                jaethal_selections.Selections[1].Features[0] = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665"); //precise shot
+            }
             jaethal_selections.Selections[2].Features[0] = Inquisitions.conversion;
             var jaethal_unit = library.Get<BlueprintUnit>("32d2801eddf236b499d42e4a7d34de23");
             jaethal_unit.Strength = 12;
@@ -1291,7 +1372,7 @@ namespace CallOfTheWild
             foreach (var h in heals)
             {
                 var new_actions = Common.changeAction<ContextActionHealTarget>(h.GetComponent<AbilityEffectRunAction>().Actions.Actions,
-                                                               c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                                                               c => c.Value = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0));
 
                 h.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
             }

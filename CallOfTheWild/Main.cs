@@ -20,24 +20,25 @@ namespace CallOfTheWild
 {
     public class Main
     {
-        internal class Settings
+        public class Settings
         {
-            internal bool update_companions { get; }
-            internal bool nerf_animal_companion { get; }
-            internal bool reduce_skill_points { get; }
-            internal bool sacred_huntsmaster_animal_focus { get; }
-            internal bool swap_weapon_sets_as_move_action { get; }
-            internal bool allow_spellcasting_in_elemental_form { get; }
-            internal bool fix_teamwork_feats { get; }
-            internal bool fix_ecclesitheurge_class { get; }
-            internal bool advanced_fighter_options { get; }
-            internal bool wizard_discoveries { get; }
-            internal bool deity_for_everyone { get; }
-            internal bool secondary_rake_attacks { get; }
-            internal bool one_sneak_attack_per_target_per_spell { get; }
-            internal bool metamagic_for_spontaneous_spell_conversion { get; }
-            internal bool remove_solo_tactics_from_sacred_huntsmaster { get; }
-            internal bool update_kineticist_archetypes { get; }
+            public bool update_companions { get; }
+            public bool nerf_animal_companion { get; }
+            public bool reduce_skill_points { get; }
+            public bool sacred_huntsmaster_animal_focus { get; }
+            public bool swap_weapon_sets_as_move_action { get; }
+            public bool allow_spellcasting_in_elemental_form { get; }
+            public bool fix_teamwork_feats { get; }
+            public bool fix_ecclesitheurge_class { get; }
+            public bool advanced_fighter_options { get; }
+            public bool wizard_discoveries { get; }
+            public bool deity_for_everyone { get; }
+            public bool secondary_rake_attacks { get; }
+            public bool one_sneak_attack_per_target_per_spell { get; }
+            public bool metamagic_for_spontaneous_spell_conversion { get; }
+            public bool remove_solo_tactics_from_sacred_huntsmaster { get; }
+            public bool update_kineticist_archetypes { get; }
+            public bool balance_fixes { get; }
             internal Settings()
             {
 
@@ -60,11 +61,12 @@ namespace CallOfTheWild
                     metamagic_for_spontaneous_spell_conversion = (bool)jo["metamagic_for_spontaneous_spell_conversion"];
                     remove_solo_tactics_from_sacred_huntsmaster = (bool)jo["remove_solo_tactics_from_sacred_huntsmaster"];
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
+                    balance_fixes = (bool)jo["balance_fixes"];
                 }
             }
         }
 
-        static internal Settings settings = new Settings();
+        static public Settings settings = new Settings();
         internal static UnityModManagerNet.UnityModManager.ModEntry.ModLogger logger;
         internal static Harmony12.HarmonyInstance harmony;
         public static LibraryScriptableObject library;
@@ -169,6 +171,7 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Common.initialize();
+                    CallOfTheWild.Rebalance.removeDescriptionsFromMonkACFeatures();
                     CallOfTheWild.Rebalance.refixBardicPerformanceOverlap();
                     CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
                     CallOfTheWild.Rebalance.fixWidomCognatogen();
@@ -198,6 +201,10 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
+                    CallOfTheWild.BalanceFixes.load("979f63920af22344d81da5099c9ec32e", //death domain bleed
+                                                    "ad9a6a7ee08ce73469dff703a17f8934", //medium elemental burn
+                                                    "7d0f50b37b787ea4d8f5a09dd2f30a4e" //mirrow bow damage 
+                                                     );
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();
@@ -260,6 +267,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Wildshape.load();
 
                     CallOfTheWild.MetamagicFeats.load();
+                    CallOfTheWild.Rebalance.fixUniversalistMetamagicMastery();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();

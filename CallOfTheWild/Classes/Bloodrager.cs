@@ -990,7 +990,7 @@ namespace CallOfTheWild
                 area_effect.AggroEnemies = true;
                 area_effect.Size = 5.Feet();
                 area_effect.Shape = AreaEffectShape.Cylinder;
-                var damage = Helpers.CreateContextDiceValue(DiceType.D6, Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+                var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
                 var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, damage, isAoE: true);
                 var conditional_damage = Helpers.CreateConditional(Helpers.Create<Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionIsMainTarget>(),
                                                                     null,
@@ -1011,7 +1011,7 @@ namespace CallOfTheWild
 
                 var demonic_aura_buff = Helpers.CreateBuff("BloodragerBloodlineAbyssalDemonicAuraBuff",
                                                                               "Demonic Aura",
-                                                                              "At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d6 + your Constitution modifier points of fire damage to creatures that end their turns within it.",
+                                                                              $"At 16th level, when entering a bloodrage you can choose to exude an aura of fire. The aura is a 5-foot burst centered on you, and deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} + your Constitution modifier points of fire damage to creatures that end their turns within it.",
                                                                               "44d877ef2428424082761e94dd3d55b3",
                                                                               null,
                                                                               null,
@@ -2601,7 +2601,7 @@ namespace CallOfTheWild
                 foreach (var b in bloodlines)
                 {
                     var breath_ability = library.CopyAndAdd<BlueprintAbility>(b.breath_weapon_prototype.AssetGuid, b.prefix + "BreathWeaponAbility", "");
-                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d6 points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1/2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
+                    breath_ability.SetDescription($"At 8th level, you gain a breath weapon that you can use once per day. This breath weapon deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of {b.energy_string} damage per bloodrager level. Those caught in the area of the breath can attempt a Reflex saving throw for half damage. The DC of this save is equal to 10 + 1/2 your bloodrager level + your Constitution modifier. The shape of the breath weapon is a {b.breath_area_string}. At 16th level, you can use this ability twice per day. At 20th level, you can use this ability three times per day.");
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
                     var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class"); 
                     classes = classes.AddToArray(bloodrager_class);
@@ -3271,10 +3271,10 @@ namespace CallOfTheWild
             string[] roman_id = new string[4] { "I", "II", "III", "IV" };
             for (int i = 0; i < spell_eating_spells.Length; i++)
             {
-                var dice_value = Helpers.CreateContextDiceValue(dice: DiceType.D8, diceCount: Common.createSimpleContextValue(i + 1));
+                var dice_value = Helpers.CreateContextDiceValue(dice: BalanceFixes.getDamageDie(DiceType.D8), diceCount: Common.createSimpleContextValue(i + 1));
                 var spell = Helpers.CreateAbility("SpellEating" + (i + 1).ToString() + "Ability",
                                                   "Spell Eating " + roman_id[i],
-                                                  $"As a swift action, the spelleater can consume one unused bloodrager spell slot to heal {i + 1}d8 damage.",
+                                                  $"As a swift action, the spelleater can consume one unused bloodrager spell slot to heal {i + 1}d{BalanceFixes.getDamageDieString(DiceType.D8)} damage.",
                                                   "",
                                                   renewed_vigor.Icon,
                                                   AbilityType.Special,

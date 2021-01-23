@@ -604,6 +604,18 @@ namespace CallOfTheWild.SpellbookMechanics
             }
             return spellbook;
         }
+
+
+        //used to extract arcanist memorization spellbook from his spontaneous spellbook, for any other kind of spellbooks return spellbook argument
+        public static Spellbook getClassSpellbook(Spellbook spellbook, UnitDescriptor unit)
+        {
+            var companion_spellbook = spellbook?.Blueprint.GetComponent<GetKnownSpellsFromMemorizationSpellbook>()?.spellbook;
+            if (companion_spellbook != null)
+            {
+                return unit.GetSpellbook(companion_spellbook);
+            }
+            return spellbook;
+        }
     }
 
 }

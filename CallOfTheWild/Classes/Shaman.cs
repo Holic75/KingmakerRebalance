@@ -598,7 +598,7 @@ namespace CallOfTheWild
             var heal_living = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal,
                                                                       "ShamanWitchDoctorChannelEnergyHealLiving",
                                                                       "",
-                                                                      "Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the shaman. The amount of damage healed is equal to 1d6 plus 1d6 for every two shaman levels beyond fourth.",
+                                                                      $"Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the shaman. The amount of damage healed is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  for every two shaman levels beyond fourth.",
                                                                       "",
                                                                       context_rank_config,
                                                                       dc_scaling,
@@ -606,7 +606,7 @@ namespace CallOfTheWild
             var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                           "ShamanWitchDoctorChannelEnergyHarmUndead",
                                                           "",
-                                                          "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond fourth. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier.",
+                                                          $"Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  for every two shaman levels beyond fourth. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier.",
                                                           "",
                                                           context_rank_config,
                                                           dc_scaling,
@@ -742,7 +742,7 @@ namespace CallOfTheWild
 
             var aging_touch = mystery_engine.createAgingTouch("AgingTouchShamanRevelation",
                                                               "Aging Touch",
-                                                              "Your touch ages living creatures and objects. As a melee touch attack, you can deal 1 point of Strength damage for every two shaman levels you possess to living creatures. Against constructs, you can deal 1d6 points of damage per shaman level. You can use this ability once per day, plus one additional time per day for every five shaman levels you possess.");
+                                                              $"Your touch ages living creatures and objects. As a melee touch attack, you can deal 1 point of Strength damage for every two shaman levels you possess to living creatures. Against constructs, you can deal 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of damage per shaman level. You can use this ability once per day, plus one additional time per day for every five shaman levels you possess.");
             var rewind_time = mystery_engine.createRewindTime("RewindTimeShamanRevelation",
                                                               "Rewind Time",
                                                               "Once per day as a swift action, you can reroll any one failed d20 in the next round. At 11th level, and every four levels thereafter, you can use this ability an additional time per day. You must be at least 7th level to select this revelation.");
@@ -1032,7 +1032,7 @@ namespace CallOfTheWild
             var harm_undead = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm,
                                                           "ShamanSpiritWardenRebukeSpiritsHarmUndead",
                                                           "",
-                                                          "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d6 plus 1d6 for every two shaman levels beyond first. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier.",
+                                                          $"Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the shaman. The amount of damage dealt is equal to 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  plus 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  for every two shaman levels beyond first. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the shaman's level + the shaman's Charisma modifier.",
                                                           "",
                                                           context_rank_config,
                                                           dc_scaling,

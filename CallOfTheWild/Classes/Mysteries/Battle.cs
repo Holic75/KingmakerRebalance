@@ -324,8 +324,11 @@ namespace CallOfTheWild
                                                         Common.createAddParametrizedFeatures(library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), category), //weapon focus
                                                         Helpers.CreateAddFeatureOnClassLevel(ic_feature, 8, classes, archetypes: getArchetypeArray()),
                                                         Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, classes, archetypes: getArchetypeArray()),
-                                                        Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] { category })
-                                                        );
+                                                        Helpers.Create<PrerequisiteProficiency>(p =>
+                                                        {
+                                                            p.WeaponProficiencies = new WeaponCategory[] { category };
+                                                            p.ArmorProficiencies = new ArmorProficiencyGroup[0];
+                                                        }));
                 feature.AllFeatures = feature.AllFeatures.AddToArray(ws_feature);
             }
 

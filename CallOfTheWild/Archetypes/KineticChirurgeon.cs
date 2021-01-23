@@ -334,7 +334,7 @@ namespace CallOfTheWild.Archetypes
             {
                 var ability = library.CopyAndAdd(heal_varinats.Variants[i], "Empowered" + heal_varinats.Variants[i].name, "");
                 var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
-                actions = Common.changeAction<ContextActionHealTarget>(actions, c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.ProjectilesCount), c.Value.BonusValue));
+                actions = Common.changeAction<ContextActionHealTarget>(actions, c => c.Value = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.ProjectilesCount), c.Value.BonusValue));
                 ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(actions));
                 ability.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype, ContextRankProgression.DelayedStartPlusDivStep, AbilityRankType.ProjectilesCount,
                                                                       startLevel: 5, stepLevel: 6, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },

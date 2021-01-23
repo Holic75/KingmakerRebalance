@@ -67,7 +67,16 @@ namespace CallOfTheWild.SkillMechanics
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("Roller").SetValue(null);
             RuleSkillCheck selected_evt = null;
-            foreach (UnitEntityData unitEntityData in Game.Instance.Player.Party)
+            var units = Game.Instance.Player.Party.ToArray().ToList();
+            foreach (var u in units.ToArray())
+            {
+                if (u.Descriptor.Pet != null)
+                {
+                    units.Add(u.Descriptor.Pet);
+                }
+            }
+
+            foreach (UnitEntityData unitEntityData in units)
             {
                 if (unitEntityData.Descriptor.State.CanAct)
                 {

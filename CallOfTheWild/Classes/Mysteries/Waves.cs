@@ -73,7 +73,7 @@ namespace CallOfTheWild
 
             var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
 
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.DamageDice)),
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Cold, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.DamageDice)),
                                                         isAoE: true, halfIfSaved: true);
             var damage_save = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
                                                                     Helpers.CreateActionList(damage));

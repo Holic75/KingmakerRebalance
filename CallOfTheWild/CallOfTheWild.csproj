@@ -184,6 +184,7 @@
     <Compile Include="Classes\Implements\ImplementsEngine.cs" />
     <Compile Include="Classes\Implements\MagesParaphernalia.cs" />
     <Compile Include="Classes\Implements\Necromancy.cs" />
+    <Compile Include="Classes\Implements\PerformersAccoutrements.cs" />
     <Compile Include="Classes\Implements\SaintsHolyRegalia.cs" />
     <Compile Include="Classes\Implements\Transmutation.cs" />
     <Compile Include="Classes\Implements\TrappingsOfTheWarrior.cs" />
@@ -216,6 +217,7 @@
     <Compile Include="Archetypes\UndeadLord.cs" />
     <Compile Include="ClassToProgression.cs" />
     <Compile Include="Dismiss.cs" />
+    <Compile Include="BalanceFixes.cs" />
     <Compile Include="FakeClassLevel.cs" />
     <Compile Include="Features\AdvancedFighterOptions.cs" />
     <Compile Include="Features\AlchemistDiscoveries.cs" />

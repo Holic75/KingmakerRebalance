@@ -240,8 +240,11 @@ namespace CallOfTheWild
                                                         Helpers.CreateAddStatBonus(StatType.AttackOfOpportunityCount, 1, ModifierDescriptor.UntypedStackable),
                                                         Helpers.CreateAddFeatureOnClassLevel(ws_feature, 8, hex_engine.hex_classes),
                                                         Helpers.CreateAddFeatureOnClassLevel(gws_feature, 16, hex_engine.hex_classes),
-                                                        Helpers.Create<PrerequisiteProficiency>(p => p.WeaponProficiencies = new WeaponCategory[] {category})
-                                                        );
+                                                        Helpers.Create<PrerequisiteProficiency>(p =>
+                                                        {
+                                                            p.WeaponProficiencies = new WeaponCategory[] {category};
+                                                            p.ArmorProficiencies = new Kingmaker.Blueprints.Items.Armors.ArmorProficiencyGroup[0];
+                                                        }));
                     battle_master_hex.AllFeatures = battle_master_hex.AllFeatures.AddToArray(feature);
                 }
                 battle_master_hex.AddComponent(Helpers.PrerequisiteNoFeature(battle_master_hex));

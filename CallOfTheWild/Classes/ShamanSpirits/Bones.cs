@@ -303,12 +303,21 @@ namespace CallOfTheWild
 
                 var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
                 var heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D4, 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+                if (Main.settings.balance_fixes)
+                {
+                    dmg = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                    heal = Common.createContextActionHealTarget(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                }
+
+                
 
                 var effect = Helpers.CreateConditional(Helpers.Create<UndeadMechanics.ContextConditionHasNegativeEnergyAffinity>(), heal, dmg);
 
                 var touch_of_the_grave_ability = Helpers.CreateAbility(touch_of_the_grave_prefix + "TouchOfGraveAbility",
                                                                        "Touch of the Grave",
-                                                                       "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
+                                                                       Main.settings.balance_fixes
+                                                                       ? "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d6 points of damage plus 1d6 point of damage for every 2 shaman levels she possesses beyond first. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier"
+                                                                       : "As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier",
                                                                        "",
                                                                        inflict_light_wounds.Icon,
                                                                        AbilityType.Supernatural,
@@ -321,7 +330,7 @@ namespace CallOfTheWild
                                                                        inflict_light_wounds.GetComponent<AbilitySpawnFx>(),
                                                                        inflict_light_wounds.GetComponent<AbilityDeliverTouch>(),
                                                                        Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: hex_engine.hex_classes,
-                                                                                                       progression: ContextRankProgression.Div2)
+                                                                                                       progression: Main.settings.balance_fixes ? ContextRankProgression.OnePlusDiv2 : ContextRankProgression.Div2)
                                                                       );
                 touch_of_the_grave_ability.setMiscAbilityParametersTouchHarmful(true);
 
@@ -356,12 +365,12 @@ namespace CallOfTheWild
 
                 var cooldown_buff = Helpers.CreateBuff(prefix + "ShardSoulCooldownBuff",
                                                        "Shard Soul: Cooldown",
-                                                       "As a standard action Shaman can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d6 points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                                       $"As a standard action Shaman can cause jagged pieces of bone to explode from her body in a 10-foot-radius burst. This deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of piercing damage for every 2 shaman levels she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                        "",
                                                        icon,
                                                        null);
                 var dmg = Helpers.CreateActionDealDamage(PhysicalDamageForm.Piercing,
-                                                                                     Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                     Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default)),
                                                                                      isAoE: true, halfIfSaved: true);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
                 var effect = Helpers.CreateConditional(Common.createContextConditionIsCaster(),

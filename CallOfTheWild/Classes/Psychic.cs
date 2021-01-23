@@ -1590,7 +1590,7 @@ namespace CallOfTheWild
             //power from pageantry
             var power_from_pageantry_buff = Helpers.CreateBuff("PowerFromPageantryBuff",
                                                                "Power from Pageantry",
-                                                               "Starting from 5th level, you can spend 1 point from your phrenic pool as a move action to increase caster level and saving throw DC by 2 for next spell you cast before the end of your turn.",
+                                                               $"Starting from 5th level, you can spend 1 point from your phrenic pool as a move action to increase caster level and saving throw DC by {(Main.settings.balance_fixes ? 1 : 2)} for next spell you cast before the end of your turn.",
                                                                "",
                                                                Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96"),//good hope
                                                                null,
@@ -1604,12 +1604,12 @@ namespace CallOfTheWild
                                                                Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellsDC>(c =>
                                                                {
                                                                    c.specific_class = psychic_class;
-                                                                   c.Value = 2;
+                                                                   c.Value = Main.settings.balance_fixes ? 1 : 2;
                                                                }),
                                                                Helpers.Create<NewMechanics.ContextIncreaseDescriptorSpellLevel>(c =>
                                                                {
                                                                    c.specific_class = psychic_class;
-                                                                   c.Value = 2;
+                                                                   c.Value = Main.settings.balance_fixes ? 1 : 2;
                                                                })
                                                                );
             var power_from_pageantry_ability = Helpers.CreateAbility("PowerFromPageantry",

@@ -178,7 +178,7 @@ namespace CallOfTheWild
                                                                       );
                 brain_drain = hex_engine.createBrainDrain(prefix + "BrainDrain",
                                                           "Brain Drain",
-                                                          "As a standard action, the shaman violently probes the mind of a single intelligent enemy within 30 feet. The target can attempt a Will saving throw to negate the effect. If it succeeds, it immediately knows the source of the mental prying; otherwise, it’s wracked with pain and takes 1d4 points of damage for every 2 levels the shaman possesses.\n"
+                                                          $"As a standard action, the shaman violently probes the mind of a single intelligent enemy within 30 feet. The target can attempt a Will saving throw to negate the effect. If it succeeds, it immediately knows the source of the mental prying; otherwise, it’s wracked with pain and takes 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of damage for every 2 levels the shaman possesses.\n"
                                                           + "This is a mind-affecting effect. Once she successfully affects a creature, she cannot use this hex on that creature again for 24 hours."
                                                           );
 

@@ -179,7 +179,7 @@ namespace CallOfTheWild
 
                 erosion_curse = hex_engine.createErosionCurse(prefix + "ErosionCurse",
                                                                   "Erosion Curse",
-                                                                  "The shaman summons the powers of nature to erode a construct or object within 30 feet. This erosion deals 1d6 points of damage per 2 shaman levels, ignoring hardness and damage reduction. If used against a construct or an object in another creature’s possession, the construct or the creature possessing the object can attempt a Reflex saving throw to halve the damage. Once an object or a construct is damaged by this erosion, it cannot be the target of this hex again for 24 hours."
+                                                                  $"The shaman summons the powers of nature to erode a construct or object within 30 feet. This erosion deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per 2 shaman levels, ignoring hardness and damage reduction. If used against a construct or an object in another creature’s possession, the construct or the creature possessing the object can attempt a Reflex saving throw to halve the damage. Once an object or a construct is damaged by this erosion, it cannot be the target of this hex again for 24 hours."
                                                                   );
 
                 friend_to_animals = hex_engine.createFriendToAnimals(prefix + "FriendToAnimals",

@@ -120,7 +120,7 @@ namespace CallOfTheWild
                 Helpers.CreateAreaEffectRunAction(round:
                     Helpers.CreateActionSavingThrow(SavingThrowType.Reflex,
                         Helpers.CreateActionDealDamage(DamageEnergyType.Fire,
-                            DiceType.D6.CreateContextDiceValue(AbilityRankType.DamageDice.CreateContextValue()),
+                           BalanceFixes.getDamageDie(DiceType.D6).CreateContextDiceValue(AbilityRankType.DamageDice.CreateContextValue()),
                             halfIfSaved: true))));
 
             var resource = Helpers.CreateAbilityResource($"{name}Resource", "", "", "", null);
@@ -211,7 +211,7 @@ namespace CallOfTheWild
             var damage = Helpers.CreateConditional(Helpers.Create<ContextConditionIsCaster>(),
                                                    null,
                                                    Helpers.CreateActionSavingThrow(SavingThrowType.Reflex,
-                                                                                   Helpers.CreateActionDealDamage(DamageEnergyType.Fire, DiceType.D4.CreateContextDiceValue(), isAoE: true, halfIfSaved: true))
+                                                                                   Helpers.CreateActionDealDamage(DamageEnergyType.Fire, BalanceFixes.getDamageDie(DiceType.D4).CreateContextDiceValue(), isAoE: true, halfIfSaved: true))
                                                   );
 
             var apply_blur = Helpers.CreateConditional(Helpers.Create<ContextConditionIsCaster>(), Common.createContextActionApplyBuff(blur, Helpers.CreateContextDuration(1), dispellable: false));
