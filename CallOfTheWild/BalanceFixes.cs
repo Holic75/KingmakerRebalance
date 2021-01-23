@@ -269,6 +269,21 @@ namespace CallOfTheWild
                 HashSet<DiceType> processed_local = new HashSet<DiceType>();
                 fixSpellDamageBuff(buff, processed_local);
             }
+
+
+            {//fix serenity
+                HashSet<DiceType> processed_local = new HashSet<DiceType>();
+                var serenity_buff = library.Get<BlueprintBuff>("0a90088dca676524ead26b1f7a368e62");
+                serenity_buff.ReplaceComponent<AddInitiatorAttackRollTrigger>(a => a.Action = Helpers.CreateActionList(processActions(a.Action.Actions, new ContextCalculateSharedValue[0], processed_local)));
+                var serenity = library.Get<BlueprintAbility>("d316d3d94d20c674db2c24d7de96f6a7");
+                foreach (var p in processed_local)
+                {
+                    var old_dice = (int)p;
+                    var new_dice = (int)dices_shift[p];
+                    serenity.SetDescription(serenity.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));
+                }
+                serenity.SetDescription(serenity.Description.Replace("dxxx", "d"));
+            }
         }
 
         static public DiceType getDamageDie(DiceType dice)
@@ -557,6 +572,30 @@ namespace CallOfTheWild
             var firebelly_buff = library.Get<BlueprintBuff>("7c33de68880aa444bbb916271b653016");
             firebelly.SetDescription(firebelly.Description.Replace("1d4", $"1d{getDamageDieString(DiceType.D4)}"));
             firebelly_buff.SetDescription(firebelly_buff.Description.Replace("1d4", $"1d{getDamageDieString(DiceType.D4)}"));
+
+            var arcane_bomber_bomb_selection = library.Get<BlueprintFeatureSelection>("0c7a9899e27cae6449ee1fb3049f128d");
+            arcane_bomber_bomb_selection.SetDescription(replaceString(arcane_bomber_bomb_selection.Description, DiceType.D6));
+
+            var cave_fangs = library.Get<BlueprintAbility>("bacba2ff48d498b46b86384053945e83");
+            var cave_fangs_abilities = new BlueprintAbility[] { cave_fangs }.AddToArray(cave_fangs.Variants);
+
+            foreach (var ca in cave_fangs_abilities)
+            {
+                ca.SetDescription(replaceString(ca.Description, DiceType.D8));
+            }
+
+
+            //firebrand
+            var firebrand_buff = library.Get<BlueprintBuff>("c6cc1c5356db4674dbd2be20ea205c86");
+            var firebrand_ability = library.Get<BlueprintAbility>("98734a2665c18cd4db71878b0532024a");
+            var firebrand_bonus_spell = library.Get<BlueprintFeature>("f10e60b5fa889e44585e4e48d0256a42");
+            firebrand_buff.SetDescription(replaceString(firebrand_buff.Description, DiceType.D6));
+            firebrand_ability.SetDescription(replaceString(firebrand_ability.Description, DiceType.D6));
+            firebrand_bonus_spell.SetDescription(replaceString(firebrand_bonus_spell.Description, DiceType.D6));
+
+            //scaled fist draconic heritage 
+            var sf_draconic_heritage = library.Get<BlueprintFeatureSelection>("f9042eed12dac2745a2eb7a9a936906b");
+            sf_draconic_heritage.SetDescription(replaceString(sf_draconic_heritage.Description, DiceType.D6));
         }
 
        
@@ -727,6 +766,32 @@ namespace CallOfTheWild
                     fixSpellDamageAbility(a, processed);
                 }
             }
+
+            var abilities_wit_variants = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a => a.HasVariants);
+            foreach (var a in abilities_wit_variants)
+            {
+                HashSet<DiceType> processed = new HashSet<DiceType>();
+                foreach (var v in a.Variants)
+                {
+                    if (processed_abilities.ContainsKey(v))
+                    {
+                        processed.AddRange(processed_abilities[v]);
+                    }
+                }
+                if (processed.Empty())
+                {
+                    continue;
+                }
+
+                foreach (var p in processed)
+                {
+                    var old_dice = (int)p;
+                    var new_dice = (int)dices_shift[p];
+                    a.SetDescription(a.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));
+                }
+                a.SetDescription(a.Description.Replace("dxxx", "d"));
+                Main.logger.Log("Fixed damage for: " + a.name);
+            }
         }
 
 
@@ -805,7 +870,7 @@ namespace CallOfTheWild
                 return;
             }
 
-            if (buff.GetComponent<AddFactContextActions>() == null && buff.GetComponent<AddFallProneTrigger>() == null)
+            if (buff.GetComponent<AddFactContextActions>() == null && buff.GetComponent<AddFallProneTrigger>() == null && buff.GetComponent<AddOffensiveActionTrigger>() == null)
             {
                 return;
             }
@@ -818,7 +883,11 @@ namespace CallOfTheWild
 
             processed_buffs.Add(buff);
 
-            var run_actions_array = new GameAction[][] { buff.GetComponent<AddFactContextActions>()?.Activated?.Actions, buff.GetComponent<AddFactContextActions>()?.Deactivated?.Actions, buff.GetComponent<AddFactContextActions>()?.NewRound?.Actions, buff.GetComponent<AddFallProneTrigger>()?.Action?.Actions };
+            var run_actions_array = new GameAction[][] { buff.GetComponent<AddFactContextActions>()?.Activated?.Actions,
+                                                         buff.GetComponent<AddFactContextActions>()?.Deactivated?.Actions,
+                                                         buff.GetComponent<AddFactContextActions>()?.NewRound?.Actions,
+                                                         buff.GetComponent<AddFallProneTrigger>()?.Action?.Actions,
+                                                         buff.GetComponent<AddOffensiveActionTrigger>()?.Action?.Actions};
             for (int i = 0;  i < run_actions_array.Length; i++)
             {
                 var run_actions = run_actions_array[i];
@@ -848,6 +917,12 @@ namespace CallOfTheWild
                 af.Action = Helpers.CreateActionList(run_actions_array[3]);
             }
             );
+
+            buff.MaybeReplaceComponent<AddOffensiveActionTrigger>(af =>
+            {
+                af.Action = Helpers.CreateActionList(run_actions_array[4]);
+            }
+);
 
             processed.AddRange(processed_local);
             foreach (var p in processed_local)

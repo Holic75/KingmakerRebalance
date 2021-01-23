@@ -133,7 +133,8 @@ namespace CallOfTheWild
         {
             TrappingOfTheWarrior = 101,
             MagesParaphernalia = 102,
-            SaintsRegalia = 103
+            SaintsRegalia = 103,
+            PerformersAccoutrements = 104
         }
 
 
@@ -170,6 +171,8 @@ namespace CallOfTheWild
                     return "Mage's Paraphernalia";
                 case Panoply.SaintsRegalia:
                     return "Saint's Holy Regalia";
+                case Panoply.PerformersAccoutrements:
+                    return "Performer's Accoutrements";
                 default:
                     return "";
             }
@@ -192,6 +195,8 @@ namespace CallOfTheWild
                     return new SpellSchool[] { SpellSchool.Divination, SpellSchool.Evocation, SpellSchool.Necromancy };
                 case Panoply.SaintsRegalia:
                     return new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration };
+                case Panoply.PerformersAccoutrements:
+                    return new SpellSchool[] { SpellSchool.Enchantment, SpellSchool.Illusion };
                 default:
                     return new SpellSchool[0];
             }
@@ -1146,6 +1151,9 @@ namespace CallOfTheWild
                 {(SpellSchool)Panoply.SaintsRegalia, new BlueprintFeature[]{implement_factories[(SpellSchool)Panoply.SaintsRegalia].createGuardianAura()
                                                                             }
                 },
+                {(SpellSchool)Panoply.PerformersAccoutrements, new BlueprintFeature[]{implement_factories[(SpellSchool)Panoply.PerformersAccoutrements].createPuppetMaster()
+                                                                            }
+                },
             };
 
             foreach (var kv in implement_powers)
@@ -1185,6 +1193,10 @@ namespace CallOfTheWild
 
         static void createImplements()
         {
+            //perfromer's accoutments
+            //passive bonus to stealth/trickery/3 points of mental focus, up to 1/2 occultist level
+            //base ability: interomptu sneak attack - i.e. make target flat footed for your attacks for 1 round as a swift action/2 focus points
+            //puppet master - dominate effect for 1 round/2 levels /3 points (min level - 9)
             first_implement_selection = Helpers.CreateFeatureSelection("BaseImplementSelection",
                                                                       "Implements",
                                                                       "At 1st level, an occultist learns to use two implement schools. At 2nd level and every 4 occultist levels thereafter, the occultist learns to use one additional implement school, to a maximum of seven schools at 18th level. Each implement school adds up to 6 spells of any level of that school of magic to the occultist’s spell list.\n"
@@ -1199,7 +1211,8 @@ namespace CallOfTheWild
             //initialize implement engines
             var schools = new SpellSchool[] { SpellSchool.Abjuration, SpellSchool.Conjuration, SpellSchool.Divination, SpellSchool.Enchantment,
                                               SpellSchool.Evocation, SpellSchool.Illusion, SpellSchool.Necromancy, SpellSchool.Transmutation,
-                                              (SpellSchool)Panoply.TrappingOfTheWarrior, (SpellSchool)Panoply.MagesParaphernalia, (SpellSchool)Panoply.SaintsRegalia};
+                                              (SpellSchool)Panoply.TrappingOfTheWarrior, (SpellSchool)Panoply.MagesParaphernalia,
+                                              (SpellSchool)Panoply.SaintsRegalia, (SpellSchool)Panoply.PerformersAccoutrements};
 
             foreach (var s in schools)
             {
@@ -1278,6 +1291,12 @@ namespace CallOfTheWild
                                                           + "Associated implement schools: Abjuration, Conjuration.",
                                            implement_factories[(SpellSchool)Panoply.SaintsRegalia].createRestoringTouch(),
                                            new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.SaintsRegalia].createFontOfHealing()}
+                                           )
+                },
+                {(SpellSchool)Panoply.PerformersAccoutrements, ("This panoply is associated with those who deceive as well as those who entertain..\n"
+                                                          + "Associated implement schools: Illusion, Enchantment.",
+                                           implement_factories[(SpellSchool)Panoply.PerformersAccoutrements].createTrickstersEdge(),
+                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.PerformersAccoutrements].createTrickstersSkill()}
                                            )
                 },
             };
@@ -1450,6 +1469,7 @@ namespace CallOfTheWild
             implement_icons.Add((SpellSchool)Panoply.TrappingOfTheWarrior, Helpers.GetIcon("9d5d2d3ffdd73c648af3eb3e585b1113")); //divine favor
             implement_icons.Add((SpellSchool)Panoply.MagesParaphernalia, Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322")); //elven magic
             implement_icons.Add((SpellSchool)Panoply.SaintsRegalia, Helpers.GetIcon("41c9016596fe1de4faf67425ed691203")); //cure critical wounds
+            implement_icons.Add((SpellSchool)Panoply.PerformersAccoutrements, Helpers.GetIcon("fd4d9fd7f87575d47aafe2a64a6e2d8d")); //hideous laughter
 
             mental_focus = Helpers.CreateFeature("MentalFocusResource",
                                                  "Mental Focus",
