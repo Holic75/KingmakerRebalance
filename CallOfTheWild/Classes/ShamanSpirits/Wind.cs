@@ -255,13 +255,13 @@ namespace CallOfTheWild
                 resource.SetFixedResource(3);
                 var cooldown_buff = Helpers.CreateBuff(prefix + "SparkSoulCooldownBuff",
                                        "Spark Soul: Cooldown",
-                                       "In addition, as a standard action she can unleash a 30-foot line of sparks from her fingertips, dealing 1d4 points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                       $"As a standard action shaman can unleash a 30-foot line of sparks from her fingertips, dealing 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                        "",
                                        icon,
                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
 
-                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(DiceType.D4, Helpers.CreateContextValue(AbilityRankType.Default)),
+                var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), Helpers.CreateContextValue(AbilityRankType.Default)),
                                                          isAoE: true, halfIfSaved: true);
                 var sparkling_soul = Helpers.CreateAbility(prefix + "SparklingSoulAbility",
                                                            "Sparkling Soul",
@@ -285,7 +285,7 @@ namespace CallOfTheWild
                 sparkling_soul.setMiscAbilityParametersRangedDirectional();
                 greater_spirit_ability = Helpers.CreateFeature(prefix + "SparklingSoulFeature",
                                                                sparkling_soul.Name,
-                                                               "The shaman gains electricity resistance 10. In addition, as a standard action she can unleash a 20-foot line of sparks from her fingertips, dealing 1d4 points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                                               $"The shaman gains electricity resistance 10. In addition, as a standard action she can unleash a 20-foot line of sparks from her fingertips, dealing 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of electricity damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                                "",
                                                                sparkling_soul.Icon,
                                                                FeatureGroup.None,

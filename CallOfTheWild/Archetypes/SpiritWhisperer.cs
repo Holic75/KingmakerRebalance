@@ -138,7 +138,7 @@ namespace CallOfTheWild.Archetypes
             var arcane_bond = library.Get<BlueprintFeatureSelection>("03a1781486ba98043afddaabf6b7d8ff");
             var wizard_feat = library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899");
 
-            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_selection, arcane_bond, wizard_feat),
+            archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_selection, arcane_bond),
                                                           Helpers.LevelEntry(5, wizard_feat),
                                                           Helpers.LevelEntry(10, wizard_feat),
                                                           Helpers.LevelEntry(15, wizard_feat),
@@ -203,6 +203,7 @@ namespace CallOfTheWild.Archetypes
 
         static void createHexSelection()
         {
+            var wizard_feat = library.Get<BlueprintFeatureSelection>("8c3102c2ff3b69444b139a98521a4899");
             spirit_hex_selection = Helpers.CreateFeatureSelection("SpiritHexSpirirtWhispererSelection",
                                                                    "Spirit Hex",
                                                                    "At 5th level, a spirit whisperer can select one hex from the list of those granted by his chosen spirit. He uses his wizard level as his shaman level when determining the effects and DC of this hex. In addition, he uses his Intelligence modifier in place of his Wisdom modifier for these hexes. At 10th and 15th level, he can select another hex from those granted by his spirit. Each hex selected in this way replaces the bonus feat gained at that level.",
@@ -213,6 +214,8 @@ namespace CallOfTheWild.Archetypes
             {
                 spirit_hex_selection.AllFeatures = spirit_hex_selection.AllFeatures.AddToArray(s.Value.hex_selection);
             }
+
+            spirit_hex_selection.AllFeatures = spirit_hex_selection.AllFeatures.AddToArray(wizard_feat);
         }
     }
 }

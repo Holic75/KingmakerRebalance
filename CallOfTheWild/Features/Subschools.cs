@@ -7,12 +7,15 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.RuleSystem;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics.Components;
+using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -28,9 +31,9 @@ namespace CallOfTheWild
         static LibraryScriptableObject library => Main.library;
         static public BlueprintProgression admixture;
         static public BlueprintProgression teleportation;
-        static public BlueprintProgression undead;
+        //static public BlueprintProgression undead;
         static public BlueprintProgression phantasm;
-        //static public BlueprintProgression manipulation;
+        //static public BlueprintProgression controller;
         static public BlueprintProgression prophecy;
         //static public BlueprintProgression banishment;
         static public BlueprintProgression enhancement;
@@ -40,12 +43,13 @@ namespace CallOfTheWild
         static public BlueprintProgression divination;
         static public BlueprintProgression conjuration;
         //static public BlueprintProgression enchantment;
-        static public BlueprintProgression necromancy;
+        //static public BlueprintProgression necromancy;
         //static public BlueprintProgression abjuration;
         static public BlueprintProgression illusion;
 
         static public BlueprintAbility augment;
         static public BlueprintAbility inspiring_prediciton_ability;
+        static public BlueprintAbility terror_ability_cast;
         static public List<BlueprintActivatableAbility> versatile_evocation = new List<BlueprintActivatableAbility>();
 
         static public BlueprintFeatureSelection school_selection = library.Get<BlueprintFeatureSelection>("5f838049069f1ac4d804ce0862ab5110");
@@ -64,6 +68,77 @@ namespace CallOfTheWild
             createTeleportation();
             createEnhancement();
             createProphecy();
+            createPhantasm();
+        }
+
+
+        static void createPhantasm()
+        {
+        
+            illusion = library.Get<BlueprintProgression>("24d5402c0c1de48468b563f6174c6256");
+
+            var resource = Helpers.CreateAbilityResource("PhantasmSchoolBaseAbilityResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Intelligence);
+
+            var terror_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionHitDice>(c => { c.HitDice = 0; c.AddSharedValue = true; c.SharedValue = AbilitySharedValue.StatBonus; }),
+                                       Helpers.Create<AooMechanics.ContextActionProvokeAttackOfOpportunityFromAnyoneExceptCaster>(a => a.max_units = 100));
+            var terror_ability = Helpers.CreateAbility("PhantasmSchoolTerrorAbility",
+                                                "Terror",
+                                                "As a standard action, you can make a melee touch attack that causes a creature to be assailed by nightmares only it can see. The creature provokes an attack of opportunity from you or an ally of your choice. Creatures with more Hit Dice than your wizard level are unaffected. This is a mind-affecting fear effect. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.",
+                                                "",
+                                                Helpers.GetIcon("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                                                AbilityType.Supernatural,
+                                                CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(terror_effect),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                Helpers.CreateDeliverTouch(),
+                                                Common.createAbilitySpawnFx("49a8069c238b1a8429f2123654d4f45b", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray()),
+                                                Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.Default)), AbilitySharedValue.StatBonus)
+                                                );
+            terror_ability.setMiscAbilityParametersTouchHarmful();
+            terror_ability_cast = Helpers.CreateTouchSpellCast(terror_ability, resource);
+
+            var base_feature = Common.AbilityToFeature(terror_ability_cast, false);
+            base_feature.AddComponent(resource.CreateAddAbilityResource());
+
+            var resource2 = Helpers.CreateAbilityResource("PhantasmSchoolGreaterAbilityResource", "", "", "", null);
+            resource2.SetIncreasedByLevel(0, 1, getWizardArray());
+            var buff = Helpers.CreateBuff("PhantamsBedevelingAuraEffectBuff",
+                                          "Bedeveling Aura",
+                                          "At 8th level, you can emit a 30-foot aura that bedevils your enemies with phantasmal assailants. Enemies within this aura move at half speed, are unable to take attacks of opportunity, and are considered to be flanked. This is a mind-affecting effect. You can use this ability for a number of rounds per day equal to your wizard level. These rounds do not need to be consecutive.",
+                                          "",
+                                          Helpers.GetIcon("b48674cef2bff5e478a007cf57d8345b"), //remove curse
+                                          null,
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
+                                          Helpers.Create<FlankingMechanics.AlwaysFlanked>(),
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting)
+                                          );
+
+            var area_buff = Common.createBuffAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerOr(Helpers.Create<ContextConditionIsEnemy>()));
+            area_buff.GetComponent<AddAreaEffect>().AreaEffect.Fx = Common.createPrefabLink("dfadb7fa26de0384d9d9a6dabb0bea72");
+            area_buff.SetBuffFlags(0);
+
+            var toggle = Common.buffToToggle(buff, CommandType.Standard, false, resource2.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
+
+            var greater_feature = Common.ActivatableAbilityToFeature(toggle, false);
+            greater_feature.AddComponent(resource2.CreateAddAbilityResource());
+
+            phantasm = library.CopyAndAdd(illusion, "SpecialisationSchoolPhantamsProgression", "");
+            phantasm.SetNameDescription("Focused School  — Phantasm",
+                                        "Illusionists use magic to weave confounding images, figments, and phantoms to baffle and vex their foes.\n"
+                                        + terror_ability.Name + ": " + terror_ability.Description +"\n"
+                                        + toggle.Name + ": " + toggle.Description);
+            phantasm.LevelEntries = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, base_feature,  opposition_school_selection, opposition_school_selection),
+                Helpers.LevelEntry(8, greater_feature),
+            };
+            addToSchoolSelection(phantasm, illusion);
         }
 
 
@@ -199,7 +274,7 @@ namespace CallOfTheWild
                                                       "Transmuters use magic to change the world around them.\n"
                                                       +"Physical Enhancement: You gain a +1 enhancement bonus to one physical ability score (Strength, Dexterity, or Constitution). This bonus increases by +1 for every five wizard levels you possess to a maximum of +5 at 20th level. At 20th level, this bonus applies to two physical ability scores of your choice.\n"
                                                       + $"Augment: {description}\n"
-                                                      + $"Perfection of Self:{description2}",
+                                                      + $"Perfection of Self: {description2}",
                                                       "",
                                                       Helpers.GetIcon("a970537ea2da20e42ae709c0bb8f793f"), //touch of law
                                                       FeatureGroup.None,
@@ -412,7 +487,7 @@ namespace CallOfTheWild
             var description1 = "When you cast an evocation spell that does acid, cold, electricity, or fire damage, you may change the damage dealt to one of the other four energy types. This changes the descriptor of the spell to match the new energy type. Any non-damaging effects remain unchanged. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.";
             var description2 = "At 8th level, you can emit a 30-foot aura that transforms magical energy. Choose an energy type to transform it into. Any magical source of energy with a caster level equal to or less than your wizard level is altered to the chosen energy type. This includes supernatural effects from creatures with Hit Dice no greater than your caster level. For example, you could transform a white dragon’s frigid breath weapon (a supernatural ability), but not a fire elemental’s fiery touch (an extraordinary ability). If an effect lies only partially within your aura, only the portions within the aura are transformed. You can use this ability for a number of rounds per day equal to your wizard level. The rounds do not need to be consecutive.";
             var versatile_evocation_feature = Helpers.CreateFeature("VersatileEvocationFeature",
-                                                                    "Focused School - Admixture",
+                                                                    "Focused School — Admixture",
                                                                     "Evokers revel in the raw power of magic, and can use it to create and destroy with shocking ease.\n"
                                                                     +"Intense Spells: Whenever you cast an evocation spell that deals hit point damage, add 1/2 your wizard level to the damage (minimum +1). This bonus only applies once to a spell, not once per missile or ray, and cannot be split between multiple missiles or rays. This damage is of the same type as the spell. At 20th level, whenever you cast an evocation spell, you can roll twice to penetrate a creature's spell resistance and take the better result.\n"
                                                                     + $"Versatile Evocation: {description1}\n"

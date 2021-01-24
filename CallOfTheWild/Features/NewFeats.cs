@@ -2127,7 +2127,7 @@ namespace CallOfTheWild
         {
             devastating_strike = Helpers.CreateFeature("DevastatingStrikeFeature",
                                                        "Devastating Strike",
-                                                       "Whenever you use Vital Strike, Improved Vital Strike, or Greater Vital Strike, you gain a +2 bonus on each extra weapon damage dice roll those feats grant (+6 maximum). This bonus damage is multiplied on a critical hit.",
+                                                       $"Whenever you use Vital Strike{(Main.settings.balance_fixes ? "" : ", Improved Vital Strike, or Greater Vital Strike")}, you gain a +2 bonus on each extra weapon damage dice roll those feats grant (+6 maximum). This bonus damage is multiplied on a critical hit.",
                                                        "",
                                                        null,
                                                        FeatureGroup.Feat,
@@ -2783,7 +2783,7 @@ namespace CallOfTheWild
 
             blooded_arcane_strike = Helpers.CreateFeature("BloodedArcaneStrikeFeature",
                                                           "Blooded Arcane Strike",
-                                                          "While you are bloodraging, you don’t need to spend a swift action to use your Arcane Strike—it is always in effect. When you use this ability with Vital Strike, Improved Vital Strike, or Greater Vital Strike, the bonus on damage rolls for Arcane Strike is multiplied by the number of times (two, three, or four) you roll damage dice for one of those feats.",
+                                                          $"While you are bloodraging, you don’t need to spend a swift action to use your Arcane Strike—it is always in effect. When you use this ability with Vital Strike{(Main.settings.balance_fixes ? "" : ", Improved Vital Strike, or Greater Vital Strike")}, the bonus on damage rolls for Arcane Strike is multiplied by the number of times (two, three, or four) you roll damage dice for one of those feats.",
                                                           "",
                                                           LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Arcane_Blooded_Strike.png"), //arcane_strike_feature.Icon
                                                           FeatureGroup.CombatFeat,

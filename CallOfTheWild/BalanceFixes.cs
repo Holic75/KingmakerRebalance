@@ -64,6 +64,27 @@ namespace CallOfTheWild
             fixFeats();
             fixClassFeatures();
             fixTwf();
+            fixVitalStrike();
+        }
+
+
+        static void fixVitalStrike()
+        {
+            var vital_strike = library.Get<BlueprintFeature>("14a1fc1356df9f146900e1e42142fc9d");
+            var improved_vital_strike = library.Get<BlueprintFeature>("52913092cd018da47845f36e6fbe240f");
+            var greater_vital_strike = library.Get<BlueprintFeature>("e2d1fa11f6b095e4fb2fd1dcf5e36eb3");
+            var vital_strike_ability = library.Get<BlueprintAbility>("efc60c91b8e64f244b95c66b270dbd7c");
+
+            var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();
+
+            foreach (var s in selections)
+            {
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(improved_vital_strike).RemoveFromArray(improved_vital_strike);
+                s.Features = s.Features.RemoveFromArray(greater_vital_strike).RemoveFromArray(greater_vital_strike);
+            }
+
+            vital_strike.SetDescription("You make a single attack that deals significantly more damage than normal.\nBenefit: As a standard action, you can make one attack at your highest base attack bonus that deals additional damage. Roll the weapon's damage dice for the attack twice (three times once your BAB reaches 11, four times once your BAB reaches 16) and add the results together before adding bonuses from Strength, weapon abilities (such as flaming), precision-based damage, and other damage bonuses. These extra weapon damage dice are not multiplied on a critical hit, but are added to the total.");
+            vital_strike_ability.SetDescription(vital_strike.Description);
         }
 
 
@@ -249,6 +270,10 @@ namespace CallOfTheWild
             precise_shot.RemoveComponents<PrerequisiteFeature>();
             //no itwf, gtwf
 
+
+
+
+            //condense vital striek into 1 feat
             //free weapon finesse (?)
         }
 
@@ -596,6 +621,10 @@ namespace CallOfTheWild
             //scaled fist draconic heritage 
             var sf_draconic_heritage = library.Get<BlueprintFeatureSelection>("f9042eed12dac2745a2eb7a9a936906b");
             sf_draconic_heritage.SetDescription(replaceString(sf_draconic_heritage.Description, DiceType.D6));
+
+            //acerbic ring
+            var acerbic_ring = library.Get<BlueprintItemEquipmentRing>("1f34a6b309907a44681c689709976bff");
+            acerbic_ring.SetDescription(replaceString(acerbic_ring.Description, DiceType.D6));
         }
 
        

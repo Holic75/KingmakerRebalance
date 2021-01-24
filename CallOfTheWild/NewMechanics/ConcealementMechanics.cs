@@ -475,7 +475,4 @@ namespace CallOfTheWild.ConcealementMechanics
     }
 
 
-
-
-
 }
