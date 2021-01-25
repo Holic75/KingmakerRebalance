@@ -14,6 +14,7 @@ using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
+using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.Utility;
@@ -31,26 +32,31 @@ namespace CallOfTheWild
         static LibraryScriptableObject library => Main.library;
         static public BlueprintProgression admixture;
         static public BlueprintProgression teleportation;
-        //static public BlueprintProgression undead;
+        static public BlueprintProgression undead;
         static public BlueprintProgression phantasm;
         //static public BlueprintProgression controller;
         static public BlueprintProgression prophecy;
         //static public BlueprintProgression banishment;
         static public BlueprintProgression enhancement;
+        static public BlueprintProgression arcane_crafter;
 
         static public BlueprintProgression evocation;
         static public BlueprintProgression transmutation;
         static public BlueprintProgression divination;
         static public BlueprintProgression conjuration;
         //static public BlueprintProgression enchantment;
-        //static public BlueprintProgression necromancy;
+        static public BlueprintProgression necromancy;
         //static public BlueprintProgression abjuration;
         static public BlueprintProgression illusion;
+
+        static public BlueprintProgression universalist;
 
         static public BlueprintAbility augment;
         static public BlueprintAbility inspiring_prediciton_ability;
         static public BlueprintAbility terror_ability_cast;
         static public List<BlueprintActivatableAbility> versatile_evocation = new List<BlueprintActivatableAbility>();
+        static public BlueprintAbility bolster;
+        static public BlueprintAbility command_undead;
 
         static public BlueprintFeatureSelection school_selection = library.Get<BlueprintFeatureSelection>("5f838049069f1ac4d804ce0862ab5110");
 
@@ -69,6 +75,116 @@ namespace CallOfTheWild
             createEnhancement();
             createProphecy();
             createPhantasm();
+            createArcaneCrafter();
+            createUndead();
+        }
+
+
+        static void createUndead()
+        {
+            necromancy = library.Get<BlueprintProgression>("e9450978cc9feeb468fb8ee3a90607e3");
+            var resource2 = library.Get<BlueprintAbilityResource>("16394ff73175b5745957750040a2c99e"); //turn undead resource
+
+            var necromancer_command_undead = ChannelEnergyEngine.createCommandUndead("Necromancer",
+                                                                     "Command Undead",
+                                                                     "As a standard action, you can enslave one undead creature within close range. Undead creature receives a Will save to negate the effect. The DC for this Will save is equal to 10 + 1/2 your wizard level + your Charisma modifier. Undead that fail its saves fall under your control, obeying your commands to the best of their ability, as if under the effects of control undead. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.",
+                                                                     StatType.Charisma, getWizardArray(), resource2);
+            necromancer_command_undead.RemoveComponents<AddAbilityResources>();
+            command_undead = necromancer_command_undead.GetComponent<AddFeatureIfHasFact>().Feature as BlueprintAbility;
+            var base_feature = library.CopyAndAdd<BlueprintFeature>("927707dce06627d4f880c90b5575125f", "UndeadSchoolBaseFeature", "");
+            var resource = Helpers.CreateAbilityResource("UndeadSchoolBaseAbilityResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Intelligence);
+
+            var buff = Helpers.CreateBuff("UndeadBolsterBuff",
+                                          "Bolster",
+                                          "As a standard action, you can touch an undead creature and infuse it with negative energy. It gains a +1 profane bonus on all attack rolls and saving throws, as well as 1 temporary hit point per Hit Die and a +2 bonus to its turn resistance. The bonus on attack rolls and saving throws increases by +1 for every 5 wizard levels you possess. These bonuses last for a number of rounds equal to 1/2 your wizard level (minimum 1 round). The bonuses and temporary hit points are immediately dispelled if the creature is within the area of a consecrate spell. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.",
+                                          "",
+                                          NewSpells.desecrate.Icon,
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Profane),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Profane),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Profane),
+                                          Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Profane),
+                                          Helpers.Create<TemporaryHitPointsPerLevel>(t =>
+                                          {
+                                              t.Descriptor = ModifierDescriptor.Profane;
+                                              t.HitPointsPerLevel = 1;
+                                              t.RemoveWhenHitPointsEnd = true;
+                                              t.Value = 1;
+                                          }),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray(), progression: ContextRankProgression.OnePlusDivStep, stepLevel: 5),
+                                          Helpers.Create<SavingThrowBonusAgainstSpecificSpells>(c =>
+                                          {
+                                                c.Spells = new BlueprintAbility[0];
+                                                c.Value = 2;
+                                                c.BypassFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("3d8e38c9ed54931469281ab0cec506e9") }; //sun domain
+                                          }
+                                          )
+                                          );
+            ChannelEnergyEngine.addChannelResitance(buff);
+
+            NewSpells.consecrate_area.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: Common.createContextActionRemoveBuff(buff),
+                                                                                     round: Common.createContextActionRemoveBuff(buff)));
+
+            var ability = Helpers.CreateAbility("UndeadSchoolBaseAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.SpellLike,
+                                                CommandType.Standard,
+                                                AbilityRange.Touch,
+                                                "1 round/2 levels",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)))),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWizardArray(), progression: ContextRankProgression.Div2, min: 1),
+                                                Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                resource.CreateResourceLogic(),
+                                                Common.createAbilityTargetHasFact(false, Common.undead)
+                                                );
+            ability.setMiscAbilityParametersTouchFriendly();
+            base_feature.ReplaceComponent<AddFacts>(a => a.Facts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] {undead, necromancer_command_undead });
+            base_feature.ReplaceComponent<AddAbilityResources>(a => a.Resource = resource);
+            base_feature.ReplaceComponent<ReplaceAbilitiesStat>(r => r.Ability = new BlueprintAbility[] { ability });
+            base_feature.ReplaceComponent<ReplaceCasterLevelOfAbility>(r => r.Spell = ability);
+            base_feature.SetNameDescription("Focused School — Undead",
+                                      "The dread and feared necromancer commands undead and uses the foul power of unlife against his enemies.\n"
+                                      + necromancer_command_undead.Name + ": " + necromancer_command_undead.Description +"\n"
+                                      + ability.Name + ": " + ability.Description);
+
+            undead = library.CopyAndAdd(necromancy, "UndeadSchoolProgression", "");
+            undead.SetNameDescription(base_feature.Name,
+                                      base_feature.Description + "\n"
+                                      + "Life Sight: At 8th level, you gain blindsight to a range of 10 feet for a number of rounds per day equal to your wizard level. This ability only allows you to detect living creatures and undead creatures. This sight also tells you whether a creature is living or undead. Constructs and other creatures that are neither living nor undead cannot be seen with this ability. The range of this ability increases by 10 feet at 12th level, and by an additional 10 feet for every four levels beyond 12th. These rounds do not need to be consecutive.");
+            undead.LevelEntries = undead.LevelEntries.ToList().ToArray();
+            undead.LevelEntries[0] = Helpers.LevelEntry(1, undead.LevelEntries[0].Features.Skip(1).ToArray().AddToArray(base_feature));
+            addToSchoolSelection(undead, necromancy);
+            bolster = ability;
+        }
+
+
+        static void createArcaneCrafter()
+        {
+            universalist = library.Get<BlueprintProgression>("0933849149cfc9244ac05d6a5b57fd80");
+
+            var metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null)).ToArray();
+
+            var metacharge = Helpers.CreateFeatureSelection("MetachargeFeature",
+                                                            "Metacharge",
+                                                            "As an Arcane crafter, you gain a bonus metamagic feat at 3rd level. You must still meet all prerequisites for this bonus feat, including caster level minimums.",
+                                                            "",
+                                                            null,
+                                                            FeatureGroup.None);
+            metacharge.AllFeatures = metamagics;
+
+            arcane_crafter = library.CopyAndAdd(universalist, "ArcaneCrafterSchoolProgression", "");
+            arcane_crafter.SetNameDescription("Arcane Crafter",
+                            "Wizards who do not specialize (known as as universalists) have the most diversity of all arcane spellcasters.\n"
+                            + metacharge.Name + ": " + metacharge.Description + "\n"
+                            + "Metamagic Mastery: At 8th level, you can apply any one metamagic feat that you know to a spell you are about to cast. This does not alter the level of the spell or the casting time. You can use this ability once per day at 8th level and one additional time per day for every two wizard levels you possess beyond 8th. Any time you use this ability to apply a metamagic feat that increases the spell level by more than 1, you must use an additional daily usage for each level above 1 that the feat adds to the spell. Even though this ability does not modify the spell’s actual level, you cannot use this ability to cast a spell whose modified spell level would be above the level of the highest-level spell that you are capable of casting.");
+            arcane_crafter.LevelEntries = arcane_crafter.LevelEntries.ToList().ToArray();
+            arcane_crafter.LevelEntries[0] = Helpers.LevelEntry(3, metacharge);
+            addToSchoolSelection(arcane_crafter, universalist);
         }
 
 
@@ -129,7 +245,7 @@ namespace CallOfTheWild
             greater_feature.AddComponent(resource2.CreateAddAbilityResource());
 
             phantasm = library.CopyAndAdd(illusion, "SpecialisationSchoolPhantamsProgression", "");
-            phantasm.SetNameDescription("Focused School  — Phantasm",
+            phantasm.SetNameDescription("Focused School — Phantasm",
                                         "Illusionists use magic to weave confounding images, figments, and phantoms to baffle and vex their foes.\n"
                                         + terror_ability.Name + ": " + terror_ability.Description +"\n"
                                         + toggle.Name + ": " + toggle.Description);

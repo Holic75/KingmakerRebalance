@@ -284,10 +284,12 @@ Wizard Discoveries:
 
 Arcane Subschools:
 - Admixture,
+- Arcane Crafter,
 - Enhancement,
 - Teleportation,
 - Prophecy,
-- Phantasm.
+- Phantasm,
+- Undead.
 
 Bard Masterpieces:
 - Clamor of Heavens,

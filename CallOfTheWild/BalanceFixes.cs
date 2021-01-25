@@ -625,6 +625,13 @@ namespace CallOfTheWild
             //acerbic ring
             var acerbic_ring = library.Get<BlueprintItemEquipmentRing>("1f34a6b309907a44681c689709976bff");
             acerbic_ring.SetDescription(replaceString(acerbic_ring.Description, DiceType.D6));
+
+            var acid_splash = library.Get<BlueprintAbility>("0c852a2405dd9f14a8bbcfaf245ff823");
+            acid_splash.SetDescription(acid_splash.Description.Replace("3", getDamageDieString(DiceType.D3)));
+
+            //fix changed dexterity damage description
+            var polar_midnight = library.Get<BlueprintAbility>("ba48abb52b142164eba309fd09898856");
+            polar_midnight.SetDescription(polar_midnight.Description.Replace($"1d{getDamageDieString(DiceType.D6)}", "1d6"));
         }
 
        

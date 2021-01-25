@@ -556,6 +556,7 @@ namespace CallOfTheWild
             }
         }
 
+
         internal static void fixUniversalistMetamagicMastery()
         {
             BlueprintFeature[] metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
