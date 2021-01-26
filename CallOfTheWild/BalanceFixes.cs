@@ -65,6 +65,26 @@ namespace CallOfTheWild
             fixClassFeatures();
             fixTwf();
             fixVitalStrike();
+            fixCleave();
+        }
+
+
+        static void fixCleave()
+        {
+            var greate_cleave = library.Get<BlueprintFeature>("cc9c862ef2e03af4f89be5088851ea35");
+            var cleave = library.Get<BlueprintFeature>("d809b6c4ff2aaff4fa70d712a70f7d7b");
+            var cleave_ability = library.Get<BlueprintAbility>("6447d104a2222c14d9c9b8a36e4eb242");
+
+            cleave.SetDescription(greate_cleave.Description);
+            cleave_ability.SetDescription(greate_cleave.Description);
+            cleave_ability.GetComponent<AbilityCustomCleave>().GreaterFeature = cleave;
+
+            var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();
+            foreach (var s in selections)
+            {
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(greate_cleave);
+                s.Features = s.Features.RemoveFromArray(greate_cleave);
+            }
         }
 
 
@@ -754,7 +774,7 @@ namespace CallOfTheWild
                 af.Round.Actions = run_actions_array[0];
                 af.UnitEnter.Actions = run_actions_array[1];
                 af.UnitExit.Actions = run_actions_array[2];
-                af.UnitMove.Actions = run_actions_array[2];
+                af.UnitMove.Actions = run_actions_array[3];
             }
             );
             processed.AddRange(processed_local);

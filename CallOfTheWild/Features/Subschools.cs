@@ -143,7 +143,8 @@ namespace CallOfTheWild
                                                 Common.createAbilityTargetHasFact(false, Common.undead)
                                                 );
             ability.setMiscAbilityParametersTouchFriendly();
-            base_feature.ReplaceComponent<AddFacts>(a => a.Facts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] {undead, necromancer_command_undead });
+            base_feature.SetIcon(buff.Icon);
+            base_feature.ReplaceComponent<AddFacts>(a => a.Facts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { ability, necromancer_command_undead });
             base_feature.ReplaceComponent<AddAbilityResources>(a => a.Resource = resource);
             base_feature.ReplaceComponent<ReplaceAbilitiesStat>(r => r.Ability = new BlueprintAbility[] { ability });
             base_feature.ReplaceComponent<ReplaceCasterLevelOfAbility>(r => r.Spell = ability);

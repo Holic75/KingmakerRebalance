@@ -2709,6 +2709,32 @@ namespace CallOfTheWild
             library.AddCombatFeats(furious_focus);
 
             BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(furious_focus);
+
+
+            var ranger_styles = new BlueprintFeatureSelection[]{library.Get<BlueprintFeatureSelection>("f489d9f696c588d43907b879d89451be"),
+                                                       library.Get<BlueprintFeatureSelection>("83a4b2605333e004f875e2fd22f6be30"),
+                                                       library.Get<BlueprintFeatureSelection>("f96ad7f1fe7e62c4d8f7540d0f4c7313")
+                                                      };
+
+            var rs2 = library.Get<BlueprintFeatureSelection>("83a4b2605333e004f875e2fd22f6be30");
+            var rs3 = library.Get<BlueprintFeatureSelection>("f96ad7f1fe7e62c4d8f7540d0f4c7313");
+            var cleaving_finish = library.Get<BlueprintFeature>("59bd93899149fa44687ff4121389b3a9");
+            var sunder = library.Get<BlueprintFeature>("9719015edcbf142409592e2cbaab7fe1");
+            var greater_sunder = library.Get<BlueprintFeature>("54d824028117e884a8f9356c7c66149b");
+
+            rs2.AllFeatures = rs2.AllFeatures.AddToArray(furious_focus, sunder).RemoveFromArray(cleaving_finish);
+            rs3.AllFeatures = rs3.AllFeatures.AddToArray(furious_focus, sunder, greater_sunder).RemoveFromArray(cleaving_finish);
+            var greater_cleave = library.Get<BlueprintFeature>("cc9c862ef2e03af4f89be5088851ea35");
+            if (Main.settings.balance_fixes)
+            {
+                rs2.AllFeatures = rs2.AllFeatures.RemoveFromArray(greater_cleave);
+                rs3.AllFeatures = rs3.AllFeatures.RemoveFromArray(greater_cleave);
+            }
+
+            foreach (var rs in ranger_styles)
+            {
+               rs.SetDescription($"At 2nd level, the ranger can select from Cleave, Power Attack, and Intimidating Prowess.\nAt 6th level, he adds Furious Focus,{(Main.settings.balance_fixes ? "" : " Great Cleave,")} and Sunder to the list.\nAt 10th level, he adds Dreadful Carnage and Greater Sunder to the list.");
+            }
         }
 
         static void createRagingBrutality()
