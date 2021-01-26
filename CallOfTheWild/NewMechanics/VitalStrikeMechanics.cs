@@ -137,6 +137,12 @@ namespace CallOfTheWild.VitalStrikeMechanics
         static bool Prefix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
             Main.TraceLog();
+            int dmg_mod = ___m_DamageMod;
+            if (Main.settings.balance_fixes)
+            {
+                var bab = evt.Initiator.Stats.BaseAttackBonus.ModifiedValue;
+                dmg_mod = 2 + Math.Min(2, (Math.Max(bab - 6, 0) / 5));
+            }
             //allow it to work with elemental damage (?)
             DamageDescription damageDescription = evt.DamageDescription.FirstItem<DamageDescription>();
 
@@ -145,12 +151,12 @@ namespace CallOfTheWild.VitalStrikeMechanics
 
             int bonus = evt.Initiator.Ensure<UnitPartVitalStrikeScalingDamageBonus>().getDamageBonus();
 
-            bonus *= (___m_DamageMod - 1);
+            bonus *= (dmg_mod - 1);
             damageDescription.Bonus += bonus;
             //make vital strike damage not multipliable on critical hit
             var vital_strike_damage = new DamageDescription();
             vital_strike_damage.TypeDescription = damageDescription.TypeDescription;
-            vital_strike_damage.Dice = new DiceFormula(damageDescription.Dice.Rolls * (___m_DamageMod - 1), damageDescription.Dice.Dice);
+            vital_strike_damage.Dice = new DiceFormula(damageDescription.Dice.Rolls * (dmg_mod - 1), damageDescription.Dice.Dice);
             if (evt.DamageDescription.Count() <= 1)
             {
                 evt.DamageDescription.Add(vital_strike_damage);

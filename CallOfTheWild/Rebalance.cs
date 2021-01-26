@@ -556,6 +556,7 @@ namespace CallOfTheWild
             }
         }
 
+
         internal static void fixUniversalistMetamagicMastery()
         {
             BlueprintFeature[] metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null) && b.AssetGuid != "2f5d1e705c7967546b72ad8218ccf99c").ToArray();
@@ -2362,7 +2363,7 @@ namespace CallOfTheWild
                                        + "At 12th level, a tactical leader can use the tactician ability as a swift action. At 18th level, whenever the tactical leader uses this ability, he grants any two teamwork feats that he knows. He can select from any of his teamwork feats, not just his bonus feats.");
 
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(buff), a.Actions.Actions[0]));
-
+            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_StartLevel", -4));
 
             var extra_tactician = Helpers.CreateFeature("TacticalLeaderExtraTactician",
                                                         "",

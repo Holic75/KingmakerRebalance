@@ -275,12 +275,12 @@ namespace CallOfTheWild
                 resource.SetFixedResource(3);
                 var cooldown_buff = Helpers.CreateBuff(prefix + "FierySoulCooldownBuff",
                                        "Fiery Soul: Cooldown",
-                                       "As a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d4 points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                       $"As a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                        "",
                                        icon,
                                        null);
                 var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(0, diceType: DiceType.D4, diceCount: 1), dispellable: false);
-                var fiery_soul = library.CopyAndAdd<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038", prefix + "FierySoulAbility", "");
+                var fiery_soul = library.CopyAndAdd<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038", prefix + "FierySoulAbility", ""); //burning hands
                 fiery_soul.Type = AbilityType.Supernatural;
                 fiery_soul.SpellResistance = false;
                 fiery_soul.RemoveComponents<SpellComponent>();
@@ -294,7 +294,7 @@ namespace CallOfTheWild
                 fiery_soul.SetNameDescriptionIcon("Fiery Soul", cooldown_buff.Description, cooldown_buff.Icon);
                 greater_spirit_ability = Helpers.CreateFeature(prefix + "FierySoulFeature",
                                                                fiery_soul.Name,
-                                                               "The shaman gains fire resistance 10. In addition, as a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d4 points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
+                                                               $"The shaman gains fire resistance 10. In addition, as a standard action she can unleash a 15-foot cone of flame from her mouth, dealing 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of fire damage per shaman level she possesses. A successful Reflex saving throw halves this damage. The shaman can use this ability three times per day, but she must wait 1d4 rounds between each use.",
                                                                "",
                                                                fiery_soul.Icon,
                                                                FeatureGroup.None,

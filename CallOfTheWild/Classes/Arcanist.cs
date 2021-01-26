@@ -1644,6 +1644,46 @@ namespace CallOfTheWild
         }
 
 
+        static BlueprintFeature createUndead()
+        {
+            //necromancy
+            var necromancy_progression = Subschools.undead;
+            var resource = Helpers.CreateAbilityResource("UndeadSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd(Subschools.bolster, "SchoolUnderstandingUndeadSchoolBase1Ability", "");
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            var resource2 = Helpers.CreateAbilityResource("UndeadSchoolUnderstandingBase2Resource", "", "", "", null);
+
+            var base_ability2 = library.CopyAndAdd(Subschools.command_undead, "SchoolUnderstandingUndeadSchoolBase2Ability", "");
+            base_ability2.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource2);
+            resource2.SetIncreasedByStat(3, StatType.Charisma);
+
+            var necromancy_buff = Helpers.CreateBuff("SchoolUnderstangingUndeadBuff",
+                                                    "School Understanding (" + necromancy_progression.Name + ")",
+                                                    school_understanding.Description + "\n" + necromancy_progression.Name + ": " + necromancy_progression.Description,
+                                                    "",
+                                                    necromancy_progression.Icon,
+                                                    null
+                                                    );
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(necromancy_buff));
+            base_ability2.AddComponent(Common.createAbilityCasterHasFacts(necromancy_buff));
+            var necromancy_feature = Helpers.CreateFeature("UndeadSchoolUnderstangingFeature",
+                                                          necromancy_buff.Name,
+                                                          necromancy_buff.Description,
+                                                          "",
+                                                          necromancy_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, base_ability2, createSchoolUnderstandingAbility(necromancy_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.CreateAddAbilityResource(resource2),
+                                                          Helpers.PrerequisiteNoFeature(necromancy_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+            ChannelEnergyEngine.addToImprovedChannel(base_ability2, necromancy_feature);
+
+            return necromancy_feature;
+        }
+
+
         static BlueprintFeature createDivination()
         {
             //divination
@@ -1678,6 +1718,38 @@ namespace CallOfTheWild
                                                           Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
 
             return divination_feature;
+        }
+
+
+
+        static BlueprintFeature createPhantasm()
+        {
+            //illusion
+            var illusion_progression = Subschools.phantasm;
+            var resource = Helpers.CreateAbilityResource("PhantasmSchoolUnderstandingBaseResource", "", "", "", null);
+            var base_ability = library.CopyAndAdd(Subschools.terror_ability_cast, "SchoolUnderstandingPhantasmSchoolBase1Ability", "");
+            base_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+
+            var illusion_buff = Helpers.CreateBuff("SchoolUnderstangingPhantasmBuff",
+                                                    "School Understanding (" + illusion_progression.Name + ")",
+                                                    school_understanding.Description + "\n" + illusion_progression.Name + ": " + illusion_progression.Description,
+                                                    "",
+                                                    illusion_progression.Icon,
+                                                    null);
+            base_ability.AddComponent(Common.createAbilityCasterHasFacts(illusion_buff));
+
+            var illusion_feature = Helpers.CreateFeature("PhantasmSchoolUnderstangingFeature",
+                                                          illusion_buff.Name,
+                                                          illusion_buff.Description,
+                                                          "",
+                                                          illusion_buff.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddFacts(base_ability, createSchoolUnderstandingAbility(illusion_buff)),
+                                                          Helpers.CreateAddAbilityResource(resource),
+                                                          Helpers.PrerequisiteNoFeature(illusion_progression),
+                                                          Helpers.Create<ReplaceAbilitiesStat>(r => { r.Ability = new BlueprintAbility[] { base_ability }; r.Stat = StatType.Charisma; }));
+            return illusion_feature;
         }
 
 
@@ -1728,9 +1800,7 @@ namespace CallOfTheWild
                                                       "",
                                                       null,
                                                       FeatureGroup.None);
-            school_understanding.AddComponents(Helpers.PrerequisiteNoFeature(school_understanding),
-                                               Common.prerequisiteNoArchetype(school_savant_archetype)
-                                               );
+            school_understanding.AddComponents(Helpers.PrerequisiteNoFeature(school_understanding));
 
             school_understanding.AllFeatures = new BlueprintFeature[]
             {
@@ -1745,7 +1815,9 @@ namespace CallOfTheWild
                 createAdmixture(),
                 createTeleportation(),
                 createEnhancement(),
-                createProphecy()
+                createProphecy(),
+                createPhantasm(),
+                createUndead()
             };
             school_understanding.AddComponent(Common.prerequisiteNoArchetype(school_savant_archetype));
             arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(school_understanding);
@@ -2011,12 +2083,16 @@ namespace CallOfTheWild
             var force_missile = library.Get<BlueprintAbility>("3d55cc710cc497843bb51788057cd93f");
             var magic_missile = library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2");
 
-            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4), 1, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var damage = Helpers.CreateActionDealDamage(DamageEnergyType.Magic, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D4),
+                                                        Main.settings.balance_fixes ? Helpers.CreateContextValue(AbilityRankType.Default) : 1,  
+                                                        Main.settings.balance_fixes ? 0 : Helpers.CreateContextValue(AbilityRankType.Default)));
             damage.DamageType = Common.createForceDamageDescription();
 
             var ability = Helpers.CreateAbility("ForceStrikeExploitAbility",
                                                 "Force Strike",
-                                                $"The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of force damage, plus 1 point of damage per arcanist level. Spells and effects that negate magic missile also negate this effect.",
+                                                Main.settings.balance_fixes ?
+                                                $"The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of force damage, plus 1d{BalanceFixes.getDamageDieString(DiceType.D4)} points of damage per two arcanist levels beyond first. Spells and effects that negate magic missile also negate this effect."
+                                                : "The arcanist can unleash a blast of force by expending 1 point from her arcane reservoir. This attack automatically strikes one target within close range (as magic missile) and deals 1d4 points of force damage, plus 1 point of damage per arcanist level. Spells and effects that negate magic missile also negate this effect.",
                                                 "",
                                                 force_missile.Icon,
                                                 AbilityType.Supernatural,
@@ -2026,7 +2102,7 @@ namespace CallOfTheWild
                                                 "",
                                                 force_missile.GetComponent<AbilityDeliverProjectile>(),
                                                 Helpers.CreateRunActions(damage),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray()),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getExploitsUserArray(), progression: Main.settings.balance_fixes ? ContextRankProgression.OnePlusDiv2 : ContextRankProgression.AsIs),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Force),
                                                 Helpers.CreateResourceLogic(arcane_reservoir_resource)
                                                 );

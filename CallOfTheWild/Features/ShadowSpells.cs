@@ -277,8 +277,15 @@ namespace CallOfTheWild.ShadowSpells
 
                 if (!__instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
                 {
-                    RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Target, SavingThrowType.Will, context2.Params.DC));
-                    __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                    if (__instance.Target.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
+                    {
+                        __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = true;
+                    }
+                    else
+                    {
+                        RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Target, SavingThrowType.Will, context2.Params.DC));
+                        __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                    }
                 }
 
                 if (__instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])
@@ -360,8 +367,15 @@ namespace CallOfTheWild.ShadowSpells
 
                 if (!__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts.ContainsKey(context2))
                 {
-                    RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Initiator, SavingThrowType.Will, context2.Params.DC));
-                    __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                    if (__instance.Initiator.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
+                    {
+                        __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = true;
+                    }
+                    else
+                    {
+                        RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Initiator, SavingThrowType.Will, context2.Params.DC));
+                        __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                    }
                 }
 
                 if (__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])

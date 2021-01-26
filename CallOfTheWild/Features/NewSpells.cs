@@ -213,6 +213,7 @@ namespace CallOfTheWild
         static public BlueprintAbility intellect_fortress;
 
         static public BlueprintAbility consecrate;
+        static public BlueprintAbilityAreaEffect consecrate_area;
         static public BlueprintAbility desecrate;
         static public BlueprintAbilityAreaEffect desecrate_area;
         static public BlueprintAbility animate_dead_lesser;
@@ -3284,7 +3285,7 @@ namespace CallOfTheWild
                                                               );
             consecreate_undead_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            var consecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "ConsecrateArea", "");
+            consecrate_area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("c08bd33a377d5014a81be94e33ec8ce4", "ConsecrateArea", "");
             consecrate_area.Size = 20.Feet();
             consecrate_area.Fx = Common.createPrefabLink("bbd6decdae32bce41ae8f06c6c5eb893"); //holy holy aoe
             consecrate_area.ComponentsArray = new BlueprintComponent[]
