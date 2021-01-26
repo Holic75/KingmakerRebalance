@@ -99,8 +99,8 @@ namespace CallOfTheWild
 
             foreach (var s in selections)
             {
-                s.AllFeatures = s.AllFeatures.RemoveFromArray(improved_vital_strike).RemoveFromArray(improved_vital_strike);
-                s.Features = s.Features.RemoveFromArray(greater_vital_strike).RemoveFromArray(greater_vital_strike);
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(improved_vital_strike).RemoveFromArray(greater_vital_strike);
+                s.Features = s.Features.RemoveFromArray(improved_vital_strike).RemoveFromArray(greater_vital_strike);
             }
 
             vital_strike.SetDescription("You make a single attack that deals significantly more damage than normal.\nBenefit: As a standard action, you can make one attack at your highest base attack bonus that deals additional damage. Roll the weapon's damage dice for the attack twice (three times once your BAB reaches 11, four times once your BAB reaches 16) and add the results together before adding bonuses from Strength, weapon abilities (such as flaming), precision-based damage, and other damage bonuses. These extra weapon damage dice are not multiplied on a critical hit, but are added to the total.");
@@ -134,7 +134,7 @@ namespace CallOfTheWild
             //fix monk ac bonuses
             var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             var monk_ac_unlock = library.Get<BlueprintFeature>("2615c5f87b3d72b42ac0e73b56d895e0");
-            monk_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Wisdom bonus(if any, up to his monk level) to his AC and CMD. In addition, a monk gains a + 1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of + 5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat - footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.") ;
+            monk_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Wisdom bonus (if any, up to his monk level) to his AC and CMD. In addition, a monk gains a + 1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of + 5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat - footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.") ;
             var monk_ac = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
             var monk_ac_property = NewMechanics.ContextValueWithLimitProperty.createProperty("MonkAcProperty", "b8ba561529dc4143b014994ea3f234fe",
                                                                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,

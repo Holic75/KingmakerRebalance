@@ -1680,7 +1680,7 @@ namespace CallOfTheWild
             painful_reminder_resource.SetIncreasedByStat(3, StatType.Charisma);
             var painful_reminder_buff = Helpers.CreateBuff("PainfulReminderBuff",
                                                            "Painful Reminder Allowed",
-                                                           "As a swift action, you can cause an enemy to take 1d6 points of nonlethal damage if you dealt damage to that enemy with a spell since the start of your previous turn. You can use this ability a number of times per day equal to 3 + your Charisma modifier. This damage increases to 2d6 at 8th level and to 3d6 at 15th level.\n"
+                                                           $"As a swift action, you can cause an enemy to take 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of nonlethal damage if you dealt damage to that enemy with a spell since the start of your previous turn. You can use this ability a number of times per day equal to 3 + your Charisma modifier. This damage increases to 2d{BalanceFixes.getDamageDieString(DiceType.D6)} at 8th level and to 3d{BalanceFixes.getDamageDieString(DiceType.D6)} at 15th level.\n"
                                                            + "If your painful reminder deals at least 5 points of damage, you regain 1 point in your phrenic pool.",
                                                            "",
                                                            Helpers.GetIcon("55f14bc84d7c85446b07a1b5dd6b2b4c"), //daze
@@ -1707,7 +1707,7 @@ namespace CallOfTheWild
                                                                                                                       Common.createContextActionOnContextCaster(Helpers.Create<ResourceMechanics.ContextRestoreResource>(c => c.Resource = phrenic_pool_resource))
                                                                                                                      )
                                                                                           ),
-                                                                 Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0)),
+                                                                 Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0)),
                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getPsychicArray(), progression: ContextRankProgression.Custom,
                                                                                                  customProgression: new (int, int)[] { (7, 1), (14, 2), (20, 3) }),
                                                                  painful_reminder_resource.CreateResourceLogic()
