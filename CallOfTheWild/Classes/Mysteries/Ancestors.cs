@@ -133,7 +133,7 @@ namespace CallOfTheWild
         public BlueprintFeature createPhantomTouch(string name_prefix, string display_name, string description)
         {
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByStat(3, StatType.Wisdom);
+            resource.SetIncreasedByStat(3, stat);
 
             var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
             var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
@@ -184,7 +184,7 @@ namespace CallOfTheWild
             var icon = Helpers.GetIcon("1bb08308c9f6a5e4697887cd438b7221"); //judgement protection
 
             var resource = Helpers.CreateAbilityResource($"{name_prefix}Resource", "", "", "", null);
-            resource.SetIncreasedByStat(0, StatType.Wisdom);
+            resource.SetIncreasedByStat(0, stat);
 
             var components = new BlueprintComponent[]
             {
