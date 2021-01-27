@@ -531,7 +531,7 @@ namespace CallOfTheWild
 
             var cruel = Common.createEnchantmentAbility("WarriorSpiritEnchancementCruel",
                                                         "Warrior Spirit - Cruel",
-                                                        $"A fighter can add the vicious property to her weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\n{WeaponEnchantments.cruel.Description}",
+                                                        $"A fighter can add the cruel property to her weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\n{WeaponEnchantments.cruel.Description}",
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWCruel.png"),
                                                         weapon_enhancement_buff,
                                                         WeaponEnchantments.cruel,

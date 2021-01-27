@@ -54,6 +54,13 @@ namespace CallOfTheWild.SpellbookMechanics
 
     }
 
+
+    [AllowedOn(typeof(BlueprintSpellbook))]
+    public class OccultistSpellbook : BlueprintComponent
+    {
+
+    }
+
     [AllowedOn(typeof(BlueprintSpellbook))]
     public class GetKnownSpellsFromMemorizationSpellbook : BlueprintComponent
     {
