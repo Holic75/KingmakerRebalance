@@ -269,6 +269,7 @@ namespace CallOfTheWild
                     CallOfTheWild.MetamagicFeats.load();
                     CallOfTheWild.Rebalance.fixUniversalistMetamagicMastery();
                     CallOfTheWild.NewSpells.load();
+                    CallOfTheWild.Rebalance.fixFlameWardenSpells();
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();

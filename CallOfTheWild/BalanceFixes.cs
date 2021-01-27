@@ -329,6 +329,22 @@ namespace CallOfTheWild
                 }
                 serenity.SetDescription(serenity.Description.Replace("dxxx", "d"));
             }
+
+            //fix phoenix_blast
+            {
+                var area = library.Get<BlueprintAbilityAreaEffect>("f6d511dda2d97b84783df21af423c878");
+                var feature = library.Get<BlueprintFeature>("9a1fc45d57567e946a20926f891453ed");
+
+                HashSet<DiceType> processed_local = new HashSet<DiceType>();
+                fixSpellDamageArea(area, processed_local);
+                foreach (var p in processed_local)
+                {
+                    var old_dice = (int)p;
+                    var new_dice = (int)dices_shift[p];
+                    feature.SetDescription(feature.Description.Replace("d" + old_dice.ToString(), "dxxx" + new_dice.ToString()));
+                }
+                feature.SetDescription(feature.Description.Replace("dxxx", "d"));
+            }
         }
 
         static public DiceType getDamageDie(DiceType dice)

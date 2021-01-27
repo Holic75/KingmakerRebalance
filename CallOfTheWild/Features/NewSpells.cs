@@ -2308,7 +2308,16 @@ namespace CallOfTheWild
 
         static void createOrbOfTheVoid()
         {
+
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Metamixing.png");
+
+            var caster_dmg_done = Helpers.CreateBuff("OrbOfTheVoidCasterDamageDoneBuff",
+                                                      "Orb of the Void (Affected This Turn)",
+                                                      "",
+                                                      "",
+                                                      icon,
+                                                      null
+                                                      );
 
             var orb_fx_buff = library.CopyAndAdd<BlueprintBuff>("1eb1c1aab1b319c43b06b40c4800f16c", "OrbOfTheVoidFxBuff", "");
             orb_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
@@ -2325,6 +2334,9 @@ namespace CallOfTheWild
                                                    Common.createContextActionApplyBuff(undead_buff, Helpers.CreateContextDuration(1, DurationRate.Hours), is_from_spell: true),
                                                    Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, dmg))
                                                    );
+            effect = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done), new GameAction[0],
+                                               new GameAction[] { effect, Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 6) }
+                                               );
             var dmg_action = Helpers.CreateActionList(effect);
             area.ComponentsArray = new BlueprintComponent[]
             {
@@ -2364,7 +2376,8 @@ namespace CallOfTheWild
                                                      "",
                                                      Helpers.CreateRunActions(spawn_area),
                                                      Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
-                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy)
+                                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                     Common.createAbilityCasterHasNoFacts(caster_dmg_done)
                                                      );
 
             move_ability.setMiscAbilityParametersRangedDirectional();
@@ -2478,7 +2491,7 @@ namespace CallOfTheWild
             var apply_dot = Common.createContextActionApplyBuff(dot, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_from_spell: true);
             pain_strike = Helpers.CreateAbility("PainStrikeAbility",
                                                 "Pain Strike",
-                                                "Pain strike racks the targeted creature with agony, inflicting 1d6 points of damage per round for 1 round per level (maximum 10 rounds). Additionally, the affected creature is sickened for the spell’s duration.",
+                                                $"Pain strike racks the targeted creature with agony, inflicting 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage per round for 1 round per level (maximum 10 rounds). Additionally, the affected creature is sickened for the spell’s duration.",
                                                 "",
                                                 sickened.Icon,
                                                 AbilityType.Spell,
@@ -4310,7 +4323,7 @@ namespace CallOfTheWild
             var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
                                                       new GameAction[0],
                                                       new GameAction[]{dmg_save_action,
-                                                                       Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                       Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 6)
                                                                        }
                                                                        )
                                           );
@@ -4422,7 +4435,7 @@ namespace CallOfTheWild
             var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
                                                      new GameAction[0], 
                                                      new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))),
-                                                                        Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                        Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 6)
                                                                        }
                                                                        )
                                                       );

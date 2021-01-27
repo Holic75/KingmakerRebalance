@@ -174,7 +174,7 @@ namespace CallOfTheWild
             psychic_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("63caf94a780472b448f50d0bc183c38f"), //s. magic missile
-                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("63caf94a780472b448f50d0bc183c38f"), //s. magic missile
+                                                                                        library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("78da1d5a10d8e384285e54df202dfb01"), //s. hypnotism
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("e8308a74821762e49bc3211358e81016"), //s. mage armor
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("f79c3fd5012a3534c8ab36dc18e85fb1") //s. sleep
                                                                                        };
@@ -803,6 +803,7 @@ namespace CallOfTheWild
                                                             "6a8651389c6348bb819b41b8ecdfe9fe",
                                                             spell_recollection.Icon,
                                                             null);
+            amnesiac_cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             var apply_cooldown = Common.createContextActionApplyBuff(amnesiac_cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false);
             for (int i = 1; i <= 9; i++)
             {
