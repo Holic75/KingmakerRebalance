@@ -273,6 +273,7 @@ namespace CallOfTheWild
                     CallOfTheWild.MetamagicFeats.load();
                     CallOfTheWild.Rebalance.fixUniversalistMetamagicMastery();
                     CallOfTheWild.NewSpells.load();
+                    CallOfTheWild.Rebalance.fixFlameWardenSpells();
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
@@ -319,6 +320,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Shaman.createShamanClass();
                     CallOfTheWild.Psychic.createPsychicClass();
                     CallOfTheWild.Occultist.createOccultistClass();
+                    CallOfTheWild.Archetypes.RelicHunter.create();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.BloodlinesFix.load();
                     CallOfTheWild.Archetypes.PrimalSorcerer.create();

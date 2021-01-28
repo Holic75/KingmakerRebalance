@@ -148,6 +148,7 @@
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
     <Compile Include="Archetypes\Rake.cs" />
     <Compile Include="Archetypes\RavenerHunter.cs" />
+    <Compile Include="Archetypes\RelicHunter.cs" />
     <Compile Include="Archetypes\SacredServant.cs" />
     <Compile Include="Archetypes\SanctifiedSlayer.cs" />
     <Compile Include="Archetypes\Seeker.cs" />

@@ -10936,5 +10936,26 @@ namespace CallOfTheWild
                 can_rend = false;
             }
         }
+
+
+        public class ReceiveExtraDamageOnWeaponAttack : RuleTargetLogicComponent<RulePrepareDamage>
+        {
+            public DamageDescription damage;
+
+            public override void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
+                if (evt.DamageBundle.Weapon == null)
+                {
+                    return;
+                }
+            
+                BaseDamage damage = this.damage.CreateDamage();
+                evt.DamageBundle.Add(damage);
+            }
+
+            public override void OnEventDidTrigger(RulePrepareDamage evt)
+            {
+            }
+        }
     }
 }

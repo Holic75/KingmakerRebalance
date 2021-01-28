@@ -206,7 +206,7 @@ namespace CallOfTheWild
             //fiery body
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
             //fire belly
-            Common.addSpellDescriptor(library.Get<BlueprintAbility>("5e5b663f988ece84b9346f6d7d541e66"), SpellDescriptor.Fire);
+            Common.addSpellDescriptor(library.Get<BlueprintAbility>("b065231094a21d14dbf1c3832f776871"), SpellDescriptor.Fire);
             library.Get<BlueprintAbility>("08ccad78cac525040919d51963f9ac39").GetComponent<SpellDescriptorComponent>().Descriptor = SpellDescriptor.Fire;
             //force descriptors on battering blast and magic missile
             library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2").AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
@@ -554,6 +554,50 @@ namespace CallOfTheWild
             {
                 f.GetComponent<AddKineticistPart>().CanGatherPowerWithShieldBuff = buff;
             }
+        }
+
+        static internal void fixFlameWardenSpells()
+        {
+            var flamewarden = library.Get<BlueprintArchetype>("300917c3479d27d47b4b4b52b1762e8d");
+
+            var spellbook = library.CopyAndAdd<BlueprintSpellbook>("762858a4a28eaaf43aa00f50441d7027", "FlameWardenSpellbook", "");
+            spellbook.Name = Helpers.CreateString("Flamewarden.Spellbook", flamewarden.Name);
+            var druid_spelllist = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
+            var ranger_spell_list = flamewarden.GetParentClass().Spellbook.SpellList;
+            spellbook.SpellList = Common.combineSpellLists("FlameWardenSpellList",
+                                                            (spell, spelllist, lvl) =>
+                                                            {
+                                                                return lvl != 0 &&
+                                                                       (spelllist != druid_spelllist
+                                                                       || (!ranger_spell_list.Contains(spell) && lvl <= 4 && spell.SpellDescriptor.Intersects(SpellDescriptor.Fire))
+                                                                       );
+                                                            },
+                                                           flamewarden.GetParentClass().Spellbook.SpellList, druid_spelllist
+                                                           );
+
+            flamewarden.ReplaceSpellbook = spellbook;
+
+            var flame_warden_spellcasting1 = library.Get<BlueprintFeature>("2cb57c0d74d143f4da1ef6704012b0f4");
+            var flame_warden_spellcasting2 = library.Get<BlueprintFeature>("275d72a20f615b54eb89460cd3aa8e1b");
+            var flame_warden_spellcasting3 = library.Get<BlueprintFeature>("0dc70999341cdd644be0b972dd83900b");
+            var flame_warden_spellcasting4 = library.Get<BlueprintFeature>("891441bcd187d4d43abc46d3202e07a0");
+
+            flamewarden.AddFeatures = Common.removeEntries(flamewarden.AddFeatures, f => f == flame_warden_spellcasting2 || f == flame_warden_spellcasting3 || f == flame_warden_spellcasting4 );
+            flame_warden_spellcasting1.SetDescription("A flamewarden can prepare spells from the druid list that have the fire descriptor.");
+            flame_warden_spellcasting1.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.CreateAddKnownSpell(library.Get<BlueprintAbility>("d8f88028204bc2041be9d9d51f58e6a5"), flamewarden.GetParentClass(), 1),
+                Helpers.CreateAddKnownSpell(library.Get<BlueprintAbility>("7b30211b83d55194db872b6c9c0d9cc1"), flamewarden.GetParentClass(), 3),
+                Helpers.CreateAddKnownSpell(library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), flamewarden.GetParentClass(), 4)
+            };
+
+            var mt_ranger = library.Get<BlueprintProgression>("a823e7aa48bbec24f87f4a92a3ac0aa2");
+            mt_ranger.AddComponent(Common.prerequisiteNoArchetype(flamewarden));
+
+            Common.addMTDivineSpellbookProgression(flamewarden.GetParentClass(), spellbook, "MysticTheurgeFlamewardenProgression",
+                                       Common.createPrerequisiteArchetypeLevel(flamewarden, 1),
+                                       Common.createPrerequisiteClassSpellLevel(flamewarden.GetParentClass(), 2)
+                                       );
         }
 
 
@@ -936,6 +980,22 @@ namespace CallOfTheWild
             kanerah_companion.Constitution = 14;
             kanerah_companion.Charisma = 8;
             kanerah_companion.Wisdom = 10;
+
+            //fix tratucio
+            var tartucio_feature = library.Get<BlueprintFeature>("a94fdc7ac4e70954aa05a5ff34b8e6bf");
+            var tartucio_levels = tartucio_feature.GetComponent<AddClassLevels>();
+            tartucio_levels.Selections = tartucio_levels.Selections.AddToArray(new SelectionEntry()
+            {
+                Selection = library.Get<BlueprintFeatureSelection>("7c150d6a5f5b4ffd8eb710c79888d273"),
+                Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+            },
+                                                                    new SelectionEntry()
+                                                                    {
+                                                                        Selection = BloodlinesFix.bloodline_familiar,
+                                                                        Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
+                                                                                }
+                                                                  );
+            tartucio_levels.SelectSpells[1] = library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061");
         }
 
 

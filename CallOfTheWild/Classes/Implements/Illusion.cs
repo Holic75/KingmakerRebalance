@@ -154,7 +154,7 @@ namespace CallOfTheWild
                                        + "You must be at least 7th level to select this focus power."
                                        );
 
-            var ability2 = library.CopyAndAdd(ability, ability.Name + "Others", "");
+            var ability2 = library.CopyAndAdd(ability, ability.name + "Others", "");
             ability2.Range = AbilityRange.Touch;
             ability2.setMiscAbilityParametersTouchFriendly();
             ability2.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = 2);

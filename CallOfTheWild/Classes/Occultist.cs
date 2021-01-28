@@ -138,12 +138,12 @@ namespace CallOfTheWild
         }
 
 
-        static bool isPanoply(SpellSchool s)
+        public static bool isPanoply(SpellSchool s)
         {
             return (int)s > 100;
         }
 
-        static string getString(SpellSchool s)
+        public static string getString(SpellSchool s)
         {
             if (!isPanoply(s))
             {
@@ -155,7 +155,7 @@ namespace CallOfTheWild
         }
 
 
-        static string getHumanString(SpellSchool s)
+        public static string getHumanString(SpellSchool s)
         {
             if (!isPanoply(s))
             {
@@ -179,7 +179,7 @@ namespace CallOfTheWild
         }
 
 
-        static SpellSchool[] getCorrepsondingSpellSchools(SpellSchool s)
+        public static SpellSchool[] getCorrepsondingSpellSchools(SpellSchool s)
         {
             if (!isPanoply(s))
             {
@@ -1193,10 +1193,6 @@ namespace CallOfTheWild
 
         static void createImplements()
         {
-            //perfromer's accoutments
-            //passive bonus to stealth/trickery/3 points of mental focus, up to 1/2 occultist level
-            //base ability: interomptu sneak attack - i.e. make target flat footed for your attacks for 1 round as a swift action/2 focus points
-            //puppet master - dominate effect for 1 round/2 levels /3 points (min level - 9)
             first_implement_selection = Helpers.CreateFeatureSelection("BaseImplementSelection",
                                                                       "Implements",
                                                                       "At 1st level, an occultist learns to use two implement schools. At 2nd level and every 4 occultist levels thereafter, the occultist learns to use one additional implement school, to a maximum of seven schools at 18th level. Each implement school adds up to 6 spells of any level of that school of magic to the occultist’s spell list.\n"
@@ -1657,6 +1653,7 @@ namespace CallOfTheWild
             occultist_spellbook.CasterLevelModifier = 0;
             occultist_spellbook.CantripsType = CantripsType.Cantrips;
             occultist_spellbook.SpellsPerLevel = 0;
+            occultist_spellbook.AddComponent(Helpers.Create<SpellbookMechanics.OccultistSpellbook>());
 
             occultist_spellbook.SpellList = Helpers.Create<BlueprintSpellList>();
             occultist_spellbook.SpellList.name = "OccultistSpellList";
