@@ -2372,7 +2372,8 @@ namespace CallOfTheWild
                                                  Helpers.Create<RestrictionHasFact>(a => { a.Feature = deactivate_buff; a.Not = true; })
                                                  );
             dark_half_toggle.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
-            
+            dark_half_toggle.DeactivateIfCombatEnded = true;
+
 
             var dark_half = Common.ActivatableAbilityToFeature(dark_half_toggle, false);
             dark_half.AddComponent(resource.CreateAddAbilityResource());

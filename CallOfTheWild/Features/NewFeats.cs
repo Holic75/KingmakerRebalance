@@ -16,6 +16,7 @@ using Kingmaker.Enums;
 using Kingmaker.Items;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -2349,7 +2350,16 @@ namespace CallOfTheWild
                                                                    "",
                                                                    sound_burst.Icon,
                                                                    null,
-                                                                   Common.createAddTargetAttackWithWeaponTrigger(deal_dmg, null, not_reach: false, only_melee: false, wait_for_attack_to_resolve: true)
+                                                                   Helpers.Create<NewMechanics.ReceiveExtraDamageOnWeaponAttack>(r =>
+                                                                   {
+                                                                       r.damage = new DamageDescription()
+                                                                       {
+                                                                           TypeDescription = Common.createEnergyDamageDescription(Kingmaker.Enums.Damage.DamageEnergyType.Sonic),
+                                                                           Dice = new DiceFormula(1, DiceType.D6)
+                                                                       };
+                                                                   }
+                                                                   )
+                                                                   //Common.createAddTargetAttackWithWeaponTrigger(deal_dmg, null, not_reach: false, only_melee: false, wait_for_attack_to_resolve: true)
                                                                    );
 
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("4a15b95f8e173dc4fb56924fe5598dcf", "DiscordantVoiceArea", ""); //dirge of doom
