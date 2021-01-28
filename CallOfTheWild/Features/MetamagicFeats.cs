@@ -1038,7 +1038,7 @@ namespace CallOfTheWild
             
                 if ((mask & (Metamagic)MetamagicExtender.Intensified) != 0)
                 {
-                    extra_metamagic += "Intesnsified, ";
+                    extra_metamagic += "Intensified, ";
                 }
                 if ((mask & (Metamagic)MetamagicExtender.Piercing) != 0)
                 {
