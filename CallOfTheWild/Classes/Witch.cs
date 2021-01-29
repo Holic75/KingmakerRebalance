@@ -106,6 +106,7 @@ namespace CallOfTheWild
         static public BlueprintFeature winter_witch_cantrips;
         static public BlueprintFeature ice_magic;
 
+        static public Dictionary<string, Common.ExtraSpellList> patron_spelllist_map = new Dictionary<string, Common.ExtraSpellList>();
         static public BlueprintArchetype havocker;
         static public BlueprintFeatureSelection patron_element;
         static public BlueprintFeatureSelection infusion;
@@ -1662,6 +1663,7 @@ namespace CallOfTheWild
         static BlueprintFeature createWitchPatronFeature(string name, string spell_list_guid, string feature_guid, bool is_winter, params string[] spell_guids)
         {
             var extra_spell_list = new Common.ExtraSpellList(spell_guids);
+            patron_spelllist_map.Add(name, extra_spell_list);
             var learn_spell_list = extra_spell_list.createLearnSpellList("Witch" + name + "PatronSpellList", spell_list_guid, witch_class);
             string description = name + " patron grants witch the following spells: ";
             for (int i = 1; i <= 9; i++)

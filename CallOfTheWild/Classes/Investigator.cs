@@ -1094,12 +1094,13 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.GetIcon("1bb08308c9f6a5e4697887cd438b7221"), //judgement protection
                                                     FeatureGroup.None,
-                                                    Helpers.Create<NewMechanics.SpecificSavingThrowBonusAgainstSchool>(s =>
+                                                   
+                                                    Helpers.Create<ShadowSpells.SavingthrowBonusAgainstDisbelief>(s =>
                                                                                                                         {
-                                                                                                                            s.Value = Helpers.CreateContextValue(AbilityRankType.Default);
-                                                                                                                            s.type = SavingThrowType.Will;
-                                                                                                                            s.School = SpellSchool.Illusion;
-                                                                                                                            s.ModifierDescriptor = ModifierDescriptor.Insight;
+                                                                                                                            s.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                            s.save_type = SavingThrowType.Will;
+                                                                                                                            s.school = SpellSchool.Illusion;
+                                                                                                                            s.descriptor = ModifierDescriptor.Insight;
                                                                                                                         }
                                                                                                                       ),
                                                     Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),

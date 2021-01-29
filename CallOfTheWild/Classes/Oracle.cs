@@ -1982,12 +1982,12 @@ namespace CallOfTheWild
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Vampirism",
                                                 "Vampirism",
-                                                "At 10th level, you add vampiric touch to your list of 3rd-level oracle spells known and vampiric shadow shield to your list of 5th-level oracle spells known.",
+                                                "At 10th level, you add vampiric touch to your list of 3rd-level oracle spells known and undead anatomy II to your list of 5th-level oracle spells known",
                                                 "",
                                                 vampiric_touch.Icon,
                                                 FeatureGroup.None,
                                                 vampiric_touch.CreateAddKnownSpell(oracle_class, 3),
-                                                vampiric_shadow_shield.CreateAddKnownSpell(oracle_class, 5)
+                                                Wildshape.undead_anatomyII.CreateAddKnownSpell(oracle_class, 5)
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Vampirism",
@@ -2036,12 +2036,12 @@ namespace CallOfTheWild
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Lich",
                                                 "Lich",
-                                                "At 10th level, you add false life to your list of 2nd-level oracle spells known and banshee blast to your list of 5th-level oracle spells known.",
+                                                "At 10th level, add undead anatomy I to your list of 3rd-level oracle spells known and undead anatomy II to your list of 5th-level oracle spells known",
                                                 "",
                                                 banshee_blast.Icon,
                                                 FeatureGroup.None,
-                                                false_life.CreateAddKnownSpell(oracle_class, 2),
-                                                banshee_blast.CreateAddKnownSpell(oracle_class, 5)
+                                                Wildshape.undead_anatomyI.CreateAddKnownSpell(oracle_class, 3),
+                                                Wildshape.undead_anatomyII.CreateAddKnownSpell(oracle_class, 5)
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Lich",
@@ -2388,11 +2388,7 @@ namespace CallOfTheWild
                                               burning_hands.Icon,
                                               FeatureGroup.None,
                                               burning_hands.CreateAddKnownSpell(oracle_class, 1),
-                                              Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = Helpers.CreateContextValue(AbilityRankType.Default)),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
-                                                                              progression: ContextRankProgression.Custom,
-                                                                              customProgression: new (int, int)[] { (9, -4), (20, -2) }
-                                                                              )
+                                              Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = -4)
                                               );
             curse.ReapplyOnLevelUp = true;
 
@@ -2426,6 +2422,7 @@ namespace CallOfTheWild
                                                 "",
                                                 NewSpells.wall_of_fire.Icon,
                                                 FeatureGroup.None,
+                                                Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = 2),
                                                 NewSpells.wall_of_fire.CreateAddKnownSpell(oracle_class, 4)
                                                 );
 
@@ -2452,16 +2449,8 @@ namespace CallOfTheWild
                                               "",
                                               Helpers.GetIcon("c3893092a333b93499fd0a21845aa265"),
                                               FeatureGroup.None,
-                                              Helpers.CreateAddContextStatBonus(StatType.Initiative, ModifierDescriptor.UntypedStackable),
-                                              Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable, rankType: AbilityRankType.StatBonus),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(),
-                                                                              progression: ContextRankProgression.Custom,
-                                                                              customProgression: new (int, int)[] { (4, -4), (9, -2), (20, 0) }
-                                                                              ),
-                                              Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getOracleArray(), type: AbilityRankType.StatBonus,
-                                                                              progression: ContextRankProgression.Custom,
-                                                                              customProgression: new (int, int)[] { (4, -4), (20, 0) }
-                                                                              ),
+                                              Helpers.CreateAddStatBonus(StatType.Initiative, -4, ModifierDescriptor.UntypedStackable),
+                                              Helpers.CreateAddStatBonus(StatType.SkillPerception, -4, ModifierDescriptor.UntypedStackable),   
                                               Common.createSpellImmunityToSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = Common.deafened),
                                               Helpers.Create<SpecificBuffImmunity>(s => s.Buff = NewSpells.silence_buff),
@@ -2490,7 +2479,9 @@ namespace CallOfTheWild
                                                curse.Name,
                                                "At 5th level, you no longer receive a penalty on Perception checks, and the initiative penalty for being deaf is reduced to –2.",
                                                "",
-                                               curse.Icon, FeatureGroup.None);
+                                               curse.Icon, FeatureGroup.None,
+                                               Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable)
+                                               );
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Deaf",
                                                 curse.Name,
@@ -2498,7 +2489,8 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.GetIcon("c927a8b0cd3f5174f8c0b67cdbfde539"), // remove blindness
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, 3, ModifierDescriptor.Competence)
+                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, 3, ModifierDescriptor.Competence),
+                                                Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable)
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Deaf",
