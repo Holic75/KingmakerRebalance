@@ -30,6 +30,8 @@ namespace CallOfTheWild.ShadowSpells
         public static BlueprintBuff shadow80_buff;
 
 
+
+
         static internal void init()
         {
             var icon = Helpers.GetIcon("14ec7a4e52e90fa47a4c8d63c69fd5c1");
@@ -95,6 +97,27 @@ namespace CallOfTheWild.ShadowSpells
 
             return null;
         }
+
+
+        static bool disbelief_save_in_progress = false;
+       
+        public static bool is_making_disbelief_save
+        {
+            get
+            {
+                return disbelief_save_in_progress;
+            }
+        }
+
+        static public bool makeDisbeliefSave(MechanicsContext context, UnitEntityData target)
+        {
+            disbelief_save_in_progress = true;
+            Common.AddBattleLogMessage(target.CharacterName + " attempts a disbelief savingthrow");
+            RuleSavingThrow ruleSavingThrow = context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(target, SavingThrowType.Will, context.Params.DC));
+            bool res =  ruleSavingThrow.IsPassed;
+            disbelief_save_in_progress = false;
+            return res;
+        }
     }
 
 
@@ -154,6 +177,11 @@ namespace CallOfTheWild.ShadowSpells
                 return;
             }
 
+            if (!ShadowSpells.is_making_disbelief_save)
+            {
+                return;
+            }
+
             if (context.SpellSchool == school
                  && (save_type == SavingThrowType.Unknown || evt.Type == save_type)
                  && (context?.SourceAbility.GetComponent<DisbeliefSpell>() != null
@@ -201,6 +229,11 @@ namespace CallOfTheWild.ShadowSpells
             }
 
             if (caster != this.Owner.Unit)
+            {
+                return;
+            }
+
+            if (!ShadowSpells.is_making_disbelief_save)
             {
                 return;
             }
@@ -273,8 +306,7 @@ namespace CallOfTheWild.ShadowSpells
                     }
                     else
                     {
-                        RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Target, SavingThrowType.Will, context2.Params.DC));
-                        __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                        __instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ShadowSpells.makeDisbeliefSave(context2, __instance.Target);
                     }
                 }
 
@@ -363,8 +395,7 @@ namespace CallOfTheWild.ShadowSpells
                     }
                     else
                     {
-                        RuleSavingThrow ruleSavingThrow = context2.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(__instance.Initiator, SavingThrowType.Will, context2.Params.DC));
-                        __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ruleSavingThrow.IsPassed;
+                        __instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2] = ShadowSpells.makeDisbeliefSave(context2, __instance.Initiator);
                     }
                 }
 
