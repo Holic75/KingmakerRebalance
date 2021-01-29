@@ -112,7 +112,7 @@ namespace CallOfTheWild.ShadowSpells
         static public bool makeDisbeliefSave(MechanicsContext context, UnitEntityData target)
         {
             disbelief_save_in_progress = true;
-            Common.AddBattleLogMessage(target.CharacterName + " attempts a disbelief savingthrow");
+            Common.AddBattleLogMessage(target.CharacterName + " attempts a disbelief saving throw");
             RuleSavingThrow ruleSavingThrow = context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(target, SavingThrowType.Will, context.Params.DC));
             bool res =  ruleSavingThrow.IsPassed;
             disbelief_save_in_progress = false;
