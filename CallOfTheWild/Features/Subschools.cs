@@ -241,6 +241,7 @@ namespace CallOfTheWild
             area_buff.SetBuffFlags(0);
 
             var toggle = Common.buffToToggle(buff, CommandType.Standard, false, resource2.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
+            toggle.Buff = area_buff;
 
             var greater_feature = Common.ActivatableAbilityToFeature(toggle, false);
             greater_feature.AddComponent(resource2.CreateAddAbilityResource());

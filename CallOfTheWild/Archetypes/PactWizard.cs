@@ -183,7 +183,7 @@ namespace CallOfTheWild.Archetypes
             }
 
 
-            reroll_feature.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFacts(abilities.ToArray()) };
+            reroll_feature.AddComponent(Helpers.CreateAddFacts(abilities.ToArray()));
         }
 
 
@@ -310,7 +310,7 @@ namespace CallOfTheWild.Archetypes
                     patron.AddComponent(Common.createSpontaneousSpellConversion(archetype.GetParentClass(), spells_array[i].ToArray()));
                 }
 
-                patron_spells.AllFeatures.AddToArray(patron);
+                patron_spells.AllFeatures = patron_spells.AllFeatures.AddToArray(patron);
 
 
                 var feature2 = Helpers.CreateFeature(kv.Key + "PatronMetamagicFeature",

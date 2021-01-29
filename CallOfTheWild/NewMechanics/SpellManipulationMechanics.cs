@@ -1529,6 +1529,11 @@ namespace CallOfTheWild
                 }
 
                 var sl = spellbook.GetSpellLevel(spell);
+                if (sl < 0)
+                {
+                    sl = expected_spell_level;
+                }
+
                 int d_level = expected_spell_level - sl;
                 
                 int cost = 0;
