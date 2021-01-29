@@ -398,7 +398,7 @@ namespace CallOfTheWild
             warpriest_spontaneous_heal.AddComponent(Helpers.PrerequisiteFeature(channel_positive_allowed));
 
             warpriest_spontaneous_harm = library.CopyAndAdd<BlueprintFeature>("5ba6b9cc18acafd45b6293d1e03221ac", "WarpriestSpontaneousHarmFeature", "");
-            warpriest_spontaneous_harm.SetDescription("An evil cleric (or a neutral cleric of an evil deity) can channel stored spell energy into wounding spells that she did not prepare ahead of time. The cleric can \"lose\" any prepared spell that is not an orison in order to cast any inflict spell of the same spell level (an inlict spell is any spell with \"inflict\" in its name).");
+            warpriest_spontaneous_harm.SetDescription("An evil warpriest (or a neutral warpriest of an evil deity) can channel stored spell energy into wounding spells that she did not prepare ahead of time. The warpriest can \"lose\" any prepared spell that is not an orison in order to cast any inflict spell of the same spell level (an inlict spell is any spell with \"inflict\" in its name).");
             warpriest_spontaneous_harm.ReplaceComponent<SpontaneousSpellConversion>(c => c.CharacterClass = warpriest_class);
             warpriest_spontaneous_harm.AddComponent(Helpers.PrerequisiteFeature(channel_negative_allowed));
 

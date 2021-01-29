@@ -358,7 +358,7 @@ namespace CallOfTheWild
             var armor_focus = library.Get<BlueprintFeatureSelection>("76d4885a395976547a13c5d6bf95b482");
 
             armor_specialization = Helpers.CreateFeatureSelection("ArmorSpecializationAdvancedArmorTrainingFeature",
-                                                         "Armor Specializaiton",
+                                                         "Armor Specialization",
                                                          "The fighter selects one specific type of armor with which he is proficient, such as light or heavy. While wearing the selected type of armor, the fighter adds one-quarter of his fighter level to the armor’s armor bonus, up to a maximum bonus of +3 for light armor, +4 for medium armor, or +5 for heavy armor. This increase to the armor bonus doesn’t increase the benefit that the fighter gains from feats, class abilities, or other effects that are determined by his armor’s base armor bonus, including other advanced armor training options. A fighter can choose this option multiple times. Each time he chooses it, he applies its benefit to a different type of armor.",
                                                          "",
                                                          armor_focus.Icon,

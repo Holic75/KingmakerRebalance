@@ -129,11 +129,11 @@ namespace CallOfTheWild
             var metamagics = library.GetAllBlueprints().OfType<BlueprintFeature>().Where(b => b.Groups.Contains(FeatureGroup.WizardFeat) && (b.GetComponent<AddMetamagicFeat>() != null)).ToArray();
             var feature = Helpers.CreateFeatureSelection(prefix + "MetamagicKnowledgeFeature",
                                                         "Metamagic Knowledge",
-                                                        "You receive one metamagic feat. This also permanently reduce your mental focus pool by 3.",
+                                                        "You receive one metamagic feat. This also permanently reduce your mental focus pool by 2.",
                                                         "",
                                                         null,
                                                         FeatureGroup.None,
-                                                        Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = reduced_resource; i.Value = -3; })
+                                                        Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = reduced_resource; i.Value = -2; })
                                                         );
             feature.AllFeatures = metamagics;
             feature.AddComponent(Helpers.PrerequisiteNoFeature(feature));
