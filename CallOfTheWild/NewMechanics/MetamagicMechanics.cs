@@ -854,7 +854,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                bool same_spells = evt.Spell.Parent == null ? SpellDuplicates.isDuplicate(evt.Spell, spell) : SpellDuplicates.isDuplicate(evt.Spell.Parent, spell);
+                bool same_spells = SpellDuplicates.isDuplicateOrParent(spell, evt.Spell);
 
                 if (!same_spells)
                 {
@@ -885,7 +885,7 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleApplyMetamagic evt)
             {
                 var spellbook = evt.Spellbook;
-                if (spellbook == null || !spells.Contains(evt.Spell))
+                if (spellbook == null || !SpellDuplicates.containsDuplicateOrParent(spells, evt.Spell))
                 {
                     return;
                 }
@@ -914,7 +914,7 @@ namespace CallOfTheWild
                 }
 
                 var spellbook = evt.Spellbook;
-                if (spellbook == null || !SpellDuplicates.isDuplicate(spell, evt.Spell))
+                if (spellbook == null || !SpellDuplicates.isDuplicateOrParent(spell, evt.Spell))
                 {
                     return;
                 }

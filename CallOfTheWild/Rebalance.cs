@@ -709,10 +709,10 @@ namespace CallOfTheWild
             tristian_level.Selections[2].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("c85c8791ee13d4c4ea10d93c97a19afc");//sun as primary
             tristian_level.Selections[3].Features[0] = Subdomains.restoration_domain_secondary;
             tristian_level.Selections[4].Features[1] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("797f25d709f559546b29e7bcb181cc74");//improved initiative
-            tristian_level.Selections[4].Features[2] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
+            tristian_level.Selections[4].Features[0] = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("16fa59cc9a72a6043b566b49184f53fe");//spell focus
             tristian_level.Selections[5].ParamSpellSchool = SpellSchool.Evocation;
             tristian_level.Selections[6].ParamSpellSchool = SpellSchool.Evocation;
-            tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillLoreNature };
+            tristian_level.Skills = new StatType[] { StatType.SkillLoreReligion, StatType.SkillPerception, StatType.SkillLoreNature, StatType.SkillPersuasion };
             tristian_level.Levels = 1;
             var harrim_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("aab03d0ab5262da498b32daa6a99b507");
             harrim_companion.Strength = 17;
@@ -1433,7 +1433,7 @@ namespace CallOfTheWild
             foreach (var h in heals)
             {
                 var new_actions = Common.changeAction<ContextActionHealTarget>(h.GetComponent<AbilityEffectRunAction>().Actions.Actions,
-                                                               c => c.Value = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0));
+                                                               c => c.Value = Helpers.CreateContextDiceValue(DiceType.D6, Helpers.CreateContextValue(AbilityRankType.Default), 0));
 
                 h.ReplaceComponent<AbilityEffectRunAction>(c => c.Actions = Helpers.CreateActionList(new_actions));
             }
@@ -2096,6 +2096,10 @@ namespace CallOfTheWild
             /*Common.monstrous_humanoid.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = language_dependent; b.IgnoreFeature = serpentine_arcana; }),
                                                 Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = language_dependent; b.CasterIgnoreImmunityFact = serpentine_arcana; })
                                                 );*/
+
+            //fix well-versed to include bonus against language dependent effects
+            var well_versed = library.Get<BlueprintFeature>("8f4060852a4c8604290037365155662f");
+            well_versed.ReplaceComponent<SavingThrowBonusAgainstDescriptor>(s => s.SpellDescriptor = s.SpellDescriptor.Value | language_dependent);
         }
 
         static internal void fixUndeadImmunity()

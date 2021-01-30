@@ -290,6 +290,8 @@ namespace CallOfTheWild
         static public BlueprintAbility weapon_of_awe;
         static public BlueprintAbility allied_cloak;
 
+        static public BlueprintAbility miracle;
+
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -495,6 +497,29 @@ namespace CallOfTheWild
 
             createWeaponOfAwe();
             createAlliedCloak();
+            //createMiracle();
+        }
+
+
+        static void createMiracle()
+        {
+            miracle = createWish("Miracle",
+                                 "Miracle",
+                                 "You don’t so much cast a miracle as request one. You state what you would like to have happen and request that your deity (or the power you pray to for spells) intercede.\n"
+                                 + "A miracle can do any of the following things.\n"
+                                 + "Duplicate any cleric spell of 8th level or lower.\n"
+                                 + "Duplicate any other spell of 7th level or lower.\n",
+                                 //+ "Undo the harmful effects of certain spells, such as feeblemind or insanity.\n"
+                                 //+ "Have any effect whose power level is in line with the above effects.\n",
+                                 LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png"),
+                                 library.Get<BlueprintSpellbook>("4673d19a0cf2fab4f885cc4d1353da33"),
+                                 UnitCommand.CommandType.Standard,
+                                 AbilityType.Spell,
+                                 full_round: false);
+            miracle.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
+            miracle.AddComponent(Helpers.Create<SpellManipulationMechanics.WishSpell>());
+            miracle.AddToSpellList(Helpers.clericSpellList, 9);
+            Helpers.AddSpell(miracle);
         }
 
         static void createAlliedCloak()
@@ -523,6 +548,7 @@ namespace CallOfTheWild
                                                     Helpers.CreateSpellComponent(SpellSchool.Abjuration),
                                                     Common.createAbilitySpawnFx("c4d861e816edd6f4eab73c55a18fdadd", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                     );
+            allied_cloak.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
             allied_cloak.setMiscAbilityParametersSelfOnly();
             allied_cloak.AddToSpellList(Helpers.wizardSpellList, 3);
             allied_cloak.AddToSpellList(Helpers.bardSpellList, 3);
@@ -756,7 +782,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Touch,
                                                 "3 rounds",
                                                 "",
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(3), is_from_spell: true)),
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_from_spell: true, duration_seconds: 18)),
                                                 Helpers.CreateDeliverTouch(),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
                                                 Helpers.CreateSpellComponent(SpellSchool.Conjuration),
@@ -10115,6 +10141,100 @@ namespace CallOfTheWild
         }
 
 
+        static public BlueprintAbility createWish(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
+                                     UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
+                                     bool allow_spells_with_material_components = true,
+                                     bool full_round = true, int primary_spellbook_level = 8, int secondary_spellbook_level = 7)
+        {
+            if (secondary_spellbook_level > primary_spellbook_level)
+            {
+                throw Main.Error($"primary_spellbook_level < secondary_spellbook_level");
+            }
+            var spellbooks = library.GetAllBlueprints().OfType<BlueprintSpellbook>();
+            //create spell list of all concerned spells and pick their lowest levels
+            Dictionary<string, int> spell_guid_level_map = new Dictionary<string, int>();
+
+            foreach (var spellbook in spellbooks)
+            {
+                if (spellbook == Summoner.summoner_class?.Spellbook)
+                {
+                    continue;
+                }
+                int max_level = spellbook == primary_spellbook ? primary_spellbook_level : secondary_spellbook_level;
+                max_level = Math.Min(max_level, (int)spellbook.SpellList?.SpellsByLevel?.Length - 1);
+                for (int i = 1; i <= max_level; i++)
+                {
+                    foreach (var spell in spellbook.SpellList.SpellsByLevel[i].Spells)
+                    {
+                        if (!spell_guid_level_map.ContainsKey(spell.AssetGuid))
+                        {
+                            spell_guid_level_map.Add(spell.AssetGuid, i);
+                        }
+                        else if (spell_guid_level_map[spell.AssetGuid] > i)
+                        {
+                            spell_guid_level_map[spell.AssetGuid] = i;
+                        }
+                    }
+                }
+            }
+
+
+            List<BlueprintAbility>[] spells_per_level = new List<BlueprintAbility>[primary_spellbook_level];
+            for (int i = 0; i < spells_per_level.Length; i++)
+            {
+                spells_per_level[i] = new List<BlueprintAbility>();
+            }
+            List<BlueprintAbility> wish_variants = new List<BlueprintAbility>();
+            foreach (var entry in spell_guid_level_map)
+            {
+                var spell = library.Get<BlueprintAbility>(entry.Key);
+                if (spell.MaterialComponent.Item == null || allow_spells_with_material_components)
+                {
+                    spells_per_level[entry.Value - 1].Add(library.Get<BlueprintAbility>(entry.Key));
+                }
+            }
+
+            var all_spells = spells_per_level.Aggregate(new List<BlueprintAbility>(), (list, next) => { list.AddRange(next); return list; }).ToArray();
+
+            var wish = Helpers.CreateAbility(name_prefix + "Ability",
+                                            display_name,
+                                            description,
+                                            "",
+                                            icon,
+                                            ability_type,
+                                            command_type,
+                                            AbilityRange.Personal,
+                                            "",
+                                            "");
+            Helpers.SetField(wish, "m_IsFullRoundAction", full_round);
+
+            var variant_spells = Common.CreateAbilityVariantsReplace(wish, name_prefix,
+                                                                                s => {
+                                                                                    s.Type = ability_type;
+                                                                                    s.ActionType = command_type;
+                                                                                    if (full_round)
+                                                                                    {
+                                                                                        Helpers.SetField(s, "m_IsFullRoundAction", true);
+                                                                                    }
+                                                                                    if (additional_components != null)
+                                                                                    {
+                                                                                        s.AddComponents(additional_components);
+                                                                                    }
+                                                                                },
+                                                                                ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
+                                                                                all_spells.Where(s => !NewSpells.getShadowSpells().Contains(s) && s.GetComponent<SpellManipulationMechanics.WishSpell>() == null).ToArray()
+                                                                                );
+            wish.AddComponent(Helpers.CreateAbilityVariants(wish, variant_spells));
+
+            foreach (var s in variant_spells)
+            {
+                wish.AvailableMetamagic = wish.AvailableMetamagic | s.AvailableMetamagic;
+            }
+            
+            return wish;
+        }
+
+
         static public BlueprintAbility[] createWishSpellLevelVariants(string name_prefix, string display_name, string description,  UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
                                              UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
                                              bool allow_metamagic = true, bool allow_spells_with_material_components = true, 
@@ -10209,7 +10329,7 @@ namespace CallOfTheWild
                                                                                         }
                                                                                     },
                                                                                     ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
-                                                                                  spells_per_level[i].Where(s => !NewSpells.getShadowSpells().Contains(s)).ToArray()
+                                                                                  spells_per_level[i].Where(s => !NewSpells.getShadowSpells().Contains(s) && s.GetComponent<SpellManipulationMechanics.WishSpell>() == null).ToArray()
                                                                                   );
                 wish_variant.AddComponent(Helpers.CreateAbilityVariants(wish_variant, variant_spells));
                 wish_variants.Add(wish_variant);
@@ -10258,8 +10378,10 @@ namespace CallOfTheWild
 
             var air_subtype = library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775");
             air_subtype.AddComponent(Helpers.CreateAddFact(immunity_to_wind));
-
         }
+
+
+        
 
 
         static public BlueprintAbility[] getShadowSpells()

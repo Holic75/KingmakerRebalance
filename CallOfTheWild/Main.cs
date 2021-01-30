@@ -197,6 +197,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixJudgments();
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
+                    CallOfTheWild.Rebalance.fixChannelEnergyHeal();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
@@ -208,7 +209,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixDomainSpells();
                     CallOfTheWild.Rebalance.fixAnimalCompanionFeats();
                     CallOfTheWild.Rebalance.fixAlchemistFastBombs();
-                    CallOfTheWild.Rebalance.fixChannelEnergyHeal();
+                    
                     CallOfTheWild.Rebalance.fixElementalWallsToAvoidDealingDamageTwiceOnTheFirstRound();
                     CallOfTheWild.Rebalance.fixArchonsAuraToEffectOnlyEnemiesAndDescription();
                     CallOfTheWild.Rebalance.fixDruidDomainUi();
@@ -309,7 +310,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Skald.createSkaldClass();
                     CallOfTheWild.Archetypes.RavenerHunter.create();
                     CallOfTheWild.Oracle.createOracleClass();
-                    CallOfTheWild.Archetypes.PactWizard.create();
+                    
                     CallOfTheWild.Investigator.createInvestigatorClass();
                     CallOfTheWild.Spiritualist.createSpiritualistClass();
 
@@ -382,6 +383,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.createPreferredSpell();
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
                     CallOfTheWild.NewSpells.fixShadowSpells();
+                    CallOfTheWild.Archetypes.PactWizard.create();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();

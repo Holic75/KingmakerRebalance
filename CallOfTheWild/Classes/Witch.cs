@@ -1179,6 +1179,17 @@ namespace CallOfTheWild
                                          "7ef49f184922063499b8f1346fb7f521", //seamantle
                                          "87a29febd010993419f2a4a9bee11cfc" //mindblank communal
                                          ),
+               createWitchPatronFeature("Shadow", "4a479a6ef8564e9eb7e1dd0d97660804", "bce2135f54da44c78582f5fca82e4555", false,
+                                         "f001c73999fb5a543a199f890108d936", //vanish
+                                         "89940cde01689fb46946b2f8cd7b66b7", //invisibility
+                                         NewSpells.barrow_haze.AssetGuid,
+                                         NewSpells.shadow_conjuration.AssetGuid,
+                                         "237427308e48c3341b3d532b9d3a001f", //shadow evocation
+                                         "1f2e6019ece86d64baa5effa15e81ecc", //phantasmal putrefaction
+                                         NewSpells.shadow_conjuration_greater.AssetGuid,
+                                         "3c4a2d4181482e84d9cd752ef8edc3b6", //shadow evocation greater
+                                         NewSpells.shades.AssetGuid
+                                        ),
                 createWitchPatronFeature("Spring", "fa8155faef214069a896e65a9073458c", "e9f7f92bf7724ec788fcd6374bfd2e82", false,
                                          "f3c0b267dd17a2a45a40805e31fe3cd1", //feather step
                                          "6c7467f0344004d48848a43d8c078bf8", //sickening entanglement
@@ -1189,6 +1200,17 @@ namespace CallOfTheWild
                                          "26be70c4664d07446bdfe83504c1d757", //change staff
                                          "7cfbefe0931257344b2cb7ddc4cdff6f", //stormbolts
                                          NewSpells.time_stop.AssetGuid
+                                        ),
+              createWitchPatronFeature("Storms", "2d167ffdc10d4adfad18d6277017e26b", "baf0b28b8f374fea992774af85188175", false,
+                                         NewSpells.obscuring_mist.AssetGuid,
+                                         NewSpells.aggressive_thundercloud.AssetGuid,
+                                         "2a9ef0e0b5822a24d88b16673a267456", //call lightning
+                                         "fcb028205a71ee64d98175ff39a0abf9", //ice storm
+                                         "d5a36a7ee8177be4f848b953d1c53c84", //call lightning storm
+                                         NewSpells.wind_walk.AssetGuid,
+                                         NewSpells.scouring_winds.AssetGuid,
+                                         "7cfbefe0931257344b2cb7ddc4cdff6f", //strom bolts
+                                         NewSpells.winds_of_vengeance.AssetGuid
                                         ),
                 createWitchPatronFeature("Strength", "6f859ba938f94132920eeb63a8c9af50", "8125ff1edafc4c5489ad2739a85d5386", false,
                                          "9d5d2d3ffdd73c648af3eb3e585b1113", //divine favor
