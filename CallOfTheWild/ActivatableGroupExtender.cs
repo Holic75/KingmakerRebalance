@@ -74,9 +74,9 @@ namespace CallOfTheWild
             PhysicalEnhancementResonantPower,
             MetamagicMaster,
             SpellPower,
-            MetamagicMastery
-
-        }
+            MetamagicMastery,
+            RagingTacticianTeamworkFeatShare
+    }
 
         public static partial class Extensions
         {

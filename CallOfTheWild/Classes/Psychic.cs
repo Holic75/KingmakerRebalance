@@ -1049,7 +1049,7 @@ namespace CallOfTheWild
 
             written_in_stars_ability = Helpers.CreateAbility("WrittenInStarsBaseAbility",
                                                              "Written in the Stars",
-                                                             "An esoteric starseeker can attune herself to a constellation of the Cosmic Caravan, gaining knowledge of new spells from it. She gains one bonus constellation spell slot for each spell level she can cast, and she can prepare a spell associated with her attuned constellation into that slot. At 11th level, she can attune herself to two constellations, choosing between the spells offered by both constellations when she prepares her constellation spells. "
+                                                             "An esoteric starseeker can attune herself to a constellation of the Cosmic Caravan, gaining knowledge of new spells from it. She gains one bonus constellation spell for each spell level she can cast. At 11th level, she can attune herself to two constellations, choosing between the spells offered by both constellations when she prepares her constellation spells."
                                                              + "She can change her attuned constellations in the beggining of the day. The Cosmic Caravan and their associated spells are as follows:\n",
                                                              "",
                                                              LoadIcons.Image2Sprite.Create(@"AbilityIcons/Starburn.png"),

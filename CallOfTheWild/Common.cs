@@ -1821,15 +1821,21 @@ namespace CallOfTheWild
         }
 
 
-        static public BlueprintBuff createBuffAreaEffect(BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        static public BlueprintBuff createBuffAreaEffect(BlueprintBuff buff, Feet radius, ConditionsChecker conditions, string prefix)
         {
-            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buff.name + "AreaEffect", "");
+            var area_effect = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", buff.name + prefix + "Effect", "");
             area_effect.Size = radius;
             area_effect.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = conditions; });
 
-            var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "Area" + buff.name, "");
+            var area_buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", prefix + buff.name, "");
             area_buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area_effect);
             return area_buff;
+        }
+
+
+        static public BlueprintBuff createBuffAreaEffect(BlueprintBuff buff, Feet radius, ConditionsChecker conditions)
+        {
+            return createBuffAreaEffect(buff, radius, conditions, "Area");
         }
 
 
@@ -2306,6 +2312,8 @@ namespace CallOfTheWild
                 var feature = Common.ActivatableAbilityToFeature(toggle, true, Helpers.MergeIds("c9ca89f32d3b4e1b8add1bae23c73f4b", feat.AssetGuid));
                 feat.AddComponent(Common.createAddFeatureIfHasFact(tactical_leader_tactician, feature));
                 feat.AddComponent(Common.createAddFeatureIfHasFact(Archetypes.DrillSergeant.tactician, feature));
+
+                Archetypes.PackRager.addToRagingTactician(feat);
             }
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feat);
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;
@@ -2316,7 +2324,10 @@ namespace CallOfTheWild
             Summoner.teamwork_feat.AllFeatures = Summoner.teamwork_feat.AllFeatures.AddToArray(feat);
 
             VindicativeBastard.teamwork_feat.AllFeatures = VindicativeBastard.teamwork_feat.AllFeatures.AddToArray(feat);
-
+            if (feat.Groups.Contains(FeatureGroup.CombatFeat))
+            {
+                Archetypes.PackRager.teamwork_feat.AllFeatures = Archetypes.PackRager.teamwork_feat.AllFeatures.AddToArray(feat);
+            }
             //update vanguard, forester and drill sergeant features
 
             var abilities_to_update = new Dictionary<string, BlueprintAbility>();
@@ -2695,7 +2706,7 @@ namespace CallOfTheWild
         }
 
 
-        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility> action, bool as_duplicates,
+        public static BlueprintAbility[] CreateAbilityVariantsReplace(BlueprintAbility parent, string prefix, Action<BlueprintAbility, BlueprintAbility> action, bool as_duplicates,
                                                                       params BlueprintAbility[] variants)
         {
             var clear_variants = variants.Distinct().ToArray();
@@ -2703,7 +2714,6 @@ namespace CallOfTheWild
 
             foreach (var v in clear_variants)
             {
-
                 var variants_comp = v.GetComponent<AbilityVariants>();
 
                 if (variants_comp != null)
@@ -2724,7 +2734,7 @@ namespace CallOfTheWild
                     }
                     if (action != null)
                     {
-                        action(processed_spell);
+                        action(processed_spell, v);
                     }
                     processed_spell.Parent = parent;
                     processed_spell.RemoveComponents<SpellListComponent>();

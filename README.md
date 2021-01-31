@@ -20,7 +20,7 @@ Known Issues:
 It introduces new classes:  
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
-- Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager and Blood Conduit,
+- Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
@@ -41,7 +41,7 @@ New Archetypes for existing classes:
 - Nature Fang and Storm Druid Druid archetypes,
 - Evangelist and Undead Lord Cleric archetypes,
 - Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
-- Beastkin Berserker and Untamed Rager Barbarian archetypes,
+- Beastkin Berserker, Pack Rager and Untamed Rager Barbarian archetypes,
 - Mindblade and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype) and Rake Rogue archetype,
 - Monk of the Mantis and Zen Archer Monk archetypes,
@@ -590,7 +590,8 @@ Notable differences from pnp:
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
-- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones.
+- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones
+- Primalist receives only one rage power at levels 4, 8, 12, 16 and 20, and he is not allowed to pick a bloodline power instead.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

@@ -1777,7 +1777,7 @@ namespace CallOfTheWild
             swift_command.RemoveComponents<SpellComponent>();
             var dc_replace = Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom);
             swift_command.ReplaceComponent<AbilityVariants>(a => a.Variants = Common.CreateAbilityVariantsReplace(swift_command, "WarpriestCharmDomain",
-                                                                                                                  v =>
+                                                                                                                  (v, vv) =>
                                                                                                                   {
                                                                                                                       v.Type = swift_command.Type;
                                                                                                                       v.ActionType = swift_command.ActionType;

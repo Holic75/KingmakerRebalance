@@ -40,6 +40,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityModManagerNet;
 
 namespace CallOfTheWild
 {
@@ -497,12 +498,16 @@ namespace CallOfTheWild
 
             createWeaponOfAwe();
             createAlliedCloak();
+
+
+
             //createMiracle();
         }
 
 
         static void createMiracle()
         {
+            var blacklist_guids = Helpers.readStringsfromFile(UnityModManager.modsPath + @"/CallOfTheWild/WishBlackLists/miracle_black_list.txt", ' ');
             miracle = createWish("Miracle",
                                  "Miracle",
                                  "You don’t so much cast a miracle as request one. You state what you would like to have happen and request that your deity (or the power you pray to for spells) intercede.\n"
@@ -514,6 +519,7 @@ namespace CallOfTheWild
                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png"),
                                  library.Get<BlueprintSpellbook>("4673d19a0cf2fab4f885cc4d1353da33"),
                                  UnitCommand.CommandType.Standard,
+                                 blacklist_guids,
                                  AbilityType.Spell,
                                  full_round: false);
             miracle.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Evocation));
@@ -3449,7 +3455,8 @@ namespace CallOfTheWild
             animate_dead.MaterialComponent = library.Get<BlueprintAbility>("7c5d556b9a5883048bf030e20daebe31").MaterialComponent.CloneObject();
             animate_dead.MaterialComponent.Count = 6;
             animate_dead_lesser.MaterialComponent = library.Get<BlueprintAbility>("c66e86905f7606c4eaa5c774f0357b2b").MaterialComponent.CloneObject();
-            animate_dead_lesser.MaterialComponent.Count = 3; 
+            animate_dead_lesser.MaterialComponent.Count = 3;
+            animate_dead_lesser.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
             //fix jaethal ability
             var summon_undead = library.Get<BlueprintAbility>("4c1556984f24e5c4282c6fcda832b7b2");
             summon_undead.LocalizedDuration = animate_dead.LocalizedDuration;
@@ -10142,7 +10149,10 @@ namespace CallOfTheWild
 
 
         static public BlueprintAbility createWish(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintSpellbook primary_spellbook,
-                                     UnitCommand.CommandType command_type, AbilityType ability_type = AbilityType.Spell, BlueprintComponent[] additional_components = null,
+                                     UnitCommand.CommandType command_type,
+                                     string[] blacklist_guids,
+                                     AbilityType ability_type = AbilityType.Spell, 
+                                     BlueprintComponent[] additional_components = null,
                                      bool allow_spells_with_material_components = true,
                                      bool full_round = true, int primary_spellbook_level = 8, int secondary_spellbook_level = 7)
         {
@@ -10208,8 +10218,13 @@ namespace CallOfTheWild
                                             "");
             Helpers.SetField(wish, "m_IsFullRoundAction", full_round);
 
+            var spells_to_process = all_spells.Where(s => !NewSpells.getShadowSpells().Contains(s)
+                                                          && s.GetComponent<SpellManipulationMechanics.WishSpell>() == null
+                                                          && !blacklist_guids.Contains(s.AssetGuid)
+                                                          && !(s.HasVariants && s.Variants.Any(v => blacklist_guids.Contains(v.AssetGuid)))
+                                                          ).ToArray();
             var variant_spells = Common.CreateAbilityVariantsReplace(wish, name_prefix,
-                                                                                s => {
+                                                                                (s, v) => {
                                                                                     s.Type = ability_type;
                                                                                     s.ActionType = command_type;
                                                                                     if (full_round)
@@ -10220,9 +10235,10 @@ namespace CallOfTheWild
                                                                                     {
                                                                                         s.AddComponents(additional_components);
                                                                                     }
+                                                                                    
                                                                                 },
                                                                                 ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
-                                                                                all_spells.Where(s => !NewSpells.getShadowSpells().Contains(s) && s.GetComponent<SpellManipulationMechanics.WishSpell>() == null).ToArray()
+                                                                                spells_to_process
                                                                                 );
             wish.AddComponent(Helpers.CreateAbilityVariants(wish, variant_spells));
 
@@ -10312,7 +10328,7 @@ namespace CallOfTheWild
                 }
 
                 var variant_spells = Common.CreateAbilityVariantsReplace(wish_variant, name_prefix + (i + 1).ToString(),
-                                                                                    s => {
+                                                                                    (s, v) => {
                                                                                         s.Type = ability_type;
                                                                                         s.ActionType = command_type;
                                                                                         if (full_round)

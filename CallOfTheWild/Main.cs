@@ -324,6 +324,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.PrimalSorcerer.create();
                     CallOfTheWild.Arcanist.createArcanistClass();                    
                     CallOfTheWild.Archetypes.DrillSergeant.create();
+                    CallOfTheWild.Archetypes.PackRager.create();
                     CallOfTheWild.SharedSpells.load();
                     
 

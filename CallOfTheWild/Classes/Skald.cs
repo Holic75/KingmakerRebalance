@@ -1105,7 +1105,7 @@ namespace CallOfTheWild
                              "");
 
                     var variant_spells = Common.CreateAbilityVariantsReplace(spell_kenning_class_c, "SkaldSpellKenning" + c.Item1.name,
-                                                                                    s => {
+                                                                                    (s, v) => {
                                                                                         s.ActionType = CommandType.Standard;
                                                                                         Helpers.SetField(s, "m_IsFullRoundAction", true);
                                                                                         if (s.GetComponent<AbilityResourceLogic>() == null)

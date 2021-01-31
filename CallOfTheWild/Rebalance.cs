@@ -850,9 +850,29 @@ namespace CallOfTheWild
             var reg_portrait = library.Get<BlueprintPortrait>("6e7302bb773adf04299dbe8832562d50").BackupPortrait = null;
             var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
             regognar_companion.Dexterity = 12;
+            regognar_companion.Charisma = 14;
+            regognar_companion.Constitution = 14;
+            regognar_companion.Intelligence = 12;
             var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
+            regognar_levels.SelectSpells[1] = NewSpells.frost_bite;
             regognar_levels.Levels = 1;
+            regognar_levels.Archetypes[0] = Bloodrager.eldritch_scion_bloodrager;
+            regognar_levels.Selections[1].Selection = Bloodrager.eldritch_scion_bloodrager_bloodlines;
+            regognar_levels.Selections[1].Features[0] = library.Get<BlueprintProgression>("2f5c69372bb5494da0b67acc66c0b54a"); //draconic blue
             regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
+                        {
+                            Selection = library.Get<BlueprintFeatureSelection>("f121a082924144cb92023d202902763b"),
+                            Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+                        },
+                        new SelectionEntry()
+                        {
+                            Selection = BloodlinesFix.bloodline_familiar,
+                            Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
+                        }
+                        );
+
+
+            /*regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
             {
                 Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
                 Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
@@ -862,7 +882,7 @@ namespace CallOfTheWild
                                                                                     Selection = BloodlinesFix.bloodline_familiar,
                                                                                     Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
                                                                                 }
-                                                                              );
+                                                                              );*/
 
             //change ekun
             var ekun_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d5bc1d94cd3e5be4bbc03f3366f67afc");
