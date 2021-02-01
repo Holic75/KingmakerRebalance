@@ -90,10 +90,10 @@ namespace CallOfTheWild.RerollsMechanics
     [Harmony12.HarmonyPatch("Roll", Harmony12.MethodType.Normal)]
     class RuleRollD20__Roll__Patch
     {
-        static bool Prefix(RuleRollD20 __instance, ref int? ___m_PreRolledResult, ref int __result)
+        static bool Prefix(RuleRollD20 __instance, ref int? ___m_PreRolledResult, ref List<int> ___m_RollHistory, ref int __result)
         {         
             int? preRolledResult = ___m_PreRolledResult;
-            int val1 = !preRolledResult.HasValue ? RulebookEvent.Dice.D20 : preRolledResult.Value;
+            int val1 = !preRolledResult.HasValue ? RulebookEvent.Dice.D(__instance.DiceFormula) : preRolledResult.Value;
 
             int rerollsAmount = __instance.RerollsAmount;
 
@@ -102,32 +102,31 @@ namespace CallOfTheWild.RerollsMechanics
                 rerollsAmount++;
             }
 
-
             if (!__instance.TakeBest && rerollsAmount > 0 && (__instance.Initiator.Get<IgnoreTakeWorstRerollsUnitPart>()?.active()).GetValueOrDefault())
             {
                 rerollsAmount = 0;
             }
 
-            List<int> rerolls_history = new List<int>() {val1};
+            ___m_RollHistory = new List<int>() {val1};
             for (; rerollsAmount > 0; --rerollsAmount)
             {
                 int old_value = val1;
-                int new_value = RulebookEvent.Dice.D20;
-                rerolls_history.Add(new_value);
+                int new_value = RulebookEvent.Dice.D(__instance.DiceFormula);
+                ___m_RollHistory.Add(new_value);
                 val1 = !__instance.TakeBest ? Math.Min(val1, new_value) : Math.Max(val1, new_value);
                 Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " rerolls: " + $"({old_value}  >>  {new_value}, retains {(__instance.TakeBest ? "best" : "worst")})");
             }
 
-            if (!__instance.TakeBest && rerolls_history.Count > 1 && (__instance.Initiator.Get<ExtraGoodRerollOnTakeWorstUnitPart>()?.active()).GetValueOrDefault())
+            if (!__instance.TakeBest && ___m_RollHistory.Count > 1 && (__instance.Initiator.Get<ExtraGoodRerollOnTakeWorstUnitPart>()?.active()).GetValueOrDefault())
             {
                 int old_value = val1;
-                int new_value = RulebookEvent.Dice.D20;
-                rerolls_history.Add(new_value);
-                rerolls_history.Sort();
-                int retained_value = rerolls_history[1];
+                int new_value = RulebookEvent.Dice.D(__instance.DiceFormula);
+                ___m_RollHistory.Add(new_value);
+                ___m_RollHistory.Sort();
+                int retained_value = ___m_RollHistory[1];
+                val1 = retained_value;
                 Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " rerolls: " + $"({old_value}  >>  {new_value}, retains {retained_value})");
             }
-
 
             __result = val1;
             return false;
