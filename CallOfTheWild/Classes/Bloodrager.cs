@@ -189,7 +189,7 @@ namespace CallOfTheWild
             Helpers.SetField(primalist, "m_ParentClass", bloodrager_class);
             library.AddAsset(primalist, "");
 
-            primalist_rage_power_selection = library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");
+            primalist_rage_power_selection = library.CopyAndAdd<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e", "RagePowerPrimalistSelection", "");
             primalist_rage_power_selection.SetNameDescription("Primal Choices",
                                                               "At 4th level and every 4 levels thereafter, a primalist receives a barbarian rage power instead of a bloodline power. His bloodrager level acts as his barbarian level when determining the effect of those bloodrage powers and any prerequisites. Any other prerequisites for a rage power must be met before a primalist can choose it. This ability does not count as the rage power class feature for determining feat prerequisites and other requirements.");
 

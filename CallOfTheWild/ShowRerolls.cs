@@ -125,6 +125,7 @@ namespace CallOfTheWild.RerollsMechanics
                 rerolls_history.Add(new_value);
                 rerolls_history.Sort();
                 int retained_value = rerolls_history[1];
+                val1 = retained_value;
                 Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " rerolls: " + $"({old_value}  >>  {new_value}, retains {retained_value})");
             }
 
