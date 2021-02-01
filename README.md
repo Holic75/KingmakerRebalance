@@ -35,7 +35,7 @@ It introduces new classes:
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
-- Sacred Servant and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
+- Iroran Paladin, Sacred Servant and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
 - Nature Fang and Storm Druid Druid archetypes,

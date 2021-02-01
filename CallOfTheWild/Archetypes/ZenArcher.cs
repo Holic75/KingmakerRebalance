@@ -216,10 +216,11 @@ namespace CallOfTheWild.Archetypes
                                                                                                                                            c.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
                                                                                                                                        }
                                                                                                                                      ),
-                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                       classes: getMonkArray(),
                                                                                        type: AbilityRankType.Default,
-                                                                                       progression: ContextRankProgression.AsIs,
-                                                                                       featureList: new BlueprintFeature[] { unarmed1d8, unarmed1d10, unarmed2d6, unarmed2d8, unarmed2d10 }
+                                                                                       progression: ContextRankProgression.DivStep,
+                                                                                       stepLevel: 4
                                                                                        )
                                                       );
 

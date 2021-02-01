@@ -5741,6 +5741,26 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class IgnoreDamageReductionIfTargetHasFact : RuleInitiatorLogicComponent<RuleDealDamage>
+        {
+            public BlueprintBuff fact;
+            public bool from_caster;
+
+            public override void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+                if (evt.Target.Descriptor.Buffs.Enumerable.Any(b => b.Blueprint == fact && (!from_caster || b.MaybeContext?.MaybeCaster == evt.Initiator)))
+                {
+                    evt.IgnoreDamageReduction = true;
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleDealDamage evt)
+            {
+            }
+        }
+
+
         [ComponentName("BuffStackingBonus")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class AddStackingStatBonusToModifierFromFact : ContextAction
@@ -10754,8 +10774,6 @@ namespace CallOfTheWild
         {
             void onMentalFocusChanged(UnitDescriptor unit);
         }
-
-
 
 
         class ContextValueWithLimitProperty : PropertyValueGetter

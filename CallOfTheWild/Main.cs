@@ -198,6 +198,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixMissingSlamProficiency();
                     CallOfTheWild.Rebalance.fixStalwartDefender();
                     CallOfTheWild.Rebalance.fixChannelEnergyHeal();
+                    CallOfTheWild.Rebalance.condenseMonkUnarmedDamage();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
@@ -299,6 +300,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.Hunter.createHunterClass();
                     CallOfTheWild.VindicativeBastard.createClass();
+                    CallOfTheWild.Archetypes.IroranPaladin.create();
                     CallOfTheWild.Antipaladin.creatAntipaldinClass();
                     if (settings.sacred_huntsmaster_animal_focus)
                     {

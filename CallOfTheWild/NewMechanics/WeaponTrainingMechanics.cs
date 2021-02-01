@@ -368,7 +368,8 @@ namespace CallOfTheWild.WeaponTrainingMechanics
         [JsonProperty]
         private Fact m_AppliedFact;
 
-        public ArmorProficiencyGroup[] required_armor;
+        public ArmorProficiencyGroup[] required_armor = new ArmorProficiencyGroup[0];
+        public ArmorProficiencyGroup[] forbidden_armor = new ArmorProficiencyGroup[0];
 
         public override void OnFactActivate()
         {
@@ -416,16 +417,44 @@ namespace CallOfTheWild.WeaponTrainingMechanics
             bool armor_ok = false;
             var body_armor = this.Owner.Body?.Armor?.MaybeArmor;
             armor_ok = body_armor != null && required_armor.Contains(body_armor.Blueprint.ProficiencyGroup);
+            armor_ok = armor_ok || (body_armor == null && required_armor.Contains(ArmorProficiencyGroup.None));
             if (!armor_ok)
             {
                 var shield = this.Owner.Body?.SecondaryHand?.MaybeShield?.ArmorComponent;
                 armor_ok = shield != null && required_armor.Contains(shield.Blueprint.ProficiencyGroup);
             }
 
-            if (this.m_AppliedFact != null || !armor_ok)
+            if (!armor_ok)
             {
                 return;
             }
+
+            bool has_forbidden_armor = false;
+            has_forbidden_armor = body_armor != null && forbidden_armor.Contains(body_armor.Blueprint.ProficiencyGroup);
+            has_forbidden_armor = has_forbidden_armor || (body_armor == null && forbidden_armor.Contains(ArmorProficiencyGroup.None));
+            if (!has_forbidden_armor)
+            {
+                if (!HoldingItemsMechanics.Helpers.hasFreeHandOrBuckler(this.Owner.Body?.SecondaryHand))
+                {
+                    var shield = this.Owner.Body?.SecondaryHand?.MaybeShield?.ArmorComponent;
+                    has_forbidden_armor = shield != null && forbidden_armor.Contains(shield.Blueprint.ProficiencyGroup);
+                }
+            }
+
+            if (has_forbidden_armor)
+            {
+                return;
+            }
+
+
+            if (this.m_AppliedFact != null)
+            {
+                return;
+            }
+            /*if (Owner.HasFact(this.feature))
+            {
+                return;
+            }*/
             this.m_AppliedFact = this.Owner.AddFact(this.feature, null, null);
         }
     }

@@ -1322,6 +1322,46 @@ namespace CallOfTheWild
         }
 
 
+        static internal void condenseMonkUnarmedDamage()
+        {
+            //collapse unarmed strike damage into one feature
+            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
+                                                            new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(1, DiceType.D10),
+                                                            new DiceFormula(2, DiceType.D6),
+                                                            new DiceFormula(2, DiceType.D8),
+                                                            new DiceFormula(2, DiceType.D10)};
+
+            var fist1d6 = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");          
+            var fist1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
+            var fist1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
+            var fist2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
+            var fist2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
+            var fist2d10 = library.Get<BlueprintFeature>("df38e56fa8b3f0f469d55f9aa26b3f5c");
+
+            var fists = new BlueprintFeature[] { fist1d8, fist1d10, fist2d6, fist2d6, fist2d8, fist2d10 };
+
+            fist1d6.ComponentsArray = new BlueprintComponent[]
+            {
+                    Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>(c =>
+                    {
+                        c.dice_formulas = diceFormulas;
+                        c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                        c.categories = new WeaponCategory[] {WeaponCategory.UnarmedStrike};
+                    }),
+                    Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                    type: AbilityRankType.Default,
+                                                    progression: ContextRankProgression.DivStep,
+                                                    stepLevel: 4,
+                                                    classes: new BlueprintCharacterClass[]{library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124") }
+                                                    )
+            };
+
+            var monk_progresssion = library.Get<BlueprintProgression>("8a91753b978e3b34b9425419179aafd6");
+            monk_progresssion.LevelEntries = Common.removeEntries(monk_progresssion.LevelEntries, f => fists.Contains(f));
+        }
+
+
         static internal void fixTeamworkFeats()
         {
             int fix_range = 2;  //2 meters ~ 7 feet
