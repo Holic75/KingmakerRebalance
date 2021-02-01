@@ -157,6 +157,7 @@ namespace CallOfTheWild
                 }
             }
 
+            var scaled_fist = library.Get<BlueprintArchetype>("5868fc82eb11a4244926363983897279");
             var scaled_fist_ac_unlock = library.Get<BlueprintFeature>("2a8922e28b3eba54fa7a244f7b05bd9e");
             scaled_fist_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Charisma bonus (if any, up to his monk level) to his AC and CMD. In addition, a monk gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of +5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat-footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.");
             var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
@@ -165,7 +166,8 @@ namespace CallOfTheWild
                                                                                                                   stat: Kingmaker.EntitySystem.Stats.StatType.Charisma,
                                                                                                                   min: 0,
                                                                                                                   type: AbilityRankType.Default),
-                                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                                                  archetype: scaled_fist,
                                                                                                                   classes: new BlueprintCharacterClass[] { monk },
                                                                                                                   min: 0,
                                                                                                                   type: AbilityRankType.DamageDiceAlternative),
@@ -288,13 +290,6 @@ namespace CallOfTheWild
             //remove pbs from precise shot feat
             var precise_shot = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665");
             precise_shot.RemoveComponents<PrerequisiteFeature>();
-            //no itwf, gtwf
-
-
-
-
-            //condense vital striek into 1 feat
-            //free weapon finesse (?)
         }
 
 

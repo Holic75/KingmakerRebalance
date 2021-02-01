@@ -68,6 +68,7 @@ using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.Blueprints.Items.Components;
 using Kingmaker.Designers.Mechanics.Prerequisites;
+using System.IO;
 
 namespace CallOfTheWild
 {
@@ -1598,6 +1599,22 @@ namespace CallOfTheWild
             result.AsChild = asChild;
             result.Permanent = permanent;
             return result;
+        }
+
+
+        public static string[] readStringsfromFile(string filename, char delimeter)
+        {
+
+            var lines = File.ReadLines(filename).ToArray();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var pos = lines[i].IndexOf(delimeter);
+                if (pos > 0)
+                {
+                    lines[i] = lines[i].Substring(0, pos);
+                }
+            }
+            return lines;
         }
 
         public static BlueprintComponent CreateAddMechanics(this AddMechanicsFeature.MechanicsFeatureType mechanicsKind)

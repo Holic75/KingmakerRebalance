@@ -55,7 +55,6 @@ namespace CallOfTheWild.Archetypes
     public class SacredServant
     {
         static public BlueprintArchetype archetype;
-        static public BlueprintFeature dance_of_the_dead;
 
         static public BlueprintFeatureSelection domain_selection;
         static public BlueprintFeature[] divine_bond = new BlueprintFeature[6];

@@ -583,11 +583,16 @@ namespace CallOfTheWild.Archetypes
 
         static void createUnarmedCombatMastery()
         {
-            var classes = getRogueArray().AddToArray(library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124"));
-            var unarmed1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            var fist1d6 = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");
+           
+            var fake_monk_class = library.CopyAndAdd<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124", "FakeNinjjaMonkClassForUnarmedCombatMastery", "");
+            ClassToProgression.addClassToFeat(fake_monk_class, new BlueprintArchetype[] {}, ClassToProgression.DomainSpellsType.NoSpells, fist1d6, monk);
+
+            /*var unarmed1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
             var unarmed1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
             var unarmed2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
-            var unarmed2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");
+            var unarmed2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");*/
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
@@ -597,12 +602,14 @@ namespace CallOfTheWild.Archetypes
                                                            "",
                                                            Helpers.GetIcon("641dc4bbfb8c13b43a879ba9a2e196b3"), //finesse training unarmed
                                                            FeatureGroup.None,
-                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 0; a.max_level = 11; a.classes = classes; a.Feature = unarmed1d8; }),
-                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 12; a.max_level = 15; a.classes = classes; a.Feature = unarmed1d10; }),
-                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 16; a.max_level = 19; a.classes = classes; a.Feature = unarmed2d6; }),
-                                                           Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a => { a.min_level = 20; a.classes = classes; a.Feature = unarmed2d8; }),
-                                                           Helpers.PrerequisiteFeature(improved_unarmed_strike)
+                                                           fist1d6.ComponentsArray
                                                            );
+            unarmed_combat_mastery.AddComponents(Helpers.PrerequisiteFeature(improved_unarmed_strike),
+                                                 Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = fake_monk_class; a.value = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative); }),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getRogueArray(), type: AbilityRankType.DamageDiceAlternative,
+                                                                                 progression: ContextRankProgression.BonusValue, stepLevel: -4, min: 0)
+                                                );
+            unarmed_combat_mastery.ReapplyOnLevelUp = true;
         }
 
     }

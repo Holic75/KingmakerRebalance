@@ -136,6 +136,7 @@
     <Compile Include="Archetypes\DivineTracker.cs" />
     <Compile Include="Archetypes\DrillSergeant.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />
+    <Compile Include="Archetypes\IroranPaladin.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />
     <Compile Include="Archetypes\MindBlade.cs" />
     <Compile Include="Archetypes\MonkOfTheMantis.cs" />
@@ -145,6 +146,7 @@
     <Compile Include="Archetypes\Executioner.cs" />
     <Compile Include="Archetypes\NatureBondedMagus.cs" />
     <Compile Include="Archetypes\Ninja.cs" />
+    <Compile Include="Archetypes\PackRager.cs" />
     <Compile Include="Archetypes\PactWizard.cs" />
     <Compile Include="Archetypes\PrimalSorcerer.cs" />
     <Compile Include="Archetypes\Rake.cs" />
@@ -392,6 +394,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(ProjectDir)/Icons" "$(TargetDir)/Icons" /e /y /i /r</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(ProjectDir)/Icons" "$(TargetDir)/Icons" /e /y /i /r
+xcopy "$(ProjectDir)/WishBlackLists" "$(TargetDir)/WishBlackLists" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
 </Project>

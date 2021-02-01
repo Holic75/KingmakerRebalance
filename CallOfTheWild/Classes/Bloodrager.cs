@@ -100,8 +100,15 @@ namespace CallOfTheWild
 
         static public BlueprintBuff eldritch_scion_buff;
         static public BlueprintFeature mystical_focus;
+        static public BlueprintFeatureSelection eldritch_scion_bloodrager_bloodlines;
+
+        static public BlueprintArchetype primalist;
+        static public BlueprintFeatureSelection primalist_rage_power_selection;
+        static public BlueprintFeature fake_barbarian;
+        static public BlueprintFeatureSelection primalist_bloodline_selection; 
 
         static public Dictionary<BlueprintProgression, BlueprintProgression> bloodrager_eldritch_scion_bloodlines_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
+        static public Dictionary<BlueprintProgression, BlueprintProgression> bloodrager_primalist_bloodlines_map = new Dictionary<BlueprintProgression, BlueprintProgression>();
         public class BloodlineInfo
         {
             public BlueprintProgression progression;
@@ -161,10 +168,93 @@ namespace CallOfTheWild
             createSteelblood();
             createUrbanBloodrager();
             createBloodConduit();
-            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype, urban_bloodrager, blood_conduit }; //steelblood, spell eater, metamagic rager
+            createPrimalist();
+            bloodrager_class.Archetypes = new BlueprintArchetype[] { metamagic_rager_archetype, spelleater_archetype, steelblood_archetype, urban_bloodrager, blood_conduit, primalist }; //steelblood, spell eater, metamagic rager
             Helpers.RegisterClass(bloodrager_class);
             createRageCastingFeat();
             addToPrestigeClasses();
+        }
+
+
+        static void createPrimalist()
+        {
+            var barbarian = library.Get<BlueprintCharacterClass>("f7d7eb166b3dd594fb330d085df41853");
+
+            primalist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PrimalistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Primalist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "While bloodrage powers come from the very essence of a bloodrager’s being and are often strict and immutable, some bloodragers tap into ancient traditions and primitive wisdom to enhance their rages with something more primal. The primalist mixes his bloodline with more traditional rage powers.");
+            });
+            Helpers.SetField(primalist, "m_ParentClass", bloodrager_class);
+            library.AddAsset(primalist, "");
+
+            primalist_rage_power_selection = library.Get<BlueprintFeatureSelection>("28710502f46848d48b3f0d6132817c4e");
+            primalist_rage_power_selection.SetNameDescription("Primal Choices",
+                                                              "At 4th level and every 4 levels thereafter, a primalist receives a barbarian rage power instead of a bloodline power. His bloodrager level acts as his barbarian level when determining the effect of those bloodrage powers and any prerequisites. Any other prerequisites for a rage power must be met before a primalist can choose it. This ability does not count as the rage power class feature for determining feat prerequisites and other requirements.");
+
+            ClassToProgression.addClassToBuff(bloodrager_class, new BlueprintArchetype[] { primalist }, bloodrage_buff, barbarian);
+            foreach (var f in primalist_rage_power_selection.AllFeatures)
+            {
+                ClassToProgression.addClassToFeat(bloodrager_class, new BlueprintArchetype[] { primalist }, ClassToProgression.DomainSpellsType.NoSpells, f, barbarian);
+            }
+
+            fake_barbarian = Helpers.CreateFeature("PrimalistFakeBarbarianLevels",
+                                                   "",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   FeatureGroup.None,
+                                                   Common.createClassLevelsForPrerequisites(barbarian, bloodrager_class)
+                                                   );
+            fake_barbarian.HideInCharacterSheetAndLevelUp = true;
+            fake_barbarian.HideInUI = true;
+
+            primalist_bloodline_selection = library.CopyAndAdd(bloodline_selection, "PrimalistBloodlineSelection", "");
+
+            for (int i = 0; i < primalist_bloodline_selection.AllFeatures.Length; i++)
+            {
+                var f = library.CopyAndAdd(primalist_bloodline_selection.AllFeatures[i] as BlueprintProgression, "Primalist" + primalist_bloodline_selection.AllFeatures[i].name, "");
+                primalist_bloodline_selection.AllFeatures[i].AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(a => a.replacement_feature = f));
+
+                var powers = new BlueprintFeatureBase[]
+                {
+                    f.LevelEntries[0].Features[0],
+                    f.LevelEntries[1].Features[0],
+                    f.LevelEntries[3].Features[0],
+                    f.LevelEntries[5].Features[0],
+                    f.LevelEntries[7].Features[0],
+                    f.LevelEntries[8].Features[0],
+                };
+                var spells = new BlueprintFeatureBase[]
+                {
+                    f.LevelEntries[2].Features[0],
+                    f.LevelEntries[4].Features[0],
+                    f.LevelEntries[6].Features[0],
+                    f.LevelEntries[7].Features[1],
+                };
+                f.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, powers[0]),
+                                                   Helpers.LevelEntry(7, spells[0]),
+                                                   Helpers.LevelEntry(10, spells[1]),
+                                                   Helpers.LevelEntry(13, spells[2]),
+                                                   Helpers.LevelEntry(16, spells[3])
+                                                  };
+                bloodrager_primalist_bloodlines_map[primalist_bloodline_selection.AllFeatures[i] as BlueprintProgression] = f;
+                primalist_bloodline_selection.AllFeatures[i] = f;
+                primalist_bloodline_selection.Features[i] = f;
+            }
+
+            bloodline_selection.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = primalist_bloodline_selection));
+
+            primalist.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, primalist_bloodline_selection, fake_barbarian),
+                                                       Helpers.LevelEntry(4, primalist_rage_power_selection),
+                                                       Helpers.LevelEntry(8, primalist_rage_power_selection),
+                                                       Helpers.LevelEntry(12, primalist_rage_power_selection),
+                                                       Helpers.LevelEntry(16, primalist_rage_power_selection),
+                                                       Helpers.LevelEntry(20, primalist_rage_power_selection)
+                                                       };
+            primalist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
+            bloodrager_progression.UIDeterminatorsGroup = bloodrager_progression.UIDeterminatorsGroup.AddToArray(primalist_bloodline_selection);
         }
 
 
@@ -177,6 +267,7 @@ namespace CallOfTheWild
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Eldritch Scion (Bloodrager)");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", eldritch_scion.Description);
             });
+            eldritch_scion_bloodrager.AddSkillPoints = 1;
             Helpers.SetField(eldritch_scion_bloodrager, "m_ParentClass", eldritch_scion.GetParentClass());
             library.AddAsset(eldritch_scion_bloodrager, "");
             eldritch_scion_bloodrager.GetParentClass().Archetypes = eldritch_scion_bloodrager.GetParentClass().Archetypes.AddToArray(eldritch_scion_bloodrager);
@@ -221,7 +312,7 @@ namespace CallOfTheWild
 
             mystical_focus = Common.AbilityToFeature(mystical_focus_ability, false);
 
-            var eldritch_scion_bloodrager_bloodlines = library.CopyAndAdd(bloodline_selection, "EldritchScionBloodlineSelection", "");
+            eldritch_scion_bloodrager_bloodlines = library.CopyAndAdd(bloodline_selection, "EldritchScionBloodlineSelection", "");
             eldritch_scion_bloodrager_bloodlines.SetDescription("An eldritch scion gains a bloodrager bloodline.The bloodline is selected at 1st level, and this choice cannot be changed. An eldritch scion’s effective bloodrager level for his bloodline abilities is equal to his eldritch scion level. He does not gain any bonus feats and he gains bonus spells from his bloodline 3 levels earlier than a bloodrager would. To use any ability that normally functions when in a bloodrage, an eldritch scion must spend a point from his eldritch pool (see mystical focus ability).");
 
             for (int i = 0; i < eldritch_scion_bloodrager_bloodlines.AllFeatures.Length; i++)
@@ -260,7 +351,6 @@ namespace CallOfTheWild
                 bloodrager_eldritch_scion_bloodlines_map.Add(eldritch_scion_bloodrager_bloodlines.AllFeatures[i] as BlueprintProgression, f);
                 eldritch_scion_bloodrager_bloodlines.AllFeatures[i] = f;
                 eldritch_scion_bloodrager_bloodlines.Features[i] = f;
-
             }
 
             bloodline_selection.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = eldritch_scion_bloodrager_bloodlines));

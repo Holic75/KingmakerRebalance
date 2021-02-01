@@ -498,6 +498,7 @@ namespace CallOfTheWild
                 var ability2 = b.progression.LevelEntries[3].Features[0] as BlueprintFeature;
 
                 var es_b = Bloodrager.bloodrager_eldritch_scion_bloodlines_map[b.progression];
+                var primalist_b = Bloodrager.bloodrager_primalist_bloodlines_map[b.progression];
 
                 var selection0 = Helpers.CreateFeatureSelection(ability0.name + "Selection",
                                                ability0.Name,
@@ -514,6 +515,11 @@ namespace CallOfTheWild
                 es_b.UIGroups[0].Features.Add(selection0);
                 es_b.LevelEntries[0].Features.Remove(ability0);
                 es_b.LevelEntries[0].Features.Add(selection0);
+
+                primalist_b.UIGroups[0].Features.Remove(ability0);
+                primalist_b.UIGroups[0].Features.Add(selection0);
+                primalist_b.LevelEntries[0].Features.Remove(ability0);
+                primalist_b.LevelEntries[0].Features.Add(selection0);
 
                 var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
                                                                ability1.Name,

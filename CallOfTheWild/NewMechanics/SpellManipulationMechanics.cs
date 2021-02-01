@@ -538,6 +538,13 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class WishSpell : BlueprintComponent
+        {
+
+        }
+
+
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class InferIsFullRoundFromParamSpellSlot : BlueprintComponent
         {
@@ -1428,6 +1435,7 @@ namespace CallOfTheWild
                         }
                     }
                 }
+
                 BlueprintAbility spellBlueprint = spell.Blueprint;
                 if (!___Conversion.Any<AbilityData>((Func<AbilityData, bool>)(s => s.Blueprint != spellBlueprint)) && (spellBlueprint.Variants == null || !(spellBlueprint.Variants).Any<BlueprintAbility>()) || ___ToggleAdditionalSpells == null)
                     return false;
