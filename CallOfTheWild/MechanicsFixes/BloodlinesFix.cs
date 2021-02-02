@@ -40,6 +40,8 @@ namespace CallOfTheWild
             fixBloodlinesUI();
             fixArcaneBloodline();
             createEldritchHeritage();
+            fixBloodlineSpells();
+            Archetypes.Crossblooded.create();
 
             createBloodlineFamiliar();
             createBloodHavoc();
@@ -48,7 +50,6 @@ namespace CallOfTheWild
             addBloodlineMutations();
 
             //fixDragonDisciplePrerequisites();
-            fixBloodlineSpells();
         }
 
 
