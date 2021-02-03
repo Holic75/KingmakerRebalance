@@ -42,6 +42,7 @@ namespace CallOfTheWild
             createEldritchHeritage();
             fixBloodlineSpells();
             Archetypes.Crossblooded.create();
+            CallOfTheWild.Archetypes.PrimalSorcerer.create();
 
             createBloodlineFamiliar();
             createBloodHavoc();
@@ -449,6 +450,12 @@ namespace CallOfTheWild
             }
 
             var bloodlines = library.Get<BlueprintFeatureSelection>("24bef8d1bee12274686f6da6ccbc8914").AllFeatures.Cast<BlueprintProgression>().ToList();
+            bloodlines.Add(library.Get<BlueprintProgression>("a46d4bd93601427409d034a997673ece")); //sylvan
+            bloodlines.Add(library.Get<BlueprintProgression>("7d990675841a7354c957689a6707c6c2")); //sage
+            bloodlines.Add(library.Get<BlueprintProgression>("8a95d80a3162d274896d50c2f18bb6b1")); //empyreal
+            bloodlines.AddRange(Archetypes.PrimalSorcerer.primal_bloodline_selection.AllFeatures.Cast<BlueprintProgression>());
+
+            Dictionary<BlueprintFeature, BlueprintFeatureSelection> feature_selection_map = new Dictionary<BlueprintFeature, BlueprintFeatureSelection>();
 
             foreach (var b in bloodlines)
             {
@@ -456,36 +463,74 @@ namespace CallOfTheWild
                 var ability3 = b.LevelEntries[1].Features.Where(f => !f.name.Contains("SpellLevel1")).FirstOrDefault() as BlueprintFeature;
                 var ability9 = b.LevelEntries[4].Features.Where(f => !f.name.Contains("SpellLevel4")).FirstOrDefault() as BlueprintFeature;
 
-                var selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
-                                                               ability1.Name,
-                                                               ability1.Description,
-                                                               "",
-                                                               ability1.Icon,
-                                                               FeatureGroup.None);
-                selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc, bloodline_familiar };
+                BlueprintFeatureSelection selection = null;
+                BlueprintFeatureSelection selection3 = null;
+                BlueprintFeatureSelection selection9 = null;
 
-                var selection3 = Helpers.CreateFeatureSelection(ability3.name + "Selection",
-                                               ability3.Name,
-                                               ability3.Description,
-                                               "",
-                                               ability3.Icon,
-                                               FeatureGroup.None);
-                selection3.AllFeatures = new BlueprintFeature[] { ability3, blood_intensity };
-                var selection9 = Helpers.CreateFeatureSelection(ability9.name + "Selection",
-                               ability9.Name,
-                               ability9.Description,
-                               "",
-                               ability9.Icon,
-                               FeatureGroup.None);
-                selection9.AllFeatures = new BlueprintFeature[] { ability9, blood_piercing };
+                if (ability1 != null) //for sylvan bloodline
+                {
+                    if (!feature_selection_map.ContainsKey(ability1))
+                    {
+                        selection = Helpers.CreateFeatureSelection(ability1.name + "Selection",
+                                                                       ability1.Name,
+                                                                       ability1.Description,
+                                                                       "",
+                                                                       ability1.Icon,
+                                                                       FeatureGroup.None);
+                        selection.AllFeatures = new BlueprintFeature[] { ability1, blood_havoc, bloodline_familiar };
+                        feature_selection_map[ability1] = selection;
+                    }
+                    else
+                    {
+                        selection = feature_selection_map[ability1];
+                    }
+                }
 
-                b.UIGroups[0].Features.Remove(ability1);
-                b.UIGroups[0].Features.Add(selection);
-                b.UIGroups[0].Features.Remove(ability3);
-                b.UIGroups[0].Features.Add(selection3);
-                b.UIGroups[0].Features.Add(selection9);
-                b.LevelEntries[0].Features.Remove(ability1);
-                b.LevelEntries[0].Features.Add(selection);
+                if (!feature_selection_map.ContainsKey(ability3))
+                {
+                    selection3 = Helpers.CreateFeatureSelection(ability3.name + "Selection",
+                                                           ability3.Name,
+                                                           ability3.Description,
+                                                           "",
+                                                           ability3.Icon,
+                                                           FeatureGroup.None);
+                    selection3.AllFeatures = new BlueprintFeature[] { ability3, blood_intensity };
+                    feature_selection_map[ability3] = selection3;
+                }
+                else
+                {
+                    selection3 = feature_selection_map[ability3];
+                }
+
+                if (!feature_selection_map.ContainsKey(ability9))
+                {
+                    selection9 = Helpers.CreateFeatureSelection(ability9.name + "Selection",
+                                                           ability9.Name,
+                                                           ability9.Description,
+                                                           "",
+                                                           ability9.Icon,
+                                                           FeatureGroup.None);
+                    selection9.AllFeatures = new BlueprintFeature[] { ability9, blood_piercing };
+                    feature_selection_map[ability9] = selection9;
+                }
+                else
+                {
+                    selection9 = feature_selection_map[ability9];
+                }
+
+                if (b.UIGroups.Empty())
+                {
+                    b.UIGroups[0].Features.Remove(ability1);
+                    b.UIGroups[0].Features.Add(selection);
+                    b.UIGroups[0].Features.Remove(ability3);
+                    b.UIGroups[0].Features.Add(selection3);
+                    b.UIGroups[0].Features.Add(selection9);
+                }
+                if (ability1 != null)
+                {
+                    b.LevelEntries[0].Features.Remove(ability1);
+                    b.LevelEntries[0].Features.Add(selection);
+                }
                 b.LevelEntries[1].Features.Remove(ability3);
                 b.LevelEntries[1].Features.Add(selection3);
                 b.LevelEntries[4].Features.Remove(ability9);
@@ -650,7 +695,7 @@ namespace CallOfTheWild
             var arcana_progression =  replaceRepeatingFeatureWithProgression(arcane_bloodline, new_arcana);
             removeExtraEntries(sage_bloodline, new_arcana);
             replaceFeature(sage_bloodline, new_arcana, arcana_progression);
-            replaceFeature(sage_bloodline, library.Get<BlueprintFeature>("3d7b19c8a1d03464aafeb306342be000"), null);
+            replaceFeature(sage_bloodline, library.Get<BlueprintFeature>("3d7b19c8a1d03464aafeb306342be000"), null); //remove seconnd upgrade of bloodline of casting adept
         }
 
 

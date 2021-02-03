@@ -322,8 +322,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Occultist.createOccultistClass();
                     CallOfTheWild.Archetypes.RelicHunter.create();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
-                    CallOfTheWild.BloodlinesFix.load();
-                    CallOfTheWild.Archetypes.PrimalSorcerer.create();
+                    CallOfTheWild.BloodlinesFix.load(); //sorcerer archetypes with alternate bloodlines are created inside
+                    
                     CallOfTheWild.Arcanist.createArcanistClass();                    
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.Archetypes.PackRager.create();
