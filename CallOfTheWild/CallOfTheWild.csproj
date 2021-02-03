@@ -132,9 +132,11 @@
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\BeastkinBerserker.cs" />
     <Compile Include="Archetypes\Bloodhunter.cs" />
+    <Compile Include="Archetypes\Crossblooded.cs" />
     <Compile Include="Archetypes\DirgeBard.cs" />
     <Compile Include="Archetypes\DivineTracker.cs" />
     <Compile Include="Archetypes\DrillSergeant.cs" />
+    <Compile Include="Archetypes\ElementalAnnihilator.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />
     <Compile Include="Archetypes\IroranPaladin.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />

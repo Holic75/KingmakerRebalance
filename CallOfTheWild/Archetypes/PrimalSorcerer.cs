@@ -53,8 +53,7 @@ namespace CallOfTheWild.Archetypes
     public class PrimalSorcerer
     {
         static BlueprintArchetype archetype;
-        static Dictionary<SpellDescriptor, BlueprintProgression> bloodlines;
-        static BlueprintFeatureSelection primal_bloodline_selection;
+        static public BlueprintFeatureSelection primal_bloodline_selection;
 
         static LibraryScriptableObject library => Main.library;
 

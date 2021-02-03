@@ -351,7 +351,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("0b761b6ed6375114d8d01525d44be5a9"), //bane plant
                 library.Get<BlueprintWeaponEnchantment>("eebb4d3f20b8caa43af1fed8f2773328"), //bane undead
                 library.Get<BlueprintWeaponEnchantment>("c3428441c00354c4fabe27629c6c64dd"), //bane vermin
-                library.Get<BlueprintWeaponEnchantment>("66e9e299c9002ea4bb65b6f300e43770"), //brillinat energy
+                library.Get<BlueprintWeaponEnchantment>("66e9e299c9002ea4bb65b6f300e43770"), //brilliant energy
                 library.Get<BlueprintWeaponEnchantment>("633b38ff1d11de64a91d490c683ab1c8"), //corrosive
                 library.Get<BlueprintWeaponEnchantment>("0f20d79b7049c0f4ca54ca3d1ea44baa"), //disruption
                 library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121"), //flaming
@@ -362,7 +362,7 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f"), //ghost touch
                 library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140"), //holy
                 library.Get<BlueprintWeaponEnchantment>("102a9c8c9b7a75e4fb5844e79deaf4c0"), //keen
-                library.Get<BlueprintWeaponEnchantment>("564a6924b246d254c920a7c44bf2a58b"), //shocking
+                library.Get<BlueprintWeaponEnchantment>("7bda5277d36ad114f9f9fd21d0dab658"), //shocking
                 library.Get<BlueprintWeaponEnchantment>("914d7ee77fb09d846924ca08bccee0ff"), //shocking burst
                 library.Get<BlueprintWeaponEnchantment>("f1c0c50108025d546b2554674ea1c006"), //speed
                 library.Get<BlueprintWeaponEnchantment>("690e762f7704e1f4aa1ac69ef0ce6a96"), //thundering

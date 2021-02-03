@@ -7243,7 +7243,7 @@ namespace CallOfTheWild
             var demoralize = (dazzling_display.GetComponent<AbilityEffectRunAction>().Actions.Actions[0] as Demoralize);
 
 
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(DiceType.D10, 1, 0));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D10), 1, 0));
             var apply_burn = Common.createContextActionApplyBuff(burn1d6, Helpers.CreateContextDuration(), is_permanent: true);
 
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_burn)));
@@ -7251,7 +7251,7 @@ namespace CallOfTheWild
 
             blistering_invective = Helpers.CreateAbility("BlisteringInvectiveAbility",
                                                          "Blistering Invective",
-                                                         "You unleash an insulting tirade so vicious and spiteful that enemies who hear it are physically scorched by your fury. When you cast this spell, make an Intimidate check to demoralize each enemy within 30 feet of you. Enemies that are demoralized this way take 1d10 points of fire damage and must succeed at a Reflex save or catch fire.",
+                                                         $"You unleash an insulting tirade so vicious and spiteful that enemies who hear it are physically scorched by your fury. When you cast this spell, make an Intimidate check to demoralize each enemy within 30 feet of you. Enemies that are demoralized this way take 1d{BalanceFixes.getDamageDieString(DiceType.D10)} points of fire damage and must succeed at a Reflex save or catch fire.",
                                                          "",
                                                          icon,
                                                          AbilityType.Spell,

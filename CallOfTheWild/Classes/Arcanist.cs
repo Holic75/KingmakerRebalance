@@ -578,6 +578,7 @@ namespace CallOfTheWild
             new_arcana.AllFeatures = new_arcana.AllFeatures.AddToArray(new_arcana_blood_arcanist);
             new_arcana.Features = new_arcana.Features.AddToArray(new_arcana_blood_arcanist);
             new_arcana_blood_arcanist.SpellcasterClass = arcanist_class;
+            new_arcana_blood_arcanist.AddComponent(Common.createPrerequisiteArchetypeLevel(blood_arcanist_archetype, 1));
             bloodline_selection.AllFeatures = bloodlines.ToArray();
 
             blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
