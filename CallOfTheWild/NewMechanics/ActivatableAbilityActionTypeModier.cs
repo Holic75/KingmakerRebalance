@@ -6,6 +6,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using Newtonsoft.Json;
 using System;
@@ -114,7 +115,12 @@ namespace CallOfTheWild.ActivatableAbilityActionTypeModierMechanics
         static bool Prefix(ActivatableAbility ability, ref UnitCommand.CommandType __result)
         {
             Main.TraceLog();
-            if (ability.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
+            UnitPartActivatableAbility activatableAbility = ability.Owner.Get<UnitPartActivatableAbility>();
+            if (activatableAbility != null && activatableAbility.CanActivateWithoutCommand(ability))
+            {
+                __result = UnitCommand.CommandType.Free;
+            }
+            else if (ability.Blueprint.Group != ActivatableAbilityGroup.BardicPerformance)
             {
                 __result = ability.Owner.Ensure< UnitPartActivatableAbilityActionTypeModifier>().getCommandType(ability.Blueprint);
             }
