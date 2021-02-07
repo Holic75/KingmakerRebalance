@@ -1641,6 +1641,7 @@ namespace CallOfTheWild
                                                                m.Roll = 20;
                                                                m.Replace = true;
                                                                m.actions = Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = phrenic_pool_resource));
+                                                               m.required_resource = phrenic_pool_resource;
                                                            })
                                                            );
 
@@ -2328,7 +2329,7 @@ namespace CallOfTheWild
                                                                                                                                      ),
                                                                                                            Helpers.CreateConditional(Common.createContextConditionCasterHasFact(psychic_safeguard),
                                                                                                                                      apply_psychic_safeguard_buff),
-                                                                                                           spend_resource,
+                                                                                                           //spend_resource,
                                                                                                            Common.createContextActionRemoveBuffsByDescriptor(SpellDescriptor.Fear | SpellDescriptor.Shaken)
                                                                                                            },
                                                                               newRound: new GameAction[] {spend_resource
@@ -2367,7 +2368,7 @@ namespace CallOfTheWild
                                                                                      )
                                                  );
             toggle_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var dark_half_toggle = Common.buffToToggle(toggle_buff, test_mode ? CommandType.Free : CommandType.Swift, true,
+            var dark_half_toggle = Common.buffToToggle(toggle_buff, test_mode ? CommandType.Free : CommandType.Swift, false,
                                                  resource.CreateActivatableResourceLogic(spendType: ActivatableAbilityResourceLogic.ResourceSpendType.Never),
                                                  Helpers.Create<RestrictionHasFact>(a => { a.Feature = deactivate_buff; a.Not = true; })
                                                  );

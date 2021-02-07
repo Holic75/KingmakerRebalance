@@ -73,12 +73,91 @@ namespace CallOfTheWild
         static public BlueprintProgression restoration_domain;
         static public BlueprintProgression restoration_domain_secondary;
 
+        static public BlueprintProgression curse_domain;
+        static public BlueprintProgression curse_domain_secondary;
+
         public static void load()
         {
             createStormsDomain();
             createLightningDomain();
             createRestorationDomain();
             createRageDomain();
+            createCurseSubdomain();
+        }
+
+
+        static void createCurseSubdomain()
+        {
+            var shelyn = library.Get<BlueprintFeature>("b382afa31e4287644b77a8b30ed4aa0b");       
+            var icon = Helpers.GetIcon("582009cf6013790469d6e98e5210477a"); //eyebite
+
+            var resource = Helpers.CreateAbilityResource("CurseSubdomainMalignEyeResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Wisdom);
+
+            var buff = Helpers.CreateBuff("CurseSubdomainMalignEyeBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.Create<NewMechanics.SavingThrowBonusAgainstCaster>(s => { s.Descriptor = ModifierDescriptor.UntypedStackable; s.Value = -2; })
+                                          );
+                                          
+            var ability = Helpers.CreateAbility("CurseSubdomainMalignEyeAbility",
+                                          "Malign Eye",
+                                          "As a standard action, you can afflict one target within close range with your malign eye, causing it to take a –2 penalty on all saving throws against your spells. The effect lasts for 1 minute or until the target hits you with an attack. You can use this ability for a number of times per day equal to 3 + your Wisdom modifier.",
+                                          "",
+                                          icon,
+                                          AbilityType.Supernatural,
+                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
+                                          AbilityRange.Close,
+                                          "",
+                                          "",
+                                          Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                          resource.CreateResourceLogic(),
+                                          Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.SelectedTarget,
+                                                                                                          position_anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.None,
+                                                                                                          orientation_anchor: Kingmaker.UnitLogic.Abilities.Components.Base.AbilitySpawnFxAnchor.None
+                                                                                                          )
+                                          );
+            ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            var malign_eye = Common.AbilityToFeature(ability, false);
+            malign_eye.AddComponent(resource.CreateAddAbilityResource());
+       
+
+            var luck_domain = library.Get<BlueprintProgression>("8bd8cfad69085654b9118534e4aa215e");
+            var luck_domain_secondary = library.Get<BlueprintProgression>("1ba7fc652568a524db218ccff2f9ed90");
+
+
+            var luck_domain_base = library.Get<BlueprintFeature>("2b3818bf4656c1a41b93467755662c78");
+
+            var spell_list = library.CopyAndAdd<BlueprintSpellList>("9e756552e9b05ce459feac658dd2d8fb", "CurseSubdomainSpellList", "");
+            Common.excludeSpellsFromList(spell_list, a => false);
+            curse_domain = createSubdomain("CurseSubdomain", "Curse Subdomain",
+                                               "You are infused with power to curse others, and your mere presence can spread misfortune.\n" +
+                                               $"{ability.Name}: {ability.Description}\n" +
+                                               "Divine Fortune: At 6th level, as a standard action, you can bless yourself with divine luck. For the next half your level in the class that gave you access to this domain rounds you roll two times on every d20 roll and take the best result. You can use this ability once per day at 6th level, and one additional time per day for every 6 levels in the class that gave you access to this domain beyond 6th.\n"
+                                               + "Domain Spells: True Strike, Aid, Protection From Energy, Protection from Energy, Communal, Break Enchantment, Cat's Grace, Mass, Restoration, Greater, Euphoric Tranquility, Heal, Mass",
+                                               luck_domain,
+                                               new BlueprintFeature[] { luck_domain_base },
+                                               new BlueprintFeature[] { malign_eye },
+                                               spell_list
+                                               );
+            Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), 1);
+            Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), 3); //bestow curse
+            Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642"), 6); //eyebite
+            curse_domain.AddComponents(Helpers.PrerequisiteNoFeature(luck_domain), Helpers.PrerequisiteNoFeature(shelyn));
+
+            curse_domain_secondary = library.CopyAndAdd(restoration_domain, "CurseSubdomainSecondaryProgression", "");
+            curse_domain_secondary.RemoveComponents<LearnSpellList>();
+
+            curse_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain),
+                                                 Helpers.PrerequisiteNoFeature(luck_domain),
+                                                 Helpers.PrerequisiteNoFeature(luck_domain_secondary));
+            restoration_domain.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain_secondary));
+
+            cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(curse_domain);
+            cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(curse_domain_secondary);
         }
 
 

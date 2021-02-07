@@ -286,7 +286,7 @@ namespace CallOfTheWild
             var animal_companion_rank = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d");
             for (int i = 1; i <= 10; i++)
             {
-                channel_energy_domain_progression.AddComponent(Helpers.CreateAddFeatureOnClassLevel(animal_companion_rank, i, getDawnflowerAcnchoriteArray()));
+                channel_energy_domain_progression.AddComponent(Helpers.CreateAddFeatureOnClassLevelIfHasFact(animal_companion_rank, i, getDawnflowerAcnchoriteArray(), animal_companion_rank));
             }
 
 

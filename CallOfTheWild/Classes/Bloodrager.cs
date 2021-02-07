@@ -2219,7 +2219,7 @@ namespace CallOfTheWild
                 reroll.RollsAmount = 1;
                 reroll.TakeBest = true;
                 reroll.RerollOnlyIfFailed = true;
-                reroll.actions = Helpers.CreateActionList();
+                reroll.actions = Helpers.CreateActionList(Helpers.Create<NewMechanics.ContextActionSpendResource>(c => c.resource = resource));
                 reroll.required_resource = resource;
 
                 var certain_strike_buff = Helpers.CreateBuff(prefix + "CertainStrikeBuff",
@@ -3384,6 +3384,7 @@ namespace CallOfTheWild
 
             }
             spell_eating = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "SpellEaterSpellEating", "");
+            spell_eating.RemoveComponents<Prerequisite>();
             spell_eating.SetName("Spell Eating");
             spell_eating.SetIcon(renewed_vigor.Icon);
             spell_eating.SetDescription("At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d8 damage for each level of the spell slot consumed.");
@@ -3524,6 +3525,7 @@ namespace CallOfTheWild
                 blood_deflection_spells[i] = spell;
             }
             blood_deflection = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "SteelbloodBloodDeflection", "");
+            blood_deflection.RemoveComponents<Prerequisite>();
             blood_deflection.SetName("Blood Deflection");
             blood_deflection.SetIcon(shield_of_faith.Icon);
             blood_deflection.SetDescription($"At 7th level, as a standard action a steelblood can sacrifice a bloodrager spell slot to gain a deflection bonus to AC equal to {base_ac} + the level of the spell sacrificed. The deflection bonus lasts one minute. Duration of the effect is increased by 1 minute at level 10 and every 3 levels thereafter. If the steelblood gains an increase to damage reduction from a bloodline he is considered to have an effective damage reduction of 0, and the increase is added to the duration of the effect.");

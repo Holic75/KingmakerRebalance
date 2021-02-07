@@ -39,7 +39,7 @@ New Archetypes for existing classes:
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
 - Nature Fang and Storm Druid Druid archetypes,
-- Evangelist and Undead Lord Cleric archetypes,
+- Evangelist, Divine Scourge, and Undead Lord Cleric archetypes,
 - Crossblooded, Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
 - Beastkin Berserker, Pack Rager and Untamed Rager Barbarian archetypes,
 - Mindblade and Nature-Bonded Magus Magus archetypes,

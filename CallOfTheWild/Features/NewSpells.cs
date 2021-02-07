@@ -10235,7 +10235,7 @@ namespace CallOfTheWild
                                                                                     {
                                                                                         s.AddComponents(additional_components);
                                                                                     }
-                                                                                    
+                                                                                    Main.logger.Log("Creating Wish: " + v.AssetGuid + " " + v.name);
                                                                                 },
                                                                                 ability_type == AbilityType.Spell || ability_type == AbilityType.SpellLike,
                                                                                 spells_to_process

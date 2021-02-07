@@ -393,6 +393,7 @@ namespace CallOfTheWild
             var channel_negative_allowed = library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6");
 
             warpriest_spontaneous_heal = library.CopyAndAdd<BlueprintFeature>("5e4620cea099c9345a9207c11d7bc916", "WarpriestSpontaneousHealFeature", "");
+            warpriest_spontaneous_heal.RemoveComponents<Prerequisite>();
             warpriest_spontaneous_heal.SetDescription("A good warpriest (or a neutral warpriest of a good deity) can channel stored spell energy into healing spells that he did not prepare ahead of time. The warpriest can expend any prepared spell that isn’t an orison to cast any cure spell of the same spell level (a cure spell is any spell with \"cure\" in its name).");
             warpriest_spontaneous_heal.ReplaceComponent<SpontaneousSpellConversion>(c => c.CharacterClass = warpriest_class);
             warpriest_spontaneous_heal.AddComponent(Helpers.PrerequisiteFeature(channel_positive_allowed));
