@@ -10975,5 +10975,83 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [AllowMultipleComponents]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddFeatureOnClassLevelIfHasFact : OwnedGameLogicComponent<UnitDescriptor>, IUnitGainLevelHandler, IGlobalSubscriber
+        {
+            public BlueprintCharacterClass Class;
+            public int Level;
+            public BlueprintFeature Feature;
+            public bool BeforeThisLevel;
+            public BlueprintCharacterClass[] AdditionalClasses;
+            public BlueprintArchetype[] Archetypes;
+            public BlueprintUnitFact fact;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public override void OnFactActivate()
+            {
+                this.Apply();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.Owner.RemoveFact(this.m_AppliedFact);
+            }
+
+            public void HandleUnitGainLevel(UnitDescriptor unit, BlueprintCharacterClass @class)
+            {
+                this.Apply();
+            }
+
+            private void Apply()
+            {
+                if (this.IsFeatureShouldBeApplied())
+                {
+                    if (this.m_AppliedFact != null)
+                        return;
+                    this.m_AppliedFact = this.Owner.AddFact((BlueprintUnitFact)this.Feature, (MechanicsContext)null, (FeatureParam)null);
+                }
+                else
+                {
+                    if (this.m_AppliedFact == null)
+                        return;
+                    this.Owner.RemoveFact(this.m_AppliedFact);
+                    this.m_AppliedFact = (Fact)null;
+                }
+            }
+
+            private bool IsFeatureShouldBeApplied()
+            {
+                if (!this.Owner.HasFact(fact))
+                {
+                    return false;
+                }
+                int classLevel = ReplaceCasterLevelOfAbility.CalculateClassLevel(this.Class, this.AdditionalClasses, this.Owner, this.Archetypes);
+                if (this.BeforeThisLevel && classLevel >= this.Level)
+                    return false;
+                if (classLevel < this.Level && this.BeforeThisLevel)
+                    return true;
+                if (classLevel >= this.Level)
+                    return !this.BeforeThisLevel;
+                return false;
+            }
+
+            public override void PostLoad()
+            {
+                base.PostLoad();
+                int num = this.m_AppliedFact == null ? 0 : (!this.Owner.HasFact(this.m_AppliedFact) ? 1 : 0);
+                if (num != 0)
+                {
+                    this.m_AppliedFact.Dispose();
+                    this.m_AppliedFact = (Fact)null;
+                }
+                if (num == 0 || !((IList<BlueprintFeatureBase>)BlueprintRoot.Instance.PlayerUpgradeActions.AllowedForRestoreFeatures).HasItem<BlueprintFeatureBase>((BlueprintFeatureBase)this.Feature))
+                    return;
+                this.Apply();
+            }
+        }
     }
 }

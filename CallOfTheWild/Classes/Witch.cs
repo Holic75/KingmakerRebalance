@@ -691,7 +691,7 @@ namespace CallOfTheWild
                                                                                                                                                       library.Get<BlueprintAbility>("1f173a16120359e41a20fc75bb53d449")
                                                                                                                                                      )
                                                                                                               );
-
+            witch_spontaneous_cure.RemoveComponents<Prerequisite>();
             var icon = library.Get<BlueprintAbility>("f6f95242abdfac346befd6f4f6222140").Icon;
             var empatic_healing = Helpers.CreateFeature("HedgeWitchEmpaticHealingFeature",
                                                         "Empatic Healing",

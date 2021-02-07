@@ -154,6 +154,7 @@ namespace CallOfTheWild
             return rod;
         }
 
+
         public HexEngine(BlueprintCharacterClass[] scaling_classes, StatType scaling_stat, StatType secondary_scaling_stat = StatType.Charisma, BlueprintArchetype archetype = null)
         {
             hex_classes = scaling_classes;

@@ -232,7 +232,7 @@ namespace CallOfTheWild
             twinned_eidolon_selection = library.CopyAndAdd(eidolon_selection, "TwinnedEidolonFeatureSelection", "07464c5f4c5e4dd79120db73a3cfd597");
             twinned_eidolon_selection.SetNameDescriptionIcon(Eidolon.twinned_eidolon);
             twinned_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small };
-
+            twinned_eidolon_selection.AddComponent(Helpers.Create<CompanionMechanics.ChangeCompanionAlignmentToMasters>());
 
             twinned_summoner.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, eidolon_selection),
                                                              Helpers.LevelEntry(4, shield_ally),

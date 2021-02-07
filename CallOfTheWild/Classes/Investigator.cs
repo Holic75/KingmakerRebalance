@@ -1930,7 +1930,7 @@ namespace CallOfTheWild
                                                           FeatureGroup.None,
                                                           Helpers.CreateAddFact(true_inspiration_base)
                                                           );
-    }
+        }
 
 
         static void createInvestigatorProficiencies()

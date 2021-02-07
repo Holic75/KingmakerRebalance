@@ -331,6 +331,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Arcanist.createArcanistClass();                    
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.Archetypes.PackRager.create();
+                    CallOfTheWild.Archetypes.DivineScourge.create();
                     CallOfTheWild.SharedSpells.load();
                     
 

@@ -1923,6 +1923,21 @@ namespace CallOfTheWild
             return a;
         }
 
+
+        public static NewMechanics.AddFeatureOnClassLevelIfHasFact CreateAddFeatureOnClassLevelIfHasFact(this BlueprintFeature feat, int level, BlueprintCharacterClass[] classes, BlueprintUnitFact fact, bool before = false)
+        {
+            var a = Create<NewMechanics.AddFeatureOnClassLevelIfHasFact>();
+            a.name = $"AddFeatureOnClassLevelIfHasFact${feat.name}";
+            a.Level = level;
+            a.BeforeThisLevel = before;
+            a.Feature = feat;
+            a.Class = classes[0];
+            a.AdditionalClasses = classes.Skip(1).ToArray();
+            a.Archetypes = new BlueprintArchetype[0];
+            a.fact = fact;
+            return a;
+        }
+
         public static AddAbilityResources CreateAddAbilityResource(this BlueprintAbilityResource resource)
         {
             var a = Create<AddAbilityResources>();

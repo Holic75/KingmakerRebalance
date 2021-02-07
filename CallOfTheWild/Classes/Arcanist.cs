@@ -2141,7 +2141,7 @@ namespace CallOfTheWild
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/HolyWaterJet.png");
             var ability = Helpers.CreateAbility("HolyWaterJetExploitAbility",
                                                         "Holy Water Jet",
-                                                        $"The arcanist can unleash a jet of holy water by expending 1 point from her arcane reservoir. This creates a 30-foot line of water that deals damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage plus the arcanist’s Charisma modifier, plus an additional 1d8 points of damage for every 2 levels beyond 1st (to a maximum of 10d8 at 19th level) to each target in the line that would normally take damage from holy water. Creatures in the area of effect can attempt a Reflex saving throw to halve the damage.",
+                                                        $"The arcanist can unleash a jet of holy water by expending 1 point from her arcane reservoir. This creates a 30-foot line of water that deals damage equal to 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage plus the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D8)} at 19th level) to each target in the line that would normally take damage from holy water. Creatures in the area of effect can attempt a Reflex saving throw to halve the damage.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
@@ -2169,7 +2169,7 @@ namespace CallOfTheWild
             var icon = library.Get<BlueprintAbility>("ebade19998e1f8542a1b55bd4da766b3").Icon;
             var flame_arc_ability = Helpers.CreateAbility("FlameArcExploitAbility",
                                                         "Flame Arc",
-                                                        $"The arcanist can unleash an arc of flame by expending 1 point from her arcane reservoir. This creates a 30-foot line of flame that deals 1d{BalanceFixes.getDamageDie(DiceType.D6)} points of fire damage + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of fire damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 19th level) to each target in the line. Creatures in the area of effect may attempt a Reflex saving throw to halve the damage.",
+                                                        $"The arcanist can unleash an arc of flame by expending 1 point from her arcane reservoir. This creates a 30-foot line of flame that deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage + the arcanist’s Charisma modifier, plus an additional 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  points of fire damage for every 2 levels beyond 1st (to a maximum of 10d{BalanceFixes.getDamageDieString(DiceType.D6)}  at 19th level) to each target in the line. Creatures in the area of effect may attempt a Reflex saving throw to halve the damage.",
                                                         "",
                                                         icon,
                                                         AbilityType.Supernatural,
