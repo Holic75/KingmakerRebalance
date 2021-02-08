@@ -179,6 +179,7 @@ namespace CallOfTheWild
                                                             "Lure of Heavens",
                                                             "The shaman gains ability to fly as per fly spell."
                                                             );
+
                 lure_of_heavens.AddComponent(Helpers.PrerequisiteClassLevel(hex_engine.hex_classes[0], 10));
 
                 heavens_leap = hex_engine.createHeavensLeap(prefix + "HeavensLeap",
