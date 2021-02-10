@@ -79,11 +79,23 @@ namespace CallOfTheWild
             cleave_ability.SetDescription(greate_cleave.Description);
             cleave_ability.GetComponent<AbilityCustomCleave>().GreaterFeature = cleave;
 
+            var cleaving_finish_greater = library.Get<BlueprintFeature>("ffa1b373190af4f4db7a5501904a1983");
+            cleaving_finish_greater.RemoveComponents<Prerequisite>();
+            cleaving_finish_greater.HideInUI = true;
+            cleaving_finish_greater.HideInCharacterSheetAndLevelUp = true;
+
+            var cleaving_finish = library.Get<BlueprintFeature>("59bd93899149fa44687ff4121389b3a9");
+            cleaving_finish.AddComponent(Helpers.CreateAddFact(cleaving_finish_greater));
+            cleaving_finish.SetDescription("If you make a melee attack, and your target drops to 0 or fewer hit points as a result of your attack, you can make another melee attack using your highest base attack bonus against another opponent within reach.");
+
+
             var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();
             foreach (var s in selections)
             {
                 s.AllFeatures = s.AllFeatures.RemoveFromArray(greate_cleave);
                 s.Features = s.Features.RemoveFromArray(greate_cleave);
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(cleaving_finish_greater);
+                s.Features = s.Features.RemoveFromArray(cleaving_finish_greater);
             }
         }
 
