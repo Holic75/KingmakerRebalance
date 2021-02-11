@@ -5,12 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Experience;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -132,6 +134,13 @@ namespace CallOfTheWild
         static public SpiritsEngine.StoneSpirit stone_spirit;
         static public SpiritsEngine.WavesSpirit waves_spirit;
         static public SpiritsEngine.WindSpirit wind_spirit;
+
+        static public BlueprintArchetype draconic_shaman;
+        static public BlueprintFeatureSelection drake_companion;
+        static public BlueprintArchetype fire_drake_archetype;
+        static public BlueprintArchetype cold_drake_archetype;
+
+        static public BlueprintFeatureSelection drake_powers;
 
         public class Spirit
         {
@@ -301,6 +310,7 @@ namespace CallOfTheWild
             createOverseer();
             createSpiritWarden();
             createPosessedShaman();
+            //createDraconicShaman();
             shaman_class.Archetypes = new BlueprintArchetype[] {speaker_for_the_past_archetype, overseer_archetype, witch_doctor_archetype, spirit_warden, possesed_shaman };
             Helpers.RegisterClass(shaman_class);
             createExtraHexFeat();
@@ -320,7 +330,184 @@ namespace CallOfTheWild
         }
 
 
-       
+        static void createDraconicShaman()
+        {
+            draconic_shaman = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DraconicShamanArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Draconic Shaman");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Shaman often have strong ties to dragon gods and imperial dragons who act as mentors. Some of these shamans draw their powers from the might of dragons, rather than from spirits. These shamans each gain a powerful drake as an ally and view caring for that drake as a sacred duty.");
+            });
+            Helpers.SetField(draconic_shaman, "m_ParentClass", shaman_class);
+            library.AddAsset(draconic_shaman, "");
+
+            createDrakeCompanion();
+
+            draconic_shaman.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, shaman_spirits, shaman_familiar),
+                                                                Helpers.LevelEntry(4, hex_selection),
+                                                                Helpers.LevelEntry(10, hex_selection) };
+            draconic_shaman.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, drake_companion) };
+            shaman_class.Progression.UIDeterminatorsGroup = shaman_class.Progression.UIDeterminatorsGroup.AddToArray(drake_companion);
+        }
+
+
+        static void createDrakeCompanion()
+        {
+            var dragon_class = library.Get<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc");
+            dragon_class.SkillPoints = 3;
+
+            fire_drake_archetype = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "FireDrakeArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Fire Drake");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Drakes are brutish lesser kindred of true dragons. Though they aren’t particularly intelligent, drakes’ significantly faster breeding allows their kind to survive in harsh environments.\n"
+                                                                                        + "A few organizations have developed methods for rearing and training drakes. Their techniques allow some to transform these wild dragonkin into allies as devoted as they are deadly.");
+            });
+            Helpers.SetField(fire_drake_archetype, "m_ParentClass", dragon_class);
+            library.AddAsset(fire_drake_archetype, "");
+
+            fire_drake_archetype.RemoveFeatures =  new LevelEntry[] { Helpers.LevelEntry(1, dragon_class.Progression.LevelEntries[0].Features.Skip(1)) };
+
+            var sizes = new Size[] {Size.Small, Size.Medium, Size.Medium, Size.Huge };
+
+            List<BlueprintFeature> size_features = new List<BlueprintFeature>();
+            foreach (var s in sizes)
+            {
+                var size_increase = Helpers.CreateFeature($"DrakeSizeIncrease{s.ToString()}Feature",
+                                                          $"Size Increase: {s.ToString()}",
+                                                           "The drake starts small, but matures further and advances a size category when it reaches 4th level and every 4 levels thereafter. Each time this occurs, the drake’s natural armor bonus to its AC increases by 2, its natural attacks increase in damage based on the new size category, and it gains the following ability scores adjustments: Str +4, Dex –2, Con +2. When the drake reaches Medium size, its speed increases from 20 feet to 30 feet.",
+                                                           "",
+                                                           Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
+                                                           FeatureGroup.None,
+                                                           Helpers.Create<SizeMechanics.PermanentSizeOverride>(a => a.size = s)
+                                                           );
+
+                if (s >= Size.Medium)
+                {
+                    size_increase.AddComponents(Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Racial),
+                                                Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Racial),
+                                                Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.Racial),
+                                                Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                );
+                }
+                else
+                {
+                    size_increase.HideInCharacterSheetAndLevelUp = true;
+                    size_increase.HideInUI = true;
+                }
+
+                if (s == Size.Medium)
+                {
+                    size_increase.AddComponents(Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.Racial));
+                }
+                size_features.Add(size_increase);
+            }
+
+            createDrakePowers();
+            var natural_armor = library.CopyAndAdd<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1", "DrakeNaturalArmorFeature", "");
+            natural_armor.SetNameDescription("Armor Bonus",
+                                             "The drake’s natural armor bonus to its AC increases by 2");
+
+            fire_drake_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, size_features[0]),
+                                                                  Helpers.LevelEntry(3, natural_armor, drake_powers),
+                                                                  Helpers.LevelEntry(4, size_features[1]),
+                                                                  Helpers.LevelEntry(5, natural_armor),
+                                                                  Helpers.LevelEntry(6, drake_powers),
+                                                                  Helpers.LevelEntry(7, natural_armor),
+                                                                  Helpers.LevelEntry(8, size_features[2]),
+                                                                  Helpers.LevelEntry(9, natural_armor, drake_powers),
+                                                                  Helpers.LevelEntry(12, natural_armor, drake_powers),
+                                                                  Helpers.LevelEntry(14, natural_armor),
+                                                                  Helpers.LevelEntry(15, drake_powers),
+                                                                };
+            dragon_class.Archetypes = dragon_class.Archetypes.AddToArray(fire_drake_archetype);
+
+            var drake_unit = library.CopyAndAdd<BlueprintUnit>("e0002289ebae86343ad8568383d0b119", "FireDrakeDragonUnit", ""); //blue dragon
+            drake_unit.LocalizedName = drake_unit.LocalizedName.CreateCopy();
+            drake_unit.LocalizedName.String = Helpers.CreateString(fire_drake_archetype.name + "Unit.Name", fire_drake_archetype.Name);
+            drake_unit.Body = drake_unit.Body.CloneObject();
+            drake_unit.Body.PrimaryHand = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645"); //claw 1d6
+            drake_unit.Body.SecondaryHand = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645"); //claw 1d6
+            drake_unit.Body.Armor = null;
+            drake_unit.Body.EmptyHandWeapon = null;
+            drake_unit.Faction = library.Get<BlueprintFaction>("d8de50cc80eb4dc409a983991e0b77ad"); //neutrals
+            drake_unit.RemoveComponents<Experience>();
+            drake_unit.RemoveComponents<AddTags>();
+            drake_unit.RemoveComponents<AddAbilityToCharacterComponent>();
+            drake_unit.Body.AdditionalLimbs = new BlueprintItemWeapon[1] { library.Get<BlueprintItemWeapon>("952e30e6cb40b454789a9db6e5f6dd09") }; //bite 1d6
+            drake_unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0] {};
+            drake_unit.Prefab = Common.createUnitViewLink("67357674949597e42a6218617a2a6e34"); //red dragon
+            drake_unit.AddComponent(Helpers.Create<AllowDyingCondition>());
+            drake_unit.AddComponent(Helpers.Create<AddResurrectOnRest>());
+            drake_unit.AddComponent(Helpers.Create<Eidolon.EidolonComponent>());
+            drake_unit.ReplaceComponent<AddClassLevels>(a =>
+            {
+                a.DoNotApplyAutomatically = true;
+                a.Archetypes = new BlueprintArchetype[] { fire_drake_archetype };
+                a.Levels = 0;
+                a.Skills = new StatType[0];
+                a.DoNotApplyAutomatically = true;
+                a.Selections = new SelectionEntry[0];
+                a.MemorizeSpells = new BlueprintAbility[0];
+            });
+            Common.addParametrizedFeatureSelectionToAcl(drake_unit.GetComponent<AddClassLevels>(), library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), WeaponCategory.Bite);
+            var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
+            drake_unit.AddFacts = new BlueprintUnitFact[] {natural_armor2};
+
+            
+            drake_unit.Strength = 12;
+            drake_unit.Dexterity = 15;
+            drake_unit.Constitution = 13;
+            drake_unit.Intelligence = 4;
+            drake_unit.Wisdom = 10;
+            drake_unit.Charisma = 7;
+            drake_unit.Speed = 20.Feet();
+            drake_unit.Alignment = Alignment.TrueNeutral;
+
+            Helpers.SetField(fire_drake_archetype, "m_Portrait", Helpers.createPortrait("FireDrakeCompanionProtrait", "FireDrakeCompanion", ""));
+
+            var rank_profgression = library.CopyAndAdd<BlueprintProgression>("3853d5405ebfc0f4a86930bb7082b43b", "CorpseCOmpanionClericProgression", "");
+            rank_profgression.Classes = new BlueprintCharacterClass[] { shaman_class };
+            drake_companion = Helpers.CreateFeatureSelection("DrakeCompanionFeatureSelection",
+                                                    "Drake Companion",
+                                                    "A draconic shaman gains a drake companion instead of a spirit animal, and she communes with the drake to prepare her spells just as other shamans commune with their spirit animals. She doesn’t gain a primary spirit, but she still gains wandering spirit at 4th level. She must select all her hexes (other than her wandering hexes) from the list of shaman hexes.",
+                                                    "",
+                                                    Helpers.GetIcon("5a144297c58248b49972944a40bd39b0"), //red dragon bloodline
+                                                    FeatureGroup.None,
+                                                    Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d")),
+                                                    Helpers.Create<AddFeatureOnApply>(a => a.Feature = rank_profgression)
+                                                    );
+            drake_companion.Group = FeatureGroup.AnimalCompanion;
+
+
+            var fire_drake_companion = Helpers.CreateFeature("FireDrakeCompanionFeature",
+                                                             "Fire Drake Companion",
+                                                             "A draconic shaman gains a drake companion instead of a spirit animal, and she communes with the drake to prepare her spells just as other shamans commune with their spirit animals. She doesn’t gain a primary spirit, but she still gains wandering spirit at 4th level. She must select all her hexes (other than her wandering hexes) from the list of shaman hexes.",
+                                                             "",
+                                                             Helpers.GetIcon("5a144297c58248b49972944a40bd39b0"), //red dragon bloodline
+                                                             FeatureGroup.AnimalCompanion,
+                                                             library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
+                                                             );
+            fire_drake_companion.IsClassFeature = true;
+            fire_drake_companion.ReapplyOnLevelUp = true;
+            fire_drake_companion.ReplaceComponent<AddPet>(a => { a.Pet = drake_unit; a.UpgradeLevel = 100; });
+
+            drake_companion.AllFeatures = drake_companion.AllFeatures.AddToArray(fire_drake_companion);
+        }
+
+
+        static void createDrakePowers()
+        {
+            //breath weapon -> 4d6, 8d6 , 12d6
+            //energy bite
+            //flight
+            //tail attack
+            //intellect
+            //keen mind
+            //blindsense
+        }
+
+
 
 
         static void createSenseSpiritMagic()
@@ -861,7 +1048,6 @@ namespace CallOfTheWild
 
         static void createPosessedShaman()
         {
-
             possesed_shaman = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "PossessedShamanArchetype";

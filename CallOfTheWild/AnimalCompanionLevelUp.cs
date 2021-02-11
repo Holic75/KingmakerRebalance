@@ -86,7 +86,8 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         static BlueprintCharacterClass[] manual_classes = new BlueprintCharacterClass[] { ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
                                                                                          Eidolon.eidolon_class,
-                                                                                         Phantom.phantom_class
+                                                                                         Phantom.phantom_class,
+                                                                                         ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc"),
                                                                                         };
         internal static bool Prefix(AddPet __instance)
         {

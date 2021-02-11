@@ -1787,7 +1787,7 @@ namespace CallOfTheWild
             CrueltyEntry.addCruelty("Fatigued", "The target is fatigued if Fortitude save is failed.", 0, "", 0, SavingThrowType.Fortitude, fatigued);
             CrueltyEntry.addCruelty("Shaken", "The target is shaken for 1 round per level of the antipaladin if Will save is failed.", 0, "", 1, SavingThrowType.Will, shaken);
             CrueltyEntry.addCruelty("Sickened", "The target is sickened for 1 round per level of the antipaladin if Fortitude save is failed.", 0, "", 1, SavingThrowType.Fortitude, sickened);
-            CrueltyEntry.addCruelty("Disiesed", "The target contracts a disease, as if the antipaladin had cast contagion, using his antipaladin level as his caster level if Fortitude save is failed.", 6, "", 0, SavingThrowType.Fortitude, diseased);
+            CrueltyEntry.addCruelty("Diseased", "The target contracts a disease, as if the antipaladin had cast contagion, using his antipaladin level as his caster level if Fortitude save is failed.", 6, "", 0, SavingThrowType.Fortitude, diseased);
             CrueltyEntry.addCruelty("Dazed", "The target is dazed for 1 round if Will save is failed.", 6, "", -1, SavingThrowType.Will, dazed);
             CrueltyEntry.addCruelty("Staggered", "The target is staggered for 1 round per two levels of the antipaladin if Fortitude save is failed.", 6, "", 2, SavingThrowType.Fortitude, staggered);
             CrueltyEntry.addCruelty("Cursed", "The target is cursed, as if the antipaladin had cast bestow curse, using his antipaladin level as his caster level if Will save is failed.", 9, "", 0, SavingThrowType.Will, cursed);
