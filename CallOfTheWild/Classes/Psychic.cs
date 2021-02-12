@@ -967,8 +967,17 @@ namespace CallOfTheWild
             //primal spells
             var druid_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
            
-            var combined_spell_list = Common.combineSpellLists("MagaambyanTelepathPrimalMagicSpellList", druid_spell_list);
-            Common.excludeSpellsFromList(combined_spell_list, psychic_class.Spellbook.SpellList);
+            var combined_spell_list = Common.combineSpellLists("MagaambyanTelepathPrimalMagicSpellList",
+                                                                (spell, spell_list, lvl) =>
+                                                                {
+                                                                    if (psychic_class.Spellbook.SpellList.Contains(spell)
+                                                                        && psychic_class.Spellbook.SpellList.GetLevel(spell) != lvl)
+                                                                    {
+                                                                        return false;
+                                                                    }
+                                                                    return true;
+                                                                },
+                                                               druid_spell_list);
 
             for (int i = 1; i <= 9; i++)
             {

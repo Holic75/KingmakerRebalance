@@ -39,12 +39,26 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("c346bcc77a6613040b3aa915b1ceddec"), //madness
                 library.Get<BlueprintFeature>("eaa368e08628a8641b16cd41cbd2cb33"), //trickery
                 library.Get<BlueprintFeature>("58d2867520de17247ac6988a31f9e397"), //strength
-                library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6"), //channel negative
+                library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6"), //allow channel negative
             });
             //lamashtu.AddComponent(Helpers.Create<RaceMechanics.PrerequisiteRace>(p => p.race = library.Get<BlueprintRace>("9d168ca7100e9314385ce66852385451")));
 
             var deities = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
             deities.AllFeatures = deities.AllFeatures.AddToArray(lamashtu);
+
+            var atheism = library.Get<BlueprintFeature>("92c0d2da0a836ce418a267093c09ca54");
+            //forbid having more than one deity
+            foreach (var d in deities.AllFeatures)
+            {
+                foreach (var dd in deities.AllFeatures)
+                {
+                    if (d != dd)
+                    {
+                        d.AddComponent(Helpers.PrerequisiteNoFeature(dd));
+                    }
+                    d.AddComponent(Helpers.PrerequisiteNoFeature(atheism));
+                }
+            }
         }
     }
 }

@@ -3019,7 +3019,7 @@ namespace CallOfTheWild
                 {
                     var buff = Helpers.CreateBuff(b.prefix + "ElementalMovementBuff",
                                                     "Elemental Movement",
-                                                    b.elemental_movement_prototype.Description.Replace("15", "12"),
+                                                    b.elemental_movement_prototype.Description.Replace("15", "8"),
                                                     "",
                                                     b.elemental_movement_prototype.Icon,
                                                     null,

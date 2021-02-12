@@ -202,7 +202,7 @@ namespace CallOfTheWild.Archetypes
                                                     + "Each bonus can be used to grant one of the following enhancements:\n"
                                                     + "+1 caster level to any paladin spell cast,\n"
                                                     + "+1 to the DC to halve the damage of channel positive energy when used to harm undead,\n"
-                                                    + "+1d6 to channel positive energy,\n"
+                                                    + $"+1d{BalanceFixes.getDamageDieString(DiceType.D6)} to channel positive energy,\n"
                                                     + "restore one use/day of lay on hands.\n"
                                                     + "These enhancements stack and can be selected multiple times. The enhancements granted by the spirit are determined when the spirit is called and cannot be changed until the spirit is called again. If the sacred servant increases her number of uses of lay on hands per day in this way, that choice is set for the rest of the day, and once used, these additional uses are not restored (even if the spirit is called again that day). The celestial spirit imparts no enhancements if the holy symbol is held by anyone other than the sacred servant, but resumes giving enhancements if returned to the sacred servant. A sacred servant can use this ability once per day at 5th level, and one additional time per day for every four levels beyond 5th, to a total of four times per day at 17th level.",
                                                     "",

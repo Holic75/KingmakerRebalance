@@ -89,7 +89,8 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
     {
         static BlueprintCharacterClass[] manual_classes = new BlueprintCharacterClass[] { ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"),
                                                                                          Eidolon.eidolon_class,
-                                                                                         Phantom.phantom_class
+                                                                                         Phantom.phantom_class,
+                                                                                         ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc"),
                                                                                         };
         internal static bool Prefix(AddPet __instance)
         {
@@ -153,16 +154,21 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
         static internal void init()
         {
             var animal_calss = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
+            var dragon_calss = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc");
+            
             var slayer = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb");
             var kineticist = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("42a455d9ec1ad924d889272429eb8391");
             slayer.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
             kineticist.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
             Helpers.RegisterClass(animal_calss);
             animal_calss.HideIfRestricted = false;
+            Helpers.RegisterClass(dragon_calss);
+            dragon_calss.HideIfRestricted = false;
 
 
             foreach (var c in BlueprintRoot.Instance.Progression.CharacterClasses)
             {
+                var dragon_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc");
                 if (c != Eidolon.eidolon_class)
                 {
                     c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));
@@ -170,6 +176,10 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 if (c != Phantom.phantom_class)
                 {
                     c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
+                }
+                if (c != dragon_calss)
+                {
+                    c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = dragon_calss));
                 }
             }
 
@@ -204,6 +214,7 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
 
             foreach (var f in animal_restricted_feats)
             {
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = dragon_calss));
                 f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
                 f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
                 f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.quadruped_archetype));

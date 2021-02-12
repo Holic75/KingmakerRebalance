@@ -189,7 +189,7 @@ namespace CallOfTheWild
                                                        );
                 enhanced_cures = hex_engine.createEnchancedCures(prefix + "EnhancedCures",
                                                                   "Enhanced Cures",
-                                                                  "When the shaman casts a cure spell, the maximum number of hit points healed is based on her shaman level, not the limit imposed by the spell. For example an 11th-level shaman with this hex can cast cure light wounds to heal 1d8+11 hit points instead of the normal 1d8+5 maximum."
+                                                                  $"When the shaman casts a cure spell, the maximum number of hit points healed is based on her shaman level, not the limit imposed by the spell. For example an 11th-level shaman with this hex can cast cure light wounds to heal 1d{BalanceFixes.getDamageDieString(DiceType.D8)}+11 hit points instead of the normal 1d8+5 maximum."
                                                                   );
 
                 life_link = hex_engine.createLifeLink(prefix + "LifeLink",
