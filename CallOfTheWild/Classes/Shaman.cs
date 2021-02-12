@@ -494,7 +494,7 @@ namespace CallOfTheWild
 
                 var drake_companion_feature = Helpers.CreateFeature(e.ToString() + "DrakeCompanionFeature",
                                                                     e.ToString() + " Drake Companion",
-                                                                    "Size Small\nSpeed 20 ft.\nAC + 2 natural armor\nAttack bite(1d3), 2 claws(1d3)\nAbility Scores Str 12, Dex 15, Con 13, Int 4, Wis 10, Cha 7\n"
+                                                                    "Size Small\nSpeed 20 ft.\nAC + 2 natural armor\nAttack bite(1d4), 2 claws(1d4)\nAbility Scores Str 12, Dex 15, Con 13, Int 4, Wis 10, Cha 7\n"
                                                                     + "Immunity " + e.ToString() + "\n" + "Vulnerability " + (e == DamageEnergyType.Fire ? "Cold" : "Fire"),
                                                                     "",
                                                                     Helpers.GetIcon(e == DamageEnergyType.Fire ? "8c6e5b3cf12f71e43949f52c41ae70a8" : "b0f79497a0d1f4f4b8293e82c8f8fa0c"), //red dragon bloodline
