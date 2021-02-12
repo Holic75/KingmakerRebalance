@@ -23,7 +23,7 @@ It introduces new classes:
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
-- Shaman with following archetypes: Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
+- Shaman with following archetypes: Draconic Shaman, Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
@@ -35,10 +35,10 @@ It introduces new classes:
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
-- Iroran Paladin, Sacred Servant and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
+- Iroran Paladin, Sacred Servant, and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
 - Arrowsong Minstrel and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
-- Nature Fang and Storm Druid Druid archetypes,
+- Draconic Druid, Nature Fang, and Storm Druid Druid archetypes,
 - Evangelist, Divine Scourge, and Undead Lord Cleric archetypes,
 - Crossblooded, Seeker and Primal Bloodline Wildblooded Sorcerer archetypes,
 - Beastkin Berserker, Pack Rager and Untamed Rager Barbarian archetypes,

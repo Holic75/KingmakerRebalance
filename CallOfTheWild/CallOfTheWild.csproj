@@ -136,6 +136,7 @@
     <Compile Include="Archetypes\DirgeBard.cs" />
     <Compile Include="Archetypes\DivineScourge.cs" />
     <Compile Include="Archetypes\DivineTracker.cs" />
+    <Compile Include="Archetypes\DraconicDruid.cs" />
     <Compile Include="Archetypes\DrillSergeant.cs" />
     <Compile Include="Archetypes\ElementalAnnihilator.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />

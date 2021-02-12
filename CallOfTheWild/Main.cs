@@ -318,12 +318,13 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Archetypes.DraconicDruid.create();
                     CallOfTheWild.Psychic.createPsychicClass();
                     CallOfTheWild.Occultist.createOccultistClass();
                     CallOfTheWild.Archetypes.RelicHunter.create();
                     CallOfTheWild.Bloodrager.createBloodragerClass();
                     CallOfTheWild.BloodlinesFix.load(); //sorcerer archetypes with alternate bloodlines are created inside
-                    
+
                     CallOfTheWild.Arcanist.createArcanistClass();                    
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.Archetypes.PackRager.create();
