@@ -270,9 +270,9 @@ namespace CallOfTheWild
             var mind_blank = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("35f3724d4e8877845af488d167cb8a89");
             BlueprintBuff rejection_buff = Helpers.CreateBuff("RejectRageBuff",
                                                              "Reject Rage",
-                                                             "When this ability is activated, character will reject rage from external sources (Rage Spell or Skald Songs).",
+                                                             "When this ability is activated, character will reject rage from external sources (like rage spell or skald raging songs).",
                                                              "",
-                                                             mind_blank.Icon,
+                                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/RejectRage.png"),
                                                              null);
             foreach (var b in rage_buffs)
             {

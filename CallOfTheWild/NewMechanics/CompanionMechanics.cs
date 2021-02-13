@@ -300,7 +300,7 @@ namespace CallOfTheWild.CompanionMechanics
     {
         static public int min_hp => -1;
         [JsonProperty]
-        private int companion_hp = -min_hp;
+        private int companion_hp = min_hp;
 
 
         public bool active()

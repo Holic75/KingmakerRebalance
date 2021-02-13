@@ -438,7 +438,7 @@ namespace CallOfTheWild
                                                                   Helpers.LevelEntry(4, size_features[1]),
                                                                   Helpers.LevelEntry(5, natural_armor),
                                                                   Helpers.LevelEntry(6, drake_powers),
-                                                                  Helpers.LevelEntry(7, natural_armor),
+                                                                  Helpers.LevelEntry(7, natural_armor, Eidolon.multi_attack),
                                                                   Helpers.LevelEntry(8, size_features[2]),
                                                                   Helpers.LevelEntry(9, natural_armor, drake_powers),
                                                                   Helpers.LevelEntry(12, natural_armor, drake_powers, size_features[3]),

@@ -139,9 +139,11 @@ namespace CallOfTheWild
                                                             Summoner.twinned_eidolon_selection,
                                                             Summoner.fey_eidolon_selection,
                                                             Summoner.infernal_eidolon_selection,
-                                                            Spiritualist.emotional_focus_selection
+                                                            Spiritualist.emotional_focus_selection,
+                                                            Shaman.drake_companion,
+                                                            Archetypes.DraconicDruid.drake_companion
                                                             };
-        createClassSharedSpell();
+            createClassSharedSpell();
             createSharedSpellFeat();
             fixAcSpellTargetting();
             fixSpells();
@@ -209,7 +211,7 @@ namespace CallOfTheWild
             BlueprintAbility magic_fang = library.Get<BlueprintAbility>("403cf599412299a4f9d5d925c7b9fb33");
             ac_share_spell = Helpers.CreateFeature("ShareSpellAnimalCompanion",
                                          "Share Spells (Companion)",
-                                         "You may cast a spell with a range of Personal on your companion (as a touch range spell) instead of on herself. Spells cast in this way must come from a class that grants a companion. This ability does not allow the companion to share abilities that are not spells, even if they function like spells.",
+                                         "You may cast a spell with a range of Personal on your companion (as a touch range spell) instead of on yourself. This ability does not allow the companion to share abilities that are not spells, even if they function like spells.",
                                          "",
                                          magic_fang.Icon,
                                          FeatureGroup.None);
@@ -281,7 +283,7 @@ namespace CallOfTheWild
         public static bool isValidShareSpellTarget(UnitEntityData target, UnitDescriptor caster)
         {
 
-            return caster.Pet == target
+            return caster.Pet == target && caster.HasFact(ac_share_spell)
                    || caster.Unit == target
                    || caster.HasFact(share_spells_feat) && target.Descriptor.HasFact(bonded_mind_feat);
         }

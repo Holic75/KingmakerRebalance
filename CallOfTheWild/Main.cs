@@ -364,6 +364,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.ZenArcher.create();
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.LoreWarden.create();
+                    CallOfTheWild.Archetypes.DervishOfDawn.create();
                     CallOfTheWild.Archetypes.Preservationist.create();
                     CallOfTheWild.Archetypes.NatureFang.create();
                     CallOfTheWild.RogueTalents.load();
