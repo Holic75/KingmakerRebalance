@@ -133,6 +133,7 @@
     <Compile Include="Archetypes\BeastkinBerserker.cs" />
     <Compile Include="Archetypes\Bloodhunter.cs" />
     <Compile Include="Archetypes\Crossblooded.cs" />
+    <Compile Include="Archetypes\DervishOfDawn.cs" />
     <Compile Include="Archetypes\DirgeBard.cs" />
     <Compile Include="Archetypes\DivineScourge.cs" />
     <Compile Include="Archetypes\DivineTracker.cs" />

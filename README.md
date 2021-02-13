@@ -48,7 +48,7 @@ New Archetypes for existing classes:
 - Ravener Hunter, Relic Hunter, and Sanctified Slayer Inquisitor archetypes,
 - Executioner and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
-- Lore Warden and Drill Sergeant Fighter archetype,
+- Dawnflower Dervish, Lore Warden and Drill Sergeant Fighter archetype,
 - Preservationist and Toxicant Alchemist archetypes,
 - Blood Hunter and Divine Tracker Ranger archetypes.
 
