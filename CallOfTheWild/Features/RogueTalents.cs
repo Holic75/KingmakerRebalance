@@ -427,7 +427,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addToTalentSelection(BlueprintFeature f, bool advanced = false, bool for_investigator = true)
+        public static void addToTalentSelection(BlueprintFeature f, bool advanced = false, bool for_investigator = true)
         {
             var selections =
                 new BlueprintFeatureSelection[]
