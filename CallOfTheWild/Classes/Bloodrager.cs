@@ -2579,6 +2579,7 @@ namespace CallOfTheWild
                 var claw_buff1 = library.CopyAndAdd<BlueprintBuff>("fe712a5237d918342936c0761cdc2d3e", prefix + "Claw1Buff", ""); //from sorcerer bloodline
                 claw_buff1.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
                 var claw_buff2 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw2Buff", ""); //from sorcerer bloodline
+                claw_buff2.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d6));
                 var claw_buff3 = library.CopyAndAdd<BlueprintBuff>("4824413d436653546931aaddb9e71280", prefix + "Claw3Buff", "");
                 claw_buff3.ReplaceComponent<Kingmaker.Designers.Mechanics.Buffs.EmptyHandWeaponOverride>(Common.createEmptyHandWeaponOverride(claw1d8));
                 List<BlueprintBuff> claws4_buff_energy = new List<BlueprintBuff>();
