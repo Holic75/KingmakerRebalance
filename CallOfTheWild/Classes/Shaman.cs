@@ -378,6 +378,7 @@ namespace CallOfTheWild
                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = rank_profgression)
                                                     );
             drake_companion.Group = FeatureGroup.AnimalCompanion;
+            drake_companion.IsClassFeature = true;
 
             var sizes = new Size[] {Size.Small, Size.Medium, Size.Large, Size.Huge };
 
