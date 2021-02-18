@@ -386,6 +386,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.BeastkinBerserker.create();
                     CallOfTheWild.Archetypes.GraveWarden.create();
                     CallOfTheWild.Archetypes.Toxicant.create();
+                    CallOfTheWild.Archetypes.Swashbuckler.create();
                     CallOfTheWild.MysticTheurgeFix.load();
                     CallOfTheWild.AnimalCompanionLevelUp.AddPet_TryLevelUpPet_Patch.init();
 

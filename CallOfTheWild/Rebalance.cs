@@ -47,6 +47,7 @@ using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UI.Common;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.Controllers.Brain.Blueprints;
 
 namespace CallOfTheWild
 {
@@ -974,7 +975,7 @@ namespace CallOfTheWild
             var kalikke_acl = kalikke_feature.GetComponent<AddClassLevels>();
             kalikke_acl.Levels = 1;
             kalikke_acl.Selections[0].Features[0] = library.Get<BlueprintFeature>("90e54424d682d104ab36436bd527af09"); //weapon finesse
-            //kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray();
+            kalikke_acl.Selections[4].Features = kalikke_acl.Selections[4].Features.Reverse().ToArray(); //give cold blast instead of water at level 1
             kalikke_acl.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillLoreNature };
             var kalikke_companion = library.Get<BlueprintUnit>("c807d18a89f96c74f8bb48b31b616323");
             kalikke_companion.Strength = 9;
@@ -983,6 +984,10 @@ namespace CallOfTheWild
             kalikke_companion.Constitution = 16;
             kalikke_companion.Charisma = 8;
             kalikke_companion.Wisdom = 12;
+            //fix ai to use cold blast
+            var water_blast_action = library.Get<BlueprintAiCastSpell>("2c24f6bb1a757864d8aaa4b41466d3dc");
+            water_blast_action.Ability = library.Get<BlueprintAbility>("7980e876b0749fc47ac49b9552e259c1");
+            water_blast_action.Variant = library.Get<BlueprintAbility>("f6d32ecd20ebacb4e964e2ece1c70826");
 
             var elemental_focus = library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31");
             var kanerah_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ccb52e235941e0442be0cb0ee5570f07");
@@ -2100,7 +2105,7 @@ namespace CallOfTheWild
             }
             );
             grease_spell.RemoveComponents<AbilityAoERadius>();
-            grease_spell.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), TargetType.Any));
+            grease_spell.AddComponent(Helpers.CreateAbilityTargetsAround(10.Feet(), Kingmaker.UnitLogic.Abilities.Components.TargetType.Any));
             grease_area.AddComponents(area_effect);
         }
 

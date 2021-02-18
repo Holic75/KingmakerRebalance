@@ -95,7 +95,8 @@ namespace CallOfTheWild.Archetypes
                                                          Helpers.LevelEntry(15, advanced_armor_training)
                                                        };
 
-            archetype.AddFeatures = new LevelEntry[] {  Helpers.LevelEntry(1, burst_of_speed, deity_selection),
+            archetype.AddFeatures = new LevelEntry[] {  Helpers.LevelEntry(1, deity_selection),
+                                                          Helpers.LevelEntry(3, burst_of_speed),
                                                           Helpers.LevelEntry(7, desert_stride),
                                                           Helpers.LevelEntry(11, rapid_attack),
                                                           Helpers.LevelEntry(15, lightning_strike)
@@ -118,9 +119,9 @@ namespace CallOfTheWild.Archetypes
             var charge_buff = library.Get<BlueprintBuff>("f36da144a379d534cad8e21667079066");
 
             charge_buff.AddComponent(Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.UntypedStackable));
-            charge_buff.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype, ContextRankProgression.OnePlusDivStep,
+            charge_buff.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype, ContextRankProgression.DelayedStartPlusDivStep,
                                                                      classes: new BlueprintCharacterClass[] { archetype.GetParentClass() }, archetype: archetype,
-                                                                     max: 2, stepLevel: 7)
+                                                                     max: 2, stepLevel: 4, startLevel: 3)
                                                                      );
         }
 
