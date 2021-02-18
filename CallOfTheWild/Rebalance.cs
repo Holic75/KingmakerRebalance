@@ -906,6 +906,10 @@ namespace CallOfTheWild
             jubilost_companion.Charisma = 8;
             var jubilost_feature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("c9618e3c61e65114b994f3fabcae1d97");
             var jubilost_acl = jubilost_feature.GetComponent<AddClassLevels>();
+            if (Main.settings.balance_fixes)
+            {
+                jubilost_acl.Selections[0].Features[0] = library.Get<BlueprintFeature>("8f3d1e6b4be006f4d896081f2f889665"); //precise shot
+            }
             jubilost_acl.Levels = 1;
             jubilost_acl.Archetypes = jubilost_acl.Archetypes.AddToArray(Archetypes.Preservationist.archetype);
             jubilost_acl.Skills = new StatType[] { StatType.SkillKnowledgeWorld, StatType.SkillPersuasion, StatType.SkillThievery, StatType.SkillUseMagicDevice, StatType.SkillKnowledgeArcana, StatType.SkillPerception };

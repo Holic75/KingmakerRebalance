@@ -14,7 +14,6 @@ using Kingmaker.Blueprints.Items;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
-using Kingmaker.Controllers.Brain.Blueprints;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
@@ -377,7 +376,9 @@ namespace CallOfTheWild
                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d")),
                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = rank_profgression)
                                                     );
+            
             drake_companion.Group = FeatureGroup.AnimalCompanion;
+            drake_companion.IsClassFeature = true;
 
             var sizes = new Size[] {Size.Small, Size.Medium, Size.Large, Size.Huge };
 
@@ -474,10 +475,10 @@ namespace CallOfTheWild
                     a.Archetypes = new BlueprintArchetype[] { drake_archetype };
                     a.Levels = 0;
                     a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillAthletics, StatType.SkillMobility };
+                    a.DoNotApplyAutomatically = true;
                     a.Selections = new SelectionEntry[0];
                     a.MemorizeSpells = new BlueprintAbility[0];
                 });
-                drake_unit.Brain = library.Get<BlueprintBrain>("cf986dd7ba9d4ec46ad8a3a0406d02ae"); //character brain
                 Common.addFeatureSelectionToAcl(drake_unit.GetComponent<AddClassLevels>(), library.Get<BlueprintFeatureSelection>("247a4068296e8be42890143f451b4b45"),  library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"));
                 Common.addParametrizedFeatureSelectionToAcl(drake_unit.GetComponent<AddClassLevels>(), library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e"), WeaponCategory.Claw);
                 var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");

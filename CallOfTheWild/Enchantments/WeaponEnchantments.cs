@@ -1,5 +1,4 @@
 ﻿using Kingmaker.Blueprints;
-using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
@@ -9,10 +8,8 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic;
-using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
-using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
@@ -22,7 +19,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
@@ -68,9 +64,6 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment mithral = library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875");
         static public BlueprintWeaponEnchantment adamantine = library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b");
 
-
-        static public BlueprintWeaponEnchantment spell_storing;
-
         static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
         static public void initialize()
         {
@@ -89,82 +82,6 @@ namespace CallOfTheWild
             dazzling_blade_fx_enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
 
             addDamageOverrideToMaterialEnchants();
-
-            createSpellStoring();
-        }
-
-
-        static void createSpellStoring()
-        {
-            var icon = Helpers.GetIcon("8898a573e8a8a184b8186dbc3a26da74"); //spell combat
-            var feature = Helpers.CreateFeature("WeaponSpellStoringFeature",
-                                                "Spell Storing Weapon",
-                                                "A spell storing weapon allows a spellcaster to store a single targeted spell of up to 3rd level in the weapon. (The spell must have a casting time of 1 standard action.) Anytime the weapon strikes a creature and the creature takes damage from it, the weapon can immediately cast the spell on that creature as a free action if the wielder desires.",
-                                                "",
-                                                icon,
-                                                FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(a => a.always_hit = true));
-
-            var release_buff = Helpers.CreateBuff("WeaponSpellStoringToggleBuff",
-                                                  feature.Name + ": Release",
-                                                  feature.Description,
-                                                  "",
-                                                  feature.Icon,
-                                                  null,
-                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = feature));
-
-            var activatable_ability = Helpers.CreateActivatableAbility("WeaponSpellStoringToggleAbility",
-                                                                             feature.Name + ": Release",
-                                                                             feature.Description,
-                                                                             "",
-                                                                             feature.Icon,
-                                                                             release_buff,
-                                                                             AbilityActivationType.Immediately,
-                                                                             CommandType.Free,
-                                                                             null,
-                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = feature));
-            activatable_ability.DeactivateImmediately = true;
-
-            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = feature);
-            var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
-
-            spell_storing = Common.createWeaponEnchantment("WeaponSpellStoringEnchantment", feature.Name, feature.Description, "", "", "", 0, 1, null,
-                                                         Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(release_on_condition)),
-                                                         Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = feature)
-                                                        );
-            feature.AddComponent(Helpers.CreateAddFact(activatable_ability));
-
-            int max_variants = 10; //due to ui limitation
-            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
-            {
-                return spell.SpellLevel <= 3
-                        && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
-                        && spell.Blueprint.Range != AbilityRange.Personal
-                        && spell.Blueprint.CanTargetEnemies
-                        && !spell.Blueprint.CanTargetPoint
-                        && !spell.Blueprint.IsFullRoundAction
-                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
-                        && !spell.Blueprint.HasAreaEffect()
-                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent);
-            };
-
-            for (int i = 0; i < max_variants; i++)
-            {
-                var ability = Helpers.CreateAbility($"WeaponSpellStoring{i + 1}Ability",
-                                                          feature.Name,
-                                                          feature.Description,
-                                                          "",
-                                                          feature.Icon,
-                                                          AbilityType.Supernatural,
-                                                          CommandType.Standard,
-                                                          AbilityRange.Personal,
-                                                          "",
-                                                          "",
-                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
-                                                          );
-                ability.setMiscAbilityParametersSelfOnly();
-                feature.AddComponent(Helpers.CreateAddFact(ability));
-            }
         }
 
 

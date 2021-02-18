@@ -110,6 +110,7 @@ namespace CallOfTheWild
         static BlueprintAbility harm_undead;
         static BlueprintAbility heal_living_extra;
         static BlueprintAbility harm_undead_extra;
+        static BlueprintFeature spell_store;
         static BlueprintFeature remove_armor_speed_penalty_feature;
 
 
@@ -1592,7 +1593,7 @@ namespace CallOfTheWild
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic("Artifice", minor_ability, quicken: true);
 
-            /*var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
+            var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
             var major_feature = Helpers.CreateFeature("WarpriestArtificeBlessingMajorFeature",
                                                 "Spell Storing",
                                                 "At 10th level, you can cast a single target non-personal spell of 3rd level or lower into a weapon that can be released on target upon successful attack.",
@@ -1658,54 +1659,13 @@ namespace CallOfTheWild
                 major_ability.setMiscAbilityParametersSelfOnly();
                 addBlessingResourceLogic("Artifice", major_ability); //no quicken since it is tied to spell casting time
                 major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
-            }*/
-
-            var major_feature = createSpellStoringFeature("Artifice");
+            }
+           
+            spell_store = major_feature;
 
             addBlessing("WarpriestBlessingArtifice", "Artifice", Common.AbilityToFeature(minor_ability, false), major_feature, "9656b1c7214180f4b9a6ab56f83b92fb");
         }
 
-
-        static BlueprintFeature createSpellStoringFeature(string blessing_name)
-        {
-            var spell_combat = library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9");
-            var major_feature = Helpers.CreateFeature($"Warpriest{blessing_name}BlessingMajorFeature",
-                                    "Spell Storing Weapon",
-                                    "At 10th level, you can add spell-storing enchantment to your weapon. The effect lasts 10 minutes.",
-                                    "",
-                                    spell_combat.Icon,
-                                    FeatureGroup.None
-                                    );
-
-            var major_buff = Helpers.CreateBuff(major_feature.name + "Buff",
-                                          major_feature.Name,
-                                          major_feature.Description,
-                                          "",
-                                          major_feature.Icon,
-                                          null,
-                                          Common.createBuffContextEnchantPrimaryHandWeapon(Common.createSimpleContextValue(1), false, true, WeaponEnchantments.spell_storing)
-                                          );
-
-            var major_ability = Helpers.CreateAbility(major_feature.name + "Ability",
-                                                      major_feature.Name,
-                                                      major_feature.Description,
-                                                      "",
-                                                      major_feature.Icon,
-                                                      AbilityType.Supernatural,
-                                                      CommandType.Standard,
-                                                      AbilityRange.Personal,
-                                                      "10 minutes",
-                                                      "",
-                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(major_buff, Helpers.CreateContextDuration(10, DurationRate.Minutes), dispellable: false)),
-                                                      library.Get<BlueprintAbility>("831e942864e924846a30d2e0678e438b").GetComponent<AbilitySpawnFx>()
-                                                      );
-            major_ability.setMiscAbilityParametersSelfOnly(Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.EnchantWeapon);
-            major_ability.NeedEquipWeapons = true;
-            addBlessingResourceLogic(blessing_name, major_ability, quicken: true);
-            major_feature.AddComponent(Helpers.CreateAddFact(major_ability));
-
-            return major_feature;
-        }
 
         static void createChaosBlessing()
         {
@@ -3504,10 +3464,8 @@ namespace CallOfTheWild
             }
 
             minor_ability.AddComponent(minor_ability.CreateAbilityVariants(runes));
-
-            var major_feature = createSpellStoringFeature("Rune");
          
-            addBlessing("WarpriestBlessingRune", "Rune", Common.AbilityToFeature(minor_ability, false), major_feature, "77637f81d6aa33b4f82873d7934e8c4b");
+            addBlessing("WarpriestBlessingRune", "Rune", Common.AbilityToFeature(minor_ability, false), spell_store, "77637f81d6aa33b4f82873d7934e8c4b");
         }
 
 
