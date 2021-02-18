@@ -376,6 +376,7 @@ namespace CallOfTheWild
                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d")),
                                                     Helpers.Create<AddFeatureOnApply>(a => a.Feature = rank_profgression)
                                                     );
+            
             drake_companion.Group = FeatureGroup.AnimalCompanion;
             drake_companion.IsClassFeature = true;
 
@@ -555,8 +556,8 @@ namespace CallOfTheWild
                 var dmg = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(breath_weapon3),
                                                          Helpers.CreateActionDealDamage(e, dice_d6, true, true),
                                                          Helpers.CreateConditional(Common.createContextConditionCasterHasFact(breath_weapon2),
-                                                                                   Helpers.CreateActionDealDamage(DamageEnergyType.Fire, dice_d4, true, true),
-                                                                                   Helpers.CreateActionDealDamage(DamageEnergyType.Fire, dice_d3, true, true)
+                                                                                   Helpers.CreateActionDealDamage(e, dice_d4, true, true),
+                                                                                   Helpers.CreateActionDealDamage(e, dice_d3, true, true)
                                                                                    )
                                                    );
 
