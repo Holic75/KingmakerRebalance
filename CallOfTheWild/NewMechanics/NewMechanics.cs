@@ -2317,7 +2317,7 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
-        public class AbilityCasterHasSHield : BlueprintComponent, IAbilityCasterChecker
+        public class AbilityCasterHasShield : BlueprintComponent, IAbilityCasterChecker
         {
             public bool CorrectCaster(UnitEntityData caster)
             {
@@ -4829,6 +4829,21 @@ namespace CallOfTheWild
                 }
 
                 return weapon_types.Contains(weapon.Blueprint.Type);
+            }
+        }
+
+
+        public class ActivatableAbilityHasShieldRestriction : ActivatableAbilityRestriction
+        {
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.IsPolymorphed)
+                {
+                    return true;
+                }
+
+                return Owner.Body?.SecondaryHand?.MaybeShield != null;
+
             }
         }
 

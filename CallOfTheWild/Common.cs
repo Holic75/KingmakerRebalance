@@ -3155,6 +3155,19 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantShield createBuffRemainingGroupSizetEnchantShield(ActivatableAbilityGroup group, bool only_non_magical,
+                                                                                                                               bool lock_slot, params BlueprintArmorEnchantment[] enchants)
+        {
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffRemainingGroupSizetEnchantShield>();
+            b.enchantments = enchants;
+            b.group = group;
+            b.lock_slot = lock_slot;
+            b.only_non_magical = only_non_magical;
+            b.shift_with_current_enchantment = true;
+            return b;
+        }
+
+
         static public WeaponGroupAttackBonus createWeaponGroupAttackBonus(int bonus, ModifierDescriptor descriptor, WeaponFighterGroup group)
         {
             WeaponGroupAttackBonus w = Helpers.Create<WeaponGroupAttackBonus>();

@@ -663,7 +663,7 @@ namespace CallOfTheWild
                                                entry.ability.GetComponent<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>(),
                                                Common.createAbilityShowIfCasterHasFacts(entry.required_facts.AddToArray(holy_vindicator_shield)),
                                                Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionRemoveBuffsByDescriptor(holy_vindicator_shield_descriptor))),
-                                               Helpers.Create<NewMechanics.AbilityCasterHasSHield>()
+                                               Helpers.Create<NewMechanics.AbilityCasterHasShield>()
                                                );
 
             ability.setMiscAbilityParametersSelfOnly();
