@@ -965,6 +965,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
     }
 
 
+
     public class BuffContextEnchantArmor : BuffLogic
     {
         public BlueprintArmorEnchantment[] enchantments;

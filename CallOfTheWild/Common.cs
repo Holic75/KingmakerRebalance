@@ -3029,6 +3029,18 @@ namespace CallOfTheWild
         }
 
 
+        static public NewMechanics.EnchantmentMechanics.BuffContextEnchantShield createBuffContextEnchantShield(ContextValue value,
+                                                                                                   bool only_non_magical, bool lock_slot,
+                                                                                                   params BlueprintArmorEnchantment[] enchantments)
+        {
+            var b = Helpers.Create<NewMechanics.EnchantmentMechanics.BuffContextEnchantShield>();
+            b.lock_slot = lock_slot;
+            b.enchantments = enchantments;
+            b.value = value;
+            return b;
+        }
+
+
         static public AbilityCasterMainWeaponCheck createAbilityCasterMainWeaponCheck(params WeaponCategory[] category)
         {
             var a = Helpers.Create<AbilityCasterMainWeaponCheck>();
@@ -4670,6 +4682,62 @@ namespace CallOfTheWild
             return createEnchantmentAbility(name_prefix, display_name, description, icon, new BlueprintBuff[] { base_buff }, enchantment, group_size, group, alignment);
         }
 
+
+        static public BlueprintActivatableAbility createShieldEnchantmentAbility(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff[] base_buffs,
+                                                           BlueprintArmorEnchantment enchantment, int group_size, ActivatableAbilityGroup group,
+                                                           AlignmentMaskType alignment = AlignmentMaskType.Any)
+        {
+            //create buff
+            //create activatable ability that gives buff
+            //on main buff in activate add corresponding enchantment
+            //create feature that gives activatable ability
+
+            BlueprintBuff buff;
+
+            buff = Helpers.CreateBuff(name_prefix + "Buff",
+                                            display_name,
+                                            description,
+                                            "",
+                                            icon,
+                                            null,
+                                            Common.createBuffContextEnchantShield(Common.createSimpleContextValue(1), false, true,
+                                                                                            (BlueprintArmorEnchantment)enchantment)
+                                                                                            );
+            
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var switch_buff = Helpers.CreateBuff(name_prefix + "SwitchBuff",
+                                  display_name,
+                                  description,
+                                  "",
+                                  icon,
+                                  null);
+            switch_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            foreach (var bb in base_buffs)
+            {
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(bb, buff, switch_buff);
+            }
+
+            var ability = Helpers.CreateActivatableAbility(name_prefix + "ToggleAbility",
+                                                                        display_name,
+                                                                        description,
+                                                                        "",
+                                                                        icon,
+                                                                        switch_buff,
+                                                                        AbilityActivationType.Immediately,
+                                                                        CommandType.Free,
+                                                                        null
+                                                                        );
+            ability.WeightInGroup = group_size;
+            ability.Group = group;
+            ability.DeactivateImmediately = true;
+
+            if (alignment != AlignmentMaskType.Any)
+            {
+                ability.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityAlignmentRestriction>(c => c.Alignment = alignment));
+            }
+            return ability;
+        }
 
         static public BlueprintActivatableAbility createEnchantmentAbility(string name_prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintBuff[] base_buffs,
                                                                    BlueprintItemEnchantment enchantment, int group_size, ActivatableAbilityGroup group,

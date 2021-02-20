@@ -6,6 +6,7 @@ using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Shields;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -122,6 +123,9 @@ namespace CallOfTheWild.Archetypes
             magus_class.Progression.UIDeterminatorsGroup = magus_class.Progression.UIDeterminatorsGroup.AddToArray(bonded_item, diminished_spellcasting, sorcerous_shield);
 
             archetype.ReplaceSpellbook = spellbook;
+            archetype.ReplaceStartingEquipment = true;
+            //add shield
+            archetype.StartingItems = archetype.GetParentClass().StartingItems.AddToArray(library.Get<BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b"));
         }
 
 
@@ -191,7 +195,7 @@ namespace CallOfTheWild.Archetypes
                                                         "",
                                                         spell_shield.Icon,
                                                         AbilityType.Supernatural,
-                                                        CommandType.Free,
+                                                        CommandType.Standard,
                                                         AbilityRange.Personal,
                                                         "",
                                                         "",
@@ -271,13 +275,12 @@ namespace CallOfTheWild.Archetypes
                                             );
             spell_combat.AddComponent(Helpers.Create<NewMechanics.ActivatableAbilityHasShieldRestriction>());
             shielded_spell_combat = Common.ActivatableAbilityToFeature(spell_combat, false);
-            shielded_spell_combat.AddComponent(library.Get<BlueprintFeature>("be50f4e97fff8a24ba92561f1694a945").GetComponent<AddMagusMechanicPart>());
+            shielded_spell_combat.AddComponent(library.Get<BlueprintFeature>("2464ba53317c7fc4d88f383fac2b45f9").GetComponent<AddMagusMechanicPart>());
             shielded_spell_combat.AddComponent(Helpers.Create<HoldingItemsMechanics.UseSpellCombatWithShield>());
 
             //TODO: need to remove shield ac when using spell combat if skirnir lvl < 19 and it is not a buckler
             //Simply subtracting shield / shield enhancement and shield focus AC looks tempting but it will likely conflict with brilliant energy and pinpoint targeting
             var spell_combat_penalty = library.Get<BlueprintBuff>("7b4cf64d3a49e3d45b1dbd2385f4eb6d");
-
             greater_shielded_spellcombat = Helpers.CreateFeature("GreaterSpellCombatFeature",
                                                                  "",
                                                                  "",
@@ -288,15 +291,23 @@ namespace CallOfTheWild.Archetypes
             greater_shielded_spellcombat.HideInCharacterSheetAndLevelUp = true;
             greater_shielded_spellcombat.HideInUI = true;
 
-            spell_combat_penalty.AddComponent(Helpers.Create<RemoveShieldACIfHasShield>(r =>
-                                                {
-                                                    r.only_if_has_feature = shielded_spell_combat;
-                                                    r.unless_feature = greater_shielded_spellcombat;
-                                                    r.proficiency_groups = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.HeavyShield,
+            var penalty_buff = Helpers.CreateBuff("ShieldedSpellCombatPenalty",
+                                                  "Shielded Spell Combat Penalty",
+                                                  shielded_spell_combat.Description,
+                                                  "",
+                                                  shielded_spell_combat.Icon,
+                                                  null,
+                                                  Helpers.Create<RemoveShieldACIfHasShield>(r =>
+                                                  {
+                                                      r.only_if_has_feature = shielded_spell_combat;
+                                                      r.unless_feature = greater_shielded_spellcombat;
+                                                      r.proficiency_groups = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.HeavyShield,
                                                                                                          ArmorProficiencyGroup.LightShield,
                                                                                                          ArmorProficiencyGroup.TowerShield };
-                                                })
-                                                );
+                                                  })
+                                                  );
+
+            spell_combat_penalty.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(penalty_buff, Helpers.CreateContextDuration(1), dispellable: false)));
         }
 
 
@@ -356,14 +367,14 @@ namespace CallOfTheWild.Archetypes
             foreach (var e in ArmorEnchantments.fortification_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                var a = Common.createEnchantmentAbility("SkirnirArcaneShield" + e.name, "Arcane Shield Enchantment - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of shield enhancement bonus.", fortification_icon, bond_enhancement_buff, e, cost, group);
+                var a = Common.createShieldEnchantmentAbility("SkirnirArcaneShield" + e.name, "Arcane Shield Enchantment - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of shield enhancement bonus.", fortification_icon, new BlueprintBuff[] { bond_enhancement_buff }, e, cost, group);
                 enchant_abilities[cost - 1].Add(a);
             }
 
             foreach (var e in ArmorEnchantments.spell_resistance_enchantments)
             {
                 int cost = e.EnchantmentCost;
-                var a = Common.createEnchantmentAbility("SkirnirArcaneShield" + e.name, "Arcane Shield Enchantment - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of shield enhancement bonus.", sr_icon, bond_enhancement_buff, e, cost, group);
+                var a = Common.createShieldEnchantmentAbility("SkirnirArcaneShield" + e.name, "Arcane Shield Enchantment - " + e.Name, e.Description + $"\nThis consumes {cost} point(s) of shield enhancement bonus.", sr_icon, new BlueprintBuff[] { bond_enhancement_buff }, e, cost, group);
                 enchant_abilities[cost - 1].Add(a);
             }
 
@@ -383,7 +394,8 @@ namespace CallOfTheWild.Archetypes
                                                 Helpers.savingThrowNone,
                                                 library.Get<BlueprintAbility>("ef768022b0785eb43a18969903c537c4").GetComponent<AbilitySpawnFx>(), //shield spell fx
                                                 Helpers.CreateRunActions(apply_buff),
-                                                Helpers.CreateResourceLogic(resource),
+                                                Helpers.CreateResourceLogic(resource, cost_is_custom: true),
+                                                Helpers.Create<NewMechanics.ResourseCostCalculatorWithDecreasingFacts>(r => r.cost_increasing_facts = new Kingmaker.Blueprints.Facts.BlueprintFact[] { enduring_blade_buff }),
                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {archetype.GetParentClass()}),
                                                 Helpers.Create<NewMechanics.AbilityCasterHasShield>()
                                                 );
@@ -476,9 +488,9 @@ namespace CallOfTheWild.Archetypes
 
 
 
-        [ComponentName("Attacks ignore armor natural ac and shields")]
-        public class RemoveShieldACIfHasShield : RuleTargetLogicComponent<RuleCalculateAC>, IRulebookHandler<RuleCalculateAC>, ITargetRulebookSubscriber
-        {
+        [ComponentName("remove shield ac")]
+        public class RemoveShieldACIfHasShield : RuleTargetLogicComponent<RuleCalculateAC>
+        { 
             public BlueprintFeature only_if_has_feature;
             public BlueprintFeature unless_feature;
             public ArmorProficiencyGroup[] proficiency_groups;
@@ -499,18 +511,15 @@ namespace CallOfTheWild.Archetypes
                 {
                     return;
                 }
-
                 if (only_if_has_feature != null && !evt.Target.Descriptor.HasFact(only_if_has_feature))
                 {
                     return;
                 }
-
                 var shield = evt.Target?.Body?.SecondaryHand?.MaybeShield?.ArmorComponent;
                 if (shield == null || !proficiency_groups.Contains(shield.Blueprint.ProficiencyGroup))
                 {
                     return;
                 }
-
                 int shield_ac = 0;
                 foreach (ModifiableValue.Modifier modifier in evt.Target.Stats.AC.Modifiers)
                 {
