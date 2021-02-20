@@ -257,7 +257,7 @@ namespace CallOfTheWild
                 var icon = library.Get<BlueprintAbility>("f2115ac1148256b4ba20788f7e966830").Icon; //restoration
                 BlueprintFeatureSelection learn_selection = Helpers.CreateFeatureSelection(prefix + "ArcaneEnlightenmentFeatureSelection",
                                                                                           "Arcane Enlightenment",
-                                                                                          "The shaman’s native intelligence grants her the ability to tap into arcane lore. The shaman can add a spell from the sorceror/wizard spell list to the list of shaman spells she can prepare.\n"
+                                                                                          "The shaman’s native intelligence grants her the ability to tap into arcane lore. The shaman can add a spell from the sorcerer/wizard spell list to the list of shaman spells she can prepare.\n"
                                                                                           + "To select a spell she needs to have both Intelligence and Charisma scores equal to 10 + the spell's level. She can add an additional spell every two levels thereafter.",
                                                                                           "",
                                                                                           icon,

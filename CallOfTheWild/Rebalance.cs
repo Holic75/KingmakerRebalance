@@ -1693,7 +1693,7 @@ namespace CallOfTheWild
 
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
-            var sorceror = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var sorcerer = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             string[] cleric_channel_ids = new string[] {"f5fc9a1a2a3c1a946a31b320d1dd31b2",
                                                       "279447a6bf2d3544d93a0a39c3b8e91d",
@@ -1724,7 +1724,7 @@ namespace CallOfTheWild
             foreach (var id in empyreal_channel_ids)
             {
                 var channel = library.Get<BlueprintAbility>(id);
-                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { sorceror }, StatType.Charisma));
+                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { sorcerer }, StatType.Charisma));
             }
         }
 
@@ -2264,7 +2264,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixSylvanSorcerorAnimalCompanion()
+        internal static void fixSylvanSorcererAnimalCompanion()
         {
             //make it to be equal to level - 4 (min 1)
             var progression = library.Get<BlueprintProgression>("09c91f959fb737f4289d121e595c657c");

@@ -906,7 +906,7 @@ namespace CallOfTheWild
                                                               "Generations ago, a demon spread its filth into the essence of your bloodline. While it doesn’t manifest in all of your kin, in those moments when you’re bloodraging, you embody its terrifying presence.\n"
                                                                + "Bonus Feats: Cleave, Great Fortitude, Improved Bull Rush, Improved Sunder, Intimidating Prowess, Power Attack, Toughness.\n"
                                                                + "Bonus Spells: Ray of enfeeblement(7th), bull’s strength(10th), rage(13th), stoneskin(16th).",
-                                                              library.Get<BlueprintProgression>("d3a4cb7be97a6694290f0dcfbd147113").Icon, //sorceror bloodline
+                                                              library.Get<BlueprintProgression>("d3a4cb7be97a6694290f0dcfbd147113").Icon, //sorcerer bloodline
                                                               new BlueprintAbility[] { ray_of_enfeeblement, bulls_strength, rage, stoneskin },
                                                               new BlueprintFeature[] { cleave, great_fortitude, improved_bull_rush, improved_sunder, intimidating_prowess, power_attack, toughness },
                                                               new BlueprintFeature[] { claws, demonic_bulk, demonic_resistances, abyssal_bloodrage, demonic_aura, demonic_immunities },
@@ -1144,7 +1144,7 @@ namespace CallOfTheWild
 
             static void createDemonicImmunities()
             {
-                demonic_immunities = library.CopyAndAdd<BlueprintFeature>("5c1c2ed7fe5f99649ab00605610b775b", //from sorceror bloodline
+                demonic_immunities = library.CopyAndAdd<BlueprintFeature>("5c1c2ed7fe5f99649ab00605610b775b", //from sorcerer bloodline
                                                                                             "BloodragerAbyssalBloodlineDemonicImmunitiesFeature",
                                                                                             "9f558f25202e451eb5b29c721a906a97");
                 var resistances = demonic_immunities.GetComponents<Kingmaker.UnitLogic.FactLogic.AddDamageResistanceEnergy>().ToArray();
@@ -1513,7 +1513,7 @@ namespace CallOfTheWild
 
             static void createAscension()
             {
-                ascension = library.CopyAndAdd<BlueprintFeature>("d85e0396d8f68e047b7b67a1290f8dbc", prefix + "AscensionFeature", "17f896a2f8164f26a6c04523aa7ce708"); //from sorceror bloodline
+                ascension = library.CopyAndAdd<BlueprintFeature>("d85e0396d8f68e047b7b67a1290f8dbc", prefix + "AscensionFeature", "17f896a2f8164f26a6c04523aa7ce708"); //from sorcerer bloodline
                 ascension.SetDescription("At 20th level, you become infused with the power of the heavens. You gain immunity to acid, cold, and petrification. You also gain resistance 10 to electricity and fire, as well as a +4 racial bonus on saving throws against poison. You have these benefits constantly, even while not bloodraging.");
             }
 
@@ -2389,7 +2389,7 @@ namespace CallOfTheWild
                 public BlueprintProgression sorc_progression;
 
                 public DraconicBloodlineData(UnityEngine.Sprite bloodline_icon, BlueprintBuff wings, BlueprintAbility breath_weapon, BlueprintBuff dragon_form, DamageEnergyType energy,
-                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, BlueprintProgression sorceror_progression, string bloodline_name, string breath_string)
+                                      BlueprintWeaponEnchantment enchantment, BlueprintFeature power_of_the_wyrms_feat, BlueprintProgression sorcerer_progression, string bloodline_name, string breath_string)
                 {
                     icon = bloodline_icon;
                     wings_prototype = wings;
@@ -2402,7 +2402,7 @@ namespace CallOfTheWild
                     energy_string = energy.ToString().ToLower();
                     breath_area_string = breath_string;
                     power_of_the_wyrms = power_of_the_wyrms_feat;
-                    sorc_progression = sorceror_progression;
+                    sorc_progression = sorcerer_progression;
 
                     switch (energy)
                     {

@@ -172,7 +172,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
                     CallOfTheWild.Rebalance.fixWidomCognatogen();
                     CallOfTheWild.Rebalance.fixTransmutionSchoolPhysicalEnhancement();
-                    CallOfTheWild.Rebalance.fixSylvanSorcerorAnimalCompanion();
+                    CallOfTheWild.Rebalance.fixSylvanSorcererAnimalCompanion();
                     CallOfTheWild.Rebalance.fixLegendaryProportionsAC();
                     CallOfTheWild.Rebalance.removeJudgement19FormSHandMS();
                     CallOfTheWild.Rebalance.fixDomains();

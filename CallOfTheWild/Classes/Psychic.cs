@@ -138,7 +138,7 @@ namespace CallOfTheWild
         internal static void createPsychicClass()
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
-            var sorceror_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var sorcerer_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             psychic_class = Helpers.Create<BlueprintCharacterClass>();
             psychic_class.name = "PsychicClass";
@@ -149,7 +149,7 @@ namespace CallOfTheWild
                 "Within the mind of any sentient being lies power to rival that of the greatest magical artifact or holy site. By accessing these staggering vaults of mental energy, the psychic can shape the world around her, the minds of others, and pathways across the planes. No place or idea is too secret or remote for a psychic to access, and she can pull from every type of psychic magic. Many methods allow psychics to tap into their mental abilities, and the disciplines they follow affect their abilities.\n"
                 + "Role: With a large suite of spells, psychics can handle many situations, but they excel at moving and manipulating objects, as well as reading and influencing thoughts."
                 );
-            psychic_class.m_Icon = sorceror_class.Icon;
+            psychic_class.m_Icon = sorcerer_class.Icon;
             psychic_class.SkillPoints = wizard_class.SkillPoints;
             psychic_class.HitDie = DiceType.D6;
             psychic_class.BaseAttackBonus = wizard_class.BaseAttackBonus;
@@ -170,7 +170,7 @@ namespace CallOfTheWild
             psychic_class.EquipmentEntities = wizard_class.EquipmentEntities;
             psychic_class.MaleEquipmentEntities = wizard_class.MaleEquipmentEntities;
             psychic_class.FemaleEquipmentEntities = wizard_class.FemaleEquipmentEntities;
-            psychic_class.ComponentsArray = sorceror_class.ComponentsArray;
+            psychic_class.ComponentsArray = sorcerer_class.ComponentsArray;
             psychic_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("63caf94a780472b448f50d0bc183c38f"), //s. magic missile
