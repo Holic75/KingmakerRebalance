@@ -403,6 +403,10 @@ namespace CallOfTheWild
 
             var dd_breath = library.Get<BlueprintFeature>("0aadb51129cb0c147b5d2464c0db10b3");
             ClassToProgression.addClassToFeat(eldritch_scion_bloodrager.GetParentClass(), new BlueprintArchetype[] { eldritch_scion_bloodrager }, ClassToProgression.DomainSpellsType.NoSpells, dd_breath, bloodrager_class);
+
+            //also fix original eldritch scion (cabalist) not to get greater spell acess
+            eldritch_scion.RemoveFeatures = eldritch_scion.RemoveFeatures.AddToArray(Helpers.LevelEntry(19, library.Get<BlueprintFeature>("de18c849c41dbfa44801d812376c707d")));
+            eldritch_scion.ReplaceSpellbook.RemoveComponents<AddCustomSpells>();
         }
 
 

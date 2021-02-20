@@ -101,6 +101,7 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(8, improved_spell_combat),
                                                           Helpers.LevelEntry(11, improved_spell_recall),
                                                           Helpers.LevelEntry(14, greater_spell_combat),
+                                                          Helpers.LevelEntry(16, counterstrike),
                                                           Helpers.LevelEntry(19, greater_spell_access),
                                                        };
 
