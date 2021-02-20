@@ -102,6 +102,7 @@ namespace CallOfTheWild.Archetypes
             var arcane_weapon17 = library.Get<BlueprintFeature>("3cbe3e308342b3247ba2f4fbaf5e6307");
             var spell_recall = library.Get<BlueprintFeature>("61fc0521e9992624e9c518060bf89c0f");
             var improved_spell_recall = library.Get<BlueprintFeature>("0ef6ec1c2fdfc204fbd3bff9f1609490");
+            var greater_spell_access = library.Get<BlueprintFeature>("de18c849c41dbfa44801d812376c707d");
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_pool_feature),
                                                           Helpers.LevelEntry(4, spell_recall),
@@ -113,6 +114,7 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(13, arcane_weapon13, heavy_armor),
                                                           Helpers.LevelEntry(14, greater_spell_combat),
                                                           Helpers.LevelEntry(17, arcane_weapon17),
+                                                          Helpers.LevelEntry(19, greater_spell_access)
                                                        };
 
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, psychic_spellcasting, psychic_pool),

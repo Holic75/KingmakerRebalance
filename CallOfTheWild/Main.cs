@@ -340,6 +340,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Warpriest.createWarpriestClass();
 
                     CallOfTheWild.Archetypes.MindBlade.create();
+                    CallOfTheWild.Archetypes.Skirnir.create();
                     CallOfTheWild.Archetypes.Evangelist.create();
                     
                     CallOfTheWild.NewFeats.load();

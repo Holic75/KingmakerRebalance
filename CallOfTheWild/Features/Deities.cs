@@ -48,7 +48,7 @@ namespace CallOfTheWild
 
             var atheism = library.Get<BlueprintFeature>("92c0d2da0a836ce418a267093c09ca54");
             //forbid having more than one deity
-            foreach (var d in deities.AllFeatures)
+            /*foreach (var d in deities.AllFeatures)
             {
                 foreach (var dd in deities.AllFeatures)
                 {
@@ -58,7 +58,7 @@ namespace CallOfTheWild
                     }
                     d.AddComponent(Helpers.PrerequisiteNoFeature(atheism));
                 }
-            }
+            }*/
         }
     }
 }

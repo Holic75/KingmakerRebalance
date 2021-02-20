@@ -779,6 +779,98 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
         }
     }
 
+    public class BuffRemainingGroupSizetEnchantShield : BuffLogic
+    {
+        public BlueprintArmorEnchantment[] enchantments;
+        public ActivatableAbilityGroup group;
+        public bool shift_with_current_enchantment = true;
+        public ContextValue value;
+        public bool lock_slot = false;
+        public bool only_non_magical = false;
+        [JsonProperty]
+        private bool m_unlock;
+        [JsonProperty]
+        private ItemEnchantment m_Enchantment;
+        [JsonProperty]
+        private ItemEntityArmor m_Armor;
+
+
+        private int getRemainingGroupSize()
+        {
+            int remaining_group_size = Context.MaybeCaster.Ensure<UnitPartActivatableAbility>().GetGroupSize(this.group);
+
+            foreach (var a in Owner.ActivatableAbilities)
+            {
+                if (a.Blueprint.Group == group && a.IsOn)
+                {
+                    remaining_group_size -= a.Blueprint.WeightInGroup;
+                }
+            }
+            return remaining_group_size;
+        }
+
+        public override void OnFactActivate()
+        {
+            m_unlock = false;
+            var unit = this.Owner;
+            if (unit == null) return;
+
+            var armor = unit.Body.SecondaryHand?.MaybeShield?.ArmorComponent;
+            if (armor == null) return;
+
+            int bonus = getRemainingGroupSize() - 1;
+            if (bonus < 0)
+            {
+                return;
+            }
+
+            if (shift_with_current_enchantment)
+            {
+                bonus += GameHelper.GetItemEnhancementBonus(armor);
+            }
+
+            if (bonus >= enchantments.Length)
+            {
+                bonus = enchantments.Length - 1;
+            }
+
+            if (armor.Enchantments.HasFact(enchantments[bonus]))
+            {
+                return;
+            }
+
+
+            m_Enchantment = armor.AddEnchantment(enchantments[bonus], Context, new Rounds?());
+
+            armor.RecalculateStats();
+            m_Armor = armor;
+            if (lock_slot && !armor.IsNonRemovable)
+            {
+                armor.IsNonRemovable = true;
+                m_unlock = true;
+            }
+        }
+
+        public override void OnFactDeactivate()
+        {
+            if (this.m_Enchantment == null)
+                return;
+            this.m_Enchantment.Owner?.RemoveEnchantment(this.m_Enchantment);
+            if (m_Armor != null)
+            {
+                m_Armor.RecalculateStats();
+            }
+            else
+            {
+                return;
+            }
+            if (m_unlock)
+            {
+                m_Armor.IsNonRemovable = false;
+            }
+        }
+    }
+
 
     public class BuffRemainingGroupSizetEnchantArmor : BuffLogic
     {
@@ -871,6 +963,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
             }
         }
     }
+
 
 
     public class BuffContextEnchantArmor : BuffLogic

@@ -363,6 +363,10 @@ namespace CallOfTheWild.Archetypes
 
             internal static bool canUseSpellForSpellCombat(UnitPartMagus unit_part_magus, AbilityData ability)
             {
+                if (ability.ActionType != CommandType.Standard || ability.RequireFullRoundAction)
+                {
+                    return false;
+                }
                 if (unit_part_magus.Owner.HasFact(ray_spell_combat))
                 {
                     return unit_part_magus.IsSuitableForEldritchArcherSpellStrike(ability);

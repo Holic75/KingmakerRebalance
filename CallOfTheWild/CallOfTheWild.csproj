@@ -160,6 +160,7 @@
     <Compile Include="Archetypes\SacredServant.cs" />
     <Compile Include="Archetypes\SanctifiedSlayer.cs" />
     <Compile Include="Archetypes\Seeker.cs" />
+    <Compile Include="Archetypes\Skirnir.cs" />
     <Compile Include="Archetypes\SpiritWhisperer.cs" />
     <Compile Include="Archetypes\StormDruid.cs" />
     <Compile Include="Archetypes\Swashbuckler.cs" />
