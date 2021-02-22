@@ -27,7 +27,7 @@ It introduces new classes:
 - Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
-- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
+- Summoner with following archetypes: Devil Binder, Construct Caller, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
