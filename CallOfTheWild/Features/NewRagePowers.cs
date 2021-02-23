@@ -141,8 +141,6 @@ namespace CallOfTheWild
             //fix group
             var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
             rage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
-
-
         }
 
 
