@@ -175,7 +175,9 @@ New rage powers:
 - Daemon Totem, Greater,
 - Ferocious Beast,
 - Ferocious Beast, Greater,
-- Sharpened Accuracy.
+- Sharpened Accuracy,
+- Disruptive,
+- Spellbreaker.
 
 New features:
 - Share Spell for animal companions,
@@ -551,7 +553,8 @@ Original game bug fixes:
 - (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions,
 - Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks,
 - True Seeing now allows to ignore concelement from blur/displacement,
-- Blindsight now allows to ignore mirror images.
+- Blindsight now allows to ignore mirror images,
+- Elemental Arcana should now correctly account for resitance/immunity/vulnerability.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

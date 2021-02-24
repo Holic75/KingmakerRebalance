@@ -488,7 +488,7 @@ namespace CallOfTheWild.ConcealementMechanics
                 var immune_to_visual_idx = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsImmuneToVisualEffects"));
                 codes[immune_to_visual_idx - 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0); //add this == RuleAttackRoll (instead of Initiator.getDescriptor)
                 codes[immune_to_visual_idx] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
-                                                                           new Func<RuleAttackRoll, UnitEntityData, bool>(ignoreMirrorImage).Method
+                                                                           new Func<UnitEntityData, RuleAttackRoll, bool>(ignoreMirrorImage).Method
                                                                            );
             }
             catch (Exception ex)
@@ -500,7 +500,7 @@ namespace CallOfTheWild.ConcealementMechanics
         }
 
 
-        internal static bool ignoreMirrorImage(RuleAttackRoll rule_attack_roll, UnitEntityData initiator)
+        internal static bool ignoreMirrorImage(UnitEntityData initiator, RuleAttackRoll rule_attack_roll)
         {
             var target = rule_attack_roll.Target;
 

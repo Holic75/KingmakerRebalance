@@ -1180,23 +1180,24 @@ namespace CallOfTheWild
             var codes = instructions.ToList();
             var check_sr_index = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("m_Blueprint"));
 
-            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
-            codes.Insert(check_sr_index + 2, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
-                                                                           new Func<BlueprintAbilityAreaEffect, UnitEntityData, bool>(hasSr).Method
-                                                                           )
-                        );
+            codes[check_sr_index] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
+            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<AreaEffectEntityData, UnitEntityData, bool>(hasSr).Method
+                                                                           );
 
             return codes.AsEnumerable();
         }
 
 
-        static private bool hasSr(BlueprintAbilityAreaEffect area, UnitEntityData unit)
+        static private bool hasSr(AreaEffectEntityData area, UnitEntityData unit)
         {
-            if (unit == null || area == null)
+            var blueprint = area?.Blueprint;
+            if (unit == null || blueprint == null)
             {
                 return false;
             }
-            return area.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
+            
+            return blueprint.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
         }
 
 
