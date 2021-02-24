@@ -251,6 +251,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixArchetypeKineticistGatherPowerWithShield();
                     CallOfTheWild.Rebalance.fixSuppressBuffs();
                     CallOfTheWild.Rebalance.fixBlindingRay();
+                    CallOfTheWild.Rebalance.fixElementalArcana();
 
                     if (settings.secondary_rake_attacks)
                     {
@@ -272,6 +273,8 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixUniversalistMetamagicMastery();
                     CallOfTheWild.NewSpells.load();
                     CallOfTheWild.Rebalance.fixFlameWardenSpells();
+                    CallOfTheWild.NewFeats.createDisruptive();
+                    CallOfTheWild.NewFeats.createSpellbreaker();
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();

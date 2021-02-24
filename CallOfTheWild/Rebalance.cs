@@ -2289,6 +2289,27 @@ namespace CallOfTheWild
             }
         }
 
+
+        static internal void fixElementalArcana()
+        {
+            var buffs = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintFeature>("f23c9a3a3483e2947bbcf09590d01e90"), //rod of fire vengeance
+                library.Get<BlueprintBuff>("3f5763ac8b4e080469f9a41adf3a16c3"), //air
+                library.Get<BlueprintBuff>("3d700f97e681b014e894d9ff9c972a83"), //earth
+                library.Get<BlueprintBuff>("b3e3882ab6829e34983f31e989c00dfc"), //fire
+                library.Get<BlueprintBuff>("912fbab5b3579e9409fcb0f750bb6f2b"), //air
+                library.Get<BlueprintBuff>("ea64c9c2358aee1429a6c325c11eca55"), //rod of fire vengeance
+            };
+
+
+            foreach (var b in buffs)
+            {
+                var c = b.GetComponent<ChangeSpellElementalDamage>();
+                b.ReplaceComponent(c, Helpers.Create<NewMechanics.MetamagicMechanics.ChangeSpellElementalDamage>(s => s.Element = c.Element));
+            }
+        }
+
         static internal void fixTandemTripPrerequisite()
         {
             var tandem_trip = library.Get<BlueprintFeature>("d26eb8ab2aabd0e45a4d7eec0340bbce");

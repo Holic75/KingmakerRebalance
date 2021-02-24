@@ -1037,6 +1037,83 @@ namespace CallOfTheWild
         }
 
 
-        
+
+        public class ChangeSpellElementalDamage : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCastSpell>, IRulebookHandler<RuleCastSpell>, IInitiatorRulebookSubscriber, IInitiatorRulebookHandler<RulePrepareDamage>, IRulebookHandler<RulePrepareDamage>
+        {
+            public DamageEnergyType Element;
+
+            public void OnEventAboutToTrigger(RuleCastSpell evt)
+            {
+            }
+
+            public void OnEventDidTrigger(RuleCastSpell evt)
+            {
+                AbilityExecutionContext context = evt.Context;
+                context.RemoveSpellDescriptor(SpellDescriptor.Fire);
+                context.RemoveSpellDescriptor(SpellDescriptor.Cold);
+                context.RemoveSpellDescriptor(SpellDescriptor.Acid);
+                context.RemoveSpellDescriptor(SpellDescriptor.Electricity);
+                context.AddSpellDescriptor(ChangeSpellElementalDamage.ElementToSpellDescriptor(this.Element));
+            }
+
+            public void OnEventAboutToTrigger(RulePrepareDamage evt)
+            {
+                var context2 = Helpers.GetMechanicsContext()?.SourceAbilityContext;
+                if (context2 == null)
+                {
+                    var source_buff = (evt.Reason?.Item as ItemEntityWeapon)?.Blueprint.GetComponent<NewMechanics.EnchantmentMechanics.WeaponSourceBuff>()?.buff;
+
+                    if (source_buff != null)
+                    {
+                        context2 = evt.Initiator.Buffs?.GetBuff(source_buff)?.MaybeContext?.SourceAbilityContext;
+                    }
+                }
+                if (context2 == null)
+                {
+                    return;
+                }
+
+                if (context2.SourceAbility.IsSpell)
+                {
+
+                    foreach (BaseDamage item in evt.DamageBundle)
+                    {
+                        (item as EnergyDamage)?.ReplaceEnergy(this.Element);
+                    }
+                }
+            }
+
+            public void OnEventDidTrigger(RulePrepareDamage evt)
+            {
+            }
+
+            private static SpellDescriptor ElementToSpellDescriptor(DamageEnergyType element)
+            {
+                switch (element)
+                {
+                    case DamageEnergyType.Fire:
+                        return SpellDescriptor.Fire;
+                    case DamageEnergyType.Cold:
+                        return SpellDescriptor.Cold;
+                    case DamageEnergyType.Electricity:
+                        return SpellDescriptor.Electricity;
+                    case DamageEnergyType.Acid:
+                        return SpellDescriptor.Acid;
+                    default:
+                        return SpellDescriptor.Fire;
+                }
+            }
+
+            public override void Validate(ValidationContext context)
+            {
+                base.Validate(context);
+                if (this.Element == DamageEnergyType.Fire || this.Element == DamageEnergyType.Cold || (this.Element == DamageEnergyType.Acid || this.Element == DamageEnergyType.Electricity))
+                    return;
+                context.AddError("Only Fire, Cold, Acid or Electricity are allowed", (object[])Array.Empty<object>());
+            }
+        }
+
+
+
     }
 }

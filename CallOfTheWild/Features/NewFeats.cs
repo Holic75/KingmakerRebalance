@@ -228,12 +228,10 @@ namespace CallOfTheWild
 
             createViciousStomp();
             createSteadfastPersonality();
-            createDisruptive();
-            createSpellbreaker();
         }
 
 
-        static void createSpellbreaker()
+        static internal void createSpellbreaker()
         {
             spellbreaker = Helpers.CreateFeature("SpellbreakerFeature",
                                                 "Spellbreaker",
@@ -246,11 +244,12 @@ namespace CallOfTheWild
                                                 Helpers.PrerequisiteFeature(disruptive),
                                                 Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd"), 10)
                                                 );
+            spellbreaker.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
             library.AddCombatFeats(spellbreaker);
         }
 
 
-        static void createDisruptive()
+        static internal void createDisruptive()
         {
             var disruptive_buff = Helpers.CreateBuff("DisruptiveAuraEffectBuff",
                                       "Disruptive Effect",
@@ -258,14 +257,14 @@ namespace CallOfTheWild
                                       "",
                                       LoadIcons.Image2Sprite.Create(@"FeatIcons/Disruptive.png"),
                                       null,
-                                      Helpers.Create<ConcentrationBonus>(c => c.Value = -5)
+                                      Helpers.Create<ConcentrationBonus>(c => c.Value = -4)
                                       );
 
             disruptive = Common.createAuraEffectFeature("Disruptive", disruptive_buff.Description, disruptive_buff.Icon,
                                                                       disruptive_buff, 10.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
                                                        );
 
-            disruptive.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            disruptive.Groups = new FeatureGroup[] {FeatureGroup.Feat, FeatureGroup.CombatFeat };
             disruptive.AddComponent(Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd"), 6));
             library.AddCombatFeats(disruptive);
         }

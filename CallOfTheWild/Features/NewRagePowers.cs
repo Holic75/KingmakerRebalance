@@ -98,6 +98,9 @@ namespace CallOfTheWild
         static public BlueprintFeature sharpened_accuracy;
         static public BlueprintBuff sharpened_accuracy_buff;
 
+        static public BlueprintFeature disruptive;
+        static public BlueprintFeature spellbreaker;
+
         static public List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
 
@@ -135,6 +138,9 @@ namespace CallOfTheWild
 
             createFerociousBeast();
             createSharpenedAccuracy();
+
+            createDisruptive();
+            createSpellbreaker();
 
             replaceContextConditionHasFactToContextConditionCasterHasFact(rage_buff, rage_buff, rage_marker_caster); //use rage marker instead of actual rage
 
@@ -690,6 +696,59 @@ namespace CallOfTheWild
                                                               );
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff,buff, unrestrained_rage_feature);
             addToSelection(unrestrained_rage_feature);
+        }
+
+
+        static internal void createDisruptive()
+        {
+            var buff = Helpers.CreateBuff("RagePowerDisruptiveEffectBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddFact(NewFeats.disruptive)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            disruptive = Helpers.CreateFeature("DisruptiveRagePowerFeature",
+                                                "Disruptive",
+                                                "When raging, the barbarian gains Disruptive as a bonus feat.\n"
+                                                + NewFeats.disruptive.Name + ": " + NewFeats.disruptive.Description,
+                                                "",
+                                                null,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteFeature(superstition_feature),
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 8)
+                                                );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, disruptive);
+            addToSelection(disruptive);
+        }
+
+
+
+        static internal void createSpellbreaker()
+        {
+            var buff = Helpers.CreateBuff("RagePowerSpellbreakerEffectBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddFact(NewFeats.spellbreaker)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            spellbreaker = Helpers.CreateFeature("SpellbreakerRagePowerFeature",
+                                                "Spellbreaker",
+                                                "When raging, the barbarian gains Spellbreaker as a bonus feat.\n"
+                                                + NewFeats.spellbreaker.Name + ": " + NewFeats.spellbreaker.Description,
+                                                "",
+                                                null,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteFeature(disruptive),
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 12)
+                                                );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, spellbreaker);
+            addToSelection(spellbreaker);
         }
 
 
