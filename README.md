@@ -148,7 +148,9 @@ New feats:
 - Theurgy,
 - Ability Focus: Cruelty,
 - Spiritual Guardian,
-- Two-Weapon Rend.
+- Two-Weapon Rend,
+- Disruptive,
+- Spellbreaker.
 
 New rage powers:
 - Terrifying Howl
@@ -547,7 +549,9 @@ Original game bug fixes:
 - Fixed missing druid scaling on 1st level Weather domain ability,
 - Monks no longer gain their AC bonus if using shield and fighting unarmored,
 - (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions,
-- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks.
+- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks,
+- True Seeing now allows to ignore concelement from blur/displacement,
+- Blindsight now allows to ignore mirror images.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

@@ -3,6 +3,7 @@ using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Controllers;
 using Kingmaker.Controllers.Combat;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -12,6 +13,7 @@ using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Commands;
@@ -29,6 +31,14 @@ using System.Threading.Tasks;
 namespace CallOfTheWild.AooMechanics
 {
     public class UnitPartAooAgainstAllies : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+    public class UnitPartSpellbreaker : AdditiveUnitPart
     {
         public bool active()
         {
@@ -481,6 +491,35 @@ namespace CallOfTheWild.AooMechanics
             Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);          
         }
     }
+
+
+    [Harmony12.HarmonyPatch(typeof(MagusController))]
+    [Harmony12.HarmonyPatch("OnEventDidTrigger", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(RuleCheckCastingDefensively)})]
+    class Patch_MagusController__Spellbreaker
+    {
+        static bool Prefix(MagusController __instance, RuleCheckCastingDefensively evt)
+        {
+            if (!evt.Success)
+                return false;
+            foreach (UnitEntityData attacker in evt.Initiator.CombatState.EngagedBy)
+            {
+                UnitPartMagus unitPartMagus = attacker.Get<UnitPartMagus>();
+                if (unitPartMagus != null && (bool)unitPartMagus.Counterstrike)
+                {
+                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(attacker, evt.Initiator);
+                }
+                else if ((attacker.Get<UnitPartSpellbreaker>()?.active()).GetValueOrDefault())
+                {
+                    Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(attacker, evt.Initiator);
+                }
+            }
+            return false;
+        }
+    }
+
+
+
 
 
 }

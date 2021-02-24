@@ -474,5 +474,64 @@ namespace CallOfTheWild.ConcealementMechanics
         }
     }
 
+    //allow character with blindsense to ignore mirror image if target is within blindsight range
+    [Harmony12.HarmonyPatch(typeof(RuleAttackRoll))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleAttackRoll__OnTrigger__MirrorImageBlinsightFix
+    {
+        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        {
+            List<Harmony12.CodeInstruction> codes = new List<Harmony12.CodeInstruction>();
+            try
+            {
+                codes = instructions.ToList();
+                var immune_to_visual_idx = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsImmuneToVisualEffects"));
+                codes[immune_to_visual_idx - 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0); //add this == RuleAttackRoll (instead of Initiator.getDescriptor)
+                codes[immune_to_visual_idx] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<RuleAttackRoll, UnitEntityData, bool>(ignoreMirrorImage).Method
+                                                                           );
+            }
+            catch (Exception ex)
+            {
+                Main.logger.Log(ex.ToString());
+            }
 
+            return codes.AsEnumerable();
+        }
+
+
+        internal static bool ignoreMirrorImage(RuleAttackRoll rule_attack_roll, UnitEntityData initiator)
+        {
+            var target = rule_attack_roll.Target;
+
+            if (initiator.Descriptor.IsImmuneToVisualEffects)
+            {
+                return true;
+            }
+
+            var unit_part_concealement = initiator.Get<UnitPartConcealment>();
+            if (unit_part_concealement == null)
+            {
+                return false;
+            }
+
+            List<Feet> m_BlindsightRanges = Harmony12.Traverse.Create(unit_part_concealement).Field("m_BlindsightRanges").GetValue<List<Feet>>();
+            if (m_BlindsightRanges != null)
+            {
+                Feet feet = 0.Feet();
+                foreach (Feet blindsightRange in m_BlindsightRanges)
+                {
+                    if (feet < blindsightRange)
+                        feet = blindsightRange;
+                }
+                float num = initiator.View.Corpulence + target.View.Corpulence;
+                if ((double)initiator.DistanceTo(target) - (double)num <= (double)feet.Meters)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
 }

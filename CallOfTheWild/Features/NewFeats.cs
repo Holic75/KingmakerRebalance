@@ -141,6 +141,9 @@ namespace CallOfTheWild
         static public BlueprintFeature steadfast_personality;
         static public BlueprintFeature two_weapon_rend;
 
+        static public BlueprintFeature disruptive;
+        static public BlueprintFeature spellbreaker;
+
         static internal void load()
         {
             Main.logger.Log("New Feats test mode " + test_mode.ToString());
@@ -225,6 +228,45 @@ namespace CallOfTheWild
 
             createViciousStomp();
             createSteadfastPersonality();
+            createDisruptive();
+            createSpellbreaker();
+        }
+
+
+        static void createSpellbreaker()
+        {
+            spellbreaker = Helpers.CreateFeature("SpellbreakerFeature",
+                                                "Spellbreaker",
+                                                "Benefit: Enemies in your threatened area that succeed their checks to cast spells defensively provoke attacks of opportunity from you.\n"
+                                                + "Normal: Only enemies that fail to cast spells defensively provoke attacks of opportunity.",
+                                                "",
+                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/Spellbreaker.png"),
+                                                FeatureGroup.CombatFeat,
+                                                Helpers.PrerequisiteFeature(disruptive),
+                                                Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd"), 10)
+                                                );
+            library.AddCombatFeats(spellbreaker);
+        }
+
+
+        static void createDisruptive()
+        {
+            var disruptive_buff = Helpers.CreateBuff("DisruptiveAuraEffectBuff",
+                                      "Disruptive Effect",
+                                      "The DC to cast spells defensively increases by +4 for all enemies that are within your threatened area.",
+                                      "",
+                                      LoadIcons.Image2Sprite.Create(@"FeatIcons/Disruptive.png"),
+                                      null,
+                                      Helpers.Create<ConcentrationBonus>(c => c.Value = -5)
+                                      );
+
+            disruptive = Common.createAuraEffectFeature("Disruptive", disruptive_buff.Description, disruptive_buff.Icon,
+                                                                      disruptive_buff, 10.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                       );
+
+            disruptive.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat };
+            disruptive.AddComponent(Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd"), 6));
+            library.AddCombatFeats(disruptive);
         }
 
 
@@ -245,6 +287,7 @@ namespace CallOfTheWild
                                                     Helpers.PrerequisiteFeature(twf),
                                                     Helpers.PrerequisiteFeature(double_slice)
                                                     );
+            two_weapon_rend.Groups = two_weapon_rend.Groups.AddToArray(FeatureGroup.Feat);
             two_weapon_rend.Groups = two_weapon_rend.Groups.AddToArray(FeatureGroup.Feat);
             library.AddCombatFeats(two_weapon_rend);
 
