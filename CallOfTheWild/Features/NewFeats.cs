@@ -242,6 +242,7 @@ namespace CallOfTheWild
                                                 "",
                                                 LoadIcons.Image2Sprite.Create(@"FeatIcons/Spellbreaker.png"),
                                                 FeatureGroup.CombatFeat,
+                                                Helpers.Create<AooMechanics.Spellbreaker>(),
                                                 Helpers.PrerequisiteFeature(disruptive),
                                                 Helpers.PrerequisiteClassLevel(library.Get<BlueprintCharacterClass>("48ac8db94d5de7645906c7d0ad3bcfbd"), 10)
                                                 );
