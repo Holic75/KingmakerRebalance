@@ -340,6 +340,26 @@ namespace CallOfTheWild
             }
         }
 
+
+        [AllowedOn(typeof(BlueprintParametrizedFeature))]
+        public class SignatureSpellBonusParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
+        {
+            public ContextValue dc_bonus;
+            public ContextValue concentration_bonus;
+            public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
+            {
+                var spell = (this.Fact as Feature)?.Param.Blueprint as BlueprintAbility;
+                if (SpellDuplicates.isDuplicate(spell, evt.Spell) || SpellDuplicates.isDuplicate(spell, evt.Spell?.Parent))
+                {
+                    evt.AddBonusDC(dc_bonus.Calculate(this.Fact.MaybeContext));
+                    evt.AddBonusConcentration(concentration_bonus.Calculate(this.Fact.MaybeContext));
+                }
+            }
+
+            public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
+            {
+            }
+        }
     }
 
 

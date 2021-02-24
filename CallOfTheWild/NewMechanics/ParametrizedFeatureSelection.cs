@@ -19,7 +19,8 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
     {
         KnownSpell = 20,
         KnownSpontaneousSpell = 21,
-        AllLearnableSpells = 22
+        AllLearnableSpells = 22,
+        AvailableSpell = 23
     }
 
 
@@ -39,6 +40,9 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             {
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpell:
                     __result = (IEnumerable < IFeatureSelectionItem > )ExtractKnownSpells(__instance, previewUnit, false).ToArray<FeatureUIData>();
+                    return false;
+                case (FeatureParameterType)FeatureParameterTypeExtender.AvailableSpell:
+                    __result = (IEnumerable<IFeatureSelectionItem>)ExtractAvailableSpells(__instance, previewUnit).ToArray<FeatureUIData>();
                     return false;
                 case (FeatureParameterType)FeatureParameterTypeExtender.AllLearnableSpells:
                     __result = (IEnumerable<IFeatureSelectionItem>)ExtractAllLearnableSpells(__instance, previewUnit).ToArray<FeatureUIData>();
@@ -80,6 +84,27 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                     }
 
                     yield return new FeatureUIData(feature, spell.Blueprint, spell.Blueprint.Name, spell.Blueprint.Description, spell.Blueprint.Icon, spell.Blueprint.name);
+                }
+            }
+            yield break;
+        }
+
+
+        static private IEnumerable<FeatureUIData> ExtractAvailableSpells(BlueprintParametrizedFeature feature, UnitDescriptor unit)
+        {
+            foreach (Spellbook spellbook in unit.Spellbooks)
+            {
+                if (feature.SpellcasterClass != null
+                    && spellbook != unit.GetSpellbook(feature.SpellcasterClass))
+                {
+                    continue;
+                }
+
+              
+
+                foreach (var spell in spellbook.Blueprint.SpellList.GetSpells(feature.SpellLevel))
+                {
+                    yield return new FeatureUIData(feature, spell, spell.Name, spell.Description, spell.Icon, spell.name);
                 }
             }
             yield break;
@@ -164,6 +189,7 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
                 case (FeatureParameterType)FeatureParameterTypeExtender.AllLearnableSpells:
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpell:
                 case (FeatureParameterType)FeatureParameterTypeExtender.KnownSpontaneousSpell:
+                case (FeatureParameterType)FeatureParameterTypeExtender.AvailableSpell:
                     ___m_CachedItems = tr.Method("ExtractItemsFromBlueprints", (IEnumerable<BlueprintScriptableObject>)__instance.BlueprintParameterVariants).GetValue<IEnumerable<FeatureUIData>>().ToArray<FeatureUIData>();
                     return true;
                 default:
@@ -195,7 +221,9 @@ namespace CallOfTheWild.NewMechanics.ParametrizedFeatureSelection
             {
                 case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpell:
                 case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.AllLearnableSpells:
+                case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.AvailableSpell:
                 case (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.KnownSpontaneousSpell:
+
                     return FeatureParameterType.SpellSpecialization;
                 default:
                     return feature.ParameterType;

@@ -139,6 +139,12 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection school_understanding;
         static public BlueprintFeature item_bond;
 
+        static public BlueprintArchetype spell_specialist;
+        static public BlueprintParametrizedFeature[] signature_spell = new BlueprintParametrizedFeature[9];
+        static public BlueprintFeatureSelection[] signature_spell_selection = new BlueprintFeatureSelection[9];
+        static public BlueprintFeature dismiss;
+        static public BlueprintFeature spell_bender;
+
 
         internal static void createArcanistClass()
         {
@@ -186,12 +192,139 @@ namespace CallOfTheWild
             createUnletteredArcanist();
             createOccultist();
             createCollegiateArcanist();
+            createSpellSpecialist();
 
-            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist, collegiate_arcanist };
+            arcanist_class.Archetypes = new BlueprintArchetype[] { school_savant_archetype, blood_arcanist_archetype, unlettered_arcanist_archetype, occultist, collegiate_arcanist, spell_specialist };
             createExploiterWizard();
             createArcanistFeats();
             addToPrestigeClasses();
             createSchoolUnderstanding();
+        }
+
+
+        static void createSpellSpecialist()
+        {
+            spell_specialist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpellSpecialistArcanistArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Spell Specialist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Where most arcanists are broad in their study of magic, a spell specialist has her power focused in a few spells. Spell specialists are able to warp and twist the magic of their signature spells in ways other casters cannot.");
+            });
+            Helpers.SetField(spell_specialist, "m_ParentClass", arcanist_class);
+            library.AddAsset(spell_specialist, "");
+
+            createSignatureSpell();
+            createSignatureSpellEffects();
+
+            spell_specialist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits), Helpers.LevelEntry(13, arcane_exploits), Helpers.LevelEntry(19, arcane_exploits) };
+
+            spell_specialist.AddFeatures = new LevelEntry[]
+            {
+                 Helpers.LevelEntry(1, signature_spell_selection[0], dismiss, spell_bender),
+                 Helpers.LevelEntry(4, signature_spell_selection[1]),
+                 Helpers.LevelEntry(6, signature_spell_selection[2]),
+                 Helpers.LevelEntry(8, signature_spell_selection[3]),
+                 Helpers.LevelEntry(10, signature_spell_selection[4]),
+                 Helpers.LevelEntry(12, signature_spell_selection[5]),
+                 Helpers.LevelEntry(14, signature_spell_selection[6]),
+                 Helpers.LevelEntry(16, signature_spell_selection[7]),
+                 Helpers.LevelEntry(18, signature_spell_selection[8]),
+            };
+
+            arcanist_class.Progression.UIGroups = arcanist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(signature_spell_selection));
+            arcanist_class.Progression.UIDeterminatorsGroup = arcanist_class.Progression.UIDeterminatorsGroup.AddToArray(dismiss, spell_bender);
+        }
+
+
+        static void createSignatureSpellEffects()
+        {
+            var ability = Helpers.CreateAbility("SignatureSpellDismissSpellAbility",
+                                    "Dismiss Signature Spell",
+                                    "A spell specialist can dismiss a signature spell as a swift action instead of a standard action by spending 1 point from her arcane reservoir.",
+                                    "",
+                                    Helpers.GetIcon("92681f181b507b34ea87018e8f7a528a"),
+                                    Kingmaker.UnitLogic.Abilities.Blueprints.AbilityType.Supernatural,
+                                    Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                    Kingmaker.UnitLogic.Abilities.Blueprints.AbilityRange.Medium,
+                                    "",
+                                    "",
+                                    Helpers.CreateRunActions(Helpers.Create<DismissSpells.ContextActionDismissSpell>(d => d.required_spell_features = signature_spell)),
+                                    Helpers.Create<DismissSpells.AbilityTargetCanDismiss>(d => d.required_spell_features = signature_spell),
+                                    arcane_reservoir_resource.CreateResourceLogic()
+                                    );
+            ability.setMiscAbilityParametersRangedDirectional();
+            dismiss = Common.AbilityToFeature(ability, false);
+
+
+            var buff = Helpers.CreateBuff("SignatureSpellSelectiveMetamagicBuff",
+                                          "Spell Bender",
+                                          "The spell specialist can apply selective metamagic feat to any of her signature spells without increasing spell level or casting time by spending 1 point from her arcane reservoir.",
+                                          "",
+                                          MetamagicFeats.selective_metamagic.Icon,
+                                          null,
+                                          Helpers.Create<NewMechanics.MetamagicMechanics.MetamagicIfHasParametrizedFeature>(m =>
+                                          {
+                                              m.amount = 1;
+                                              m.resource = arcane_reservoir_resource;
+                                              m.required_features = signature_spell;
+                                              m.Metamagic = (Metamagic)MetamagicFeats.MetamagicExtender.Selective;
+                                          })
+                                          );
+            var toggle = Common.buffToToggle(buff, CommandType.Free, true, arcane_reservoir_resource.CreateActivatableResourceLogic(ResourceSpendType.Never));
+
+            spell_bender = Common.ActivatableAbilityToFeature(toggle, false);
+        }
+
+
+        static void createSignatureSpell()
+        {         
+            for (int i = 1; i <= 9; i++)
+            {
+                signature_spell_selection[i - 1] = Helpers.CreateFeatureSelection($"SignatureSpell{i}FeatureSelection",
+                                                                    "Signature Spell " + Common.roman_id[i],
+                                                                    "At 1st level and each time a spell specialist gains a new spell level, she chooses a signature spell.\n"
+                                                                    + "The DC for signature spells increases by 1. The spell specialist gains a +2 bonus on concentration checks when casting signature spells; this bonus increases to +4 at 10th level.",
+                                                                    "",
+                                                                    null,
+                                                                    FeatureGroup.None
+                                                                    );
+
+                var feature = Helpers.CreateParametrizedFeature($"SignatureSpell{i}ParametrizedFeature",
+                                                                signature_spell_selection[i - 1].Name,
+                                                                signature_spell_selection[i - 1].Description,
+                                                                "",
+                                                                signature_spell_selection[i - 1].Icon,
+                                                                FeatureGroup.None,
+                                                                (FeatureParameterType)NewMechanics.ParametrizedFeatureSelection.FeatureParameterTypeExtender.AvailableSpell,
+                                                                Helpers.Create<LearnSpellParametrized>(p =>
+                                                                {
+                                                                    p.SpellcasterClass = arcanist_class;
+                                                                    p.SpecificSpellLevel = true;
+                                                                    p.SpellList = arcanist_class.Spellbook.SpellList;
+                                                                    p.SpellLevel = i;
+                                                                }
+                                                                ),
+                                                                Helpers.Create<SpellDuplicates.SignatureSpellBonusParametrized>(s =>
+                                                                {
+                                                                    s.concentration_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                    s.dc_bonus = 1;
+                                                                }
+                                                                ),
+                                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom,
+                                                                                                 classes: getArcanistArray(),
+                                                                                                 customProgression: new (int, int)[] {(9, 2), (20, 4) }
+                                                                                                 )
+                                                           );
+
+                feature.SpellLevel = i;
+                feature.SpecificSpellLevel = true;
+                feature.SpellcasterClass = arcanist_class;
+                feature.SpellList = arcanist_class.Spellbook.SpellList;
+                feature.BlueprintParameterVariants = library.Get<BlueprintParametrizedFeature>("e69a85f633ae8ca4398abeb6fa11b1fe").BlueprintParameterVariants;
+
+                signature_spell_selection[i - 1].AllFeatures = new BlueprintFeature[] { feature };
+                signature_spell[i - 1] = feature;
+            }
         }
 
 
