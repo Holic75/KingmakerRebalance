@@ -196,7 +196,8 @@ namespace CallOfTheWild
                                                                                                        m.RerollOnlyIfFailed = true;
                                                                                                       //m.DispellOnRerollFinished = true;
                                                                                                        m.required_resource = blessed_infiltration_resource;
-                                                                                                       m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(blessed_infiltration_resource, 1)); })
+                                                                                                       m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(blessed_infiltration_resource, 1));
+                                              })
                                                                                                        
                                               );
 

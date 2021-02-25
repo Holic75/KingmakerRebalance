@@ -7396,7 +7396,7 @@ namespace CallOfTheWild
             [SerializeField]
             [ShowIf("IsSavingThrow")]
             [EnumFlagsAsButtons(ColumnCount = 4)]
-            ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
+            public ModifyD20WithActions.InnerSavingThrowType m_SavingThrowType = ModifyD20WithActions.InnerSavingThrowType.All;
             [EnumFlagsAsButtons(ColumnCount = 3)]
             public ModifyD20WithActions.RuleType Rule;
             public bool Replace;
@@ -7676,7 +7676,7 @@ namespace CallOfTheWild
             }
 
             [Flags]
-            private enum InnerSavingThrowType
+            public enum InnerSavingThrowType
             {
                 Fortitude = 1,
                 Reflex = 2,

@@ -3444,6 +3444,7 @@ namespace CallOfTheWild
                     rune.ReplaceComponent(c, new_c);
                 }
                 rune.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(area_action.CreateCopy(a => a.AreaEffect = area)));
+                area.RemoveComponents<ContextRankConfig>();
                 area.AddComponent(rune.GetComponents<ContextRankConfig>().First());
                 
                 addBlessingResourceLogic("Rune", rune, quicken: true, parent: minor_ability);
