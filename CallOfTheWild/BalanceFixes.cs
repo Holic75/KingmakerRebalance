@@ -516,7 +516,7 @@ namespace CallOfTheWild
                     area.ReplaceComponent<AbilityAreaEffectRunAction>(a => a.UnitEnter.Actions = Common.changeAction<ContextActionDealDamage>(a.UnitEnter.Actions,
                                                                                                                                               ca => ca.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageBonus), 0))
                                                                                                                                         );
-                    area.AddComponent(v.GetComponent<ContextRankConfig>());
+                    area.AddComponent(v.GetComponent<ContextRankConfig>().CreateCopy());
                     areas.Add(area);
                 }
 
