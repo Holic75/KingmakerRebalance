@@ -109,6 +109,7 @@ namespace CallOfTheWild.Archetypes
                 selected_features[i].HideInUI = true;
                 selected_features[i].HideInCharacterSheetAndLevelUp = true;
                 selected_features[i].HideNotAvailibleInUI = true;
+                selected_features[i].IsClassFeature = true;
             }
 
 
@@ -118,6 +119,7 @@ namespace CallOfTheWild.Archetypes
                 selected_spells[i].HideInUI = true;
                 selected_spells[i].HideInCharacterSheetAndLevelUp = true;
                 selected_spells[i].HideNotAvailibleInUI = true;
+                selected_spells[i].IsClassFeature = true;
             }
         }
 
@@ -279,7 +281,7 @@ namespace CallOfTheWild.Archetypes
                                                       FeatureGroup.None);
                 s.HideInCharacterSheetAndLevelUp = true;
 
-                var  no_power = Helpers.CreateFeature(b.name + powers[i].name + "NoPowerFeature",
+                var no_power = Helpers.CreateFeature(b.name + powers[i].name + "NoPowerFeature",
                                                               "No Bloodline Power",
                                                               "No Bloodline Power",
                                                               Helpers.MergeIds(b.AssetGuid, "3d9e381a843b4277aad3f80f4b48e445", powers[i].AssetGuid),

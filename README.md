@@ -24,10 +24,10 @@ It introduces new classes:
 - Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Draconic Shaman, Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
-- Arcanist with following archetypes: School Savant, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
+- Arcanist with following archetypes: School Savant, Spell Specialist, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
 - Oracle with following archetypes: Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
-- Summoner with following archetypes: Devil Binder, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
+- Summoner with following archetypes: Devil Binder, Construct Caller, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
@@ -148,7 +148,9 @@ New feats:
 - Theurgy,
 - Ability Focus: Cruelty,
 - Spiritual Guardian,
-- Two-Weapon Rend.
+- Two-Weapon Rend,
+- Disruptive,
+- Spellbreaker.
 
 New rage powers:
 - Terrifying Howl
@@ -173,7 +175,9 @@ New rage powers:
 - Daemon Totem, Greater,
 - Ferocious Beast,
 - Ferocious Beast, Greater,
-- Sharpened Accuracy.
+- Sharpened Accuracy,
+- Disruptive,
+- Spellbreaker.
 
 New features:
 - Share Spell for animal companions,
@@ -547,7 +551,10 @@ Original game bug fixes:
 - Fixed missing druid scaling on 1st level Weather domain ability,
 - Monks no longer gain their AC bonus if using shield and fighting unarmored,
 - (Greater) Elemental Focus feat should now correctly work with kineticist substance infusions,
-- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks.
+- Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks,
+- True Seeing now allows to ignore concelement from blur/displacement,
+- Blindsight now allows to ignore mirror images,
+- Elemental Arcana should now correctly account for resitance/immunity/vulnerability.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

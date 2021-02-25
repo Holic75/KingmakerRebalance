@@ -105,6 +105,11 @@ namespace CallOfTheWild
         static public BlueprintFeature teamwork_feat_share;
         static public BlueprintFeatureSelection teamwork_feat;
 
+
+        static public BlueprintArchetype construct_caller;
+        static public BlueprintFeature[] planar_tinkering = new BlueprintFeature[5];
+        static public BlueprintFeatureSelection construct_eidolon_selection;
+
         static public BlueprintAbility summon_companion_ability;
         static public BlueprintAbility summon_call_ability;
 
@@ -162,7 +167,8 @@ namespace CallOfTheWild
             createNaturalist();
             createMasterSummoner();
             createTwinnedSummoner();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner, twinned_summoner };
+            createConstructCaller();
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner, twinned_summoner, construct_caller };
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
@@ -182,7 +188,58 @@ namespace CallOfTheWild
                                         Common.createPrerequisiteClassSpellLevel(summoner_class, 2));
             Common.addReplaceSpellbook(Common.DragonDiscipleSpellbookSelection, summoner_class.Spellbook, "DragonDiscipleSummoner",
                                         Common.createPrerequisiteClassSpellLevel(summoner_class, 1));
+        }
 
+
+        static void createConstructCaller()
+        {
+            construct_caller = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ConstructCallerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Construct Caller");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Construct callers use their mechanical and planar understandings to work planar energies as a tinkerer works parts. They use this understanding to hand-craft unique, constructed eidolons.");
+            });
+            Helpers.SetField(construct_caller, "m_ParentClass", summoner_class);
+            library.AddAsset(construct_caller, "");
+
+
+            //create planar tinkering
+            for (int i = 0; i < planar_tinkering.Length; i++)
+            {
+                planar_tinkering[i] = Helpers.CreateFeature($"PlanarTinkering{i}Feature",
+                                                          "Planar Tinkering",
+                                                          "At 3rd level, a construct caller learns to better shape planar energy to improve her eidolon. The number of points in her eidolon’s evolution pool increases by 1. The number of points in the eidolon’s evolution pool increases by an additional 1 at 7th level and every 4 levels thereafter, for a total of 5 additional points at 19th level.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None,
+                                                          Helpers.Create<EvolutionMechanics.IncreaseEvolutionPool>(ep => ep.amount = 1)
+                                                          );
+            }
+            construct_eidolon_selection = library.CopyAndAdd(eidolon_selection, "ConstructEidolonSelection", "d0ccc547a64347668cb33da79f13de7a");
+            construct_eidolon_selection.SetNameDescriptionIcon(Eidolon.construct_eidolon);
+            construct_eidolon_selection.AllFeatures = new BlueprintFeature[] { Eidolon.construct_eidolon };
+            construct_eidolon_selection.HideInCharacterSheetAndLevelUp = true;
+
+            construct_caller.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, eidolon_selection, summon_monster[0]),
+                                                             Helpers.LevelEntry(3, summon_monster[1]),
+                                                             Helpers.LevelEntry(5, summon_monster[2]),
+                                                             Helpers.LevelEntry(7, summon_monster[3]),
+                                                             Helpers.LevelEntry(9, summon_monster[4]),
+                                                             Helpers.LevelEntry(11, summon_monster[5]),
+                                                             Helpers.LevelEntry(13, summon_monster[6]),
+                                                             Helpers.LevelEntry(15, summon_monster[7]),
+                                                             Helpers.LevelEntry(17, summon_monster[8])
+                                                           };
+            construct_caller.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, construct_eidolon_selection),
+                                                             Helpers.LevelEntry(3, planar_tinkering[0]),
+                                                             Helpers.LevelEntry(7, planar_tinkering[1]),
+                                                             Helpers.LevelEntry(11, planar_tinkering[2]),
+                                                             Helpers.LevelEntry(15, planar_tinkering[3]),
+                                                             Helpers.LevelEntry(19, planar_tinkering[4])
+                                                        };
+
+            summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(construct_eidolon_selection);
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(planar_tinkering));
         }
 
 

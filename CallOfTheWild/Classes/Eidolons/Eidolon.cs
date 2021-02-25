@@ -66,6 +66,7 @@ namespace CallOfTheWild
         static public BlueprintProgression devil_eidolon;//ok
         static public BlueprintProgression fey_eidolon; //ok
         static public BlueprintProgression inevitable_eidolon;//ok
+        static public BlueprintProgression construct_eidolon;//ok
         static public BlueprintProgression infernal_eidolon;
         static public BlueprintProgression protean_eidolon;
         static public BlueprintProgression air_quadruped_eidolon;

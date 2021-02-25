@@ -22,6 +22,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
@@ -98,6 +99,10 @@ namespace CallOfTheWild
         static public BlueprintFeature sharpened_accuracy;
         static public BlueprintBuff sharpened_accuracy_buff;
 
+        static public BlueprintFeature disruptive;
+        static public BlueprintFeature spellbreaker;
+        static public BlueprintFeature clear_mind;
+
         static public List<BlueprintFeature> totems = new List<BlueprintFeature>(new BlueprintFeature[] { library.Get<BlueprintFeature>("d99dfc9238a8a6646b32be09057c1729") });
 
 
@@ -136,15 +141,49 @@ namespace CallOfTheWild
             createFerociousBeast();
             createSharpenedAccuracy();
 
+            createDisruptive();
+            createSpellbreaker();
+            createClearMind();
+
             replaceContextConditionHasFactToContextConditionCasterHasFact(rage_buff, rage_buff, rage_marker_caster); //use rage marker instead of actual rage
 
             //fix group
             var rage_ability = library.Get<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730");
             rage_ability.Group = ActivatableAbilityGroupExtension.Rage.ToActivatableAbilityGroup();
-
-
         }
 
+
+        static void createClearMind()
+        {
+            var resource = Helpers.CreateAbilityResource("ClearMindResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 5, 1, 5, 1, 0, 0.0f, new BlueprintCharacterClass[] { barbarian_class });
+            var buff = Helpers.CreateBuff("ClearMindBuff",
+                                          "Clear Mind",
+                                          "A barbarian may reroll a failed Will save. The barbarian must take the second result, even if it is worse. The barbarian can use this power once per day + 1 more time per five barbarian level.",
+                                          "",
+                                          Helpers.GetIcon("d316d3d94d20c674db2c24d7de96f6a7"),
+                                          null,
+                                          Helpers.Create<NewMechanics.ModifyD20WithActions>(m =>
+                                          {
+                                              m.Rule = NewMechanics.ModifyD20WithActions.RuleType.SavingThrow;
+                                              m.RollsAmount = 1;
+                                              m.TakeBest = true;
+                                              m.m_SavingThrowType = NewMechanics.ModifyD20WithActions.InnerSavingThrowType.Will;
+                                              m.RerollOnlyIfFailed = true;
+                                              m.required_resource = resource;
+                                              m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(resource, 1));
+                                          })
+                                          );
+
+            var toggle = Common.buffToToggle(buff, CommandType.Free, true,
+                                             resource.CreateActivatableResourceLogic(ActivatableAbilityResourceLogic.ResourceSpendType.Never),
+                                             Helpers.Create<RestrictionHasFact>(r => r.Feature = rage_marker_caster)
+                                             );
+
+            clear_mind = Common.ActivatableAbilityToFeature(toggle, false);
+            clear_mind.AddComponents(resource.CreateAddAbilityResource(),
+                                     Helpers.PrerequisiteClassLevel(barbarian_class, 8));
+        }
 
         static void createSharpenedAccuracy()
         {
@@ -695,6 +734,59 @@ namespace CallOfTheWild
         }
 
 
+        static internal void createDisruptive()
+        {
+            var buff = Helpers.CreateBuff("RagePowerDisruptiveEffectBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddFact(NewFeats.disruptive)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            disruptive = Helpers.CreateFeature("DisruptiveRagePowerFeature",
+                                                "Disruptive",
+                                                "When raging, the barbarian gains Disruptive as a bonus feat.\n"
+                                                + NewFeats.disruptive.Name + ": " + NewFeats.disruptive.Description,
+                                                "",
+                                                null,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteFeature(superstition_feature),
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 8)
+                                                );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, disruptive);
+            addToSelection(disruptive);
+        }
+
+
+
+        static internal void createSpellbreaker()
+        {
+            var buff = Helpers.CreateBuff("RagePowerSpellbreakerEffectBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Helpers.CreateAddFact(NewFeats.spellbreaker)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            spellbreaker = Helpers.CreateFeature("SpellbreakerRagePowerFeature",
+                                                "Spellbreaker",
+                                                "When raging, the barbarian gains Spellbreaker as a bonus feat.\n"
+                                                + NewFeats.spellbreaker.Name + ": " + NewFeats.spellbreaker.Description,
+                                                "",
+                                                null,
+                                                FeatureGroup.RagePower,
+                                                Helpers.PrerequisiteFeature(disruptive),
+                                                Helpers.PrerequisiteClassLevel(barbarian_class, 12)
+                                                );
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, spellbreaker);
+            addToSelection(spellbreaker);
+        }
+
+
         static internal void createLesserAtavismTotem()
         {
             var animal_fury_buff = library.Get<BlueprintBuff>("a67b51a8074ae47438280be0a87b01b6");
@@ -1124,24 +1216,25 @@ namespace CallOfTheWild
             var codes = instructions.ToList();
             var check_sr_index = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("m_Blueprint"));
 
-            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
-            codes.Insert(check_sr_index + 2, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
-                                                                           new Func<BlueprintAbilityAreaEffect, UnitEntityData, bool>(hasSr).Method
-                                                                           )
-                        );
+            codes[check_sr_index] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
+            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                                                                           new Func<AreaEffectEntityData, UnitEntityData, bool>(hasSr).Method
+                                                                           );
 
             return codes.AsEnumerable();
         }
 
 
-        static private bool hasSr(BlueprintAbilityAreaEffect area, UnitEntityData unit)
+        static private bool hasSr(AreaEffectEntityData area, UnitEntityData unit)
         {
             Main.TraceLog();
+            var blueprint = area?.Blueprint;
             if (unit == null || area == null)
             {
                 return false;
             }
-            return area.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
+            
+            return blueprint.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
         }
 
 

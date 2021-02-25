@@ -1697,7 +1697,7 @@ namespace CallOfTheWild
 
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
-            var sorceror = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var sorcerer = library.Get<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             string[] cleric_channel_ids = new string[] {"f5fc9a1a2a3c1a946a31b320d1dd31b2",
                                                       "279447a6bf2d3544d93a0a39c3b8e91d",
@@ -1728,7 +1728,7 @@ namespace CallOfTheWild
             foreach (var id in empyreal_channel_ids)
             {
                 var channel = library.Get<BlueprintAbility>(id);
-                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { sorceror }, StatType.Charisma));
+                channel.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(new BlueprintCharacterClass[] { sorcerer }, StatType.Charisma));
             }
         }
 
@@ -2269,7 +2269,7 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixSylvanSorcerorAnimalCompanion()
+        internal static void fixSylvanSorcererAnimalCompanion()
         {
             //make it to be equal to level - 4 (min 1)
             var progression = library.Get<BlueprintProgression>("09c91f959fb737f4289d121e595c657c");
@@ -2291,6 +2291,27 @@ namespace CallOfTheWild
                 {
                     dr.AffectAnyPhysicalDamage = true;
                 }
+            }
+        }
+
+
+        static internal void fixElementalArcana()
+        {
+            var buffs = new BlueprintUnitFact[]
+            {
+                library.Get<BlueprintFeature>("f23c9a3a3483e2947bbcf09590d01e90"), //rod of fire vengeance
+                library.Get<BlueprintBuff>("3f5763ac8b4e080469f9a41adf3a16c3"), //air
+                library.Get<BlueprintBuff>("3d700f97e681b014e894d9ff9c972a83"), //earth
+                library.Get<BlueprintBuff>("b3e3882ab6829e34983f31e989c00dfc"), //fire
+                library.Get<BlueprintBuff>("912fbab5b3579e9409fcb0f750bb6f2b"), //air
+                library.Get<BlueprintBuff>("ea64c9c2358aee1429a6c325c11eca55"), //rod of fire vengeance
+            };
+
+
+            foreach (var b in buffs)
+            {
+                var c = b.GetComponent<ChangeSpellElementalDamage>();
+                b.ReplaceComponent(c, Helpers.Create<NewMechanics.MetamagicMechanics.ChangeSpellElementalDamage>(s => s.Element = c.Element));
             }
         }
 

@@ -22,6 +22,60 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.SizeMechanics
 {
+    public class UnitPartSizeHp : UnitPart
+    {
+        [JsonProperty]
+        private bool active = false;
+        [JsonProperty]
+        private int bonus_hp = 0;
+
+        public void activate()
+        {
+            active = true;
+            recalculateHp();
+        }
+
+        public void deactivate()
+        {
+            active = false;
+            recalculateHp();
+            
+        }
+
+
+        public void recalculateHp()
+        {
+            int new_bonus_hp = !active ? 0 : CalculateSizeBonus(this.Owner.State.Size) - CalculateSizeBonus(this.Owner.OriginalSize);
+            this.Owner.Stats.HitPoints.BaseValue += (new_bonus_hp - bonus_hp);
+            bonus_hp = new_bonus_hp;
+        }
+
+
+        private int CalculateSizeBonus(Size size)
+        {
+            switch (size)
+            {
+                case Size.Tiny:
+                    return 0;
+                case Size.Small:
+                    return 10;
+                case Size.Medium:
+                    return 20;
+                case Size.Large:
+                    return 30;
+                case Size.Huge:
+                    return 40;
+                case Size.Gargantuan:
+                    return 60;
+                case Size.Colossal:
+                    return 80;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(size), (object)size, (string)null);
+            }
+        }
+    }
+
+
     public class UnitPartSizeOverride : AdditiveUnitPart
     {
         public new void addBuff(Fact buff)
@@ -169,7 +223,7 @@ namespace CallOfTheWild.SizeMechanics
 
 
     [Harmony12.HarmonyPatch(typeof(UnitPartSizeModifier), "UpdateSize")]
-    class UnitPartSizeModifier_UnitPartSizeModifier_Patch
+    class UnitPartSizeModifier_UpdateSize_Patch
     {
         static void Postfix(UnitPartSizeModifier __instance, List<Fact> ___m_SizeChangeFacts)
         {
@@ -180,6 +234,8 @@ namespace CallOfTheWild.SizeMechanics
             {
                 __instance.Owner.State.Size = part.getSize();
             }
+
+            __instance.Owner.Get<UnitPartSizeHp>()?.recalculateHp();
         }
     }
 
@@ -289,6 +345,23 @@ namespace CallOfTheWild.SizeMechanics
                 evt.WeaponDamageDiceOverride = new DiceFormula?(new_dice);
             }
             return true;
+        }
+    }
+
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class CorrectSizeHp : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartSizeHp>().activate();
+        }
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Get<UnitPartSizeHp>()?.deactivate();
+            this.Owner.Remove<UnitPartSizeHp>();
         }
     }
 }

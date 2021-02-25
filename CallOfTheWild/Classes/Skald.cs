@@ -253,7 +253,8 @@ namespace CallOfTheWild
                                                                    NewRagePowers.terrifying_howl_feature,
                                                                    NewRagePowers.taunting_stance,
                                                                    NewRagePowers.greater_atavism_totem,
-                                                                   NewRagePowers.sharpened_accuracy
+                                                                   NewRagePowers.sharpened_accuracy,
+                                                                   NewRagePowers.clear_mind
                                                                   };
 
             library.AddFeats(extra_rage_power);
@@ -1343,7 +1344,7 @@ namespace CallOfTheWild
                                                                NewRagePowers.greater_celestial_totem_buff,
                                                                NewRagePowers.superstition_buff,
                                                                NewRagePowers.ghost_rager_buff,
-                                                               NewRagePowers.witch_hunter_buff
+                                                               NewRagePowers.witch_hunter_buff,
                                                               };
             buffs_to_fix = buffs_to_fix.AddToArray(NewRagePowers.energy_resistance_buff);
 

@@ -1,9 +1,11 @@
 ﻿using Kingmaker;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Designers;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
@@ -58,6 +60,7 @@ namespace CallOfTheWild.DismissSpells
 
     public class ContextActionDismissSpell : ContextAction
     {
+        public BlueprintParametrizedFeature[] required_spell_features = new BlueprintParametrizedFeature[0];
         public override string GetCaption()
         {
             return "Dismiss";
@@ -65,22 +68,27 @@ namespace CallOfTheWild.DismissSpells
 
         public override void RunAction()
         {
-            var unit = GameHelper.GetTargetsAround(this.Target.Point, 1.Feet().Meters * 0.1f, false, false).FirstOrDefault();
-
-            if (unit != null)
+            if (required_spell_features.Empty())
             {
-                var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
-                if (summoner == this.Context.MaybeCaster)
+                var unit = GameHelper.GetTargetsAround(this.Target.Point, 1.Feet().Meters * 0.1f, false, false).FirstOrDefault();
+
+                if (unit != null)
                 {
-                    unit.Descriptor.RemoveFact(Game.Instance.BlueprintRoot.SystemMechanics.SummonedUnitBuff);
+                    var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+                    if (summoner == this.Context.MaybeCaster)
+                    {
+                        unit.Descriptor.RemoveFact(Game.Instance.BlueprintRoot.SystemMechanics.SummonedUnitBuff);
+                    }
+                    return;
                 }
-                return;
             }
+            
 
             var area = Game.Instance.State.AreaEffects.Where(a => a.Context.SourceAbility != null && a.Context.MaybeCaster == this.Context.MaybeCaster 
                                                              && ((a.Context.AssociatedBlueprint as BlueprintBuff) == null)
                                                              && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue
-                                                             && a.View?.Shape != null && a.View.Shape.Contains(this.Target.Point, 0.0f)).FirstOrDefault();
+                                                             && a.View?.Shape != null && a.View.Shape.Contains(this.Target.Point, 0.0f)
+                                                             && checkFeature(a.Context.SourceAbility)).FirstOrDefault();
 
             if (area != null)
             {
@@ -88,27 +96,46 @@ namespace CallOfTheWild.DismissSpells
                 area.ForceEnd();              
             }
         }
+
+
+        private bool checkFeature(BlueprintAbility spell)
+        {
+            return required_spell_features.Empty()
+                   || this.Context.MaybeCaster.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => required_spell_features.Contains(p.Blueprint)).Any(p => p.Param == spell);
+        }
     }
 
 
 
     public class AbilityTargetCanDismiss : BlueprintComponent, IAbilityTargetChecker
     {
+        public BlueprintParametrizedFeature[] required_spell_features = new BlueprintParametrizedFeature[0];
+
         public bool CanTarget(UnitEntityData caster, TargetWrapper target)
         {
-            var unit = GameHelper.GetTargetsAround(target.Point, 1.Feet().Meters*0.1f, false, false).FirstOrDefault();
-            if (unit != null)
+            if (required_spell_features.Empty())
             {
-                var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
-                return summoner == caster;
+                var unit = GameHelper.GetTargetsAround(target.Point, 1.Feet().Meters * 0.1f, false, false).FirstOrDefault();
+                if (unit != null)
+                {
+                    var summoner = unit.Get<UnitPartSummonedMonster>()?.Summoner;
+                    return summoner == caster;
+                }
             }
 
             var area = Game.Instance.State.AreaEffects.Where(a => a.Context.SourceAbility != null && a.Context.MaybeCaster == caster
                                                              && ((a.Context.AssociatedBlueprint as BlueprintBuff) == null)
                                                              && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue
-                                                             && a.View?.Shape != null && a.View.Shape.Contains(target.Point, 0.0f)).FirstOrDefault();
+                                                             && a.View?.Shape != null && a.View.Shape.Contains(target.Point, 0.0f)
+                                                             && checkFeature(a.Context.SourceAbility, caster)).FirstOrDefault();
 
             return area != null;
+        }
+
+        private bool checkFeature(BlueprintAbility spell, UnitEntityData caster)
+        {
+            return required_spell_features.Empty()
+                   || caster.Descriptor.Progression.Features.Enumerable.Where<Kingmaker.UnitLogic.Feature>(p => required_spell_features.Contains(p.Blueprint)).Any(p => p.Param == spell);
         }
     }
 

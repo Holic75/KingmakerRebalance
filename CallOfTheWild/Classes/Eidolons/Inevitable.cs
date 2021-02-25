@@ -111,6 +111,24 @@ namespace CallOfTheWild
 
             Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(inevitable_eidolon);
             addLesserEidolon(inevitable_eidolon);
+
+
+            var construct_unit = library.CopyAndAdd(inevitable_unit, "ConstructEidolonUnit", "");
+            construct_unit.LocalizedName = construct_unit.LocalizedName.CreateCopy();
+            construct_unit.LocalizedName.String = Helpers.CreateString(construct_unit.name + ".Name", "Construct Eidolon");
+            construct_unit.Constitution = 10;
+
+            construct_eidolon = library.CopyAndAdd(inevitable_eidolon, "ConstructEidolonProgression", "");
+            construct_eidolon.ReplaceComponent<AddPet>(a => a.Pet = construct_unit);
+            construct_eidolon.SetNameDescription("Construct Eidolon",
+                                                 "A construct caller must select the inevitable subtype for her eidolon. A construct eidolon functions as an inevitable eidolon except as noted here. A construct eidolon has no Constitution score and gains bonus hit points appropriate for a construct of its size.\n"
+                                                 + "At 12th level, the construct eidolon gains DR 5/adamantine instead of DR 5/chaotic.");
+
+            construct_eidolon.AddComponent(addTransferableFeatToEidolon("ConstructEidolonHealthFeature", 
+                                                                        Helpers.Create<ConstructHealth>(),
+                                                                        Helpers.Create<SizeMechanics.CorrectSizeHp>()));
+
+
         }
 
 
@@ -176,6 +194,25 @@ namespace CallOfTheWild
                                                                                 )
                                                   );
 
+            var feature12b = Helpers.CreateFeature("ConstructEidolonLevel12Feature",
+                                                  "Damage Reduction",
+                                                  "At 12th level, construct eidolons gain DR 5/adamantine. They also gain immunity to sleep.",
+                                                  "",
+                                                  Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                                  FeatureGroup.None,
+                                                  addTransferableFeatToEidolon("ConstructEidolonLevel12AddFeature",
+                                                                                Common.createMaterialDR(Helpers.CreateContextValue(AbilityRankType.Default), PhysicalDamageMaterial.Adamantite),
+                                                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureList,
+                                                                                                                progression: ContextRankProgression.MultiplyByModifier,
+                                                                                                                stepLevel: 10,
+                                                                                                                min: 5,
+                                                                                                                featureList: new BlueprintFeature[] { Evolutions.damage_reduction }
+                                                                                                                ),
+                                                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Sleep),
+                                                                                Helpers.Create<RecalculateOnFactsChange>(r => r.CheckedFacts = new BlueprintUnitFact[] { Evolutions.damage_reduction })
+                                                                                )
+                                                  );
+
             var feature16 = Helpers.CreateFeature("InevitableEidolonLevel16Feature",
                                                   "Immunity III",
                                                   "At 16th level, inevitable eidolons gain immunity to ability damage, ability drain and energy drain.",
@@ -212,6 +249,18 @@ namespace CallOfTheWild
                                                            };
             inevitable_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12, feature16, feature20);
             setLesserEidolonProgression(inevitable_eidolon);
+
+
+            construct_eidolon.LevelEntries = new LevelEntry[] {Helpers.LevelEntry(1, feature1),
+                                                           Helpers.LevelEntry(4, feature4),
+                                                           Helpers.LevelEntry(8, feature8),
+                                                           Helpers.LevelEntry(12, feature12b),
+                                                           Helpers.LevelEntry(16, feature16),
+                                                           Helpers.LevelEntry(20, feature20)
+                                                           };
+            construct_eidolon.UIGroups = Helpers.CreateUIGroups(feature1, feature4, feature8, feature12b, feature16, feature20);
+
+            inevitable_eidolon.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = construct_eidolon));
         }
     }
 }

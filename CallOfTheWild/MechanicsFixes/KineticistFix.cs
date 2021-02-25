@@ -357,6 +357,7 @@ namespace CallOfTheWild
                                     Common.createContextCalculateAbilityParamsBasedOnClass(kineticist_class, StatType.Constitution, true),
                                     Helpers.Create<AbilityKineticist>(a => { a.WildTalentBurnCost = 1; a.Amount = 1; })
                                     );
+            suffocate_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             suffocate_ability.SpellResistance = true;
             suffocate = Common.AbilityToFeature(suffocate_ability, false);
             suffocate.AddComponents(library.Get<BlueprintFeature>("b182f559f572da342b54bece4404e4e7").GetComponent<PrerequisiteFeaturesFromList>().CreateCopy(p => p.Group = Prerequisite.GroupType.Any),

@@ -128,7 +128,7 @@ namespace CallOfTheWild
         internal static void createWitchClass()
         {
             var wizard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("ba34257984f4c41408ce1dc2004e342e");
-            var sorceror_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
+            var sorcerer_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
             witch_class = Helpers.Create<BlueprintCharacterClass>();
             witch_class.name = "WitcherClass";
@@ -157,13 +157,13 @@ namespace CallOfTheWild
             witch_class.IsDivineCaster = false;
             witch_class.IsArcaneCaster = true;
             witch_class.StartingGold = wizard_class.StartingGold;
-            witch_class.PrimaryColor = sorceror_class.PrimaryColor;
-            witch_class.SecondaryColor = sorceror_class.SecondaryColor;
+            witch_class.PrimaryColor = sorcerer_class.PrimaryColor;
+            witch_class.SecondaryColor = sorcerer_class.SecondaryColor;
             witch_class.RecommendedAttributes = wizard_class.RecommendedAttributes;
             witch_class.NotRecommendedAttributes = wizard_class.NotRecommendedAttributes;
-            witch_class.EquipmentEntities = sorceror_class.EquipmentEntities;
-            witch_class.MaleEquipmentEntities = sorceror_class.MaleEquipmentEntities;
-            witch_class.FemaleEquipmentEntities = sorceror_class.FemaleEquipmentEntities;
+            witch_class.EquipmentEntities = sorcerer_class.EquipmentEntities;
+            witch_class.MaleEquipmentEntities = sorcerer_class.MaleEquipmentEntities;
+            witch_class.FemaleEquipmentEntities = sorcerer_class.FemaleEquipmentEntities;
             witch_class.ComponentsArray = wizard_class.ComponentsArray;
             witch_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[] {library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("511c97c1ea111444aa186b1a58496664"), //crossbow
                                                                                         library.Get<Kingmaker.Blueprints.Items.BlueprintItem>("ada85dae8d12eda4bbe6747bb8b5883c"), // quarterstaff

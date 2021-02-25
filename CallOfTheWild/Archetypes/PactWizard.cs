@@ -151,7 +151,7 @@ namespace CallOfTheWild.Archetypes
                     m.Rule = rule_types[i];
                     m.RollsAmount = 1;
                     m.TakeBest = true;
-                    m.RerollOnlyIfFailed = true;
+                    m.RerollOnlyIfFailed = false; //to avoid applying bonus before roll and also make it work per description
                     m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(resource, 1));
                     m.required_resource = resource;
                 })
