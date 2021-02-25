@@ -177,7 +177,8 @@ New rage powers:
 - Ferocious Beast, Greater,
 - Sharpened Accuracy,
 - Disruptive,
-- Spellbreaker.
+- Spellbreaker,
+- Clear Mind.
 
 New features:
 - Share Spell for animal companions,
@@ -599,7 +600,8 @@ Notable differences from pnp:
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
 - Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones
 - Primalist receives only one rage power at levels 4, 8, 12, 16 and 20, and he is not allowed to pick a bloodline power instead,
-- Draconic Shaman does not lose hexes.
+- Draconic Shaman does not lose hexes,
+- Clear mind rage power can be used once per day + 1 more time per 5 barbarian levels.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

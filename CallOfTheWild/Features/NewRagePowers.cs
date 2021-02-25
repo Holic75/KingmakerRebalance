@@ -183,6 +183,7 @@ namespace CallOfTheWild
             clear_mind = Common.ActivatableAbilityToFeature(toggle, false);
             clear_mind.AddComponents(resource.CreateAddAbilityResource(),
                                      Helpers.PrerequisiteClassLevel(barbarian_class, 8));
+            addToSelection(clear_mind);
         }
 
         static void createSharpenedAccuracy()
