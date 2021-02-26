@@ -3795,11 +3795,12 @@ namespace CallOfTheWild
             public ContextValue Value;
             public bool arcane = true;
             public bool divine = true;
+            public bool psychic = true;
             public bool spell_like = true;
 
             private bool isValidTarget(UnitDescriptor unit)
             {
-                return Helpers.isValidSpellUser(unit, arcane, divine, spell_like);
+                return Helpers.isValidSpellUser(unit, arcane, divine, psychic, spell_like);
             }
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)

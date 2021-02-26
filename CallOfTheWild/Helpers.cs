@@ -2679,7 +2679,7 @@ namespace CallOfTheWild
         }
 
 
-        public static bool isValidSpellUser(UnitDescriptor unit, bool arcane, bool divine, bool spell_like)
+        public static bool isValidSpellUser(UnitDescriptor unit, bool arcane, bool divine, bool psychic, bool spell_like)
         {
             foreach (ClassData classData in unit.Progression.Classes)
             {
@@ -2695,7 +2695,12 @@ namespace CallOfTheWild
                     return true;
                 }
 
-                if (!spellbook.IsArcane && !spellbook.IsAlchemist && divine)
+                if (!spellbook.IsArcane && !spellbook.IsAlchemist && spellbook.GetComponent<SpellbookMechanics.PsychicSpellbook>() == null && divine)
+                {
+                    return true;
+                }
+
+                if (spellbook.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null && psychic)
                 {
                     return true;
                 }

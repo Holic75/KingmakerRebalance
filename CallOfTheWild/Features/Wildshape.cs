@@ -1154,11 +1154,11 @@ namespace CallOfTheWild
         {
             var icon = Helpers.GetIcon("a1a8bf61cadaa4143b2d4966f2d1142e");
             var saves_descriptor = SpellDescriptor.MindAffecting | SpellDescriptor.Disease | SpellDescriptor.Poison | SpellDescriptor.Sleep | SpellDescriptor.Paralysis | SpellDescriptor.Stun;
-            var claw1d6 = library.Get<BlueprintItemWeapon>("65eb73689b94d894080d33a768cdf645");
+            var slam1d6 = library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137");
             var bite1d6 = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286");
             var undead_form1 = Helpers.CreateBuff("UndeadAnatomyIFormBuff",
                                             "Undead Anatomy I",
-                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
+                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
                                             + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).",
                                             "",
                                             icon,
@@ -1168,14 +1168,14 @@ namespace CallOfTheWild
                                             Helpers.CreateAddStatBonus(StatType.AC, 2,  ModifierDescriptor.NaturalArmor),
                                             Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
-                                            Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                            Common.createEmptyHandWeaponOverride(slam1d6),//claws
                                             Common.createAddAdditionalLimb(bite1d6), //bite
                                             Helpers.CreateAddFacts(turn_back)
                                             );
 
             var undead_form2 = Helpers.CreateBuff("UndeadAnatomyIIFormBuff",
                                 "Undead Anatomy II",
-                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                 + "In this form, you gain a +4 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning.",
                                 "",
@@ -1189,14 +1189,14 @@ namespace CallOfTheWild
                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                 Common.createContextFormDR(5, PhysicalDamageForm.Bludgeoning),
-                                Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                Common.createEmptyHandWeaponOverride(slam1d6),//claws
                                 Common.createAddAdditionalLimb(bite1d6), //bite
                                 Helpers.CreateAddFacts(turn_back)
                                 );
 
             var undead_form3 = Helpers.CreateBuff("UndeadAnatomyIIIFormBuff",
                                                 "Undead Anatomy III",
-                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two claw attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/-, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/-, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
                                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                                 + "In this form, you gain a +8 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning. If the form has a vulnerability to an attack (such as sunlight), you gain that vulnerability.",
                                                 "",
@@ -1210,7 +1210,7 @@ namespace CallOfTheWild
                                                 Common.createPhysicalDR(5),
                                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
-                                                Common.createEmptyHandWeaponOverride(claw1d6),//claws
+                                                Common.createEmptyHandWeaponOverride(slam1d6),//claws
                                                 Common.createAddAdditionalLimb(bite1d6), //bite
                                                 Helpers.CreateAddFacts(turn_back)
                                                 );
