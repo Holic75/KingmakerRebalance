@@ -602,7 +602,7 @@ Notable differences from pnp:
 - Primalist receives only one rage power at levels 4, 8, 12, 16 and 20, and he is not allowed to pick a bloodline power instead,
 - Draconic Shaman does not lose hexes,
 - Clear mind rage power can be used once per day + 1 more time per 5 barbarian levels,
-- Stygian Slayer receives ability to cast spells as a ranger instead of just being able to use corresponding spell trigger items and invisibility/ mist form, he loses slayer talents at lvl 4, 8, 12 and 16.
+- Stygian Slayer receives ability to cast spells as a ranger instead of just being able to use corresponding spell trigger items and invisibility/ mist form, he loses slayer talents at lvl 4, 10 and 16.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

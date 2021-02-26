@@ -85,8 +85,7 @@ namespace CallOfTheWild.Archetypes
             createSpellcasting();
             archetype.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, slayer_proficiencies),
                                                           Helpers.LevelEntry(4, slayer_talent2),
-                                                          Helpers.LevelEntry(8, slayer_talent6),
-                                                          Helpers.LevelEntry(12, slayer_talent10),
+                                                          Helpers.LevelEntry(10, slayer_talent10),
                                                           Helpers.LevelEntry(16, slayer_talent10)
                                                         };
 

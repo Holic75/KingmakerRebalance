@@ -225,7 +225,8 @@ namespace CallOfTheWild
                                                                                      archetype: Archetypes.NatureFang.archetype,
                                                                                      classes: new BlueprintCharacterClass[] { slayer, druid },
                                                                                      progression: ContextRankProgression.DivStep, stepLevel: 6),
-                                                     Helpers.CreateAddFact(heavy_armor_proficiency)
+                                                     Helpers.CreateAddFact(heavy_armor_proficiency),
+                                                     Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("46f4fb320f35704488ba3d513397789d")) //medium armor prof
                                                      );
 
             addToSlayerTalentSelection(armored_marudeur, advanced: true);
