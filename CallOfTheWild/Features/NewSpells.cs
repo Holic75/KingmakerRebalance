@@ -1017,8 +1017,8 @@ namespace CallOfTheWild
 
             ghostbane_dirge.AddSpellAndScroll("fa34c6a083cb8f345be3bc4911b733ff");
             ghostbane_dirge_mass = Helpers.CreateAbility("GhostbaneDirgeMassAbility",
-                                        buff.Name,
-                                        buff.Description,
+                                        "Ghostbane Dirge, Mass",
+                                        "This spell functions as ghostbane dirge, except that it affects multiple targets.\n" + ghostbane_dirge.Name + ": " + ghostbane_dirge.Description,
                                         "",
                                         buff.Icon,
                                         AbilityType.Spell,
