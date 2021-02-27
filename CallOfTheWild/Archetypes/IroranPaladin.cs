@@ -318,7 +318,7 @@ namespace CallOfTheWild.Archetypes
             var fist1d6_monk = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");
             ClassToProgression.addClassToFeat(archetype.GetParentClass(), new BlueprintArchetype[] { archetype }, ClassToProgression.DomainSpellsType.NoSpells, fist1d6_monk, monk);
             unarmed_strike = library.CopyAndAdd(fist1d6_monk, "IroranPaladin1d6Feature", "");
-            unarmed_strike.SetDescription("At 1st level, an Iroran paladin gains Improved Unarmed Strike as a bonus feat. In addition, he gains the unarmed strike monk ability, treating his monk level as half his paladin level (minimum 1) for calculating his unarmed strike damage.");
+            unarmed_strike.SetDescription("At 1st level, an Iroran paladin gains Improved Unarmed Strike as a bonus feat. In addition, he gains the unarmed strike monk ability, treating his monk level as his paladin level for calculating his unarmed strike damage.");
         }
 
 

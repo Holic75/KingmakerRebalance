@@ -79,11 +79,10 @@ namespace CallOfTheWild
         {
             var feature = Helpers.CreateFeatureSelection(prefix + "CombatTrickFeature",
                                                         "Combat Trick",
-                                                        "You receive one combat feat. This also permanently reduce your mental focus pool by 2.",
+                                                        "You receive one combat feat.",
                                                         "",
                                                         null,
-                                                        FeatureGroup.None,
-                                                        Helpers.Create<IncreaseResourceAmount>(i => { i.Resource = reduced_resource; i.Value = -2; })
+                                                        FeatureGroup.None
                                                         );
             feature.AddComponent(Helpers.PrerequisiteNoFeature(feature));
             feature.AllFeatures = library.Get<BlueprintFeatureSelection>("41c8486641f7d6d4283ca9dae4147a9f").AllFeatures;

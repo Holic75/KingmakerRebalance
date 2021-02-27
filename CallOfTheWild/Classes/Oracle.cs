@@ -1858,7 +1858,9 @@ namespace CallOfTheWild
                                                            "Each oracle is cursed, but this curse comes with a benefit as well as a hindrance. This choice is made at 1st level, and once made, it cannot be changed. The oracle’s curse cannot be removed or dispelled without the aid of a deity. An oracle’s curse is based on her oracle level.",
                                                            "",
                                                            null,
-                                                           FeatureGroup.None);
+                                                           FeatureGroup.Domain,
+                                                           Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; })
+                                                           );
 
             oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless };
 
@@ -1867,7 +1869,7 @@ namespace CallOfTheWild
                                                "A dual-cursed oracle must choose a second curse at 1st level. This curse never changes its abilities as the oracle gains levels.",
                                                "",
                                                null,
-                                               FeatureGroup.None);
+                                               FeatureGroup.Domain);
 
             minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor, powerless_minor };
         }
@@ -2588,6 +2590,8 @@ namespace CallOfTheWild
             curse.LevelEntries = new LevelEntry[] { Helpers.LevelEntry(1, features[0]), Helpers.LevelEntry(5, features[1]), Helpers.LevelEntry(10, features[2]), Helpers.LevelEntry(15, features[3]) };
             curse.UIGroups = Helpers.CreateUIGroups(features);
             curse.Classes = getOracleArray();
+
+            Summoner.addCurseProgressionToPactboundCurse(curse);
             return curse;
         }
 

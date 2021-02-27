@@ -196,7 +196,7 @@ namespace CallOfTheWild.Archetypes
                                                + "If an oracle curse would add spells to the oracle’s list of spells known, the pact wizard instead add those spells to the wizard’s spell list as well as to his spellbook.",
                                                "",
                                                null,
-                                               FeatureGroup.None);
+                                               FeatureGroup.Domain);
 
             foreach (var c in Oracle.oracle_curses.AllFeatures)
             {

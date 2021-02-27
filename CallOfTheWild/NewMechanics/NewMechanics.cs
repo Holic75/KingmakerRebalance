@@ -3839,16 +3839,39 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class AbilityCasterHpCondition : BlueprintComponent, IAbilityCasterChecker
+        {
+            public int CurrentHPLessThan;
+            public bool Inverted;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster == null)
+                    return false;
+                if ((int)((ModifiableValue)caster.Stats.HitPoints) - caster.Damage < this.CurrentHPLessThan)
+                    return !this.Inverted;
+                return this.Inverted;
+            }
+
+            public string GetReason()
+            {
+                return "No enough HP";
+            }
+        }
+
+
         public class DamageBonusAgainstSpellUser : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
             public ContextValue Value;
             public bool arcane = true;
             public bool divine = true;
+            public bool psychic = true;
             public bool spell_like = true;
 
             private bool isValidTarget(UnitDescriptor unit)
             {
-                return Helpers.isValidSpellUser(unit, arcane, divine, spell_like);
+                return Helpers.isValidSpellUser(unit, arcane, divine, psychic, spell_like);
             }
 
             public override void OnEventAboutToTrigger(RuleCalculateDamage evt)

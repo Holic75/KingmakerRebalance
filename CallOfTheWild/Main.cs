@@ -376,6 +376,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.Ninja.create();
                     CallOfTheWild.Archetypes.Seeker.create();
                     CallOfTheWild.Archetypes.Bloodhunter.create();
+                    CallOfTheWild.Archetypes.StygianSlayer.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
