@@ -3790,6 +3790,28 @@ namespace CallOfTheWild
             }
         }
 
+
+        public class AbilityCasterHpCondition : BlueprintComponent, IAbilityCasterChecker
+        {
+            public int CurrentHPLessThan;
+            public bool Inverted;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                if (caster == null)
+                    return false;
+                if ((int)((ModifiableValue)caster.Stats.HitPoints) - caster.Damage < this.CurrentHPLessThan)
+                    return !this.Inverted;
+                return this.Inverted;
+            }
+
+            public string GetReason()
+            {
+                return "No enough HP";
+            }
+        }
+
+
         public class DamageBonusAgainstSpellUser : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
             public ContextValue Value;
