@@ -315,6 +315,7 @@ namespace CallOfTheWild
                                                 createAddFeatureInLevelRange(feature_single, 0, 12),
                                                 createAddFeatureInLevelRange(feature_multiple, 13, 100)
                                                 );
+            addMinLevelPrerequisite(feature, 3);
             return feature;
         }
 

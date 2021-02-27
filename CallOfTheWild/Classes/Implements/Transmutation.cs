@@ -432,6 +432,7 @@ namespace CallOfTheWild
             ability.AddComponent(Common.createAbilityTargetHasFact(true, Common.undead, Common.construct, Common.elemental));
             ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c => c.Buff = effect_buff)));
             ability.AddComponent(createClassScalingConfig());
+            ability.AddComponent(resource.CreateResourceLogic());
             addFocusInvestmentCheck(ability, SpellSchool.Transmutation);
 
             var feature = Common.AbilityToFeature(ability, false);

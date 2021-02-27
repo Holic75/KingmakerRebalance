@@ -682,7 +682,7 @@ namespace CallOfTheWild
         {
             reliquarian_spellbook = library.CopyAndAdd(occultist_class.Spellbook, "ReliquarianSpellbook", "");
 
-            reliquarian_spellbook.Name = silksworn.LocalizedName;
+            reliquarian_spellbook.Name = reliquarian.LocalizedName;
             reliquarian_spellbook.CantripsType = CantripsType.Orisions;
             reliquarian_spellbook.RemoveComponents<SpellbookMechanics.PsychicSpellbook>();
 

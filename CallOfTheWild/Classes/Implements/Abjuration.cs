@@ -117,8 +117,9 @@ namespace CallOfTheWild
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
             addFocusInvestmentCheck(ability, SpellSchool.Abjuration);
-
-            return Common.AbilityToFeature(ability, false);
+            var feature = Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 3);
+            return feature;
         }
 
 
