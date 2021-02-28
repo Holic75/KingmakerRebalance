@@ -507,7 +507,7 @@ namespace CallOfTheWild
         {
             panoptic_harmony = Helpers.CreateFeature("PanopticHarmonyFeature",
                                                         "Panoptic Harmony",
-                                                        "At 8th level, a panoply savant can empower his abilities by harnessing the harmonic resonance between his chosen panoply’s associated implements.Whenever he casts a spell or uses a focus power with one of his chosen panoply’s associated implements, he treats it as though his caster level were 2 higher than it actually is, but only if on his previous turn, he cast a spell with or used a focus power from a different one of his chosen panoply’s associated implements.",
+                                                        "At 8th level, a panoply savant can empower his abilities by harnessing the harmonic resonance between his chosen panoply’s associated implements. Whenever he casts a spell or uses a focus power with one of his chosen panoply’s associated implements, he treats it as though his caster level were 2 higher than it actually is, but only if on his previous turn, he cast a spell with or used a focus power from a different one of his chosen panoply’s associated implements.",
                                                         "",
                                                         LoadIcons.Image2Sprite.Create(@"AbilityIcons/AuraOfAmbition.png"),
                                                         FeatureGroup.None);

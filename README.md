@@ -598,7 +598,9 @@ Notable differences from pnp:
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
-- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones
+- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones,
+- Iroran paladin Confident Defense gives a dodge bonus instead of dex bonus to ac and has no level cap, unless you use balance fixes,
+- Iroran paladin counts his level as monk level (instead of 1/2 monk level) for unarmed strike damage progression,
 - Primalist receives only one rage power at levels 4, 8, 12, 16 and 20, and he is not allowed to pick a bloodline power instead,
 - Draconic Shaman does not lose hexes,
 - Clear mind rage power can be used once per day + 1 more time per 5 barbarian levels,
@@ -613,7 +615,7 @@ Optional balance fixes:
 - Cleave and Greater Cleave are merged into one feat
 - Improved Cleaving finish and Cleaving finish are merged into one feat
 - Blood havoc affects only bloodline spells
-- Fey/Inferanl bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
+- Fey/Infernal bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
 - Potent Magic arcane exploit is removed from the game
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school powers scales a bit better
