@@ -77,8 +77,11 @@ namespace CallOfTheWild.Archetypes
             var slayer_talent6 = library.Get<BlueprintFeatureSelection>("43d1b15873e926848be2abf0ea3ad9a8");
             var slayer_talent10 = library.Get<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66");
             var slayer_proficiencies = library.Get<BlueprintFeature>("41cd5ff7ad1bc5848906e050b06d02dc");
+            var simple_proficiency = library.Get<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd");
+            var martial_proficiency = library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629");
+            var light_armor_proficiency = library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132");
             var proficiencies = library.CopyAndAdd(slayer_proficiencies, "StygianSlayerProficiencies", "");
-            proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132"), library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629") });
+            proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { light_armor_proficiency, simple_proficiency, martial_proficiency });
             proficiencies.SetNameDescription("Stygian Slayer Proficiencies", 
                                              "A stygian slayer is proficient with light armor, but not with medium armor, heavy armor, or any kind of shield (including tower shields).");
 
@@ -90,13 +93,14 @@ namespace CallOfTheWild.Archetypes
                                                         };
 
 
-            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, proficiencies, spellcasting),
+            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, proficiencies),
+                                                       Helpers.LevelEntry(4, spellcasting),
                                                     };
             archetype.ChangeCasterType = true;
             archetype.IsArcaneCaster = true;
             archetype.ReplaceSpellbook = spellbook;
             slayer_class.Progression.UIDeterminatorsGroup.AddToArray(proficiencies);
-            slayer_class.Progression.UIDeterminatorsGroup.AddToArray(spellcasting);
+            //slayer_class.Progression.UIDeterminatorsGroup.AddToArray(spellcasting);
             slayer_class.Archetypes = slayer_class.Archetypes.AddToArray(archetype);
 
             addToPrestigeClasses();
@@ -143,7 +147,7 @@ namespace CallOfTheWild.Archetypes
                                                  + "To prepare or cast a spell, a stygian slayer must have an Intelligence score equal to at least 10 + the spell level. The Difficulty Class for a saving throw against a stygian slayer’s spell is 10 + the spell level + the stygian slayer’s Intelligence modifier.\n"
                                                  + "A stygian slayer can cast only a certain number of spells of each spell level per day. Her base daily spell allotment is the same as the ranger class.\n"
                                                  + "Through 3rd level, a stygian slayer has no caster level. At 4th level and higher, his caster level is equal to his stygian slayer level – 3.\n"
-                                                 + "Stygian slayer learns, prepares, and casts spells exactly as a wizard does, but does not gain additional spells known ecah time he gains a slayer level with this archetype.\n"
+                                                 + "Stygian slayer learns, prepares, and casts spells exactly as a wizard does, but does not gain additional spells known each time he gains a slayer level with this archetype.\n"
                                                  + "A stygian slayer can cast his spells while wearing light armor without incurring the normal arcane spell failure chance. Like any other arcane spellcaster, a stygian slayer wearing medium or heavy armor or using a shield incurs a chance of arcane spell failure if the spell in question has a somatic component.",
                                                  "",
                                                  Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),

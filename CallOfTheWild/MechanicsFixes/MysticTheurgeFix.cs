@@ -110,9 +110,9 @@ namespace CallOfTheWild
                                     Kingmaker.UnitLogic.Abilities.Blueprints.AbilityRange.Personal,
                                     Helpers.oneRoundDuration,
                                     "",
-                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(arcane_buff, Helpers.CreateContextDuration(1), dispellable: false),
-                                                             Common.createContextActionApplyBuff(divine_buff, Helpers.CreateContextDuration(1), dispellable: false),
-                                                             Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                    Helpers.CreateRunActions(Common.createContextActionApplyBuff(arcane_buff, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 9),
+                                                             Common.createContextActionApplyBuff(divine_buff, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 9)
+                                                             //Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)
                                                              ),
                                     Helpers.CreateResourceLogic(resource)
                                     );

@@ -98,6 +98,9 @@ namespace CallOfTheWild
         static BlueprintAbility blade_rush_swift_ability;
         static public BlueprintBuff blade_rush_buff;
 
+        static public BlueprintFeature kinetic_fist;
+        static public BlueprintFeature energize_weapon;
+
 
 
         internal static void load(bool update_archetypes)
@@ -141,6 +144,7 @@ namespace CallOfTheWild
             createBladeRush();
             createKineticWhip();
             createWhipHurricane();
+            createKineticFist();
             createSparkOfLife();
             createAirLeapAndWingsOfAir();
             createFlameJetAndFlameJetGreater();
@@ -162,7 +166,17 @@ namespace CallOfTheWild
                 updateKineticistArchetypes();
             }
         }
-        
+
+        static void createKineticFist()
+        {
+            //we will need to create cost and burn ability and insert them via patches into kinetic blade processing functions (?)
+            //TryRunKineticBladeActivationAction - make a prefix that will run a burn cost ability
+            //TryHandleKineticBladeAttack -  use damage ability (if allowed)
+            //we will add buff that will do the following:
+            //on first attack it will use burn cost buff and apply damage marker buff
+            //on all attacks it will use blast effect (OnEventDidTrigger(RuleAttackWithWeapon)
+        }
+
 
         static void fixRepeatingElements()
         {

@@ -38,7 +38,7 @@ namespace CallOfTheWild
         {
             var feature = Helpers.CreateFeature(prefix + "SpellPowerFeature",
                                                   "Spell Power",
-                                                  " As a free action while casting a spell, you can expend 2 points of mental focus to increase that spell’s caster level by 2. At 12th and 18th levels, whenever you use this ability, you can spend an additional point of mental focus in order to increase the spell’s caster level by an additional 1.",
+                                                  "As a free action while casting a spell, you can expend 2 points of mental focus to increase that spell’s caster level by 2. At 12th and 18th levels, whenever you use this ability, you can spend an additional point of mental focus in order to increase the spell’s caster level by an additional 1.",
                                                   "",
                                                   Shaman.font_of_spirit_magic.Icon,
                                                   FeatureGroup.None

@@ -326,10 +326,11 @@ namespace CallOfTheWild.Archetypes
         {
             var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             var paladin_proficiencies = library.Get<BlueprintFeature>("b10ff88c03308b649b50c31611c2fefb");
+            var simple_proficiency = library.Get<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd");
             var martial_proficiency = library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629");
             var light_armor_proficiency = library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132");
             confident_defense = library.CopyAndAdd(paladin_proficiencies, "IroranPaladinConfidentDefenseFeature", "");
-            confident_defense.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { light_armor_proficiency, martial_proficiency });
+            confident_defense.ReplaceComponent<AddFacts>(a => a.Facts = new BlueprintUnitFact[] { light_armor_proficiency, martial_proficiency, simple_proficiency });
 
 
             var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
