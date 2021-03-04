@@ -216,12 +216,17 @@ namespace CallOfTheWild
             AddMetamagicToFeatSelection(selective_metamagic);
 
             var spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell && b.LocalizedDuration.ToString().Empty() && b.HasAreaEffect() && b.EffectOnEnemy == AbilityEffectOnUnit.Harmful).Cast<BlueprintAbility>().ToArray();
+            spells = spells.AddToArray(library.Get<BlueprintAbility>("8c29e953190cc67429dc9c701b16b7c2"), //caustic erruption
+                                       library.Get<BlueprintAbility>("b22fd434bdb60fb4ba1068206402c4cf"), //prismatic spray
+                                       library.Get<BlueprintAbility>("4d9bf81b7939b304185d58a09960f589"), //faerie fire
+                                       library.Get<BlueprintAbility>("cf6c901fb7acc904e85c63b342e9c949") //confusion
+                                      );
             foreach (var s in spells)
             {
                 s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
                 if (s.Parent != null)
                 {
-                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
+                    s.Parent.AvailableMetamagic = s.Parent.AvailableMetamagic | (Metamagic)MetamagicExtender.Selective;
                 }
             }
         }

@@ -43,6 +43,7 @@ using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.ElementsSystem;
 using static Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility;
 using Kingmaker.ResourceLinks;
+using Kingmaker.Blueprints.Root;
 
 namespace CallOfTheWild
 {
@@ -123,6 +124,12 @@ namespace CallOfTheWild
         static public BlueprintFeature channel_solar_energy;
         static public BlueprintFeature sunsinger_extra_channel;
 
+        static public BlueprintArchetype red_tongue;
+        static public BlueprintFeature[] seed_of_discord;
+        static public BlueprintFeature rile;
+        static public BlueprintFeatureSelection rogue_talents;
+        static public BlueprintFeatureSelection great_orator;
+
 
         internal static void createSkaldClass()
         {
@@ -170,11 +177,11 @@ namespace CallOfTheWild
             createWarDrummer();
             createCourtPoet();
             createSunSinger();
-            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype, court_poet, sunsinger}; //wardrummer, urban skald, herald of the horn
+            createRedTongue();
+            skald_class.Archetypes = new BlueprintArchetype[] {urban_skald_archetype, herald_of_the_horn_archetype, war_drummer_archetype, court_poet, sunsinger, red_tongue};
             Helpers.RegisterClass(skald_class);
             addToPrestigeClasses(); //to at, mt, ek, dd
             fixExtraRagePower();
-
         }
 
 
@@ -778,6 +785,86 @@ namespace CallOfTheWild
             sunsinger_extra_channel = ChannelEnergyEngine.createExtraChannelFeat(heal_living, channel_positive_energy, "ExtraChannelSunsinger", "Extra Channel (Sunsinger)", "");
         }
 
+
+        static void createRedTongue()
+        {
+            red_tongue  = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "RedTongueArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Red Tongue");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Hot-blooded firebrands—referred to as red tongues in polite company—dominate by swaying emotions in the moment and wielding magic in the shadows.");
+            });
+            Helpers.SetField(red_tongue, "m_ParentClass", skald_class);
+            library.AddAsset(red_tongue, "");
+            red_tongue.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, bardic_knowledge),
+                                                        Helpers.LevelEntry(2, versatile_performance),
+                                                        Helpers.LevelEntry(7, versatile_performance),
+                                                        Helpers.LevelEntry(12, versatile_performance),
+                                                        Helpers.LevelEntry(17, versatile_performance),
+                                                    };
+
+            rile = Helpers.CreateFeature("RileFeature",
+                                         "Rile",
+                                         "The red tongue is particularly skilled at provoking others to action, even when ignorant on a subject. He adds 1/2 his skald level on Bluff checks and on Intimidate checks.",
+                                         "",
+                                         Helpers.GetIcon("76f8f23f6502def4dbefedffdc4d4c43"), //freeboter bane - command
+                                         FeatureGroup.None,
+                                         Helpers.CreateAddContextStatBonus(StatType.CheckBluff, ModifierDescriptor.UntypedStackable),
+                                         Helpers.CreateAddContextStatBonus(StatType.CheckIntimidate, ModifierDescriptor.UntypedStackable),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(), progression: ContextRankProgression.Div2)
+                                         );
+
+            //great orator is only a place holder, it will be filled in verstile performance section
+            great_orator = Helpers.CreateFeatureSelection("GreatOratorFeatureSelection",
+                                                          "Great Orator",
+                                                          $"Red tongue must select {LocalizedTexts.Instance.Stats.GetText(StatType.SkillPersuasion)} as his versatile performance choice at 2nd level.",
+                                                          "",
+                                                          null,
+                                                          FeatureGroup.None
+                                                          );
+
+            rogue_talents = library.CopyAndAdd<BlueprintFeatureSelection>("94e2cd84bf3a8e04f8609fe502892f4f", "RedTongueRogueTalentSelection", "");
+
+            var bonus_spells = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485"), //doom
+                library.Get<BlueprintAbility>("ce4c4e52c53473549ae033e2bb44b51a"), //castigate
+                library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                library.Get<BlueprintAbility>("d7cbd2004ce66a042aeab2e95a3c5c61"), //dominate
+                NewSpells.command_greater,
+                library.Get<BlueprintAbility>("2caa607eadda4ab44934c5c9875e01bc"), //doom
+            };
+
+            seed_of_discord = new BlueprintFeature[bonus_spells.Length];
+            for (int i = 0; i < bonus_spells.Length; i++)
+            {
+                seed_of_discord[i] = Helpers.CreateFeature($"SeedOfDiscord{i}Feature",
+                                    "Seed of Discord: " + bonus_spells[i].Name,
+                                    "The fiery outlook of the red tongue imparts instinctual knowledge to invest arcane energy into his proclamations and denouncements. The red tongue gains the following bonus spells known as he reaches the appropriate level to cast each spell: doom (1st), castigate (2nd), fear (3rd), dominate person (4th), greater command (5th), mass eagle’s splendor (6th).\n"
+                                    + bonus_spells[i].Name + ": " + bonus_spells[i].Description,
+                                    Helpers.MergeIds("21ec54143ca945bab34520456bc7e5b5", bonus_spells[i].AssetGuid),
+                                    bonus_spells[i].Icon,
+                                    FeatureGroup.None,
+                                    Helpers.CreateAddKnownSpell(bonus_spells[i], skald_class, i + 1)
+                                    );
+            }
+
+            
+                                                          
+            red_tongue.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, rile, seed_of_discord[0]),
+                                                        Helpers.LevelEntry(2, great_orator),
+                                                        Helpers.LevelEntry(4, seed_of_discord[1]),
+                                                        Helpers.LevelEntry(7, rogue_talents, seed_of_discord[2]),
+                                                        Helpers.LevelEntry(10, seed_of_discord[3]),
+                                                        Helpers.LevelEntry(12, rogue_talents),
+                                                        Helpers.LevelEntry(13, seed_of_discord[4]),
+                                                        Helpers.LevelEntry(16, seed_of_discord[5]),
+                                                        Helpers.LevelEntry(19, rogue_talents)
+                                                        };
+
+            skald_progression.UIGroups = skald_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(rile, great_orator, rogue_talents, rogue_talents, rogue_talents));
+            skald_progression.UIGroups = skald_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(seed_of_discord));
+        }
 
         static void createCourtPoet()
         {
