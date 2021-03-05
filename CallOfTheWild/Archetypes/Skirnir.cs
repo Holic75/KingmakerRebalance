@@ -307,8 +307,8 @@ namespace CallOfTheWild.Archetypes
                                                                                                          ArmorProficiencyGroup.TowerShield };
                                                   })
                                                   );
-
-            spell_combat_penalty.AddComponent(Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuff(penalty_buff, Helpers.CreateContextDuration(1), dispellable: false)));
+            var penalty_action = Helpers.CreateConditional(Common.createContextConditionHasFact(shielded_spell_combat), Common.createContextActionApplyBuff(penalty_buff, Helpers.CreateContextDuration(1), dispellable: false));
+            spell_combat_penalty.AddComponent(Helpers.CreateAddFactContextActions(activated: penalty_action));
         }
 
 
