@@ -37,10 +37,10 @@ namespace CallOfTheWild
         static internal void load()
         {
             fixSorcBloodlineProgression();
-            fixBloodlinesUI();
+            
             fixArcaneBloodline();
             createEldritchHeritage();
-            fixBloodlineSpells();
+            fixBloodlineSpells();            
             Archetypes.Crossblooded.create();
             CallOfTheWild.Archetypes.PrimalSorcerer.create();
 
@@ -49,7 +49,7 @@ namespace CallOfTheWild
             createBloodIntensity();
             createBloodPiercing();
             addBloodlineMutations();
-
+            fixBloodlinesUI();
             //fixDragonDisciplePrerequisites();
         }
 
@@ -518,14 +518,6 @@ namespace CallOfTheWild
                     selection9 = feature_selection_map[ability9];
                 }
 
-                if (b.UIGroups.Empty())
-                {
-                    b.UIGroups[0].Features.Remove(ability1);
-                    b.UIGroups[0].Features.Add(selection);
-                    b.UIGroups[0].Features.Remove(ability3);
-                    b.UIGroups[0].Features.Add(selection3);
-                    b.UIGroups[0].Features.Add(selection9);
-                }
                 if (ability1 != null)
                 {
                     b.LevelEntries[0].Features.Remove(ability1);
@@ -607,6 +599,7 @@ namespace CallOfTheWild
             bloodlines.Add(library.Get<BlueprintProgression>("a46d4bd93601427409d034a997673ece")); //sylvan
             bloodlines.Add(library.Get<BlueprintProgression>("7d990675841a7354c957689a6707c6c2")); //sage
             bloodlines.Add(library.Get<BlueprintProgression>("8a95d80a3162d274896d50c2f18bb6b1")); //empyreal
+            bloodlines.AddRange(Archetypes.PrimalSorcerer.primal_bloodline_selection.AllFeatures.Cast<BlueprintProgression>());
 
             foreach (var b in bloodlines)
             {

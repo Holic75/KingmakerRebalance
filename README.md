@@ -21,7 +21,7 @@ It introduces new classes:
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
 - Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
-- Skald with following archetypes: Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
+- Skald with following archetypes: Red Tongue, Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Draconic Shaman, Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Spell Specialist, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
@@ -36,7 +36,7 @@ It introduces new classes:
 
 New Archetypes for existing classes:
 - Iroran Paladin, Sacred Servant, and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
-- Arrowsong Minstrel and Dirge Bard Bard archetypes,
+- Arrowsong Minstrel, Court Bard and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
 - Draconic Druid, Nature Fang, and Storm Druid Druid archetypes,
 - Evangelist, Divine Scourge, and Undead Lord Cleric archetypes,
@@ -598,7 +598,9 @@ Notable differences from pnp:
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
-- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones
+- Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones,
+- Iroran paladin Confident Defense gives a dodge bonus instead of dex bonus to ac and has no level cap, unless you use balance fixes,
+- Iroran paladin counts his level as monk level (instead of 1/2 monk level) for unarmed strike damage progression,
 - Primalist receives only one rage power at levels 4, 8, 12, 16 and 20, and he is not allowed to pick a bloodline power instead,
 - Draconic Shaman does not lose hexes,
 - Clear mind rage power can be used once per day + 1 more time per 5 barbarian levels,
@@ -613,7 +615,7 @@ Optional balance fixes:
 - Cleave and Greater Cleave are merged into one feat
 - Improved Cleaving finish and Cleaving finish are merged into one feat
 - Blood havoc affects only bloodline spells
-- Fey/Inferanl bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
+- Fey/Infernal bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
 - Potent Magic arcane exploit is removed from the game
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school powers scales a bit better

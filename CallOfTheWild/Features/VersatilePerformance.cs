@@ -65,6 +65,7 @@ namespace CallOfTheWild
         static BlueprintCharacterClass bard_class = library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 
         static BlueprintAbilityResource performance_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
+        static public BlueprintFeatureSelection rogue_talents;
 
         static internal void create()
         {
@@ -353,8 +354,8 @@ namespace CallOfTheWild
             List<int> remove_vt_levels = new int[] { 2, 6, 10, 14, 18 }.ToList();
             List<int> add_rogue_talent = new int[] { 4, 8, 12, 16, 20 }.ToList();
 
-            var rogue_talent = library.CopyAndAdd<BlueprintFeatureSelection>("c074a5d615200494b8f2a9c845799d93", "ArchaelogistRogueTalent", "");
-            rogue_talent.SetDescription("At 4th level, an archaeologist gains a rogue talent. He gains an additional rogue talent for every four levels of archaeologist gained after 4th level. Otherwise, this works as the rogue’s rogue talent ability.");
+            rogue_talents = library.CopyAndAdd<BlueprintFeatureSelection>("c074a5d615200494b8f2a9c845799d93", "ArchaelogistRogueTalent", "");
+            rogue_talents.SetDescription("At 4th level, an archaeologist gains a rogue talent. He gains an additional rogue talent for every four levels of archaeologist gained after 4th level. Otherwise, this works as the rogue’s rogue talent ability.");
 
 
             foreach (var le in archaelogist.RemoveFeatures)
@@ -376,14 +377,14 @@ namespace CallOfTheWild
                 if (add_rogue_talent.Contains(le.Level))
                 {
                     add_rogue_talent.Remove(le.Level);
-                    le.Features.Add(rogue_talent);
+                    le.Features.Add(rogue_talents);
                 }
             }
 
 
             foreach (var l in add_rogue_talent)
             {
-                archaelogist.AddFeatures = archaelogist.AddFeatures.AddToArray(Helpers.LevelEntry(l, rogue_talent));
+                archaelogist.AddFeatures = archaelogist.AddFeatures.AddToArray(Helpers.LevelEntry(l, rogue_talents));
             }
         }
 
@@ -468,6 +469,10 @@ namespace CallOfTheWild
                                                        );
                 versatile_performances.Add(feature);
                 versatile_performances.Add(feature2);
+                if (stat == StatType.SkillPersuasion)
+                {
+                    Skald.great_orator.AllFeatures = new BlueprintFeature[] { feature };
+                }
             }
         }
     }

@@ -310,8 +310,8 @@ namespace CallOfTheWild.Archetypes
                 if (!Occultist.isPanoply(s))
                 {
                     implement_factories[s] = new ImplementsEngine("RelicHunter", deific_focus_resource[s],
-                                              getOccultistArray(),
-                                              StatType.Wisdom);
+                                                                  getOccultistArray(),
+                                                                  StatType.Wisdom);
                 }
                 else
                 {

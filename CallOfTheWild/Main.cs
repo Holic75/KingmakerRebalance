@@ -345,7 +345,10 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.MindBlade.create();
                     CallOfTheWild.Archetypes.Skirnir.create();
                     CallOfTheWild.Archetypes.Evangelist.create();
-                    
+                    CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
+                    CallOfTheWild.Archetypes.DirgeBard.create();
+                    CallOfTheWild.Archetypes.CourtBard.create();
+                    //Note: archetypes with new performances should be created before NewFeats to allow discordant voice to pick relevant toggles
                     CallOfTheWild.NewFeats.load();
                     CallOfTheWild.MagusArcana.load();
                     CallOfTheWild.SkillUnlocks.load();
@@ -360,8 +363,7 @@ namespace CallOfTheWild
                         CallOfTheWild.AdvancedFighterOptions.prepareLookupData();
                     }
                     CallOfTheWild.MonkKiPowers.load();
-                    CallOfTheWild.Archetypes.ArrowsongMinstrel.create();
-                    CallOfTheWild.Archetypes.DirgeBard.create();
+
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    

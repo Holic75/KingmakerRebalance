@@ -441,6 +441,8 @@ namespace CallOfTheWild
                     Archetypes.NatureFang.slayer_talent4,
                     Archetypes.NatureFang.slayer_talent6,
                     Archetypes.NatureFang.slayer_talent10,
+                    Skald.rogue_talents, //red tongue
+                    VersatilePerformance.rogue_talents, //archaelogist
                 };
 
             if (for_investigator)

@@ -90,7 +90,7 @@ namespace CallOfTheWild.Archetypes
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection1, bloodline_selection2, drawbacks) };
 
             sorcerer.Archetypes = sorcerer.Archetypes.AddToArray(archetype);
-            sorcerer.Progression.UIDeterminatorsGroup = sorcerer.Progression.UIDeterminatorsGroup.AddToArray();
+            sorcerer.Progression.UIDeterminatorsGroup = sorcerer.Progression.UIDeterminatorsGroup.AddToArray(bloodline_selection1, bloodline_selection2, drawbacks);
 
             addToPrestigeClasses();
         }

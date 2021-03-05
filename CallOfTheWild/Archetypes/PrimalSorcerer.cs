@@ -167,7 +167,7 @@ namespace CallOfTheWild.Archetypes
                 }
                    
                 progression.LevelEntries = level_entries.ToArray();
-                progression.UIGroups[0].Features.Add(feature);
+                //progression.UIGroups[0].Features.Add(feature);
 
                 var feat_prereq = bloodline_feats.GetComponent<PrerequisiteFeaturesFromList>();
                 feat_prereq.Features = feat_prereq.Features.AddToArray(progression);

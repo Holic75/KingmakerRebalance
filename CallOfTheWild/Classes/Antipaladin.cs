@@ -1509,7 +1509,8 @@ namespace CallOfTheWild
                                                     "",
                                                     Helpers.GetIcon("08cb5f4c3b2695e44971bf5c45205df0"),
                                                     null,
-                                                    Common.createSavingThrowBonusAgainstDescriptor(-4, ModifierDescriptor.UntypedStackable, SpellDescriptor.Shaken | SpellDescriptor.Fear)
+                                                    Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), 
+                                                                                                          ModifierDescriptor.UntypedStackable, SpellDescriptor.Shaken | SpellDescriptor.Fear)
                                                     );
 
             aura_of_cowardice = Common.createAuraEffectFeature(cowardice_buff.Name,
@@ -1526,7 +1527,6 @@ namespace CallOfTheWild
                                         "",
                                         Helpers.GetIcon("4baf4109145de4345861fe0f2209d903"), //crushing despair
                                         null,
-                                        Common.createSavingThrowBonusAgainstDescriptor(2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Shaken | SpellDescriptor.Fear),
                                         Helpers.Create<BuffAllSavesBonus>(b => { b.Value = -2; b.Descriptor = ModifierDescriptor.UntypedStackable; })
                                         );
 
@@ -1538,13 +1538,21 @@ namespace CallOfTheWild
                                                              Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
                                                              );
 
+            cowardice_buff.AddComponent(Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue,
+                                        stepLevel: -4, featureList: new BlueprintFeature[] { aura_of_despair, aura_of_despair })
+                                       );
+
+
             var deparvity_buff = Helpers.CreateBuff("AuraOfDeparvityEffectBuff",
                                                     "Aura of Deparvity",
                                                     "At 17th level, an antipaladin gains DR 5/good. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
                                                     "",
                                                     Helpers.GetIcon("41cf93453b027b94886901dbfc680cb9"), //overwhelming presence
                                                     null,
-                                                    Common.createSavingThrowBonusAgainstDescriptor(-2, ModifierDescriptor.UntypedStackable, SpellDescriptor.Compulsion)
+                                                    Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                                          ModifierDescriptor.UntypedStackable, SpellDescriptor.Compulsion),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue,
+                                                                                    stepLevel: -4, featureList: new BlueprintFeature[] { aura_of_despair, aura_of_despair })
                                                     );
 
             aura_of_deparvity = Common.createAuraEffectFeature(deparvity_buff.Name,
