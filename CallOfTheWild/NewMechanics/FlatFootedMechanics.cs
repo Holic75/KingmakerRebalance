@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
@@ -44,6 +45,19 @@ namespace CallOfTheWild.FlatFootedMechanics
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("IsFlatFooted").SetValue(is_flat_footed);
             return false;
+        }
+    }
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class TargetFlatfooted : RuleTargetLogicComponent<RuleCheckTargetFlatFooted>
+    {
+        public override void OnEventAboutToTrigger(RuleCheckTargetFlatFooted evt)
+        {
+            evt.ForceFlatFooted = true;
+        }
+
+        public override void OnEventDidTrigger(RuleCheckTargetFlatFooted evt)
+        {
         }
     }
 

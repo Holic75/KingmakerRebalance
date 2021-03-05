@@ -36,7 +36,7 @@ It introduces new classes:
 
 New Archetypes for existing classes:
 - Iroran Paladin, Sacred Servant, and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
-- Arrowsong Minstrel and Dirge Bard Bard archetypes,
+- Arrowsong Minstrel, Court Bard and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
 - Draconic Druid, Nature Fang, and Storm Druid Druid archetypes,
 - Evangelist, Divine Scourge, and Undead Lord Cleric archetypes,

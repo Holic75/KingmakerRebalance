@@ -398,7 +398,7 @@ namespace CallOfTheWild
                     };
 
                     var buff3 = Helpers.CreateBuff($"AuraOfInsanityIII{i + 1}{j+1}Buff",
-                                                   aura_of_insanity[2].Name + "(" + specific_confusion_buffs[j].Name + ")",
+                                                   aura_of_insanity[2].Name + " (" + specific_confusion_buffs[j].Name + ")",
                                                    aura_of_insanity[2].Description,
                                                    "",
                                                    aura_of_insanity[2].Icon,

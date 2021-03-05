@@ -6290,7 +6290,8 @@ namespace CallOfTheWild
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Paralysis | SpellDescriptor.MovementImpairing),
                                           Common.createAuraFeatureComponent(aura_buff)
                                           );
-
+            var primary_effect = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2, DurationRate.Rounds, DiceType.D6, 1));
+            var primary_effect_saved = Helpers.CreateConditionalSaved(null, primary_effect);
             var ability = Helpers.CreateAbility("GhoulTouchAbility",
                                                 "Ghoul Touch",
                                                 "Imbuing you with negative energy, this spell allows you to paralyze a single living humanoid for the duration of the spell with a successful melee touch attack.\n" +
@@ -6302,7 +6303,7 @@ namespace CallOfTheWild
                                                 AbilityRange.Touch,
                                                 "1d6+2 rounds",
                                                 Helpers.fortNegates,
-                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(2, DurationRate.Rounds, DiceType.D6, 1))),
+                                                Helpers.CreateRunActions(SavingThrowType.Fortitude, primary_effect_saved),
                                                 Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                 Helpers.CreateDeliverTouch(),
                                                 Helpers.CreateSpellComponent(SpellSchool.Necromancy)
