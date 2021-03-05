@@ -231,13 +231,16 @@ namespace CallOfTheWild.Archetypes
             var spell_combat_buff = library.Get<BlueprintBuff>("91e4b45ab5f29574aa1fb41da4bbdcf2");
             ray_spell_combat = Helpers.CreateFeature("RaySpellCombatFeature",
                                                      "Arrowsong Strike II",
-                                                     "At 18th level, an arrowsong minstrel can make a full attack in addition to using arrowsong strike.",
+                                                     "At 18th level, an arrowsong minstrel can make a full attack when using arrowsong strike.",
                                                      "",
                                                      LoadIcons.Image2Sprite.Create(@"AbilityIcons/LingeringAcid.png"),
                                                      FeatureGroup.None,
                                                      Helpers.CreateAddFact(Common.ignore_spell_combat_penalty),
                                                      add_spell_combat18
                                                      );
+            var spellcombat_penalty_buff = library.Get<BlueprintBuff>("7b4cf64d3a49e3d45b1dbd2385f4eb6d");
+
+            spellcombat_penalty_buff.AddComponent(Helpers.Create<NewMechanics.BuffExtraAttackIfHasFact>(b => { b.num_attacks = -1; b.fact = ray_spell_combat; }));
             var apply_spell_combat = Common.createContextActionApplyBuff(spell_combat_buff, Helpers.CreateContextDuration(), is_child: true, dispellable: false, is_permanent: true);
             spellstrike.Buff.AddComponent(Helpers.CreateAddFactContextActions(Helpers.CreateConditional(Common.createContextConditionHasFact(ray_spell_combat),
                                                                                                         apply_spell_combat)
