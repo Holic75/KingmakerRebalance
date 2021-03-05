@@ -506,7 +506,8 @@ namespace CallOfTheWild
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"), //slayer
                                                          Investigator.investigator_class,
-                                                         druid,
+                                                         druid, //for nature fang
+                                                         Skald.skald_class, //skald for red tongue
                                                          library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
                                                          library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
@@ -580,7 +581,8 @@ namespace CallOfTheWild
             var classes = new BlueprintCharacterClass[] {library.Get<BlueprintCharacterClass>("299aa766dee3cbf4790da4efb8c72484"), //rogue
                                                          library.Get<BlueprintCharacterClass>("c75e0971973957d4dbad24bc7957e4fb"),
                                                          Investigator.investigator_class,
-                                                         druid,
+                                                         druid, //for nature fang
+                                                         Skald.skald_class, //for red tongue
                                                          library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"),//bard for archaelogist
                                                          library.Get<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce")}; //inquisitor for sanctified slayer
 
