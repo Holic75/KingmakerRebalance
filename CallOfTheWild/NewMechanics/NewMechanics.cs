@@ -3791,6 +3791,28 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("BuffMechanics/Extra Attack")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class BuffExtraAttackIfHasFact : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
+        {
+            public BlueprintUnitFact fact;
+            public int num_attacks = 1;
+            
+
+            public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
+            {
+                if (evt.Initiator.Descriptor.HasFact(fact))
+                {
+                    evt.AddExtraAttacks(this.num_attacks, false, (ItemEntity)null);
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
+            {
+            }
+        }
+
+
         public class AbilityCasterHpCondition : BlueprintComponent, IAbilityCasterChecker
         {
             public int CurrentHPLessThan;
