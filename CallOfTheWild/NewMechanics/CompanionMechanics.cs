@@ -247,26 +247,42 @@ namespace CallOfTheWild.CompanionMechanics
 
         public int countNumberOfAttacks(UnitEntityData unit)
         {
-            int num_attaks = 0;
+            int num_attacks = 0;
             if (unit.Body.HandsAreEnabled)
             {
                 if (unit.Body.PrimaryHand.MaybeWeapon != null && unit.Body.PrimaryHand.MaybeWeapon.Blueprint.IsNatural && !unit.Body.PrimaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 {
-                    num_attaks++;
+                    num_attacks++;
+                    if (unit.Descriptor.HasFact(Evolutions.extra_attack))
+                    {
+                        num_attacks++;
+                    }
+                    if (unit.Descriptor.HasFact(Evolutions.extra_attack2))
+                    {
+                        num_attacks++;
+                    }
                 }
                 if (unit.Body.SecondaryHand.MaybeWeapon != null && unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural && !unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 {
-                    num_attaks++;
+                    num_attacks++;
+                    if (unit.Descriptor.HasFact(Evolutions.extra_off_hand_attack))
+                    {
+                        num_attacks++;
+                    }
+                    if (unit.Descriptor.HasFact(Evolutions.extra_off_hand_attack2))
+                    {
+                        num_attacks++;
+                    }
                 }
             }
 
-            num_attaks += unit.Body.AdditionalLimbs.Where(w => w.MaybeWeapon != null && w.MaybeWeapon.Blueprint.IsNatural).Count();
+            num_attacks += unit.Body.AdditionalLimbs.Where(w => w.MaybeWeapon != null && w.MaybeWeapon.Blueprint.IsNatural).Count();
 
             if (unit.Descriptor.HasFact(Wildshape.mutated_shape_buff))
             {
-                num_attaks++;
+                num_attacks++;
             }
-            return num_attaks;
+            return num_attacks;
         }
 
         public void OnEventAboutToTrigger(RuleCalculateAttackBonusWithoutTarget evt)
