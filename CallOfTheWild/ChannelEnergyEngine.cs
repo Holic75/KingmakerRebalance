@@ -155,6 +155,7 @@ namespace CallOfTheWild
         static public BlueprintFeature channel_smite = null;
         static public BlueprintFeature improved_channel = null;
         static public BlueprintFeature sacred_conduit = null;
+        static public BlueprintFeature xavorns_cross_feature = null;
         static public BlueprintFeature channeling_scourge = null;
 
         static BlueprintFeature witch_channel_negative;
@@ -1209,7 +1210,7 @@ namespace CallOfTheWild
 
 
 
-        public static void addToImprovedChannel(BlueprintAbility ability, BlueprintFeature feature)
+        public static void addToImprovedChannel(BlueprintAbility ability, BlueprintFeature feature, bool not_negative = false)
         {
             if (improved_channel == null)
             {
@@ -1242,6 +1243,19 @@ namespace CallOfTheWild
             {
                 abilities.spells = abilities.spells.AddToArray(ability);
             }
+
+
+            if (xavorns_cross_feature == null || not_negative)
+            {
+                return;
+            }
+
+            abilities = xavorns_cross_feature.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(ability);
+            }
         }
 
 
@@ -1262,6 +1276,31 @@ namespace CallOfTheWild
             }
 
             var abilities = improved_channel.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(c.ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(c.ability);
+            }
+
+
+            if (sacred_conduit == null)
+            {
+                return;
+            }
+
+            abilities = sacred_conduit.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
+
+            if (!abilities.spells.Contains(c.ability))
+            {
+                abilities.spells = abilities.spells.AddToArray(c.ability);
+            }
+
+            if (xavorns_cross_feature == null || !c.channel_type.isOf(ChannelType.Negative))
+            {
+                return;
+            }
+
+            abilities = xavorns_cross_feature.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
 
             if (!abilities.spells.Contains(c.ability))
             {
@@ -1318,6 +1357,10 @@ namespace CallOfTheWild
                                                   FeatureGroup.Trait,
                                                   Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 1; c.spells = new BlueprintAbility[] { turn_undead }; })
                                                  );
+
+            xavorns_cross_feature = library.Get<BlueprintFeature>("35f473c44b5a94b42898be80f3248ca0");
+            xavorns_cross_feature.RemoveComponents<IncreaseSpellDC>();
+            xavorns_cross_feature.AddComponent(Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(c => { c.BonusDC = 2; c.spells = new BlueprintAbility[] { turn_undead }; }));
 
             foreach (var c in channel_entires)
             {
@@ -1604,6 +1647,9 @@ namespace CallOfTheWild
             //update items
             var ring_of_energy_source_feature = library.Get<BlueprintFeature>("c372cd498006fcf4ab4c9ed6b92515a9");
             ring_of_energy_source_feature.AddComponent(extra_channel.GetComponent<IncreaseResourceAmount>());
+
+            var xavorns_cross_enchant = library.Get<BlueprintItemEnchantment>("249dd13b0e3f811448d796b01215e484");
+            xavorns_cross_enchant.AddComponent(extra_channel.GetComponent<IncreaseResourceAmount>().CreateCopy(e => e.Value = 1));
 
             library.AddFeats(extra_channel);
             return extra_channel;

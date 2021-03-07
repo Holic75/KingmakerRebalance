@@ -182,7 +182,7 @@ namespace CallOfTheWild.Archetypes
                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.UntypedStackable),
                                           Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.Fear | SpellDescriptor.Shaken | SpellDescriptor.Charm),
-                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom,
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom, classes: new BlueprintCharacterClass[] {archetype.GetParentClass() },
                                                                           customProgression: new (int, int)[] { (4, -1), (10, -2), (16, -3), (20, -4) }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Sonic | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                           );
@@ -197,6 +197,7 @@ namespace CallOfTheWild.Archetypes
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             toggle.DeactivateIfCombatEnded = true;
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff.SetBuffFlags(BuffFlags.HiddenInUi);
             satire = Common.ActivatableAbilityToFeature(toggle, false);
         }
 
@@ -212,7 +213,7 @@ namespace CallOfTheWild.Archetypes
                                           Helpers.CreateAddContextStatBonus(StatType.SkillPersuasion, ModifierDescriptor.UntypedStackable),
                                           Helpers.CreateAddContextStatBonus(StatType.SkillUseMagicDevice, ModifierDescriptor.UntypedStackable),
                                           Common.createAbilityScoreCheckBonus(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, StatType.Charisma),
-                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom,
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom, classes: new BlueprintCharacterClass[] { archetype.GetParentClass() },
                                                                           customProgression: new (int, int)[] { (6, -2), (10, -3), (14, -4), (18, -5) }),
                                           Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Sonic | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent)
                                           );
@@ -227,6 +228,7 @@ namespace CallOfTheWild.Archetypes
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             toggle.DeactivateIfCombatEnded = true;
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             mockery = Common.ActivatableAbilityToFeature(toggle, false);
         }
@@ -286,6 +288,7 @@ namespace CallOfTheWild.Archetypes
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             toggle.DeactivateIfCombatEnded = true;
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             glorious_epic = Common.ActivatableAbilityToFeature(toggle, false);
         }
@@ -295,7 +298,7 @@ namespace CallOfTheWild.Archetypes
         {
             var buff = library.CopyAndAdd<BlueprintBuff>("2e1646c2449c88a4188e58043455a43a", "ScandalEffectBuff", ""); //song of discord buff
             buff.SetNameDescriptionIcon("Scandal",
-                                        "court bard of 14th level or higher can combine salacious gossip and biting calumny to incite a riot. Each enemy within 30 feet is affected as if by a song of discord for as long as it can hear the performance. A successful Will save (DC 10 + 1/2 the bard’s level + the bard’s Cha modifier) negates the effect, and that creature is immune to this ability for 24 hours. Scandal is a language-dependent, mind-affecting ability that uses audible components.",
+                                        "court bard of 14th level or higher can combine salacious gossip and biting calumny to incite a riot. Each enemy within 50 feet is affected as if by a song of discord for as long as it can hear the performance. A successful Will save (DC 10 + 1/2 the bard’s level + the bard’s Cha modifier) negates the effect, and that creature is immune to this ability for 24 hours. Scandal is a language-dependent, mind-affecting ability that uses audible components.",
                                         buff.Icon);
             buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             buff.RemoveComponents<SpellDescriptorComponent>();
@@ -331,10 +334,10 @@ namespace CallOfTheWild.Archetypes
                                                        buff.Name,
                                                        buff.Description,
                                                        buff.Icon,
-                                                       30.Feet(),
+                                                       50.Feet(),
                                           AbilityActivationType.WithUnitCommand,
                                           UnitCommand.CommandType.Standard,
-                                          Common.createPrefabLink("79665f3d500fdf44083feccf4cbfc00a"),
+                                          Common.createPrefabLink("5d4308fa344af0243b2dd3b1e500b2cc"), //inspire courage area (to make it 50 feet)
                                           Common.createPrefabLink("c87c798cd0a410c419ee4bafd4adb68f"),
                                           area_components
                                           );
@@ -342,6 +345,7 @@ namespace CallOfTheWild.Archetypes
             toggle.AddComponent(performance_resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             toggle.DeactivateIfCombatEnded = true;
             toggle.DeactivateIfOwnerDisabled = true;
+            toggle.Buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             scandal = Common.ActivatableAbilityToFeature(toggle, false);
         }
