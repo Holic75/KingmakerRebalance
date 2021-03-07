@@ -365,7 +365,7 @@ namespace CallOfTheWild
                                                      null,
                                                      FeatureGroup.Feat,
                                                      Helpers.Create<CompanionMechanics.MultiAttack>(),
-                                                     Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 5)
+                                                     Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
                                                      );
             library.AddFeats(multi_attack);
 

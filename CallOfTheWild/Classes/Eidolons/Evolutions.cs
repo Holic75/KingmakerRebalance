@@ -779,9 +779,9 @@ namespace CallOfTheWild
                                          devil_elemental.AddToArray(Eidolon.protean_eidolon)
                                          ));
 
-            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
+            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons_with_hands));
             evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 0, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], eidolons_with_hands.RemoveFromArray(Eidolon.infernal_eidolon)));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 0, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
@@ -971,19 +971,13 @@ namespace CallOfTheWild
 
             constrict = Helpers.CreateFeature("ConstrictEvolutionFeature",
                                          "Constrict",
-                                         $"The eidolon gains powerful muscles that allow it to crush those it grapples. It can make one additional {(Main.settings.secondary_rake_attacks ? "secondary" : "primary")} attack with its tail when making a full attack.",
+                                         $"The eidolon gains powerful muscles that allow it to crush those it grapples. It can make one additional secondary attack with its tail when making a full attack.",
                                          "",
                                          icon,
                                          FeatureGroup.None);
 
-            if (Main.settings.secondary_rake_attacks)
-            {
-                constrict.AddComponent(Common.createAddSecondaryAttacks(tail1d6));                            
-            }
-            else
-            {
-                constrict.AddComponent(Helpers.Create<AddAdditionalLimb>(a => a.Weapon = tail1d6));
-            }
+
+            constrict.AddComponent(Common.createAddSecondaryAttacks(tail1d6));                            
         }
 
 

@@ -168,7 +168,6 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
 
             foreach (var c in BlueprintRoot.Instance.Progression.CharacterClasses)
             {
-                var dragon_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc");
                 if (c != Eidolon.eidolon_class)
                 {
                     c.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));

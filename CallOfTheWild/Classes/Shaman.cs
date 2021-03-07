@@ -471,7 +471,6 @@ namespace CallOfTheWild
                 drake_unit.AddComponent(Helpers.Create<Eidolon.EidolonComponent>());
                 drake_unit.ReplaceComponent<AddClassLevels>(a =>
                 {
-                    a.DoNotApplyAutomatically = true;
                     a.Archetypes = new BlueprintArchetype[] { drake_archetype };
                     a.Levels = 0;
                     a.Skills = new StatType[] { StatType.SkillPerception, StatType.SkillAthletics, StatType.SkillMobility };
