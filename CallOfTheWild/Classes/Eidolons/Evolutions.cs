@@ -95,6 +95,8 @@ namespace CallOfTheWild
         static public BlueprintFeature poison_strength;
         static public BlueprintFeature poison_constitution;
         static public BlueprintFeature[] shared_slots;
+        static public BlueprintFeature extra_attack_serpentine;
+        static public BlueprintFeature extra_off_hand_attack_serpentine;
         static public BlueprintFeature extra_attack;
         static public BlueprintFeature extra_attack2;
         static public BlueprintFeature extra_off_hand_attack;
@@ -678,7 +680,7 @@ namespace CallOfTheWild
             }
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
-            evolution_entries.Add(new EvolutionEntry(gore, 2, 0, new BlueprintFeature[0], new BlueprintFeature[] {extra_attack2, extra_off_hand_attack2 },
+            evolution_entries.Add(new EvolutionEntry(gore, 2, 14, new BlueprintFeature[0], new BlueprintFeature[] {extra_attack2, extra_off_hand_attack2 },
                                                      devil_elemental.AddToArray(new BlueprintFeature[] {bear, dog, monitor, wolf, wolf_ekun, leopard, smilodon, centipede, Eidolon.agathion_eidolon })));
 
             foreach (var e in immunity)
@@ -687,7 +689,7 @@ namespace CallOfTheWild
                                                          evolution_group: "Immunity"));
             }
 
-            evolution_entries.Add(new EvolutionEntry(rake, 2, 14, new BlueprintFeature[0], new BlueprintFeature[0],
+            evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, wolf_ekun, leopard, elk, mammoth, boar})));
 
             evolution_entries.Add(new EvolutionEntry(constrict, 2, 0, new BlueprintFeature[] { tail_slap }, new BlueprintFeature[0],
@@ -779,9 +781,11 @@ namespace CallOfTheWild
                                          devil_elemental.AddToArray(Eidolon.protean_eidolon)
                                          ));
 
-            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons_with_hands));
+            evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], biped_eidolons));
+            evolution_entries.Add(new EvolutionEntry(extra_attack_serpentine, 2, 14, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons));
             evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 14, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], eidolons_with_hands.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack_serpentine, 1, 14, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 14, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
@@ -895,6 +899,7 @@ namespace CallOfTheWild
 
             extra_attack2 = library.CopyAndAdd(extra_attack, "ExtraAttackEvolutionIIFeature", "");
             extra_attack2.SetName("Extra Attack II");
+            extra_attack_serpentine = library.CopyAndAdd(extra_attack, "ExtraAttackEvolutionSerpentineFeature","");
 
             extra_off_hand_attack = Helpers.CreateFeature("ExtraSecondaryAttackEvolutionFeature",
                                                          "Extra Off-Hand Attack",
@@ -907,6 +912,7 @@ namespace CallOfTheWild
 
             extra_off_hand_attack2 = library.CopyAndAdd(extra_off_hand_attack, "ExtraSecondaryAttackEvolutionIIFeature", "");
             extra_off_hand_attack2.SetName("Extra Off-Hand Attack II");
+            extra_off_hand_attack_serpentine = library.CopyAndAdd(extra_off_hand_attack, "ExtraOffHandAttackEvolutionSerpentineFeature", "");
         }
 
 
