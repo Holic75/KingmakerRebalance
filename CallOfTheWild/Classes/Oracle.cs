@@ -394,11 +394,11 @@ namespace CallOfTheWild
 
             ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = healers_way_resource);
             ability.RemoveComponents<AbilityCasterAlignment>();
-            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getOracleArray()));
+            ability.ReplaceComponent<ContextRankConfig>(c => { Helpers.SetField(c, "m_Class", getOracleArray()); Helpers.SetField(c, "m_Min", 1); Helpers.SetField(c, "m_UseMin", true); });
             ability.AddComponent(Helpers.Create<UndeadMechanics.AbilityTargetHasNegativeEnegyAffinity>(a => a.Inverted = true));
 
             ability.SetNameDescription("Healer's Way — Others",
-                                       $"A divine herbalist combines alchemy, acupuncture, and divine magic to heal wounds by touch. She can use this ability a number of times per day equal to 1 + her Charisma modifier. With one use of this ability, she uses positive energy to heal the target of 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  hit points for every 2 oracle levels she has. Using this ability is a standard action unless the oracle targets herself, in which case it is a swift action. Using this ability requires only one free hand. This ability counts as a paladin’s lay on hands ability for the purposes of feats, spells, and effects that work with that class feature when it is used for healing purposes. Unlike lay on hands, this ability cannot be used to harm undead.");
+                                       $"A divine herbalist combines alchemy, acupuncture, and divine magic to heal wounds by touch. She can use this ability a number of times per day equal to 1 + her Charisma modifier. With one use of this ability, she uses positive energy to heal the target of 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points for every 2 oracle levels she has. Using this ability is a standard action unless the oracle targets herself, in which case it is a swift action. Using this ability requires only one free hand. This ability counts as a paladin’s lay on hands ability for the purposes of feats, spells, and effects that work with that class feature when it is used for healing purposes. Unlike lay on hands, this ability cannot be used to harm undead.");
 
 
             var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;

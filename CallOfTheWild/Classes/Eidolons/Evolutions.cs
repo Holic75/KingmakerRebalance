@@ -644,7 +644,7 @@ namespace CallOfTheWild
                                                          evolution_group: "Skilled"));
             }
 
-            evolution_entries.Add(new EvolutionEntry(wing_buffet, 1, 0, new BlueprintFeature[] {flight}, new BlueprintFeature[0],
+            evolution_entries.Add(new EvolutionEntry(wing_buffet, 1, 9, new BlueprintFeature[] {flight}, new BlueprintFeature[0],
                                          eidolons.AddToArray(animals).RemoveFromArray(Eidolon.infernal_eidolon)));
 
             for (int i = 0; i < ability_increase.Length; i++)
@@ -687,7 +687,7 @@ namespace CallOfTheWild
                                                          evolution_group: "Immunity"));
             }
 
-            evolution_entries.Add(new EvolutionEntry(rake, 2, 4, new BlueprintFeature[0], new BlueprintFeature[0],
+            evolution_entries.Add(new EvolutionEntry(rake, 2, 14, new BlueprintFeature[0], new BlueprintFeature[0],
                                                      quadruped_eidolons.AddToArray(new BlueprintFeature[] { bear, dog, monitor, wolf, wolf_ekun, leopard, elk, mammoth, boar})));
 
             evolution_entries.Add(new EvolutionEntry(constrict, 2, 0, new BlueprintFeature[] { tail_slap }, new BlueprintFeature[0],
@@ -780,9 +780,9 @@ namespace CallOfTheWild
                                          ));
 
             evolution_entries.Add(new EvolutionEntry(extra_attack, 2, 0, new BlueprintFeature[0], new BlueprintFeature[0], eidolons_with_hands));
-            evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 0, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 14, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], eidolons_with_hands.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 0, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 14, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
         static void createEvolutions()
