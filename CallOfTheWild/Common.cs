@@ -2320,6 +2320,11 @@ namespace CallOfTheWild
             Archetypes.DrillSergeant.tactician.AllFeatures = teamwork_feat.AllFeatures;
             Archetypes.DrillSergeant.greater_tactician.AllFeatures = teamwork_feat.AllFeatures;
             Archetypes.DrillSergeant.master_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.greater_battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.master_battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.greater_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.master_tactician.AllFeatures = teamwork_feat.AllFeatures;
             teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feat);
             Summoner.teamwork_feat.AllFeatures = Summoner.teamwork_feat.AllFeatures.AddToArray(feat);
 

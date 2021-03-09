@@ -332,11 +332,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.Archetypes.PackRager.create();
                     CallOfTheWild.Archetypes.DivineScourge.create();
-                    CallOfTheWild.SharedSpells.load();
-                    
-
+                                      
                     CallOfTheWild.Archetypes.DivineTracker.create(); // blessings will be filled in warpriest part
                     CallOfTheWild.Warpriest.createWarpriestClass();
+
+                    CallOfTheWild.SharedSpells.load();
 
                     CallOfTheWild.Archetypes.MindBlade.create();
                     CallOfTheWild.Archetypes.Skirnir.create();

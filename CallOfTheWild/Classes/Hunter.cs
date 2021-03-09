@@ -63,8 +63,12 @@ namespace CallOfTheWild
 
         static public BlueprintFeature ac_smite_good_feature;
         static public BlueprintFeature ac_smite_evil_feature;
+        static public BlueprintFeature ac_smite_law_feature;
+        static public BlueprintFeature ac_smite_chaos_feature;
         static public BlueprintFeature fiendish_template;
         static public BlueprintFeature celestial_template;
+        static public BlueprintFeature entropic_template;
+        static public BlueprintFeature resolute_template;
 
         static public BlueprintFeature forester_tactician;
         static public BlueprintAbility tactician_ability;
@@ -790,6 +794,39 @@ namespace CallOfTheWild
                                                                                 })
                                               );
 
+
+            var ac_dr_law = Helpers.CreateFeature("AnimalCompanionEntropicDRFeature",
+                                   "Entropic Damage Reduction",
+                                   "Animal Companion gains damage reduction 5/Lawful at level 5. It increases to damage reduction 10/Lawful at level 11.",
+                                   "",
+                                   aura_of_heaven.Icon,
+                                   FeatureGroup.None,
+                                   Common.createAlignmentDRContextRank(DamageAlignment.Lawful),
+                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
+                                                                    ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                                    customProgression: new (int, int)[] {
+                                                                                    (4, 0),
+                                                                                    (10, 5),
+                                                                                    (20, 10)
+                                                                    })
+                                  );
+
+            var ac_dr_chaos = Helpers.CreateFeature("AnimalCompanionResoluteDRFeature",
+                                                   "Resolute Damage Reduction",
+                                                   "Animal Companion gains damage reduction 5/Chaotic at level 5. It increases to damage reduction 10/Chaotic at level 11.",
+                                                   "",
+                                                   aura_of_heaven.Icon,
+                                                   FeatureGroup.None,
+                                                   Common.createAlignmentDRContextRank(DamageAlignment.Chaotic),
+                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
+                                                                                    ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                                                    customProgression: new (int, int)[] {
+                                                                                                                (4, 0),
+                                                                                                                (10, 5),
+                                                                                                                (20, 10)
+                                                                                    })
+                                                  );
+
             var ac_resist_cae = Helpers.CreateFeature("AnimalCompanionCelestialResistFeature",
                         "Celestial Resistance",
                         "Animal commanpanion gains resist acid 5, resist cold 5 and resist electricity 5. At 5th level these resistances increase to 10, at 11th level to 15.",
@@ -807,6 +844,43 @@ namespace CallOfTheWild
                                     (20, 15)
                                 })
                         );
+
+
+            var ac_resist_af = Helpers.CreateFeature("AnimalCompanionEntropicResistFeature",
+                                                    "Entropic Resistance",
+                                                    "Animal commanpanion gains resist acid 5, and resist fire 5. At 5th level these resistances increase to 10, at 11th level to 15.",
+                                                    "",
+                                                    damage_resistance.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createEnergyDRContextRank(DamageEnergyType.Acid),
+                                                    Common.createEnergyDRContextRank(DamageEnergyType.Fire),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
+                                                            ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                            customProgression: new (int, int)[] {
+                                                                            (4, 5),
+                                                                            (10, 10),
+                                                                            (20, 15)
+                                                            })
+                                                    );
+
+
+            var ac_resist_acf = Helpers.CreateFeature("AnimalCompanionResoluteResistFeature",
+                                        "Resolute Resistance",
+                                        "Animal commanpanion gains resist acid 5, resist cold 5, and resist fire 5. At 5th level these resistances increase to 10, at 11th level to 15.",
+                                        "",
+                                        damage_resistance.Icon,
+                                        FeatureGroup.None,
+                                        Common.createEnergyDRContextRank(DamageEnergyType.Acid),
+                                        Common.createEnergyDRContextRank(DamageEnergyType.Fire),
+                                        Common.createEnergyDRContextRank(DamageEnergyType.Cold),
+                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.CharacterLevel,
+                                                ContextRankProgression.Custom, AbilityRankType.StatBonus,
+                                                customProgression: new (int, int)[] {
+                                                                            (4, 5),
+                                                                            (10, 10),
+                                                                            (20, 15)
+                                                })
+                                        );
 
 
             var ac_resist_cf = Helpers.CreateFeature("AnimalCompanionFiendishResistFeature",
@@ -856,13 +930,49 @@ namespace CallOfTheWild
                                                    Helpers.CreateAddFacts(ac_smite_good_feature, ac_spell_resistance, ac_resist_cf, ac_dr_good)
                                                   );
 
+            resolute_template = Helpers.CreateFeature("ResoluteTemplateFeature",
+                                       "Resolute Template",
+                                       "Creatures with the resolute template live in planes where law is paramount. They can be summoned using spells such as summon monster and planar ally. Resolute creatures may use Smite Chaos once per day, gain energy resistance 5 to acid, cold and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Chaotic which further increases to  10/Chaotic at level 11.",
+                                       "",
+                                       Helpers.GetIcon("ddffa896d4605a44f95baa6d0d350828"), //smite justice
+                                       FeatureGroup.None,
+                                       Helpers.CreateAddFacts(ac_smite_chaos_feature, ac_spell_resistance, ac_resist_acf, ac_dr_chaos)
+                                      );
+
+            entropic_template = Helpers.CreateFeature("EntropicTemplateFeature",
+                                                       "Entropic Template",
+                                                       "Creatures with the entropic template live in planes where chaos is paramount. They can be summoned using spells such as summon monster and planar ally. Entropic creatures may use Smite Law once per day, gain energy resistance 5 to acid and fire, which increases to 10 at level 5 and to 15 at level 11. They also gain spell resistance equal to their level + 6. Starting from level 5 they also gain damage reduction 5/Lawful which further increases to  10/Lawful at level 11.",
+                                                       "",
+                                                       Helpers.GetIcon("ddffa896d4605a44f95baa6d0d350828"), //smite justice
+                                                       FeatureGroup.None,
+                                                       Helpers.CreateAddFacts(ac_smite_law_feature, ac_spell_resistance, ac_resist_af, ac_dr_law)
+                                                      );
+
 
             hunter_otherwordly_companion = Helpers.CreateFeatureSelection("AnimalCompanionTemplateSelection",
                                            "Otherworldly Companion",
-                                           "At 3rd level, a hunter’s companion takes on otherworldly features. If the divine hunter is good (or worships a good deity), the animal companion gains the celestial template. If the hunter is evil (or worships an evil deity), the animal companion gains the fiendish template. If the hunter is neutral and worships a neutral deity, she must choose either the celestial or fiendish template; once this choice is made, it cannot be changed.",
+                                           "At 3rd level, a hunter’s companion takes on otherworldly features. If the divine hunter worships a good deity, the animal companion gains the celestial template. If the hunter worships an evil deity, the animal companion gains the fiendish template. If the hunter worships a lawful deity, the animal companion gains the resolute template. If the hunter worships a chotic deity, the animal companion gains the chaotic template.  If the hunter worships a neutral deity, she can choose any template; once this choice is made, it cannot be changed.",
                                            "1936995e234b4d2e8dbddc935e731254",
                                            null,
-                                           FeatureGroup.None);
+                                           FeatureGroup.None,
+                                           Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; })
+                                           );
+
+            var evil_allowed = library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c");
+            var good_allowed = library.Get<BlueprintFeature>("882521af8012fc749930b03dc18a69de");
+            var chaos_allowed = library.Get<BlueprintFeature>("8c7d778bc39fec642befc1435b00f613");
+            var law_allowed = library.Get<BlueprintFeature>("092714336606cfc45a37d2ab39fabfa8");
+
+            var prereq_neutral = Helpers.Create<PrerequisiteMechanics.PrerequisiteNoFeatures>(p =>
+            {
+                p.Features = new BlueprintFeature[]
+                {
+                   evil_allowed, good_allowed, law_allowed, chaos_allowed
+                };
+                p.Group = Prerequisite.GroupType.Any;
+            }
+            );
+
             var channel_positive_allowed = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("8c769102f3996684fb6e09a2c4e7e5b9");
             var channel_negative_allowed = library.Get<Kingmaker.Blueprints.Classes.BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6");
 
@@ -873,7 +983,8 @@ namespace CallOfTheWild
                                                                                                       celestial_template.Icon,
                                                                                                       FeatureGroup.None,
                                                                                                       Common.createAddFeatToAnimalCompanion(celestial_template),
-                                                                                                      Helpers.PrerequisiteFeature(channel_positive_allowed)
+                                                                                                      Helpers.PrerequisiteFeature(good_allowed, any: true),
+                                                                                                      prereq_neutral
                                                                                                       ),
                                                                                 Helpers.CreateFeature("FiendishCompanionTemplateFeature",
                                                                                                         "Fiendish Companion",
@@ -882,7 +993,28 @@ namespace CallOfTheWild
                                                                                                         fiendish_template.Icon,
                                                                                                         FeatureGroup.None,
                                                                                                         Common.createAddFeatToAnimalCompanion(fiendish_template),
-                                                                                                        Helpers.PrerequisiteFeature(channel_negative_allowed)
+                                                                                                        Helpers.PrerequisiteFeature(evil_allowed, any: true),
+                                                                                                        prereq_neutral
+                                                                                                        ),
+                                                                                Helpers.CreateFeature("ResoluteCompanionTemplateFeature",
+                                                                                                        "Resolute Companion",
+                                                                                                        resolute_template.Description,
+                                                                                                        "",
+                                                                                                        resolute_template.Icon,
+                                                                                                        FeatureGroup.None,
+                                                                                                        Common.createAddFeatToAnimalCompanion(resolute_template),
+                                                                                                        Helpers.PrerequisiteFeature(law_allowed, any: true),
+                                                                                                        prereq_neutral
+                                                                                                        ),
+                                                                               Helpers.CreateFeature("EntropicCompanionTemplateFeature",
+                                                                                                        "Entropic Companion",
+                                                                                                        entropic_template.Description,
+                                                                                                        "",
+                                                                                                        entropic_template.Icon,
+                                                                                                        FeatureGroup.None,
+                                                                                                        Common.createAddFeatToAnimalCompanion(entropic_template),
+                                                                                                        Helpers.PrerequisiteFeature(chaos_allowed, any: true),
+                                                                                                        prereq_neutral
                                                                                                         )
                                                                                 };
         }
@@ -904,12 +1036,31 @@ namespace CallOfTheWild
 
             ac_smite_good_feature = Common.createSmite("SmiteGoodAC",
                                            "Smite Good",
-                                           "A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite evil attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.",
+                                           "A character can call out to the powers of evil to aid her in her struggle against good. As a swift action, the character chooses one target within sight to smite. If this target is good, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite good attacks automatically bypass any DR the creature might possess.\nIn addition, while smite good is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not good, the smite is wasted with no effect.\nThe smite good lasts until the target dies or the character selects a new target.",
                                            "a432066702694b2590260b58426fee28",
                                            "320b92730bd54842b9707931a5dbab18",
                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
                                            context_rank_config,
                                            AlignmentComponent.Good);
+
+
+            ac_smite_law_feature = Common.createSmite("SmiteLawAC",
+                                                       "Smite Law",
+                                                       "A character can call out to the powers of chaos to aid her in her struggle against law. As a swift action, the character chooses one target within sight to smite. If this target is lawful, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite law attacks automatically bypass any DR the creature might possess.\nIn addition, while smite law is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not lawful, the smite is wasted with no effect.\nThe smite law lasts until the target dies or the character selects a new target.",
+                                                       "",
+                                                       "",
+                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteNature.png"),
+                                                       context_rank_config,
+                                                       AlignmentComponent.Lawful);
+
+            ac_smite_chaos_feature = Common.createSmite("SmiteChaosAC",
+                                                       "Smite Chaos",
+                                                       "A character can call out to the powers of law to aid her in her struggle against chaos. As a swift action, the character chooses one target within sight to smite. If this target is chaotic, the character adds her Cha bonus (if any) to her attack rolls and adds her class level to all damage rolls made against the target of her smite, smite chaos attacks automatically bypass any DR the creature might possess.\nIn addition, while smite chaos is in effect, the character gains a deflection bonus equal to her Charisma modifier (if any) to her AC against attacks made by the target of the smite. If the character targets a creature that is not chaotic, the smite is wasted with no effect.\nThe smite chaos lasts until the target dies or the character selects a new target.",
+                                                       "",
+                                                       "",
+                                                       LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteImpudence.png"),
+                                                       context_rank_config,
+                                                       AlignmentComponent.Chaotic);
         }
 
 
@@ -1333,6 +1484,7 @@ namespace CallOfTheWild
             var animal_companion_selection = library.CopyAndAdd<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67",
                                                                                             "AnimalCompanionSelectionHunter",
                                                                                             "cf9f8d9910db4beba174f4e2b7c1bb2a");
+            animal_companion_selection.SetDescription("At 1st level, a hunter forms a bond with an animal companion. A hunter may begin play with any of the animals available to a druid. This animal is a loyal companion that accompanies the hunter on her adventures. This ability functions like the druid animal companion ability (which is part of the nature bond class feature). The hunter’s effective druid level is equal to her hunter level. If a character receives an animal companion from more than one source, her effective druid levels stack for the purposes of determining the companion’s statistics and abilities.");
             var add_progression = Helpers.Create<AddFeatureOnApply>();
             add_progression.Feature = animal_companion_progression;
             animal_companion_selection.ComponentsArray[0] = add_progression;

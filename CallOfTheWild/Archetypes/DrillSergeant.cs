@@ -147,13 +147,13 @@ namespace CallOfTheWild.Archetypes
 
 
             master_tactician = Helpers.CreateFeatureSelection("DrillSergeantMasterTacticianFeatureSelection",
-                               "Master Tactician",
-                               "At 17th level, the drill sergeant receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat. The drill sergeant can grant this feat to his allies using the tactician ability. Whenever the drill sergeant uses the tactician ability, he grants any two teamwork feats that he knows.",
-                               "",
-                               ability.Icon,
-                               FeatureGroup.None,
-                               Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup())
-                               );
+                                                               "Master Tactician",
+                                                               "At 17th level, the drill sergeant receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat. The drill sergeant can grant this feat to his allies using the tactician ability. Whenever the drill sergeant uses the tactician ability, he grants any two teamwork feats that he knows.",
+                                                               "",
+                                                               ability.Icon,
+                                                               FeatureGroup.None,
+                                                               Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup())
+                                                               );
             master_tactician.AllFeatures = tactician.AllFeatures;
         }
 
