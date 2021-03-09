@@ -5058,7 +5058,7 @@ namespace CallOfTheWild
             animal_companion = library.CopyAndAdd<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67",
                                                                                             "AnimalCompanionSelectionWarpriest",
                                                                                             "");
-            animal_companion.SetDescription("At 1st level, a divine commander gains the service of a loyal and trusty animal companion. This ability works as the druid class feature of the same name, using her warpriest level as her druid level.");
+            animal_companion.SetDescription("At 1st level, a divine commander gains the service of a loyal and trusty animal companion. This ability works as the druid class feature of the same name, using his warpriest level as his druid level.");
             var add_progression = Helpers.Create<AddFeatureOnApply>();
             add_progression.Feature = animal_companion_progression;
             animal_companion.ComponentsArray[0] = add_progression;

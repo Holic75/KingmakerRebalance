@@ -59,7 +59,7 @@ namespace CallOfTheWild
 
             var horryfying_strike = Helpers.CreateFeature("FearPhantomHorrifyingStrikeFeature",
                                                          "Horrifying Strike",
-                                                         " If the phantom hits a creature with a slam attack, that creature must succeed at a Will saving throw (DC = 10 + 1/2 the phantom’s Hit Dice + the phantom’s Charisma modifier) or be shaken for 1d4 rounds. Multiple attacks against the same creature do not cause the creature to become frightened. This is a mind-affecting fear effect.",
+                                                         "If the phantom hits a creature with a slam attack, that creature must succeed at a Will saving throw (DC = 10 + 1/2 the phantom’s Hit Dice + the phantom’s Charisma modifier) or be shaken for 1d4 rounds. Multiple attacks against the same creature do not cause the creature to become frightened. This is a mind-affecting fear effect.",
                                                          "",
                                                          shaken.Icon,
                                                          FeatureGroup.None,
@@ -70,6 +70,19 @@ namespace CallOfTheWild
                                                          Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken)
                                                          );
+
+            var horryfying_strike_exciter = Helpers.CreateFeature("FearPhantomHorrifyingStrikeExciterFeature",
+                                                                 "Horrifying Strike",
+                                                                 "If the phantom hits a creature with a slam attack, that creature must succeed at a Will saving throw (DC = 10 + 1/2 the phantom’s Hit Dice + the phantom’s Charisma modifier) or be shaken for 1d4 rounds. Multiple attacks against the same creature do not cause the creature to become frightened. This is a mind-affecting fear effect.",
+                                                                 "",
+                                                                 shaken.Icon,
+                                                                 FeatureGroup.None,
+                                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_effect),
+                                                                                                                              wait_for_attack_to_resolve: true
+                                                                                                                              ),
+                                                                 Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
+                                                                 Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken)
+                                                                 );
 
 
 
@@ -139,7 +152,7 @@ namespace CallOfTheWild
             var stealthy = library.Get<BlueprintFeature>("c7e1d5ef809325943af97f093e149c4f");
 
             var stealthy_phantom = Common.featureToFeature(stealthy, false);
-            stealthy_phantom.SetDescription(" The phantom gains Stealthy as a bonus feat.");
+            stealthy_phantom.SetDescription("The phantom gains Stealthy as a bonus feat.");
 
             var fear_archetype = createPhantomArchetype("FearPhantomArchetype",
                                                          "Fear",
@@ -170,7 +183,7 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampiryc touch
                               library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5") //phantasmal killer
                           },
-                          horryfying_strike,
+                          horryfying_strike_exciter,
                           increase_fear,
                           emotion_conduit_spells: new BlueprintAbility[]
                           {
