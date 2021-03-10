@@ -56,7 +56,6 @@ namespace CallOfTheWild.AttackReplacementMechanics
                 return;
             }
 
-
             (this.Fact as IFactContextOwner)?.RunActionInContext(this.action, (TargetWrapper)evt.Target);
         }
 

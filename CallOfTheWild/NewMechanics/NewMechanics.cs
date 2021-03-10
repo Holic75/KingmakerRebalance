@@ -3790,6 +3790,34 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponIsMeleeUnlessHasFact : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintFeature ranged_allowed_fact;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var weapon = caster.Body.PrimaryHand.MaybeWeapon;
+                if (weapon == null)
+                {
+                    return true;
+                }
+
+                if (weapon.Blueprint.IsMelee || (ranged_allowed_fact != null && caster.Descriptor.HasFact(ranged_allowed_fact)))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
 
         [ComponentName("BuffMechanics/Extra Attack")]
         [AllowedOn(typeof(BlueprintUnitFact))]

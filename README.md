@@ -150,7 +150,12 @@ New feats:
 - Spiritual Guardian,
 - Two-Weapon Rend,
 - Disruptive,
-- Spellbreaker.
+- Spellbreaker,
+- Improved Feint
+- Greater Feint
+- Ranged Feint
+- Swordplay Style and Swordplay Upset,
+- Two-Weapon Feint and Improved Two-Weapon Feint.
 
 New rage powers:
 - Terrifying Howl
