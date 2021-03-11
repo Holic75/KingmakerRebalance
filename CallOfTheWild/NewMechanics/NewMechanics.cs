@@ -8553,6 +8553,19 @@ namespace CallOfTheWild
         }
 
 
+
+        public class FlurryOfBlowsRestriciton : ActivatableAbilityRestriction
+        {
+
+            public override bool IsAvailable()
+            {
+                return !HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
+                                    && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
+                                    && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || FeralCombatTraining.checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true));
+            }
+        }
+
+
         public class PrimaryHandMeleeWeaponRestriction : ActivatableAbilityRestriction
         {
             public override bool IsAvailable()

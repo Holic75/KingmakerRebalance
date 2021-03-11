@@ -59,6 +59,38 @@ namespace CallOfTheWild.CombatManeuverMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class CMBBonusAgainstFlanked : RuleInitiatorLogicComponent<RuleCombatManeuver>
+    {
+        public ContextValue Value;
+
+        private MechanicsContext Context
+        {
+            get
+            {
+                MechanicsContext context = (this.Fact as Buff)?.Context;
+                if (context != null)
+                    return context;
+                return (this.Fact as Feature)?.Context;
+            }
+        }
+
+        public override void OnEventAboutToTrigger(RuleCombatManeuver evt)
+        {
+            if (!evt.Target.CombatState.IsFlanked || !evt.Initiator.CombatState.IsEngage(evt.Target))
+            {
+                return;
+            }
+            evt.AddBonus(this.Value.Calculate(this.Context), this.Fact);
+        }
+
+        public override void OnEventDidTrigger(RuleCombatManeuver evt)
+        {
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
     public class FakeSizeBonus : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber, IInitiatorRulebookHandler<RuleCalculateBaseCMB>, IInitiatorRulebookHandler<RuleCalculateBaseCMD>
     {
         public int bonus;

@@ -67,6 +67,7 @@ namespace CallOfTheWild.PrerequisiteMechanics
     {
         public Prerequisite prerequisite1;
         public Prerequisite prerequisite2;
+        
 
         public override bool Check(
           FeatureSelectionState selectionState,
@@ -87,6 +88,7 @@ namespace CallOfTheWild.PrerequisiteMechanics
     public class CompoundPrerequisites : Prerequisite
     {
         public Prerequisite[] prerequisites;
+        public bool any = false;
 
         public override bool Check(
           FeatureSelectionState selectionState,
@@ -97,18 +99,25 @@ namespace CallOfTheWild.PrerequisiteMechanics
             {
                 if (!p.Check(selectionState, unit, state))
                 {
-                    return false;
+                    if (!any)
+                    {
+                        return false;
+                    }
+                }
+                else if (any)
+                {
+                    return true;
                 }
             }
-            return true;
+            return !any;
         }
 
         public override string GetUIText()
         {
-            var text = prerequisites[0].GetUIText();
-            for (int i = 1; i < prerequisites.Length; i++)
+            var text = $"Meets {(any ? "one of " :"")}the following requirements::";
+            for (int i = 0; i < prerequisites.Length; i++)
             {
-                text += " and " + prerequisites[i].GetUIText();
+                text += "\n" + prerequisites[i].GetUIText();
             }
             return text;
         }

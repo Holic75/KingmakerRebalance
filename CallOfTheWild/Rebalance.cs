@@ -1367,7 +1367,7 @@ namespace CallOfTheWild
             };
 
             var monk_progresssion = library.Get<BlueprintProgression>("8a91753b978e3b34b9425419179aafd6");
-            monk_progresssion.LevelEntries = Common.removeEntries(monk_progresssion.LevelEntries, f => fists.Contains(f));
+            monk_progresssion.LevelEntries = Common.removeEntries(monk_progresssion.LevelEntries, f => fists.Contains(f), keep_empty_entries: true);
         }
 
 

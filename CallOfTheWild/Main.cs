@@ -364,6 +364,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    
                     CallOfTheWild.Archetypes.ZenArcher.create();
+                    CallOfTheWild.Archetypes.SageCounselor.create();
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.LoreWarden.create();
                     CallOfTheWild.Archetypes.DervishOfDawn.create();
