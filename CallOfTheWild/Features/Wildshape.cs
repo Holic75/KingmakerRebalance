@@ -1840,6 +1840,10 @@ namespace CallOfTheWild
 
             variants.Variants = variants.Variants.AddToArray(polymorph_wolf, polymorph_bear, polymorph_dire_wolf);
             polymorph_spell.SetDescription("This spell transforms an allied creature into a wolf, a leopard, a Large bear, a Large dire wolf or a small elemental. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
+            foreach (var v in variants.Variants)
+            {
+                v.AddComponent(Helpers.Create<HarmlessSaves.HarmlessSpell>());
+            }
         }
 
 
@@ -1862,6 +1866,10 @@ namespace CallOfTheWild
             variants.Variants = variants.Variants.AddToArray(polymorph_mastodon, polymorph_hodag, polymorph_winter_wolf);
             polymorph_spell.SetDescription("This spell transforms an allied creature into a large smilodon, huge mastodon, large hodag, large winter wolf, large shambling mound, large elemental, wyvern or medium dragon-like creature. The subject may choose to resume its normal form as a full-round action; doing so ends the spell for that subject.");
 
+            foreach (var v in variants.Variants)
+            {
+                v.AddComponent(Helpers.Create<HarmlessSaves.HarmlessSpell>());
+            }
         }
 
 

@@ -2813,6 +2813,17 @@ namespace CallOfTheWild
         }
 
 
+        static public SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type, ModifierDescriptor descriptor)
+        {
+            var b = Helpers.Create<SavingThrowBonusAgainstAbilityType>();
+            b.Value = base_value;
+            b.Bonus = bonus;
+            b.AbilityType = ability_type;
+            b.ModifierDescriptor = descriptor;
+            return b;
+        }
+
+
         static public SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type)
         {
             var b = Helpers.Create<SavingThrowBonusAgainstAbilityType>();

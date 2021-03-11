@@ -127,7 +127,7 @@ namespace CallOfTheWild
                 try
                 {
                     Main.DebugLog("Loading Call of the Wild");
-
+                    CallOfTheWild.HarmlessSaves.HarmlessSaves.init();
                     CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = UnityModManager.modsPath + @"/CallOfTheWild/Icons/";
 #if DEBUG                
                     bool allow_guid_generation = true;
