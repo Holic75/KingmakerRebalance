@@ -83,6 +83,8 @@ namespace CallOfTheWild
         static public BlueprintFeature wolf_scarred_face_minor;
         static public BlueprintProgression powerless;
         static public BlueprintFeature powerless_minor;
+        static public BlueprintProgression reclusive;
+        static public BlueprintFeature reclusive_minor;
 
         static MysteryEngine mystery_engine;
 
@@ -1850,6 +1852,7 @@ namespace CallOfTheWild
             createLich();
             createVampirism();
             createPowerless();
+            createReclusive();
 
             vampirism_minor.AddComponent(Helpers.PrerequisiteNoFeature(lich));
             lich_minor.AddComponent(Helpers.PrerequisiteNoFeature(vampirism));
@@ -1862,7 +1865,7 @@ namespace CallOfTheWild
                                                            Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; })
                                                            );
 
-            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless };
+            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless, reclusive };
 
             minor_curse_selection = Helpers.CreateFeatureSelection("OracleMinorCurseSelection",
                                                "Second Curse",
@@ -1872,6 +1875,63 @@ namespace CallOfTheWild
                                                FeatureGroup.Domain);
 
             minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor, powerless_minor };
+        }
+
+
+        static void createReclusive()
+        {
+            var curse = Helpers.CreateFeature("OracleCurseReclusive",
+                                              "Reclusive",
+                                              "You must attempt saving throws to resist all spells cast by anyone other than yourself, even those cast by allies. Spells you cast only on yourself affect you as though your caster level were 1 higher.",
+                                              "",
+                                              NewSpells.barrow_haze.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.Create<HarmlessSaves.SaveAgainstHarmlessSpells>(),
+                                              Helpers.Create<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>(a => a.caster_level_increase = 1)
+                                              );
+
+            reclusive_minor = library.CopyAndAdd(curse, "OracleCurseReclusiveMinor", "");
+
+            var hindrance = library.CopyAndAdd(powerless_minor, "OracleCurseReclusiveHindranceFeature", "");
+            hindrance.RemoveComponents<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, reclusive_minor);
+
+            var curse5 = Helpers.CreateFeature("OracleCurse5Reclusive",
+                                               "Reclusive Prophecy",
+                                               "At 5th level, any spells you cast only on yourself affect you as if they were modified by the Extend Spell feat. This does not increase their level or casting time.",
+                                               "",
+                                               Helpers.GetIcon("f180e72e4a9cbaa4da8be9bc958132ef"), //extend spell
+                                               FeatureGroup.None,
+                                               Helpers.Create<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>(a => a.metamagic = Metamagic.Extend)
+                                               );
+
+            var curse10 = Helpers.CreateFeature("OracleCurse10Reclusive",
+                                                "Reclusive Prophecy",
+                                                "At 10th level, you are immune to charm spells and spell-like abilities.",
+                                                "",
+                                                Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
+                                                FeatureGroup.None,
+                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Charm),
+                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Charm)
+                                                );
+
+            var curse15 = Helpers.CreateFeature("OracleCurse15Reclusive",
+                                                "Reclusive Prophecy",
+                                                "At 15th level, you gain spell resistance equal to 10 + your oracle level.",
+                                                "",
+                                                Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
+                                                FeatureGroup.None,
+                                                Helpers.Create<AddSpellResistance>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.BonusValue,
+                                                                                classes: getOracleArray(), stepLevel: 10)                              
+                                                );
+
+            reclusive = createOracleCurseProgression("OracleReclusiveCurseProgression", "Reclusive Prophecy",
+                                                    "You are reclusive and paranoid to the point that your allies cannot easily help you in times of stress or unease.",
+                                                    curse, curse5, curse10, curse15);
+
+            reclusive_minor.AddComponent(Helpers.PrerequisiteNoFeature(reclusive));
         }
 
 

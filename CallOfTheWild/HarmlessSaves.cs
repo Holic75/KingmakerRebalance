@@ -31,8 +31,6 @@ namespace CallOfTheWild.HarmlessSaves
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class SaveAgainstHarmlessSpells : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
-        public int per_die_amount;
-
         public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartSaveAgainstHarmlessSpells>().addBuff(this.Fact);
@@ -53,6 +51,13 @@ namespace CallOfTheWild.HarmlessSaves
     }
 
 
+    [AllowedOn(typeof(BlueprintAbility))]
+    public class HarmlessHealSpell : BlueprintComponent
+    {
+        public SavingThrowType save_type = SavingThrowType.Will;
+    }
+
+
     public class HarmlessSaves
     {
         static public string fort_harmless = "Fortitude negates (harmless)";
@@ -60,11 +65,12 @@ namespace CallOfTheWild.HarmlessSaves
         static internal void init()
         {
             var will_saves_guids = Helpers.readStringsfromFile(UnityModManager.modsPath + @"/CallOfTheWild/HarmlessSpells/harmless_will_saves.txt", ' ');
+            var will_saves_heal_guids = Helpers.readStringsfromFile(UnityModManager.modsPath + @"/CallOfTheWild/HarmlessSpells/heal_will_saves.txt", ' ');
             var fort_saves_guids = Helpers.readStringsfromFile(UnityModManager.modsPath + @"/CallOfTheWild/HarmlessSpells/harmless_fort_saves.txt", ' ');
             foreach (var w in will_saves_guids)
             {
                 var s = Main.library.Get<BlueprintAbility>(w);
-                s.AddComponent(Helpers.Create<HarmlessSpell>());
+                s.AddComponent(Helpers.Create<HarmlessSpell>(h => h.save_type = SavingThrowType.Will));
                 if (s.LocalizedSavingThrow.IsEmpty() || s.LocalizedSavingThrow.ToString() == Helpers.savingThrowNone)
                 {
                     s.LocalizedSavingThrow = Helpers.CreateString(s.name + "LocalizedSavingThrow", will_harmless);
@@ -79,6 +85,13 @@ namespace CallOfTheWild.HarmlessSaves
                 {
                     s.LocalizedSavingThrow = Helpers.CreateString(s.name + "LocalizedSavingThrow", fort_harmless);
                 }
+            }
+
+
+            foreach (var w in will_saves_heal_guids)
+            {
+                var s = Main.library.Get<BlueprintAbility>(w);
+                s.AddComponent(Helpers.Create<HarmlessHealSpell>(h => h.save_type = SavingThrowType.Will));
             }
         }
     }

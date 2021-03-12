@@ -1779,6 +1779,7 @@ namespace CallOfTheWild
                 shadow_s.RemoveComponents<SpellListComponent>();
                 shadow_s.RemoveComponents<SpellComponent>();
                 shadow_s.RemoveComponents<HarmlessSaves.HarmlessSpell>();
+                shadow_s.RemoveComponents<HarmlessSaves.HarmlessHealSpell>();
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
                 Common.addSpellDescriptor(shadow_s, descriptor, false);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
@@ -1792,6 +1793,8 @@ namespace CallOfTheWild
                     shadow_sticky_touch.RemoveComponents<SpellListComponent>();
                     shadow_sticky_touch.RemoveComponents<SpellComponent>();
                     shadow_sticky_touch.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
+                    shadow_sticky_touch.RemoveComponents<HarmlessSaves.HarmlessSpell>();
+                    shadow_sticky_touch.RemoveComponents<HarmlessSaves.HarmlessHealSpell>();
                     Common.addSpellDescriptor(shadow_sticky_touch, descriptor);
                     shadow_s.ReplaceComponent<AbilityEffectStickyTouch>(a => a.TouchDeliveryAbility = shadow_sticky_touch);
                 }

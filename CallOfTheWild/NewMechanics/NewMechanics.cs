@@ -230,7 +230,6 @@ namespace CallOfTheWild
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
                 caster_level_increase = -1;
-
             }
         }
 
