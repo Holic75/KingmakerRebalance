@@ -81,6 +81,22 @@ namespace CallOfTheWild.AooMechanics
 
 
     [AllowedOn(typeof(BlueprintUnitFact))]
+    public class NoAooOnDisengage : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartNoAooOnDisengage>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartNoAooOnDisengage>().removeBuff(this.Fact);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
     public class Spellbreaker : OwnedGameLogicComponent<UnitDescriptor>
     {
         public override void OnTurnOn()

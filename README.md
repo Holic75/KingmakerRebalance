@@ -25,7 +25,7 @@ It introduces new classes:
 - Warpriest with following archetypes: Divine Commander, Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
 - Shaman with following archetypes: Draconic Shaman, Overseer, Speaker for the Past, Witch Doctor, Possessed Shaman and Spirit Warden,
 - Arcanist with following archetypes: School Savant, Spell Specialist, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
-- Oracle with following archetypes: Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
+- Oracle with following archetypes: Hermit, Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
