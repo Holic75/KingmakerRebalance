@@ -39,6 +39,7 @@ namespace CallOfTheWild
             public bool remove_solo_tactics_from_sacred_huntsmaster { get; }
             public bool update_kineticist_archetypes { get; }
             public bool balance_fixes { get; }
+            public bool balance_fixes_monk_ac { get; }
             internal Settings()
             {
 
@@ -62,6 +63,7 @@ namespace CallOfTheWild
                     remove_solo_tactics_from_sacred_huntsmaster = (bool)jo["remove_solo_tactics_from_sacred_huntsmaster"];
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
                     balance_fixes = (bool)jo["balance_fixes"];
+                    balance_fixes_monk_ac = (bool)jo["balance_fixes_monk_ac"];
                 }
             }
         }
