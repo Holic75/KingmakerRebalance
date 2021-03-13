@@ -5455,6 +5455,36 @@ namespace CallOfTheWild
         }
 
 
+        [AllowMultipleComponents]
+        [ComponentName("Predicates/Target point has no units around")]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetPointHasNoUnitsAround : BlueprintComponent, IAbilityTargetChecker
+        {
+            public float distance;
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                return !GameHelper.GetTargetsAround(target.Point, (float)this.distance, true, false).Where(u => u != caster).Any();             
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterNoUnitsAround : BlueprintComponent, IAbilityCasterChecker
+        {
+            public float distance;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return !GameHelper.GetTargetsAround(caster.Position, (float)this.distance, true, false).Where(u => u != caster).Any();
+            }
+
+            public string GetReason()
+            {
+                return "There are units around";
+            }
+        }
+
+
         [AllowedOn(typeof(BlueprintAbility))]
         [AllowMultipleComponents]
         public class AbilityCasterPrimaryHandFree : BlueprintComponent, IAbilityCasterChecker

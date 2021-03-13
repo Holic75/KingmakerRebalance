@@ -323,6 +323,8 @@ namespace CallOfTheWild
 
             var toggle20 = Common.buffToToggle(buff20, CommandType.Free, false, resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
             var toggle50 = Common.buffToToggle(buff50, CommandType.Free, false, resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
+            toggle20.DeactivateIfCombatEnded = true;
+            toggle50.DeactivateIfCombatEnded = true;
 
             fade_from_memory = Helpers.CreateFeature("FadeFromMeoryFeature",
                                                      toggle20.Name,
@@ -341,7 +343,7 @@ namespace CallOfTheWild
         {
             recluses_stride = Helpers.CreateFeature("ReclusesStrideFeature",
                                                     "Recluse’s Stride",
-                                                    "Your base speed increases by 10 feet. At 5th level, once per round when leaving a square, you can treat the square as though it isn’t threatened by any opponents that you can see. At 10th level, you can teleport a distance equal to your base land speed (as per dimension door) as a move action, provided that there are no other creatures within 10 feet of you when you use this ability and no other creatures within 10 feet of your destination. You can teleport a number of times per day equal to 3 + your Charisma modifier.",
+                                                    "Your base speed increases by 10 feet. At 5th level, once per round when leaving a square, you can treat the square as though it isn’t threatened by any opponents that you can see. At 10th level, you can teleport to a point within medium distance (as per dimension door) as a move action, provided that there are no other creatures within 10 feet of you when you use this ability and no other creatures within 10 feet of your destination. You can teleport a number of times per day equal to 3 + your Charisma modifier.",
                                                     "",
                                                     Helpers.GetIcon("4f8181e7a7f1d904fbaea64220e83379"),  //expeditious retreat
                                                     FeatureGroup.None,
@@ -390,11 +392,15 @@ namespace CallOfTheWild
 
             var teleport = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "ReclusesStrideDimensionDoorAbility", "");
             teleport.Type = AbilityType.Supernatural;
-            teleport.Range = AbilityRange.Custom;
-            teleport.CustomRange = 30.Feet();
+            teleport.Range = AbilityRange.Medium;
+
             teleport.ActionType = CommandType.Move;
             teleport.Parent = null;
             teleport.SetNameDescription(recluses_stride.Name + ": Dimension Door", recluses_stride.Description);
+
+            teleport.AddComponents(Helpers.Create<NewMechanics.AbilityCasterNoUnitsAround>(a => a.distance = 10.Feet().Meters),
+                                   Helpers.Create<NewMechanics.AbilityTargetPointHasNoUnitsAround>(a => a.distance = 10.Feet().Meters)
+                                   );
             var resource = Helpers.CreateAbilityResource("ReclusesStrideResource", "", "", "", null);
             resource.SetIncreasedByStat(3, StatType.Charisma);
             teleport.AddComponent(resource.CreateResourceLogic());

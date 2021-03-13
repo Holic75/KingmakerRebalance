@@ -205,7 +205,7 @@ namespace CallOfTheWild.Archetypes
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
 
-            deceptive_ki.AddComponents(Helpers.CreateAddFacts(ki_feint, deceptive_ki_buff));
+            deceptive_ki.AddComponents(Helpers.CreateAddFacts(ki_feint, ability));
             deceptive_ki.SetNameDescription("Deceptive Ki",
                                             "A sage counselor can spend 1 ki point while performing a flurry of blows to feint an opponent as a swift action, but he can’t spend 1 ki point to make an additional attack when making a flurry of blows.\n"
                                             + "In addition, the sage counselor can spend 1 point from his ki pool as a swift action to give himself a +4 insight bonus on his next Bluff check. The sage counselor does not gain the ability to spend ki to increase his speed by 20 feet for 1 round."
@@ -217,7 +217,7 @@ namespace CallOfTheWild.Archetypes
         {
             var feint_action = Common.createContextActionApplyBuff(CallOfTheWild.NewFeats.greater_feint_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 6); //you already have all feint feats
             var feint_check_action = Helpers.Create<CallOfTheWild.SkillMechanics.ContextFeintSkillCheck>(c => c.Success = Helpers.CreateActionList(feint_action));
-            var feint_action_list = Helpers.CreateActionList(feint_action);
+            var feint_action_list = Helpers.CreateActionList(feint_check_action);
             var feint_buff = Helpers.CreateBuff("FeintingFlurryFeature",
                                                 "Feinting Flurry",
                                                 "At 10th level, sage counselor can choose to replace his first attack during a flurry of blows with a feint check.",
