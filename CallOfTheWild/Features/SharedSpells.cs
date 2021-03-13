@@ -141,7 +141,8 @@ namespace CallOfTheWild
                                                             Summoner.infernal_eidolon_selection,
                                                             Spiritualist.emotional_focus_selection,
                                                             Shaman.drake_companion,
-                                                            Archetypes.DraconicDruid.drake_companion
+                                                            Archetypes.DraconicDruid.drake_companion,
+                                                            Warpriest.animal_companion
                                                             };
             createClassSharedSpell();
             createSharedSpellFeat();

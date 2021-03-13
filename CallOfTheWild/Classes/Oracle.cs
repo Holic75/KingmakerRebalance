@@ -83,6 +83,8 @@ namespace CallOfTheWild
         static public BlueprintFeature wolf_scarred_face_minor;
         static public BlueprintProgression powerless;
         static public BlueprintFeature powerless_minor;
+        static public BlueprintProgression reclusive;
+        static public BlueprintFeature reclusive_minor;
 
         static MysteryEngine mystery_engine;
 
@@ -115,12 +117,20 @@ namespace CallOfTheWild
         static public BlueprintArchetype dual_cursed_archetype;
         static public BlueprintFeatureSelection dual_cursed_oracle_mysteries;
         static public BlueprintFeatureSelection minor_curse_selection;
-        static public BlueprintFeature[] dual_cursed_bonus_spell_features = new BlueprintFeature[3];
-        static BlueprintAbility[] dual_cursed_bonus_spells = new BlueprintAbility[3];
+        static public Dictionary<int, BlueprintFeature> dual_cursed_bonus_spell_features = new Dictionary<int, BlueprintFeature>();
+        static public Dictionary<int, BlueprintAbility> dual_cursed_bonus_spells = new Dictionary<int, BlueprintAbility>();
         static public BlueprintAbility oracles_burden;
         static public BlueprintFeature fortune_revelation;
         static public BlueprintFeature misfortune_revelation;
         static public BlueprintFeature extra_healers_way;
+
+        static public BlueprintArchetype hermit;
+        static public BlueprintFeature recluses_stride;
+        static public BlueprintFeature fade_from_memory;
+        static public BlueprintFeature reclusive_curse;
+        static public Dictionary<int, BlueprintFeature> hermit_bonus_spell_features = new Dictionary<int, BlueprintFeature>();
+        static public Dictionary<int, BlueprintAbility> hermit_bonus_spells = new Dictionary<int, BlueprintAbility>();
+        static public BlueprintFeatureSelection hermit_mysteries;
 
         static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_minor_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
         static public Dictionary<BlueprintFeature, BlueprintFeature> curse_to_hindrance_map = new Dictionary<BlueprintFeature, BlueprintFeature>();
@@ -260,13 +270,146 @@ namespace CallOfTheWild
             createSpiritGuide();
             createDivineHerbalist();
             createDualCursed();
+            createHermit();
 
-            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype, divine_herbalist_archetype, dual_cursed_archetype};
+            oracle_class.Archetypes = new BlueprintArchetype[] {seeker_archetype, warsighted_archetype, spirit_guide_archetype, divine_herbalist_archetype, dual_cursed_archetype, hermit};
             Helpers.RegisterClass(oracle_class);
             createExtraRevelationFeat();
 
             Common.addMTDivineSpellbookProgression(oracle_class, oracle_class.Spellbook, "MysticTheurgeOracle",
                                                      Common.createPrerequisiteClassSpellLevel(oracle_class, 2));
+        }
+
+
+        static void createHermit()
+        {
+            hermit = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "HermitOracleArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Hermit");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A hermit is a recluse who gained her oracular powers from isolation in a deep desert, on a mountain peak, or in another secluded location. A connection to untraveled places gives the hermit powers to evade his enemies.");
+            });
+            Helpers.SetField(hermit, "m_ParentClass", oracle_class);
+            library.AddAsset(hermit, "");
+
+            createReclusesStride();
+            createFadeFromMemory();
+
+            hermit.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, oracle_curses, oracle_mysteries, revelation_selection),
+                                                       Helpers.LevelEntry(7, revelation_selection) };
+
+            hermit.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, reclusive, hermit_mysteries, recluses_stride),
+                                                    Helpers.LevelEntry(7, fade_from_memory)
+                                                  };
+            oracle_class.Progression.UIDeterminatorsGroup = oracle_class.Progression.UIDeterminatorsGroup.AddToArray(hermit_mysteries);
+            oracle_class.Progression.UIGroups = oracle_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(recluses_stride, fade_from_memory));
+        }
+
+
+        static void createFadeFromMemory()
+        {
+            var buff20 = library.CopyAndAdd<BlueprintBuff>("49786ccc94a5ee848a5637b4145b2092", "FadeFromMemoryPartialBuff", "");
+            buff20.RemoveComponents<AddStatBonus>();
+            buff20.ReplaceComponent<AddConcealment>(a => { a.OnlyForAttacks = true; a.DistanceGreater = 10.Feet(); });
+            buff20.SetNameDescription("Fade from Memory",
+                                      "At 7th level, you can gain 20% concealment from creatures more than 10 feet away until the beginning of your next turn as a free action. At 14th level, you instead gain 50% concealment until the beginning of your next turn. You can use this ability a number of times per day equal to your oracle level."
+                                      );
+
+            var buff50 = library.CopyAndAdd(buff20, "FadeFromMemoryTotalBuff", "");
+            buff50.ReplaceComponent<AddConcealment>(a => a.Concealment = Concealment.Total);
+
+            var resource = Helpers.CreateAbilityResource("FadeFromMemoryResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, getOracleArray());
+
+            var toggle20 = Common.buffToToggle(buff20, CommandType.Free, false, resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
+            var toggle50 = Common.buffToToggle(buff50, CommandType.Free, false, resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
+            toggle20.DeactivateIfCombatEnded = true;
+            toggle50.DeactivateIfCombatEnded = true;
+
+            fade_from_memory = Helpers.CreateFeature("FadeFromMeoryFeature",
+                                                     toggle20.Name,
+                                                     toggle20.Description,
+                                                     "",
+                                                     toggle20.Icon,
+                                                     FeatureGroup.None,
+                                                     resource.CreateAddAbilityResource(),
+                                                     Helpers.CreateAddFeatureOnClassLevel(Common.ActivatableAbilityToFeature(toggle20), 14, getOracleArray(), before: true),
+                                                     Helpers.CreateAddFeatureOnClassLevel(Common.ActivatableAbilityToFeature(toggle50), 14, getOracleArray())
+                                                     );
+        }
+
+
+        static void createReclusesStride()
+        {
+            recluses_stride = Helpers.CreateFeature("ReclusesStrideFeature",
+                                                    "Recluse’s Stride",
+                                                    "Your base speed increases by 10 feet. At 5th level, once per round when leaving a square, you can treat the square as though it isn’t threatened by any opponents that you can see. At 10th level, you can teleport to a point within medium distance (as per dimension door) as a move action, provided that there are no other creatures within 10 feet of you when you use this ability and no other creatures within 10 feet of your destination. You can teleport a number of times per day equal to 3 + your Charisma modifier.",
+                                                    "",
+                                                    Helpers.GetIcon("4f8181e7a7f1d904fbaea64220e83379"),  //expeditious retreat
+                                                    FeatureGroup.None,
+                                                    Helpers.CreateAddStatBonus(StatType.Speed, 10, ModifierDescriptor.UntypedStackable)
+                                                    );
+
+            var buff5 = Helpers.CreateBuff("ReclusesStrideBuff5",
+                                           recluses_stride.Name,
+                                           recluses_stride.Description,
+                                           "",
+                                           recluses_stride.Icon,
+                                           Common.createPrefabLink("534da216ed0a6ff4781aa4628ec2513e"),
+                                           Helpers.Create<AooMechanics.NoAooOnDisengage>()
+                                           );
+            buff5.AddComponent(Helpers.Create<UnitMoveMechanics.ActionOnUnitMoved>(a =>
+            {
+                a.min_distance_moved = 10.Feet().Meters;
+                a.actions = Helpers.CreateActionList(Common.createContextActionRemoveBuff(buff5));
+            }));
+
+            var cooldown = Helpers.CreateBuff("ReclusesStrideBuff5cooldown",
+                                           recluses_stride.Name +": Cooldown",
+                                           recluses_stride.Description,
+                                           "",
+                                           recluses_stride.Icon,
+                                           null
+                                           );
+
+            var ability = Helpers.CreateAbility("ReclusesStrideAbility5",
+                                                buff5.Name,
+                                                buff5.Description,
+                                                "",
+                                                buff5.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Free,
+                                                AbilityRange.Personal,
+                                                "",
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff5, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                         Common.createContextActionApplyBuff(cooldown, Helpers.CreateContextDuration(1), dispellable: false)
+                                                                         ),
+                                                library.Get<BlueprintAbility>("4f8181e7a7f1d904fbaea64220e83379").GetComponent<AbilitySpawnFx>(),
+                                                Common.createAbilityCasterHasNoFacts(cooldown)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            var teleport = library.CopyAndAdd<BlueprintAbility>("a9b8be9b87865744382f7c64e599aeb2", "ReclusesStrideDimensionDoorAbility", "");
+            teleport.Type = AbilityType.Supernatural;
+            teleport.Range = AbilityRange.Medium;
+
+            teleport.ActionType = CommandType.Move;
+            teleport.Parent = null;
+            teleport.SetNameDescription(recluses_stride.Name + ": Dimension Door", recluses_stride.Description);
+
+            teleport.AddComponents(Helpers.Create<NewMechanics.AbilityCasterNoUnitsAround>(a => a.distance = 10.Feet().Meters),
+                                   Helpers.Create<NewMechanics.AbilityTargetPointHasNoUnitsAround>(a => a.distance = 10.Feet().Meters)
+                                   );
+            var resource = Helpers.CreateAbilityResource("ReclusesStrideResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Charisma);
+            teleport.AddComponent(resource.CreateResourceLogic());
+
+            var feature5 = Common.AbilityToFeature(ability);
+            var feature10 = Common.AbilityToFeature(teleport);
+            feature10.AddComponent(resource.CreateAddAbilityResource());
+            recluses_stride.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature5, 5, getOracleArray()));
+            recluses_stride.AddComponent(Helpers.CreateAddFeatureOnClassLevel(feature10, 10, getOracleArray()));
         }
 
 
@@ -394,11 +537,11 @@ namespace CallOfTheWild
 
             ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = healers_way_resource);
             ability.RemoveComponents<AbilityCasterAlignment>();
-            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getOracleArray()));
+            ability.ReplaceComponent<ContextRankConfig>(c => { Helpers.SetField(c, "m_Class", getOracleArray()); Helpers.SetField(c, "m_Min", 1); Helpers.SetField(c, "m_UseMin", true); });
             ability.AddComponent(Helpers.Create<UndeadMechanics.AbilityTargetHasNegativeEnegyAffinity>(a => a.Inverted = true));
 
             ability.SetNameDescription("Healer's Way — Others",
-                                       $"A divine herbalist combines alchemy, acupuncture, and divine magic to heal wounds by touch. She can use this ability a number of times per day equal to 1 + her Charisma modifier. With one use of this ability, she uses positive energy to heal the target of 1d{BalanceFixes.getDamageDieString(DiceType.D6)}  hit points for every 2 oracle levels she has. Using this ability is a standard action unless the oracle targets herself, in which case it is a swift action. Using this ability requires only one free hand. This ability counts as a paladin’s lay on hands ability for the purposes of feats, spells, and effects that work with that class feature when it is used for healing purposes. Unlike lay on hands, this ability cannot be used to harm undead.");
+                                       $"A divine herbalist combines alchemy, acupuncture, and divine magic to heal wounds by touch. She can use this ability a number of times per day equal to 1 + her Charisma modifier. With one use of this ability, she uses positive energy to heal the target of 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points for every 2 oracle levels she has. Using this ability is a standard action unless the oracle targets herself, in which case it is a swift action. Using this ability requires only one free hand. This ability counts as a paladin’s lay on hands ability for the purposes of feats, spells, and effects that work with that class feature when it is used for healing purposes. Unlike lay on hands, this ability cannot be used to harm undead.");
 
 
             var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
@@ -761,11 +904,18 @@ namespace CallOfTheWild
             createCureInflictSpells();
             createCurses();
             createOracleBurdenSpell();
-            dual_cursed_bonus_spells = new BlueprintAbility[]
+            dual_cursed_bonus_spells = new Dictionary<int, BlueprintAbility>
             {
-                Witch.ill_omen,
-                oracles_burden,
-                library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603")
+                {1, Witch.ill_omen },
+                {2, oracles_burden },
+                {3, library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603") }
+            };
+
+            hermit_bonus_spells = new Dictionary<int, BlueprintAbility>
+            {
+                {2, SpellDuplicates.addDuplicateSpell("46fd02ad56c35224c9c91c88cd457791", "HermitBlindessSpellAbility", "") },
+                {4, library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903") },
+                {6, library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74") }
             };
 
             createMysteries();
@@ -883,6 +1033,8 @@ namespace CallOfTheWild
                                                               FeatureGroup.Domain);
 
             dual_cursed_oracle_mysteries = library.CopyAndAdd(oracle_mysteries, "DualCursedOracleMysteries", "");
+            hermit_mysteries = library.CopyAndAdd(oracle_mysteries, "HermitOracleMysteries", "");
+            hermit_mysteries.SetDescription("Hermit must choose either Ancestors, Life, Nature, Waves or Wind mystery.");
 
             revelation_selection = Helpers.CreateFeatureSelection("OracleRevelationSelection",
                                                                   "Revelation",
@@ -999,7 +1151,7 @@ namespace CallOfTheWild
                              final_revelation,
                              new StatType[] { StatType.SkillStealth},
                              spells,
-                             false,
+                             false, false,
                              armor_of_bones, bleeding_wounds, deaths_touch, near_death,
                              raise_the_dead, resist_life, soul_siphon, undead_servitude
                              );
@@ -1149,7 +1301,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility },
                                          spells,
-                                         true,
+                                         true, true,
                                          animal_companion, erosion_touch, friend_to_animals, life_leach,
                                          natures_whispers, spirit_of_nature, form_of_the_beast, gift_of_claw_and_horn
                                          );
@@ -1215,7 +1367,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature, StatType.SkillMobility},
                                          spells,
-                                         true,
+                                         true, true,
                                          blizzard, fluid_nature, freezing_spells, ice_armor,
                                          icy_skin, water_form, wintry_touch, punitive_transformation
                                          );
@@ -1296,7 +1448,7 @@ namespace CallOfTheWild
                                                  final_revelation,
                                                  new StatType[] { StatType.SkillPerception },
                                                  spells,
-                                                 false,
+                                                 false, false,
                                                  dragon_magic, dragon_senses, presence_of_dragon, scaled_toughness,
                                                  breath_weapon, draconic_resistances, form_of_the_dragon, wings_of_the_dragon
                                                  );
@@ -1367,7 +1519,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
-                                         true,
+                                         true, true,
                                          air_barrier, invisibility, lightning_breath, thunderburst,
                                          touch_of_electricity, vortex_spells, spark_skin, wings_of_air
                                          );
@@ -1441,7 +1593,7 @@ namespace CallOfTheWild
                                          final_revelation,
                                          new StatType[] { StatType.SkillLoreNature },
                                          spells,
-                                         true,
+                                         true, true,
                                          channel, combat_healer, energy_body, enhanced_cures,
                                          healing_hands, life_link, safe_curing, spirit_boost
                                          );
@@ -1505,7 +1657,7 @@ namespace CallOfTheWild
                              final_revelation,
                              new StatType[] { StatType.SkillAthletics },
                              spells,
-                             true,
+                             true, false,
                              battlecry, combat_healer, iron_skin, maneuver_mastery,
                              skill_at_arms, surprising_charge, war_sight, weapon_mastery
                              );
@@ -1569,7 +1721,7 @@ namespace CallOfTheWild
             flame_mystery = createMystery("FlameOracleMystery", "Flame", NewSpells.wall_of_fire.Icon, final_revelation,
                                          new StatType[] { StatType.SkillAthletics, StatType.SkillMobility },
                                          spells,
-                                         true,
+                                         true, false,
                                          burning_magic, cinder_dance, fire_breath, firestorm,
                                          form_of_flame, heat_aura, touch_of_flame, molten_skin
                                          );
@@ -1634,7 +1786,7 @@ namespace CallOfTheWild
             time_mystery = createMystery("TimeOracleMystery", "Time", time_stop.Icon, final_revelation,
                                          new StatType[] { StatType.SkillMobility, StatType.SkillPerception, StatType.SkillUseMagicDevice },
                                          spells,
-                                         true,
+                                         true, false,
                                          aging_touch, rewind_time, speed_or_slow_time, temporal_celerity,
                                          time_flicker, time_hop, time_sight, erase_from_time
                                          );
@@ -1700,7 +1852,7 @@ namespace CallOfTheWild
             ancestor_mystery = createMystery("AncestorOracleMystery", "Ancestor", library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5").Icon, final_revelation,
                              new StatType[] { StatType.SkillLoreNature },
                              spells,
-                             true,
+                             true, true,
                              blood_of_heroes, phantom_touch, sacred_council, spirit_of_the_warrior,
                              spirit_shield , storm_of_souls, spirit_walk, ancestral_weapon
                              );
@@ -1710,6 +1862,7 @@ namespace CallOfTheWild
         static BlueprintProgression createMystery(string name, string display_name, UnityEngine.Sprite icon, 
                                                   BlueprintFeature final_revelation, StatType[] class_skills, BlueprintAbility[] spells, 
                                                   bool is_ravener,
+                                                  bool is_hermit,
                                                   params BlueprintFeature[] revelations)
         {
             string description = $"An oracle with the {display_name.ToLower()} mystery adds ";
@@ -1800,40 +1953,54 @@ namespace CallOfTheWild
                 Archetypes.RavenerHunter.revelation_selection.AllFeatures = Archetypes.RavenerHunter.revelation_selection.AllFeatures.AddToArray(mystery_revelation_selection);
             }
 
-            var dual_cursed_mystery = library.CopyAndAdd(mystery, "DualCursed" + mystery.name, "");
-            dual_cursed_mystery.LevelEntries = new LevelEntry[mystery.LevelEntries.Length];
-
-            for (int i = 0; i < mystery.LevelEntries.Length; i++)
-            {
-                if (mystery.LevelEntries[i].Level == 2 || mystery.LevelEntries[i].Level == 4 || mystery.LevelEntries[i].Level == 6)
-                {
-                    int lvl = mystery.LevelEntries[i].Level;
-                    if (dual_cursed_bonus_spell_features[lvl / 2 - 1] == null)
-                    {
-                        dual_cursed_bonus_spell_features[lvl / 2 - 1] = Helpers.CreateFeature("DualCuresedBonusSpell" + dual_cursed_bonus_spells[lvl / 2 - 1].name,
-                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].Name,
-                                                                                             "At 2nd level, and every two levels thereafter, an oracle learns an additional spell derived from her mystery.\n"
-                                                                                             + dual_cursed_bonus_spells[lvl / 2 - 1].Name + ": " + dual_cursed_bonus_spells[lvl / 2 - 1].Description,
-                                                                                             "",
-                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].Icon,
-                                                                                             FeatureGroup.None,
-                                                                                             dual_cursed_bonus_spells[lvl / 2 - 1].CreateAddKnownSpell(oracle_class, lvl / 2)
-                                                                                             );
-                    }
-
-                    dual_cursed_mystery.UIGroups[0].Features.Add(dual_cursed_bonus_spell_features[lvl / 2 - 1]);
-                    dual_cursed_mystery.LevelEntries[i] = Helpers.LevelEntry(mystery.LevelEntries[i].Level, dual_cursed_bonus_spell_features[lvl / 2 - 1]);
-                }
-                else
-                {
-                    dual_cursed_mystery.LevelEntries[i] = mystery.LevelEntries[i];
-                }
-            }
-            mystery.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = dual_cursed_mystery));
+            var dual_cursed_mystery = replaceSpellsForMystery(mystery, "DualCursed", "DualCuresedBonusSpell", dual_cursed_bonus_spells, dual_cursed_bonus_spell_features);
             dual_cursed_oracle_mysteries.AllFeatures = dual_cursed_oracle_mysteries.AllFeatures.AddToArray(dual_cursed_mystery);
+
+            if (is_hermit)
+            {
+                var hermit_mystery = replaceSpellsForMystery(mystery, "Hermit", "HermitBonusSpell", hermit_bonus_spells, hermit_bonus_spell_features);
+                hermit_mysteries.AllFeatures = hermit_mysteries.AllFeatures.AddToArray(hermit_mystery);
+            }
 
 
             return mystery;
+        }
+
+
+        static BlueprintProgression replaceSpellsForMystery(BlueprintProgression mystery, string prefix, string spell_prefix, Dictionary<int, BlueprintAbility> bonus_spells, Dictionary<int, BlueprintFeature> spell_features)
+        {
+            var new_mystery = library.CopyAndAdd(mystery, prefix + mystery.name, "");
+            new_mystery.LevelEntries = new LevelEntry[mystery.LevelEntries.Length];
+
+            for (int i = 0; i < mystery.LevelEntries.Length; i++)
+            {
+                var sl = mystery.LevelEntries[i].Level / 2;
+                if (bonus_spells.ContainsKey(sl))
+                {
+                    if (!spell_features.ContainsKey(sl))
+                    {
+                        var spell = bonus_spells[sl];
+                        spell_features[sl] = Helpers.CreateFeature(spell_prefix + spell.name,
+                                                                                             spell.Name,
+                                                                                             "At 2nd level, and every two levels thereafter, an oracle learns an additional spell derived from her mystery.\n"
+                                                                                             + spell.Name + ": " + spell.Description,
+                                                                                             "",
+                                                                                             spell.Icon,
+                                                                                             FeatureGroup.None,
+                                                                                             spell.CreateAddKnownSpell(oracle_class, sl)
+                                                                                             );
+                    }
+
+                    new_mystery.UIGroups[0].Features.Add(spell_features[sl]);
+                    new_mystery.LevelEntries[i] = Helpers.LevelEntry(mystery.LevelEntries[i].Level, spell_features[sl]);
+                }
+                else
+                {
+                    new_mystery.LevelEntries[i] = mystery.LevelEntries[i];
+                }
+            }
+            mystery.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = new_mystery));
+            return new_mystery;
         }
 
 
@@ -1850,6 +2017,7 @@ namespace CallOfTheWild
             createLich();
             createVampirism();
             createPowerless();
+            createReclusive();
 
             vampirism_minor.AddComponent(Helpers.PrerequisiteNoFeature(lich));
             lich_minor.AddComponent(Helpers.PrerequisiteNoFeature(vampirism));
@@ -1862,7 +2030,7 @@ namespace CallOfTheWild
                                                            Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; })
                                                            );
 
-            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless };
+            oracle_curses.AllFeatures = new BlueprintFeature[] { clouded_vision, blackened, deaf, lame, wasting, pranked, plagued, wolf_scarred_face, lich, vampirism, powerless, reclusive };
 
             minor_curse_selection = Helpers.CreateFeatureSelection("OracleMinorCurseSelection",
                                                "Second Curse",
@@ -1872,6 +2040,63 @@ namespace CallOfTheWild
                                                FeatureGroup.Domain);
 
             minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor, powerless_minor };
+        }
+
+
+        static void createReclusive()
+        {
+            var curse = Helpers.CreateFeature("OracleCurseReclusive",
+                                              "Reclusive",
+                                              "You must attempt saving throws to resist all spells cast by anyone other than yourself, even those cast by allies. Spells you cast only on yourself affect you as though your caster level were 1 higher.",
+                                              "",
+                                              NewSpells.barrow_haze.Icon,
+                                              FeatureGroup.None,
+                                              Helpers.Create<HarmlessSaves.SaveAgainstHarmlessSpells>(),
+                                              Helpers.Create<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>(a => a.caster_level_increase = 1)
+                                              );
+
+            reclusive_minor = library.CopyAndAdd(curse, "OracleCurseReclusiveMinor", "");
+
+            var hindrance = library.CopyAndAdd(powerless_minor, "OracleCurseReclusiveHindranceFeature", "");
+            hindrance.RemoveComponents<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>();
+            curse_to_hindrance_map.Add(curse, hindrance);
+            curse_to_minor_map.Add(curse, reclusive_minor);
+
+            var curse5 = Helpers.CreateFeature("OracleCurse5Reclusive",
+                                               "Reclusive Prophecy",
+                                               "At 5th level, any spells you cast only on yourself affect you as if they were modified by the Extend Spell feat. This does not increase their level or casting time.",
+                                               "",
+                                               Helpers.GetIcon("f180e72e4a9cbaa4da8be9bc958132ef"), //extend spell
+                                               FeatureGroup.None,
+                                               Helpers.Create<NewMechanics.MetamagicMechanics.ApplyMetamagicToPersonalSpell>(a => a.metamagic = Metamagic.Extend)
+                                               );
+
+            var curse10 = Helpers.CreateFeature("OracleCurse10Reclusive",
+                                                "Reclusive Prophecy",
+                                                "At 10th level, you are immune to charm spells and spell-like abilities.",
+                                                "",
+                                                Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
+                                                FeatureGroup.None,
+                                                Common.createBuffDescriptorImmunity(SpellDescriptor.Charm),
+                                                Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Charm)
+                                                );
+
+            var curse15 = Helpers.CreateFeature("OracleCurse15Reclusive",
+                                                "Reclusive Prophecy",
+                                                "At 15th level, you gain spell resistance equal to 10 + your oracle level.",
+                                                "",
+                                                Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
+                                                FeatureGroup.None,
+                                                Helpers.Create<AddSpellResistance>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.BonusValue,
+                                                                                classes: getOracleArray(), stepLevel: 10)                              
+                                                );
+
+            reclusive = createOracleCurseProgression("OracleReclusiveCurseProgression", "Reclusive Prophecy",
+                                                    "You are reclusive and paranoid to the point that your allies cannot easily help you in times of stress or unease.",
+                                                    curse, curse5, curse10, curse15);
+
+            reclusive_minor.AddComponent(Helpers.PrerequisiteNoFeature(reclusive));
         }
 
 

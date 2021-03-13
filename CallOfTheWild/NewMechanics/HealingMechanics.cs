@@ -395,6 +395,21 @@ namespace CallOfTheWild.HealingMechanics
                     }
                 }
 
+
+                if (target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>() != null 
+                    && context.SourceAbility?.GetComponent<HarmlessSaves.HarmlessHealSpell>() != null 
+                    && context.SourceAbility.IsSpell
+                    && target.IsAlly(context.MaybeCaster) 
+                    && target != context.MaybeCaster)
+                {
+                    RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(target, context.AssociatedBlueprint.GetComponent<HarmlessSaves.HarmlessHealSpell>().save_type, context.Params.DC);
+                    ruleSavingThrow.Reason = (RuleReason)((MechanicsContext)context);
+                    if (context.TriggerRule<RuleSavingThrow>(ruleSavingThrow).IsPassed)
+                    {
+                        bonus /= 2;
+                    }
+                }
+
                 if (bonus > 0)
                 {
                     context.TriggerRule<RuleHealDamage>(new RuleHealDamage(context.MaybeCaster, target, DiceFormula.Zero, bonus));
@@ -436,6 +451,20 @@ namespace CallOfTheWild.HealingMechanics
                 }
                 bonus_hp += context.Params.CasterLevel;
                 
+            }
+
+            if (target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>() != null
+                && context.SourceAbility?.GetComponent<HarmlessSaves.HarmlessHealSpell>() != null
+                && context.SourceAbility.IsSpell
+                && target.IsAlly(context.MaybeCaster)
+                && target != context.MaybeCaster)
+            {
+                RuleSavingThrow ruleSavingThrow = new RuleSavingThrow(target, context.AssociatedBlueprint.GetComponent<HarmlessSaves.HarmlessHealSpell>().save_type, context.Params.DC);
+                ruleSavingThrow.Reason = (RuleReason)((MechanicsContext)context);
+                if (context.TriggerRule<RuleSavingThrow>(ruleSavingThrow).IsPassed)
+                {
+                    bonus_hp /= 2;
+                }
             }
 
             if (bonus_hp > 0)

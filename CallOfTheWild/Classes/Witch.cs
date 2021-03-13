@@ -1632,11 +1632,12 @@ namespace CallOfTheWild
                                              UnitCommand.CommandType.Standard,
                                              AbilityRange.Touch,
                                              Helpers.roundsPerLevelDuration,
-                                             Helpers.savingThrowNone,
+                                             HarmlessSaves.HarmlessSaves.will_harmless,
                                              Helpers.CreateRunActions(apply_buff),
                                              Helpers.CreateSpellComponent(SpellSchool.Enchantment),
                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Compulsion | SpellDescriptor.MindAffecting),
-                                             Helpers.CreateContextRankConfig()
+                                             Helpers.CreateContextRankConfig(),
+                                             Helpers.Create<HarmlessSaves.HarmlessSpell>()
                                              );
 
 

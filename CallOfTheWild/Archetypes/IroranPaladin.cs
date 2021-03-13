@@ -365,7 +365,7 @@ namespace CallOfTheWild.Archetypes
                 a.forbidden_armor = new ArmorProficiencyGroup[] { ArmorProficiencyGroup.Buckler, ArmorProficiencyGroup.LightShield, ArmorProficiencyGroup.HeavyShield, ArmorProficiencyGroup.TowerShield };
             }));
             confident_defense.SetNameDescription("Confident Defense",
-                                                 $"At 1st level, when wearing light or no armor and not using a shield, an Iroran paladin adds 1 point of his Charisma bonus (if any){(Main.settings.balance_fixes ? " per class level" : "")} as a dodge bonus to his Armor Class. If he is caught flat-footed or otherwise denied his Dexterity bonus, he also loses this bonus. This ability replaces his proficiency with medium armor, heavy armor, and shields.");
+                                                 $"At 1st level, when wearing light or no armor and not using a shield, an Iroran paladin adds 1 point of his Charisma bonus (if any){(Main.settings.balance_fixes_monk_ac ? " per class level" : "")} as a dodge bonus to his Armor Class. If he is caught flat-footed or otherwise denied his Dexterity bonus, he also loses this bonus. This ability replaces his proficiency with medium armor, heavy armor, and shields.");
         }
     }
 }

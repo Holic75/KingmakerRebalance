@@ -30,6 +30,15 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.AooMechanics
 {
+    public class UnitPartNoAooOnDisengage : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+
     public class UnitPartAooAgainstAllies : AdditiveUnitPart
     {
         public bool active()
@@ -67,6 +76,22 @@ namespace CallOfTheWild.AooMechanics
         public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartDoesNotEngage>().removeBuff(this.Fact);
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class NoAooOnDisengage : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartNoAooOnDisengage>().addBuff(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartNoAooOnDisengage>().removeBuff(this.Fact);
         }
     }
 
@@ -364,6 +389,20 @@ namespace CallOfTheWild.AooMechanics
             return true;
         }
     }
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitCombatState))]
+    [Harmony12.HarmonyPatch("ShouldAttackOnDisengage", Harmony12.MethodType.Normal)]
+    class Patch_UnitCombatState__ShouldAttackOnDisengage
+    {
+        static bool Prefix(UnitCombatState __instance, UnitEntityData target, ref bool __result)
+        {       
+            __result = target?.Get<UnitPartNoAooOnDisengage>() == null;
+
+            return __result;
+        }
+    }
+
 
 
     [Harmony12.HarmonyPatch(typeof(UnitCombatState))]

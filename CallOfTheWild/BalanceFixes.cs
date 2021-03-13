@@ -62,7 +62,11 @@ namespace CallOfTheWild
 
             fixSorcererBloodlineArcana();
             fixFeats();
-            fixClassFeatures();
+            if (Main.settings.balance_fixes_monk_ac)
+            {
+                fixMonkAc();
+            }
+            fixPaladinSaves();
             fixTwf();
             fixVitalStrike();
             fixCleave();
@@ -140,13 +144,12 @@ namespace CallOfTheWild
             twf_basic_mechanics.ReplaceComponent<TwoWeaponFightingAttacks>(Helpers.Create<IterativeTwoWeaponFightingAttacks>());
         }
 
-
-        static void fixClassFeatures()
+        static void fixMonkAc()
         {
             //fix monk ac bonuses
             var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             var monk_ac_unlock = library.Get<BlueprintFeature>("2615c5f87b3d72b42ac0e73b56d895e0");
-            monk_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Wisdom bonus (if any, up to his monk level) to his AC and CMD. In addition, a monk gains a + 1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of + 5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat - footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.") ;
+            monk_ac_unlock.SetDescription("When unarmored and unencumbered, the monk adds his Wisdom bonus (if any, up to his monk level) to his AC and CMD. In addition, a monk gains a + 1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four monk levels thereafter, up to a maximum of + 5 at 20th level.\nThese bonuses to AC apply even against touch attacks or when the monk is flat - footed. He loses these bonuses when he is immobilized or helpless, when he wears any armor, when he carries a shield, or when he carries a medium or heavy load.");
             var monk_ac = library.Get<BlueprintFeature>("e241bdfd6333b9843a7bfd674d607ac4");
             var monk_ac_property = NewMechanics.ContextValueWithLimitProperty.createProperty("MonkAcProperty", "b8ba561529dc4143b014994ea3f234fe",
                                                                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus,
@@ -196,8 +199,11 @@ namespace CallOfTheWild
             }
 
             scaled_fist_ac.SetDescription("");
+        }
 
 
+        static void fixPaladinSaves()
+        {
             //fix paladin saves
             var divine_grace = library.Get<BlueprintFeature>("8a5b5e272e5c34e41aa8b4facbb746d3");
             var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");

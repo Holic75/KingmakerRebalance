@@ -13,5 +13,6 @@
   "metamagic_for_spontaneous_spell_conversion": true,
   "remove_solo_tactics_from_sacred_huntsmaster": true,
   "update_kineticist_archetypes": true,
+  "balance_fixes_monk_ac": true,
   "balance_fixes":  true
 }

@@ -1,8 +1,12 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Enums;
+using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using System;
@@ -45,6 +49,97 @@ namespace CallOfTheWild.FlatFootedMechanics
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("IsFlatFooted").SetValue(is_flat_footed);
             return false;
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintBuff))]
+    public class FlatFootedAgainstCaster : BuffLogic, ITargetRulebookHandler<RuleCheckTargetFlatFooted>, ITargetRulebookHandler<RuleAttackRoll>
+    {
+        public bool remove_after_attack;
+        public BlueprintUnitFact ranged_allowed_fact;
+
+        public void OnEventAboutToTrigger(RuleCheckTargetFlatFooted evt)
+        {
+            var attack = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackRoll>();
+
+            if (attack == null)
+            {
+                return;
+            }
+            bool allowed = attack.Weapon.Blueprint.IsMelee || (evt.Initiator != null && ranged_allowed_fact != null && evt.Initiator.Descriptor.HasFact(ranged_allowed_fact));
+            if (allowed && evt.Initiator == this.Context?.MaybeCaster)
+            {
+                evt.ForceFlatFooted = true;
+            }
+        }
+
+
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleCheckTargetFlatFooted evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+            if (!remove_after_attack)
+            {
+                return;
+            }
+
+            if (evt.Initiator == this.Fact.MaybeContext?.MaybeCaster)
+            {
+                this.Buff.Remove();
+            }
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintBuff))]
+    public class FlatFootedAgainstAttacType : BuffLogic, ITargetRulebookHandler<RuleCheckTargetFlatFooted>, ITargetRulebookHandler<RuleAttackRoll>
+    {
+        public bool remove_after_attack;
+        public AttackType[] allowed_attack_types;
+
+        public void OnEventAboutToTrigger(RuleCheckTargetFlatFooted evt)
+        {
+            var attack = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackRoll>();
+
+            if (attack == null)
+            {
+                return;
+            }
+            bool allowed = allowed_attack_types.Empty() || allowed_attack_types.Contains(attack.Weapon.Blueprint.AttackType);
+            if (allowed)
+            {
+                evt.ForceFlatFooted = true;
+            }
+        }
+
+        public void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleCheckTargetFlatFooted evt)
+        {
+        }
+
+        public void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+            if (!remove_after_attack)
+            {
+                return;
+            }
+
+            if (evt.Initiator == this.Fact.MaybeContext?.MaybeCaster)
+            {
+                this.Buff.Remove();
+            }
         }
     }
 

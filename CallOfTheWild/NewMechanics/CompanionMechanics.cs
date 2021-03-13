@@ -261,6 +261,10 @@ namespace CallOfTheWild.CompanionMechanics
                     {
                         num_attacks++;
                     }
+                    if (unit.Descriptor.HasFact(Evolutions.extra_attack_serpentine))
+                    {
+                        num_attacks++;
+                    }
                 }
                 if (unit.Body.SecondaryHand.MaybeWeapon != null && unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural && !unit.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed)
                 {
@@ -270,6 +274,10 @@ namespace CallOfTheWild.CompanionMechanics
                         num_attacks++;
                     }
                     if (unit.Descriptor.HasFact(Evolutions.extra_off_hand_attack2))
+                    {
+                        num_attacks++;
+                    }
+                    if (unit.Descriptor.HasFact(Evolutions.extra_off_hand_attack_serpentine))
                     {
                         num_attacks++;
                     }

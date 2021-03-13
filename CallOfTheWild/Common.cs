@@ -2335,12 +2335,17 @@ namespace CallOfTheWild
                 var feature = Common.ActivatableAbilityToFeature(toggle, true, Helpers.MergeIds("c9ca89f32d3b4e1b8add1bae23c73f4b", feat.AssetGuid));
                 feat.AddComponent(Common.createAddFeatureIfHasFact(tactical_leader_tactician, feature));
                 feat.AddComponent(Common.createAddFeatureIfHasFact(Archetypes.DrillSergeant.tactician, feature));
-
+                feat.AddComponent(Common.createAddFeatureIfHasFact(Warpriest.battle_tactician, feature));
                 Archetypes.PackRager.addToRagingTactician(feat);
             }
             teamwork_feat.AllFeatures = teamwork_feat.AllFeatures.AddToArray(feat);
             Hunter.hunter_teamwork_feat.AllFeatures = teamwork_feat.AllFeatures;
             Archetypes.DrillSergeant.tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.greater_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Archetypes.DrillSergeant.master_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.greater_battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
+            Warpriest.master_battle_tactician.AllFeatures = teamwork_feat.AllFeatures;
             Archetypes.DrillSergeant.greater_tactician.AllFeatures = teamwork_feat.AllFeatures;
             Archetypes.DrillSergeant.master_tactician.AllFeatures = teamwork_feat.AllFeatures;
             teamwork_feat_vanguard.AllFeatures = teamwork_feat_vanguard.AllFeatures.AddToArray(feat);
@@ -2828,6 +2833,17 @@ namespace CallOfTheWild
             v.Value = value;
             v.multiplier = multiplier;
             return v;
+        }
+
+
+        static public SavingThrowBonusAgainstAbilityType createSavingThrowBonusAgainstAbilityType(int base_value, ContextValue bonus, AbilityType ability_type, ModifierDescriptor descriptor)
+        {
+            var b = Helpers.Create<SavingThrowBonusAgainstAbilityType>();
+            b.Value = base_value;
+            b.Bonus = bonus;
+            b.AbilityType = ability_type;
+            b.ModifierDescriptor = descriptor;
+            return b;
         }
 
 

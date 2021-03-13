@@ -230,7 +230,6 @@ namespace CallOfTheWild
                     this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, 1);
                 }
                 caster_level_increase = -1;
-
             }
         }
 
@@ -3839,6 +3838,34 @@ namespace CallOfTheWild
             }
         }
 
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterMainWeaponIsMeleeUnlessHasFact : BlueprintComponent, IAbilityCasterChecker
+        {
+            public BlueprintFeature ranged_allowed_fact;
+
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                var weapon = caster.Body.PrimaryHand.MaybeWeapon;
+                if (weapon == null)
+                {
+                    return true;
+                }
+
+                if (weapon.Blueprint.IsMelee || (ranged_allowed_fact != null && caster.Descriptor.HasFact(ranged_allowed_fact)))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            public string GetReason()
+            {
+                return (string)LocalizedTexts.Instance.Reasons.SpecificWeaponRequired;
+            }
+        }
+
 
         [ComponentName("BuffMechanics/Extra Attack")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -5473,6 +5500,36 @@ namespace CallOfTheWild
                 }
 
                 return true;
+            }
+        }
+
+
+        [AllowMultipleComponents]
+        [ComponentName("Predicates/Target point has no units around")]
+        [AllowedOn(typeof(BlueprintAbility))]
+        public class AbilityTargetPointHasNoUnitsAround : BlueprintComponent, IAbilityTargetChecker
+        {
+            public float distance;
+            public bool CanTarget(UnitEntityData caster, TargetWrapper target)
+            {
+                return !GameHelper.GetTargetsAround(target.Point, (float)this.distance, true, false).Where(u => u != caster).Any();             
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintAbility))]
+        [AllowMultipleComponents]
+        public class AbilityCasterNoUnitsAround : BlueprintComponent, IAbilityCasterChecker
+        {
+            public float distance;
+            public bool CorrectCaster(UnitEntityData caster)
+            {
+                return !GameHelper.GetTargetsAround(caster.Position, (float)this.distance, true, false).Where(u => u != caster).Any();
+            }
+
+            public string GetReason()
+            {
+                return "There are units around";
             }
         }
 
@@ -8616,6 +8673,19 @@ namespace CallOfTheWild
                 }
 
                 return true;
+            }
+        }
+
+
+
+        public class FlurryOfBlowsRestriciton : ActivatableAbilityRestriction
+        {
+
+            public override bool IsAvailable()
+            {
+                return !HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
+                                    && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
+                                    && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || FeralCombatTraining.checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true));
             }
         }
 

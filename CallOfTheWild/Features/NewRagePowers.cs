@@ -995,25 +995,19 @@ namespace CallOfTheWild
         {
             var spell_resistance = library.Get<BlueprintAbility>("0a5ddfbcfb3989543ac7c936fc256889");
             superstition_buff = Helpers.CreateBuff("SuperstitionEffectBuff",
-                                                         "Superstition",
-                                                         "The Barbarian gains spell resistance 5. It increases by 5 points at level 4 and every 4 levels therafter to a maximum of 30 at level 20.\n"
-                                                         + "This spell resistance applies both against harmful and friendly spells and spell-like abilities.",
-                                                         "",
-                                                         null,
-                                                         null,
-                                                         Helpers.Create<AddSpellResistance>(s => s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus)),
-                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.Custom,
-                                                                                         type: AbilityRankType.StatBonus, classes: new BlueprintCharacterClass[] { barbarian_class },
-                                                                                         customProgression: new (int, int)[] {
-                                                                                                                                (3, 5),
-                                                                                                                                (7, 10),
-                                                                                                                                (11, 15),
-                                                                                                                                (15, 20),
-                                                                                                                                (19, 25),
-                                                                                                                                (20, 30)
-                                                                                                                             }
-                                                                                         )
-                                                         );
+                                                    "Superstition",
+                                                    "The barbarian gains a +2 competence bonus on saving throws made to resist spells and spell-like abilities. This bonus increases by 1 for every 4 levels the barbarian has. The barbarian cannot be the willing target of any spell and must attempt saving throws to resist all spells, even those cast by allies.",
+                                                    "",
+                                                    null,
+                                                    null,
+                                                    Helpers.Create<HarmlessSaves.SaveAgainstHarmlessSpells>(),
+                                                    Common.createSavingThrowBonusAgainstAbilityType(0, Helpers.CreateContextValue(AbilityRankType.StatBonus), AbilityType.Spell, ModifierDescriptor.Competence),
+                                                    Common.createSavingThrowBonusAgainstAbilityType(0, Helpers.CreateContextValue(AbilityRankType.StatBonus), AbilityType.SpellLike, ModifierDescriptor.Competence),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {barbarian_class },
+                                                                                    progression: ContextRankProgression.StartPlusDivStep, 
+                                                                                    startLevel: - 4, stepLevel: 4, type: AbilityRankType.StatBonus
+                                                                                    )
+                                                    );
             superstition_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             superstition_feature = Helpers.CreateFeature("SuperstitionFeature",
@@ -1190,55 +1184,5 @@ namespace CallOfTheWild
             component.Activated.Actions = activated_actions;
             buff.ReplaceComponent<AddFactContextActions>(component);
         }
-    }
-
-
-    [Harmony12.HarmonyPatch(typeof(RuleSpellResistanceCheck))]
-    [Harmony12.HarmonyPatch("HasResistanceRoll", Harmony12.MethodType.Getter)]
-    class Patch_RuleSpellResistanceCheck_HasResistanceRoll_Postfix
-    {
-        static public void Postfix(RuleSpellResistanceCheck __instance, ref bool __result)
-        {
-            Main.TraceLog();
-            if (__result == false && __instance.Target.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff))
-            {
-                __result = (__instance.Ability != null) && (__instance.Ability.IsSpell);
-            }
-        }
-    }
-
-
-    [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
-    [Harmony12.HarmonyPatch("TryOvercomeSpellResistance", Harmony12.MethodType.Normal)]
-    class Patch_AreaEffectEntityData_TryOvercomeSpellResistance_Transpiler
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            var codes = instructions.ToList();
-            var check_sr_index = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldfld && x.operand.ToString().Contains("m_Blueprint"));
-
-            codes[check_sr_index] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1); //unit (unitEntityData)
-            codes[check_sr_index + 1] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
-                                                                           new Func<AreaEffectEntityData, UnitEntityData, bool>(hasSr).Method
-                                                                           );
-
-            return codes.AsEnumerable();
-        }
-
-
-        static private bool hasSr(AreaEffectEntityData area, UnitEntityData unit)
-        {
-            Main.TraceLog();
-            var blueprint = area?.Blueprint;
-            if (unit == null || area == null)
-            {
-                return false;
-            }
-            
-            return blueprint.SpellResistance || unit.Descriptor.Buffs.HasFact(NewRagePowers.superstition_buff);
-        }
-
-
-
     }
 }

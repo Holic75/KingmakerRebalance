@@ -382,4 +382,72 @@ namespace CallOfTheWild.SkillMechanics
             public ContextValue Value;
         }
     }
+
+
+    public class ContextFeintSkillCheck : ContextAction
+    {
+        public ActionList Success;
+        public ActionList Failure;
+        static BlueprintFeature[] single_penalty_facts = new BlueprintFeature[] {Main.library.Get<BlueprintFeature>("455ac88e22f55804ab87c2467deff1d6"), //dragons
+                                                                                 Main.library.Get<BlueprintFeature>("625827490ea69d84d8e599a33929fdc6"), //magical beasts
+                                                                                };
+
+        static BlueprintFeature[] double_penalty_facts = new BlueprintFeature[] {Main.library.Get<BlueprintFeature>("a95311b3dc996964cbaa30ff9965aaf6"), //animals
+                                                                                };
+
+
+        public override string GetCaption()
+        {
+            return "Feint check";
+        }
+
+        public override void RunAction()
+        {
+            if (this.Target.Unit == null)
+            {
+                UberDebug.LogError((object)"Target unit is missing", (object[])Array.Empty<object>());
+            }
+            else if (this.Context.MaybeCaster == null)
+            {
+                UberDebug.LogError((object)"Caster is missing", (object[])Array.Empty<object>());
+            }
+            else
+            {
+                int dc_bab = this.Target.Unit.Descriptor.Stats.BaseAttackBonus.ModifiedValue + this.Target.Unit.Descriptor.Stats.Wisdom.Bonus;
+                int dc_sense_motive = (this.Target.Unit.Descriptor.Stats.SkillPerception.BaseValue > 0) ? this.Target.Unit.Descriptor.Stats.SkillPerception.ModifiedValue : 0;
+
+                //int dc = 10 + Math.Max(dc_bab, dc_sense_motive);
+                int dc = 10 + dc_bab;
+
+                if (targetHasFactFromList(double_penalty_facts))
+                {
+                    dc += 8;
+                }
+                else if (targetHasFactFromList(single_penalty_facts))
+                {
+                    dc += 4;
+                }
+
+                if (this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(this.Context.MaybeCaster, StatType.CheckBluff, dc)
+                {
+                    ShowAnyway = true
+                }).IsPassed)
+                    this.Success.Run();
+                else
+                    this.Failure.Run();
+            }
+        }
+
+        private bool targetHasFactFromList(params BlueprintFeature[] facts)
+        {
+            foreach (var f in facts)
+            {
+                if (this.Target.Unit.Descriptor.HasFact(f))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 }

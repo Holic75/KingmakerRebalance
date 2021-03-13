@@ -145,6 +145,13 @@ namespace CallOfTheWild
         static public BlueprintFeature[] arsenal_chaplain_war_blessing_updates = new BlueprintFeature[3];
         static public BlueprintFeature aid_another_boost;
 
+        static public BlueprintArchetype divine_commander;
+        static public BlueprintFeatureSelection animal_companion;
+        static public BlueprintFeatureSelection battle_tactician;
+        static public BlueprintFeature blessed_companion;
+        static public BlueprintFeatureSelection greater_battle_tactician;
+        static public BlueprintFeatureSelection master_battle_tactician;
+
         internal static void createWarpriestClass()
         {
             Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
@@ -191,7 +198,8 @@ namespace CallOfTheWild
             createCultLeader();
             createFeralChampion();
             createArsenalChaplain();
-            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype, feral_champion, arsenal_chaplain }; 
+            createDivineCommander();
+            warpriest_class.Archetypes = new BlueprintArchetype[] { sacred_fist_archetype, cult_leader_archetype, champion_of_the_faith_archetype, feral_champion, arsenal_chaplain, divine_commander }; 
             Helpers.RegisterClass(warpriest_class);
 
             Common.addMTDivineSpellbookProgression(warpriest_class, warpriest_class.Spellbook, "MysticTheurgeWarpriest",
@@ -4221,7 +4229,7 @@ namespace CallOfTheWild
 
             var unlock_ac_bonus = Common.createMonkFeatureUnlock(ac_bonus_old, false);
             unlock_ac_bonus.ReplaceComponent<MonkNoArmorFeatureUnlock>(m => m.NewFact = ac_bonus);
-            unlock_ac_bonus.SetDescription($"When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any{(Main.settings.balance_fixes ? ", up to his sacred fist level" : "")}) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
+            unlock_ac_bonus.SetDescription($"When unarmored and unencumbered, the sacred fist adds his Wisdom bonus (if any{(Main.settings.balance_fixes_monk_ac ? ", up to his sacred fist level" : "")}) to his AC and CMD. In addition, a sacred fist gains a +1 bonus to AC and CMD at 4th level. This bonus increases by 1 for every four sacred fist levels thereafter, up to a maximum of +5 at 20th level.");
             var flurry2 = library.CopyAndAdd<BlueprintFeature>("332362f3bd39ebe46a740a36960fdcb4", "WarpriestSacredFistFlurryOfBlows1Feature", "");
             flurry2.SetDescription("At 2nd level, a sacred fist can make a flurry of blows as a full attack. When making a flurry of blows, the sacred fist can make one additional attack at his highest base attack bonus. This additional attack stacks with the bonus attacks from haste and other similar effects. When using this ability, the sacred fist can make these attacks with any combination of his unarmed strikes and weapons that have the monk special weapon quality. He takes no penalty for using multiple weapons when making a flurry of blows, but he does not gain any additional attacks beyond what's already granted by the flurry for doing so. (He can still gain additional attacks from a high base attack bonus, from this ability, and from haste and similar effects).\nAt 15th level, a sacred fist can make an additional attack at his highest base attack bonus whenever he makes a flurry of blows. This stacks with the first attack from this ability and additional attacks from haste and similar effects.");
             var flurry15 = library.CopyAndAdd<BlueprintFeature>("de25523acc24b1448aa90f74d6512a08", "WarpriestSacredFistFlurryOfBlows2Feature", "");
@@ -4633,10 +4641,10 @@ namespace CallOfTheWild
 
             UnityEngine.Sprite[] smite_icons = new UnityEngine.Sprite[]
             {
-                    library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716").Icon,//umbral strike
+                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
                     library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec").Icon,//smite evil
-                    library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716").Icon,//umbral strike
-                    library.Get<BlueprintAbility>("7bb9eb2042e67bf489ccd1374423cdec").Icon,//smite evil
+                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteNature.png"),
+                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteImpudence.png"),
             };
 
             BlueprintFeatureSelection chosen_alignment = Helpers.CreateFeatureSelection("ChosenAlignmentChampionOfFaithSelection",
@@ -4951,6 +4959,115 @@ namespace CallOfTheWild
                                                           );
             sacred_claws.AddComponent(Helpers.CreateAddFact(toggle));
         }
+
+
+        static void createDivineCommander()
+        {
+
+            divine_commander = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "DivineCommanderArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Divine Commander");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Some warpriests are called to lead great armies and face legions of foes. These divine commanders live for war and fight for glory. Their hearts quicken at battle cries, and they charge forth with their deity’s symbol held high. These leaders of armies do so to promote the agenda of their faith, and lead armies of devoted followers willing to give their lives for the cause.");
+            });
+            Helpers.SetField(divine_commander, "m_ParentClass", warpriest_class);
+            library.AddAsset(divine_commander, "");
+
+            divine_commander.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, add_warpriest_blessing_resource, warpriest_blessings, warpriest_blessings),
+                                                                    Helpers.LevelEntry(3, fighter_feat),
+                                                                    Helpers.LevelEntry(6, fighter_feat),
+                                                                    Helpers.LevelEntry(12, fighter_feat),
+                                                                    Helpers.LevelEntry(18, fighter_feat)
+                                                                    };
+            createAnimalCompanionAndBlessedCompanion();
+            createTactician();
+
+            divine_commander.AddFeatures = new LevelEntry[]{ Helpers.LevelEntry(1, animal_companion),
+                                                           Helpers.LevelEntry(3, battle_tactician),
+                                                           Helpers.LevelEntry(6, blessed_companion),
+                                                           Helpers.LevelEntry(12, greater_battle_tactician),
+                                                           Helpers.LevelEntry(18, master_battle_tactician),
+                                                          };
+
+
+            warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(animal_companion);
+            warpriest_progression.UIGroups = warpriest_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(battle_tactician, blessed_companion, greater_battle_tactician, master_battle_tactician));
+        }
+
+
+        static void createTactician()
+        {
+            var resource = Helpers.CreateAbilityResource("DivineCommanderTacticianResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 6, 1, 0, 0.0f, getWarpriestArray());
+            var ability = library.CopyAndAdd<BlueprintAbility>("f1c8ec6179505714083ed9bd47599268", "DivineCommanderBattleTactician", "");
+            ability.SetNameDescription("Battle Tactician",
+                                       "At 3rd level, a divine commander gains a teamwork feat as a bonus feat. She must meet the prerequisites for this feat. As a standard action, the divine commander can grant any teamwork feat to all allies within 30 feet who can see and hear her. Allies retain the use of this bonus feat for 4 rounds, plus 1 round for every 2 levels beyond 3rd that the divine commander possesses. Allies do not need to meet the prerequisites of this bonus feat. The divine commander can use this ability once per day at 3rd level, plus one additional time per day at 9th and 15th levels.");
+
+            ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getWarpriestArray()));
+            ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+
+            battle_tactician = Helpers.CreateFeatureSelection("DivineCommanderBattleTacticianFeatureSelection",
+                                                               ability.Name,
+                                                               ability.Description,
+                                                               "",
+                                                               ability.Icon,
+                                                               FeatureGroup.None,
+                                                               Helpers.CreateAddFact(ability),
+                                                               resource.CreateAddAbilityResource()
+                                                               );
+            var teamwork_feats = library.Get<BlueprintBuff>("a603a90d24a636c41910b3868f434447").GetComponent<TeamworkMechanics.AddFactsFromCasterIfHasBuffs>().facts.Cast<BlueprintFeature>().ToArray();
+
+            foreach (var tf in teamwork_feats)
+            {
+                var add_comp = tf.GetComponent<AddFeatureIfHasFact>().CreateCopy(a => a.CheckedFact = battle_tactician);
+                tf.AddComponent(add_comp);
+            }
+
+            battle_tactician.AllFeatures = library.Get<BlueprintFeatureSelection>("d87e2f6a9278ac04caeb0f93eff95fcb").AllFeatures;
+
+            var comp = library.Get<BlueprintFeature>("4ca47c023f1c158428bd55deb44c735f").GetComponent<AutoMetamagic>().CreateCopy(a => a.Abilities = new BlueprintAbility[] { ability }.ToList());
+            greater_battle_tactician = Helpers.CreateFeatureSelection("DivineCommanderGreaterBattleTacticianFeatureSelection",
+                                           "Greater Battle Tactician",
+                                           "At 12th level, the divine commander gains an additional teamwork feat as a bonus feat. She must meet the prerequisites for this feat. Additionally, using the battle tactician ability is now a swift action.",
+                                           "",
+                                           ability.Icon,
+                                           FeatureGroup.None,
+                                           comp
+                                           );
+            greater_battle_tactician.AllFeatures = battle_tactician.AllFeatures;
+
+
+            master_battle_tactician = Helpers.CreateFeatureSelection("DivineCommanderMasterBattleTacticianFeatureSelection",
+                                                               "Master Battle Tactician",
+                                                               "At 18th level, the divine commander receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat. Whenever the divine commander uses the battle tactician ability, he grants any two teamwork feats that he knows.",
+                                                               "",
+                                                               ability.Icon,
+                                                               FeatureGroup.None,
+                                                               Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.TacticianTeamworkFeatShare.ToActivatableAbilityGroup())
+                                                               );
+            master_battle_tactician.AllFeatures = battle_tactician.AllFeatures;
+        }
+
+
+        static void createAnimalCompanionAndBlessedCompanion()
+        {
+            var animal_companion_progression = library.CopyAndAdd<BlueprintProgression>("924fb4b659dcb4f4f906404ba694b690",
+                                                                                      "WarpriestAnimalCompanionProgression",
+                                                                                      "");
+            animal_companion_progression.Classes = getWarpriestArray();
+            animal_companion = library.CopyAndAdd<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67",
+                                                                                            "AnimalCompanionSelectionWarpriest",
+                                                                                            "");
+            animal_companion.SetDescription("At 1st level, a divine commander gains the service of a loyal and trusty animal companion. This ability works as the druid class feature of the same name, using his warpriest level as his druid level.");
+            var add_progression = Helpers.Create<AddFeatureOnApply>();
+            add_progression.Feature = animal_companion_progression;
+            animal_companion.ComponentsArray[0] = add_progression;
+
+            blessed_companion = library.CopyAndAdd(Hunter.hunter_otherwordly_companion, "DivineCommanderBlessedCompanion", "");
+            blessed_companion.SetNameDescription("Blessed Companion",
+                                                 "At 6th level, a divine commander’s animal companion becomes a creature blessed by his deity. The divine commander’s mount gains either the celestial, entropic, fiendish, or resolute template, matching the alignment of the warpriest’s deity (celestial for good, entropic for chaotic, fiendish for evil, and resolute for lawful). If the deity matches more than one alignment, the divine commander can select which of the two templates the mount receives. Once the type of template is selected, it cannot be changed.\n If the divine commander’s deity is neutral with no other alignment components, divine commander can select any template.");
+        }
+
 
         static void createArsenalChaplain()
         {

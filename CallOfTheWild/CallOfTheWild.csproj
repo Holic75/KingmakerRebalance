@@ -159,6 +159,7 @@
     <Compile Include="Archetypes\RavenerHunter.cs" />
     <Compile Include="Archetypes\RelicHunter.cs" />
     <Compile Include="Archetypes\SacredServant.cs" />
+    <Compile Include="Archetypes\SageCounselor.cs" />
     <Compile Include="Archetypes\SanctifiedSlayer.cs" />
     <Compile Include="Archetypes\Seeker.cs" />
     <Compile Include="Archetypes\Skirnir.cs" />
@@ -250,6 +251,7 @@
     <Compile Include="Features\Subschools.cs" />
     <Compile Include="Features\VersatilePerformance.cs" />
     <Compile Include="Features\WizardDiscoveries.cs" />
+    <Compile Include="HarmlessSaves.cs" />
     <Compile Include="MechanicsFixes\BloodlinesFix.cs" />
     <Compile Include="Classes\Mysteries\Ancestors.cs" />
     <Compile Include="Classes\Mysteries\MysteryEngine.cs" />
@@ -404,6 +406,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(ProjectDir)/Icons" "$(TargetDir)/Icons" /e /y /i /r
-xcopy "$(ProjectDir)/WishBlackLists" "$(TargetDir)/WishBlackLists" /e /y /i /r</PostBuildEvent>
+xcopy "$(ProjectDir)/WishBlackLists" "$(TargetDir)/WishBlackLists" /e /y /i /r
+xcopy "$(ProjectDir)/HarmlessSpells" "$(TargetDir)/HarmlessSpells" /e /y /i /r</PostBuildEvent>
   </PropertyGroup>
 </Project>

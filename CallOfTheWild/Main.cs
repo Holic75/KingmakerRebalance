@@ -39,6 +39,7 @@ namespace CallOfTheWild
             public bool remove_solo_tactics_from_sacred_huntsmaster { get; }
             public bool update_kineticist_archetypes { get; }
             public bool balance_fixes { get; }
+            public bool balance_fixes_monk_ac { get; }
             internal Settings()
             {
 
@@ -62,6 +63,7 @@ namespace CallOfTheWild
                     remove_solo_tactics_from_sacred_huntsmaster = (bool)jo["remove_solo_tactics_from_sacred_huntsmaster"];
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
                     balance_fixes = (bool)jo["balance_fixes"];
+                    balance_fixes_monk_ac = (bool)jo["balance_fixes_monk_ac"];
                 }
             }
         }
@@ -130,7 +132,7 @@ namespace CallOfTheWild
                 try
                 {
                     Main.DebugLog("Loading Call of the Wild");
-
+                    CallOfTheWild.HarmlessSaves.HarmlessSaves.init();
                     CallOfTheWild.LoadIcons.Image2Sprite.icons_folder = UnityModManager.modsPath + @"/CallOfTheWild/Icons/";
 #if DEBUG                
                     bool allow_guid_generation = true;
@@ -336,11 +338,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.DrillSergeant.create();
                     CallOfTheWild.Archetypes.PackRager.create();
                     CallOfTheWild.Archetypes.DivineScourge.create();
-                    CallOfTheWild.SharedSpells.load();
-                    
-
+                                      
                     CallOfTheWild.Archetypes.DivineTracker.create(); // blessings will be filled in warpriest part
                     CallOfTheWild.Warpriest.createWarpriestClass();
+
+                    CallOfTheWild.SharedSpells.load();
 
                     CallOfTheWild.Archetypes.MindBlade.create();
                     CallOfTheWild.Archetypes.Skirnir.create();
@@ -368,6 +370,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    
                     CallOfTheWild.Archetypes.ZenArcher.create();
+                    CallOfTheWild.Archetypes.SageCounselor.create();
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.LoreWarden.create();
                     CallOfTheWild.Archetypes.DervishOfDawn.create();
