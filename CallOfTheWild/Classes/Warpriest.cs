@@ -5039,7 +5039,7 @@ namespace CallOfTheWild
 
             master_battle_tactician = Helpers.CreateFeatureSelection("DivineCommanderMasterBattleTacticianFeatureSelection",
                                                                "Master Battle Tactician",
-                                                               "At 18th level, the divine commander receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat.  Whenever the divine commander uses the tactician ability, he grants any two teamwork feats that he knows.",
+                                                               "At 18th level, the divine commander receives an additional teamwork feat as a bonus feat. He must meet the prerequisites for this feat. Whenever the divine commander uses the battle tactician ability, he grants any two teamwork feats that he knows.",
                                                                "",
                                                                ability.Icon,
                                                                FeatureGroup.None,
