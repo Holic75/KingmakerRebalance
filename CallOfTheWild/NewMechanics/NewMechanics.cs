@@ -9317,9 +9317,9 @@ namespace CallOfTheWild
 
 
         [AllowedOn(typeof(BlueprintBuff))]
-        public class MaximumWeaponDamageOnCriticalHit : BuffLogic, ITargetRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, ITargetRulebookSubscriber
+        public class MaximumWeaponDamageOnCriticalHit : RuleInitiatorLogicComponent<RuleCalculateDamage>
         {
-            public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
                 var weapon_damage = evt.DamageBundle?.WeaponDamage;
                 if (weapon_damage == null)
@@ -9335,7 +9335,7 @@ namespace CallOfTheWild
                 weapon_damage.Maximized = true;
             }
 
-            public void OnEventDidTrigger(RuleCalculateDamage evt)
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
             {
             }
         }
