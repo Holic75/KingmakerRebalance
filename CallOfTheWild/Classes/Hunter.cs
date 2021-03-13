@@ -1223,7 +1223,7 @@ namespace CallOfTheWild
             spell.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
             spell.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionUnsummoned>(a => a.not = true));
             spell.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(Helpers.Create<ContextActionsOnPet>(a => a.Actions = spell.GetComponent<AbilityEffectRunAction>().Actions)));
-            spell.ReplaceComponent<AbilityTargetIsDeadCompanion>(Helpers.Create<NewMechanics.AbilityTargetIsDead>());
+            spell.RemoveComponents<AbilityTargetIsDeadCompanion>();
             spell.Range = AbilityRange.Personal;
             spell.setMiscAbilityParametersSelfOnly();
             spell.Type = AbilityType.SpellLike;

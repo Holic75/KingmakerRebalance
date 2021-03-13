@@ -34,6 +34,7 @@ using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.Abilities.Components.CasterCheckers;
+using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs;
@@ -124,6 +125,13 @@ namespace CallOfTheWild
         static public BlueprintBuff prevent_shared_conciousness_fact;
         static public BlueprintFeatureSelection emotional_conduit;
 
+        static public BlueprintArchetype priest_of_the_fallen;
+        static public BlueprintFeature mythmaker;
+        static public BlueprintFeatureSelection channel_energy;
+        static public BlueprintFeature phantom_call;
+        static public BlueprintFeatureSelection emotional_focus_no_unsummon;
+        static public BlueprintFeatureSelection masterful_faith;
+
         //necrologist, exciter, priest of the fallen
 
         internal static void createSpiritualistClass()
@@ -182,7 +190,8 @@ namespace CallOfTheWild
             createScourge();
             createFracturedMind();
             createExciter();
-            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind, exciter};
+            createPriestOfTheFallen();
+            spiritualist_class.Archetypes = new BlueprintArchetype[] {hag_haunted, onmyoji, scourge, fractured_mind, exciter, priest_of_the_fallen};
             createEmotionalConduit();
         }
 
@@ -230,6 +239,540 @@ namespace CallOfTheWild
 
             library.AddFeats(emotional_conduit);
         }
+
+
+        static void createPriestOfTheFallen()
+        {
+            priest_of_the_fallen = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PriestOfTheFallenArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Priest of the Fallen");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Countless hero-gods have risen and fallen through Iblydos’s long history, leaving behind mighty spirits. Those attuned to these fallen hero-gods can become conduits for their restless souls and agents acting out their divine will. The result is a priest of the fallen, a spiritualist who channels her land’s legends and provides a vessel for mighty heroes to perform heroic acts once more.");
+            });
+            Helpers.SetField(priest_of_the_fallen, "m_ParentClass", spiritualist_class);
+            library.AddAsset(priest_of_the_fallen, "");
+
+            createMythmaker();
+            createChannelEnergy();
+            createPhantomCall();
+            createMasterfulFaith();
+
+            var deity_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
+            emotional_focus_no_unsummon = library.CopyAndAdd(emotional_focus_selection, "EmotionalFocusNoUnsummonSelection", "");
+            emotional_focus_no_unsummon.RemoveComponents<AddFacts>();
+            priest_of_the_fallen.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, emotional_focus_selection, shared_consciousness),
+                                                                    Helpers.LevelEntry(3, bonded_manifestation),
+                                                                    Helpers.LevelEntry(6, phantom_recall),
+                                                                    Helpers.LevelEntry(10, fused_consciousness),
+                                                                    Helpers.LevelEntry(17, dual_bond)};
+            priest_of_the_fallen.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, deity_selection, emotional_focus_no_unsummon, mythmaker),
+                                                         Helpers.LevelEntry(3, channel_energy),
+                                                         Helpers.LevelEntry(6, phantom_call),
+                                                         Helpers.LevelEntry(17, masterful_faith)
+                                                         };
+
+            spiritualist_progression.UIGroups = spiritualist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(mythmaker, channel_energy, phantom_call, masterful_faith));
+            spiritualist_progression.UIDeterminatorsGroup = spiritualist_progression.UIDeterminatorsGroup.AddToArray(emotional_focus_no_unsummon, deity_selection);
+        }
+
+        static void createMasterfulFaith()
+        {
+            var animal_domain = library.Get<BlueprintProgression>("23d2f87aa54c89f418e68e790dba11e0");
+            animal_domain.AddComponent(Helpers.PrerequisiteClassLevel(spiritualist_class, 1));
+            masterful_faith = library.CopyAndAdd<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9", "MasterfulFaithFeatureSelection", "");
+
+            for (int i = 0; i < masterful_faith.AllFeatures.Length; i++)
+            {
+                masterful_faith.AllFeatures[i] = domainToMasterfulFaith(masterful_faith.AllFeatures[i] as BlueprintProgression, 17);
+            }
+
+            masterful_faith.SetNameDescription("Masterful Faith",
+                                               "At 17th level, a priest of the fallen chooses one of cleric domains and receives its full benefits, treating her spiritualist level as her cleric level. She adds the domain spells to her spells known.");
+        }
+
+
+        static BlueprintProgression domainToMasterfulFaith(BlueprintProgression domain, int level)
+        {
+            var new_domain = library.CopyAndAdd(domain, "MasterfulFaith" + domain.name, "");
+            List<LevelEntry> secondary_level_entries = new List<LevelEntry>();
+            secondary_level_entries.Add(Helpers.LevelEntry(level));
+
+            foreach (var level_entry in domain.LevelEntries)
+            {
+                if (level_entry.Level <= level)
+                {
+                    secondary_level_entries[0].Features.AddRange(level_entry.Features);
+                }
+                else
+                {
+                    secondary_level_entries.Add(level_entry);
+                }
+            }
+
+            new_domain.LevelEntries = secondary_level_entries.ToArray();
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            ClassToProgression.addClassToProgression(spiritualist_class, new BlueprintArchetype[] { priest_of_the_fallen }, ClassToProgression.DomainSpellsType.NormalList, new_domain, cleric);
+            return new_domain;
+        }
+
+        static void createMythmaker()
+        {
+            var resource = Helpers.CreateAbilityResource("MythmakerResource", "", "", "", null);
+            resource.SetFixedResource(1);
+            var buffs_pairs = new BlueprintBuff[][]
+            {
+                createArchmageBuffs(),
+                createChampionBuffs(),
+                createGuardianBuffs(),
+                createHierophantBuffs(),
+                createMarshalBuffs(),
+                createTricksterBuffs()
+            };
+
+            var abilities = new List<BlueprintAbility>();
+            var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
+
+            var description = "A priest of the fallen can channel many different hero-god phantoms, though only one at a time.\n"
+                + "These spirits will not suffer being confined in a mortal’s consciousness and must be manifested in ectoplasmic form.\n"
+                + "They each have same emotional focus but retain some of their hero-god powers, determined by their mythic archetype. A priest of the fallen can channel a hero-god phantom with as full-round action. A priest of the fallen can channel only one hero-god phantom per 24 hours, but once channeled, a hero-god phantom remains until a new one is channeled.";
+
+            foreach (var bp in buffs_pairs)
+            {
+                remove_buffs.Buffs = remove_buffs.Buffs.AddToArray(bp[0], bp[1]);
+                var apply_buff1 = Common.createContextActionApplyBuff(bp[0], Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+                var apply_buff12 = Common.createContextActionApplyBuff(bp[1], Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+
+                var ability = Helpers.CreateAbility(bp[0].name.Replace("1Buff", "Ability"),
+                                                    bp[0].Name,
+                                                    bp[0].Description,
+                                                    "",
+                                                    bp[0].Icon,
+                                                    AbilityType.Supernatural,
+                                                    CommandType.Standard,
+                                                    AbilityRange.Personal,
+                                                    "",
+                                                    "",
+                                                    Helpers.CreateRunActions(remove_buffs,
+                                                                             Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                                                            apply_buff1,
+                                                                                                                            apply_buff12
+                                                                                                                            )
+                                                                            ),
+                                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSpiritualistArray(),
+                                                                                   progression: ContextRankProgression.OnePlusDivStep, stepLevel: 12,
+                                                                                   max: 2, min: 1),
+                                                   resource.CreateResourceLogic()
+                                                   );
+                ability.setMiscAbilityParametersSelfOnly();
+                Common.setAsFullRoundAction(ability);
+                abilities.Add(ability);
+                description += "\n" + ability.Name + ": " + ability.Description;
+            }
+
+            var wrapper = Common.createVariantWrapper("MythmakerAbilityBase", "", abilities.ToArray());
+            wrapper.SetNameDescriptionIcon("Mythmaker",
+                                           description,
+                                           Helpers.GetIcon("be68c660b41bc9247bcab727b10d2cd1")
+                                           ); //defensive stance
+
+            mythmaker = Common.AbilityToFeature(wrapper, false);
+            mythmaker.AddComponent(resource.CreateAddAbilityResource());
+        }
+
+
+        static public BlueprintBuff[] createMarshalBuffs()
+        {
+            var feature12 = Helpers.CreateFeature("MythmakerMarshallFeature12",
+                        "",
+                        "",
+                        "",
+                        null,
+                        FeatureGroup.None
+                        );
+            feature12.HideInCharacterSheetAndLevelUp = true;
+            feature12.HideInUI = true;
+
+            var buff = Helpers.CreateBuff("MythmakerMarshalEffectBuff",
+                                          "Inspire",
+                                          "The phantom can fill its allies with its triumphant spirit as a standard action, granting them a +1 morale bonus on saving throws against charm and fear effects and a +1 competence bonus on attack and weapon damage rolls for a number of rounds per day equal to 2 + its Charisma modifier. These rounds need not be consecutive. At 12th level, these bonuses increase by 1 and ability can be activated as a move action.",
+                                          "",
+                                          Helpers.GetIcon("5250fe10c377fdb49be449dfe050ba70"), //inspire courage
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.AdditionalAttackBonus, ModifierDescriptor.Competence),
+                                          Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.Competence),
+                                          Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.Morale, SpellDescriptor.Charm | SpellDescriptor.Fear),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, featureList: new BlueprintFeature[] {feature12, feature12 },
+                                                                          min: 1
+                                                                          )
+                                         );
+
+
+            var resource = Helpers.CreateAbilityResource("MythmakerMarshalResource", "", "", "", null);
+            resource.SetIncreasedByStat(4, StatType.Charisma);
+
+            var toggle = Common.createToggleAreaEffect(buff,
+                                                       50.Feet(),
+                                                       Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsAlly>()),
+                                                       AbilityActivationType.WithUnitCommand,
+                                                       UnitCommand.CommandType.Standard,
+                                                       Common.createPrefabLink("2f93a2909cb766f4d961aee34a3c84c2"),
+                                                       Common.createPrefabLink("9353083f430e5a44a8e9d6e26faec248")
+                                                       );
+            toggle.AddComponent(resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
+            toggle.DeactivateIfCombatEnded = true;
+            toggle.DeactivateIfOwnerDisabled = true;
+            toggle.DeactivateImmediately = false;
+            toggle.Group = ActivatableAbilityGroupExtension.MarshalInspire.ToActivatableAbilityGroup();
+            var feature1 = Common.ActivatableAbilityToFeature(toggle);
+            feature1.AddComponent(resource.CreateAddAbilityResource());
+            feature12.AddComponent(Helpers.Create<ActivatableAbilityActionTypeModierMechanics.ModifyActivatableAbilityGroupActionType>(m =>
+                                    {
+                                        m.group = ActivatableAbilityGroupExtension.MarshalInspire.ToActivatableAbilityGroup();
+                                        m.action = CommandType.Move;
+                                    })
+                                    );
+
+            
+
+            return createMythmakerBuffs("MythmakerMarshal",
+                                        "Marshal",
+                                        buff.Description,
+                                        buff.Icon,
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static public BlueprintBuff[] createTricksterBuffs()
+        {
+            var buff = Helpers.CreateBuff("MythmakerTricksterSneakAttackBuff",
+                                          "Trickster Sneak Attack",
+                                          "The phantom gains the sneak attack rogue class feature as a rogue of a level equal to the phantom’s Hit Dice. It can use the sneak attack ability a number of rounds equal to its Dexterity modifier (minimum 1). These rounds do not need to be consecutive.",
+                                          "",
+                                          Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87"), //sneak attack
+                                          null,
+                                          Helpers.CreateAddContextStatBonus(StatType.SneakAttack, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.OnePlusDiv2,
+                                                                    classes: Phantom.getPhantomArray())
+                                         );
+
+
+            var resource = Helpers.CreateAbilityResource("MythmakerTricksterResource", "", "", "", null);
+            resource.SetIncreasedByStat(0, StatType.Dexterity);
+
+            var toggle = Common.buffToToggle(buff, CommandType.Free, false, resource.CreateActivatableResourceLogic(ResourceSpendType.NewRound));
+            toggle.DeactivateIfCombatEnded = true;
+            toggle.DeactivateImmediately = false;
+            toggle.DeactivateIfOwnerDisabled = true;
+            var feature1 = Common.ActivatableAbilityToFeature(toggle);
+            feature1.AddComponent(resource.CreateAddAbilityResource());
+
+
+            var feature12 = library.Get<BlueprintFeature>("97a6aa2b64dd21a4fac67658a91067d7");
+
+            return createMythmakerBuffs("MythmakerTrickster",
+                                        "Trickster",
+                                        "The phantom gains the sneak attack rogue class feature as a rogue of a level equal to the phantom’s Hit Dice. It can use the sneak attack ability a number of times per day equal to its Dexterity modifier (minimum 1). At 12th level, phantom receives fast stealth rogue talent.",
+                                        Helpers.GetIcon("9b9eac6709e1c084cb18c3a366e0ec87"), //sneak attack
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static public BlueprintBuff[] createGuardianBuffs()
+        {
+            var feature1 = Helpers.CreateFeature("MythmakerGuardianFeature1",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                );
+            feature1.HideInUI = true;
+            feature1.HideInCharacterSheetAndLevelUp = true;
+
+            var feature12 = Helpers.CreateFeature("MythmakerGuardianFeature12",
+                                    "",
+                                    "",
+                                    "",
+                                    null,
+                                    FeatureGroup.None,
+                                    Helpers.CreateAddContextStatBonus(StatType.HitPoints, ModifierDescriptor.UntypedStackable),
+                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.MultiplyByModifier, 
+                                                                    classes: Phantom.getPhantomArray(), stepLevel: 2)
+                                    );
+            feature12.HideInUI = true;
+            feature12.HideInCharacterSheetAndLevelUp = true;
+
+            return createMythmakerBuffs("MythmakerGuardian",
+                                        "Guardian",
+                                        "The phantom gains a +2 natural armor bonus. At 12th level, the phantom increases its maximum hit points by twice its number of Hit Dice.",
+                                        Helpers.GetIcon("62888999171921e4dafb46de83f4d67d"),
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static public BlueprintBuff[] createChampionBuffs()
+        {
+            var weapon_focus = library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
+            var weapon_specialzation = library.Get<BlueprintParametrizedFeature>("31470b17e8446ae4ea0dacd6c5817d86");
+            var greater_weapon_focus = library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088");
+            var feature1 = Helpers.CreateFeature("MythmakerChampionFeature1",
+                                                "",
+                                                "",
+                                                "",
+                                                null,
+                                                FeatureGroup.None,
+                                                Common.createAddParametrizedFeatures(weapon_focus, WeaponCategory.OtherNaturalWeapons)
+                                                );
+            feature1.HideInUI = true;
+            feature1.HideInCharacterSheetAndLevelUp = true;
+
+            var feature12 = Helpers.CreateFeature("MythmakerChampionFeature12",
+                                    "",
+                                    "",
+                                    "",
+                                    null,
+                                    FeatureGroup.None,
+                                    Common.createAddParametrizedFeatures(weapon_specialzation, WeaponCategory.OtherNaturalWeapons),
+                                    Common.createAddParametrizedFeatures(greater_weapon_focus, WeaponCategory.OtherNaturalWeapons)
+                                    );
+            feature12.HideInUI = true;
+            feature12.HideInCharacterSheetAndLevelUp = true;
+
+            return createMythmakerBuffs("MythmakerChampion",
+                                        "Champion",
+                                        "The phantom gains Weapon Focus (slam) as a bonus feat. At 12th level, it gains Greater Weapon Focus (slam) and Weapon Specialization (slam) as bonus feats.",
+                                        Helpers.GetIcon("247a4068296e8be42890143f451b4b45"),
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static public BlueprintBuff[] createHierophantBuffs()
+        {
+            var resource_bless = Helpers.CreateAbilityResource("MythmakerHierophantBlessResource", "", "", "", null);
+            resource_bless.SetIncreasedByLevel(0, 1, Phantom.getPhantomArray());
+
+            var resource_bane = Helpers.CreateAbilityResource("MythmakerHierophantBaneResource", "", "", "", null);
+            resource_bane.SetIncreasedByLevel(0, 1, Phantom.getPhantomArray());
+
+            var resource_prayer = Helpers.CreateAbilityResource("MythmakerHierophantPrayerResource", "", "", "", null);
+            resource_prayer.SetFixedResource(1);
+
+            var resource_searing_light = Helpers.CreateAbilityResource("MythmakerHierophantSearingLightResource", "", "", "", null);
+            resource_searing_light.SetFixedResource(1);
+
+            var bless = Common.convertToSpellLike(library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638"), "MythmakerHierophant", Phantom.getPhantomArray(), StatType.Charisma, resource_bless);
+            var bane = Common.convertToSpellLike(library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), "MythmakerHierophant", Phantom.getPhantomArray(), StatType.Charisma, resource_bane);
+            var prayer = Common.convertToSpellLike(library.Get<BlueprintAbility>("faabd2cc67efa4646ac58c7bb3e40fcc"), "MythmakerHierophant", Phantom.getPhantomArray(), StatType.Charisma, resource_prayer);
+            var searing_light = Common.convertToSpellLike(library.Get<BlueprintAbility>("bf0accce250381a44b857d4af6c8e10d"), "MythmakerHierophant", Phantom.getPhantomArray(), StatType.Charisma, resource_searing_light);
+
+            var feature1 = Common.AbilityToFeature(bless);
+            feature1.AddComponents(Helpers.CreateAddFact(bane),
+                                  resource_bless.CreateAddAbilityResource(),
+                                  resource_bane.CreateAddAbilityResource()
+                                  );
+
+            var feature12 = Common.AbilityToFeature(prayer);
+            feature12.AddComponents(Helpers.CreateAddFact(searing_light),
+                                  resource_prayer.CreateAddAbilityResource(),
+                                  resource_searing_light.CreateAddAbilityResource()
+                                  );
+
+            return createMythmakerBuffs("MythmakerHierophant",
+                                        "Hierophant",
+                                        "The phantom gains bane and bless as spell-like abilities. It can use each spell-like ability a number of times per day equal to its Hit Dice, which it uses in place of a caster level. At 12th level, it can also cast prayer and searing light each once per day.",
+                                        bless.Icon,
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static public BlueprintBuff[] createArchmageBuffs()
+        {
+            var resource_mm = Helpers.CreateAbilityResource("MythmakerArchmageMagicMissileResource", "", "", "", null);
+            resource_mm.SetIncreasedByLevel(0, 1, Phantom.getPhantomArray());
+
+            var resource_sleep = Helpers.CreateAbilityResource("MythmakerArchmageSleepResource", "", "", "", null);
+            resource_sleep.SetIncreasedByLevel(0, 1, Phantom.getPhantomArray());
+
+            var resource_fireball = Helpers.CreateAbilityResource("MythmakerArchmageFireballResource", "", "", "", null);
+            resource_fireball.SetFixedResource(1);
+
+            var resource_hold_person = Helpers.CreateAbilityResource("MythmakerArchmageHoldPersonResource", "", "", "", null);
+            resource_hold_person.SetFixedResource(1);
+
+            var magic_missile = Common.convertToSpellLike(library.Get<BlueprintAbility>("4ac47ddb9fa1eaf43a1b6809980cfbd2"), "MythmakerArchmage", Phantom.getPhantomArray(), StatType.Charisma, resource_mm);
+            var sleep = Common.convertToSpellLike(library.Get<BlueprintAbility>("bb7ecad2d3d2c8247a38f44855c99061"), "MythmakerArchmage", Phantom.getPhantomArray(), StatType.Charisma, resource_sleep);
+            var fireball = Common.convertToSpellLike(library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3"), "MythmakerArchmage", Phantom.getPhantomArray(), StatType.Charisma, resource_fireball);
+            var hold_person = Common.convertToSpellLike(library.Get<BlueprintAbility>("c7104f7526c4c524f91474614054547e"), "MythmakerArchmage", Phantom.getPhantomArray(), StatType.Charisma, resource_hold_person);
+
+            var feature1 = Common.AbilityToFeature(magic_missile);
+            feature1.AddComponents(Helpers.CreateAddFact(sleep),
+                                  resource_mm.CreateAddAbilityResource(),
+                                  resource_sleep.CreateAddAbilityResource()
+                                  );
+
+            var feature12 = Common.AbilityToFeature(fireball);
+            feature12.AddComponents(Helpers.CreateAddFact(hold_person),
+                                  resource_fireball.CreateAddAbilityResource(),
+                                  resource_hold_person.CreateAddAbilityResource()
+                                  );
+
+            return createMythmakerBuffs("MythmakerArchmage",
+                                        "Archmage",
+                                        "The phantom gains magic missile and sleep as spell-like abilities. It can use each spell-like ability a number of times per day equal to its Hit Dice, which it uses in place of a caster level. At 12th level, it can also cast fireball and hold person each once per day.",
+                                        Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
+                                        feature1,
+                                        feature12
+                                        );
+        }
+
+
+        static void createPhantomCall()
+        {
+            var raise_companion_resource = Helpers.CreateAbilityResource("PriestOfTheFallenRaisePhantomResource", "", "", "", null);
+            raise_companion_resource.SetFixedResource(1);
+            var spell = library.CopyAndAdd<BlueprintAbility>("9288a1e0a4704b54984fd8155de38d4f", "PriestOfTheFallenRaisePhantomAbility", "");
+            spell.RemoveComponents<AbilityTargetIsDeadCompanion>();
+            spell.AddComponent(Helpers.Create<NewMechanics.AbilityCasterCompanionDead>());
+            spell.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionUnsummoned>(a => a.not = true));
+            spell.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(Helpers.Create<ContextActionsOnPet>(a => a.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>(c => c.FullRestore = true)))));
+            spell.ReplaceComponent<AbilityTargetIsDeadCompanion>(Helpers.Create<NewMechanics.AbilityTargetIsDead>());
+            spell.Range = AbilityRange.Personal;
+            spell.setMiscAbilityParametersSelfOnly();
+            spell.Type = AbilityType.Supernatural;
+            spell.AddComponent(raise_companion_resource.CreateResourceLogic());
+            spell.SetNameDescriptionIcon("Phantom Call",
+                                         "At 6th level, once per day, a priest of the fallen can summon a fully manifested hero-god phantom back from the Ethereal Plane as a standard action.",
+                                         Helpers.GetIcon("a0fc99f0933d01643b2b8fe570caa4c5")
+                                         );
+
+            phantom_call = Helpers.CreateFeature("PhantomCallPreisetFoTheFallenFeature",
+                                                           spell.Name,
+                                                           spell.Description,
+                                                           "",
+                                                           spell.Icon,
+                                                           FeatureGroup.None,
+                                                           Helpers.CreateAddFact(spell),
+                                                           raise_companion_resource.CreateAddAbilityResource()
+                                                           );
+        }
+
+
+        static BlueprintBuff[] createMythmakerBuffs(string prefix, string display_name, string description, UnityEngine.Sprite icon, BlueprintFeature feature1, BlueprintFeature feature12)
+        {
+            var buff1 = Helpers.CreateBuff(prefix + "1Buff",
+                                         display_name,
+                                         description,
+                                         "",
+                                         icon,
+                                         null,
+                                         Common.createAddFeatToAnimalCompanion(feature1)
+                                         );
+            buff1.SetBuffFlags(BuffFlags.StayOnDeath);
+
+            var buff12 = library.CopyAndAdd(buff1, prefix + "12Buff", "");
+            buff12.AddComponent(Common.createAddFeatToAnimalCompanion(feature12));
+
+            return new BlueprintBuff[] { buff1, buff12 };
+        }
+
+
+        static void createChannelEnergy()
+        {
+            var channel_positive_allowed = library.Get<BlueprintFeature>("8c769102f3996684fb6e09a2c4e7e5b9");
+            var channel_negative_allowed = library.Get<BlueprintFeature>("dab5255d809f77c4395afc2b713e9cd6");
+
+            var select_positive = library.Get<BlueprintFeature>("a79013ff4bcd4864cb669622a29ddafb");
+            var select_negative = library.Get<BlueprintFeature>("3adb2c906e031ee41a01bfc1d5fb7eea");
+
+            channel_energy = Helpers.CreateFeatureSelection("PriestOfTheFallenChannelEnergySelection",
+                                                                        "Channel Energy",
+                                                                        "At 3rd level, a priest of the fallen can channel her phantom’s divine energy. This functions as the cleric’s channel energy class feature, except that the amount of damage dealt or hit points restored is equal to 1d6 points plus an additional 1d6 points for every 2 spiritualist levels beyond 3rd. She can use this ability a number of times per day equal to her Charisma modifier (minimum 1).",
+                                                                        "",
+                                                                        select_positive.Icon,
+                                                                        FeatureGroup.None);
+
+            var channel_positive = Helpers.CreateFeature("PriestOfTheFallenChannelPositive",
+                                                               select_positive.Name,
+                                                               channel_energy.Description,
+                                                               "",
+                                                               select_positive.Icon,
+                                                               FeatureGroup.ChannelEnergy,
+                                                               Helpers.PrerequisiteFeature(channel_positive_allowed)
+                                                             );
+
+            var channel_negative = Helpers.CreateFeature("PriestOfTheFallenChannelNegative",
+                                                                select_negative.Name,
+                                                                channel_energy.Description,
+                                                                "",
+                                                                select_negative.Icon,
+                                                                FeatureGroup.ChannelEnergy,
+                                                                Helpers.PrerequisiteFeature(channel_negative_allowed)
+                                                               );
+
+            var channel_energy_resource = Helpers.CreateAbilityResource("PriestOfTheFallenChannelEnergyResource", "", "", "", null);
+            channel_energy_resource.SetIncreasedByStat(0, StatType.Charisma);
+            channel_energy_resource.AddComponent(Helpers.Create<ResourceMechanics.MinResourceAmount>(m => m.value = 1));
+            var resource_logic = Helpers.CreateResourceLogic(channel_energy_resource);
+
+
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                      classes: new BlueprintCharacterClass[] { spiritualist_class },
+                                                                      startLevel: 3, stepLevel: 2);
+
+            var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getSpiritualistArray(), StatType.Charisma);
+            var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "PriestOfTheFallenPostiveHeal", "",
+                                                                        "Channeling positive energy causes a burst that heals all living creatures in a 30 - foot radius centered on the spiritualist. The amount of damage healed is equal to 1d6 points plus an additional 1d6 points for every 2 spiritualist levels beyond 3rd.",
+                                                                        "",
+                                                                        context_rank_config, dc_scaling, resource_logic);
+            var positive_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHarm, "PriestOfTheFallenPostiveHarm", "",
+                                                                        "Channeling energy causes a burst that damages all undead creatures in a 30 - foot radius centered on the spiritualist. The amount of damage dealt is equal to 1d6 points plus an additional 1d6 points for every 2 spiritualist levels beyond 3rd. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the spiritualist's level + the spiritualist's Charisma modifier.",
+                                                                        "",
+                                                                        context_rank_config, dc_scaling, resource_logic);
+            var negative_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHeal, "PriestOfTheFallenNegativeHeal", "",
+                                                                        "Channeling negative energy causes a burst that heals all undead creatures in a 30 - foot radius centered on the spiritualist. The amount of damage healed is equal to 1d6 points plus an additional 1d6 points for every 2 spiritualist levels beyond 3rd.",
+                                                                        "",
+                                                                        context_rank_config, dc_scaling, resource_logic);
+            var negative_harm = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.NegativeHarm, "PriestOfTheFallenNegativeHarm", "",
+                                                                       "Channeling energy causes a burst that damages all living creatures in a 30 - foot radius centered on the spiritualist. The amount of damage dealt is equal to 1d6 points plus an additional 1d6 points for every 2 spiritualist levels beyond 3rd. Creatures that take damage from channeled energy receive a Will save to halve the damage. The DC of this save is equal to 10 + 1/2 the spiritualist's level + the spiritualist's Charisma modifier.",
+                                                                       "",
+                                                                       context_rank_config, dc_scaling, resource_logic);
+
+            var positive_heal_base = Common.createVariantWrapper("PriestOfTheFallenPositiveHealBase", "", positive_heal);
+            var positive_harm_base = Common.createVariantWrapper("PriestOfTheFallenPositiveHarmBase", "", positive_harm);
+            var negative_heal_base = Common.createVariantWrapper("PriestOfTheFallenNegativeHealBase", "", negative_heal);
+            var negative_harm_base = Common.createVariantWrapper("PriestOfTheFallenNegativeHarmBase", "", negative_harm);
+
+            ChannelEnergyEngine.storeChannel(positive_heal, channel_positive, ChannelEnergyEngine.ChannelType.PositiveHeal);
+            ChannelEnergyEngine.storeChannel(positive_harm, channel_positive, ChannelEnergyEngine.ChannelType.PositiveHarm);
+            ChannelEnergyEngine.storeChannel(negative_heal, channel_negative, ChannelEnergyEngine.ChannelType.NegativeHeal);
+            ChannelEnergyEngine.storeChannel(negative_harm, channel_negative, ChannelEnergyEngine.ChannelType.NegativeHarm);
+
+            channel_positive.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
+            channel_positive.AddComponent(Helpers.CreateAddFacts(positive_heal_base, positive_harm_base));
+
+            channel_negative.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
+            channel_negative.AddComponent(Helpers.CreateAddFacts(negative_heal_base, negative_harm_base));
+
+
+            channel_energy.Features = new BlueprintFeature[] { channel_positive, channel_negative };
+            channel_energy.AllFeatures = channel_energy.Features;
+
+
+            ChannelEnergyEngine.createExtraChannelFeat(positive_heal, channel_energy, "ExtraChannelPriestOfTheFallen", "Extra Channel (Priest of the Fallen)",
+                                                       "");
+        }
+
 
 
         static void createExciter()
