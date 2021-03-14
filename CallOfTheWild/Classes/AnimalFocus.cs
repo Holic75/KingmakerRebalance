@@ -559,6 +559,8 @@ namespace CallOfTheWild
                                                 Helpers.CreateAddFeatureOnClassLevel(mouse_focus1f, update_lvl, allowed_classes.AddToArray(animal_class), new BlueprintArchetype[] { archetype }, true),
                                                 Helpers.CreateAddFeatureOnClassLevel(mouse_focus2f, update_lvl, allowed_classes.AddToArray(animal_class), new BlueprintArchetype[] { archetype }, false)
                                                 };
+            mouse_focus1f.IsClassFeature = true;
+            mouse_focus2f.IsClassFeature = true;
             return mouse_focus;
         }
 

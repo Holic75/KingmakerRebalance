@@ -588,7 +588,7 @@ Notable differences from pnp:
 - arcanist quick study allows you to replace all the spells of specified level instead of only one,
 - Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
 - Wind Walk increases speed to only 20mph instead of 60,
-- Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed
+- Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed,
 - Sanctified Slayer looses Bane ability,
 - Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,

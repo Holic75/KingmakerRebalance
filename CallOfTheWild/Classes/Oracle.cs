@@ -2063,7 +2063,7 @@ namespace CallOfTheWild
             curse_to_minor_map.Add(curse, reclusive_minor);
 
             var curse5 = Helpers.CreateFeature("OracleCurse5Reclusive",
-                                               "Reclusive Prophecy",
+                                               "Reclusive",
                                                "At 5th level, any spells you cast only on yourself affect you as if they were modified by the Extend Spell feat. This does not increase their level or casting time.",
                                                "",
                                                Helpers.GetIcon("f180e72e4a9cbaa4da8be9bc958132ef"), //extend spell
@@ -2072,7 +2072,7 @@ namespace CallOfTheWild
                                                );
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Reclusive",
-                                                "Reclusive Prophecy",
+                                                "Reclusive",
                                                 "At 10th level, you are immune to charm spells and spell-like abilities.",
                                                 "",
                                                 Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
@@ -2082,7 +2082,7 @@ namespace CallOfTheWild
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Reclusive",
-                                                "Reclusive Prophecy",
+                                                "Reclusive",
                                                 "At 15th level, you gain spell resistance equal to 10 + your oracle level.",
                                                 "",
                                                 Helpers.GetIcon("0a5ddfbcfb3989543ac7c936fc256889"), //spell resistance
@@ -2092,7 +2092,7 @@ namespace CallOfTheWild
                                                                                 classes: getOracleArray(), stepLevel: 10)                              
                                                 );
 
-            reclusive = createOracleCurseProgression("OracleReclusiveCurseProgression", "Reclusive Prophecy",
+            reclusive = createOracleCurseProgression("OracleReclusiveCurseProgression", "Reclusive",
                                                     "You are reclusive and paranoid to the point that your allies cannot easily help you in times of stress or unease.",
                                                     curse, curse5, curse10, curse15);
 
