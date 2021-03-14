@@ -4217,8 +4217,9 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class FlankingAttackBonus : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
-            public int Bonus;
+            public ContextValue Bonus;
             public ModifierDescriptor Descriptor;
+            public bool apply_to_flatfooted = false;
 
             private MechanicsContext Context
             {
@@ -4236,9 +4237,18 @@ namespace CallOfTheWild
                 if (evt.Weapon == null || !evt.Weapon.Blueprint.IsMelee)
                     return;
 
+                var bonus = Bonus.Calculate(this.Fact.MaybeContext);
                 if (evt.Target.CombatState.IsFlanked)
                 {
-                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus, (GameLogicComponent)this, this.Descriptor));
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                else if (apply_to_flatfooted)
+                {
+                    var rule = Rulebook.Trigger(new RuleCheckTargetFlatFooted(evt.Initiator, evt.Target));
+                    if (rule.IsFlatFooted)
+                    {
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                    }
                 }
             }
 
