@@ -127,6 +127,13 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource ghostly_horde_resource;
         static public BlueprintAbilityResource life_drain_resource;
 
+        static public BlueprintArchetype planar_harmonizer;
+        static public BlueprintFeature conductor;
+        static public BlueprintFeatureSelection conductor_spells;
+        static public BlueprintFeature conductor_dc_bonus;
+        static public BlueprintFeature conductor_mastery;
+        static public BlueprintFeature planar_schoolar;
+
 
 
         public enum Panoply
@@ -260,7 +267,8 @@ namespace CallOfTheWild
             createReliquarian();
             createPanoplySavant();
             createNecroccultist();
-            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant, necroccultist};
+            createPlanarHarmonizer();
+            occultist_class.Archetypes = new BlueprintArchetype[] {battle_host, silksworn, reliquarian, panoply_savant, necroccultist, planar_harmonizer};
             Helpers.RegisterClass(occultist_class);
 
             addToPrestigeClasses();
@@ -289,6 +297,158 @@ namespace CallOfTheWild
         }
 
 
+        static void createPlanarHarmonizer()
+        {
+            planar_harmonizer = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "PlanarHarmonizerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Planar Harmonizer");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Tuning forks resonate with the music of the planes, guiding travelers between worlds. Planar harmonizers are masters of this symphony, forging bonds with tuning forks to unlock the true potential of these instruments. Planar harmonizers typically select their tuning forks carefully, choosing planes that resonate best with particular schools of magic.");
+            });
+            Helpers.SetField(planar_harmonizer, "m_ParentClass", occultist_class);
+            library.AddAsset(planar_harmonizer, "");
+
+            createConductor();
+            createConductorSpells();
+            createPlanarSchoolar();
+
+
+            planar_harmonizer.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, first_implement_selection, implement_selection, focus_power_selection),
+                                                             Helpers.LevelEntry(2, magic_item_skill),
+                                                             Helpers.LevelEntry(8, repower_construct),
+                                                             Helpers.LevelEntry(14, implement_selection),
+                                                             Helpers.LevelEntry(20, implement_mastery)
+                                                          };
+
+            planar_harmonizer.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, focus_power_selection, conductor, conductor_spells),
+                                                          Helpers.LevelEntry(2, planar_schoolar),
+                                                          Helpers.LevelEntry(3, conductor_spells),
+                                                          Helpers.LevelEntry(5, conductor_spells),
+                                                          Helpers.LevelEntry(7, conductor_spells),
+                                                          Helpers.LevelEntry(8, repower_construct),
+                                                          Helpers.LevelEntry(9, conductor_spells),
+                                                          Helpers.LevelEntry(11, conductor_spells),
+                                                          Helpers.LevelEntry(13, conductor_spells),
+                                                          Helpers.LevelEntry(14, conductor_dc_bonus),
+                                                          Helpers.LevelEntry(15, conductor_spells),
+                                                          Helpers.LevelEntry(17, conductor_spells),
+                                                          Helpers.LevelEntry(19, conductor_spells),
+                                                          Helpers.LevelEntry(20, conductor_mastery)
+                                                          };
+
+            occultist_progression.UIDeterminatorsGroup = occultist_progression.UIDeterminatorsGroup.AddToArray(conductor);
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(planar_schoolar, conductor_dc_bonus, conductor_mastery));
+            occultist_progression.UIGroups = occultist_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(conductor_spells));
+        }
+
+
+        static void createPlanarSchoolar()
+        {
+            planar_schoolar = Helpers.CreateFeature("PlanarSchoolarFeature",
+                                                     "Planar Scholar",
+                                                     "At 2nd level, a planar harmonizer deepens her knowledge about other worlds. She gains a bonus on Lore (Religion) checks equal to half her occultist level.",
+                                                     "",
+                                                     Helpers.GetIcon("c541f80af8d0af4498e1abb6025780c7"),
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddContextStatBonus(StatType.SkillLoreReligion, ModifierDescriptor.UntypedStackable),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getOccultistArray(), progression: ContextRankProgression.Div2)
+                                                     );
+            planar_schoolar.ReapplyOnLevelUp = true;
+        }
+
+
+        static void createConductorSpells()
+        {
+            var wizard_spell_list = library.Get<BlueprintSpellList>("ba0401fdeb4062f40a7aa95b6f07fe89");
+
+            var conductor_list = Common.combineSpellLists("ConductorSpellList",
+                                                                (spell, spell_list, lvl) =>
+                                                                {
+                                                                    if (occultist_class.Spellbook.SpellList.Contains(spell)
+                                                                        && occultist_class.Spellbook.SpellList.GetLevel(spell) != lvl)
+                                                                    {
+                                                                        return false;
+                                                                    }
+                                                                    if (lvl > 6)
+                                                                    {
+                                                                        return false;
+                                                                    }
+                                                                    return spell.School == SpellSchool.Conjuration;
+                                                                },
+                                                                wizard_spell_list
+                                                                );
+
+
+            conductor_spells = Helpers.CreateFeatureSelection("ConductorSpellsFeatureSelection",
+                                                                "Conductor Bonus Spells",
+                                                                "Each time she gains an occultist level, a planar harmonizer can add one conjuration spell from the wizard spell list to her occultist spell list and her list of spells known. The planar harmonizer can’t choose a spell of a higher level than she is able to cast, and she adds the spell at the same spell level it appears on the wizard spell list.",
+                                                                "",
+                                                                null,
+                                                                FeatureGroup.None);
+
+            for (int i = 1; i <= 6; i++)
+            {
+                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"ConductorSpells{i}ParametrizedFeature", "");
+                learn_spell.SpellLevel = i;
+                learn_spell.SpecificSpellLevel = true;
+                learn_spell.SpellLevelPenalty = 0;
+                learn_spell.SpellcasterClass = occultist_class;
+                learn_spell.SpellList = conductor_list;
+                learn_spell.ReplaceComponent<LearnSpellParametrized>(l => { l.SpellList = conductor_list; l.SpecificSpellLevel = true; l.SpellLevel = i; l.SpellcasterClass = occultist_class; });
+                learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(occultist_class, i)
+                                            );
+                learn_spell.SetName(Helpers.CreateString($"ConductorSpells{i}.Name", "Conductor Bonus Spells: " + $"(Level {i})"));
+                learn_spell.SetDescription(conductor_spells.Description);
+                learn_spell.SetIcon(conductor_spells.Icon);
+
+                conductor_spells.AllFeatures = conductor_spells.AllFeatures.AddToArray(learn_spell);
+            }
+        }
+
+
+        static void createConductor()
+        {
+            conductor = Helpers.CreateFeature("ConductorFeature",
+                                                "Conductor",
+                                                "At 1st level, a planar harmonizer gains access to only the conjuration school of implements, gaining a common tuning fork as her implement.",
+                                                "",
+                                                implement_icons[SpellSchool.Conjuration],
+                                                FeatureGroup.None,
+                                                Helpers.CreateAddFact(base_implements[SpellSchool.Conjuration])
+                                                );
+
+            conductor_dc_bonus = Helpers.CreateFeature("ConductorDCBonusFeature",
+                                         "Conductor",
+                                         "At 14th level, a planar harmonizer doesn’t gain an additional school of implements. Instead, at 14th level, the DCs of saving throws to resist her conjuration spells and conjuration focus powers increase by 2.",
+                                         "",
+                                         implement_icons[SpellSchool.Conjuration],
+                                         FeatureGroup.None,
+                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c =>
+                                         {
+                                             c.abilities = implement_factories[SpellSchool.Conjuration].implement_abilities.ToArray();
+                                             c.Value = 2;
+                                         }
+                                         ),
+                                         Helpers.Create<NewMechanics.ContextIncreaseSchoolSpellsDC>(c =>
+                                         {
+                                             c.school = SpellSchool.Conjuration;
+                                             c.Value = 2;
+                                         }
+                                         )
+                                         );
+
+            conductor_mastery = Helpers.CreateFeature("ConductorMasteryFeature",
+                                                             "Conductor Mastery",
+                                                             "Planar Harmonizer must select conjuration for her implement mastery.",
+                                                             "",
+                                                             implement_icons[SpellSchool.Conjuration],
+                                                             FeatureGroup.None,
+                                                             Helpers.CreateAddFact(implement_masteries[SpellSchool.Conjuration])
+                                                             );
+
+        }
+
+
         static void createNecroccultist()
         {
             necroccultist = Helpers.Create<BlueprintArchetype>(a =>
@@ -314,7 +474,7 @@ namespace CallOfTheWild
                                                           Helpers.LevelEntry(3, necromantic_bond_spells),
                                                           Helpers.LevelEntry(5, necromantic_bond_spells, ghostly_horde),
                                                           Helpers.LevelEntry(7, necromantic_bond_spells),
-                                                          Helpers.LevelEntry(8, repower_construct, life_drain),
+                                                          Helpers.LevelEntry(8, life_drain),
                                                           Helpers.LevelEntry(9, necromantic_bond_spells),
                                                           Helpers.LevelEntry(11, necromantic_bond_spells),
                                                           Helpers.LevelEntry(13, necromantic_bond_spells),
