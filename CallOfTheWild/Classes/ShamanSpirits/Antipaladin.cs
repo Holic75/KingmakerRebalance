@@ -1271,7 +1271,7 @@ namespace CallOfTheWild
                                                              );
 
             var deparvity_buff = Helpers.CreateBuff("AuraOfDeparvityEffectBuff",
-                                                    "Aura of Deparvity",
+                                                    "Aura of Depravity",
                                                     "At 17th level, an antipaladin gains DR 5/good. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
                                                     "",
                                                     Helpers.GetIcon("41cf93453b027b94886901dbfc680cb9"), //overwhelming presence
