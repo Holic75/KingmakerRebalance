@@ -107,6 +107,7 @@ namespace CallOfTheWild
         static public BlueprintFeature ice_magic;
 
         static public Dictionary<string, Common.ExtraSpellList> patron_spelllist_map = new Dictionary<string, Common.ExtraSpellList>();
+        static public Dictionary<BlueprintFeature, BlueprintAbility[]> patron_spells_map = new Dictionary<BlueprintFeature, BlueprintAbility[]>();
         static public BlueprintArchetype havocker;
         static public BlueprintFeatureSelection patron_element;
         static public BlueprintFeatureSelection infusion;
@@ -120,6 +121,10 @@ namespace CallOfTheWild
         static public BlueprintAbility ill_omen;
         static public BlueprintAbility hermean_potential;
         static public BlueprintAbility screech;
+
+        static public BlueprintArchetype invoker;
+        static public BlueprintFeature invoke_patron;
+        static public BlueprintFeature second_invocation;
 
         static HexEngine hex_engine;
 
@@ -179,7 +184,8 @@ namespace CallOfTheWild
             createHexChanneler();
             createWinterWitch();
             createHavocker();
-            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype, winter_witch_archetype, havocker};
+            createInvoker();
+            witch_class.Archetypes = new BlueprintArchetype[] {ley_line_guardian_archetype, hedge_witch_archetype, hex_channeler_archetype, winter_witch_archetype, havocker, invoker};
             Helpers.RegisterClass(witch_class);
             createExtraHexFeat();
 
@@ -218,6 +224,211 @@ namespace CallOfTheWild
             extra_hex_feat.AddComponent(Common.prerequisiteNoArchetype(havocker));
             witch_knife.AddComponent(Common.prerequisiteNoArchetype(havocker));
             patron_cl_fcb.AddComponent(Common.prerequisiteNoArchetype(havocker));
+        }
+
+
+        static void createInvoker()
+        {
+            invoker = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "InvokerWitchArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Invoker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The invoker uses her familiar to summon facets of her mysterious patron directly into her body, enhancing her skills and granting her powerful abilities. Whether these spiritual enhancements come from a single entity or a host of spiritual forces associated with the witch’s patron can vary, and in many cases, a particular invoker never learns the truth of this matter.");
+            });
+            Helpers.SetField(invoker, "m_ParentClass", witch_class);
+            library.AddAsset(invoker, "");
+
+            createInvokePatron();
+
+            invoker.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, hex_selection),
+                                                                       Helpers.LevelEntry(8, hex_selection),
+                                                                       Helpers.LevelEntry(10, hex_selection),
+                                                                       Helpers.LevelEntry(16, hex_selection)
+                                                                     };
+            invoker.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, invoke_patron), Helpers.LevelEntry(10, second_invocation) };
+            witch_class.Progression.UIGroups = witch_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(invoke_patron, second_invocation));
+        }
+
+
+        static void createInvokePatron()
+        {
+            var bondage = createPatronAspect("BondagePatronAspect",
+                                             "Bondage",
+                                             "The invoker gains a +2 enhancement bonus to her Strength. This bonus increases to +4 at 8th level and +6 at 16th level.",
+                                             Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"), //transmutation strength
+                                             Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Enhancement),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                           );
+
+            var crisis = createPatronAspect("CrisisPatronAspect",
+                                             "Crisis",
+                                             "The invoker gains a +2 enhancement bonus to her Constitution. This bonus increases to +4 at 8th level and +6 at 16th level.",
+                                             Helpers.GetIcon("99cf556b967c2074ca284e127d815711"), //transmutation constitution
+                                             Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Enhancement),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                           );
+
+            var decisions = createPatronAspect("DecisionsPatronAspect",
+                                             "Decisions",
+                                             "The invoker gains a +2 enhancement bonus to Dexterity. This bonus increases to +4 at 8th level and +6 at 16th level.",
+                                             Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a"), //transmutation dexterity
+                                             Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Enhancement),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                           );
+
+            var fortune = createPatronAspect("FortunePatronAspect",
+                                                 "Fortune",
+                                                 "The invoker gains a +1 resistance bonus on saving throws. This bonus increases to +3 at 8th level and +5 at 16th level.",
+                                                 Helpers.GetIcon("00369aa0a76141a479382e360b1f3dd7"), //judgement resilence
+                                                 Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance),
+                                                 Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance),
+                                                 Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                                 progression: ContextRankProgression.StartPlusDoubleDivStep, stepLevel: 8, startLevel: 0)
+                                               );
+
+            var paradise = createPatronAspect("ParadisePatronAspect",
+                                             "Paradise",
+                                             "The invoker gains a +3 competence bonus on Mobility checks and concentration checks. This bonus increases to +6 at 8th level and +9 at 16th level.",
+                                             Helpers.GetIcon("c074a5d615200494b8f2a9c845799d93"), //rogue talent
+                                             Helpers.CreateAddContextStatBonus(StatType.SkillMobility, ModifierDescriptor.Competence),
+                                             Helpers.Create<ConcentrationBonus>(c => c.Value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                             progression: ContextRankProgression.Custom, 
+                                                                             customProgression: new (int, int)[] { (7, 3), (15, 6), (20, 9) })
+                                           );
+
+            var revelation = createPatronAspect("RevelationPatronAspect",
+                                                 "Revelation",
+                                                 "The invoker gains a +1 insight bonus on attack rolls made with weapons. This bonus increases to +2 at 8th level and +3 at 16th level.",
+                                                 NewSpells.magic_weapon.Icon,
+                                                 Helpers.Create<NewMechanics.WeaponsOnlyAttackBonus>(w => w.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                               );
+
+            var bridge = createPatronAspect("BridgePatronAspect",
+                                            "Bridge",
+                                            "The invoker treats other creatures as if their damage reduction were 2 lower. This increases to 5 lower at 8th level and 10 lower at 16th level.",
+                                             Helpers.GetIcon("ee7dc126939e4d9438357fbd5980d459"), //spell penetration
+                                             Helpers.Create<SpellManipulationMechanics.ReduceEnergyResistance>(w => w.value = Helpers.CreateContextValue(AbilityRankType.Default)),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                              progression: ContextRankProgression.Custom,
+                                                                              customProgression: new (int, int)[] { (7, 2), (15, 5), (20, 10) }
+                                                                             )
+                                            );
+
+            var reckoning = createPatronAspect("ReckoningPatronAspect",
+                                                 "Reckoning",
+                                                 "The invoker adds an insight bonus on damage rolls from attacks made with spells and natural attacks, gaining 1 point of damage per die rolled. At 8th level, the invoker gains a +4 bonus to confirm critical hits threatened with spells and natural attacks. At 16th level, the critical threat range of the invoker’s spells and natural attacks doubles, as if from Improved Critical.",
+                                                 Helpers.GetIcon("cdb106d53c65bbc4086183d54c3b97c7"),
+                                                 Helpers.Create<OnCastMechanics.DamageBonusPerDieOnSpell>(d => { d.apply_to_natural_attacks = true; d.specific_class = witch_class; }),
+                                                 Helpers.Create<OnCastMechanics.SpellCriticalRangeDouble>(d =>
+                                                 {
+                                                     d.apply_to_natural_attacks = true;
+                                                     d.check_context_value = true;
+                                                     d.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                     d.specific_class = witch_class;
+                                                 }
+                                                 ),
+                                                 Helpers.Create<OnCastMechanics.SpellCriticalConfirmationBonus>(d =>
+                                                 {
+                                                     d.apply_to_natural_attacks = true;
+                                                     d.value = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                     d.specific_class = witch_class;
+                                                 }
+                                                 ),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                             progression: ContextRankProgression.Custom, type: AbilityRankType.StatBonus,
+                                                                             customProgression: new (int, int)[] { (7, 0), (20, 4) }),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                                             progression: ContextRankProgression.DivStep, stepLevel: 16)
+                                               );
+
+            var curiosity = createPatronAspect("CuriosityPatronAspect",
+                                            "Curiosity",
+                                            "The DCs of the invoker’s patron spells increase by 1. At 8th level this bonus also applies to all invoker's hexes. At 16th level, these DCs increase by an additional 1.",
+                                             Helpers.GetIcon("ae4d3ad6a8fda1542acf2e9bbc13d113"), //fix cunning
+                                             Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(i =>
+                                             {
+                                                 i.spells = HexEngine.amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>().spells;
+                                                 i.BonusDC = Helpers.CreateContextValue(AbilityRankType.Default);
+                                             }),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                                             progression: ContextRankProgression.DivStep, stepLevel: 8)
+                                            );
+
+            foreach (var kv in patron_spells_map)
+            {
+                var patron_buff = Helpers.CreateBuff(kv.Key.name + "CurioistyBuff",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     null,
+                                                     Helpers.Create<NewMechanics.IncreaseSpecifiedSpellsDC>(i =>
+                                                     {
+                                                         i.spells = kv.Value;
+                                                         i.BonusDC = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                     }),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
+                                                                                             progression: ContextRankProgression.DivStep, stepLevel: 8, min: 1)
+                                                    );
+                patron_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(curiosity.Buff, patron_buff, kv.Key);
+            }
+
+            var toggles = new BlueprintActivatableAbility[]
+            {
+                bondage, bridge, crisis, curiosity, decisions, fortune, paradise, reckoning, revelation
+            };
+
+            var description = "At 1st level, an invoker can invite spirits associated with her patron’s themes into her body and mind as a swift action. This functions like a hunter’s animal focus, except she emulates facets of her patron, chosen from the list below.";
+
+            foreach (var t in toggles)
+            {
+                description += "\n" + t.Name + ": " + t.Description;
+            }
+
+            invoke_patron = Helpers.CreateFeature("InvokePatronFeature",
+                                                  "Invoke Patron",
+                                                  description,
+                                                  "",
+                                                  Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"),
+                                                  FeatureGroup.None,
+                                                  Helpers.CreateAddFacts(toggles)
+                                                  );
+
+            second_invocation = Helpers.CreateFeature("SecondInvocationInvokerFeature",
+                                                      "Second Invocation",
+                                                      "At 10th level, whenever an invoker uses her invoke patron ability, she selects two different facets of her patron for herself instead of one.",
+                                                      "",
+                                                      Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"),
+                                                      FeatureGroup.None,
+                                                      Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.InvokePatron.ToActivatableAbilityGroup())
+                                                      );
+        }
+
+
+        static BlueprintActivatableAbility createPatronAspect(string prefix, string display_name, string description, 
+                                       UnityEngine.Sprite icon, params BlueprintComponent[] components)
+        {
+            var buff = Helpers.CreateBuff(prefix + "Buff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          icon,
+                                          null,
+                                          components
+                                          );
+
+            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+            toggle.Group = ActivatableAbilityGroupExtension.InvokePatron.ToActivatableAbilityGroup();
+
+            return toggle;
         }
 
 
@@ -1734,6 +1945,8 @@ namespace CallOfTheWild
             {
                 winter_witch_patrons.Add(patron);
             }
+
+            patron_spells_map.Add(patron, Common.getSpellsFromSpellList(learn_spell_list.SpellList));
             return patron;
         }
 

@@ -2109,13 +2109,14 @@ namespace CallOfTheWild
         public class IncreaseSpecifiedSpellsDC : BuffLogic, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public BlueprintAbility[] spells;
-            public int BonusDC;
+            public ContextValue BonusDC;
 
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                if (!spells.Contains(evt.Spell))
-                    return;
-                evt.AddBonusDC(this.BonusDC);
+                if (spells.Contains(evt.Spell) || (evt.Spell.Parent != null && spells.Contains(evt.Spell.Parent)))
+                {
+                    evt.AddBonusDC(this.BonusDC.Calculate(this.Fact.MaybeContext));
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)

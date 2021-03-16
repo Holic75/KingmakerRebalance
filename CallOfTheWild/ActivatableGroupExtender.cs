@@ -77,7 +77,8 @@ namespace CallOfTheWild
             MetamagicMastery,
             RagingTacticianTeamworkFeatShare,
             SkirnirArcaneShieldEnchantment,
-            MarshalInspire
+            MarshalInspire,
+            InvokePatron
     }
 
         public static partial class Extensions

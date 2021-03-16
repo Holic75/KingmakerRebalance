@@ -504,7 +504,7 @@ namespace CallOfTheWild
                                                      "A divine herbalist gains competence bonus on Lore (Nature) checks equal to 1/2 her oracle level (minimum 1), and can use her Charisma modifier in place of her Wisdom modifier when attempting Lore (Nature) checks. Lore (Nature) is a class skill for divine herbalist.",
                                                      "",
                                                      Helpers.GetIcon("d797007a142a6c0409a74b064065a15e"),
-                                                     FeatureGroup.Domain,
+                                                     FeatureGroup.AasimarHeritage,
                                                      Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillLoreNature),
                                                      Helpers.Create<StatReplacementMechanics.ReplaceBaseStatForStatTypeLogic>(s =>
                                                                                                                              {
@@ -685,7 +685,7 @@ namespace CallOfTheWild
                                                      "A spirit guide gains all Knowledge skills as class skills. This replaces the bonus class skills gained from the oracle’s mystery.",
                                                      "",
                                                      null,
-                                                     FeatureGroup.Domain,
+                                                     FeatureGroup.AasimarHeritage,
                                                      Helpers.Create<AddClassSkill>(a => a.Skill = StatType.SkillLoreNature)
                                                      );
             createSpiritGuideSpiritSelection();
@@ -2026,7 +2026,7 @@ namespace CallOfTheWild
                                                            "Each oracle is cursed, but this curse comes with a benefit as well as a hindrance. This choice is made at 1st level, and once made, it cannot be changed. The oracle’s curse cannot be removed or dispelled without the aid of a deity. An oracle’s curse is based on her oracle level.",
                                                            "",
                                                            null,
-                                                           FeatureGroup.Domain,
+                                                           FeatureGroup.AasimarHeritage,
                                                            Helpers.Create<NoSelectionIfAlreadyHasFeature>(n => { n.AnyFeatureFromSelection = true; n.Features = new BlueprintFeature[0]; })
                                                            );
 
@@ -2037,7 +2037,7 @@ namespace CallOfTheWild
                                                "A dual-cursed oracle must choose a second curse at 1st level. This curse never changes its abilities as the oracle gains levels.",
                                                "",
                                                null,
-                                               FeatureGroup.Domain);
+                                               FeatureGroup.AasimarHeritage);
 
             minor_curse_selection.AllFeatures = new BlueprintFeature[] { clouded_vision_minor, blackened_minor, deaf_minor, lame_minor, wasting_minor, pranked_minor, plagued_minor, wolf_scarred_face_minor, lich_minor, vampirism_minor, powerless_minor };
         }

@@ -540,4 +540,109 @@ namespace CallOfTheWild.OnCastMechanics
         {
         }
     }
+
+
+    public class DamageBonusPerDieOnSpell : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateDamage>, IRulebookHandler<RuleCalculateDamage>, IInitiatorRulebookSubscriber
+    {
+        public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
+        public bool apply_to_natural_attacks;
+
+        public void OnEventAboutToTrigger(RuleCalculateDamage evt)
+        {
+            if (!apply_to_natural_attacks || !(evt.ParentRule?.AttackRoll?.Weapon?.Blueprint?.IsNatural).GetValueOrDefault())
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || !context.SourceAbility.IsSpell)
+                    return;
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+
+                var attack_roll = evt.ParentRule?.AttackRoll;
+                if (attack_roll == null)
+                {
+                    return;
+                }
+            }
+
+            foreach (BaseDamage baseDamage in evt.DamageBundle)
+                baseDamage.AddBonus(baseDamage.Dice.Rolls);
+        }
+
+        public void OnEventDidTrigger(RuleCalculateDamage evt)
+        {
+        }
+    }
+
+
+    public class SpellCriticalRangeDouble : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+    {
+        public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
+        public bool check_context_value;
+        public ContextValue value;
+        public bool apply_to_natural_attacks;
+
+        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        {
+            if (!apply_to_natural_attacks || !(evt.Weapon?.Blueprint?.IsNatural).GetValueOrDefault())
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || !context.SourceAbility.IsSpell)
+                    return;
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+            }
+
+            if (check_context_value && value.Calculate(this.Fact.MaybeContext) <= 0)
+            {
+                return;
+            }
+
+
+            evt.DoubleCriticalEdge = true;
+        }
+
+        public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+        {
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class SpellCriticalConfirmationBonus : RuleInitiatorLogicComponent<RuleAttackRoll>
+    {
+        public ContextValue value;
+        public BlueprintSpellbook spellbook;
+        public BlueprintCharacterClass specific_class;
+        public bool apply_to_natural_attacks;
+
+
+        public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+        {
+            if (!apply_to_natural_attacks || !(evt.Weapon?.Blueprint?.IsNatural).GetValueOrDefault())
+            {
+                MechanicsContext context = evt.Reason.Context;
+                if (context?.SourceAbility == null || !context.SourceAbility.IsSpell)
+                    return;
+
+                if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, evt.Initiator.Descriptor))
+                {
+                    return;
+                }
+            }
+
+            evt.CriticalConfirmationBonus += value.Calculate(this.Fact.MaybeContext);
+        }
+
+        public override void OnEventDidTrigger(RuleAttackRoll evt)
+        {
+        }
+    }
 }
