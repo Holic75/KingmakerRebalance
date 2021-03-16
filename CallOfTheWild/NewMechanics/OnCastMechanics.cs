@@ -550,12 +550,14 @@ namespace CallOfTheWild.OnCastMechanics
 
         public void OnEventAboutToTrigger(RuleCalculateDamage evt)
         {
+            
             if (!apply_to_natural_attacks || !(evt.ParentRule?.AttackRoll?.Weapon?.Blueprint?.IsNatural).GetValueOrDefault())
             {
+                
                 MechanicsContext context = evt.Reason.Context;
                 if (context?.SourceAbility == null || !context.SourceAbility.IsSpell)
                     return;
-
+                
                 if (!Helpers.checkSpellbook(spellbook, specific_class, context.SourceAbilityContext?.Ability?.Spellbook, evt.Initiator.Descriptor))
                 {
                     return;

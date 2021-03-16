@@ -258,7 +258,8 @@ namespace CallOfTheWild
                                              Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"), //transmutation strength
                                              Helpers.CreateAddContextStatBonus(StatType.Strength, ModifierDescriptor.Enhancement),
                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
-                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                                                             progression: ContextRankProgression.Custom,
+                                                                             customProgression: new (int, int)[] { (7, 2), (15, 4), (20, 6) })
                                            );
 
             var crisis = createPatronAspect("CrisisPatronAspect",
@@ -267,7 +268,8 @@ namespace CallOfTheWild
                                              Helpers.GetIcon("99cf556b967c2074ca284e127d815711"), //transmutation constitution
                                              Helpers.CreateAddContextStatBonus(StatType.Constitution, ModifierDescriptor.Enhancement),
                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
-                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                                                             progression: ContextRankProgression.Custom,
+                                                                             customProgression: new (int, int)[] { (7, 2), (15, 4), (20, 6) })
                                            );
 
             var decisions = createPatronAspect("DecisionsPatronAspect",
@@ -276,13 +278,14 @@ namespace CallOfTheWild
                                              Helpers.GetIcon("3553bda4d6dfe6344ad89b25f7be939a"), //transmutation dexterity
                                              Helpers.CreateAddContextStatBonus(StatType.Dexterity, ModifierDescriptor.Enhancement),
                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
-                                                                             progression: ContextRankProgression.OnePlusDivStep, stepLevel: 8)
+                                                                             progression: ContextRankProgression.Custom,
+                                                                             customProgression: new (int, int)[] { (7, 2), (15, 4), (20, 6) })
                                            );
 
             var fortune = createPatronAspect("FortunePatronAspect",
                                                  "Fortune",
                                                  "The invoker gains a +1 resistance bonus on saving throws. This bonus increases to +3 at 8th level and +5 at 16th level.",
-                                                 Helpers.GetIcon("00369aa0a76141a479382e360b1f3dd7"), //judgement resilence
+                                                 Helpers.GetIcon("1bb08308c9f6a5e4697887cd438b7221"), //judgement protection
                                                  Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.Resistance),
                                                  Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.Resistance),
                                                  Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.Resistance),
@@ -313,7 +316,7 @@ namespace CallOfTheWild
             var bridge = createPatronAspect("BridgePatronAspect",
                                             "Bridge",
                                             "The invoker treats other creatures as if their damage reduction were 2 lower. This increases to 5 lower at 8th level and 10 lower at 16th level.",
-                                             Helpers.GetIcon("ee7dc126939e4d9438357fbd5980d459"), //spell penetration
+                                             Helpers.GetIcon("487af80cdfbaad74b8c2fd644c538233"), //piercing judgment
                                              Helpers.Create<SpellManipulationMechanics.ReduceEnergyResistance>(w => w.value = Helpers.CreateContextValue(AbilityRankType.Default)),
                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getWitchArray(),
                                                                               progression: ContextRankProgression.Custom,
@@ -324,7 +327,7 @@ namespace CallOfTheWild
             var reckoning = createPatronAspect("ReckoningPatronAspect",
                                                  "Reckoning",
                                                  "The invoker adds an insight bonus on damage rolls from attacks made with spells and natural attacks, gaining 1 point of damage per die rolled. At 8th level, the invoker gains a +4 bonus to confirm critical hits threatened with spells and natural attacks. At 16th level, the critical threat range of the invoker’s spells and natural attacks doubles, as if from Improved Critical.",
-                                                 Helpers.GetIcon("cdb106d53c65bbc4086183d54c3b97c7"),
+                                                 Helpers.GetIcon("4ebaf39efb8ffb64baf92784808dc49c"), //destruction judgment
                                                  Helpers.Create<OnCastMechanics.DamageBonusPerDieOnSpell>(d => { d.apply_to_natural_attacks = true; d.specific_class = witch_class; }),
                                                  Helpers.Create<OnCastMechanics.SpellCriticalRangeDouble>(d =>
                                                  {
