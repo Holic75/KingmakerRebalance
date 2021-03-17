@@ -69,6 +69,7 @@ namespace CallOfTheWild
             fixDomainSpells(Hunter.hunter_class.Spellbook.SpellList, domain_selection, 6);
             fixDomainSpells(Occultist.occultist_class.Spellbook.SpellList, domain_selection, 6);
             fixDomainSpells(Spiritualist.spiritualist_class.Spellbook.SpellList, domain_selection, 6);
+            fixDomainSpells(Antipaladin.antipaladin_class.Spellbook.SpellList, domain_selection, 4);
         }
 
 

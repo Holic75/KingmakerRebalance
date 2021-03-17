@@ -30,7 +30,7 @@ New classes:
 - Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind, Priest of the Fallen and Exciter,
-- Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
+- Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator, Iron Tyrant, Tyrant and Unholy Minion,
 - Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant, Planar Harmonizer and Necroccultist,
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 

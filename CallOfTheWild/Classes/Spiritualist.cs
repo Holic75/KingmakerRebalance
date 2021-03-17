@@ -277,8 +277,6 @@ namespace CallOfTheWild
 
         static void createMasterfulFaith()
         {
-            var animal_domain = library.Get<BlueprintProgression>("23d2f87aa54c89f418e68e790dba11e0");
-            animal_domain.AddComponent(Helpers.PrerequisiteClassLevel(spiritualist_class, 1));
             masterful_faith = library.CopyAndAdd<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9", "MasterfulFaithFeatureSelection", "");
 
             for (int i = 0; i < masterful_faith.AllFeatures.Length; i++)
