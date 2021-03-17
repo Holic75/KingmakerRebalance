@@ -17,7 +17,7 @@ Known Issues:
 - If you start summoner/primal companion hunter level-up and then abort the process, your eidolon will lose all of its evolutions and will not regain them until you finish level-up.
 
 
-It introduces new classes:  
+New classes:  
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
 - Witch with with following archetypes: Invoker, Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
@@ -44,7 +44,7 @@ New Archetypes for existing classes:
 - Beastkin Berserker, Pack Rager and Untamed Rager Barbarian archetypes,
 - Mindblade, Skirnir and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype), Swashbuckler, and Rake Rogue archetypes,
-- Monk of the Mantis and Zen Archer Monk archetypes,
+- Sage Counselor, Monk of the Mantis and Zen Archer Monk archetypes,
 - Ravener Hunter, Relic Hunter, and Sanctified Slayer Inquisitor archetypes,
 - Executioner, Stygian Slayer, and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,

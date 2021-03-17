@@ -322,7 +322,7 @@ namespace CallOfTheWild.ShadowSpells
                     }
                     else if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80)
                     {
-                        __instance.Modifier = new float?( (__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) *0.8f);
+                        __instance.Modifier = new float?( (__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) * 0.8f);
                     }
                 }
                 return true;

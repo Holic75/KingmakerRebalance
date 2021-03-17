@@ -120,6 +120,12 @@ namespace CallOfTheWild
 
         static public BlueprintFeature ability_focus_touch_of_corruption;
 
+        static public BlueprintArchetype tyrant;
+        static public BlueprintFeature smite_chaos;
+        static public BlueprintFeature unholy_champion;
+        static public BlueprintFeature enforcers_aura;
+        static public BlueprintFeature enforecers_aura_of_vengeance;
+        static public BlueprintFeature aura_of_obedience;
 
 
         internal class CrueltyEntry
@@ -277,7 +283,8 @@ namespace CallOfTheWild
             createBlightedMyrmidon();
             createIronTyrant();
             createDreadVanguard();
-            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon, iron_tyrant, dread_vanguard }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
+            createTyrant();
+            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon, iron_tyrant, dread_vanguard, tyrant }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
@@ -288,6 +295,143 @@ namespace CallOfTheWild
 
             Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
                                                    Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));
+        }
+
+
+        static void createTyrant()
+        {
+            tyrant = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TyrantAntipaladinArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Tyrant");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Evil arises in every form imaginable, not just in hearts full of destruction and chaos. Tyrants are manipulative and lawful antipaladins, chess masters who arrange things behind the scenes to ensure that whatever happens, evil always wins, and the tyrant along with it. Unlike other antipaladins, tyrants are all too happy to associate with good creatures, the better to manipulate them into performing evil acts.");
+            });
+            Helpers.SetField(tyrant, "m_ParentClass", antipaladin_class);
+            library.AddAsset(tyrant, "");
+
+            createSmiteChaosAndAuraOfVengeance();
+            createTyrantAurasAndUnholyChampion();
+
+            tyrant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+                                                       Helpers.LevelEntry(14, aura_of_sin),
+                                                       Helpers.LevelEntry(17, aura_of_deparvity),
+                                                       Helpers.LevelEntry(20, tip_of_spear),
+                                                      };
+
+            tyrant.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_chaos),
+                                                      Helpers.LevelEntry(14, enforcers_aura),
+                                                      Helpers.LevelEntry(17, aura_of_obedience),
+                                                      Helpers.LevelEntry(20, unholy_champion),
+                                                  };
+
+
+
+            antipaladin_progression.UIGroups[1].Features.Add(smite_chaos);
+            antipaladin_progression.UIGroups[2].Features.Add(enforcers_aura);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_obedience);
+            antipaladin_progression.UIGroups[2].Features.Add(unholy_champion);
+        }
+
+
+        static void createTyrantAurasAndUnholyChampion()
+        {
+            var obedience_buff = Helpers.CreateBuff("AuraOfObedienceEffectBuff",
+                                        "Aura of Obedience",
+                                        "At 17th level, a tyrant gains DR 5/chaotic. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the tyrant is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("cc0aeb74b35cb7147bff6c53538bbc76"), //forced repentance
+                                        null,
+                                        Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                              ModifierDescriptor.UntypedStackable, SpellDescriptor.Compulsion),
+                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue,
+                                                                        stepLevel: -4, featureList: new BlueprintFeature[] { aura_of_despair, aura_of_despair })
+                                        );
+
+            aura_of_obedience = Common.createAuraEffectFeature(obedience_buff.Name,
+                                                             obedience_buff.Description,
+                                                             obedience_buff.Icon,
+                                                             obedience_buff,
+                                                             13.Feet(),
+                                                             Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                             );
+
+           
+            var channels = channel_negative_energy.GetComponent<AddFacts>().Facts.OfType<BlueprintAbility>().ToArray();
+
+            unholy_champion = Helpers.CreateFeature("UnholyChampionFeature",
+                                                    "Unholy Champion",
+                                                    "At 20th level, a tyrant becomes a conduit for the might of the dark powers. His DR increases to 10/chaotic. In addition, whenever he channels negative energy or uses touch of corruption to damage a creature, he deals the maximum possible amount.",
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
+                                                    FeatureGroup.None,
+                                                    library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de").GetComponent<AutoMetamagic>().CreateCopy(a =>
+                                                    {
+                                                        a.Abilities = new List<BlueprintAbility>
+                                                        {
+                                                            channels[0], channels[1],
+                                                            touch_of_corruption_base, ranged_channel_wrapper
+                                                        };
+                                                        a.Abilities.AddRange(channels[0].Variants);
+                                                        a.Abilities.AddRange(channels[1].Variants);
+                                                        a.Abilities.AddRange(touch_of_corruption_base.Variants);
+                                                        a.Abilities.AddRange(ranged_channel_wrapper.Variants);
+                                                    }
+                                                    )
+                                                    );
+
+            aura_of_obedience.AddComponents(Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.StatBonus), DamageAlignment.Chaotic),
+                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.MultiplyByModifier,
+                                           stepLevel: 5, featureList: new BlueprintFeature[] { aura_of_obedience, unholy_champion })
+                                           );
+
+            var enforcers_buff = Helpers.CreateBuff("AuraOfEnforcerEffectBuff",
+                                        "Enforcer's Aura",
+                                        "At 14th level, a tyrant’s weapons are treated as lawful-aligned for the purposes of overcoming damage reduction. Any attack made against an enemy within 10 feet of him is treated as lawful-aligned for the purposes of overcoming damage reduction. This ability functions only while the tyrant is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("d7e61eb9f0cec5e49bd1b0c428fa98e4"), //judgment smiting
+                                        null,
+                                        library.Get<BlueprintBuff>("f84a39e55230f5e499588c5cd19548cd").GetComponent<AddIncomingDamageWeaponProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Chaotic)
+                                        );
+
+            enforcers_aura = Common.createAuraEffectFeature(enforcers_buff.Name,
+                                                         enforcers_buff.Description,
+                                                         enforcers_buff.Icon,
+                                                         enforcers_buff,
+                                                         13.Feet(),
+                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                         );
+            enforcers_aura.AddComponent(library.Get<BlueprintFeature>("0437f4af5ad49b544bccf48aa7a51319").GetComponent<AddOutgoingPhysicalDamageProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Chaotic));
+        }
+
+
+        static void createSmiteChaosAndAuraOfVengeance()
+        {          
+            smite_chaos = Common.createSmite("AntipaladinSmiteChaos",
+                                            "Smite Chaos",
+                                            "This ability functions as the paladin’s smite evil ability, but against chaotic-aligned creatures.",
+                                            "",
+                                            "",
+                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteImpudence.png"),
+                                            getAntipaladinArray(),
+                                            Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Chaotic; c.fact = tip_of_spear; })
+                                            );
+
+            var smite_chaos_ability = smite_chaos.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            smite_chaos_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+
+
+            enforecers_aura_of_vengeance = Common.createSmiteForAllies("AntipaladinTyrantAuraOfVengeance",
+                                                                        aura_of_vengeance.Name,
+                                                                        aura_of_vengeance.Description,
+                                                                        "",
+                                                                        "",
+                                                                        aura_of_vengeance.Icon,
+                                                                        getAntipaladinArray(),
+                                                                        Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Chaotic; c.fact = tip_of_spear; })
+                                                                        );
+
+            var aura_of_vengeance_ability = aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
         }
 
 
@@ -1846,14 +1990,14 @@ namespace CallOfTheWild
                                                 Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead),
                                                 Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
                                                 );
-            ability.AvailableMetamagic = Metamagic.Reach; //for dread vanguard aura
+            ability.AvailableMetamagic = Metamagic.Reach | Metamagic.Maximize; //for dread vanguard aura and unholy champion
             ability.setMiscAbilityParametersTouchHarmful();
             var ability_cast = Helpers.CreateTouchSpellCast(ability, touch_of_corruption_resource);
 
             ability_cast.AddComponents(Common.createAbilityTargetHasFact(true, Common.construct),
                                        Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
                                        Helpers.CreateResourceLogic(touch_of_corruption_resource));
-            ability_cast.AvailableMetamagic = Metamagic.Reach; //for dread vanguard aura
+            ability_cast.AvailableMetamagic = Metamagic.Reach | Metamagic.Maximize; //for dread vanguard aura and unholy champion
             var wrapper = Common.createVariantWrapper("AntipladinCrueltyBaseAbility", "", ability_cast);
 
             touch_of_corruption = Common.AbilityToFeature(wrapper, false);
@@ -2054,7 +2198,7 @@ namespace CallOfTheWild
                                             "Smite Good",
                                             "Once per day, an antipaladin can call out to the dark powers to crush the forces of good. As a swift action, the antipaladin chooses one target within sight to smite. If this target is good, the antipaladin adds his Charisma bonus (if any) on his attack rolls and adds his antipaladin level on all damage rolls made against the target of his smite, smite good attacks automatically bypass any DR the creature might possess.\n"
                                             + "In addition, while smite good is in effect, the antipaladin gains a deflection bonus equal to his Charisma modifier (if any) to his AC against attacks made by the target of the smite. If the antipaladin targets a creature that is not good, the smite is wasted with no effect.\n"
-                                            + "The smite evil lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite evil one additional time per day.",
+                                            + "The smite good lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite good one additional time per day.",
                                             "",
                                             "",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),

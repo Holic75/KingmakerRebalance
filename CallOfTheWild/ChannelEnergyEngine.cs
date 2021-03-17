@@ -250,7 +250,13 @@ namespace CallOfTheWild
             storeChannel(cleric_negative_heal, cleric_negative_channel_feature, ChannelType.NegativeHeal);
             storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
 
-            //replace undead check to work easier
+            var holy_champion = library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de");
+            holy_champion.GetComponent<AutoMetamagic>().Abilities.AddRange(new BlueprintAbility[] { hospitalier_positive_heal_base,
+                                                                                                    hospitalier_positive_harm_base,
+                                                                                                    paladin_positive_heal_base,
+                                                                                                    paladin_positive_harm_base });
+
+            //replace undead check to check for negative energy affinity rather than undead fact
             var channels_to_fix = new string[]
             {
                 "cbd03c874e39e6c4795fe0093544f2a2", //BreathOfLifeTouch
