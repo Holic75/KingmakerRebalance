@@ -102,7 +102,7 @@ namespace CallOfTheWild.Archetypes
             var assasinate_buff = Helpers.CreateBuff("GraveWardenDustbringerBuff",
                                                      "Dustbringer Target",
                                                      "At 10th level, a grave warden can slay a studied undead opponent. This functions as the assassinate slayer talent, except it requires a successful Will saving throw instead of a successful Fortitude save, affects only undead, and destroys the target instead of killing it. If the target succeeds at its saving throw, it becomes immune to that grave warden’s dustbringer ability for 24 hours.\n"
-                                                     + "Assasiante: " + RogueTalents.assasinate.Description,
+                                                     + "Assassinate: " + RogueTalents.assasinate.Description,
                                                      "",
                                                      icon,
                                                      null);

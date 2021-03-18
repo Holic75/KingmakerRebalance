@@ -17,9 +17,9 @@ Known Issues:
 - If you start summoner/primal companion hunter level-up and then abort the process, your eidolon will lose all of its evolutions and will not regain them until you finish level-up.
 
 
-It introduces new classes:  
+New classes:  
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
-- Witch with with following archetypes: Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
+- Witch with with following archetypes: Invoker, Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
 - Skald with following archetypes: Red Tongue, Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
 - Warpriest with following archetypes: Divine Commander, Sacred Fist, Cult Leader, Champion of the Faith, Feral Champion and Arsenal Chaplain,
@@ -29,9 +29,9 @@ It introduces new classes:
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
-- Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind and Exciter,
-- Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator and Iron Tyrant,
-- Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant and Necroccultist,
+- Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind, Priest of the Fallen and Exciter,
+- Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator, Iron Tyrant, Tyrant and Unholy Minion,
+- Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant, Planar Harmonizer and Necroccultist,
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
 New Archetypes for existing classes:
@@ -44,7 +44,7 @@ New Archetypes for existing classes:
 - Beastkin Berserker, Pack Rager and Untamed Rager Barbarian archetypes,
 - Mindblade, Skirnir and Nature-Bonded Magus Magus archetypes,
 - Ninja class (implemented as Rogue archetype), Swashbuckler, and Rake Rogue archetypes,
-- Monk of the Mantis and Zen Archer Monk archetypes,
+- Sage Counselor, Monk of the Mantis and Zen Archer Monk archetypes,
 - Ravener Hunter, Relic Hunter, and Sanctified Slayer Inquisitor archetypes,
 - Executioner, Stygian Slayer, and Grave Warden Slayer archetypes,
 - Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
@@ -588,7 +588,7 @@ Notable differences from pnp:
 - arcanist quick study allows you to replace all the spells of specified level instead of only one,
 - Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
 - Wind Walk increases speed to only 20mph instead of 60,
-- Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed
+- Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed,
 - Sanctified Slayer looses Bane ability,
 - Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,
@@ -612,7 +612,8 @@ Notable differences from pnp:
 - Stygian Slayer receives ability to cast spells as a ranger instead of just being able to use corresponding spell trigger items and invisibility/ mist form, he loses slayer talents at lvl 4, 10 and 16,
 - Soulbound Summoner only receives extra evolutions points at levels 3, 7, 11, 15 and 19 (1 point each time) and can not select incompatible evolutions,
 - Divine Hunter can additionally select entropic or resolute template through his otherwordly companion feature,
-- Divine Commander Warpriest receives animal companion instead of mount.
+- Divine Commander Warpriest receives animal companion instead of mount,
+- Priest of the Fallen receives only one domain at lvl 17.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

@@ -2157,13 +2157,14 @@ namespace CallOfTheWild
         public class IncreaseSpecifiedSpellsDC : BuffLogic, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public BlueprintAbility[] spells;
-            public int BonusDC;
+            public ContextValue BonusDC;
 
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
-                if (!spells.Contains(evt.Spell))
-                    return;
-                evt.AddBonusDC(this.BonusDC);
+                if (spells.Contains(evt.Spell) || (evt.Spell.Parent != null && spells.Contains(evt.Spell.Parent)))
+                {
+                    evt.AddBonusDC(this.BonusDC.Calculate(this.Fact.MaybeContext));
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateAbilityParams evt)
@@ -4266,8 +4267,9 @@ namespace CallOfTheWild
         [AllowMultipleComponents]
         public class FlankingAttackBonus : RuleInitiatorLogicComponent<RuleAttackRoll>
         {
-            public int Bonus;
+            public ContextValue Bonus;
             public ModifierDescriptor Descriptor;
+            public bool apply_to_flatfooted = false;
 
             private MechanicsContext Context
             {
@@ -4285,9 +4287,18 @@ namespace CallOfTheWild
                 if (evt.Weapon == null || !evt.Weapon.Blueprint.IsMelee)
                     return;
 
+                var bonus = Bonus.Calculate(this.Fact.MaybeContext);
                 if (evt.Target.CombatState.IsFlanked)
                 {
-                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(this.Bonus, (GameLogicComponent)this, this.Descriptor));
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                else if (apply_to_flatfooted)
+                {
+                    var rule = Rulebook.Trigger(new RuleCheckTargetFlatFooted(evt.Initiator, evt.Target));
+                    if (rule.IsFlatFooted)
+                    {
+                        evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                    }
                 }
             }
 
@@ -4818,7 +4829,7 @@ namespace CallOfTheWild
         {
             public ContextValue value;
             public BlueprintAbility[] spells;
-            public bool correct_dc = false;
+            public bool correct_dc = true;
             public int multiplier = 1;
 
             private MechanicsContext Context

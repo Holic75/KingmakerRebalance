@@ -1927,6 +1927,28 @@ namespace CallOfTheWild
             }
         }
 
+        public class ReduceEnergyResistance : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                var val = value.Calculate(this.Fact.MaybeContext);
+                foreach (var d in evt.DamageBundle)
+                {
+                    if (d is EnergyDamage)
+                    {
+                        d.SetReductionPenalty(val);
+                    }
+                }
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+
+            }
+        }
+
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]

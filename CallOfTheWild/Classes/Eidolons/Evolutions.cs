@@ -785,7 +785,7 @@ namespace CallOfTheWild
             evolution_entries.Add(new EvolutionEntry(extra_attack_serpentine, 2, 14, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons));
             evolution_entries.Add(new EvolutionEntry(extra_attack2, 2, 14, new BlueprintFeature[] { extra_attack }, new BlueprintFeature[] {gore}, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack, 1, 0, new BlueprintFeature[] {extra_attack }, new BlueprintFeature[0], biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
-            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack_serpentine, 1, 14, new BlueprintFeature[0], new BlueprintFeature[0], serpentine_eidolons));
+            evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack_serpentine, 1, 14, new BlueprintFeature[] {extra_attack_serpentine }, new BlueprintFeature[0], serpentine_eidolons));
             evolution_entries.Add(new EvolutionEntry(extra_off_hand_attack2, 1, 14, new BlueprintFeature[] { extra_attack2, extra_off_hand_attack }, new BlueprintFeature[] { gore, bite }, biped_eidolons.RemoveFromArray(Eidolon.infernal_eidolon)));
         }
 
@@ -1511,7 +1511,7 @@ namespace CallOfTheWild
                                    new GameAction[] { apply_poison_saved, apply_cooldown });
                 features[i] = Helpers.CreateFeature($"Poison{stats[i]}EvolutionFeature",
                                                         $"Poison: {stats[i].ToString()}",
-                                                        "The eidolon secretes toxic venom, gaining a poison attack. Select one bite or sting attack. Whenever the selected attack hits, the target is poisoned.\n"
+                                                        "The eidolon secretes toxic venom, gaining a poison attack. Whenever eidolon hits with bite attack, the target is poisoned.\n"
                                                         + "Eidolon Poison: Injury; save Fort negates; frequency 1/round for 4 rounds; effect 1d4 Str damage; cure 1 save. The save DC is equal to 10 + 1/2 the eidolon’s Hit Dice + the eidolon’s Constitution modifier. For 2 additional evolution points, this poison deals Constitution damage instead. This poison can be used no more than once per round.",
                                                         "",
                                                         poison_buff.Icon,

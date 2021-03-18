@@ -61,7 +61,7 @@ namespace CallOfTheWild
         static public BlueprintFeature split_major_hex_feat;
 
         static public BlueprintFeature amplified_hex_feat;
-        static BlueprintBuff amplified_hex_buff;
+        static public BlueprintBuff amplified_hex_buff;
         static private BlueprintAbility[] amplified_hex_sacrifice_spells = new BlueprintAbility[10];
 
         public BlueprintCharacterClass[] hex_classes;

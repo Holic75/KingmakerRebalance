@@ -30,7 +30,7 @@ namespace CallOfTheWild
         {
             string[] summon_monster_guids = new string[] {"8fd74eddd9b6c224693d9ab241f25e84", "7ab27a0d547742741beb5d089f1c3852", "15b5efe371d47c944b58444e7b734ffb",
                                                           "efa433a38e9c7c14bb4e780f8a3fe559", "0964bf88b582bed41b74e79596c4f6d9", "02de4dd8add69aa42a3d1330b573e2ab",
-                                                          "2920d48574933c24391fbb9e18f87bf5" };
+                                                          "2920d48574933c24391fbb9e18f87bf5", "eb6df7ddfc0669d4fb3fc9af4bd34bca" };
 
             var summon_m7 = library.Get<BlueprintAbility>("2920d48574933c24391fbb9e18f87bf5");
 

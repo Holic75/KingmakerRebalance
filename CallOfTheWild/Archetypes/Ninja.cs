@@ -60,6 +60,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintAbilityResource ki_resource;
         static public BlueprintFeature no_trace;
         static public BlueprintFeature light_steps;
+        static public BlueprintFeature dispatchment;
 
         static public BlueprintFeatureSelection ninja_trick;
         //base tricks
@@ -81,6 +82,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature see_the_unseen;//
         static public BlueprintFeature flurry_of_darts;
         //+evasion
+
 
 
         static LibraryScriptableObject library => Main.library;
@@ -123,6 +125,7 @@ namespace CallOfTheWild.Archetypes
             createKiPool();
             createLightSteps();
             createNinjaTrick();
+            createDispatchement();
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, rogue_proficiencies, trapfinding),
                                                           Helpers.LevelEntry(2, evasion, rogue_talent),
@@ -143,7 +146,7 @@ namespace CallOfTheWild.Archetypes
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, ninja_proficiencies),
                                                           Helpers.LevelEntry(2, ki_pool, ninja_trick),
                                                           Helpers.LevelEntry(3, no_trace),
-                                                          Helpers.LevelEntry(4, ninja_trick),
+                                                          Helpers.LevelEntry(4, ninja_trick, dispatchment),
                                                           Helpers.LevelEntry(6, ninja_trick, no_trace, light_steps),
                                                           Helpers.LevelEntry(8, ninja_trick),
                                                           Helpers.LevelEntry(9, no_trace),
@@ -159,9 +162,30 @@ namespace CallOfTheWild.Archetypes
             rogue_class.Progression.UIDeterminatorsGroup = rogue_class.Progression.UIDeterminatorsGroup.AddToArray(ninja_proficiencies);
             rogue_class.Progression.UIGroups[2].Features.Add(ki_pool);
             rogue_class.Progression.UIGroups[2].Features.Add(light_steps);
+            rogue_class.Progression.UIGroups[2].Features.Add(dispatchment);
             rogue_class.Archetypes = rogue_class.Archetypes.AddToArray(archetype);
         }
 
+
+        static void createDispatchement()
+        {
+            dispatchment = Helpers.CreateFeature("DispatchmentFeature",
+                                                 "Dispatchment",
+                                                 "At 4th level, whenever a ninja attacks an opponent that would be denied a Dexterity bonus to AC or when she flanks her target, she gains a +2 bonus on her attack roll. At 9th level and every 5 levels thereafter, this bonus increases by +1 (to a total maximum of +5).",
+                                                 "",
+                                                 Helpers.GetIcon("422dab7309e1ad343935f33a4d6e9f11"), //outflank
+                                                 FeatureGroup.None,
+                                                 Helpers.Create<NewMechanics.FlankingAttackBonus>(f =>
+                                                 {
+                                                     f.apply_to_flatfooted = true;
+                                                     f.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                     f.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                 }),
+                                                 Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getRogueArray(),
+                                                                                 progression: ContextRankProgression.StartPlusDivStep,
+                                                                                 startLevel: -1, stepLevel: 5)
+                                                );
+        }
 
         static void createNinjaProficiencies()
         {

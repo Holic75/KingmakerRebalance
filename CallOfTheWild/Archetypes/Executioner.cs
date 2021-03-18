@@ -175,7 +175,7 @@ namespace CallOfTheWild.Archetypes
         static void createFocusedKiller()
         {
             var non_humanoids = new BlueprintUnitFact[] {Common.dragon, Common.elemental, Common.magical_beast, Common.animal, Common.monstrous_humanoid,
-                                                         Common.aberration, Common.plant};
+                                                         Common.aberration, Common.plant, Common.outsider};
 
 
             var studied_target_buff = library.Get<BlueprintBuff>("45548967b714e254aa83f23354f174b0");

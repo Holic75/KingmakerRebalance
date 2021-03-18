@@ -32,7 +32,6 @@ namespace CallOfTheWild
             public bool fix_ecclesitheurge_class { get; }
             public bool advanced_fighter_options { get; }
             public bool wizard_discoveries { get; }
-            public bool deity_for_everyone { get; }
             public bool secondary_rake_attacks { get; }
             public bool one_sneak_attack_per_target_per_spell { get; }
             public bool metamagic_for_spontaneous_spell_conversion { get; }

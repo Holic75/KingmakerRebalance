@@ -2829,11 +2829,7 @@ namespace CallOfTheWild
             spell_specialization_progression.Classes = spell_specialization_progression.Classes.AddToArray(class_to_register);
         }
 
-        internal static Condition CreateConditionHasFact(object undeadType)
-        {
-            throw new NotImplementedException();
-        }
-
+    
         static readonly int[] fullCasterCost = new int[] { 13, 25, 150, 375, 700, 1125, 1650, 2275, 3000, 3825 };
         static readonly int[] threeQuartersCost = new int[] { 13, 25, 200, 525, 1000, 1625, 2400 };
         static readonly int[] halfCasterCost = new int[] { 13, 125, 400, 825, 1300 };

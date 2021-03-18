@@ -120,6 +120,20 @@ namespace CallOfTheWild
 
         static public BlueprintFeature ability_focus_touch_of_corruption;
 
+        static public BlueprintArchetype tyrant;
+        static public BlueprintFeature smite_chaos;
+        static public BlueprintFeature unholy_champion;
+        static public BlueprintFeature enforcers_aura;
+        static public BlueprintFeature enforecers_aura_of_vengeance;
+        static public BlueprintFeature aura_of_obedience;
+
+        static public BlueprintArchetype unholy_minion;
+
+        static public BlueprintFeatureSelection domain_selection;
+        static public BlueprintFeature[] minion_bond = new BlueprintFeature[6];
+        static public BlueprintAbility minion_bond_ability;
+        static public BlueprintBuff minion_bond_buff;
+        static public BlueprintFeature call_fiendish_ally;
 
 
         internal class CrueltyEntry
@@ -277,7 +291,9 @@ namespace CallOfTheWild
             createBlightedMyrmidon();
             createIronTyrant();
             createDreadVanguard();
-            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon, iron_tyrant, dread_vanguard }; //blighted myrmidon, insinuator, iron tyrant, dread vanguard, seal breaker
+            createTyrant();
+            createUnholyMinion();
+            antipaladin_class.Archetypes = new BlueprintArchetype[] {insinuator, blighted_myrmidon, iron_tyrant, dread_vanguard, tyrant, unholy_minion };
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
@@ -288,6 +304,398 @@ namespace CallOfTheWild
 
             Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
                                                    Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));
+        }
+
+
+        internal static void createUnholyMinion()
+        {       
+            unholy_minion = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "UnholyMinionArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Unholy Minion");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Antipaladins as a general rule, venerate the gods of evil and destruction, but some take this a step further, dedicating themselves to a specific deity and furthering the cause of the faith. These unholy minions are rewarded for their devotion with additional spells and powerful allies.");
+            });
+            Helpers.SetField(unholy_minion, "m_ParentClass", antipaladin_class);
+            library.AddAsset(unholy_minion, "");
+
+            createDomainSelection();
+            createMinionBond();
+            createCallFiendishAlly();
+
+            unholy_minion.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(4, smite_good_extra_use),
+                                                          Helpers.LevelEntry(5,  fiendish_boon[0]),
+                                                          Helpers.LevelEntry(8, aura_of_despair, fiendish_boon[1]),
+                                                          Helpers.LevelEntry(10, smite_good_extra_use),
+                                                          Helpers.LevelEntry(11,  fiendish_boon[2]),
+                                                          Helpers.LevelEntry(14,  fiendish_boon[3]),
+                                                          Helpers.LevelEntry(16, smite_good_extra_use),
+                                                          Helpers.LevelEntry(17,  fiendish_boon[4]),
+                                                          Helpers.LevelEntry(20,  fiendish_boon[5]),
+                                                       };
+
+            unholy_minion.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, domain_selection),
+                                                       Helpers.LevelEntry(5, minion_bond[0]),
+                                                       Helpers.LevelEntry(8, minion_bond[1], call_fiendish_ally),
+                                                       Helpers.LevelEntry(11, minion_bond[2]),
+                                                       Helpers.LevelEntry(14, minion_bond[3]),
+                                                       Helpers.LevelEntry(17, minion_bond[4]),
+                                                       Helpers.LevelEntry(20, minion_bond[5]),
+                                                     };
+
+            antipaladin_class.Progression.UIDeterminatorsGroup = antipaladin_class.Progression.UIDeterminatorsGroup.AddToArray(domain_selection);
+            antipaladin_class.Progression.UIGroups[0].Features.AddRange(minion_bond);
+            antipaladin_class.Progression.UIGroups[2].Features.Add(call_fiendish_ally);
+        }
+
+
+        static void createDomainSelection()
+        {
+            var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var cleric_domain = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            domain_selection = library.CopyAndAdd(cleric_domain, "UnholyMinionDomainSelection", "");
+            ClassToProgression.addClassToDomains(antipaladin_class, new BlueprintArchetype[] { unholy_minion }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection, cleric);
+            domain_selection.SetDescription("Unholy minion chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of paladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
+            antipaladin_class.Spellbook.CantripsType = CantripsType.Orisions; //to properly show domain slots
+        }
+
+
+        static void createCallFiendishAlly()
+        {
+            var resource = Helpers.CreateAbilityResource("UnholyMinionFiendishlAllyResource", "", "", "", null);
+            resource.SetFixedResource(1);
+            var summons = new BlueprintAbility[]
+            {
+             library.Get<BlueprintAbility>("0964bf88b582bed41b74e79596c4f6d9"),//sm v
+             library.Get<BlueprintAbility>("eb6df7ddfc0669d4fb3fc9af4bd34bca"),//sm vii
+             library.Get<BlueprintAbility>("e96593e67d206ab49ad1b567327d1e75")//sm ix
+            };
+
+            var summon_actions = new List<ActionList>();
+
+            foreach (var s in summons)
+            {
+                var sa = s.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                sa = Common.changeAction<ContextActionSpawnMonster>(sa, c => c.DurationValue = Helpers.CreateContextDuration(c.DurationValue.BonusValue, DurationRate.Minutes, c.DurationValue.DiceType, c.DurationValue.DiceCountValue));
+                summon_actions.Add(Helpers.CreateActionList(sa));
+            }
+
+
+            var ability = Helpers.CreateAbility("UnholyMinionCallFiendishAllyAbility",
+                                                "Call Fiendish Ally",
+                                                "At 8th level, an unholy minion can call upon her deity for aid, in the form of a powerful servant. This allows the unholy minion to summon redcap once per day as a spell-like ability for 1 minute per unholy minion level. At 12th level, she can summon a bogeyman instead. Finally, at 16th level, an unholy minion can summon thanadaemon.",
+                                                "",
+                                                Helpers.GetIcon("d3a4cb7be97a6694290f0dcfbd147113"), //abyssal bloodline
+                                                AbilityType.SpellLike,
+                                                CommandType.Standard,
+                                                AbilityRange.Close,
+                                                Helpers.minutesPerLevelDuration,
+                                                "",
+                                                resource.CreateResourceLogic(),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] { antipaladin_class }),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.DelayedStartPlusDivStep, AbilityRankType.SpeedBonus,
+                                                                                classes: new BlueprintCharacterClass[] { antipaladin_class }, startLevel: 8, stepLevel: 4),
+                                                Helpers.CreateSpellComponent(SpellSchool.Conjuration),
+                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Summoning),
+                                                Helpers.CreateRunActions(Common.createRunActionsDependingOnContextValue(Helpers.CreateContextValue(AbilityRankType.SpeedBonus),
+                                                                                                                        summon_actions.ToArray()
+                                                                                                                        )
+                                                                        )
+                                                );
+            Common.setAsFullRoundAction(ability);
+            ability.setMiscAbilityParametersRangedDirectional();
+            call_fiendish_ally = Common.AbilityToFeature(ability, false);
+            call_fiendish_ally.AddComponent(resource.CreateAddAbilityResource());
+        }
+
+
+        static void createMinionBond()
+        {
+            var toc_resource = touch_of_corruption_resource;
+            var resource = Helpers.CreateAbilityResource("UnholyMinionBondResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { antipaladin_class });
+            minion_bond_buff = Helpers.CreateBuff("UnholyMinionBondBondBuff",
+                                                    "Fiendsih Bond",
+                                                    "At 5th level, instead of forming a bond with her weapon, an unholy minion forms a bond with a fiendsih spirit.\n"
+                                                    + "At 5th level, the spirit grants one bonus. For every three levels beyond 5th, the spirit grants one additional bonus. These bonuses can be spent in a number of ways to grant the antipaladin enhanced abilities to channel negative energy and to cast spells.\n"
+                                                    + "Each bonus can be used to grant one of the following enhancements:\n"
+                                                    + "+1 caster level to any antipaladin spell cast,\n"
+                                                    + "+1 to the DC to halve the damage of channel negative energy when used to harm living creatures,\n"
+                                                    + $"+1d{BalanceFixes.getDamageDieString(DiceType.D6)} to channel negative energy,\n"
+                                                    + "restore one use/day of touch of corruption.\n"
+                                                    + "These enhancements stack and can be selected multiple times. The enhancements granted by the spirit are determined when the spirit is called and cannot be changed until the spirit is called again. If the unholy servant increases her number of uses of touch of corruption per day in this way, that choice is set for the rest of the day, and once used, these additional uses are not restored (even if the spirit is called again that day). An unholy minion can use this ability once per day at 5th level, and one additional time per day for every four levels beyond 5th, to a total of four times per day at 17th level.",
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png"),
+                                                    null);
+
+            minion_bond_ability = library.CopyAndAdd<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4", "UnholyMinionBondAbility", "");
+            minion_bond_ability.SetNameDescriptionIcon(minion_bond_buff);
+            minion_bond_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getAntipaladinArray()));
+            minion_bond_ability.ReplaceComponent<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil);
+            var apply_buff = Common.createContextActionApplyBuff(minion_bond_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
+            minion_bond_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
+            minion_bond_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff,
+                                                                                                                   Helpers.Create<ResourceMechanics.RestoreResourceAmountEqualToRemainingGroupSize>(r => { r.resource = touch_of_corruption_resource; r.group = ActivatableAbilityGroup.DivineWeaponProperty; }))
+                                                                );
+            minion_bond_ability.setMiscAbilityParametersSelfOnly();
+
+            var cl_icon = Helpers.GetIcon("1bc83efec9f8c4b42a46162d72cbf494");//burst of glory
+            var channel_dice_icon = Helpers.GetIcon("3cf05ef7606f06446ad357845cb4d430");//inflict crtical wounds
+            var channel_dc_icon = Helpers.GetIcon("6f1dcf6cfa92d1948a740195707c0dbe");//finger of death
+
+            var cl_bonuses = new BlueprintActivatableAbility[6];
+            var channel_dc_bonuses = new BlueprintActivatableAbility[6];
+            var channel_dice_bonuses = new BlueprintActivatableAbility[6];
+
+
+
+            cl_bonuses = createSacredBondAbility("UnholyMinionBondCLBonus",
+                                                 "Caster Level Bonus",
+                                                 minion_bond_buff.Description,
+                                                 cl_icon,
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 1; }),
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 2; }),
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 3; }),
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 4; }),
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 5; }),
+                                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(cl => { cl.spellbook = antipaladin_class.Spellbook; cl.Value = 6; })
+                                                 );
+
+            var channels = ChannelEnergyEngine.getChannelAbilities(e => e.scalesWithClass(antipaladin_class)).ToArray();
+            channel_dc_bonuses = createSacredBondAbility("UnholyMinionBondChannelDCBonus",
+                                                         "Channel Energy DC Bonus",
+                                                         minion_bond_buff.Description,
+                                                         channel_dc_icon,
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 1; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 2; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 3; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 4; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 5; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseAbilitiesDC>(c => { c.abilities = channels; c.Value = 6; })
+                                                         );
+
+            channel_dice_bonuses = createSacredBondAbility("UnholyMinionBondChannelDiceBonus",
+                                                         "Channel Energy Dice Bonus",
+                                                         minion_bond_buff.Description,
+                                                         channel_dice_icon,
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 2; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 4; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 6; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 8; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 10; }),
+                                                         Helpers.Create<NewMechanics.ContextIncreaseCasterLevelForSelectedSpells>(c => { c.spells = channels; c.value = 12; })
+                                                         );
+
+            for (int i = 0; i < 6; i++)
+            {
+                minion_bond[i] = Helpers.CreateFeature($"UnholyMinionBond{i + 1}Feature",
+                                                       minion_bond_ability.Name,
+                                                       minion_bond_ability.Description,
+                                                       "",
+                                                       minion_bond_ability.Icon,
+                                                       FeatureGroup.None);
+                if (i == 0)
+                {
+                    minion_bond[i].AddComponent(resource.CreateAddAbilityResource());
+                    minion_bond[i].AddComponent(Helpers.CreateAddFact(minion_bond_ability));
+                }
+                else
+                {
+                    minion_bond[i].AddComponent(Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.DivineWeaponProperty));
+                }
+                minion_bond[i].AddComponent(Helpers.CreateAddFacts(cl_bonuses[i], channel_dc_bonuses[i], channel_dice_bonuses[i]));
+            }
+        }
+
+
+        static BlueprintActivatableAbility[] createSacredBondAbility(string name, string display_name, string description, UnityEngine.Sprite icon, params BlueprintComponent[] components)
+        {
+            var toggles = new BlueprintActivatableAbility[6];
+            var switch_buffs = new BlueprintBuff[6];
+            for (int i = 0; i < 6; i++)
+            {
+                var buff = Helpers.CreateBuff($"{name}Buff{i + 1}",
+                                              $"Fiendish Boon ({display_name} +{i + 1})",
+                                              description,
+                                              "",
+                                              icon,
+                                              null,
+                                              components[i]
+                                              );
+                switch_buffs[i] = Helpers.CreateBuff($"{name}SwitchBuff{i + 1}",
+                                                      display_name,
+                                                      description,
+                                                      "",
+                                                      icon,
+                                                      null
+                                                      );
+                switch_buffs[i].SetBuffFlags(BuffFlags.HiddenInUi);
+
+                Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(minion_bond_buff, buff, switch_buffs[i]);
+
+                toggles[i] = Helpers.CreateActivatableAbility($"{name}ToggleAbility{i + 1}",
+                                                              buff.Name,
+                                                              description,
+                                                              "",
+                                                              icon,
+                                                              switch_buffs[i],
+                                                              AbilityActivationType.Immediately,
+                                                              CommandType.Free,
+                                                              null);
+                toggles[i].Group = ActivatableAbilityGroup.DivineWeaponProperty;
+                toggles[i].WeightInGroup = i + 1;
+                toggles[i].DeactivateImmediately = true;
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                {
+                    if (j != i)
+                    {
+                        toggles[i].AddComponent(Helpers.Create<RestrictionHasFact>(r => { r.Feature = switch_buffs[j]; r.Not = true; }));
+                    }
+                }
+            }
+            return toggles;
+        }
+
+
+        static void createTyrant()
+        {
+            tyrant = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TyrantAntipaladinArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Tyrant");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Evil arises in every form imaginable, not just in hearts full of destruction and chaos. Tyrants are manipulative and lawful antipaladins, chess masters who arrange things behind the scenes to ensure that whatever happens, evil always wins, and the tyrant along with it. Unlike other antipaladins, tyrants are all too happy to associate with good creatures, the better to manipulate them into performing evil acts.");
+            });
+            Helpers.SetField(tyrant, "m_ParentClass", antipaladin_class);
+            library.AddAsset(tyrant, "");
+
+            createSmiteChaosAndAuraOfVengeance();
+            createTyrantAurasAndUnholyChampion();
+
+            tyrant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+                                                       Helpers.LevelEntry(14, aura_of_sin),
+                                                       Helpers.LevelEntry(17, aura_of_deparvity),
+                                                       Helpers.LevelEntry(20, tip_of_spear),
+                                                      };
+
+            tyrant.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_chaos),
+                                                      Helpers.LevelEntry(14, enforcers_aura),
+                                                      Helpers.LevelEntry(17, aura_of_obedience),
+                                                      Helpers.LevelEntry(20, unholy_champion),
+                                                  };
+
+
+
+            antipaladin_progression.UIGroups[1].Features.Add(smite_chaos);
+            antipaladin_progression.UIGroups[2].Features.Add(enforcers_aura);
+            antipaladin_progression.UIGroups[2].Features.Add(aura_of_obedience);
+            antipaladin_progression.UIGroups[2].Features.Add(unholy_champion);
+        }
+
+
+        static void createTyrantAurasAndUnholyChampion()
+        {
+            var obedience_buff = Helpers.CreateBuff("AuraOfObedienceEffectBuff",
+                                        "Aura of Obedience",
+                                        "At 17th level, a tyrant gains DR 5/chaotic. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the tyrant is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("cc0aeb74b35cb7147bff6c53538bbc76"), //forced repentance
+                                        null,
+                                        Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default),
+                                                                                              ModifierDescriptor.UntypedStackable, SpellDescriptor.Compulsion),
+                                        Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.BonusValue,
+                                                                        stepLevel: -4, featureList: new BlueprintFeature[] { aura_of_despair, aura_of_despair })
+                                        );
+
+            aura_of_obedience = Common.createAuraEffectFeature(obedience_buff.Name,
+                                                             obedience_buff.Description,
+                                                             obedience_buff.Icon,
+                                                             obedience_buff,
+                                                             13.Feet(),
+                                                             Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                             );
+
+           
+            var channels = channel_negative_energy.GetComponent<AddFacts>().Facts.OfType<BlueprintAbility>().ToArray();
+
+            unholy_champion = Helpers.CreateFeature("UnholyChampionFeature",
+                                                    "Unholy Champion",
+                                                    "At 20th level, a tyrant becomes a conduit for the might of the dark powers. His DR increases to 10/chaotic. In addition, whenever he channels negative energy or uses touch of corruption to damage a creature, he deals the maximum possible amount.",
+                                                    "",
+                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
+                                                    FeatureGroup.None,
+                                                    library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de").GetComponent<AutoMetamagic>().CreateCopy(a =>
+                                                    {
+                                                        var abilities = new List<BlueprintAbility>
+                                                        {
+                                                            channels[0], channels[1],
+                                                            touch_of_corruption_base, ranged_channel_wrapper
+                                                        };
+                                                        abilities.AddRange(ChannelEnergyEngine.getChannelAbilities(e => e.scalesWithClass(antipaladin_class)));
+                                                        abilities.AddRange(touch_of_corruption_base.Variants);
+                                                        abilities.AddRange(ranged_channel_wrapper.Variants);
+                                                        var touches = abilities.Where(s => s.GetComponent<AbilityEffectStickyTouch>() != null).Select(ss => ss.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility).ToArray();
+                                                        abilities.AddRange(touches);
+                                                        a.Abilities = abilities;
+                                                    }
+                                                    )
+                                                    );
+
+            aura_of_obedience.AddComponents(Common.createContextAlignmentDR(Helpers.CreateContextValue(AbilityRankType.StatBonus), DamageAlignment.Chaotic),
+                                           Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, ContextRankProgression.MultiplyByModifier,
+                                           stepLevel: 5, featureList: new BlueprintFeature[] { aura_of_obedience, unholy_champion })
+                                           );
+
+            var enforcers_buff = Helpers.CreateBuff("AuraOfEnforcerEffectBuff",
+                                        "Enforcer's Aura",
+                                        "At 14th level, a tyrant’s weapons are treated as lawful-aligned for the purposes of overcoming damage reduction. Any attack made against an enemy within 10 feet of him is treated as lawful-aligned for the purposes of overcoming damage reduction. This ability functions only while the tyrant is conscious, not if he is unconscious or dead.",
+                                        "",
+                                        Helpers.GetIcon("d7e61eb9f0cec5e49bd1b0c428fa98e4"), //judgment smiting
+                                        null,
+                                        library.Get<BlueprintBuff>("f84a39e55230f5e499588c5cd19548cd").GetComponent<AddIncomingDamageWeaponProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Chaotic)
+                                        );
+
+            enforcers_aura = Common.createAuraEffectFeature(enforcers_buff.Name,
+                                                         enforcers_buff.Description,
+                                                         enforcers_buff.Icon,
+                                                         enforcers_buff,
+                                                         13.Feet(),
+                                                         Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>())
+                                                         );
+            enforcers_aura.AddComponent(library.Get<BlueprintFeature>("0437f4af5ad49b544bccf48aa7a51319").GetComponent<AddOutgoingPhysicalDamageProperty>().CreateCopy(a => a.Alignment = DamageAlignment.Chaotic));
+        }
+
+
+        static void createSmiteChaosAndAuraOfVengeance()
+        {          
+            smite_chaos = Common.createSmite("AntipaladinSmiteChaos",
+                                            "Smite Chaos",
+                                            "This ability functions as the paladin’s smite evil ability, but against chaotic-aligned creatures.",
+                                            "",
+                                            "",
+                                            LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteImpudence.png"),
+                                            getAntipaladinArray(),
+                                            Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Chaotic; c.fact = tip_of_spear; })
+                                            );
+
+            var smite_chaos_ability = smite_chaos.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            smite_chaos_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+
+
+            enforecers_aura_of_vengeance = Common.createSmiteForAllies("AntipaladinTyrantAuraOfVengeance",
+                                                                        aura_of_vengeance.Name,
+                                                                        aura_of_vengeance.Description,
+                                                                        "",
+                                                                        "",
+                                                                        aura_of_vengeance.Icon,
+                                                                        getAntipaladinArray(),
+                                                                        Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Chaotic; c.fact = tip_of_spear; })
+                                                                        );
+
+            var aura_of_vengeance_ability = aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
         }
 
 
@@ -767,22 +1175,22 @@ namespace CallOfTheWild
 
 
             blighted_myrmidon.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
-                                                          Helpers.LevelEntry(4, smite_good_extra_use),
-                                                          Helpers.LevelEntry(7, smite_good_extra_use),
-                                                          Helpers.LevelEntry(10, smite_good_extra_use),
+                                                         // Helpers.LevelEntry(4, smite_good_extra_use),
+                                                         // Helpers.LevelEntry(7, smite_good_extra_use),
+                                                         // Helpers.LevelEntry(10, smite_good_extra_use),
                                                           Helpers.LevelEntry(11, aura_of_vengeance),
-                                                          Helpers.LevelEntry(13, smite_good_extra_use),
-                                                          Helpers.LevelEntry(16, smite_good_extra_use),
-                                                          Helpers.LevelEntry(19, smite_good_extra_use)
+                                                        //  Helpers.LevelEntry(13, smite_good_extra_use),
+                                                        //  Helpers.LevelEntry(16, smite_good_extra_use),
+                                                         // Helpers.LevelEntry(19, smite_good_extra_use)
                                                          };
 
             blighted_myrmidon.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_nature),
-                                                              Helpers.LevelEntry(4, smite_nature_extra_use),
-                                                              Helpers.LevelEntry(7, smite_nature_extra_use),
+                                                              //Helpers.LevelEntry(4, smite_nature_extra_use),
+                                                              //Helpers.LevelEntry(7, smite_nature_extra_use),
                                                               Helpers.LevelEntry(11, aura_of_decay),
-                                                              Helpers.LevelEntry(13, smite_nature_extra_use),
-                                                              Helpers.LevelEntry(16, smite_nature_extra_use),
-                                                              Helpers.LevelEntry(19, smite_nature_extra_use),
+                                                              //Helpers.LevelEntry(13, smite_nature_extra_use),
+                                                             // Helpers.LevelEntry(16, smite_nature_extra_use),
+                                                             // Helpers.LevelEntry(19, smite_nature_extra_use),
                                                               };
 
             antipaladin_progression.UIGroups[1].Features.Add(smite_nature);
@@ -1544,7 +1952,7 @@ namespace CallOfTheWild
 
 
             var deparvity_buff = Helpers.CreateBuff("AuraOfDeparvityEffectBuff",
-                                                    "Aura of Deparvity",
+                                                    "Aura of Depravity",
                                                     "At 17th level, an antipaladin gains DR 5/good. Each enemy within 10 feet takes a –4 penalty on saving throws against compulsion effects. This ability functions only while the antipaladin is conscious, not if he is unconscious or dead.",
                                                     "",
                                                     Helpers.GetIcon("41cf93453b027b94886901dbfc680cb9"), //overwhelming presence
@@ -1846,14 +2254,14 @@ namespace CallOfTheWild
                                                 Helpers.Create<AbilityUseOnRest>(c => c.Type = AbilityUseOnRestType.HealUndead),
                                                 Common.createContextCalculateAbilityParamsBasedOnClass(antipaladin_class, StatType.Charisma)
                                                 );
-            ability.AvailableMetamagic = Metamagic.Reach; //for dread vanguard aura
+            ability.AvailableMetamagic = Metamagic.Reach | Metamagic.Maximize; //for dread vanguard aura and unholy champion
             ability.setMiscAbilityParametersTouchHarmful();
             var ability_cast = Helpers.CreateTouchSpellCast(ability, touch_of_corruption_resource);
 
             ability_cast.AddComponents(Common.createAbilityTargetHasFact(true, Common.construct),
                                        Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil),
                                        Helpers.CreateResourceLogic(touch_of_corruption_resource));
-            ability_cast.AvailableMetamagic = Metamagic.Reach; //for dread vanguard aura
+            ability_cast.AvailableMetamagic = Metamagic.Reach | Metamagic.Maximize; //for dread vanguard aura and unholy champion
             var wrapper = Common.createVariantWrapper("AntipladinCrueltyBaseAbility", "", ability_cast);
 
             touch_of_corruption = Common.AbilityToFeature(wrapper, false);
@@ -1915,6 +2323,7 @@ namespace CallOfTheWild
                                                         touch_of_corruption_resource.CreateResourceLogic(amount: 2),
                                                         touch_ability.GetComponent<ContextCalculateAbilityParamsBasedOnClass>()
                                                         );
+                    channel.AvailableMetamagic = channel.AvailableMetamagic | Metamagic.Maximize;
                     var requirement = a.GetComponent<AbilityShowIfCasterHasFact>();
                     if (requirement != null)
                     {
@@ -2054,7 +2463,7 @@ namespace CallOfTheWild
                                             "Smite Good",
                                             "Once per day, an antipaladin can call out to the dark powers to crush the forces of good. As a swift action, the antipaladin chooses one target within sight to smite. If this target is good, the antipaladin adds his Charisma bonus (if any) on his attack rolls and adds his antipaladin level on all damage rolls made against the target of his smite, smite good attacks automatically bypass any DR the creature might possess.\n"
                                             + "In addition, while smite good is in effect, the antipaladin gains a deflection bonus equal to his Charisma modifier (if any) to his AC against attacks made by the target of the smite. If the antipaladin targets a creature that is not good, the smite is wasted with no effect.\n"
-                                            + "The smite evil lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite evil one additional time per day.",
+                                            + "The smite good lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite good one additional time per day.",
                                             "",
                                             "",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
