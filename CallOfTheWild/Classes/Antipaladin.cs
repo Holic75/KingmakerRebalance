@@ -429,6 +429,8 @@ namespace CallOfTheWild
 
             minion_bond_ability = library.CopyAndAdd<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4", "UnholyMinionBondAbility", "");
             minion_bond_ability.SetNameDescriptionIcon(minion_bond_buff);
+            minion_bond_ability.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_Class", getAntipaladinArray()));
+            minion_bond_ability.ReplaceComponent<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil);
             var apply_buff = Common.createContextActionApplyBuff(minion_bond_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), dispellable: false);
             minion_bond_ability.ReplaceComponent<AbilityResourceLogic>(a => a.RequiredResource = resource);
             minion_bond_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(apply_buff,
@@ -626,15 +628,17 @@ namespace CallOfTheWild
                                                     FeatureGroup.None,
                                                     library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de").GetComponent<AutoMetamagic>().CreateCopy(a =>
                                                     {
-                                                        a.Abilities = new List<BlueprintAbility>
+                                                        var abilities = new List<BlueprintAbility>
                                                         {
                                                             channels[0], channels[1],
                                                             touch_of_corruption_base, ranged_channel_wrapper
                                                         };
-                                                        a.Abilities.AddRange(channels[0].Variants);
-                                                        a.Abilities.AddRange(channels[1].Variants);
-                                                        a.Abilities.AddRange(touch_of_corruption_base.Variants);
-                                                        a.Abilities.AddRange(ranged_channel_wrapper.Variants);
+                                                        abilities.AddRange(ChannelEnergyEngine.getChannelAbilities(e => e.scalesWithClass(antipaladin_class)));
+                                                        abilities.AddRange(touch_of_corruption_base.Variants);
+                                                        abilities.AddRange(ranged_channel_wrapper.Variants);
+                                                        var touches = abilities.Where(s => s.GetComponent<AbilityEffectStickyTouch>() != null).Select(ss => ss.GetComponent<AbilityEffectStickyTouch>().TouchDeliveryAbility).ToArray();
+                                                        abilities.AddRange(touches);
+                                                        a.Abilities = abilities;
                                                     }
                                                     )
                                                     );
@@ -2319,6 +2323,7 @@ namespace CallOfTheWild
                                                         touch_of_corruption_resource.CreateResourceLogic(amount: 2),
                                                         touch_ability.GetComponent<ContextCalculateAbilityParamsBasedOnClass>()
                                                         );
+                    channel.AvailableMetamagic = channel.AvailableMetamagic | Metamagic.Maximize;
                     var requirement = a.GetComponent<AbilityShowIfCasterHasFact>();
                     if (requirement != null)
                     {

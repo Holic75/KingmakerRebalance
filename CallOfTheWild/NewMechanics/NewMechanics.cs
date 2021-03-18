@@ -4780,7 +4780,7 @@ namespace CallOfTheWild
         {
             public ContextValue value;
             public BlueprintAbility[] spells;
-            public bool correct_dc = false;
+            public bool correct_dc = true;
             public int multiplier = 1;
 
             private MechanicsContext Context

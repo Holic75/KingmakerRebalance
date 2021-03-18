@@ -2804,6 +2804,13 @@ namespace CallOfTheWild
 
             paladin_channel_energy.AddComponent(Helpers.CreateAddAbilityResource(paladin_extra_channel_resource));
             paladin_channel_extra = ChannelEnergyEngine.createExtraChannelFeat(heal_living_extra, paladin_channel_energy, "ExtraChannelPaladin", "Extra Channel (Paladin)", "");
+
+            //fix paladin capstone that maximizes channel
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            var holy_champion = library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de");
+            var channels = ChannelEnergyEngine.getChannelAbilities(e => e.scalesWithClass(paladin)).ToArray();
+            holy_champion.GetComponent<AutoMetamagic>().Abilities.AddRange(channels);
+            holy_champion.GetComponent<AutoMetamagic>().Abilities = holy_champion.GetComponent<AutoMetamagic>().Abilities.Distinct().ToList();
         }
 
 

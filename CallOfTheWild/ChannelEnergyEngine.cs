@@ -250,11 +250,7 @@ namespace CallOfTheWild
             storeChannel(cleric_negative_heal, cleric_negative_channel_feature, ChannelType.NegativeHeal);
             storeChannel(cleric_negative_harm, cleric_negative_channel_feature, ChannelType.NegativeHarm);
 
-            var holy_champion = library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de");
-            holy_champion.GetComponent<AutoMetamagic>().Abilities.AddRange(new BlueprintAbility[] { hospitalier_positive_heal_base,
-                                                                                                    hospitalier_positive_harm_base,
-                                                                                                    paladin_positive_heal_base,
-                                                                                                    paladin_positive_harm_base });
+
 
             //replace undead check to check for negative energy affinity rather than undead fact
             var channels_to_fix = new string[]
@@ -378,6 +374,14 @@ namespace CallOfTheWild
             ChannelEnergyEngine.createImprovedChannel();
             ChannelEnergyEngine.createQuickChannel();
             ChannelEnergyEngine.createChannelSmite();
+
+            //fix paladin capstone that maximizes channel heal
+            var paladin = library.Get<BlueprintCharacterClass>("bfa11238e7ae3544bbeb4d0b92e897ec");
+            var holy_champion = library.Get<BlueprintFeature>("eff3b63f744868845a2f511e9929f0de");
+            var channels = ChannelEnergyEngine.getChannelAbilities(e => e.scalesWithClass(paladin)).ToArray();
+            holy_champion.GetComponent<AutoMetamagic>().Abilities.AddRange(new BlueprintAbility[] { hospitalier_positive_heal_base, hospitalier_positive_harm_base, paladin_positive_harm_base, paladin_positive_heal_base });
+            holy_champion.GetComponent<AutoMetamagic>().Abilities.AddRange(channels);
+            holy_champion.GetComponent<AutoMetamagic>().Abilities = holy_champion.GetComponent<AutoMetamagic>().Abilities.Distinct().ToList();
         }
 
 
