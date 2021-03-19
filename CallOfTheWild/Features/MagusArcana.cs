@@ -70,6 +70,7 @@ namespace CallOfTheWild
 
         static void createReachSpellStrike()
         {
+            var eldritch_archer = library.Get<BlueprintArchetype>("44388c01eb4a29d4d90a25cc0574320d");
             reach_spellstrike = Helpers.CreateFeature("ReachSpellStrikeMagusArcana",
                                                       "Reach Spellstrike",
                                                       "The magus can deliver spells with a range of touch with ranged spellstrike.",
@@ -81,6 +82,7 @@ namespace CallOfTheWild
                                                       Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("6aa84ca8918ac604685a3d39a13faecc")) //ranged spell strike
                                                       );
             magus_arcana.AllFeatures = magus_arcana.AllFeatures.AddToArray(reach_spellstrike);
+            eldritch_magus_arcana.AllFeatures = eldritch_magus_arcana.AllFeatures.AddToArray(reach_spellstrike);
         }
 
 
