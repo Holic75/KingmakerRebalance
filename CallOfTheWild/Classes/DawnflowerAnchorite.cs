@@ -323,7 +323,7 @@ namespace CallOfTheWild
 
             var defense_effect_buff = Helpers.CreateBuff("SolarDefenseEffectBuff",
                                                  "Solar Defense",
-                                                 "While using solar invocation, the Dawnflower anchorite adds his competence bonus on attack rolls to his Armor Class as a dodge bonus and to Reflex saving throws as a sacred bonus. The Dawnflower anchorite can select this credence twice—the second time he does so, the bonus to Armor Class and on Ref lex saves also applies to any companions who gain bonuses from the Dawnflower anchorite’s solar invocation.",
+                                                 "While using solar invocation, the Dawnflower anchorite adds his competence bonus on attack rolls to his Armor Class as a dodge bonus and to Reflex saving throws as a sacred bonus against evil creatures. The Dawnflower anchorite can select this credence twice—the second time he does so, the bonus to Armor Class and on Ref lex saves also applies to any companions who gain bonuses from the Dawnflower anchorite’s solar invocation.",
                                                  "",
                                                  Helpers.GetIcon("62888999171921e4dafb46de83f4d67d"), //shield of dawn
                                                  null,
@@ -351,7 +351,7 @@ namespace CallOfTheWild
             var flaming = library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121");
             var solar_weapons_buff = Helpers.CreateBuff("SolarWeaponsEffectBuff",
                                      "Solar Weapons",
-                                     "While using solar invocation, the Dawnflower anchorite can select one weapon (natural or manufactured) wielded by a creature affected by his solar invocation. That weapon gains the flaming weapon special ability for as long as the Dawnflower anchorite’s solar invocation persists.",
+                                     "While using solar invocation, the Dawnflower anchorite grants the flaming weapon special ability to one weapon of each creature affected by the Dawnflower anchorite’s solar invocation.",
                                      "",
                                      LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameBlade.png"),
                                      null,
@@ -367,7 +367,12 @@ namespace CallOfTheWild
                                       );
 
             var apply_solar_defense = Common.createContextActionApplyBuff(defense_effect_buff, Helpers.CreateContextDuration(), false, true, true, false);
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(effect_buff, solar_weapons_buff, solar_weapons);
+            var apply_solar_weapons = Common.createContextActionApplyBuff(solar_weapons_buff, Helpers.CreateContextDuration(), false, true, true, false);
+            Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(effect_buff,
+                                                                                      Helpers.CreateConditional(Common.createContextConditionCasterHasFact(solar_weapons),
+                                                                                                                apply_solar_weapons
+                                                                                                               )
+                                                                                     );
             Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(effect_buff,
                                                                                       Helpers.CreateConditional(Common.createContextConditionCasterHasFact(solar_defense),
                                                                                                                 Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionIsCaster(),
