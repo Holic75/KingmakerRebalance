@@ -1,11 +1,17 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Validation;
 using Kingmaker.ElementsSystem;
 using Kingmaker.PubSubSystem;
+using Kingmaker.UI.UnitSettings;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.UnitLogic.Commands;
+using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.Utility;
@@ -17,6 +23,110 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.KineticistMechanics
 {
+    public class UnitPartEnergizeWeapon : UnitPart
+    {
+        private Fact fact = null;
+
+        public bool active()
+        {
+            return fact != null;
+        }
+
+        public BlueprintBuff getActivationBuff()
+        {
+            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.activation_buff;
+        }
+
+        public BlueprintAbility getAttackAbility() 
+        {
+            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.blast_ability;
+        }
+
+
+        public AbilityData getAttackAbilityData()
+        {
+            var blueprint = getActivationAbility();
+            if (blueprint == null)
+            {
+                return null;
+            }
+
+            Ability ability = this.Owner.GetFact(blueprint) as Ability ?? this.Owner.GetFact(blueprint.Parent) as Ability;
+            if (ability == null)
+            {
+                return null;
+            }
+            var data = ability.Data;
+            if (data.Blueprint != blueprint)
+            {
+                data = new AbilityData(blueprint, this.Owner)
+                {
+                    ConvertedFrom = data
+                };
+            }
+            return data;
+        }
+
+        public void deactivate()
+        {
+            this.Owner.Buffs.RemoveFact(getActivationBuff());            
+        }
+
+        public bool isActivated()
+        {
+            return this.Owner.Buffs.HasFact(getActivationBuff());
+        }
+
+        public BlueprintAbility getActivationAbility()
+        {
+            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.activation_ability;
+        }
+
+
+        public bool isActivatingNow()
+        {
+            var ability_to_activate = getAttackAbility();
+            foreach (UnitCommand command in this.Owner.Unit.Commands.Raw)
+            {
+                if (command == null || !command.IsRunning)
+                {
+                    continue;
+                }
+
+                if ((command as UnitUseAbility)?.Spell.Blueprint == ability_to_activate)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        public bool tryActivate()
+        {
+            if (!active() || isActivated())
+            {
+                return false;
+            }
+
+            this.Owner.Buffs.AddBuff(getActivationBuff(), this.Owner.Unit, new TimeSpan?(2.Rounds().Seconds), AbilityParams.Empty);
+            return true;
+        }
+
+        public void clear()
+        {
+            deactivate();
+            fact = null;
+        }
+
+        public void set(Fact new_fact)
+        {
+            clear();
+            fact = new_fact;
+        }
+    }
+
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class DecreaseWildTalentCostWithActionOnBurn : OwnedGameLogicComponent<UnitDescriptor>, IKineticistCalculateAbilityCostHandler, IKinetecistAcceptBurnHandler, IGlobalSubscriber, IUnitSubscriber
     {
@@ -50,7 +160,7 @@ namespace CallOfTheWild.KineticistMechanics
 
         public void HandleKineticistAcceptBurn(UnitPartKineticist kinetecist, int burn, AbilityData ability)
         {
-           
+
             if (actions != null)
             {
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, kinetecist.Owner.Unit);
@@ -95,4 +205,60 @@ namespace CallOfTheWild.KineticistMechanics
             }
         }
     }
+
+    //component used to indicate that cost should be calculated in specific way
+    public class KineticistAbilityBuff : BuffLogic
+    {
+        public BlueprintAbility activation_ability;
+        public BlueprintAbility blast_ability;
+        public BlueprintBuff activation_buff;
+
+        public override void OnTurnOn()
+        {
+            this.Owner.Ensure<UnitPartEnergizeWeapon>().set(this.Fact);
+        }
+
+
+        public override void OnTurnOff()
+        {
+            this.Owner.Ensure<UnitPartEnergizeWeapon>().clear();
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(MechanicActionBarSlotActivableAbility))]
+    [Harmony12.HarmonyPatch("GetResource", Harmony12.MethodType.Normal)]
+    class MechanicActionBarSlotActivableAbility__GetResource__Patch
+    {
+        static bool Prefix(MechanicActionBarSlotActivableAbility __instance, ref int __result)
+        {
+            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistAbilityBuff>();
+            if (component1 == null)
+            {
+                return true;
+            }
+            __result = component1.activation_ability.GetComponent<AbilityKineticist>().CalculateBurnCost(__instance.ActivatableAbility.Owner, component1.activation_ability).Total;
+            return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(MechanicActionBarSlotActivableAbility))]
+    [Harmony12.HarmonyPatch("IsDisabled", Harmony12.MethodType.Normal)]
+    class MechanicActionBarSlotActivableAbility__IsDisabled__Patch
+    {
+        static bool Prefix(MechanicActionBarSlotActivableAbility __instance, int resourceCount, ref bool __result)
+        {
+            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistAbilityBuff>();
+            if (component1 != null)
+            {
+                __result = !__instance.ActivatableAbility.Owner.State.IsConscious;
+                return false;
+            }
+            return true;
+        }
+    }
 }
+
+
+

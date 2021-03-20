@@ -2182,6 +2182,18 @@ namespace CallOfTheWild
         }
 
 
+        public class ManufacturedWeapon : ActivatableAbilityRestriction
+        {
+            public bool not = false;
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.PrimaryHand.HasWeapon)
+                    return (Owner.Body.PrimaryHand.Weapon.Blueprint.IsNatural || Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed) == not;
+                return not;
+            }
+        }
+
+
 
         public class ActivatableAbilityMainHandWeaponEnhancementIfHasArchetype : ActivatableAbilityRestriction
         {
@@ -6051,8 +6063,8 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
-                UnitDescriptor descriptor = evt.Reason.Caster?.Descriptor;
-                if (descriptor == null || !descriptor.Alignment.Value.HasComponent(this.alignment))
+                UnitDescriptor desc = evt.Reason.Caster?.Descriptor;
+                if (desc == null || !desc.Alignment.Value.HasComponent(this.alignment))
                     return;
 
                 var bonus = value.Calculate(this.Fact.MaybeContext);
@@ -6079,7 +6091,7 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
-        public class ArmorClassBonusAgainstAlignment : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        public class ArmorClassBonusAgainstAlignment : RuleTargetLogicComponent<RuleAttackWithWeapon>
         {
             public AlignmentComponent alignment;
             public ModifierDescriptor descriptor;

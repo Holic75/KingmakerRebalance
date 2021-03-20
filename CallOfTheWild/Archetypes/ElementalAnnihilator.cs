@@ -142,6 +142,8 @@ namespace CallOfTheWild.Archetypes
             //it does not make sense to use composite blasts since they will cost more for same damage,
             //so it is only physical (bludgeoning damage), and can be implemented as normal weapon
 
+            //will change rules a bit and create devastating infusion for every blast
+            //we need options for 1h, 2h, twf, 1h ranged           
         }
     }
 }
