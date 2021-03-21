@@ -229,7 +229,8 @@ New Wild Talents:
 - Cold Snap,
 - Windsight,
 - Smoke Storm,
-- Energize weapon
+- Energize weapon,
+- Kinetic Fist
 
 
 New Alchemist Discoveries:

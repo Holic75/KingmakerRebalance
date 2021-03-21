@@ -78,7 +78,8 @@ namespace CallOfTheWild
             RagingTacticianTeamworkFeatShare,
             SkirnirArcaneShieldEnchantment,
             MarshalInspire,
-            InvokePatron
+            InvokePatron,
+            PowerfulFist
     }
 
         public static partial class Extensions
