@@ -2182,7 +2182,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ManufacturedWeapon : ActivatableAbilityRestriction
+        public class RestricitonManufacturedWeapon : ActivatableAbilityRestriction
         {
             public bool not = false;
             public override bool IsAvailable()

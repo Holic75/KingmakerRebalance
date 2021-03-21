@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.Blueprints.Validation;
 using Kingmaker.ElementsSystem;
+using Kingmaker.Items;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UI.UnitSettings;
 using Kingmaker.UnitLogic;
@@ -34,18 +35,27 @@ namespace CallOfTheWild.KineticistMechanics
 
         public BlueprintBuff getActivationBuff()
         {
-            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.activation_buff;
+            return fact?.Blueprint.GetComponent<KineticistEnergizeWeapon>()?.activation_buff;
         }
 
         public BlueprintAbility getAttackAbility() 
         {
-            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.blast_ability;
+            return fact?.Blueprint.GetComponent<KineticistEnergizeWeapon>()?.blast_ability;
+        }
+
+
+        public bool worksOn(ItemEntityWeapon weapon)
+        {
+            bool res = false;
+            fact?.CallComponents<KineticistEnergizeWeapon>(c => res = c.worksOn(weapon));
+
+            return res;
         }
 
 
         public AbilityData getAttackAbilityData()
         {
-            var blueprint = getActivationAbility();
+            var blueprint = getAttackAbility();
             if (blueprint == null)
             {
                 return null;
@@ -79,7 +89,7 @@ namespace CallOfTheWild.KineticistMechanics
 
         public BlueprintAbility getActivationAbility()
         {
-            return fact?.Blueprint.GetComponent<KineticistAbilityBuff>()?.activation_ability;
+            return fact?.Blueprint.GetComponent<KineticistEnergizeWeapon>()?.activation_ability;
         }
 
 
@@ -160,12 +170,16 @@ namespace CallOfTheWild.KineticistMechanics
 
         public void HandleKineticistAcceptBurn(UnitPartKineticist kinetecist, int burn, AbilityData ability)
         {
-
             if (actions != null)
             {
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, kinetecist.Owner.Unit);
             }
         }
+    }
+
+    public class NoElementalOverflow: BlueprintComponent
+    {
+
     }
 
 
@@ -207,11 +221,13 @@ namespace CallOfTheWild.KineticistMechanics
     }
 
     //component used to indicate that cost should be calculated in specific way
-    public class KineticistAbilityBuff : BuffLogic
+    public class KineticistEnergizeWeapon : BuffLogic
     {
         public BlueprintAbility activation_ability;
         public BlueprintAbility blast_ability;
         public BlueprintBuff activation_buff;
+
+        public bool kinetic_fist = false;
 
         public override void OnTurnOn()
         {
@@ -223,6 +239,24 @@ namespace CallOfTheWild.KineticistMechanics
         {
             this.Owner.Ensure<UnitPartEnergizeWeapon>().clear();
         }
+
+
+        public bool worksOn(ItemEntityWeapon weapon)
+        {
+            if (weapon == null)
+            {
+                return false;
+            }
+
+            if (kinetic_fist)
+            {
+                return weapon.Blueprint.IsNatural || weapon.Blueprint.IsUnarmed;
+            }
+            else
+            {
+                return weapon == this.Owner.Body?.PrimaryHand?.MaybeWeapon;
+            }
+        }
     }
 
 
@@ -232,7 +266,7 @@ namespace CallOfTheWild.KineticistMechanics
     {
         static bool Prefix(MechanicActionBarSlotActivableAbility __instance, ref int __result)
         {
-            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistAbilityBuff>();
+            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistEnergizeWeapon>();
             if (component1 == null)
             {
                 return true;
@@ -249,7 +283,7 @@ namespace CallOfTheWild.KineticistMechanics
     {
         static bool Prefix(MechanicActionBarSlotActivableAbility __instance, int resourceCount, ref bool __result)
         {
-            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistAbilityBuff>();
+            var component1 = __instance.ActivatableAbility.Blueprint.Buff.GetComponent<KineticistEnergizeWeapon>();
             if (component1 != null)
             {
                 __result = !__instance.ActivatableAbility.Owner.State.IsConscious;
