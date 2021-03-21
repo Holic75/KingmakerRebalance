@@ -354,7 +354,7 @@ namespace CallOfTheWild
             var cleric_domain = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             domain_selection = library.CopyAndAdd(cleric_domain, "UnholyMinionDomainSelection", "");
             ClassToProgression.addClassToDomains(antipaladin_class, new BlueprintArchetype[] { unholy_minion }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection, cleric);
-            domain_selection.SetDescription("Unholy minion chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of paladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
+            domain_selection.SetDescription("Unholy minion chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of antipaladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
             antipaladin_class.Spellbook.CantripsType = CantripsType.Orisions; //to properly show domain slots
         }
 
@@ -2463,7 +2463,7 @@ namespace CallOfTheWild
                                             "Smite Good",
                                             "Once per day, an antipaladin can call out to the dark powers to crush the forces of good. As a swift action, the antipaladin chooses one target within sight to smite. If this target is good, the antipaladin adds his Charisma bonus (if any) on his attack rolls and adds his antipaladin level on all damage rolls made against the target of his smite, smite good attacks automatically bypass any DR the creature might possess.\n"
                                             + "In addition, while smite good is in effect, the antipaladin gains a deflection bonus equal to his Charisma modifier (if any) to his AC against attacks made by the target of the smite. If the antipaladin targets a creature that is not good, the smite is wasted with no effect.\n"
-                                            + "The smite good lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite good one additional time per day.",
+                                            + "The smite good lasts until the target dies or the antipaladin selects a new target. At 4th level, and at every three levels thereafter, the antipaladin may smite good one additional time per day.",
                                             "",
                                             "",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),
