@@ -604,6 +604,7 @@ Notable differences from pnp:
 - Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
+- Kinetic knight reduces by 1 cost of all infusions he can use instead of only kinetic blade(optional),
 - Theurgy feat gives +1 caster level to arcane spells if you spend a divine spell slot instead of pnp effect; this feat allows to reduce Mystic Theurge spell level requirement for one of the classes,
 - Dread Vanguard's Beacon of Evil ability gives profane bonuses instead of morale ones,
 - Iroran paladin Confident Defense gives a dodge bonus instead of dex bonus to ac and has no level cap, unless you use balance fixes,

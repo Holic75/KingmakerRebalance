@@ -147,12 +147,13 @@ namespace CallOfTheWild
             fixBladeWhirlwindRange();
 
             fixShroudOfWaterForKineticKnight();
+            createKineticFist();
+            createEnergizeWeapon();
 
             createBladeRush();
             createKineticWhip();
             createWhipHurricane();
-            createKineticFist();
-            createEnergizeWeapon();
+
             createSparkOfLife();
             createAirLeapAndWingsOfAir();
             createFlameJetAndFlameJetGreater();
@@ -198,7 +199,7 @@ namespace CallOfTheWild
                 var powerful_fist_buff = Helpers.CreateBuff($"PowerfulFist{i + 1}Buff",
                                                             "Powerful fist: d" + ((int)dice[i]).ToString(),
                                                             "At 5th level, an elemental ascetic can accept 2 additional points of burn when using kinetic fist to increase that infusion’s damage dice from d6s to d8s.\n"
-                                                            + "At 9th level, he can instead accept 4 additional points of burn to increase the damage dice from d6s to d10s. At 13th level, he can instead accept 6 additional points of burn to increase the damage dice from d6s to d12s. All of these options count as burn from a form infusion and can thus be reduced by infusion specialization.",
+                                                            + "At 11th level, he can instead accept 4 additional points of burn to increase the damage dice from d6s to d10s. At 17th level, he can instead accept 6 additional points of burn to increase the damage dice from d6s to d12s. All of these options count as burn from a form infusion and can thus be reduced by infusion specialization.",
                                                             "",
                                                             Helpers.GetIcon("92f7b37ef1cf5484db02a924592ceb74"), //force punch from scaled fist feat selection
                                                             null,
@@ -1207,7 +1208,7 @@ namespace CallOfTheWild
                                                    icon,
                                                    null,
                                                    Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.Reach, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
-                                                   Helpers.CreateAddFactContextActions(activated: apply_blade),
+                                                   //Helpers.CreateAddFactContextActions(activated: apply_blade),
                                                    Helpers.Create<AddConditionImmunity>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity)
                                                    );
 
@@ -1238,6 +1239,31 @@ namespace CallOfTheWild
 
 
             kinetic_whip = Common.AbilityToFeature(kinetic_whip_ability, false);
+
+            var kinetic_whip_enabled_buff = library.CopyAndAdd(kinetic_whip_buff, "KineticWhipEnabledBuff", "");
+            kinetic_whip_enabled_buff.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AddKineticistBurnModifier>(a =>
+                {
+                    a.BurnType = KineticistBurnType.Infusion;
+                    a.Value = 1;
+                    a.AppliableTo = blast_kinetic_blades_burn_map.Values.Select(v => v.Item2).ToArray();
+                }
+                )
+            };
+            kinetic_whip_enabled_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var toggle = Common.buffToToggle(kinetic_whip_enabled_buff, UnitCommand.CommandType.Free, true);
+
+            //increase cost of kinetic blade if used with whip
+            var maybe_apply_whip = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(blade_enabled_buff), apply_whip);
+            foreach (var kv in blast_kinetic_blades_burn_map)
+            {
+                var burn_ability = kv.Value.Item2;
+                burn_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(maybe_apply_whip)));
+            }
+
+
+            kinetic_whip.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAddFact(toggle)};
             kinetic_whip.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
             kinetic_whip.AddComponent(Helpers.PrerequisiteFeature(kinetic_blade_infusion));
             infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(kinetic_whip);
@@ -1591,7 +1617,14 @@ namespace CallOfTheWild
         {
             var kinetic_elemental_blade = library.Get<BlueprintFeature>("22a6db57adc348b458cb224f3047b3b2");
 
-            kinetic_elemental_blade.ReplaceComponent<AddKineticistBurnModifier>(a => a.AppliableTo = getKineticBladesBurnArray());
+            if (!Main.settings.update_kineticist_archetypes)
+            {
+                kinetic_elemental_blade.ReplaceComponent<AddKineticistBurnModifier>(a => a.AppliableTo = getKineticBladesBurnArray());
+            }
+            else
+            {
+                kinetic_elemental_blade.SetDescription(kinetic_elemental_blade.Description + "\nKinetic Knight also reduces cost of all form infusions related to kinetic blade or kinetic whip by one.");
+            }
         }
 
 
