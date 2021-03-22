@@ -386,6 +386,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
+                    CallOfTheWild.Archetypes.ElementalAscetic.create();
                     CallOfTheWild.Archetypes.SacredServant.create();
                     CallOfTheWild.Archetypes.MonkOfTheMantis.create();
                     CallOfTheWild.Archetypes.BeastkinBerserker.create();

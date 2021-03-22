@@ -825,7 +825,7 @@ namespace CallOfTheWild
                                             "",
                                             true_strike.Icon,
                                             null,
-                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAttackTypeAttackBonus(4, AttackTypeAttackBonus.WeaponRangeType.Ranged, ModifierDescriptor.UntypedStackable),
                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
                                                                                              check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged,
                                                                                              wait_for_attack_to_resolve: true)
@@ -2495,7 +2495,7 @@ namespace CallOfTheWild
                                             "",
                                             true_strike.Icon,
                                             null,
-                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAttackTypeAttackBonus(4, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
                                                                                              wait_for_attack_to_resolve: true)
                                           );

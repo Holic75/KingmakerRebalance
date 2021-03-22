@@ -106,7 +106,7 @@ namespace CallOfTheWild
         static public BlueprintFeature kinetic_fist;
         static public BlueprintFeature energize_weapon;
 
-        static BlueprintFeature[] powerful_fist = new BlueprintFeature[3];
+        static public BlueprintFeature[] powerful_fist = new BlueprintFeature[3];
 
 
         internal static void load(bool update_archetypes)
@@ -201,7 +201,7 @@ namespace CallOfTheWild
                                                             "At 5th level, an elemental ascetic can accept 2 additional points of burn when using kinetic fist to increase that infusion’s damage dice from d6s to d8s.\n"
                                                             + "At 11th level, he can instead accept 4 additional points of burn to increase the damage dice from d6s to d10s. At 17th level, he can instead accept 6 additional points of burn to increase the damage dice from d6s to d12s. All of these options count as burn from a form infusion and can thus be reduced by infusion specialization.",
                                                             "",
-                                                            Helpers.GetIcon("92f7b37ef1cf5484db02a924592ceb74"), //force punch from scaled fist feat selection
+                                                            Helpers.GetIcon("85067a04a97416949b5d1dbf986d93f3"), //stone fist
                                                             null,
                                                             Helpers.Create<AddKineticistBurnModifier>(a =>
                                                             {
@@ -214,7 +214,7 @@ namespace CallOfTheWild
 
                 var toggle = Common.buffToToggle(powerful_fist_buff, UnitCommand.CommandType.Free, false);
                 toggle.Group = ActivatableAbilityGroupExtension.PowerfulFist.ToActivatableAbilityGroup();
-                powerful_fist[i] = Common.ActivatableAbilityToFeature(toggle);
+                powerful_fist[i] = Common.ActivatableAbilityToFeature(toggle, false);
                 powerful_fist_buffs[i] = powerful_fist_buff;
             }
 
@@ -366,11 +366,11 @@ namespace CallOfTheWild
                                + "Choose a manufactured weapon in your hand (not an unarmed strike or natural attack); if the weapon is a double weapon, you must choose one of its ends to receive this benefit. You imbue the chosen weapon with your elemental energy as part of an attack action, charge action, or full-attack action to add extra damage to each of your attacks with that weapon until the beginning of your next turn. Your attacks with the chosen weapon during that action deal 1d6 additional points of damage. At 7th level and every 6 levels thereafter, this bonus damage increases by 1d6 points. Blue flame blasts deal double this additional damage. The additional damage is of the same type as the infused blast’s damage. This additional damage ignores spell resistance and doesn’t apply any modifiers to your kinetic blast’s damage (such as your Constitution modifier).";
             var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
             var blade_enabled_buff = library.Get<BlueprintBuff>("426a9c079ee7ac34aa8e0054f2218074");
-
+            
             Dictionary<BlueprintAbility, UnityEngine.Sprite> blast_icon_map = new Dictionary<BlueprintAbility, UnityEngine.Sprite>()
             {
                 {library.Get<BlueprintAbility>("45eb571be891c4c4581b6fcddda72bcd"), Helpers.GetIcon("8c714fbd564461e4588330aeed2fbe1d")  }, //electric - disruption
-                {library.Get<BlueprintAbility>("d29186edb20be6449b23660b39435398"), Helpers.GetIcon("f1eec5cc68099384cbfc6964049b24fa")  }, //blue flame - brilliant energy
+                {library.Get<BlueprintAbility>("d29186edb20be6449b23660b39435398"), SpiritualWeapons.mages_sword.Icon}, //blue flame - mages sword
                 {library.Get<BlueprintAbility>("83d5873f306ac954cad95b6aeeeb2d8c"), Helpers.GetIcon("3af19bdbd6215434f8421a860cc98363")  }, //fire - flame
                 {library.Get<BlueprintAbility>("7980e876b0749fc47ac49b9552e259c1"), Helpers.GetIcon("d76e8a80ab14ac942b6a9b8aaa5860b1")  }, //cold - axiomatic
             };

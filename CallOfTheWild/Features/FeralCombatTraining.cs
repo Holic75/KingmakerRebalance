@@ -350,6 +350,82 @@ namespace CallOfTheWild
         [ComponentName("Add feature if owner has no armor or shield")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
+        public class MonkNoArmorAndUnarmedFeatureUnlock : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact NewFact;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public static MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock fromMonkNoArmorAndMonkWeaponFeatureUnlock(MonkNoArmorAndMonkWeaponFeatureUnlock prototype)
+            {
+                var m = Helpers.Create<MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock>();
+                m.NewFact = prototype.NewFact;
+                return m;
+            }
+
+            public override void OnFactActivate()
+            {
+                this.CheckEligibility();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.RemoveFact();
+            }
+
+            public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+            {
+                this.CheckEligibility();
+            }
+
+            public void CheckEligibility()
+            {
+                if (!HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
+                    && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
+                    && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
+                    )
+                {
+                    this.AddFact();
+                }
+                else
+                {
+                    this.RemoveFact();
+                }
+            }
+
+            public void AddFact()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.NewFact, (MechanicsContext)null, (FeatureParam)null);
+            }
+
+            public void RemoveFact()
+            {
+                if (this.m_AppliedFact == null)
+                    return;
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+            {
+                if (slot.Owner != this.Owner)
+                    return;
+                this.CheckEligibility();
+            }
+
+            public new void OnTurnOn()
+            {
+                this.CheckEligibility();
+            }
+        }
+
+
+
+        [ComponentName("Add feature if owner has no armor or shield")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
         public class MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
         {
             public BlueprintUnitFact NewFact;
