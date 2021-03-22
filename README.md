@@ -18,7 +18,7 @@ Known Issues:
 
 
 New classes:  
-- Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, and Feykiller,  
+- Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, Feykiller, and Totem-Bonded,  
 - Witch with with following archetypes: Invoker, Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,
 - Skald with following archetypes: Red Tongue, Urban Skald, Herald of the Horn, War Drummer, Sunsinger and Court Poet,
@@ -47,7 +47,7 @@ New Archetypes for existing classes:
 - Sage Counselor, Monk of the Mantis and Zen Archer Monk archetypes,
 - Ravener Hunter, Relic Hunter, and Sanctified Slayer Inquisitor archetypes,
 - Executioner, Stygian Slayer, and Grave Warden Slayer archetypes,
-- Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
+- Elemental Ascetic, Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Dawnflower Dervish, Lore Warden and Drill Sergeant Fighter archetype,
 - Preservationist and Toxicant Alchemist archetypes,
 - Blood Hunter and Divine Tracker Ranger archetypes.

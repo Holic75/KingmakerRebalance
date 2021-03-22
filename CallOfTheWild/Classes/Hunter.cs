@@ -8,6 +8,7 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -94,7 +95,12 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource wildshape_resource;
         static public BlueprintFeature extra_wildshape;
         static public BlueprintFeatureSelection precise_nature_ally;
-        
+
+        static public BlueprintArchetype totem_bonded;
+        static public BlueprintFeatureSelection primeval_companion;
+        static public BlueprintFeature shared_strength;
+        static public BlueprintFeature shared_strength8;
+        static public BlueprintFeature shared_strength20;
 
 
 
@@ -148,7 +154,8 @@ namespace CallOfTheWild
             createFeykillerArchetype();
             createFeralHunterArchetype();
             createPrimalCompanionHunterArchetype();
-            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype, primal_companion_hunter, feral_hunter };
+            createTotemBonded();
+            hunter_class.Archetypes = new BlueprintArchetype[] {divine_hunter_archetype, forester_archetype, feykiller_archetype, primal_companion_hunter, feral_hunter, totem_bonded };
             Helpers.RegisterClass(hunter_class);
 
             Common.addMTDivineSpellbookProgression(hunter_class, hunter_class.Spellbook, "MysticTheurgeHunter",
@@ -157,6 +164,203 @@ namespace CallOfTheWild
 
             createPlanarFocus();
         }
+
+
+        static void createTotemBonded()
+        {        
+            totem_bonded = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TotemBondedHunterArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Totem-Bonded");
+            a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Shamans, oracles, druids, and others worship animals as primal spirits of the world and draw great power from their faith. Others, like rangers and barbarians, are no less faithful in their belief, even though they focus more on physical combat than on spellcasting. Among the most devoted of these hunters are the so-called totem-bonded-hunters who are able to form a true spiritual bond with the powerful fauna that dominate the wildlands. Such a hunter embraces one of the realm’s megafauna as a sort of spiritual guide, eventually attracting a mighty beast that travels with her and helps keep her territory free of invaders. By doing so, the totem-bonded hunter becomes something more than merely a guardian and provider for her tribe-she becomes a manifestation of the tribe’s spiritual belief in the power of the land itself."
+                                                         );
+
+            });
+            Helpers.SetField(totem_bonded, "m_ParentClass", hunter_class);
+            library.AddAsset(totem_bonded, "");
+
+            primeval_companion = library.CopyAndAdd(hunter_animal_companion, "PrimevalAnimalCompanion", "");
+            primeval_companion.SetNameDescription("Primeval Companion",
+                                                  "The totem-bonded adopts a powerful animal native to the region-often one suited to the cold tundra-selected from the following list: bear, smilodon, elk, mastodon or wolf.");
+            primeval_companion.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a"), //empty
+                library.Get<BlueprintFeature>("f6f1cdcc404f10c4493dc1e51208fd6f"), //bear
+                library.Get<BlueprintFeature>("aa92fea676be33d4dafd176d699d7996"), //elk
+                library.Get<BlueprintFeature>("6adc3aab7cde56b40aa189a797254271"), //mastodon
+                library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895"), //smilodon
+                library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea"), //wolf
+            };
+            createSharedStrength();
+            totem_bonded.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, hunter_animal_companion, animal_focus, animal_focus_ac),
+                                                                        Helpers.LevelEntry(8, animal_focus_additional_use, animal_focus_additional_use_ac),
+                                                                        Helpers.LevelEntry(20, animal_focus_additional_use2, animal_focus_additional_use_ac2),
+                                                                       };
+
+
+            totem_bonded.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, primeval_companion, shared_strength),
+                                                          Helpers.LevelEntry(8, shared_strength8),
+                                                          Helpers.LevelEntry(20, shared_strength20)
+                                                        };
+            hunter_progression.UIDeterminatorsGroup = hunter_progression.UIDeterminatorsGroup.AddToArray(primeval_companion);
+            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(shared_strength, shared_strength8, shared_strength20));
+        }
+
+
+        static void createSharedStrength()
+        {
+            var bear = library.Get<BlueprintFeature>("f6f1cdcc404f10c4493dc1e51208fd6f");
+            var elk = library.Get<BlueprintFeature>("aa92fea676be33d4dafd176d699d7996");
+            var mastodon = library.Get<BlueprintFeature>("6adc3aab7cde56b40aa189a797254271");
+            var smilodon = library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895");
+            var wolf = library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea");
+            shared_strength = Helpers.CreateFeature("SharedStrengthTotemBondedFeature",
+                                                    "Shared Strength",
+                                                    "At 1st level, the connection the totem-bonded has with her animal companion allows them to draw upon one another’s strength.\n"
+                                                    + "While the shared strength ability is active, the totem - bonded manifests one aspect of her animal companion drawn from the following list: +1 bonus to natural armor, +10 - foot bonus to speed, 2 claws(1d4), bite(1d6), gore(1d6), or slam(1d6); the natural attacks are all primary attacks, and the listed damage is for a Medium creature. The totem - bonded can select only a natural attack that her animal companion also has.At 8th level, the totem - bonded manifests two aspects of her animal companion, and she adds the following to her list of available aspects: +20 - foot bonus to speed, +2 bonus to natural armor, increased size (as enlarge person), and powerful charge. At 15th level, the damage dealt by any natural attacks granted by this ability increases by two die steps.\n"
+                                                    +  "A 20th level, the totem-bonded can apply up to three aspects.\n"
+                                                    + "A totem-bonded’s animal companion also benefits from the shared strength ability, and while it is active, the animal companion receives a +1 bonus on saving throws and +2 bonus on athletics, mobility, stealth and perception checks. At 8th level, the animal companion gains another +1 bonus on saving throws and a +2 bonus on skill checks. At 15th level, the animal companion’s bonuses on saving throws and skill checks increase to +3 and +6 respectively.",
+                                                    "",
+                                                    Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"), //abyssal strength
+                                                    FeatureGroup.None
+                                                   );
+
+            shared_strength8 = library.CopyAndAdd(shared_strength, "SharedStrengthTotemBonded8Feature", "");
+            shared_strength8.AddComponent(Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup()));
+
+            shared_strength20 = library.CopyAndAdd(shared_strength8, "SharedStrengthTotemBonded20Feature", "");
+
+            var shared_strength_ac = library.CopyAndAdd(shared_strength, "SharedStrengthTotemBondedAninmalCompanionFeature", "");
+            shared_strength_ac.AddComponents(Helpers.CreateAddContextStatBonus(StatType.SaveWill, ModifierDescriptor.UntypedStackable),
+                                             Helpers.CreateAddContextStatBonus(StatType.SaveReflex, ModifierDescriptor.UntypedStackable),
+                                             Helpers.CreateAddContextStatBonus(StatType.SaveFortitude, ModifierDescriptor.UntypedStackable),
+                                             Helpers.CreateAddContextStatBonus(StatType.SkillAthletics, ModifierDescriptor.UntypedStackable, multiplier: 2),
+                                             Helpers.CreateAddContextStatBonus(StatType.SkillMobility, ModifierDescriptor.UntypedStackable, multiplier: 2),
+                                             Helpers.CreateAddContextStatBonus(StatType.SkillStealth, ModifierDescriptor.UntypedStackable, multiplier: 2),
+                                             Helpers.CreateAddContextStatBonus(StatType.SkillPerception, ModifierDescriptor.UntypedStackable, multiplier: 2),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType(), classes: new BlueprintCharacterClass[] { hunter_class },
+                                                                            progression: ContextRankProgression.StartPlusDivStep,
+                                                                            startLevel: 1, stepLevel: 7
+                                                                            )
+                                            );
+            shared_strength.AddComponent(Helpers.Create<AddFeatureToCompanion>(a => a.Feature = shared_strength_ac));
+
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"), true, bear, smilodon); //claw 1d4
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("f227a663a97671d4992460cffc6e6401"), false, bear, smilodon); //claw 1d8
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286"), true, bear, smilodon, wolf); //bite 1d6
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("2abc1dc6172759c42971bd04b8c115cb"), false, bear, smilodon, wolf); //bite 2d6
+
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be"), true, mastodon, elk); //gore 1d6
+            var gore2d6 = library.CopyAndAdd<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be", "Gore2d6TotemBonded", "");
+            Helpers.SetField(gore2d6, "m_OverrideDamageDice", true);
+            Helpers.SetField(gore2d6, "m_DamageDice", new DiceFormula(2, DiceType.D6));
+            addSharedStrengthNaturalAttackToggle(gore2d6, false, mastodon, elk);
+
+            addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137"), true, mastodon); //slam 1d6
+            var slam2d6 = library.CopyAndAdd<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137", "Slam2d6TotemBonded", "");
+            Helpers.SetField(slam2d6, "m_OverrideDamageDice", true);
+            Helpers.SetField(slam2d6, "m_DamageDice", new DiceFormula(2, DiceType.D6));
+            addSharedStrengthNaturalAttackToggle(slam2d6, false, mastodon, elk);
+
+
+            addSharedStrengthFeature("Speed", "Speed Bonus", Helpers.GetIcon("14c90900b690cac429b229efdf416127"), true,
+                                     Helpers.CreateAddContextStatBonus(StatType.Speed, ModifierDescriptor.UntypedStackable, multiplier: 10),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.OnePlusDivStep,
+                                                                     classes: new BlueprintCharacterClass[] { hunter_class }, stepLevel: 8,
+                                                                     max: 2)
+                                    );
+
+            addSharedStrengthFeature("NaturalArmorBonus", "Natural Armor Bonus", Helpers.GetIcon("7bc8e27cba24f0e43ae64ed201ad5785"), true,
+                                     Helpers.CreateAddContextStatBonus(StatType.Speed, ModifierDescriptor.UntypedStackable),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.OnePlusDivStep,
+                                                                     classes: new BlueprintCharacterClass[] { hunter_class }, stepLevel: 8,
+                                                                     max: 2)
+                                    );
+
+            var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
+            var enlarge_toggle = Common.buffToToggle(enlarge_buff, CommandType.Swift, false);
+            enlarge_toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            shared_strength8.AddComponent(Helpers.CreateAddFact(enlarge_toggle));
+
+            var powerful_charge_buff = Helpers.CreateBuff("PowerfulChargeSharedStrengthBuff",
+                                                     "Shared Strength: Powerful Charge",
+                                                     shared_strength.Description,
+                                                     "",
+                                                     Helpers.GetIcon("32c4d277007aed74c905779cd04a6fed"), //inspire ferocity
+                                                     null,
+                                                     Helpers.Create<NewMechanics.PowerfulChargeDouble>()
+                                                     );
+            var powerful_charge_toggle = Common.buffToToggle(powerful_charge_buff, CommandType.Swift, false);
+            powerful_charge_toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            var powerful_charge_feature = Common.ActivatableAbilityToFeature(powerful_charge_toggle);
+            shared_strength8.AddComponent(Common.createAddFeatureIfHasFact(elk, powerful_charge_feature));
+
+        }
+
+
+        static void addSharedStrengthFeature(string prefix, string display_name, UnityEngine.Sprite icon, bool minor, params BlueprintComponent[] components)
+        {
+            var buff = Helpers.CreateBuff(prefix + "SharedStrengthBuff",
+                               "Shared Strength: " + display_name,
+                               shared_strength.Description,
+                               "",
+                               icon,
+                               null,
+                               components
+                               );
+
+            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+            toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            if (minor)
+            {
+                shared_strength.AddComponent(Helpers.CreateAddFact(toggle));
+            }
+            else
+            {
+                shared_strength8.AddComponent(Helpers.CreateAddFact(toggle));
+            }
+        }
+
+
+        static void addSharedStrengthNaturalAttackToggle(BlueprintItemWeapon weapon, bool is_minor, params BlueprintFeature[] companion_types)
+        {
+            var buff = Helpers.CreateBuff(weapon.name + "SharedStrengthBuff",
+                                           "Shared Strength: " + weapon.Name + (weapon.Category == WeaponCategory.Claw ? "s" : ""),
+                                           shared_strength.Description,
+                                           "",
+                                           weapon.Icon,
+                                           null
+                                           );
+            if (weapon.Category == WeaponCategory.Claw)
+            {
+                buff.AddComponent(Common.createEmptyHandWeaponOverride(weapon));
+            }
+            else
+            {
+                buff.AddComponent(Common.createAddAdditionalLimb(weapon));
+            }
+
+            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+            toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            var feature = Common.ActivatableAbilityToFeature(toggle);
+            feature.IsClassFeature = true;
+
+            shared_strength.AddComponent(Helpers.Create<LevelUpMechanics.AddFeatureOnClassLevelRange>(a =>
+            {
+                if (is_minor)
+                {
+                    a.max_level = 14;
+                }
+                else
+                {
+                    a.min_level = 15;
+                }
+                a.classes = new BlueprintCharacterClass[] { hunter_class };
+                a.required_facts = companion_types;
+                a.Feature = feature;
+            }));
+        }
+
 
 
         static void createFeralHunterArchetype()

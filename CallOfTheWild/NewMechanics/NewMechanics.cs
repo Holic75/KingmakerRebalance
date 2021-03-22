@@ -8431,6 +8431,29 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class PowerfulChargeDouble : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!evt.Initiator.Descriptor.HasFact((BlueprintUnitFact)BlueprintRoot.Instance.SystemMechanics.ChargeBuff))
+                    return;
+                RuleAttackWithWeapon attackWithWeapon1 = evt.AttackWithWeapon;
+                if ((attackWithWeapon1 != null ? (attackWithWeapon1.IsFirstAttack ? 1 : 0) : 0) == 0)
+                    return;
+                RuleAttackWithWeapon attackWithWeapon2 = evt.AttackWithWeapon;
+                if ((attackWithWeapon2 != null ? (!attackWithWeapon2.IsAttackOfOpportunity ? 1 : 0) : 1) == 0)
+                    return;
+                evt.WeaponDamageDiceOverride = new DiceFormula?(evt.WeaponDamageDiceOverride.HasValue ? new DiceFormula(evt.WeaponDamageDiceOverride.Value.Rolls*2, evt.Weapon.Damage.Dice) : new DiceFormula(evt.Weapon.Damage.Rolls * 2, evt.Weapon.Damage.Dice));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+            }
+        }
+
+
         [ComponentName("Weapon Damage Stat Replacement against fact owner")]
         public class WeaponDamageStatReplacementAgainstFactOwner : OwnedGameLogicComponent<UnitDescriptor>, IInitiatorRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
         {
