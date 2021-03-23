@@ -1745,7 +1745,7 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
 
             foreach (var limb in this.Owner.Body.AdditionalLimbs)
             {
-                var weapon = limb?.Item as ItemEntityWeapon;
+                var weapon = limb?.MaybeWeapon;
                 if (weapon?.Blueprint == target_weapon)
                 {
                     weapons.Add(weapon);

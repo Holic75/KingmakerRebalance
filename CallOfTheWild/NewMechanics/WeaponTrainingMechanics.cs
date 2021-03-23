@@ -403,7 +403,13 @@ namespace CallOfTheWild.WeaponTrainingMechanics
 
         public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
         {
-            this.Apply();
+            if (required_armor.Contains(ArmorProficiencyGroup.Buckler) || required_armor.Contains(ArmorProficiencyGroup.HeavyShield)
+                || required_armor.Contains(ArmorProficiencyGroup.LightShield) || required_armor.Contains(ArmorProficiencyGroup.TowerShield)
+                || forbidden_armor.Contains(ArmorProficiencyGroup.Buckler) || forbidden_armor.Contains(ArmorProficiencyGroup.HeavyShield)
+                || forbidden_armor.Contains(ArmorProficiencyGroup.LightShield) || forbidden_armor.Contains(ArmorProficiencyGroup.TowerShield))
+            {
+                this.Apply();
+            }
         }
 
         private void Apply()
