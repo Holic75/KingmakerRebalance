@@ -634,12 +634,12 @@ namespace CallOfTheWild.CombatManeuverMechanics
     {
         static void Postfix(RuleCombatManeuver __instance, ref bool __result)
         {
-            if (__instance.AutoFailure 
+            if (__instance.AutoFailure //already includes immunity to specific maneuvers 
                 || __instance.Target.Descriptor.State.HasCondition(UnitCondition.ImmuneToCombatManeuvers)
                 || (__instance.Target.Descriptor.State.HasConditionImmunity(UnitCondition.Prone) && __instance.Type == CombatManeuver.Trip)
                 )
             {
-                //TODO: should probably add checks for validity of other maneuvers but currently it is only used in greater trip, so only trip check looks sufficient
+                //TODO: should probably add checks for validity of other maneuvers but currently it is only used in greater trip, greater bull rush, so it looks sufficient
                 __result = false;
             }
         }

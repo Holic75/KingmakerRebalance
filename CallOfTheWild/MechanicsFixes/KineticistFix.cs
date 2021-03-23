@@ -166,7 +166,6 @@ namespace CallOfTheWild
             createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
-            Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
 
             fixRepeatingElements();
             if (update_archetypes)
