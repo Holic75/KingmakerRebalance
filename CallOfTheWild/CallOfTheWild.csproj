@@ -140,7 +140,7 @@
     <Compile Include="Archetypes\DivineTracker.cs" />
     <Compile Include="Archetypes\DraconicDruid.cs" />
     <Compile Include="Archetypes\DrillSergeant.cs" />
-    <Compile Include="Archetypes\ElementalAnnihilator.cs" />
+    <Compile Include="Archetypes\ElementalAscetic.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />
     <Compile Include="Archetypes\IroranPaladin.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />
@@ -203,7 +203,7 @@
     <Compile Include="Classes\Implements\Transmutation.cs" />
     <Compile Include="Classes\Implements\TrappingsOfTheWarrior.cs" />
     <Compile Include="Classes\Investigator.cs" />
-    <Compile Include="Archetypes\KineticChirurgeon.cs" />
+    <Compile Include="Archetypes\KineticChirurgeion.cs" />
     <Compile Include="Classes\Mesmerist.cs" />
     <Compile Include="Classes\Mysteries\Battle.cs" />
     <Compile Include="Classes\Mysteries\Bones.cs" />

@@ -354,7 +354,7 @@ namespace CallOfTheWild
             var cleric_domain = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
             domain_selection = library.CopyAndAdd(cleric_domain, "UnholyMinionDomainSelection", "");
             ClassToProgression.addClassToDomains(antipaladin_class, new BlueprintArchetype[] { unholy_minion }, ClassToProgression.DomainSpellsType.SpecialList, domain_selection, cleric);
-            domain_selection.SetDescription("Unholy minion chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of paladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
+            domain_selection.SetDescription("Unholy minion chooses one domain associated with her deity. At 4th level she also gains one domain spell slot for each level of antipaladin spells she can cast. Every day she must prepare the domain spell from her chosen domain in that spell slot.");
             antipaladin_class.Spellbook.CantripsType = CantripsType.Orisions; //to properly show domain slots
         }
 
@@ -414,8 +414,8 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource("UnholyMinionBondResource", "", "", "", null);
             resource.SetIncreasedByLevelStartPlusDivStep(1, 9, 1, 4, 1, 0, 0.0f, new BlueprintCharacterClass[] { antipaladin_class });
             minion_bond_buff = Helpers.CreateBuff("UnholyMinionBondBondBuff",
-                                                    "Fiendsih Bond",
-                                                    "At 5th level, instead of forming a bond with her weapon, an unholy minion forms a bond with a fiendsih spirit.\n"
+                                                    "Fiendish Bond",
+                                                    "At 5th level, instead of forming a bond with her weapon, an unholy minion forms a bond with a fiendish spirit.\n"
                                                     + "At 5th level, the spirit grants one bonus. For every three levels beyond 5th, the spirit grants one additional bonus. These bonuses can be spent in a number of ways to grant the antipaladin enhanced abilities to channel negative energy and to cast spells.\n"
                                                     + "Each bonus can be used to grant one of the following enhancements:\n"
                                                     + "+1 caster level to any antipaladin spell cast,\n"
@@ -424,7 +424,7 @@ namespace CallOfTheWild
                                                     + "restore one use/day of touch of corruption.\n"
                                                     + "These enhancements stack and can be selected multiple times. The enhancements granted by the spirit are determined when the spirit is called and cannot be changed until the spirit is called again. If the unholy servant increases her number of uses of touch of corruption per day in this way, that choice is set for the rest of the day, and once used, these additional uses are not restored (even if the spirit is called again that day). An unholy minion can use this ability once per day at 5th level, and one additional time per day for every four levels beyond 5th, to a total of four times per day at 17th level.",
                                                     "",
-                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png"),
+                                                    LoadIcons.Image2Sprite.Create(@"AbilityIcons/FiendishBoon.png"),
                                                     null);
 
             minion_bond_ability = library.CopyAndAdd<BlueprintAbility>("7ff088ab58c69854b82ea95c2b0e35b4", "UnholyMinionBondAbility", "");
@@ -438,7 +438,7 @@ namespace CallOfTheWild
                                                                 );
             minion_bond_ability.setMiscAbilityParametersSelfOnly();
 
-            var cl_icon = Helpers.GetIcon("1bc83efec9f8c4b42a46162d72cbf494");//burst of glory
+            var cl_icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/BurstOfGloryNegative.png");
             var channel_dice_icon = Helpers.GetIcon("3cf05ef7606f06446ad357845cb4d430");//inflict crtical wounds
             var channel_dc_icon = Helpers.GetIcon("6f1dcf6cfa92d1948a740195707c0dbe");//finger of death
 
@@ -2463,7 +2463,7 @@ namespace CallOfTheWild
                                             "Smite Good",
                                             "Once per day, an antipaladin can call out to the dark powers to crush the forces of good. As a swift action, the antipaladin chooses one target within sight to smite. If this target is good, the antipaladin adds his Charisma bonus (if any) on his attack rolls and adds his antipaladin level on all damage rolls made against the target of his smite, smite good attacks automatically bypass any DR the creature might possess.\n"
                                             + "In addition, while smite good is in effect, the antipaladin gains a deflection bonus equal to his Charisma modifier (if any) to his AC against attacks made by the target of the smite. If the antipaladin targets a creature that is not good, the smite is wasted with no effect.\n"
-                                            + "The smite good lasts until the target dies or the paladin selects a new target. At 4th level, and at every three levels thereafter, the paladin may smite good one additional time per day.",
+                                            + "The smite good lasts until the target dies or the antipaladin selects a new target. At 4th level, and at every three levels thereafter, the antipaladin may smite good one additional time per day.",
                                             "",
                                             "",
                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/SmiteGood.png"),

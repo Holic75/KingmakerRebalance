@@ -825,7 +825,7 @@ namespace CallOfTheWild
                                             "",
                                             true_strike.Icon,
                                             null,
-                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAttackTypeAttackBonus(4, AttackTypeAttackBonus.WeaponRangeType.Ranged, ModifierDescriptor.UntypedStackable),
                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
                                                                                              check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged,
                                                                                              wait_for_attack_to_resolve: true)
@@ -2032,8 +2032,7 @@ namespace CallOfTheWild
                                                   hurtful.Description,
                                                   "",
                                                   hurtful.Icon,
-                                                  null,
-                                                  shaken.GetComponent<SpellDescriptorComponent>());
+                                                  null);
             
             var hurtful_ability = Helpers.CreateAbility("HurtfulAbility",
                                                         hurtful.Name,
@@ -2056,11 +2055,25 @@ namespace CallOfTheWild
                                                         );
             hurtful_ability.setMiscAbilityParametersTouchHarmful();
 
-            hurtful.AddComponent(Helpers.CreateAddFact(hurtful_ability));
+            //hurtful.AddComponent(Helpers.CreateAddFact(hurtful_ability));
 
-            var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(hurtful), Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>() },
-                                                   Common.createContextActionApplyBuff(hurtful_buff, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 3));
+            var toggle = Common.buffToToggle(hurtful_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
 
+            var attack = Common.createContextActionAttack(Helpers.CreateActionList(),
+                                 Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(shaken),
+                                                          Common.createContextActionRemoveBuffFromCaster(frightened)
+                                                          )
+                                 );
+            var action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(hurtful_buff),
+                                                                     Helpers.Create<NewMechanics.ContextConditionEngagedByCaster>(),
+                                                                     Helpers.Create<TurnActionMechanics.ContextConditionHasAction>(h => {h.check_caster = true; h.has_swift = true; })
+                                                                    },
+                                                   new GameAction[] { Helpers.Create<TurnActionMechanics.ConsumeAction>(c => { c.consume_swift = true; c.from_caster = true; }), 
+                                                                      attack
+                                                                    }                                                                                                                
+                                                  );
+
+            hurtful.AddComponent(Helpers.CreateAddFact(toggle));
             hurtful.AddComponent(Helpers.Create<DemoralizeMechanics.RunActionsOnDemoralize>(r => r.actions = Helpers.CreateActionList(action)));
             hurtful.Groups = hurtful.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(hurtful);
@@ -2403,13 +2416,17 @@ namespace CallOfTheWild
             var combat_expertise = library.Get<BlueprintFeature>("4c44724ffa8844f4d9bedb5bb27d144a");
             var improved_trip = library.Get<BlueprintFeature>("0f15c6f70d8fb2b49aa6cc24239cc5fa");
 
-            var action = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(power_attack_buff),
-                                                   Helpers.Create<ContextActionCombatManeuver>(c =>
-                                                                                                 {
-                                                                                                     c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
-                                                                                                     c.OnSuccess = Helpers.CreateActionList();
-                                                                                                 }
-                                                                                               )
+            var action = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(power_attack_buff),
+                                                                   Helpers.Create<TurnActionMechanics.ContextConditionHasAction>(c => {c.check_caster = true; c.has_swift = true; })
+                                                                  },
+                                                   new GameAction[] { Helpers.Create<TurnActionMechanics.ConsumeAction>(c => { c.from_caster = true; c.consume_swift = true; }),
+                                                                      Helpers.Create<ContextActionCombatManeuver>(c =>
+                                                                                                                     {
+                                                                                                                         c.Type = Kingmaker.RuleSystem.Rules.CombatManeuver.Trip;
+                                                                                                                         c.OnSuccess = Helpers.CreateActionList();
+                                                                                                                     }
+                                                                                                                   )
+                                                                    }
                                                    );
             var buff = Helpers.CreateBuff("FellingSmashBuff",
                                           "Felling Smash",
@@ -2430,13 +2447,9 @@ namespace CallOfTheWild
                                                            buff.Icon,
                                                            buff,
                                                            AbilityActivationType.WithUnitCommand,
-                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                            null);
-            if (!test_mode)
-            {
-                ability.AddComponent(Common.createActivatableAbilityUnitCommand(Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift));
-            }
-
+            ability.DeactivateImmediately = true;
             felling_smash = Helpers.CreateFeature("FellingSmashFeature",
                                                   buff.Name,
                                                   buff.Description,
@@ -2484,7 +2497,7 @@ namespace CallOfTheWild
                                             "",
                                             true_strike.Icon,
                                             null,
-                                            Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, 4, ModifierDescriptor.UntypedStackable),
+                                            Common.createAttackTypeAttackBonus(4, AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true,
                                                                                              wait_for_attack_to_resolve: true)
                                           );

@@ -2052,7 +2052,6 @@ namespace CallOfTheWild
             master_hunter_cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             var master_hunter = library.Get<BlueprintAbility>("8a57e1072da4f6f4faaa55b7b7dc633c");
 
-
             master_hunter.Range = AbilityRange.Weapon;
             master_hunter.setMiscAbilityParametersSingleTargetRangedHarmful();
 
@@ -2615,7 +2614,7 @@ namespace CallOfTheWild
 
 
 
-    //fixraise bab effect to take into account various bonuses
+    //fix raise bab effect to take into account various bonuses
     [Harmony12.HarmonyPatch(typeof(RaiseBAB), "OnTurnOn")]
     class RaiseBABt_OnTurnOn
     {

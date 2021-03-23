@@ -625,4 +625,23 @@ namespace CallOfTheWild.CombatManeuverMechanics
             TryRunActions(attack_rule);
         }
     }
+
+
+    //fix Success to return false in case of autofailure or immunity to combat maneuver
+    [Harmony12.HarmonyPatch(typeof(RuleCombatManeuver))]
+    [Harmony12.HarmonyPatch("Success", Harmony12.MethodType.Getter)]
+    class RuleCombatManeuver__Success__Patch
+    {
+        static void Postfix(RuleCombatManeuver __instance, ref bool __result)
+        {
+            if (__instance.AutoFailure //already includes immunity to specific maneuvers 
+                || __instance.Target.Descriptor.State.HasCondition(UnitCondition.ImmuneToCombatManeuvers)
+                || (__instance.Target.Descriptor.State.HasConditionImmunity(UnitCondition.Prone) && __instance.Type == CombatManeuver.Trip)
+                )
+            {
+                //TODO: should probably add checks for validity of other maneuvers but currently it is only used in greater trip, greater bull rush, so it looks sufficient
+                __result = false;
+            }
+        }
+    }
 }

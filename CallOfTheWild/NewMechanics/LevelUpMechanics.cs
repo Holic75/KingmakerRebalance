@@ -84,6 +84,7 @@ namespace CallOfTheWild.LevelUpMechanics
         public BlueprintCharacterClass[] classes;
         public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
         public int[] class_bonuses = new int[0];
+        public BlueprintFeature[] required_facts = new BlueprintFeature[0];
         [JsonProperty]
         private Fact m_AppliedFact;
 
@@ -121,6 +122,11 @@ namespace CallOfTheWild.LevelUpMechanics
 
         private bool IsFeatureShouldBeApplied()
         {
+            if (!required_facts.Empty() && !required_facts.Any(f => this.Owner.HasFact(f)))
+            {
+                return false;
+            }
+
             int class_level = ReplaceCasterLevelOfAbility.CalculateClassLevel(this.classes[0], this.classes.Skip(1).ToArray(), this.Owner, this.archetypes);
             if (!class_bonuses.Empty())
             {

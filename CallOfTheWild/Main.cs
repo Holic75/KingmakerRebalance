@@ -315,6 +315,7 @@ namespace CallOfTheWild
                         Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");
                         CallOfTheWild.Hunter.addAnimalFocusSH();
                     }
+                    CallOfTheWild.KineticistFix.load(Main.settings.update_kineticist_archetypes);
                     CallOfTheWild.HexEngine.Initialize();
                     CallOfTheWild.Witch.createWitchClass();
                     CallOfTheWild.Skald.createSkaldClass();
@@ -386,10 +387,11 @@ namespace CallOfTheWild
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
                     CallOfTheWild.DawnflowerAnchorite.createDawnflowerAnchoriteClass();
 
-                    CallOfTheWild.KineticistFix.load(Main.settings.update_kineticist_archetypes);
+                    
                     CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
+                    CallOfTheWild.Archetypes.ElementalAscetic.create();
                     CallOfTheWild.Archetypes.SacredServant.create();
                     CallOfTheWild.Archetypes.MonkOfTheMantis.create();
                     CallOfTheWild.Archetypes.BeastkinBerserker.create();

@@ -2230,6 +2230,18 @@ namespace CallOfTheWild
         }
 
 
+        public class RestricitonManufacturedWeapon : ActivatableAbilityRestriction
+        {
+            public bool not = false;
+            public override bool IsAvailable()
+            {
+                if (Owner.Body.PrimaryHand.HasWeapon)
+                    return (Owner.Body.PrimaryHand.Weapon.Blueprint.IsNatural || Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed) == not;
+                return not;
+            }
+        }
+
+
 
         public class ActivatableAbilityMainHandWeaponEnhancementIfHasArchetype : ActivatableAbilityRestriction
         {
@@ -6121,8 +6133,8 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
-                UnitDescriptor descriptor = evt.Reason.Caster?.Descriptor;
-                if (descriptor == null || !descriptor.Alignment.Value.HasComponent(this.alignment))
+                UnitDescriptor desc = evt.Reason.Caster?.Descriptor;
+                if (desc == null || !desc.Alignment.Value.HasComponent(this.alignment))
                     return;
 
                 var bonus = value.Calculate(this.Fact.MaybeContext);
@@ -6149,7 +6161,7 @@ namespace CallOfTheWild
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowMultipleComponents]
-        public class ArmorClassBonusAgainstAlignment : RuleInitiatorLogicComponent<RuleAttackWithWeapon>
+        public class ArmorClassBonusAgainstAlignment : RuleTargetLogicComponent<RuleAttackWithWeapon>
         {
             public AlignmentComponent alignment;
             public ModifierDescriptor descriptor;
@@ -8509,6 +8521,29 @@ namespace CallOfTheWild
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class PowerfulChargeDouble : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>
+        {
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (!evt.Initiator.Descriptor.HasFact((BlueprintUnitFact)BlueprintRoot.Instance.SystemMechanics.ChargeBuff))
+                    return;
+                RuleAttackWithWeapon attackWithWeapon1 = evt.AttackWithWeapon;
+                if ((attackWithWeapon1 != null ? (attackWithWeapon1.IsFirstAttack ? 1 : 0) : 0) == 0)
+                    return;
+                RuleAttackWithWeapon attackWithWeapon2 = evt.AttackWithWeapon;
+                if ((attackWithWeapon2 != null ? (!attackWithWeapon2.IsAttackOfOpportunity ? 1 : 0) : 1) == 0)
+                    return;
+                evt.WeaponDamageDiceOverride = new DiceFormula?(evt.WeaponDamageDiceOverride.HasValue ? new DiceFormula(evt.WeaponDamageDiceOverride.Value.Rolls*2, evt.Weapon.Damage.Dice) : new DiceFormula(evt.Weapon.Damage.Rolls * 2, evt.Weapon.Damage.Dice));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
             {
             }
         }

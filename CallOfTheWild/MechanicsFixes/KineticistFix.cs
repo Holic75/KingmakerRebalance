@@ -6,13 +6,17 @@ using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.RuleSystem;
+using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
+using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
@@ -24,6 +28,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Class.Kineticist.Actions;
+using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
 using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.Commands.Base;
 using Kingmaker.UnitLogic.FactLogic;
@@ -101,6 +106,7 @@ namespace CallOfTheWild
         static public BlueprintFeature kinetic_fist;
         static public BlueprintFeature energize_weapon;
 
+        static public BlueprintFeature[] powerful_fist = new BlueprintFeature[3];
 
 
         internal static void load(bool update_archetypes)
@@ -134,17 +140,20 @@ namespace CallOfTheWild
             restoreKineticKnightinfusions();
             whirlwind_infusion.HideInUI = false;
             fixKineticBladeCost();
+            removeElementalOverflowFromKineticBlade();
             fixKineticBladeCostForKineticKnight();
             fixBladeWhirlwindCost();
             fixKineticHealer();
             fixBladeWhirlwindRange();
 
             fixShroudOfWaterForKineticKnight();
+            createKineticFist();
+            createEnergizeWeapon();
 
             createBladeRush();
             createKineticWhip();
             createWhipHurricane();
-            createKineticFist();
+
             createSparkOfLife();
             createAirLeapAndWingsOfAir();
             createFlameJetAndFlameJetGreater();
@@ -157,7 +166,6 @@ namespace CallOfTheWild
             createKineticInvocation();
             createInternalBuffer();
             fixKineticistAbilitiesToBeSpelllike();
-            Witch.infusion.AllFeatures = infusion_selection.AllFeatures;
 
             fixRepeatingElements();
             if (update_archetypes)
@@ -167,14 +175,311 @@ namespace CallOfTheWild
             }
         }
 
+
+        static void removeElementalOverflowFromKineticBlade()
+        {
+            foreach (var kv in blast_kinetic_blades_burn_map)
+            {
+                var toggle = kv.Value.Item1;
+
+                var blast = toggle.Buff.GetComponent<AddKineticistBlade>().Blade.GetComponent<WeaponKineticBlade>().Blast;
+                blast.AddComponent(Helpers.Create<KineticistMechanics.NoElementalOverflow>());
+            }
+        }
+
+
         static void createKineticFist()
         {
-            //we will need to create cost and burn ability and insert them via patches into kinetic blade processing functions (?)
-            //TryRunKineticBladeActivationAction - make a prefix that will run a burn cost ability
-            //TryHandleKineticBladeAttack -  use damage ability (if allowed)
-            //we will add buff that will do the following:
-            //on first attack it will use burn cost buff and apply damage marker buff
-            //on all attacks it will use blast effect (OnEventDidTrigger(RuleAttackWithWeapon)
+            //create powerful fist
+            var dice = new DiceType[] { DiceType.D8, DiceType.D10, DiceType.D12 };
+            BlueprintBuff[] powerful_fist_buffs = new BlueprintBuff[3];
+            for (int i = 0; i < 3; i++)
+            {
+                var powerful_fist_buff = Helpers.CreateBuff($"PowerfulFist{i + 1}Buff",
+                                                            "Powerful fist: d" + ((int)dice[i]).ToString(),
+                                                            "At 5th level, an elemental ascetic can accept 2 additional points of burn when using kinetic fist to increase that infusion’s damage dice from d6s to d8s.\n"
+                                                            + "At 11th level, he can instead accept 4 additional points of burn to increase the damage dice from d6s to d10s. At 17th level, he can instead accept 6 additional points of burn to increase the damage dice from d6s to d12s. All of these options count as burn from a form infusion and can thus be reduced by infusion specialization.",
+                                                            "",
+                                                            Helpers.GetIcon("85067a04a97416949b5d1dbf986d93f3"), //stone fist
+                                                            null,
+                                                            Helpers.Create<AddKineticistBurnModifier>(a =>
+                                                            {
+                                                                a.BurnType = KineticistBurnType.Infusion;
+                                                                a.Value = (i + 1) * 2;
+                                                                a.AppliableTo = new BlueprintAbility[0];
+                                                            }
+                                                            )
+                                                            );
+
+                var toggle = Common.buffToToggle(powerful_fist_buff, UnitCommand.CommandType.Free, false);
+                toggle.Group = ActivatableAbilityGroupExtension.PowerfulFist.ToActivatableAbilityGroup();
+                powerful_fist[i] = Common.ActivatableAbilityToFeature(toggle, false);
+                powerful_fist_buffs[i] = powerful_fist_buff;
+            }
+
+
+            var description = "Element: universal\nType: form infusion\nLevel: 1\nBurn: 1\nAssociated Blasts: any\nSaving Throw: none\n"
+                               + "You surround your body with energy or elemental matter from your kinetic abilities. You can use this form infusion as part of an attack action, a charge action, or a full-attack action to add damage to each of your natural attacks and unarmed strikes until the beginning of your next turn. Since kinetic fist is part of another action, using this wild talent doesn’t provoke any additional attack of opportunity. You deal an additional 1d6 points of damage (2d6 for composite blasts) plus 1d6 points of damage per 3 dice of your kinetic blast’s damage above first (or above first two dice for composite blasts), and this damage is of the same type as your kinetic blast’s damage. This extra damage ignores spell resistance and doesn’t apply any modifiers to your kinetic blast’s damage, such as your Constitution modifier.";
+            var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
+            var blade_enabled_buff = library.Get<BlueprintBuff>("426a9c079ee7ac34aa8e0054f2218074");
+
+            kinetic_fist = library.CopyAndAdd(kinetic_blade_infusion, kinetic_blade_infusion.name.Replace("Blade", "Fist"), "");
+            kinetic_fist.ComponentsArray = new BlueprintComponent[0];
+            kinetic_fist.SetNameDescriptionIcon("Kinetic Fist",
+                                                description,
+                                                Helpers.GetIcon("92f7b37ef1cf5484db02a924592ceb74") //force punch from scaled fist feat selection
+                                                );
+
+            var config2 = Helpers.CreateContextRankConfig(progression: ContextRankProgression.Custom,
+                                                          customProgression: new (int, int)[] { (3, 2), (6, 4), (9, 6), (12, 8), (15, 10), (18, 12), (21, 14) }
+                                                          );
+            var custom_progression = Helpers.GetField(config2, "m_CustomProgression");
+
+            foreach (var c in kinetic_blade_infusion.GetComponents<AddFeatureIfHasFact>())
+            {
+                var blast_base = c.CheckedFact as BlueprintAbility;
+                var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/KineticFist" + blast_base.name.Replace("Base", "") + ".png");
+                var feature = library.CopyAndAdd<BlueprintFeature>(c.Feature.AssetGuid, c.Feature.name.Replace("Blade", "Fist"), "");
+                var feature_components = feature.GetComponents<AddFeatureIfHasFact>().ToArray();
+                var blast_toggle = library.CopyAndAdd(feature_components[0].CheckedFact as BlueprintActivatableAbility, feature_components[0].CheckedFact.name.Replace("Blade", "Fist"), "");
+                var burn_ability = library.CopyAndAdd(feature_components[1].CheckedFact as BlueprintAbility, feature_components[1].CheckedFact.name.Replace("Blade", "Fist"), "");
+
+                blast_toggle.SetNameDescriptionIcon(blast_base.Name + " — Kinetic Fist",
+                                                    description,
+                                                    icon);
+
+                blast_toggle.RemoveComponents<RestrictionCanUseKineticBlade>();
+                blast_toggle.AddComponent(Helpers.Create<NewMechanics.RestricitonManufacturedWeapon>(a => a.not = true));
+                blast_toggle.Buff = library.CopyAndAdd(blast_toggle.Buff, blast_toggle.Buff.name.Replace("KineticBlade", "KineticFist"), "");
+                //blast toggle will inherrit restricitons on substance infusions from blade
+
+                var blast_ability = blast_toggle.Buff.GetComponent<AddKineticistBlade>().Blade.GetComponent<WeaponKineticBlade>().Blast;
+                blast_ability = library.CopyAndAdd(blast_ability, blast_ability.name.Replace("Blade", "Fist"), "");
+                blast_ability.SetNameDescriptionIcon(blast_toggle);
+                var config_dice = blast_ability.GetComponents<ContextRankConfig>().Where(cc => cc.Type == AbilityRankType.DamageDice).FirstOrDefault();
+                var config_bonus = blast_ability.GetComponents<ContextRankConfig>().Where(cc => cc.Type == AbilityRankType.DamageBonus).FirstOrDefault();
+                blast_ability.ReplaceComponent(config_bonus, Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, min: 0, max: 0, type: AbilityRankType.DamageBonus));
+
+                blast_ability.SpellResistance = false;
+                blast_ability.ReplaceComponent(config_dice, config_dice.CreateCopy(cc =>
+                {
+                    var progression = Helpers.GetField<ContextRankProgression>(cc, "m_Progression");
+                    var step = Helpers.GetField<int>(cc, "m_StepLevel");
+                    if (progression == ContextRankProgression.MultiplyByModifier && step != 1)
+                    {// same type of damage dealt twice
+                        Helpers.SetField(cc, "m_Progression", ContextRankProgression.Custom);
+                        Helpers.SetField(cc, "m_CustomProgression", custom_progression);
+                    }
+                    else
+                    {
+                        Helpers.SetField(cc, "m_Progression", ContextRankProgression.StartPlusDivStep);
+                        Helpers.SetField(cc, "m_StartLevel", 1);
+                        Helpers.SetField(cc, "m_StepLevel", 3);
+                    }
+                }));
+                //no_overflow_component will be inherited from kinetic blade blast
+
+                blast_toggle.Buff.ComponentsArray = new BlueprintComponent[0]; //remove all components related to cost increase of kinetic whip, whirlwind, etc
+                blast_toggle.Buff.AddComponent(Helpers.Create<KineticistMechanics.KineticistEnergizeWeapon>(k =>
+                {
+                    k.activation_ability = burn_ability;
+                    k.activation_buff = blade_enabled_buff;
+                    k.blast_ability = blast_ability;
+                    k.kinetic_fist = true;
+                }));
+
+                var actions = blast_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                var actions_d6 = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(actions,
+                                                                                                        d =>
+                                                                                                        {
+                                                                                                            d.Value = Helpers.CreateContextDiceValue(DiceType.D6, d.Value.DiceCountValue, 0);
+                                                                                                        })
+                                                                                                        );
+                var actions_d8 = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(actions,
+                                                                                                    d =>
+                                                                                                    {
+                                                                                                        d.Value = Helpers.CreateContextDiceValue(DiceType.D8, d.Value.DiceCountValue, 0);
+                                                                                                    })
+                                                                                                    );
+                var actions_d10 = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(actions,
+                                                                                                    d =>
+                                                                                                    {
+                                                                                                        d.Value = Helpers.CreateContextDiceValue(DiceType.D10, d.Value.DiceCountValue, 0);
+                                                                                                    })
+                                                                                                    );
+
+                var actions_d12 = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(actions,
+                                                                                                        d =>
+                                                                                                        {
+                                                                                                            d.Value = Helpers.CreateContextDiceValue(DiceType.D12, d.Value.DiceCountValue, 0);
+                                                                                                        })
+                                                                                                        );
+
+                var new_actions = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(powerful_fist_buffs[2]),
+                                                            actions_d12.Actions,
+                                                            new GameAction[] {Helpers.CreateConditional(Common.createContextConditionCasterHasFact(powerful_fist_buffs[1]),
+                                                                                                       actions_d10.Actions,
+                                                                                                       new GameAction[] {Helpers.CreateConditional(Common.createContextConditionCasterHasFact(powerful_fist_buffs[0]),
+                                                                                                                                actions_d8.Actions,
+                                                                                                                                actions_d6.Actions
+                                                                                                                                )
+                                                                                                                        }
+                                                                                                      )
+                                                                              }
+                                                            );
+                blast_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(new_actions));
+                blast_base.addToAbilityVariants(blast_ability);
+                feature.RemoveComponents<AddFeatureIfHasFact>();
+                feature.AddComponents(Common.createAddFeatureIfHasFact(blast_toggle, blast_toggle, not: true),
+                                      Common.createAddFeatureIfHasFact(burn_ability, burn_ability, not: true));
+
+
+                //add substance infusion cost
+                foreach (var infusion in substance_infusions)
+                {
+                    var burn_modifier = infusion.Buff.GetComponent<AddKineticistBurnModifier>();
+                    if (burn_modifier != null && burn_modifier.AppliableTo.Contains(blast_base))
+                    {
+                        burn_modifier.AppliableTo = burn_modifier.AppliableTo.AddToArray(burn_ability);
+                    }
+                }
+                kinetic_fist.AddComponent(Common.createAddFeatureIfHasFact(blast_base, feature));
+
+                for (int i = 0; i < powerful_fist_buffs.Length; i++)
+                {
+                    var comp = powerful_fist_buffs[i].GetComponent<AddKineticistBurnModifier>();
+                    comp.AppliableTo = comp.AppliableTo.AddToArray(burn_ability);
+                }
+            }
+
+
+            kinetic_fist.AddComponents(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("1f3a15a3ae8a5524ab8b97f469bf4e3d")));
+            infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(kinetic_fist);
+        }
+
+
+
+        static void createEnergizeWeapon()
+        {
+            var description = "Element: air, fire, water\nType: form infusion\nLevel: 1\nBurn: 1\nAssociated Blasts: blue flame, cold, electric, fire\nSaving Throw: none\n"
+                               + "Choose a manufactured weapon in your hand (not an unarmed strike or natural attack); if the weapon is a double weapon, you must choose one of its ends to receive this benefit. You imbue the chosen weapon with your elemental energy as part of an attack action, charge action, or full-attack action to add extra damage to each of your attacks with that weapon until the beginning of your next turn. Your attacks with the chosen weapon during that action deal 1d6 additional points of damage. At 7th level and every 6 levels thereafter, this bonus damage increases by 1d6 points. Blue flame blasts deal double this additional damage. The additional damage is of the same type as the infused blast’s damage. This additional damage ignores spell resistance and doesn’t apply any modifiers to your kinetic blast’s damage (such as your Constitution modifier).";
+            var kinetic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
+            var blade_enabled_buff = library.Get<BlueprintBuff>("426a9c079ee7ac34aa8e0054f2218074");
+            
+            Dictionary<BlueprintAbility, UnityEngine.Sprite> blast_icon_map = new Dictionary<BlueprintAbility, UnityEngine.Sprite>()
+            {
+                {library.Get<BlueprintAbility>("45eb571be891c4c4581b6fcddda72bcd"), Helpers.GetIcon("8c714fbd564461e4588330aeed2fbe1d")  }, //electric - disruption
+                {library.Get<BlueprintAbility>("d29186edb20be6449b23660b39435398"), SpiritualWeapons.mages_sword.Icon}, //blue flame - mages sword
+                {library.Get<BlueprintAbility>("83d5873f306ac954cad95b6aeeeb2d8c"), Helpers.GetIcon("3af19bdbd6215434f8421a860cc98363")  }, //fire - flame
+                {library.Get<BlueprintAbility>("7980e876b0749fc47ac49b9552e259c1"), Helpers.GetIcon("d76e8a80ab14ac942b6a9b8aaa5860b1")  }, //cold - axiomatic
+            };
+
+            energize_weapon = library.CopyAndAdd(kinetic_blade_infusion, kinetic_blade_infusion.name.Replace("Blade", "EnergizeWeapon"), "");
+            energize_weapon.ComponentsArray = new BlueprintComponent[0];
+            energize_weapon.SetNameDescriptionIcon("Energize Weapon",
+                                                   description,
+                                                   Helpers.GetIcon("8c714fbd564461e4588330aeed2fbe1d")
+                                                   );
+
+            var config2 = Helpers.CreateContextRankConfig(progression: ContextRankProgression.Custom,
+                                                          customProgression: new (int, int)[] { (3, 2), (6, 4), (9, 6), (12, 8), (15, 10), (18, 12), (21, 14) }
+                                                          );
+            var custom_progression = Helpers.GetField(config2, "m_CustomProgression");
+            foreach (var c in kinetic_blade_infusion.GetComponents<AddFeatureIfHasFact>())
+            {
+                if (!blast_icon_map.ContainsKey(c.CheckedFact as BlueprintAbility))
+                {
+                    continue;
+                }
+
+                var blast_base = c.CheckedFact as BlueprintAbility;
+
+                var feature = library.CopyAndAdd<BlueprintFeature>(c.Feature.AssetGuid, c.Feature.name.Replace("Blade", "EnergizeWeapon"), "");
+                var feature_components = feature.GetComponents<AddFeatureIfHasFact>().ToArray();
+                var blast_toggle = library.CopyAndAdd(feature_components[0].CheckedFact as BlueprintActivatableAbility, feature_components[0].CheckedFact.name.Replace("Blade", "EnergizeWeapon"), "");
+                var burn_ability = library.CopyAndAdd(feature_components[1].CheckedFact as BlueprintAbility, feature_components[1].CheckedFact.name.Replace("Blade", "EnergizeWeapon"), "");
+
+                blast_toggle.SetNameDescriptionIcon(blast_base.Name + " — Energize Weapon",
+                                                    description,
+                                                    blast_icon_map[blast_base]);
+
+                blast_toggle.RemoveComponents<RestrictionCanUseKineticBlade>();
+                blast_toggle.AddComponent(Helpers.Create<NewMechanics.RestricitonManufacturedWeapon>());
+                blast_toggle.Buff = library.CopyAndAdd(blast_toggle.Buff, blast_toggle.Buff.name.Replace("Blade", "EnergizeWeapon"), "");
+                //blast toggle will inherrit restricitons on substance infusions from blade
+
+                var blade = blast_toggle.Buff.GetComponent<AddKineticistBlade>().Blade;
+                var fx_enchant = Helpers.GetField<BlueprintWeaponEnchantment[]>(blade, "m_Enchantments")[0];
+
+                var blast_ability = blast_toggle.Buff.GetComponent<AddKineticistBlade>().Blade.GetComponent<WeaponKineticBlade>().Blast;
+                blast_ability = library.CopyAndAdd(blast_ability, blast_ability.name.Replace("Blade", "EnergizeWeapon"), "");
+                blast_ability.SetNameDescriptionIcon(blast_toggle);
+                var config_dice = blast_ability.GetComponents<ContextRankConfig>().Where(cc => cc.Type == AbilityRankType.DamageDice).FirstOrDefault();
+                var config_bonus = blast_ability.GetComponents<ContextRankConfig>().Where(cc => cc.Type == AbilityRankType.DamageBonus).FirstOrDefault();
+                blast_ability.ReplaceComponent(config_bonus, Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, min: 0, max: 0, type: AbilityRankType.DamageBonus));
+
+                
+                blast_ability.ReplaceComponent(config_dice, config_dice.CreateCopy(cc =>
+                {
+                    var progression = Helpers.GetField<ContextRankProgression>(cc, "m_Progression");
+                    var step = Helpers.GetField<int>(cc, "m_StepLevel");
+                    if (progression == ContextRankProgression.MultiplyByModifier && step != 1)
+                    {// same type of damage dealt twice
+                        Helpers.SetField(cc, "m_Progression", ContextRankProgression.Custom);
+                        Helpers.SetField(cc, "m_CustomProgression", custom_progression);
+                    }
+                    else
+                    {
+                        Helpers.SetField(cc, "m_Progression", ContextRankProgression.StartPlusDivStep);
+                        Helpers.SetField(cc, "m_StartLevel", 1);
+                        Helpers.SetField(cc, "m_StepLevel", 3);
+                    }
+                }));
+                //no_overflow_component will be inherited from kinetic blade blast
+
+                blast_toggle.Buff.ComponentsArray = new BlueprintComponent[0]; //remove all components related to cost increase of kinetic whip, whirlwind, etc
+                blast_toggle.Buff.AddComponent(Helpers.Create<KineticistMechanics.KineticistEnergizeWeapon>(k =>
+                {
+                    k.activation_ability = burn_ability;
+                    k.activation_buff = blade_enabled_buff;
+                    k.blast_ability = blast_ability;
+                }));
+                blast_toggle.Buff.AddComponent(Common.createBuffContextEnchantPrimaryHandWeapon(1, false, true, fx_enchant));
+
+                blast_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionDealDamage>(a.Actions.Actions,
+                                                                                                                 d =>
+                                                                                                                 {
+                                                                                                                     d.Value = Helpers.CreateContextDiceValue(DiceType.D6, d.Value.DiceCountValue, 0);
+                                                                                                                 })
+                                                                                                                 )
+                                                                      );
+                blast_base.addToAbilityVariants(blast_ability);
+                feature.RemoveComponents<AddFeatureIfHasFact>();
+                feature.AddComponents(Common.createAddFeatureIfHasFact(blast_toggle, blast_toggle, not: true),
+                                      Common.createAddFeatureIfHasFact(burn_ability, burn_ability, not: true));
+
+
+                //add substance infusion cost
+                foreach (var infusion in substance_infusions)
+                {
+                    var burn_modifier = infusion.Buff.GetComponent<AddKineticistBurnModifier>();
+                    if (burn_modifier != null && burn_modifier.AppliableTo.Contains(blast_base))
+                    {
+                        burn_modifier.AppliableTo = burn_modifier.AppliableTo.AddToArray(burn_ability);
+                    }
+                }
+                energize_weapon.AddComponent(Common.createAddFeatureIfHasFact(blast_base, feature));
+            }
+
+
+            energize_weapon.AddComponents(Helpers.PrerequisiteFeaturesFromList(library.Get<BlueprintFeature>("cbc88c4c166a0ce4a95375a0a721bd01"),
+                                                                              library.Get<BlueprintFeature>("c2c28b6f6f000314eb35fff49bb99920"),
+                                                                              library.Get<BlueprintFeature>("ce625487d909b154c9305e60e4fc7d60"),
+                                                                              library.Get<BlueprintFeature>("89dfce413170db049b0386fff333e9e1")
+                                                                              ),
+                                        Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("1f3a15a3ae8a5524ab8b97f469bf4e3d"))
+                                       );
+            infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(energize_weapon);
         }
 
 
@@ -927,7 +1232,7 @@ namespace CallOfTheWild
                                                    icon,
                                                    null,
                                                    Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.Reach, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
-                                                   Helpers.CreateAddFactContextActions(activated: apply_blade),
+                                                   //Helpers.CreateAddFactContextActions(activated: apply_blade),
                                                    Helpers.Create<AddConditionImmunity>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity)
                                                    );
 
@@ -958,6 +1263,31 @@ namespace CallOfTheWild
 
 
             kinetic_whip = Common.AbilityToFeature(kinetic_whip_ability, false);
+
+            var kinetic_whip_enabled_buff = library.CopyAndAdd(kinetic_whip_buff, "KineticWhipEnabledBuff", "");
+            kinetic_whip_enabled_buff.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AddKineticistBurnModifier>(a =>
+                {
+                    a.BurnType = KineticistBurnType.Infusion;
+                    a.Value = 1;
+                    a.AppliableTo = blast_kinetic_blades_burn_map.Values.Select(v => v.Item2).ToArray();
+                }
+                )
+            };
+            kinetic_whip_enabled_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var toggle = Common.buffToToggle(kinetic_whip_enabled_buff, UnitCommand.CommandType.Free, true);
+
+            //increase cost of kinetic blade if used with whip
+            var maybe_apply_whip = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(blade_enabled_buff), apply_whip);
+            foreach (var kv in blast_kinetic_blades_burn_map)
+            {
+                var burn_ability = kv.Value.Item2;
+                burn_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(maybe_apply_whip)));
+            }
+
+
+            kinetic_whip.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAddFact(toggle)};
             kinetic_whip.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
             kinetic_whip.AddComponent(Helpers.PrerequisiteFeature(kinetic_blade_infusion));
             infusion_selection.AllFeatures = infusion_selection.AllFeatures.AddToArray(kinetic_whip);
@@ -1319,7 +1649,14 @@ namespace CallOfTheWild
         {
             var kinetic_elemental_blade = library.Get<BlueprintFeature>("22a6db57adc348b458cb224f3047b3b2");
 
-            kinetic_elemental_blade.ReplaceComponent<AddKineticistBurnModifier>(a => a.AppliableTo = getKineticBladesBurnArray());
+            if (!Main.settings.update_kineticist_archetypes)
+            {
+                kinetic_elemental_blade.ReplaceComponent<AddKineticistBurnModifier>(a => a.AppliableTo = getKineticBladesBurnArray());
+            }
+            else
+            {
+                kinetic_elemental_blade.SetDescription(kinetic_elemental_blade.Description + "\nKinetic Knight also reduces cost of all form infusions related to kinetic blade or kinetic whip by one.");
+            }
         }
 
 
@@ -1364,22 +1701,10 @@ namespace CallOfTheWild
     {
         static bool Prefix(UnitPartKineticist __instance, ref AddKineticistPart ___m_Settings)
         {
-            Main.TraceLog();
-            if (__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff))
+            if (__instance.Owner.Buffs.HasFact(KineticistFix.kinetic_whip_buff) || (__instance.Owner.Get<KineticistMechanics.UnitPartEnergizeWeapon>()?.active()).GetValueOrDefault())
             {
                 return false;
             }
-
-            /*var blade_enabled_buff = __instance.Owner.Buffs.GetBuff(___m_Settings.BladeActivatedBuff);
-
-            if (Main.settings.kinetic_blade_refresh_for_tb && __instance.Owner.Unit.IsInCombat && blade_enabled_buff != null)
-            {//remove after 5 seconds to avoid paying cost for next round in the previous one, will not properly work in rt
-                blade_enabled_buff.RemoveAfterDelay(new TimeSpan(0, 0, 5));
-            }
-            else
-            {
-                __instance.Owner.Buffs.RemoveFact(___m_Settings.BladeActivatedBuff);
-            }*/
 
             __instance.Owner.Buffs.RemoveFact(___m_Settings.BladeActivatedBuff);
             return false;
@@ -1455,6 +1780,225 @@ namespace CallOfTheWild
 
 
             return false;
+        }
+    }
+
+
+    //do not apply elemental overflow to kinetic blade
+    [Harmony12.HarmonyPatch(typeof(AddKineticistElementalOverflow))]
+    [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(RuleDealDamage) })]
+    class AddKineticistElementalOverflow__OnEventAboutToTrigger__Patch
+    {
+
+        static bool Prefix(AddKineticistElementalOverflow __instance, RuleDealDamage evt)
+        {
+            if (evt.SourceAbility?.GetComponent<KineticistMechanics.NoElementalOverflow>() != null)
+            {
+                return false;
+            }
+            return true;
+            /*var weapon = evt.AttackRoll?.Weapon;
+            if (weapon?.Blueprint?.GetComponent<WeaponKineticBlade>() != null)
+            {
+                return false;
+            }
+            return true;*/
+        }
+    }
+
+
+    //do not apply elemental overflow to kinetic blade
+    [Harmony12.HarmonyPatch(typeof(RuleDealDamage))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleDealDamage__OnTrigger__Patch
+    {
+        static private RuleAttackRoll last_attack_roll = null;
+        static bool Prefix(RuleDealDamage __instance, RulebookEventContext context)
+        {
+            var attack_roll = __instance.AttackRoll;
+            
+            if (attack_roll?.Weapon?.Blueprint?.GetComponent<WeaponKineticBlade>() != null
+                && last_attack_roll != attack_roll)
+            {
+                last_attack_roll = attack_roll;
+                var stats = last_attack_roll.WeaponStats;
+                if (stats != null)
+                {
+                    var bonus = stats.DamageDescription[0].Bonus;
+                    if (stats.DamageBonusStat.HasValue)
+                    {
+                        bonus -= __instance.Initiator.Stats.GetStat<ModifiableValueAttributeStat>(stats.DamageBonusStat.Value).Bonus;
+                    }
+                    if (stats != null)
+                    {
+                        __instance.DamageBundle?.First?.AddBonus(bonus);
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+
+    //allow activate other kineticist abilities
+    [Harmony12.HarmonyPatch(typeof(KineticistController))]
+    [Harmony12.HarmonyPatch("OnEventDidTrigger", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(RuleCastSpell) })]
+    class KineticistController__RuleCastSpell__Patch
+    {
+        static private bool tryActivateKineticistAbility(KineticistController controller, RuleCastSpell evt)
+        {
+            var unit_part_kineticist = evt.Initiator?.Get<UnitPartKineticist>();
+            if (unit_part_kineticist == null || !evt.Success)
+            {
+                return false;
+            }
+            var energize_weapon_part = evt.Initiator.Get<KineticistMechanics.UnitPartEnergizeWeapon>();
+            if (energize_weapon_part == null || !energize_weapon_part.active())
+            {
+                return false;
+            }
+            if (energize_weapon_part.getActivationAbility() != evt.Spell.Blueprint)
+            {
+                return false;
+            }
+
+            energize_weapon_part.tryActivate();
+            return true;
+        }
+
+        static bool Prefix(KineticistController __instance, RuleCastSpell evt)
+        {
+            return !tryActivateKineticistAbility(__instance, evt);
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(KineticistController))]
+    [Harmony12.HarmonyPatch("OnEventDidTrigger", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(RuleAttackWithWeapon) })]
+    class OnEventDidTrigger__RuleAttackWithWeapon__Patch
+    {
+        static private bool tryHandleKineticistAttack(UnitPartKineticist unit_part_kineticist, RuleAttackWithWeapon evt)
+        {
+            if (unit_part_kineticist == null)
+            {
+                return false;
+            }
+
+            var energize_weapon_part = evt.Initiator.Get<KineticistMechanics.UnitPartEnergizeWeapon>();
+            if (energize_weapon_part == null || !energize_weapon_part.active())
+            {
+                return false;
+            }
+            var blast_ability = energize_weapon_part.getAttackAbilityData();
+            if (blast_ability == null)
+            {
+                return false;
+            }
+            if (energize_weapon_part.isActivated())
+            {
+                energize_weapon_part.deactivate();
+            }
+
+            if (!evt.AttackRoll.IsHit)
+            {
+                return false;
+            }
+
+            if (!energize_weapon_part.worksOn(evt.Weapon))
+            {
+                return false;
+            }
+
+            RuleCastSpell ruleCastSpell = Rulebook.Trigger<RuleCastSpell>(new RuleCastSpell(blast_ability, (TargetWrapper)evt.Target));
+            if (ruleCastSpell.ExecutionProcess == null)
+            {
+                return false;
+            }
+            ruleCastSpell.ExecutionProcess.Context.AttackRoll = evt.AttackRoll;
+            return true;
+        }
+
+        static bool Prefix(KineticistController __instance, RuleAttackWithWeapon evt)
+        {
+            tryHandleKineticistAttack(evt.Initiator.Get<UnitPartKineticist>(), evt);
+            return true;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(KineticistController))]
+    [Harmony12.HarmonyPatch("TryRunKineticBladeActivationAction", Harmony12.MethodType.Normal)]
+    class KineticistController__TryRunKineticBladeActivationAction__Patch
+    {
+        static private bool tryRunActivationAbility(UnitPartKineticist kineticist, UnitCommand cmd, ref UnitCommands.CustomHandlerData? customHandler)
+        {
+            if (kineticist == null)
+            {
+                return false;
+            }
+
+            var executor = cmd?.Executor;
+            if (executor == null)
+            {
+                return false;
+            }
+            var energize_weapon_part = executor.Get<KineticistMechanics.UnitPartEnergizeWeapon>();
+            if (energize_weapon_part == null || !energize_weapon_part.active())
+            {
+                return false;
+            }
+            BlueprintAbility ability = (cmd as UnitUseAbility)?.Spell.Blueprint;
+
+            if (!(cmd is UnitAttack
+                 || ability?.GetComponent<AbilityCustomCharge>() != null
+                 || ability?.GetComponent<AbilityCustomCleave>() != null
+                 || ability?.GetComponent<AbilityCustomMeleeAttack>() != null
+                 )
+                )
+            {//not an attack
+                return false;
+            }
+            if (energize_weapon_part.isActivated())
+            {
+                return true;
+            }
+
+            var ability_to_activate = energize_weapon_part.getActivationAbility();
+            if (ability_to_activate == null)
+            {
+                return false;
+            }
+
+            var fact = kineticist.Owner.GetFact(ability_to_activate) as Ability;
+            if (fact == null)
+            {
+                return false;
+            }
+
+            if (energize_weapon_part.isActivatingNow())
+            {
+                customHandler = new UnitCommands.CustomHandlerData?(new UnitCommands.CustomHandlerData()
+                {
+                    TryReturnToQueue = true
+                });
+                return false;
+            }
+
+            UnitUseAbility unitUseAbility = new UnitUseAbility(fact.Data, (TargetWrapper)kineticist.Owner.Unit);
+            customHandler = new UnitCommands.CustomHandlerData?(new UnitCommands.CustomHandlerData()
+            {
+                ExecuteBefore = (UnitCommand)unitUseAbility
+            });
+            return true;
+        }
+
+        static bool Prefix(UnitPartKineticist kineticist, UnitCommand cmd, ref UnitCommands.CustomHandlerData? customHandler, ref bool __result)
+        {
+            __result = tryRunActivationAbility(kineticist, cmd, ref customHandler);
+            return !__result;
         }
     }
 

@@ -124,6 +124,7 @@ namespace CallOfTheWild
         internal static void load()
         {
            ac_selections = new BlueprintFeatureSelection[]{Hunter.hunter_animal_companion,
+                                                           Hunter.primeval_companion,
                                                             library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"), //domain
                                                             library.Get<BlueprintFeatureSelection>("90406c575576aee40a34917a1b429254"), //base
                                                             library.Get<BlueprintFeatureSelection>("571f8434d98560c43935e132df65fe76"), //druid
