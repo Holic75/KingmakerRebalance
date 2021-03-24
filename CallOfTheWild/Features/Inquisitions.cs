@@ -116,11 +116,11 @@ namespace CallOfTheWild
             hateful_retort.AddComponent(Helpers.CreateAddAbilityResource(hateful_retort_resource));
 
             var divine_anger_resource = Helpers.CreateAbilityResource("DivineAngerResource", "", "", "", null);
-            divine_anger_resource.SetIncreasedByLevelStartPlusDivStep(0, 4, 1, 1, 1, 0, 0.0f, scaling_classes);
+            divine_anger_resource.SetIncreasedByLevelStartPlusDivStep(0, 5, 1, 1, 1, 0, 0.0f, scaling_classes);
             divine_anger_resource.SetIncreasedByStat(0, StatType.Wisdom);
             
             var divine_anger_ability = library.CopyAndAdd<BlueprintActivatableAbility>("df6a2cce8e3a9bd4592fb1968b83f730", "DivineAngerToggleAbility", "");
-            divine_anger_ability.SetNameDescription("Divine Anger", "At 6th level, you gain the ability to rage like a barbarian. Your effective barbarian level for this ability is your inquisitor level – 3. If you have levels in barbarian, these levels stack when determining the effect of your rage. You do not gain any rage powers from this granted power, though if you have rage powers from another class, you may use them with these rages. You can rage a number of rounds per day equal to your Wisdom bonus, plus 1 round for every inquisitor level above 4th.");
+            divine_anger_ability.SetNameDescription("Divine Anger", "At 6th level, you gain the ability to rage like a barbarian. Your effective barbarian level for this ability is your inquisitor level – 3. You do not gain any rage powers from this granted power, though if you have rage powers from another class, you may use them with these rages. You can rage a number of rounds per day equal to your Wisdom bonus, plus 1 round for every inquisitor level above 4th.");
             divine_anger_ability.ReplaceComponent<ActivatableAbilityResourceLogic>(a => a.RequiredResource = divine_anger_resource);
             divine_anger_ability.DeactivateIfCombatEnded = !test_mode;
             var divine_anger = Common.ActivatableAbilityToFeature(divine_anger_ability, false);
@@ -129,8 +129,8 @@ namespace CallOfTheWild
             var greater_rage = library.Get<BlueprintFeature>("ce49c579fe0bcc647a32c96929fae982");
             var tireless_rage = library.Get<BlueprintFeature>("ca9343d75a83a2745a22fa11c383153a");
 
-            var extra_rage = library.Get<BlueprintFeature>("1a54bbbafab728348a015cf9ffcf50a7");
-            extra_rage.AddComponent(Helpers.PrerequisiteFeature(divine_anger, any: true));
+            //var extra_rage = library.Get<BlueprintFeature>("1a54bbbafab728348a015cf9ffcf50a7");
+            //extra_rage.AddComponent(Helpers.PrerequisiteFeature(divine_anger, any: true));
 
             anger = Helpers.CreateProgression("AngerInquisitionProgression",
                                               "Anger Inquisition",
