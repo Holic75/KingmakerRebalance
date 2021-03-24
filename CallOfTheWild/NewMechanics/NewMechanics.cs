@@ -8880,6 +8880,33 @@ namespace CallOfTheWild
         }
 
 
+        public class PenetratingStrike : RuleInitiatorLogicComponent<RuleCalculateDamage>
+        {
+            public ContextValue value;
+
+            public override void OnEventAboutToTrigger(RuleCalculateDamage evt)
+            {
+                if (evt.DamageBundle.Weapon == null || evt.DamageBundle.WeaponDamage == null || evt.Initiator != this.Owner.Unit)
+                    return;
+                bool flag = false;
+                foreach (GameLogicComponent selectFactComponent in this.Owner.Progression.Features.SelectFactComponents<WeaponFocusParametrized>())
+                {
+                    if ((selectFactComponent.Fact as Feature)?.Param == (FeatureParam)evt.DamageBundle.Weapon.Blueprint.Category)
+                        flag = true;
+                }
+                if (flag)
+                    return;
+
+                var bonus = value.Calculate(this.Fact.MaybeContext);
+                evt.DamageBundle.WeaponDamage.SetReductionPenalty(bonus);
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateDamage evt)
+            {
+            }
+        }
+
+
         public class SpellLevelIncreaseParametrized : ParametrizedFeatureComponent, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>, IInitiatorRulebookSubscriber
         {
             public int bonus_dc = 1;

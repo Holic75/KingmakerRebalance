@@ -46,6 +46,23 @@ namespace CallOfTheWild
 
 
     [Harmony12.HarmonyPatch(typeof(ContextRankConfig))]
+    [Harmony12.HarmonyPatch("IsBasedOnClassLevel", Harmony12.MethodType.Getter)]
+    class ContextRankConfig__IsBasedOnClassLevel__Patch
+    {
+        static void Postfix(ContextRankConfig __instance, ContextRankBaseValueType ___m_BaseValueType,  ref bool __result)
+        {
+            if (!__result)
+            {
+                __result = ___m_BaseValueType == ContextRankBaseValueTypeExtender.ClassLevelPlusStatValue.ToContextRankBaseValueType()
+                          || ___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterClassLevel.ToContextRankBaseValueType()
+                          || ___m_BaseValueType == ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType()
+                          || ___m_BaseValueType == ContextRankBaseValueTypeExtender.SummClassLevelWithArchetypes.ToContextRankBaseValueType();
+            }
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(ContextRankConfig))]
     [Harmony12.HarmonyPatch("GetBaseValue", Harmony12.MethodType.Normal)]
     class ContextRankConfig__GetBaseValue__Patch
     {

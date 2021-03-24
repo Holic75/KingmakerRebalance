@@ -71,7 +71,7 @@ namespace CallOfTheWild.Archetypes
             archetype = Helpers.Create<BlueprintArchetype>(a =>
             {
                 a.name = "ElementalAsceticArchetype";
-                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Elemental Acetic");
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Elemental Ascetic");
                 a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Combining the elemental powers of a kineticist with the rigid physical discipline of a monk, an elemental ascetic channels his powers through his body to enhance himself in combat.");
             });
             Helpers.SetField(archetype, "m_ParentClass", kineticist_class);
@@ -95,7 +95,7 @@ namespace CallOfTheWild.Archetypes
             var elemental_ascetic_proficiencies = library.CopyAndAdd<BlueprintFeature>("31ad04e4c767f5d4b96c13a71fd7ff15", "ElementalAsceticProficienciesFeature", "");
             elemental_ascetic_proficiencies.ReplaceComponent<AddFacts>(a => a.Facts = a.Facts.RemoveFromArray(library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132")));
             elemental_ascetic_proficiencies.SetNameDescription("Elemental Ascetic Proficiencies", "Elemental ascetic is not proficient with any armor.");
-            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, elemental_focus, elemental_ascetic_proficiencies, unlock_ac_bonus, elemental_flurry, improved_unarmed_strike),
+            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, KineticistFix.kinetic_fist, elemental_focus, elemental_ascetic_proficiencies, unlock_ac_bonus, elemental_flurry, improved_unarmed_strike),
                                                        Helpers.LevelEntry(5, KineticistFix.powerful_fist[0]),
                                                        Helpers.LevelEntry(11, KineticistFix.powerful_fist[1], flurry11),
                                                        Helpers.LevelEntry(17, KineticistFix.powerful_fist[2]),
@@ -105,7 +105,7 @@ namespace CallOfTheWild.Archetypes
             kineticist_class.Progression.UIGroups[1].Features.Add(elemental_focus);
             kineticist_class.Progression.UIDeterminatorsGroup = kineticist_class.Progression.UIDeterminatorsGroup.AddToArray(proficiencies, improved_unarmed_strike, unlock_ac_bonus);
             kineticist_class.Progression.UIGroups = kineticist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(elemental_flurry, flurry11));
-            kineticist_class.Progression.UIGroups = kineticist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(KineticistFix.powerful_fist));          
+            kineticist_class.Progression.UIGroups = kineticist_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(KineticistFix.powerful_fist.AddToArray(KineticistFix.kinetic_fist)));          
             kineticist_class.Archetypes = kineticist_class.Archetypes.AddToArray(archetype);
 
             //remove leather armor
@@ -165,7 +165,7 @@ namespace CallOfTheWild.Archetypes
                                                      FeatureGroup.None,
                                                      Helpers.Create<FeralCombatTraining.MonkNoArmorAndUnarmedFeatureUnlock>(m => m.NewFact = flurry_feature1),
                                                      Helpers.Create<FeralCombatTraining.MonkNoArmorAndUnarmedFeatureUnlock>(m => m.NewFact = full_bab),
-                                                     Helpers.CreateAddFact(KineticistFix.kinetic_fist),
+                                                     //Helpers.CreateAddFact(KineticistFix.kinetic_fist),
                                                      Helpers.Create<AddKineticistBurnModifier>(a =>
                                                      {
                                                          a.BurnType = KineticistBurnType.Infusion;
@@ -221,7 +221,7 @@ namespace CallOfTheWild.Archetypes
             elemental_focus = library.CopyAndAdd(elemental_focus_standard, "ElementalAscetic" + elemental_focus_standard.name, "");
 
             elemental_focus.AllFeatures = elemental_foci.ToArray();
-            elemental_focus_standard.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = elemental_focus_standard));
+            elemental_focus_standard.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = elemental_focus));
 
             //we need to hide all basic base blasts from elemental ascetic
             var kientic_blade_infusion = library.Get<BlueprintFeature>("9ff81732daddb174aa8138ad1297c787");
@@ -232,6 +232,19 @@ namespace CallOfTheWild.Archetypes
 
                 var standard_blast = blast_base.Variants[0];
                 standard_blast.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfCasterHasNoFact>(s => s.UnitFact = elemental_focus));
+            }
+
+            //done after havocker, so should no longer have AbilityShowIfCasterHasFact but only AbilityShowIfCasterHasFactsFromList
+            var abilities = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(a =>
+            {
+                var comp = a.GetComponent<NewMechanics.AbilityShowIfCasterHasFactsFromList>();
+                return comp != null && comp.UnitFacts.Contains(elemental_focus_standard);
+            }
+                                                                            );
+            foreach (var a in abilities)
+            {
+                var comp = a.GetComponent<NewMechanics.AbilityShowIfCasterHasFactsFromList>();
+                comp.UnitFacts = comp.UnitFacts.AddToArray(elemental_focus);
             }
 
 
