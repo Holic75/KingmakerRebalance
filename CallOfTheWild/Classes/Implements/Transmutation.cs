@@ -389,7 +389,9 @@ namespace CallOfTheWild
             var enlarge_sp = Common.convertToSpellLike(enlarge, prefix, classes, stat, resource, archetypes: getArchetypeArray());
             var reduce_sp = Common.convertToSpellLike(reduce, prefix, classes, stat, resource, archetypes: getArchetypeArray());
             enlarge_sp.RemoveComponents<CompanionMechanics.AbilityTargetHasFactUnlessPet>();
+            enlarge_sp.RemoveComponents<AbilityTargetHasFact>();
             reduce_sp.RemoveComponents<CompanionMechanics.AbilityTargetHasFactUnlessPet>();
+            reduce_sp.RemoveComponents<AbilityTargetHasFact>();
             enlarge_sp.SetName("Size Alteration: " + enlarge_sp.Name);
             reduce_sp.SetName("Size Alteration: " + reduce_sp.Name);
             Common.unsetAsFullRoundAction(reduce_sp);
