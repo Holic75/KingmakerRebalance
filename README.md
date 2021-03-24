@@ -562,7 +562,8 @@ Original game bug fixes:
 - Anarchic/Axiomatic/Holy/Unholy weapon enchants damage no longer trigger on non weapon attacks,
 - True Seeing now allows to ignore concelement from blur/displacement,
 - Blindsight now allows to ignore mirror images,
-- Elemental Arcana should now correctly account for resitance/immunity/vulnerability.
+- Elemental Arcana should now correctly account for resitance/immunity/vulnerability,
+- Trip/Bull rush immune tagets no longer provoke attack of opportunity on maneuver attempts with Greater Trip/Bull Rush feats.
 
 Mod also changes stats of some npcs (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
