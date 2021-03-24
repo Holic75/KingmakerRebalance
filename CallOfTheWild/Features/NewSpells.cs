@@ -1030,7 +1030,7 @@ namespace CallOfTheWild
                                                                                            apply_buff)
                                                                 ),
                                         Helpers.CreateContextRankConfig(),
-                                        Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Ally),
+                                        Helpers.CreateAbilityTargetsAround(15.Feet(), TargetType.Enemy),
                                         Helpers.CreateSpellComponent(SpellSchool.Transmutation)
                                         );
 

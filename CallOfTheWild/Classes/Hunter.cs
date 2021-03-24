@@ -224,7 +224,7 @@ namespace CallOfTheWild
                                                     Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"), //abyssal strength
                                                     FeatureGroup.None
                                                    );
-
+            //shared_strength.ReapplyOnLevelUp = true;
             shared_strength8 = library.CopyAndAdd(shared_strength, "SharedStrengthTotemBonded8Feature", "");
             shared_strength8.AddComponent(Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup()));
 
@@ -271,7 +271,7 @@ namespace CallOfTheWild
                                     );
 
             addSharedStrengthFeature("NaturalArmorBonus", "Natural Armor Bonus", Helpers.GetIcon("7bc8e27cba24f0e43ae64ed201ad5785"), true,
-                                     Helpers.CreateAddContextStatBonus(StatType.Speed, ModifierDescriptor.UntypedStackable),
+                                     Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.OnePlusDivStep,
                                                                      classes: new BlueprintCharacterClass[] { hunter_class }, stepLevel: 8,
                                                                      max: 2)
@@ -280,6 +280,8 @@ namespace CallOfTheWild
             var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
             var enlarge_toggle = Common.buffToToggle(enlarge_buff, CommandType.Swift, false);
             enlarge_toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            enlarge_toggle.SetDescription(shared_strength.Description);
+            enlarge_toggle.SetName("Shared Strength: Increase Size");
             shared_strength8.AddComponent(Helpers.CreateAddFact(enlarge_toggle));
 
             var powerful_charge_buff = Helpers.CreateBuff("PowerfulChargeSharedStrengthBuff",

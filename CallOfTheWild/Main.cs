@@ -253,6 +253,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSuppressBuffs();
                     CallOfTheWild.Rebalance.fixBlindingRay();
                     CallOfTheWild.Rebalance.fixElementalArcana();
+                    CallOfTheWild.Rebalance.fixPenetratingStrike();
 
                     if (settings.secondary_rake_attacks)
                     {
@@ -387,7 +388,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
                     CallOfTheWild.Archetypes.KineticChirurgeion.create();
-                    CallOfTheWild.Archetypes.ElementalAscetic.create();
+                    CallOfTheWild.Archetypes.ElementalAscetic.create();//should be done after Havocker witch archetype
                     CallOfTheWild.Archetypes.SacredServant.create();
                     CallOfTheWild.Archetypes.MonkOfTheMantis.create();
                     CallOfTheWild.Archetypes.BeastkinBerserker.create();

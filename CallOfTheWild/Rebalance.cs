@@ -2411,6 +2411,26 @@ namespace CallOfTheWild
             manyshot.AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"))); //point blank shot
         }
 
+
+        internal static void fixPenetratingStrike()
+        {
+            var guids = new string[]
+            {
+                "308cd7dc4f10efd428f531bbf4f2823d",
+                "eb6eb946c68ef094f89c7633f5bfdc9b"
+            };
+
+            foreach (var ps_id in guids)
+            {
+                var feature = library.Get<BlueprintFeature>(ps_id);
+                var c = feature.GetComponent<PenetratingStrike>();
+                if (c != null)
+                {
+                    feature.ReplaceComponent(c, Helpers.Create<NewMechanics.PenetratingStrike>(p => p.value = c.ReductionReduction));
+                }
+            }
+        }
+
         internal static void fixFlameDancer()
         {
             //add song_of_fiery_faze gaze

@@ -211,7 +211,7 @@ namespace CallOfTheWild
                                                             )
                                                             );
 
-                var toggle = Common.buffToToggle(powerful_fist_buff, UnitCommand.CommandType.Free, false);
+                var toggle = Common.buffToToggle(powerful_fist_buff, UnitCommand.CommandType.Free, true);
                 toggle.Group = ActivatableAbilityGroupExtension.PowerfulFist.ToActivatableAbilityGroup();
                 powerful_fist[i] = Common.ActivatableAbilityToFeature(toggle, false);
                 powerful_fist_buffs[i] = powerful_fist_buff;
@@ -229,7 +229,7 @@ namespace CallOfTheWild
                                                 description,
                                                 Helpers.GetIcon("92f7b37ef1cf5484db02a924592ceb74") //force punch from scaled fist feat selection
                                                 );
-
+            kinetic_fist.ReapplyOnLevelUp = true;
             var config2 = Helpers.CreateContextRankConfig(progression: ContextRankProgression.Custom,
                                                           customProgression: new (int, int)[] { (3, 2), (6, 4), (9, 6), (12, 8), (15, 10), (18, 12), (21, 14) }
                                                           );
@@ -380,7 +380,7 @@ namespace CallOfTheWild
                                                    description,
                                                    Helpers.GetIcon("8c714fbd564461e4588330aeed2fbe1d")
                                                    );
-
+            energize_weapon.ReapplyOnLevelUp = true;
             var config2 = Helpers.CreateContextRankConfig(progression: ContextRankProgression.Custom,
                                                           customProgression: new (int, int)[] { (3, 2), (6, 4), (9, 6), (12, 8), (15, 10), (18, 12), (21, 14) }
                                                           );
