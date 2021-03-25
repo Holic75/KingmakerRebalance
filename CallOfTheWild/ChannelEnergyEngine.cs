@@ -805,7 +805,7 @@ namespace CallOfTheWild
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(channel_negative, channel_positive, versatile_channeler_positive),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(channel_positive, channel_negative, versatile_channeler_negative),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_positive_energy, Warpriest.channel_negative_energy, versatile_channeler_negative_warpriest),
-                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_negative_energy, Warpriest.channel_negative_energy,versatile_channeler_positive_warpriest),
+                                                        Common.createAddFeatureIfHasFactAndNotHasFact(Warpriest.channel_negative_energy, Warpriest.channel_positive_energy,versatile_channeler_positive_warpriest),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(Archetypes.Evangelist.channel_negative_energy, Archetypes.Evangelist.channel_positive_energy, versatile_channeler_positive_evangelist),
                                                         Common.createAddFeatureIfHasFactAndNotHasFact(Archetypes.Evangelist.channel_positive_energy, Archetypes.Evangelist.channel_negative_energy, versatile_channeler_negative_evangelist),
                                                         channel_positive.GetComponent<PrerequisiteFeature>(),

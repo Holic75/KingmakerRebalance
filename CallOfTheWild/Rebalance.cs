@@ -1596,7 +1596,7 @@ namespace CallOfTheWild
                 {
                     if (a != __instance)
                     {
-                        (__instance.Owner.Buffs.GetFact(a.Blueprint.Buff) as Buff).Remove();
+                        (__instance.Owner.Buffs.GetFact(a.Blueprint.Buff) as Buff)?.Remove();
                     }
                 }
             }

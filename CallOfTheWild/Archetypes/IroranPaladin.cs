@@ -196,7 +196,7 @@ namespace CallOfTheWild.Archetypes
 
             ki_pool = Common.featureToFeature(scaled_fist_ki_pool, false, "", "IroranPaladin");
 
-
+            ki_pool.SetDescription(" At 4th level, an Iroran paladin gains a ki pool with an effective monk level equal to his class level. The number of points in an Iroran paladin’s ki pool is equal to 1/2 his class level + his Charisma modifier. By spending 1 point from his ki pool, he can ignore any damage reduction possessed by the target of his personal trial ability for 1 round.");
             var ki_ignore_dr_buff = Helpers.CreateBuff("IroranPaladinKiIgnoreDRBuff",
                                                        "Ki Power: Ignore DR",
                                                        "By spending 1 point from his ki pool, an iroran paladin can ignore any damage reduction possessed by the target of his personal trial ability for 1 round.",

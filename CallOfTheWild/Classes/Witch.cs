@@ -987,7 +987,7 @@ namespace CallOfTheWild
 
             improved_channel_hex_positive = Helpers.CreateFeature("WitchImprovedChannelHex",
                                              "Increase Channel Energy Amount",
-                                             "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                             $"Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}.",
                                              "6638ec10b97b4e5bad312f58b80db844",
                                              bless_spell.Icon,
                                              FeatureGroup.None,
@@ -996,7 +996,7 @@ namespace CallOfTheWild
             improved_channel_hex_positive.Ranks = 20;
             improved_channel_hex_negative = Helpers.CreateFeature("WitchImprovedChannelHexNegative",
                                  "Increase Channel Energy Amount",
-                                 "Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                 $"Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}.",
                                  "6e5bbc077cc34af0ab934a2b84760807",
                                  bless_spell.Icon,
                                  FeatureGroup.None,
@@ -1071,7 +1071,7 @@ namespace CallOfTheWild
                                                                                     "Channel Energy",
                                                                                     "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar.A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric).A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
                                                                                     + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability. The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
-                                                                                    + "This burst heals or deals 1d6 points of damage. Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d6.",
+                                                                                    + $"This burst heals or deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage. Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}.",
                                                                                     "d33b4095dbfa47588ed1f07b5af30e2c",
                                                                                     bless_spell.Icon,
                                                                                     FeatureGroup.None);
