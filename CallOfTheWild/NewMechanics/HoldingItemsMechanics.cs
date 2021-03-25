@@ -8,6 +8,7 @@ using Kingmaker.Blueprints.Root;
 using Kingmaker.Blueprints.Root.Strings;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
 using Kingmaker.Items;
 using Kingmaker.Items.Slots;
@@ -807,6 +808,51 @@ namespace CallOfTheWild.HoldingItemsMechanics
             }
 
             return true;
+        }
+    }
+
+
+    //allow to remove summoned weapons during combat
+    [Harmony12.HarmonyPatch(typeof(WeaponSlot))]
+    [Harmony12.HarmonyPatch("CanRemoveItem", Harmony12.MethodType.Normal)]
+    class WeaponSlot_CanRemoveItem_Patch
+    {
+        static void Postfix(WeaponSlot __instance, ref bool __result)
+        {
+            Main.TraceLog();
+            if (!__result)
+            {
+                if (__instance.MaybeItem != null)
+                {
+                    if (NewMechanics.EnchantmentMechanics.Helpers.isSummoned(__instance.MaybeItem) 
+                        || isExtraLimb(__instance.Owner?.Unit, __instance.MaybeItem)
+                        )
+                    {
+                        __result = canRemoveBase(__instance);
+                    }
+                }
+            }
+        }
+
+
+        static bool isExtraLimb(UnitEntityData unit, ItemEntity item)
+        {
+            if (unit?.Body?.NotPolymorphedAdditionalLimbs == null)
+            {
+                return false;
+            }
+
+            return unit.Body.NotPolymorphedAdditionalLimbs.Any(l => l.MaybeItem == item);
+        }
+
+        static bool canRemoveBase(WeaponSlot slot)
+        {
+            if (ItemSlot.IgnoreLock)
+                return true;
+            if (slot.Lock)
+                return false;
+            ItemEntity itemEntity = slot.MaybeItem;
+            return (itemEntity != null ? (itemEntity.IsNonRemovable ? 1 : 0) : 0) == 0;
         }
     }
 
