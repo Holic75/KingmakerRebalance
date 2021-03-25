@@ -350,7 +350,7 @@ namespace CallOfTheWild
                 unholy_weapon_feature.HideInCharacterSheetAndLevelUp = true;
 
                 spirit_ability = Common.AbilityToFeature(touch_of_the_grave_ability_sticky, false);
-                spirit_ability.SetDescription("As a standard action, the shaman can make a melee touch attack infused with negative energy that deals 1d4 points of damage + 1 point of damage for every 2 shaman levels she possesses. She can instead touch an undead creature to heal it of the same amount of damage. A shaman can use this ability a number of times per day equal to 3 + her Charisma modifier. At 11th level, any weapon that the shaman wields is treated as an unholy weapon.");
+                spirit_ability.SetDescription(touch_of_the_grave_ability.Description + " At 11th level, any weapon that the shaman wields is treated as an unholy weapon.");
                 spirit_ability.AddComponents(Helpers.CreateAddFeatureOnClassLevel(unholy_weapon_feature, 11, hex_engine.hex_classes),
                                              Helpers.CreateAddAbilityResource(resource));
             }
