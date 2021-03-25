@@ -215,12 +215,13 @@ namespace CallOfTheWild.Archetypes
                                                   progression.Groups[0]);
                 focus.LevelEntries = new LevelEntry[] { progression.LevelEntries[0] };
                 elemental_foci.Add(focus);
-                efs.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = focus)); //to work corrctly with 2nd, 3rd element
+                efs.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = focus)); //to work correctly with 2nd, 3rd element
             }
 
             elemental_focus = library.CopyAndAdd(elemental_focus_standard, "ElementalAscetic" + elemental_focus_standard.name, "");
 
             elemental_focus.AllFeatures = elemental_foci.ToArray();
+            elemental_focus.RemoveComponents<NewMechanics.FeatureReplacement>();
             elemental_focus_standard.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = elemental_focus));
 
             //we need to hide all basic base blasts from elemental ascetic
