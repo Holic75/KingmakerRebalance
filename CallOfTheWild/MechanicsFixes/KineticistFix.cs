@@ -243,7 +243,7 @@ namespace CallOfTheWild
                 var feature_components = feature.GetComponents<AddFeatureIfHasFact>().ToArray();
                 var blast_toggle = library.CopyAndAdd(feature_components[0].CheckedFact as BlueprintActivatableAbility, feature_components[0].CheckedFact.name.Replace("Blade", "Fist"), "");
                 var burn_ability = library.CopyAndAdd(feature_components[1].CheckedFact as BlueprintAbility, feature_components[1].CheckedFact.name.Replace("Blade", "Fist"), "");
-
+                addToMetakinesis(burn_ability);
                 blast_toggle.SetNameDescriptionIcon(blast_base.Name + " — Kinetic Fist",
                                                     description,
                                                     icon);
@@ -398,7 +398,7 @@ namespace CallOfTheWild
                 var feature_components = feature.GetComponents<AddFeatureIfHasFact>().ToArray();
                 var blast_toggle = library.CopyAndAdd(feature_components[0].CheckedFact as BlueprintActivatableAbility, feature_components[0].CheckedFact.name.Replace("Blade", "EnergizeWeapon"), "");
                 var burn_ability = library.CopyAndAdd(feature_components[1].CheckedFact as BlueprintAbility, feature_components[1].CheckedFact.name.Replace("Blade", "EnergizeWeapon"), "");
-
+                addToMetakinesis(burn_ability);
                 blast_toggle.SetNameDescriptionIcon(blast_base.Name + " — Energize Weapon",
                                                     description,
                                                     blast_icon_map[blast_base]);
