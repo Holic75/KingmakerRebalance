@@ -258,6 +258,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixBlindingRay();
                     CallOfTheWild.Rebalance.fixElementalArcana();
                     CallOfTheWild.Rebalance.fixPenetratingStrike();
+                    CallOfTheWild.Rebalance.fixRangerQuarryCooldown();
 
                     if (settings.secondary_rake_attacks)
                     {
@@ -382,6 +383,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.Ninja.create();
                     CallOfTheWild.Archetypes.Seeker.create();
                     CallOfTheWild.Archetypes.Bloodhunter.create();
+                    CallOfTheWild.Archetypes.Feywarden.create();
                     CallOfTheWild.Archetypes.StygianSlayer.create();
 
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
@@ -419,6 +421,10 @@ namespace CallOfTheWild
                     {
                         Main.logger.Log("Updating companion stats.");
                         CallOfTheWild.Rebalance.fixCompanions();
+                    }
+                    else
+                    {
+                        CallOfTheWild.Rebalance.fixCompanionsBase();
                     }
 
                     Main.logger.Log("metamagic_for_spontaneous_spell_conversion:" +settings.metamagic_for_spontaneous_spell_conversion.ToString());

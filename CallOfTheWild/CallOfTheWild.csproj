@@ -141,6 +141,7 @@
     <Compile Include="Archetypes\DraconicDruid.cs" />
     <Compile Include="Archetypes\DrillSergeant.cs" />
     <Compile Include="Archetypes\ElementalAscetic.cs" />
+    <Compile Include="Archetypes\Feywarden.cs" />
     <Compile Include="Archetypes\GraveWarden.cs" />
     <Compile Include="Archetypes\IroranPaladin.cs" />
     <Compile Include="Archetypes\LoreWarden.cs" />

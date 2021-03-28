@@ -778,6 +778,7 @@ namespace CallOfTheWild
             public StatType StatType = StatType.Charisma;
             public BlueprintCharacterClass[] CharacterClasses = new BlueprintCharacterClass[0];
             public BlueprintArchetype[] archetypes = new BlueprintArchetype[0];
+            public BlueprintUnitProperty property = null;
 
             public override AbilityParams Calculate(MechanicsContext context)
             {
@@ -794,6 +795,12 @@ namespace CallOfTheWild
                         UberDebug.LogError((UnityEngine.Object)context.AssociatedBlueprint, (object)string.Format("Caster is not kineticist: {0} ({1})", (object)context.MaybeCaster, (object)context.AssociatedBlueprint.NameSafe()), (object[])Array.Empty<object>());
                     StatType? mainStatType = unitPartKineticist?.MainStatType;
                     statType = !mainStatType.HasValue ? this.StatType : mainStatType.Value;
+                }
+
+                var stat_property_getter = property?.GetComponent<CastingStatPropertyGetter>();
+                if (stat_property_getter != null)
+                {
+                    statType = stat_property_getter.GetStat(maybeCaster);
                 }
 
                 AbilityData ability = context.SourceAbilityContext?.Ability;
@@ -9558,27 +9565,64 @@ namespace CallOfTheWild
         }
 
 
-    [ComponentName("change weapon damage")]
-    public class WeaponDamageChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
-    {
-        public DiceFormula dice_formula;
-        public ContextValue bonus_damage;
-        public DamageTypeDescription damage_type_description = null;
-
-        public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+        class CastingStatPropertyGetter : PropertyValueGetter
         {
-            evt.WeaponDamageDiceOverride = dice_formula;
-            evt.AddBonusDamage(bonus_damage.Calculate(this.Fact.MaybeContext));
-        }
+            public StatType default_stat;
+            public BlueprintCharacterClass[] classes;
 
-        public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
-        {
-            if (damage_type_description != null && evt.DamageDescription.Count() > 0)
+            public static BlueprintUnitProperty createProperty(string name, string guid, StatType base_stat, params BlueprintCharacterClass[] caster_classes)
             {
-                evt.DamageDescription[0].TypeDescription = damage_type_description;
+                var p = Helpers.Create<BlueprintUnitProperty>();
+                p.name = name;
+                Main.library.AddAsset(p, guid);
+                p.SetComponents(Helpers.Create<CastingStatPropertyGetter>(a => { a.default_stat = base_stat; a.classes = caster_classes;}));
+                return p;
+            }
+
+            public override int GetInt(UnitEntityData unit)
+            {
+                return unit.Stats.GetStat<ModifiableValueAttributeStat>(GetStat(unit)).Bonus;                          
+            }
+
+
+            public StatType GetStat(UnitEntityData unit)
+            {
+                var stat = default_stat;
+                foreach (var c in classes)
+                {
+                    var spellbook = unit.Descriptor.GetSpellbook(c);
+                    if (spellbook != null)
+                    {
+                        stat = spellbook.Blueprint.CastingAttribute;
+                        break;
+                    }
+                }
+                return stat;
             }
         }
-    }
+
+
+        [ComponentName("change weapon damage")]
+        public class WeaponDamageChange : RuleInitiatorLogicComponent<RuleCalculateWeaponStats>, IRulebookHandler<RuleCalculateWeaponStats>, IInitiatorRulebookSubscriber
+        {
+            public DiceFormula dice_formula;
+            public ContextValue bonus_damage;
+            public DamageTypeDescription damage_type_description = null;
+
+            public override void OnEventAboutToTrigger(RuleCalculateWeaponStats evt)
+            {
+                evt.WeaponDamageDiceOverride = dice_formula;
+                evt.AddBonusDamage(bonus_damage.Calculate(this.Fact.MaybeContext));
+            }
+
+            public override void OnEventDidTrigger(RuleCalculateWeaponStats evt)
+            {
+                if (damage_type_description != null && evt.DamageDescription.Count() > 0)
+                {
+                    evt.DamageDescription[0].TypeDescription = damage_type_description;
+                }
+            }
+        }
 
 
         class SneakAttackDiceGetter : PropertyValueGetter

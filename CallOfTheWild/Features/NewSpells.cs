@@ -3052,7 +3052,7 @@ namespace CallOfTheWild
             var resource = Helpers.CreateAbilityResource("FieryShurikenResource", "", "", "", null);
             resource.SetFixedResource(8);
 
-            var description = $"You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd (to a maximum of eight shuriken at 15th level), which hover in front of you. When these shuriken appear, you can launch some or all of them at the same target or different targets.Each shuriken requires a ranged touch attack roll to hit and deals 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of fire damage. You provoke no attacks of opportunity when launching them. Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken. If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
+            var description = $"You call forth two fiery projectiles resembling shuriken, plus one more for every two caster levels beyond 3rd (to a maximum of eight shuriken at 15th level), which hover in front of you. When these shuriken appear, you can launch some or all of them at the same target or different targets. Each shuriken requires a ranged touch attack roll to hit and deals 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of fire damage. You provoke no attacks of opportunity when launching them. Any shuriken you do not launch as part of casting this spell remains floating near you for the spell’s duration.On rounds subsequent to your casting of this spell, you can spend a swift action to launch one of these remaining shuriken or a standard action to launch any number of these remaining shuriken. If you fail to launch a shuriken before the duration ends, that shuriken disappears and is wasted.";
             var one_projectile_spell_swift = library.CopyAndAdd(fire_bolt, "FieryShurikenSingleProjectileAbility", "");
             one_projectile_spell_swift.SetNameDescription("Fiery Shuriken (1 Projectile, Swift)", description);
 
@@ -3115,21 +3115,22 @@ namespace CallOfTheWild
             fiery_shuriken_one_projectile.Type = AbilityType.Spell;
             fiery_shuriken_one_projectile.SetName("Fiery Shuriken (1 Projectile)");
             fiery_shuriken_one_projectile.ActionType = UnitCommand.CommandType.Standard;
-            fiery_shuriken_one_projectile.AvailableMetamagic = fiery_shuriken_one_projectile.AvailableMetamagic | Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken | Metamagic.Reach;
+            fiery_shuriken_one_projectile.AvailableMetamagic = fiery_shuriken_one_projectile.AvailableMetamagic | Metamagic.Heighten | Metamagic.Extend | Metamagic.Quicken;
 
             fiery_shuriken_one_projectile.RemoveComponents<AbilityResourceLogic>();
             var action_on_caster = Common.createContextActionOnContextCaster(apply_buff,
                                                                 Helpers.Create<ResourceMechanics.ContextRestoreResource>(c =>
                                                                 {
-                                                                    c.amount = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                    c.amount = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                                                     c.Resource = resource;
                                                                 })
                                                                 );
             fiery_shuriken_one_projectile.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(action_on_caster)));
-            fiery_shuriken_one_projectile.AddComponent(Helpers.CreateContextRankConfig(progression: ContextRankProgression.DelayedStartPlusDivStep, 
-                                                                                       startLevel: 3, stepLevel: 2, max: 7)
+            fiery_shuriken_one_projectile.AddComponents(Helpers.CreateContextRankConfig(progression: ContextRankProgression.DelayedStartPlusDivStep, type: AbilityRankType.StatBonus,
+                                                                                       startLevel: 3, stepLevel: 2, max: 7),
+                                                        Helpers.CreateContextRankConfig()
                                                                                        );
-
+            fiery_shuriken_one_projectile.LocalizedDuration = Helpers.CreateString(fiery_shuriken_one_projectile.name + ".Duration", Helpers.roundsPerLevelDuration);
             var fiery_shuriken_all_projectiles = library.CopyAndAdd(one_projectile_spell_swift, "FieryShurikenAllProjectilesSpell", "");
             fiery_shuriken_all_projectiles.Type = AbilityType.Spell;
             fiery_shuriken_all_projectiles.SetName("Fiery Shuriken (All Projectiles)");

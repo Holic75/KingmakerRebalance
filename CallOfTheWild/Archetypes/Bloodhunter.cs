@@ -235,22 +235,18 @@ namespace CallOfTheWild.Archetypes
                                               FeatureGroup.None
                                               );
 
-            var cooldown_buff = Helpers.CreateBuff("RapidQuarryCooldownBuff",
-                                                    "Rapid Quarry Cooldown",
-                                                    rapid_quarry19.Description,
-                                                    "",
-                                                    rapid_quarry19.Icon,
-                                                    null);
+            var cooldown_buff = Rebalance.quarry_cooldown_buff;
 
             var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(rapid_quarry19), 
                                                            Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false),
                                                            Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.TenMinutes), dispellable: false)
                                                           );
 
-            ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
-            ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
+            ability.ReplaceComponent(ability.GetComponent<AbilityExecuteActionOnCast>(), 
+                                     Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
+            //ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff)); //already added in rebalance
 
-            ability.RemoveComponents<AbilityTargetIsPartyMember>();
+            //ability.RemoveComponents<AbilityTargetIsPartyMember>();
 
             var quarry_buff = library.Get<BlueprintBuff>("b44184c7ca33c6a41bc11cc5ed07addb");
             quarry_buff.SetBuffFlags(quarry_buff.GetBuffFlags() | BuffFlags.RemoveOnRest);

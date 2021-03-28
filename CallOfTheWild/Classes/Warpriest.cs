@@ -152,6 +152,8 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection greater_battle_tactician;
         static public BlueprintFeatureSelection master_battle_tactician;
 
+        static public BlueprintUnitProperty blessings_user_casting_stat_property;
+
         internal static void createWarpriestClass()
         {
             Main.logger.Log("Warpriest class test mode: " + test_mode.ToString());
@@ -1172,9 +1174,16 @@ namespace CallOfTheWild
 
         }
 
+        static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses getBlessingsUserDCScaling()
+        {
+            return Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypesWithProperty(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), blessings_user_casting_stat_property, StatType.Wisdom);
+        }
+
 
         static void createWarpriestBlessings()
         {
+            blessings_user_casting_stat_property = NewMechanics.CastingStatPropertyGetter.createProperty("BlessingUserCastingStatProperty", "", StatType.Wisdom, getBlessingUsersArray());
+
             warpriest_blessings = Helpers.CreateFeatureSelection("WarpriestBlessingsSelection",
                                                                  "Blessing",
                                                                  "A warpriest can select any two blessings granted by his deity. Deities grant blessings of the same name as the domains they grant.\n"
@@ -1772,7 +1781,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.willNegates,
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom));
+                                                      getBlessingsUserDCScaling());
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic("Charm", minor_ability, quicken: true);
 
@@ -1781,7 +1790,7 @@ namespace CallOfTheWild
             swift_command.ActionType = CommandType.Swift;
             swift_command.Type = AbilityType.SpellLike;
             swift_command.RemoveComponents<SpellComponent>();
-            var dc_replace = Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom);
+            var dc_replace = getBlessingsUserDCScaling();
             swift_command.ReplaceComponent<AbilityVariants>(a => a.Variants = Common.CreateAbilityVariantsReplace(swift_command, "WarpriestCharmDomain",
                                                                                                                   (v, vv) =>
                                                                                                                   {
@@ -2014,7 +2023,7 @@ namespace CallOfTheWild
                                                       "",
                                                       Helpers.CreateRunActions(apply_major_buff_save),
                                                       blindness_spell.GetComponent<AbilityTargetHasFact>(),
-                                                      Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom)
+                                                      getBlessingsUserDCScaling()
                                                       );
             major_ability.setMiscAbilityParametersSingleTargetRangedHarmful(test_mode);
             addBlessingResourceLogic("Darkness", major_ability, quicken: true);
@@ -2098,18 +2107,22 @@ namespace CallOfTheWild
             major_ability_touch.setMiscAbilityParametersTouchHarmful(works_on_allies: true);
             addBlessingResourceLogic("Death", major_ability_touch, quicken: true);
 
-            var on_hit_action = Helpers.CreateActionList(effect_action,
-                                                         projectile_action);
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
+            var on_hit_effect = Helpers.CreateActionList(effect_action,
+                                                         projectile_action,
+                                                         spend_resource,
+                                                         Helpers.Create<TurnActionMechanics.ConsumeAction>(c => { c.from_caster = true; c.consume_swift = true; })
+                                                         );
+            var on_hit_action = Helpers.CreateConditional(Helpers.Create<TurnActionMechanics.ContextConditionHasAction>(c => { c.check_caster = true; c.has_swift = true; }),
+                                                          on_hit_effect.Actions);
+        
             var on_hit_buff = Helpers.CreateBuff("WarpriestDeathMajorOnHitBuff",
                                                  major_ability_touch.Name,
                                                  major_ability_touch.Description,
                                                  "",
                                                  major_ability_touch.Icon,
                                                  null,
-                                                 Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true),
-                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(spend_resource), on_initiator: true,
-                                                                                                  check_weapon_range_type: true, only_first_hit: true)
+                                                 Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(on_hit_action), check_weapon_range_type: true)
                                                  );
             var major_activatable_ability = Helpers.CreateActivatableAbility("WarpriestDeathMajorBlessingOnHitActivatable",
                                                                              major_ability_touch.Name + " (On Hit)",
@@ -2122,10 +2135,7 @@ namespace CallOfTheWild
                                                                              null,
                                                                              Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
                                                                              );
-            if (!test_mode)
-            {
-                major_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
-            }
+            major_activatable_ability.DeactivateImmediately = true;
             major_ability_touch.AddComponent(Common.createAbilityCasterHasNoFacts(on_hit_buff));
 
             addBlessing("WarpriestBlessingDeath", "Death",
@@ -2448,7 +2458,7 @@ namespace CallOfTheWild
                                                       Helpers.oneMinuteDuration,
                                                       Helpers.willNegates,
                                                       Helpers.CreateRunActions(apply_minor_buff),
-                                                      Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom));
+                                                      getBlessingsUserDCScaling());
             minor_ability.setMiscAbilityParametersTouchFriendly();
             addBlessingResourceLogic("Glory", minor_ability, quicken: true);
 
@@ -2681,7 +2691,7 @@ namespace CallOfTheWild
                                                               Helpers.CreateRunActions(lore_action),
                                                               Helpers.CreateCalculateSharedValue(Helpers.CreateContextDiceValue(DiceType.One, Helpers.CreateContextValue(AbilityRankType.StatBonus),
                                                                                                  Helpers.CreateContextValue(AbilityRankType.Default)), AbilitySharedValue.StatBonus),
-                                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, type: AbilityRankType.StatBonus),
+                                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.CustomProperty, customProperty: blessings_user_casting_stat_property, type: AbilityRankType.StatBonus),
                                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype, classes: getBlessingUsersArray(),
                                                                                               archetype: Archetypes.DivineTracker.archetype),
                                                               Helpers.Create<NewMechanics.MonsterLore.AbilityTargetCanBeInspected>(),
@@ -3183,16 +3193,20 @@ namespace CallOfTheWild
             var spend_resource = Common.createContextActionSpendResource(warpriest_blessing_resource, 1, warpriest_aspect_of_war_buff);
             var apply_entangle_buff_saved = Common.createContextSavedApplyBuff(entangle_buff, Helpers.CreateContextDuration(Common.createSimpleContextValue(1), DurationRate.Rounds), is_dispellable: false);
 
-            var on_hit_action = Helpers.CreateActionList(spend_resource,
+            var on_hit_effect = Helpers.CreateActionList(spend_resource,
+                                                         Helpers.Create<TurnActionMechanics.ConsumeAction>(c => { c.from_caster = true; c.consume_swift = true; }),
                                                          Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(apply_entangle_buff_saved)));
+
+            var on_hit_action = Helpers.CreateConditional(Helpers.Create<TurnActionMechanics.ContextConditionHasAction>(c => { c.check_caster = true; c.has_swift = true; }),
+                                                          on_hit_effect.Actions);
             var minor_buff = Helpers.CreateBuff("WarpriestPlantMinorBlessingBuff",
                                                 "Creeping Vines",
                                                 "At 1st level, upon hitting with a melee attack, as a swift action you cause the creature you hit to sprout entangling vines that attempt to hold it in place, entangling it for 1 round (Reflex negates).",
                                                 "",
                                                 entangle_buff.Icon,
                                                 null,
-                                                Common.createAddInitiatorAttackWithWeaponTrigger(on_hit_action, check_weapon_range_type: true, only_first_hit: true),
-                                                Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom)
+                                                Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(on_hit_action), check_weapon_range_type: true, only_first_hit: true),
+                                                getBlessingsUserDCScaling()
                                                 );
 
             var minor_activatable_ability = Helpers.CreateActivatableAbility("WarpriestPlantMinorBlessingActivatable",
@@ -3206,11 +3220,12 @@ namespace CallOfTheWild
                                                                  null,
                                                                  Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
                                                                  );
-            if (!test_mode)
+            minor_activatable_ability.DeactivateImmediately = true;
+            /*if (!test_mode)
             {
                 Helpers.SetField(minor_activatable_ability, "m_ActivateWithUnitCommand", CommandType.Swift);
                 minor_activatable_ability.AddComponent(Common.createActivatableAbilityUnitCommand(CommandType.Swift));
-            }
+            }*/
 
             string[] nature_ally_guids = new string[] {"28ea1b2e0c4a9094da208b4c186f5e4f", "060afb9e13d8a3547ad0dd20c407c0a5",
                                                       "6d8d59aa38713be4fa3be76c19107cc0", "8d3d5b62878d5b24391c1d7834d0d706", "f6751c3b22dbd884093e350a37420368" };
@@ -3639,7 +3654,7 @@ namespace CallOfTheWild
                                                       Helpers.CreateRunActions(effect),
                                                       flare.GetComponent<AbilitySpawnFx>(),
                                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
-                                                      Common.createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(getBlessingUsersArray(), getBlessingUsersArchetypesArray(), StatType.Wisdom)
+                                                      getBlessingsUserDCScaling()
                                                       );
 
             addBlessingResourceLogic("Sun", minor_ability);
@@ -3799,7 +3814,8 @@ namespace CallOfTheWild
                                                                  AbilityActivationType.Immediately,
                                                                  CommandType.Free,
                                                                  null,
-                                                                 Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never));
+                                                                 Helpers.CreateActivatableResourceLogic(warpriest_blessing_resource, ResourceSpendType.Never)
+                                                                 );
             if (!test_mode)
             {
                 Helpers.SetField(major_activatable_ability, "m_ActivateWithUnitCommand", CommandType.Swift);
