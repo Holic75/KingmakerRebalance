@@ -59,6 +59,7 @@ namespace CallOfTheWild
         static public ContextRankConfig aid_another_config;
         static public BlueprintAbility aid_another;
         static public BlueprintAbility aid_self_free;
+        static public BlueprintBuff quarry_cooldown_buff;
 
         static internal void createAidAnother()
         {
@@ -178,6 +179,33 @@ namespace CallOfTheWild
             scaled_fist_ac.SetDescription("");
         }
 
+
+        static internal void fixRangerQuarryCooldown()
+        {
+            var cooldown_buff = Helpers.CreateBuff("RapidQuarryCooldownBuff",
+                                                    "Quarry Cooldown",
+                                                    "",//rapid_quarry19.Description,
+                                                    "",
+                                                    null, //rapid_quarry19.Icon,
+                                                    null);
+
+            quarry_cooldown_buff = cooldown_buff;
+
+            var improved_quarry = library.Get<BlueprintFeature>("25e009b7e53f86141adee3a1213af5af");
+
+            var apply_cooldown = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(improved_quarry),
+                                               Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.TenMinutes), dispellable: false),
+                                               Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(1, DurationRate.Hours), dispellable: false)
+                                              );
+
+            var ability = library.Get<BlueprintAbility>("e93dfca6f025e6d4e9583e688c147aca");
+            ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(apply_cooldown))));
+            ability.AddComponent(Common.createAbilityCasterHasNoFacts(cooldown_buff));
+            ability.SetDescription(ability.Description + "\nThe character can select a new quarry after waiting 1 hour.");
+            improved_quarry.SetDescription(improved_quarry.Description + "\nIf his quarry is killed, the character can select a new one after 10 minutes have passed.");
+            var quarry = library.Get<BlueprintFeature>("385260ca07d5f1b4e907ba22a02944fc");
+            quarry.SetDescription(quarry.Description + "\nThe character can select a new quarry after waiting 1 hour.");
+        }
 
         internal static void addFatigueBuffRestrictionsToRage()
         {
@@ -649,6 +677,41 @@ namespace CallOfTheWild
                 feature.AddComponent(Common.createAddFeatureIfHasFactAndNotHasFact(mf, add_toggle, add_toggle));
             }
             universalist_progression.SetDescription("Wizards who do not specialize (known as as universalists) have the most diversity of all arcane spellcasters.\nHand of the Apprentice: You cause your melee weapon to fly from your grasp and strike a foe before instantly returning to you. As a standard action, you can make a single attack using a melee weapon at a range of 30 feet. This attack is treated as a ranged attack with a thrown weapon, except that you add your Intelligence modifier on the attack roll instead of your Dexterity modifier (damage still relies on Strength). This ability cannot be used to perform a combat maneuver. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.\nMetamagic Mastery: " + feature.Description);
+        }
+
+        internal static void fixCompanionsBase()
+        {
+            //change regongar and fix his portrait
+            var reg_portrait = library.Get<BlueprintPortrait>("6e7302bb773adf04299dbe8832562d50").BackupPortrait = null;
+            var regognar_companion = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("b090918d7e9010a45b96465de7a104c3");
+            var regognar_levels = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("12ee53c9e546719408db257f489ec366").GetComponent<AddClassLevels>();
+            //fix claws selection
+            regognar_levels.Selections = regognar_levels.Selections.AddToArray(new SelectionEntry()
+            {
+                Selection = library.Get<BlueprintFeatureSelection>("5294b338c6084396abbe63faab09049c"),
+                Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+            },
+            new SelectionEntry()
+            {
+                Selection = BloodlinesFix.bloodline_familiar,
+                Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
+            }
+            );
+
+            //fix tratucio
+            var tartucio_feature = library.Get<BlueprintFeature>("a94fdc7ac4e70954aa05a5ff34b8e6bf");
+            var tartucio_levels = tartucio_feature.GetComponent<AddClassLevels>();
+            tartucio_levels.Selections = tartucio_levels.Selections.AddToArray(new SelectionEntry()
+                                                    {
+                                                        Selection = library.Get<BlueprintFeatureSelection>("7c150d6a5f5b4ffd8eb710c79888d273"),
+                                                        Features = new BlueprintFeature[] { BloodlinesFix.bloodline_familiar }
+                                                    },
+                                                    new SelectionEntry()
+                                                    {
+                                                        Selection = BloodlinesFix.bloodline_familiar,
+                                                        Features = new BlueprintFeature[] { library.Get<BlueprintFeature>("61aeb92c176193e48b0c9c50294ab290") } //lizard
+                                                    }
+                                                    );
         }
 
         internal static void fixCompanions()
@@ -2037,7 +2100,12 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a"), //monitor
                 library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea"), //wolf
             };
-            selection.SetDescription(selection.Description + "\nA ranger’s animal companion shares his favored enemy and favored terrain bonuses.");
+            //selection.SetDescription(selection.Description + "\nA ranger’s animal companion shares his favored enemy and favored terrain bonuses.");
+            var hunters_bond = library.Get<BlueprintFeatureSelection>("b705c5184a96a84428eeb35ae2517a14");
+            hunters_bond.SetDescription("At 4th level, a ranger forms a bond with his hunting companions. This bond can take one of two forms. Once the form is chosen, it cannot be changed.\n"
+                + "The first is a bond to his companions. This bond allows him to spend a move action to grant half his favored enemy bonus against a single target of the appropriate type to all allies within 30 feet who can see or hear him. This bonus lasts for a number of rounds equal to the ranger's Wisdom modifier (minimum 1). This bonus does not stack with any favored enemy bonuses possessed by his allies; they use whichever bonus is higher.\n"
+                + "The second option is to form a close bond with an animal companion. A ranger who selects an animal companion can choose from the following list: dog, elk, leopard, monitor lizard, wolf. This animal is a loyal companion that accompanies the ranger on his adventures as appropriate for its kind. A ranger's animal companion shares his favored enemy and favored terrain bonuses.\n"
+                + "This ability functions like the druid animal companion ability, except that the ranger's effective druid level is equal to his ranger level –3.");
         }
 
 

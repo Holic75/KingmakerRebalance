@@ -29,7 +29,7 @@ namespace CallOfTheWild
             createMonkKiPowerFromSpell(NewSpells.cloak_of_winds, 6, true, 2);
             createMonkKiPowerFromSpell(NewSpells.deadly_juggernaut, 8, false, 2);
             createMonkKiPowerFromSpell(NewSpells.akashic_form, 20, false, 3);
-            createMonkKiPowerFromSpell(library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), 20, false, 3);
+            createMonkKiPowerFromSpell(library.Get<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325"), 20, false, 3); //frightful aspect
         }
 
         public static void createMonkKiPowerFromSpell(BlueprintAbility spell, int required_level, bool self_only, int cost = 1)

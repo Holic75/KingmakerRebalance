@@ -59,6 +59,7 @@ using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Alignments;
 using CallOfTheWild.NewMechanics;
 using Kingmaker.UnitLogic.Class.Kineticist;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 
 namespace CallOfTheWild
 {
@@ -516,6 +517,32 @@ namespace CallOfTheWild
         }
 
 
+        public static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClassesWithProperty(BlueprintCharacterClass[] character_classes,
+                                                                                                                                    BlueprintUnitProperty property,
+                                                                                                                                    StatType stat = StatType.Charisma)
+        {
+            var c = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+            c.CharacterClasses = character_classes;
+            c.StatType = stat;
+            c.property = property;
+            return c;
+        }
+
+
+        public static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClassesWithArchetypesWithProperty(BlueprintCharacterClass[] character_classes,
+                                                                                                                                       BlueprintArchetype[] archetypes,
+                                                                                                                                       BlueprintUnitProperty property,
+                                                                                                                                       StatType stat = StatType.Charisma)
+        {
+            var c = Helpers.Create<NewMechanics.ContextCalculateAbilityParamsBasedOnClasses>();
+            c.CharacterClasses = character_classes;
+            c.StatType = stat;
+            c.property = property;
+            c.archetypes = archetypes == null ? new BlueprintArchetype[0] : archetypes;
+            return c;
+        }
+
+
         public static NewMechanics.ContextCalculateAbilityParamsBasedOnClasses createContextCalculateAbilityParamsBasedOnClassesWithArchetypes(BlueprintCharacterClass[] character_classes,
                                                                                                                                                BlueprintArchetype[] archetypes,
                                                                                                                                                StatType stat)
@@ -849,6 +876,34 @@ namespace CallOfTheWild
         }
 
 
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsPerDayDelayed(string name, string guid)
+        {
+            return createSpellsTable(name, guid,
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(0, 1), //4
+                                       Common.createSpellsLevelEntry(0, 1), //5
+                                       Common.createSpellsLevelEntry(0, 1), //6
+                                       Common.createSpellsLevelEntry(0, 1, 1), //7
+                                       Common.createSpellsLevelEntry(0, 1, 1), //8
+                                       Common.createSpellsLevelEntry(0, 2, 1), //9
+                                       Common.createSpellsLevelEntry(0, 2, 1, 1), //10
+                                       Common.createSpellsLevelEntry(0, 2, 1, 1), //11
+                                       Common.createSpellsLevelEntry(0, 2, 2, 1), //12
+                                       Common.createSpellsLevelEntry(0, 3, 2, 1, 1), //13
+                                       Common.createSpellsLevelEntry(0, 3, 2, 1, 1), //14
+                                       Common.createSpellsLevelEntry(0, 3, 2, 2, 1), //15
+                                       Common.createSpellsLevelEntry(0, 3, 3, 2, 1), //16
+                                       Common.createSpellsLevelEntry(0, 4, 3, 2, 1), //17
+                                       Common.createSpellsLevelEntry(0, 4, 4, 2, 2), //18
+                                       Common.createSpellsLevelEntry(0, 4, 3, 3, 2), //19
+                                       Common.createSpellsLevelEntry(0, 4, 4, 3, 2), //20
+                                       Common.createSpellsLevelEntry(0, 4, 4, 3, 2), //20
+                                       Common.createSpellsLevelEntry(0, 4, 4, 3, 2), //20
+                                       Common.createSpellsLevelEntry(0, 4, 4, 3, 2) //20
+                                       );
+        }
+
+
         static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createEmptySpellTable(string name, string guid)
         {
             return createSpellsTable(name, guid, Enumerable.Repeat(Common.createSpellsLevelEntry(), 21).ToArray());
@@ -892,6 +947,34 @@ namespace CallOfTheWild
                                        Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //17
                                        Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //18
                                        Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //19
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5) //20
+                                       );
+        }
+
+
+        static public Kingmaker.Blueprints.Classes.Spells.BlueprintSpellsTable createSpontaneousHalfCasterSpellsKnownDelayed(string name, string guid)
+        {
+            return createSpellsTable(name, guid,
+                                       Common.createSpellsLevelEntry(),  //0
+                                       Common.createSpellsLevelEntry(0, 2), //4
+                                       Common.createSpellsLevelEntry(0, 3), //5
+                                       Common.createSpellsLevelEntry(0, 4), //6
+                                       Common.createSpellsLevelEntry(0, 4, 2), //7
+                                       Common.createSpellsLevelEntry(0, 4, 3), //8
+                                       Common.createSpellsLevelEntry(0, 5, 4), //9
+                                       Common.createSpellsLevelEntry(0, 5, 4, 2), //10
+                                       Common.createSpellsLevelEntry(0, 5, 4, 3), //11
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4), //12
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4, 2), //13
+                                       Common.createSpellsLevelEntry(0, 6, 5, 4, 3), //14
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //15
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //16
+                                       Common.createSpellsLevelEntry(0, 6, 6, 5, 4), //17
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //18
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //19
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //20
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //20
+                                       Common.createSpellsLevelEntry(0, 6, 6, 6, 5), //20
                                        Common.createSpellsLevelEntry(0, 6, 6, 6, 5) //20
                                        );
         }

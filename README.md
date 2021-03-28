@@ -50,7 +50,7 @@ New Archetypes for existing classes:
 - Elemental Ascetic, Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Dawnflower Dervish, Lore Warden and Drill Sergeant Fighter archetype,
 - Preservationist and Toxicant Alchemist archetypes,
-- Blood Hunter and Divine Tracker Ranger archetypes.
+- Feywarden, Blood Hunter and Divine Tracker Ranger archetypes.
 
 
 Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
