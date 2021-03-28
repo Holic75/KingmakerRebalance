@@ -3214,7 +3214,7 @@ namespace CallOfTheWild
                                                                  minor_buff.Description,
                                                                  "",
                                                                  minor_buff.Icon,
-                                                                 minor_buff,CO
+                                                                 minor_buff,
                                                                  AbilityActivationType.Immediately,
                                                                  CommandType.Free,
                                                                  null,
