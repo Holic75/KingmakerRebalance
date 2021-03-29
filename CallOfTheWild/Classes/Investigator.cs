@@ -138,6 +138,12 @@ namespace CallOfTheWild
         static public BlueprintFeature knowledgeable_strike;
 
 
+        static public BlueprintArchetype scavenger;
+        static public BlueprintFeature mechancial_inspiration;
+        static public BlueprintFeature construct_mastery;
+        static public BlueprintFeatureSelection scavenger_skill_focus;
+
+
         internal static void createInvestigatorClass()
         {
             Main.logger.Log("Investigator class test mode: " + test_mode.ToString());
@@ -184,12 +190,117 @@ namespace CallOfTheWild
             createJinyiwei();
             createPsychicDetective();
             createCryptidSchoolar();
+            createScavenger();
 
-            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype, psychic_detective, cryptid_schoolar};
+            investigator_class.Archetypes = new BlueprintArchetype[] {empiricist_archetype, questioner_archetype, jinyiwei_archetype, psychic_detective, cryptid_schoolar, scavenger};
             Helpers.RegisterClass(investigator_class);
             addToPrestigeClasses(); 
             createFeats();
         }
+
+
+        static void createScavenger()
+        {
+            scavenger = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ScavengerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Scavenger");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Scavengers are masters of systems: how they fit together, why they work, and how to make the most of their parts. However, scavengers generally lack other investigative talents such as social skills or an understanding of history and lore.");
+            });
+            Helpers.SetField(scavenger, "m_ParentClass", investigator_class);
+            library.AddAsset(scavenger, "");
+
+            createMechanicalInspiration();
+            createConstructMastery();
+            createScavengerSkillFocus();
+
+            scavenger.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, inspiration), Helpers.LevelEntry(2, poison_resistance), Helpers.LevelEntry(11, poison_immunity) };
+            scavenger.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, mechancial_inspiration),
+                                                       Helpers.LevelEntry(2, construct_mastery),
+                                                       Helpers.LevelEntry(11, scavenger_skill_focus)
+                                                     };
+
+            investigator_class.Progression.UIGroups = investigator_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(construct_mastery, scavenger_skill_focus));
+            investigator_class.Progression.UIDeterminatorsGroup = investigator_class.Progression.UIDeterminatorsGroup.AddToArray(mechancial_inspiration);
+            device_talent.AddComponent(Common.prerequisiteNoArchetype(scavenger));
+        }
+
+
+        static void createScavengerSkillFocus()
+        {
+            scavenger_skill_focus = Helpers.CreateFeatureSelection("ScavengerSkillFocus",
+                                                                   "Skill Focus",
+                                                                   "At 11th level, the scavenger gains Skill Focus in either Trickery or Use Magic Device.",
+                                                                   "",
+                                                                   null,
+                                                                   FeatureGroup.None
+                                                                   );
+            scavenger_skill_focus.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("7feda1b98f0c169418aa9af78a85953b"),
+                library.Get<BlueprintFeature>("f43ffc8e3f8ad8a43be2d44ad6e27914")
+            };
+        }
+
+
+        static void createConstructMastery()
+        {
+            construct_mastery = Helpers.CreateFeature("ConstructMasteryFeature",
+                                                      "Construct Mastery",
+                                                      "At 2nd level, a scavenger gains a +2 bonus on all weapon damage rolls against constructs. This bonus increases to +4 at 5th level, and to +6 at 8th level.",
+                                                      "",
+                                                      Helpers.GetIcon("c66e86905f7606c4eaa5c774f0357b2b"), //stone skin
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<DamageBonusAgainstFactOwner>(d =>
+                                                      {
+                                                          d.Bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                          d.DamageBonus = 0;
+                                                          d.CheckedFact = Common.construct;
+                                                          d.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                      }),
+                                                      Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
+                                                                                      progression: ContextRankProgression.Custom,
+                                                                                      customProgression: new (int, int)[] {(4, 2),
+                                                                                                                         (7, 4),
+                                                                                                                         (20, 6)})
+                                                      );
+        }
+
+
+        static void createMechanicalInspiration()
+        {
+            mechancial_inspiration = library.CopyAndAdd<BlueprintFeature>(inspiration, "MechanicalInspirationFeature", "");
+            mechancial_inspiration.SetNameDescriptionIcon("Mechanical Inspiration",
+                                                          "At 1st level, a scavenger can use inspiration to apply a bonus to Trickery and Use Magic Device checks without expending a use of inspiration, but he must spend a use of inspiration to apply a bonus on Knowledge and Lore checks.",
+                                                           Helpers.GetIcon("1621be43793c5bb43be55493e9c45924") //skill focus persuasion - it has a gear on it
+                                                          );
+    
+            var remove_skills = new string[]
+            {
+                StatType.SkillKnowledgeArcana.ToString(),
+                StatType.SkillKnowledgeWorld.ToString(),
+                StatType.SkillLoreNature.ToString(),
+                StatType.SkillLoreReligion.ToString()
+            };
+
+            var add_skills = new string[]
+            {   
+                StatType.SkillThievery.ToString(),
+                StatType.SkillUseMagicDevice.ToString(),
+            };
+
+            foreach (var s in remove_skills)
+            {
+                mechancial_inspiration.RemoveComponent(inspiration.GetComponents<AddFacts>().Where(a => a.Facts.Contains(inspiration_features[s])).First());
+                mechancial_inspiration.AddComponent(Helpers.CreateAddFactNoRestore(inspiration_ability_features[s]));
+            }
+            foreach (var s in add_skills)
+            {
+                mechancial_inspiration.RemoveComponent(inspiration.GetComponents<AddFacts>().Where(a => a.Facts.Contains(inspiration_ability_features[s])).First());
+                mechancial_inspiration.AddComponent(Helpers.CreateAddFactNoRestore(inspiration_features[s]));
+            }
+        }
+
 
         static void addToPrestigeClasses()
         {
@@ -1599,7 +1710,7 @@ namespace CallOfTheWild
                                                                     type: AbilityRankType.StatBonus,
                                                                     featureList: new BlueprintFeature[] { inspiration_base, amazing_inspiration });
 
-            inspiration.AddComponent(Helpers.Create<NewMechanics.AddRandomBonusOnSkillCheckAndConsumeResource>(a =>
+            /*inspiration.AddComponent(Helpers.Create<NewMechanics.AddRandomBonusOnSkillCheckAndConsumeResource>(a =>
                {
                    a.stats = new StatType[] { StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion };
                    a.resource = null;
@@ -1607,7 +1718,7 @@ namespace CallOfTheWild
                    a.dice_count = Helpers.CreateContextValue(AbilityRankType.Default);
                    a.dice_type = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                }));
-            inspiration.AddComponents(dice_count_context, dice_type_context);
+            inspiration.AddComponents(dice_count_context, dice_type_context);*/
 
 
             var ability_checks_inspiration_buff = Helpers.CreateBuff("InvestigatorInspirationAbilityChecksBuff",
@@ -1631,13 +1742,24 @@ namespace CallOfTheWild
                                                                      }));
             inspiration_buffs.Add("AbilityChecks", ability_checks_inspiration_buff);
 
+            var free_skills = new string[]
+            {
+                StatType.SkillKnowledgeArcana.ToString(),
+                StatType.SkillKnowledgeWorld.ToString(),
+                StatType.SkillLoreNature.ToString(),
+                StatType.SkillLoreReligion.ToString()
+            };
             //will use skill_foci icons
             var single_skills = new (StatType, string, string)[] { (StatType.SkillAthletics, "Athletics", "9db907332bdaec1468cff3a99efef5b4"),
                                                                    (StatType.SkillMobility, "Mobility", "52dd89af385466c499338b7297896ded"),
                                                                    (StatType.SkillStealth, "Stealth", "3a8d34905eae4a74892aae37df3352b9"),
                                                                    (StatType.SkillThievery, "Trickery", "7feda1b98f0c169418aa9af78a85953b"),
                                                                    (StatType.SkillPerception, "Perception", "f74c6bdf5c5f5374fb9302ecdc1f7d64"),
-                                                                   (StatType.SkillUseMagicDevice, "Use Magic Device", "f43ffc8e3f8ad8a43be2d44ad6e27914") };
+                                                                   (StatType.SkillUseMagicDevice, "Use Magic Device", "f43ffc8e3f8ad8a43be2d44ad6e27914"),
+                                                                   (StatType.SkillKnowledgeArcana, "Knowledge (Arcana)", "cad1b9175e8c0e64583432a22134d33c"),
+                                                                   (StatType.SkillKnowledgeWorld, "Knowledge (World)", "611e863120c0f9a4cab2d099f1eb20b4"),
+                                                                   (StatType.SkillLoreReligion, "Lore (Religion)", "c541f80af8d0af4498e1abb6025780c7"),
+                                                                   (StatType.SkillLoreNature, "Lore (Nature)", "6507d2da389ed55448e0e1e5b871c013"),};
 
             foreach (var s in single_skills)
             {
@@ -1804,7 +1926,14 @@ namespace CallOfTheWild
                 inspiration_features.Add(b.Key, feature);
                 var ability_feature = Common.ActivatableAbilityToFeature(toggle);
                 inspiration_ability_features.Add(b.Key, toggle);
-                inspiration.AddComponent(Helpers.CreateAddFactNoRestore(toggle));
+                if (free_skills.Contains(b.Key))
+                {
+                    inspiration.AddComponent(Helpers.CreateAddFact(feature));
+                }
+                else
+                {
+                    inspiration.AddComponent(Helpers.CreateAddFactNoRestore(toggle));
+                }
             }
 
             regularizeInspirationTalents();
@@ -1842,13 +1971,17 @@ namespace CallOfTheWild
                 "SkillPerception",
                 "SkillUseMagicDevice",
                 "SkillPersuation",
-                "Initiative"
+                "Initiative",
+                StatType.SkillKnowledgeArcana.ToString(),
+                StatType.SkillKnowledgeWorld.ToString(),
+                StatType.SkillLoreNature.ToString(),
+                StatType.SkillLoreReligion.ToString()
             };
 
             foreach (var rp in replace_features)
             {
                 true_inspiration_base.AddComponents(Common.createRemoveFeatureOnApply(inspiration_ability_features[rp]),
-                                                   Helpers.CreateAddFact(inspiration_features[rp]));
+                                                    Helpers.CreateAddFact(inspiration_features[rp]));
             }
         }
 
@@ -1999,8 +2132,10 @@ namespace CallOfTheWild
                                                       FeatureGroup.None,
                                                       Common.createContextSavingThrowBonusAgainstDescriptor(Helpers.CreateContextValue(AbilityRankType.Default), ModifierDescriptor.UntypedStackable, SpellDescriptor.Poison),
                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: getInvestigatorArray(),
-                                                                                      progression: ContextRankProgression.StartPlusDoubleDivStep,
-                                                                                      startLevel: 2, stepLevel: 3)
+                                                                                      progression: ContextRankProgression.Custom,
+                                                                                      customProgression: new (int, int)[] {(4, 2),
+                                                                                                                         (7, 4),
+                                                                                                                         (20, 6)})
                                                      );
         }
 
