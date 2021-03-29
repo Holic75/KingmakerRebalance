@@ -10137,6 +10137,80 @@ namespace CallOfTheWild
         }
 
 
+        [ComponentName("AddRandomBonusOnInitiativeCheck")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowedOn(typeof(BlueprintBuff))]
+        [AllowMultipleComponents]
+        public class AddRandomBonusOnInitiativeCheckAndConsumeResource : RuleInitiatorLogicComponent<RuleInitiativeRoll>
+        {
+            public ContextValue dice_count;
+            public ContextValue dice_type;
+            public DiceType[] dices;
+            public BlueprintAbilityResource resource;
+            public int amount;
+            public BlueprintUnitFact[] cost_reducing_facts;
+            public BlueprintUnitFact allow_reroll_fact;
+            private int will_spend = 0;
+
+            private int getResourceAmount(RuleInitiativeRoll evt)
+            {
+                int reduction = 0;
+                foreach (var f in cost_reducing_facts)
+                {
+                    if (evt.Initiator.Descriptor.HasFact(f))
+                    {
+                        reduction++;
+                    }
+                }
+
+                int need_resource = amount - reduction;
+                return need_resource > 0 ? need_resource : 0;
+            }
+
+            public override void OnEventAboutToTrigger(RuleInitiativeRoll evt)
+            {
+                will_spend = 0;
+                if (dices.Empty())
+                {
+                    return;
+                }
+
+                if (resource != null)
+                {
+                    int need_resource = getResourceAmount(evt);
+
+                    if (evt.Initiator.Descriptor.Resources.GetResourceAmount(resource) < need_resource)
+                    {
+                        return;
+                    }
+                    will_spend = need_resource;
+                }
+
+                var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
+                dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
+                DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
+
+                RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
+                int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
+                if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
+                {
+                    result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
+                }
+
+                evt.AddTemporaryModifier(evt.Initiator.Stats.Initiative.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+            }
+
+            public override void OnEventDidTrigger(RuleInitiativeRoll evt)
+            {
+                if (will_spend > 0)
+                {
+                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                }
+                will_spend = 0;
+            }
+        }
+
+
         [ComponentName("Context Max Dex bonus increase")]
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextMaxDexBonusIncrease : RuleInitiatorLogicComponent<RuleCalculateArmorMaxDexBonusLimit>

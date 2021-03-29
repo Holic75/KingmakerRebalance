@@ -1117,7 +1117,7 @@ namespace CallOfTheWild
         {
             master_intellect = Helpers.CreateFeature("MasterIntellectInvestigatorFeature",
                                                      "Master Intellect",
-                                                     "At 20th level, an empiricist’s powers of reason and deduction become almost superhuman, and he is able to use them in nearly all aspects of life. At 20th level, an empiricist can use inspiration on all skills (even ones he is not trained in) and all ability checks without spending inspiration.",
+                                                     "At 20th level, an empiricist’s powers of reason and deduction become almost superhuman, and he is able to use them in nearly all aspects of life. At 20th level, an empiricist can use inspiration on all skills (even ones he is not trained in) and all ability checks (including initiative checks) without spending inspiration.",
                                                      "",
                                                      Helpers.GetIcon("ae4d3ad6a8fda1542acf2e9bbc13d113"),
                                                      FeatureGroup.None,
@@ -1731,6 +1731,26 @@ namespace CallOfTheWild
                                                                  }));
             inspiration_buffs.Add("AttackRolls", attack_rolls_inspiration_buff);
 
+            var initiative_rolls_inspiration_buff = Helpers.CreateBuff("InvestigatorInspirationInitiativeBuff",
+                                                     "Inspiration: Initiative",
+                                                     description,
+                                                     "",
+                                                     Helpers.GetIcon("797f25d709f559546b29e7bcb181cc74"), //improved initiative
+                                                     null,
+                                                     dice_count_context,
+                                                     dice_type_context,
+                                                     Helpers.Create<NewMechanics.AddRandomBonusOnInitiativeCheckAndConsumeResource>(a =>
+                                                     {
+                                                         a.resource = inspiration_resource;
+                                                         a.amount = 1;
+                                                         a.dices = dice_type;
+                                                         a.dice_count = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                         a.dice_type = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                         a.cost_reducing_facts = new BlueprintUnitFact[] { true_inspiration_base };
+                                                         a.allow_reroll_fact = tenacious_inspiration;
+                                                     }));
+            inspiration_buffs.Add("Initiative", initiative_rolls_inspiration_buff);
+
             var saving_throws_inspiration_buff = Helpers.CreateBuff("InvestigatorInspirationSavingThrowsBuff",
                                                                      "Inspiration: Saving Throws",
                                                                      description,
@@ -1768,6 +1788,13 @@ namespace CallOfTheWild
                 
                 var feature = Common.buffToFeature(b.Value);
                 foreach (var c in feature.GetComponents<NewMechanics.AddRandomBonusOnSkillCheckAndConsumeResource>().ToArray())
+                {
+                    var new_c = c.CreateCopy();
+                    new_c.resource = null;
+                    new_c.amount = 0;
+                    feature.ReplaceComponent(c, new_c);
+                }
+                foreach (var c in feature.GetComponents<NewMechanics.AddRandomBonusOnInitiativeCheckAndConsumeResource>().ToArray())
                 {
                     var new_c = c.CreateCopy();
                     new_c.resource = null;
@@ -1814,13 +1841,14 @@ namespace CallOfTheWild
                 "SkillThievery",
                 "SkillPerception",
                 "SkillUseMagicDevice",
-                "SkillPersuation"
+                "SkillPersuation",
+                "Initiative"
             };
 
             foreach (var rp in replace_features)
             {
-                true_inspiration.AddComponents(Common.createRemoveFeatureOnApply(inspiration_ability_features[rp]),
-                                               Helpers.CreateAddFact(inspiration_features[rp]));
+                true_inspiration_base.AddComponents(Common.createRemoveFeatureOnApply(inspiration_ability_features[rp]),
+                                                   Helpers.CreateAddFact(inspiration_features[rp]));
             }
         }
 
