@@ -2075,6 +2075,16 @@ namespace CallOfTheWild
             hurtful.AddComponent(Helpers.Create<DemoralizeMechanics.RunActionsOnDemoralize>(r => r.actions = Helpers.CreateActionList(action)));
             hurtful.Groups = hurtful.Groups.AddToArray(FeatureGroup.CombatFeat);
             library.AddCombatFeats(hurtful);
+
+            //remove old hurtful ability
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.HasFact(hurtful_ability))
+                {
+                    unit.RemoveFact(hurtful_ability);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 

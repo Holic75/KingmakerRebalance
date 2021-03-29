@@ -1277,6 +1277,16 @@ namespace CallOfTheWild
             blade_rush_swift_ability.AddComponent(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(remove_whip))));
 
             addToMetakinesis(kinetic_whip_ability);
+
+            //remove old hurtful ability
+            Action<UnitDescriptor> save_game_fix = delegate (UnitDescriptor unit)
+            {
+                if (unit.HasFact(kinetic_whip_ability))
+                {
+                    unit.RemoveFact(kinetic_whip_ability);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_fix);
         }
 
 
