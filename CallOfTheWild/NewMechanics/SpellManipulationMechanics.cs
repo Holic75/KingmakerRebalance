@@ -1098,14 +1098,47 @@ namespace CallOfTheWild
             private void apply(RuleCalculateAbilityParams evt)
             {
                 evt.AddBonusCasterLevel(this.bonus.Calculate(this.Fact.MaybeContext));
-                if (remove_after_use)
-                {
-                    (this.Fact as Buff)?.Remove();
-                }
             }
 
             public override void OnEventDidTrigger(RuleCalculateAbilityParams evt)
             {
+                if (!remove_after_use)
+                {
+                    return;
+                }
+                if (evt.Spellbook == null)
+                {
+                    return;
+                }
+                if (evt.AbilityData.SpellLevel > max_lvl)
+                {
+                    return;
+                }
+                if (evt.Spellbook.Blueprint.IsArcane)
+                {
+                    if (apply_to_arcane)
+                    {
+                        (this.Fact as Buff)?.Remove();
+                    }
+                }
+                else if (evt.Spellbook.Blueprint.IsAlchemist)
+                {
+                    if (apply_to_alchemist)
+                    {
+                        (this.Fact as Buff)?.Remove();
+                    }
+                }
+                else if (evt.Spellbook.Blueprint.GetComponent<SpellbookMechanics.PsychicSpellbook>() != null)
+                {
+                    if (apply_to_psychic)
+                    {
+                        (this.Fact as Buff)?.Remove();
+                    }
+                }
+                else if (apply_to_divine)
+                {
+                    (this.Fact as Buff)?.Remove();
+                }
             }
         }
 

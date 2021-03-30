@@ -924,6 +924,10 @@ namespace CallOfTheWild
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_affinity));
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(infernal_arcana));
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(devil_binder_charisma_bonus, devil_binder_smite_chaos));
+
+            var infernal_bloodline = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d");
+            devil_binder.AddComponent(Helpers.PrerequisiteNoFeature(infernal_bloodline));
+            infernal_bloodline.AddComponent(Common.prerequisiteNoArchetype(devil_binder));
         }
 
 

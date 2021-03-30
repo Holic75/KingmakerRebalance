@@ -529,6 +529,11 @@ namespace CallOfTheWild.OnCastMechanics
                                         dice = DiceType.D12;
                                         break;
                                     }
+                    case DiceType.D12:
+                                    {
+                                        dice = DiceType.D20;
+                                        break;
+                                    }
                 }
 
                 baseDamage.ReplaceDice(new DiceFormula(dice_formula.Rolls, dice));

@@ -14,6 +14,24 @@ using System.Threading.Tasks;
 
 namespace CallOfTheWild.PrerequisiteMechanics
 {
+    [AllowMultipleComponents]
+    public class PrerequisiteNoClassLevelVisible : Prerequisite
+    {
+        public BlueprintCharacterClass CharacterClass;
+
+        public override bool Check(
+          FeatureSelectionState selectionState,
+          UnitDescriptor unit,
+          LevelUpState state)
+        {
+            return unit.Progression.GetClassLevel(this.CharacterClass) < 1;
+        }
+
+        public override string GetUIText()
+        {
+            return $"No {this.CharacterClass.Name} class levels";
+        }
+    }
 
     [AllowMultipleComponents]
     public class PrerequisiteMatchingParametrizedFeatures : Prerequisite

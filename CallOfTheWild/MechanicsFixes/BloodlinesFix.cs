@@ -199,9 +199,15 @@ namespace CallOfTheWild
                 if (b == infernal_bloodline)
                 {
                     eldritch_heritage.AddComponent(Common.prerequisiteNoArchetype(Summoner.devil_binder));
+                    Summoner.devil_binder.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
                 }
             }
 
+            eldritch_heritage.AddComponents(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = sorcerer),
+                                            Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple),
+                                            Common.prerequisiteNoArchetype(eldritch_scion));
+
+            eldritch_scion.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
             sorcerer.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
             dragon_disciple.AddComponent(Helpers.PrerequisiteNoFeature(eldritch_heritage));
 

@@ -297,10 +297,10 @@ namespace CallOfTheWild
             Helpers.RegisterClass(antipaladin_class);
             fixAntipaladinFeats();
 
-            antipaladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = paladin_class));
-            antipaladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = VindicativeBastard.vindicative_bastard_class));
-            paladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = antipaladin_class));
-            VindicativeBastard.vindicative_bastard_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = antipaladin_class));
+            antipaladin_class.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = paladin_class));
+            //antipaladin_class.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = VindicativeBastard.vindicative_bastard_class));
+            paladin_class.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = antipaladin_class));
+            VindicativeBastard.vindicative_bastard_class.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = antipaladin_class));
 
             Common.addMTDivineSpellbookProgression(antipaladin_class, antipaladin_class.Spellbook, "MysticTheurgeAntipaladin",
                                                    Common.createPrerequisiteClassSpellLevel(antipaladin_class, 2));

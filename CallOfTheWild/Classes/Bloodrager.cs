@@ -359,6 +359,8 @@ namespace CallOfTheWild
             eldritch_scion_bloodrager.AddFeatures = eldritch_scion_bloodrager.AddFeatures.AddToArray(eldritch_scion.AddFeatures.Skip(1));
             //eldritch_scion_bloodrager.AddFeatures = eldritch_scion_bloodrager.AddFeatures.RemoveFromArray(eldritch_scion_bloodrager.AddFeatures.Where(le => le.Level == 19).FirstOrDefault());
             eldritch_scion_bloodrager.RemoveFeatures = eldritch_scion.RemoveFeatures;
+            eldritch_scion_bloodrager.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = bloodrager_class));
+            bloodrager_class.AddComponent(Common.prerequisiteNoArchetype(eldritch_scion_bloodrager));
 
             var bard_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f");
 

@@ -110,9 +110,9 @@ namespace CallOfTheWild
             vindicative_bastard_class.MaleEquipmentEntities = paladin_class.MaleEquipmentEntities;
             vindicative_bastard_class.FemaleEquipmentEntities = paladin_class.FemaleEquipmentEntities;
             vindicative_bastard_class.ComponentsArray = new BlueprintComponent[]{ paladin_class.ComponentsArray[0],
-                                                                                  Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = paladin_class)
+                                                                                  Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = paladin_class)
                                                                                 };
-            paladin_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = vindicative_bastard_class));
+            paladin_class.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = vindicative_bastard_class));
             vindicative_bastard_class.StartingItems = paladin_class.StartingItems;
 
             createVindicativeBastardProgression();
