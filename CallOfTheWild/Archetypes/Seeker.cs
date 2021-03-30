@@ -199,7 +199,7 @@ namespace CallOfTheWild.Archetypes
                 bp.AddComponent(Common.prerequisiteNoArchetype(archetype.GetParentClass(), archetype));
                 seeker_bloodline.AddComponent(Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, 1));
                 seeker_bloodline.AddComponent(Common.prerequisiteNoArchetype(eldritch_scion.GetParentClass(), eldritch_scion));
-                seeker_bloodline.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = dragon_disciple));
+                seeker_bloodline.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
 
                 b.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = seeker_bloodline));
             }

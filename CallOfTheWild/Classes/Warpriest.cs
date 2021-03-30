@@ -4378,7 +4378,7 @@ namespace CallOfTheWild
 
             var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
             //monk_class.AddComponent(Common.prerequisiteNoArchetype(warpriest_class, sacred_fist_archetype));
-            sacred_fist_archetype.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(c => c.CharacterClass = monk_class));
+            //sacred_fist_archetype.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(c => c.CharacterClass = monk_class));
             sacred_fist_archetype.ReplaceStartingEquipment = true;
             sacred_fist_archetype.StartingItems = monk_class.StartingItems;
             sacred_fist_archetype.StartingGold = monk_class.StartingGold;

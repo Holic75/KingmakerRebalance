@@ -667,10 +667,10 @@ namespace CallOfTheWild
             school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits) };
             school_savant_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_focus) };
 
-            
-            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = wizard_class));
+
+            school_savant_archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = wizard_class));
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(school_focus);
-            wizard_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+            wizard_class.AddComponent(Common.prerequisiteNoArchetype(school_savant_archetype));
         }
 
 
@@ -718,14 +718,16 @@ namespace CallOfTheWild
             blood_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(bloodline_selection);
 
-            
-            var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
-            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = sorcerer_class));
-            sorcerer_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
-            arcanist_class.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = magus));
-            magus.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = arcanist_class));
+            BlueprintCharacterClass dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+            BlueprintArchetype eldritch_scion = library.Get<BlueprintArchetype>("d078b2ef073f2814c9e338a789d97b73");
+            blood_arcanist_archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = sorcerer_class));
+            blood_arcanist_archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
+            blood_arcanist_archetype.AddComponent(Common.prerequisiteNoArchetype(eldritch_scion));
+            sorcerer_class.AddComponent(Common.prerequisiteNoArchetype(blood_arcanist_archetype));           
+            eldritch_scion.AddComponent(Common.prerequisiteNoArchetype(blood_arcanist_archetype));
 
             item_bond.AddComponent(Common.prerequisiteNoArchetype(blood_arcanist_archetype));
+            item_bond.AddComponent(Helpers.PrerequisiteNoFeature(library.Get<BlueprintFeature>("1740a701ac0a14c4394a7f76f0b07799"))); //no arcane bond feature
         }
 
 

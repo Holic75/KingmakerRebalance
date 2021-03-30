@@ -625,7 +625,7 @@ namespace CallOfTheWild
                                                   progression.Groups[0]);
                 focus.Classes = getWitchArray();
                 focus.LevelEntries = new LevelEntry[] { progression.LevelEntries[0] };
-                focus.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = progression.Classes[0]));
+                focus.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = progression.Classes[0]));
                 progression.AddComponent(Common.prerequisiteNoArchetype(havocker));
 
                 var blast_selection = progression.LevelEntries[0].Features[0] as BlueprintFeatureSelection;

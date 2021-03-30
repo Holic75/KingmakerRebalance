@@ -99,13 +99,13 @@ namespace CallOfTheWild.Archetypes
                                                Helpers.CreateAddFact(RogueTalents.assasinate)
                                                );
 
-            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, focused_killer, bloodstained_hands),
+            archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, focused_killer/*, bloodstained_hands*/),
                                                        Helpers.LevelEntry(4, pain_strike),
                                                        Helpers.LevelEntry(10, assasinate),
                                                        Helpers.LevelEntry(14, RogueTalents.swift_death),
                                                     };
-
-            slayer_class.Progression.UIDeterminatorsGroup = slayer_class.Progression.UIDeterminatorsGroup.AddToArray(bloodstained_hands);
+            archetype.AddComponent(Common.createPrerequisiteAlignment(AlignmentMaskType.Evil));
+            //slayer_class.Progression.UIDeterminatorsGroup = slayer_class.Progression.UIDeterminatorsGroup.AddToArray(bloodstained_hands);
             slayer_class.Progression.UIGroups = slayer_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(focused_killer, pain_strike, assasinate, RogueTalents.swift_death));
             slayer_class.Archetypes = slayer_class.Archetypes.AddToArray(archetype);
         }

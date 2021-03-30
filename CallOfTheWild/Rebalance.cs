@@ -207,6 +207,13 @@ namespace CallOfTheWild
             quarry.SetDescription(quarry.Description + "\nThe character can select a new quarry after waiting 1 hour.");
         }
 
+
+        internal static void fixDarkElementalistAlignment()
+        {
+            var dark_elementalist = library.Get<BlueprintArchetype>("f12f18ae8842425489d29f302e69134c");
+            dark_elementalist.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil));
+        }
+
         internal static void addFatigueBuffRestrictionsToRage()
         {
             //add explicit fatigue/exhausted buff restrictions to prevent tired character under invigorate effect from entering rage

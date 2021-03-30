@@ -103,13 +103,13 @@ namespace CallOfTheWild.Archetypes
                                                        };
             archetype.ReplaceSpellbook = spellbook;
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, weapon_proficiency),
-                                                       Helpers.LevelEntry(1, arcane_achery_selection),
+                                                       Helpers.LevelEntry(1, arcane_achery),
                                                        Helpers.LevelEntry(2, precise_minstrel),
                                                        Helpers.LevelEntry(6, arrowsong_strike),
                                                        Helpers.LevelEntry(18, ray_spell_combat)};
 
             bard_class.Progression.UIDeterminatorsGroup = bard_class.Progression.UIDeterminatorsGroup.AddToArray(weapon_proficiency);
-            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery_selection, precise_minstrel, arrowsong_strike, ray_spell_combat));
+            bard_class.Progression.UIGroups = bard_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(arcane_achery, precise_minstrel, arrowsong_strike, ray_spell_combat));
             bard_class.Archetypes = bard_class.Archetypes.AddToArray(archetype);
 
 
@@ -121,6 +121,7 @@ namespace CallOfTheWild.Archetypes
 
             var magus = library.Get<BlueprintCharacterClass>("45a4607686d96a1498891b3286121780");
             magus.AddComponent(Common.prerequisiteNoArchetype(bard_class, archetype));
+            archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = magus));
         }
 
 
@@ -199,7 +200,7 @@ namespace CallOfTheWild.Archetypes
                                                                      );
             arcane_achery_selection.Obligatory = true;
             arcane_achery_selection.AllFeatures = new BlueprintFeature[] { arcane_achery };
-            arcane_achery.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = magus));
+            arcane_achery.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = magus));
         }
 
 
