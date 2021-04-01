@@ -2523,7 +2523,7 @@ namespace CallOfTheWild
                                          Helpers.CreateAddFactContextActions(activated: apply_sickened,
                                                                              newRound: Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 1, 0), IgnoreCritical: true)
                                                                              ),
-                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
+                                         Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                         );
 
             var apply_dot = Common.createContextActionApplyBuff(dot, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_from_spell: true);
@@ -2539,7 +2539,7 @@ namespace CallOfTheWild
                                                 Helpers.fortNegates,
                                                 Helpers.CreateRunActions(SavingThrowType.Fortitude,
                                                                          Helpers.CreateConditionalSaved(null, apply_dot)),
-                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Evil),
+                                                Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain | SpellDescriptor.Evil),
                                                 Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                 Helpers.CreateContextRankConfig(max: 10)
                                                 );
@@ -2570,7 +2570,7 @@ namespace CallOfTheWild
                                          Helpers.CreateAddStatBonus(StatType.AdditionalAttackBonus, -4, ModifierDescriptor.UntypedStackable),
                                          Helpers.Create<BuffAllSkillsBonus>(b => { b.Value = -4; b.Descriptor = ModifierDescriptor.UntypedStackable; }),
                                          Common.createAbilityScoreCheckBonus(-4, ModifierDescriptor.UntypedStackable),
-                                         Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.MindAffecting)
+                                         Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain | SpellDescriptor.MindAffecting)
                                         );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_from_spell: true);
@@ -2587,7 +2587,7 @@ namespace CallOfTheWild
                                                 "Will partial",
                                                 Helpers.CreateRunActions(SavingThrowType.Will,
                                                                          Helpers.CreateConditionalSaved(apply_buff1, apply_buff)),
-                                                Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.MindAffecting),
+                                                Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain | SpellDescriptor.MindAffecting),
                                                 Helpers.CreateSpellComponent(SpellSchool.Enchantment),
                                                 Helpers.CreateContextRankConfig()
                                                 );
@@ -6521,7 +6521,7 @@ namespace CallOfTheWild
                                           Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable),
                                           Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.SpellCastingIsDifficult),
                                           Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = -2; w.Descriptor = ModifierDescriptor.UntypedStackable; w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; }),
-                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Death)
+                                          Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                           );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)), is_from_spell: true);
@@ -6538,7 +6538,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateRunActions(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff)),
                                                   Common.createAbilitySpawnFx("cbfe312cb8e63e240a859efaad8e467c", anchor: AbilitySpawnFxAnchor.SelectedTarget),
                                                   Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Enemy),
-                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
+                                                  Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain),
                                                   Helpers.CreateSpellComponent(SpellSchool.Necromancy)
                                                   );
             howling_agony.SpellResistance = true;
@@ -7170,7 +7170,8 @@ namespace CallOfTheWild
                                           icon,
                                           null,
                                           Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.UntypedStackable),
-                                          Helpers.CreateAddStatBonus(StatType.Speed, -10, ModifierDescriptor.UntypedStackable)
+                                          Helpers.CreateAddStatBonus(StatType.Speed, -10, ModifierDescriptor.UntypedStackable),
+                                          Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                           );
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_buff)));
@@ -7191,7 +7192,8 @@ namespace CallOfTheWild
                                                  Common.createAbilityTargetHasFact(true, construct),
                                                  Common.createAbilityTargetHasFact(true, elemental),
                                                  Common.createAbilitySpawnFx("352469f228a3b1f4cb269c7ab0409b8e", anchor: AbilitySpawnFxAnchor.SelectedTarget),
-                                                 Helpers.CreateContextRankConfig()
+                                                 Helpers.CreateContextRankConfig(),
+                                                 Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                                  );
             rigor_mortis.setMiscAbilityParametersSingleTargetRangedHarmful(true);
             rigor_mortis.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;

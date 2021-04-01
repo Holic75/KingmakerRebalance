@@ -744,7 +744,7 @@ namespace CallOfTheWild
             var pain_buff = library.CopyAndAdd<BlueprintBuff>("caae9592917719a41b601b678a8e6ddf", "SymbolofPainBuff", "");
             pain_buff.RemoveComponents<BuffAllSavesBonus>();
             pain_buff.RemoveComponents<SpellDescriptorComponent>();
-            pain_buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Death));
+            pain_buff.AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain));
             pain_buff.SetNameDescription("Pain", "The subject suffers a –4 penalty on attack rolls, ability checks, and skill checks.");
 
             var icon = Helpers.GetIcon("237427308e48c3341b3d532b9d3a001f");

@@ -1018,7 +1018,7 @@ namespace CallOfTheWild
             hex_ability.CanTargetEnemies = true;
             hex_ability.RemoveComponent(hex_ability.GetComponent<Kingmaker.UnitLogic.Abilities.Components.AbilityAoERadius>());
             hex_ability.RemoveComponent(hex_ability.GetComponent<ContextRankConfig>());
-            hex_ability.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated));
+            hex_ability.ReplaceComponent<SpellDescriptorComponent>(Helpers.CreateSpellDescriptor(SpellDescriptor.Nauseated | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain));
 
             hex_ability.AddComponent(Common.createAbilityTargetHasFact(true,
                                                                        library.Get<BlueprintFeature>("fd389783027d63343b4a5634bd81645f"), //construct

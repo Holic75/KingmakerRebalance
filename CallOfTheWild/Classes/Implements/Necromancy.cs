@@ -130,7 +130,7 @@ namespace CallOfTheWild
                                      Common.createAbilitySpawnFx("872f843a900d8f442896e5fdae6d44d1", anchor: AbilitySpawnFxAnchor.ClickedTarget),
                                      Helpers.CreateResourceLogic(resource),
                                      createDCScaling(),
-                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Death | SpellDescriptor.Sickened)
+                                     Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain | SpellDescriptor.Sickened)
                                     );
             ability.setMiscAbilityParametersRangedDirectional();
             addFocusInvestmentCheck(ability, SpellSchool.Necromancy);

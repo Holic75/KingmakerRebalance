@@ -2243,6 +2243,10 @@ namespace CallOfTheWild
             //fix well-versed to include bonus against language dependent effects
             var well_versed = library.Get<BlueprintFeature>("8f4060852a4c8604290037365155662f");
             well_versed.ReplaceComponent<SavingThrowBonusAgainstDescriptor>(s => s.SpellDescriptor = s.SpellDescriptor.Value | language_dependent);
+
+            Common.construct.AddComponents(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain; }),
+                                                Helpers.Create<SpellImmunityToSpellDescriptor>(b => { b.Descriptor = (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain; })
+                                                );
         }
 
         static internal void fixUndeadImmunity()
@@ -2266,7 +2270,7 @@ namespace CallOfTheWild
 
             SpellDescriptor always_immune = SpellDescriptor.Poison | SpellDescriptor.Disease | SpellDescriptor.Sickened | SpellDescriptor.Paralysis
                                             | SpellDescriptor.Fatigue | SpellDescriptor.Exhausted | SpellDescriptor.Bleed
-                                            | SpellDescriptor.VilderavnBleed | SpellDescriptor.Death | SpellDescriptor.Stun;
+                                            | SpellDescriptor.VilderavnBleed | SpellDescriptor.Death | SpellDescriptor.Stun | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain;
 
 
             undead_immunity.AddComponent(Helpers.Create<BuffDescriptorImmunity>(b => { b.Descriptor = always_immune; }));
