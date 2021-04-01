@@ -282,7 +282,8 @@ namespace CallOfTheWild
             antipaladin_class.MaleEquipmentEntities = paladin_class.MaleEquipmentEntities;
             antipaladin_class.FemaleEquipmentEntities = paladin_class.FemaleEquipmentEntities;
             antipaladin_class.ComponentsArray = paladin_class.ComponentsArray.ToArray();
-            antipaladin_class.ReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil);
+            antipaladin_class.MaybeReplaceComponent<PrerequisiteAlignment>(p => p.Alignment = Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil);
+           // antipaladin_class.AddComponent(Helpers.PrerequisiteNoFeature(library.Get<BlueprintFeature>("92c0d2da0a836ce418a267093c09ca54")));
             antipaladin_class.StartingItems = paladin_class.StartingItems;
             createAntipaladinProgression();
             antipaladin_class.Progression = antipaladin_progression;
@@ -573,7 +574,7 @@ namespace CallOfTheWild
 
             createSmiteChaosAndAuraOfVengeance();
             createTyrantAurasAndUnholyChampion();
-
+            tyrant.AddComponent(Common.createPrerequisiteAlignment(AlignmentMaskType.LawfulEvil));
             tyrant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
                                                        Helpers.LevelEntry(14, aura_of_sin),
                                                        Helpers.LevelEntry(17, aura_of_deparvity),
@@ -743,7 +744,7 @@ namespace CallOfTheWild
             var pain_buff = library.CopyAndAdd<BlueprintBuff>("caae9592917719a41b601b678a8e6ddf", "SymbolofPainBuff", "");
             pain_buff.RemoveComponents<BuffAllSavesBonus>();
             pain_buff.RemoveComponents<SpellDescriptorComponent>();
-            pain_buff.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Death));
+            pain_buff.AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain));
             pain_buff.SetNameDescription("Pain", "The subject suffers a –4 penalty on attack rolls, ability checks, and skill checks.");
 
             var icon = Helpers.GetIcon("237427308e48c3341b3d532b9d3a001f");
@@ -1308,7 +1309,7 @@ namespace CallOfTheWild
             createBonusFeats();
             //ambitious bond(?)
 
-            insinuator.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good, antipaladin_deity),
+            insinuator.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
                                                           Helpers.LevelEntry(2, touch_of_corruption),
                                                           Helpers.LevelEntry(3, cruelty, aura_of_cowardice),
                                                           Helpers.LevelEntry(4, smite_good_extra_use, channel_negative_energy),
