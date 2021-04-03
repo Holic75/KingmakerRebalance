@@ -541,6 +541,84 @@ namespace CallOfTheWild
                 domain.SetDescription(base_feature.Description);
                 domain2.SetDescription(base_feature.Description);
             }
+
+            //sorcerer - heavenly fire (celestial)
+            {
+                var feature = library.Get<BlueprintFeature>("ee30d97c101a2ce4da44ef5745426267");
+                var ability = feature.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+
+                var base_config = ability.GetComponent<ContextRankConfig>();
+                var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
+                {
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D4), Helpers.CreateContextValue(base_config.Type), 0);
+                });
+                actions = Common.changeAction<ContextActionHealTarget>(actions, a =>
+                {
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D4), Helpers.CreateContextValue(base_config.Type), 0);
+                });
+                ability.ReplaceComponent(base_config ,Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype, 
+                                                                               classes: Helpers.GetField<BlueprintCharacterClass[]>(base_config, "m_Class"),
+                                                                               archetype: Helpers.GetField<BlueprintArchetype>(base_config, "Archetype"),
+                                                                               type: base_config.Type,
+                                                                               progression: ContextRankProgression.OnePlusDiv2));
+
+                ability.SetDescription($"Starting at 1st level, you can unleash a ray of heavenly fire as a standard action, targeting any foe within 30 feet as a ranged touch attack. Against evil creatures, this ray deals 1d{getDamageDieString(DiceType.D4)} points of damage + 1d{getDamageDieString(DiceType.D4)} for every two sorcerer levels you possess beyond first. This damage is divine and not subject to energy resistance or immunity. This ray heals good creatures of 1d4 points of damage + 1 for every two sorcerer levels you possess. A good creature cannot benefit from your heavenly fire more than once per day. Neutral creatures are neither harmed nor healed by this effect. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+                feature.SetDescription(ability.Description);
+            }
+
+            //sorcerer - arcane bolt
+            {
+                var feature = library.Get<BlueprintFeature>("d45d9304e7b64114fbca6d2a77baa997");
+                var ability = feature.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+
+                var base_config = ability.GetComponent<ContextRankConfig>();
+                var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
+                {
+                    a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D4), Helpers.CreateContextValue(base_config.Type), 0);
+                });
+          
+                ability.ReplaceComponent(base_config, Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                               classes: Helpers.GetField<BlueprintCharacterClass[]>(base_config, "m_Class"),
+                                                                               type: base_config.Type,
+                                                                               progression: ContextRankProgression.OnePlusDiv2));
+
+                ability.SetDescription($"Starting at 1st level, you can unleash a bolt of magic force as a standard action, targeting any foe within 30 feet as a ranged touch attack. This bolt deals 1d{getDamageDieString(DiceType.D4)} points of damage + 1d{getDamageDieString(DiceType.D4)} for every two sorcerer levels you possess beyond first. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.");
+                feature.SetDescription(ability.Description);
+            }
+
+            //sorcerer elemental rays
+            {
+                var features = new BlueprintFeature[]
+                {
+                    library.Get<BlueprintFeature>("acf668c24dfbcdd499276eaf1881486e"), //air
+                    library.Get<BlueprintFeature>("cb15c04cf43b93a4589077078b4188eb"), //earth
+                    library.Get<BlueprintFeature>("ce0889b5c1b392e48baf1e004d1efd67"), //fire
+                    library.Get<BlueprintFeature>("f6a811bf5650ac04ea2c21f4df390455"), //water
+                };
+
+                foreach (var feature in features)
+                {
+                    var ability = feature.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+
+                    var actions = ability.GetComponent<AbilityEffectRunAction>().Actions.Actions;
+                    var base_config = ability.GetComponent<ContextRankConfig>();
+                    actions = Common.changeAction<ContextActionDealDamage>(actions, a =>
+                    {
+                        a.Value = Helpers.CreateContextDiceValue(getDamageDie(DiceType.D6), Helpers.CreateContextValue(base_config.Type), 0);
+                    });
+               
+                    ability.ReplaceComponent(base_config, Helpers.CreateContextRankConfig(ContextRankBaseValueType.SummClassLevelWithArchetype,
+                                                                                       classes: Helpers.GetField<BlueprintCharacterClass[]>(base_config, "m_Class"),
+                                                                                       archetype: Helpers.GetField<BlueprintArchetype>(base_config, "Archetype"),
+                                                                                       type: base_config.Type,
+                                                                                       progression: ContextRankProgression.OnePlusDiv2));
+
+                    ability.SetDescription(ability.Description.Replace("+ 1 for every two sorcerer levels you possess", $"+ 1d{getDamageDieString(DiceType.D6)} for every two sorcerer levels you possess beyond first"));
+                    feature.SetDescription(ability.Description);
+                }
+            }
         }
 
 
