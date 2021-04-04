@@ -4190,7 +4190,6 @@ namespace CallOfTheWild
             a.Projectiles = new BlueprintProjectile[] { projectile };
             a.Length = length;
             a.LineWidth = width;
-
             return a;
         }
 

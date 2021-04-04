@@ -2777,6 +2777,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "1f01a098d737ec6419aedc4e7ad61fdd", 9), //foresight
                 new Common.SpellId( "43740dab07286fe4aa00a6ee104ce7c1", 9), //heroic invocation
                 new Common.SpellId( NewSpells.hold_monster_mass.AssetGuid, 9),
+                new Common.SpellId( NewSpells.implosion.AssetGuid, 9),
                 new Common.SpellId( "41cf93453b027b94886901dbfc680cb9", 9), //overwhelming presence
                 new Common.SpellId( "2f8a67c483dfa0f439b293e094ca9e3c", 9), //power word kill
                 new Common.SpellId( NewSpells.psychic_crush[4].AssetGuid, 9),

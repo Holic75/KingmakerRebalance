@@ -471,7 +471,8 @@ New spells:
 - Suffocate Mass,
 - Time Stop,
 - Winds of Vengeance,
-- Shades.
+- Shades,
+- Implosion.
 
 New Ki Powers:
 - Burst of Adrenaline,
@@ -621,7 +622,7 @@ Notable differences from pnp:
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
-- Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist arcanist spells
+- Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist spells
 - Two-Weapon fighting automatically give iterative off-hand attacks once your BAB reaches 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
 - Vital Strike multiplier automatically scales to 3 when your BAB reaches 11 and to 4 when your BAB reaches 16, Improved Vital Strike and Greater Vital Strike are removed from the game
 - Cleave and Greater Cleave are merged into one feat
