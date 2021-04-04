@@ -160,6 +160,8 @@ namespace CallOfTheWild
         static public BlueprintFeature two_weapon_feint;
         static public BlueprintFeature improved_two_weapon_feint;
 
+        static public BlueprintFeature wounded_paw_gambit;
+
 
 
         static internal void load()
@@ -1952,6 +1954,7 @@ namespace CallOfTheWild
         static void createBrokenWingGambit()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/BrokenWingGambit.png");
+            var ranged_icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/WoundedPawGambit.png");
             broken_wing_gambit = Helpers.CreateFeature("BrokenWingGambitFeature",
                                                        "Broken Wing Gambit",
                                                        "Whenever you make a melee attack and hit your opponent, you can use a free action to grant that opponent a +2 bonus on attack and damage rolls against you until the end of your next turn or until your opponent attacks you, whichever happens first. If that opponent attacks you with this bonus, it provokes attacks of opportunity from your allies who have this feat.",
@@ -1960,6 +1963,16 @@ namespace CallOfTheWild
                                                        FeatureGroup.Feat,
                                                        Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 5)
                                                        );
+
+            wounded_paw_gambit = Helpers.CreateFeature("WoundedPawGambitFeature",
+                                           "Wounded Paw Gambit",
+                                           "Whenever you use Broken Wing Gambit and an opponent attacks you as a result, each ally who has this feat and is within 30 feet of that opponent can attempt a ranged attack against it as an immediate action. The ally’s ranged weapon must be in hand, loaded, and ready to be fired or thrown in order to make this attack possible.",
+                                           "",
+                                           ranged_icon,
+                                           FeatureGroup.Feat,
+                                           Helpers.PrerequisiteStatValue(StatType.SkillPersuasion, 5),
+                                           Helpers.PrerequisiteFeature(broken_wing_gambit)
+                                           );
 
             var broken_wing_gambit_effect_buff = Helpers.CreateBuff("BrokenWingEffectGambitBuff",
                                                               broken_wing_gambit.Name,
@@ -1971,6 +1984,7 @@ namespace CallOfTheWild
                                                               Helpers.Create<NewMechanics.DamageBonusAgainstCaster>(d => d.Value = 2)
                                                               );
             var apply_buff = Common.createContextActionApplyBuff(broken_wing_gambit_effect_buff, Helpers.CreateContextDuration(1), dispellable: false);
+
             var broken_wing_gambit_buff = Helpers.CreateBuff("BrokenWingGambitBuff",
                                                               broken_wing_gambit.Name,
                                                               broken_wing_gambit.Description,
@@ -1992,7 +2006,7 @@ namespace CallOfTheWild
                                                                        null);
             broken_wing_ability.DeactivateImmediately = true;
 
-            var on_attack = Helpers.CreateConditional(Common.createContextConditionHasFact(broken_wing_gambit_effect_buff),
+            var on_attack = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(broken_wing_gambit_effect_buff),
                                                       Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => p.fact = broken_wing_gambit)
                                                       );
             broken_wing_gambit.AddComponents(Helpers.CreateAddFact(broken_wing_ability),
@@ -2004,9 +2018,37 @@ namespace CallOfTheWild
                                             );
 
             broken_wing_gambit.Groups = broken_wing_gambit.Groups.AddToArray(FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat);
+            wounded_paw_gambit.Groups = broken_wing_gambit.Groups;
+
+
+
+
+            var ranged_buff = Helpers.CreateBuff("WoundedPawGambitBuff",
+                                                 wounded_paw_gambit.Name,
+                                                 wounded_paw_gambit.Description,
+                                                 "",
+                                                 wounded_paw_gambit.Icon,
+                                                 null
+                                                 );
+            var ranged_toggle = Common.buffToToggle(ranged_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
+
+            var on_attack_for_ranged = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(broken_wing_gambit_effect_buff),
+                              Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p => { p.fact = ranged_buff; p.distance = 30.Feet(); })
+                              );
+
+            wounded_paw_gambit.AddComponents(Helpers.CreateAddFact(ranged_toggle),
+                                             Common.createAddTargetAttackWithWeaponTrigger(null,
+                                             Helpers.CreateActionList(on_attack_for_ranged),
+                                             only_hit: false,
+                                             not_reach: false,
+                                             wait_for_attack_to_resolve: true)
+                                          );
 
             library.AddCombatFeats(broken_wing_gambit);
             Common.addTemworkFeats(broken_wing_gambit);
+
+            library.AddCombatFeats(wounded_paw_gambit);
+            Common.addTemworkFeats(wounded_paw_gambit);
         }
 
 

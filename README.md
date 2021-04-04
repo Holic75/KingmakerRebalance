@@ -94,7 +94,7 @@ New feats:
 - Swarm Scatter,
 - Bonded Mind and Share Spell,
 - Extended Bane,
-- Broken Wing Gambit,
+- Broken Wing Gambit and Wounded Paw Gambit,
 - Hurtful,
 - Dazing Assault,
 - Stunning Assault,
@@ -230,7 +230,7 @@ New Wild Talents:
 - Windsight,
 - Smoke Storm,
 - Energize weapon,
-- Kinetic Fist
+- Kinetic Fist.
 
 
 New Alchemist Discoveries:
