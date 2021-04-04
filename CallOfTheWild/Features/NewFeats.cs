@@ -2007,7 +2007,7 @@ namespace CallOfTheWild
             broken_wing_ability.DeactivateImmediately = true;
 
             var on_attack = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(broken_wing_gambit_effect_buff),
-                                                      Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => p.fact = broken_wing_gambit)
+                                                      Helpers.Create<TeamworkMechanics.ProvokeAttackFromFactOwners>(p => { p.fact = broken_wing_gambit; p.except_caster = true; })
                                                       );
             broken_wing_gambit.AddComponents(Helpers.CreateAddFact(broken_wing_ability),
                                              Common.createAddTargetAttackWithWeaponTrigger(null,
@@ -2033,7 +2033,7 @@ namespace CallOfTheWild
             var ranged_toggle = Common.buffToToggle(ranged_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
 
             var on_attack_for_ranged = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(broken_wing_gambit_effect_buff),
-                              Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p => { p.fact = ranged_buff; p.distance = 30.Feet(); })
+                              Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p => { p.fact = ranged_buff; p.distance = 30.Feet(); p.except_caster = true; })
                               );
 
             wounded_paw_gambit.AddComponents(Helpers.CreateAddFact(ranged_toggle),

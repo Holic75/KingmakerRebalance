@@ -328,7 +328,7 @@ namespace CallOfTheWild.TeamworkMechanics
     public class ProvokeAttackFromFactOwners : ContextAction
     {
         public BlueprintUnitFact fact;
-
+        public bool except_caster;
 
         public override string GetCaption()
         {
@@ -339,7 +339,7 @@ namespace CallOfTheWild.TeamworkMechanics
         {
             foreach (UnitEntityData attacker in this.Target.Unit.CombatState.EngagedBy)
             {
-                if (attacker.Descriptor.HasFact(this.fact) && attacker != this.Context.MaybeCaster)
+                if (attacker.Descriptor.HasFact(this.fact) && (attacker != this.Context.MaybeCaster || !except_caster))
                 {
                     Kingmaker.Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(attacker, this.Target.Unit);
                 }
@@ -357,6 +357,7 @@ namespace CallOfTheWild.TeamworkMechanics
         public Feet distance;
         public bool require_swift_action;
         public bool allow_engaged;
+        public bool except_caster;
 
 
         public override string GetCaption()
@@ -374,6 +375,7 @@ namespace CallOfTheWild.TeamworkMechanics
                     && (!attacker.CombatState.IsEngage(attacker) || allow_engaged) && attacker.CombatState.CanAttackOfOpportunity
                     && attacker.CanAttack(this.Target.Unit) && (attacker?.Body.PrimaryHand?.MaybeWeapon?.Blueprint?.IsRanged).GetValueOrDefault()
                     && (attacker.CombatState.Cooldown.SwiftAction == 0.0f || !require_swift_action)
+                    && (attacker != Context?.MaybeCaster || !except_caster) 
                     )
                 {
                     if (require_swift_action)
