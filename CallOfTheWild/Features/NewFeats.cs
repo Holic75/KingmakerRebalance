@@ -2024,7 +2024,7 @@ namespace CallOfTheWild
 
 
             var ranged_buff = Helpers.CreateBuff("WoundedPawGambitBuff",
-                                                 wounded_paw_gambit.Name,
+                                                 wounded_paw_gambit.Name + ": Allow Attack",
                                                  wounded_paw_gambit.Description,
                                                  "",
                                                  wounded_paw_gambit.Icon,
@@ -2287,7 +2287,87 @@ namespace CallOfTheWild
             Common.addTemworkFeats(swarm_scatter);
         }
 
+
         static void createTargetOfOpportunity()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/TargetOfOpportunity.png");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("7ced0efa297bd5142ab749f6e33b112b", "AuraTargetOfOpportunityArea", "");
+
+            area.Size = 60.Feet(); //to allow working with solo tactics (should normally be max_weapon range + 30 feet though ~ 80 feet)
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("c96380f6dcac83c45acdb698ae70ffc4", "AuraTargetOfOpportunityBuff", "");
+            buff.ReplaceComponent<AddAreaEffect>(a => a.AreaEffect = area);
+
+            target_of_opportunity = library.CopyAndAdd<BlueprintFeature>("e45ab30f49215054e83b4ea12165409f", "TargetOfOpportunityFeature", "");
+            target_of_opportunity.SetName("Target of Opportunity");
+            target_of_opportunity.SetDescription("When an ally who also has this feat makes a ranged attack and hits an opponent within 30 feet of you, you can spend a swift action to make a single ranged attack against that opponent.");
+            target_of_opportunity.SetIcon(icon);
+            target_of_opportunity.RemoveComponents<SpellImmunityToSpellDescriptor>();
+            target_of_opportunity.RemoveComponents<BuffDescriptorImmunity>();
+            target_of_opportunity.Groups = new FeatureGroup[] { FeatureGroup.Feat, FeatureGroup.CombatFeat, FeatureGroup.TeamworkFeat };
+            target_of_opportunity.ReplaceComponent<AuraFeatureComponent>(a => a.Buff = buff);
+
+            var prevent_buff = Helpers.CreateBuff("TargetOfOpportunityTargetBuff",
+                                 target_of_opportunity.Name,
+                                 "",
+                                 "d7eb0196942a4f1390524764e3c6a35b",
+                                 icon,
+                                 null
+                                 );
+
+            var apply_prevent_buff = Common.createContextActionApplyBuff(prevent_buff, Helpers.CreateContextDuration(1), dispellable: false);
+            prevent_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var ally_buff = Helpers.CreateBuff("TargetOfOpportunityTargetAllyBuff",
+                                     target_of_opportunity.Name + ": Allow Attack",
+                                     target_of_opportunity.Description,
+                                     "4665c81435d7454ab5332e94f90ddc93",
+                                     icon,
+                                     null
+                                     );
+
+            var ally_toggle = Common.buffToToggle(ally_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
+            
+            var effect = Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p =>
+            {
+                p.fact = ally_buff;
+                p.no_fact = prevent_buff;
+                p.require_swift_action = true;
+                p.allow_engaged = true;
+                p.distance = 30.Feet();
+            });
+
+            var attacker_buff = Helpers.CreateBuff("TargetOfOpportunityAttackerBuff",
+                                                   target_of_opportunity.Name,
+                                                   "",
+                                                   "bd746cc26435433197790f2a75e05e2d",
+                                                   null,
+                                                   null,
+                                                   Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_prevent_buff), on_initiator: true, check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                   Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                   Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionRemoveBuff(prevent_buff)), on_initiator: true, check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged)
+                                                   );
+            attacker_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            area.ReplaceComponent<AbilityAreaEffectBuff>(a => { a.Buff = attacker_buff;
+                                                                a.Condition = Helpers.CreateConditionsCheckerOr(Common.createContextConditionIsCaster(),
+                                                                                                                Helpers.Create<TeamworkMechanics.ContextConditionCasterHasSoloTactics>()
+                                                                                                                );
+                                                              }
+                                                        );
+          
+            target_of_opportunity.AddComponents(Helpers.CreateAddFact(ally_toggle),
+                                                Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
+                                                Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"))
+                                               );
+
+            library.AddCombatFeats(target_of_opportunity);
+            Common.addTemworkFeats(target_of_opportunity);
+        }
+
+
+        static void createTargetOfOpportunityOld()
         {
             var icon = LoadIcons.Image2Sprite.Create(@"FeatIcons/TargetOfOpportunity.png");
 
@@ -2310,7 +2390,7 @@ namespace CallOfTheWild
             var target_buff = Helpers.CreateBuff("TargetOfOpportunityTargetBuff",
                                              target_of_opportunity.Name + " Target",
                                              "",
-                                             "",
+                                             "d7eb0196942a4f1390524764e3c6a35b",
                                              icon,
                                              null
                                              );
@@ -2319,14 +2399,14 @@ namespace CallOfTheWild
             var ally_buff = Helpers.CreateBuff("TargetOfOpportunityTargetAllyBuff",
                                  target_of_opportunity.Name,
                                  "",
-                                 "",
+                                 "4665c81435d7454ab5332e94f90ddc93",
                                  icon,
                                  null
                                  );
             //ally_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var apply_ally_buff = Common.createContextActionApplyBuff(ally_buff, Helpers.CreateContextDuration(1), dispellable: false);
 
-            var attack = Common.createAttackAbility("TargetOfOpportunityAttackAbility", target_of_opportunity.Name, target_of_opportunity.Description, "",
+            var attack = Common.createAttackAbility("TargetOfOpportunityAttackAbility", target_of_opportunity.Name, target_of_opportunity.Description, "d623647d785a4e72ad1d313c3c704e8f",
                                                     icon, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
                                                     Common.createAbilityCasterMainWeaponCheck(Common.getRangedWeaponCategories()),
                                                     Common.createAbilityTargetHasFact(false, target_buff),
@@ -2351,7 +2431,7 @@ namespace CallOfTheWild
             var attacker_buff = Helpers.CreateBuff("TargetOfOpportunityAttackerBuff",
                                                    "TargetOfOpportunityAttackerBuff",
                                                    "",
-                                                   "",
+                                                   "bd746cc26435433197790f2a75e05e2d",
                                                    null,
                                                    null,
                                                    Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_target_buff, actions_on_ally1), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),

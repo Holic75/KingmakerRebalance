@@ -234,7 +234,25 @@ namespace CallOfTheWild.TeamworkMechanics
     }
 
 
+    public class ContextConditionCasterHasSoloTactics : ContextCondition
+    {
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
 
+        protected override bool CheckCondition()
+        {
+            var unit = this.Context?.MaybeCaster;
+            if (unit == null)
+            {
+                return false;
+            }
+
+            //Main.logger.Log($"{(bool)unit.Descriptor.State.Features.SoloTactics} " + unit.CharacterName);
+            return (bool)unit.Descriptor.State.Features.SoloTactics;
+        }
+    }
 
 
     public class ContextConditionHasSoloTactics : ContextCondition
@@ -335,8 +353,10 @@ namespace CallOfTheWild.TeamworkMechanics
     public class ProvokeRangedAttackFromFactOwners : ContextAction
     {
         public BlueprintUnitFact fact;
+        public BlueprintUnitFact no_fact;
         public Feet distance;
         public bool require_swift_action;
+        public bool allow_engaged;
 
 
         public override string GetCaption()
@@ -349,7 +369,9 @@ namespace CallOfTheWild.TeamworkMechanics
             foreach (UnitEntityData attacker in GameHelper.GetTargetsAround(this.Target.Unit.Position, distance.Meters, false, false))
             {
                 if (attacker.Descriptor.HasFact(this.fact) 
-                    && !attacker.CombatState.IsEngage(attacker) && attacker.CombatState.CanAttackOfOpportunity
+                    && attacker.Descriptor.State.CanAct
+                    && (no_fact == null || !attacker.Descriptor.HasFact(no_fact))
+                    && (!attacker.CombatState.IsEngage(attacker) || allow_engaged) && attacker.CombatState.CanAttackOfOpportunity
                     && attacker.CanAttack(this.Target.Unit) && (attacker?.Body.PrimaryHand?.MaybeWeapon?.Blueprint?.IsRanged).GetValueOrDefault()
                     && (attacker.CombatState.Cooldown.SwiftAction == 0.0f || !require_swift_action)
                     )
