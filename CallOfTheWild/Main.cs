@@ -256,6 +256,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixElementalArcana();
                     CallOfTheWild.Rebalance.fixPenetratingStrike();
                     CallOfTheWild.Rebalance.fixRangerQuarryCooldown();
+                    CallOfTheWild.Rebalance.addMonkFlawlessMind();
 
                     if (settings.secondary_rake_attacks)
                     {

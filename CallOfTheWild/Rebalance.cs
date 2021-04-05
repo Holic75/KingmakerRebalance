@@ -61,6 +61,8 @@ namespace CallOfTheWild
         static public BlueprintAbility aid_self_free;
         static public BlueprintBuff quarry_cooldown_buff;
 
+        static public BlueprintFeature flawless_mind;
+
         static internal void createAidAnother()
         {
             var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
@@ -179,6 +181,28 @@ namespace CallOfTheWild
             scaled_fist_ac.SetDescription("");
         }
 
+
+        static internal void addMonkFlawlessMind()
+        {
+            flawless_mind = Helpers.CreateFeature("MonkFlawlessMindFeature",
+                                                  "Flawless Mind",
+                                                  "At 19th level, a monk gains total control over his mental faculties. Whenever he attempts a Will save, he can roll twice and take the better result.",
+                                                  "",
+                                                  Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<NewMechanics.ModifyD20WithActions>(m =>
+                                                  {
+                                                      m.actions = null;
+                                                      m.Rule = NewMechanics.ModifyD20WithActions.RuleType.SavingThrow;
+                                                      m.TakeBest = true;
+                                                      m.m_SavingThrowType = NewMechanics.ModifyD20WithActions.InnerSavingThrowType.Will;
+
+                                                  }
+                                                  )
+                                                  );
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            monk.Progression.LevelEntries.FirstOrDefault(l => l.Level == 19).Features.Add(flawless_mind);
+        }
 
         static internal void fixRangerQuarryCooldown()
         {

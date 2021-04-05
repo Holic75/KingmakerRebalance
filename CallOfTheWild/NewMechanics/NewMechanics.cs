@@ -7710,8 +7710,10 @@ namespace CallOfTheWild
                 if (evt.Result == 20 && this.DispellOn20 || this.DispellOnRerollFinished)
                     this.Owner.RemoveFact(this.Fact);
                 this.m_Roll = (RuleRollD20)null;
-
-                (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, this.Owner.Unit);
+                if (this.actions != null)
+                {
+                    (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions, this.Owner.Unit);
+                }
             }
 
             private bool CheckRule(RulebookEvent rule)
