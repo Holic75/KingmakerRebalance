@@ -359,6 +359,11 @@ namespace CallOfTheWild
             Common.addSpellDescriptor(castigate, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
             Common.addSpellDescriptor(castigate_mass, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
             Common.addSpellDescriptor(castigate_buff, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+
+            var inspiring_command = library.Get<BlueprintAbility>("2972215a5367ae44b8ddfe435a127a6e");
+            var inspiring_command_buff = library.Get<BlueprintBuff>("a78a13e8b6fbae1459faad20eb3ecc72");
+            Common.addSpellDescriptor(inspiring_command, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+            Common.addSpellDescriptor(inspiring_command_buff, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
         }
 
         internal static void fixFeyStalkerSummonBuff()
@@ -1886,7 +1891,6 @@ namespace CallOfTheWild
 
         internal static void fixDomainSpells()
         {
-            //lvl 4 heling domain should be cure critical wounds
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 5, "WeatherDomain"); //ice storm
             Common.replaceSpellFromListWithDuplicate(library.Get<BlueprintSpellList>("eba577470b8ee8443bb4552433451990"), 7, "WeatherDomain"); //fire storm
 
@@ -1897,7 +1901,10 @@ namespace CallOfTheWild
             //lvl 4 death domain spell should be death ward
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("710d8c959e7036448b473ffa613cdeba"), library.Get<BlueprintAbility>("0413915f355a38146bc6ad40cdf27b3f"), 4);
             //lvl 4 helaing domain spell should be cure critical wounds
-           // Common.replaceDomainSpell(library.Get<BlueprintProgression>("b0a26ee984b6b6945b884467aa2f1baa"), library.Get<BlueprintAbility>("41c9016596fe1de4faf67425ed691203"), 4);
+            // Common.replaceDomainSpell(library.Get<BlueprintProgression>("b0a26ee984b6b6945b884467aa2f1baa"), library.Get<BlueprintAbility>("41c9016596fe1de4faf67425ed691203"), 4);
+
+            //6th level good domain spell should be blade barrier
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4"), library.Get<BlueprintAbility>("36c8971e91f1745418cc3ffdfac17b74"), 6);
         }
 
         internal static void fixStalwartDefender()

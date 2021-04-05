@@ -3438,8 +3438,15 @@ namespace CallOfTheWild
             var spell_list = domain_progression.GetComponent<LearnSpellList>().SpellList;
             var spells = spell_list.SpellsByLevel.First(s => s.SpellLevel == level).Spells;
             var old_spell = spells[0];
-
-            var new_description = domain_progression.Description.Replace(old_spell.Name, new_spell.Name);
+            string new_description = "";
+            if (level < 9)
+            {
+                new_description = domain_progression.Description.Replace(old_spell.Name + ",", new_spell.Name + ",");
+            }
+            else
+            {
+                new_description = domain_progression.Description.Replace(old_spell.Name, new_spell.Name);
+            }
             var old_description = domain_progression.Description;
             var blueprints = library.GetAllBlueprints().OfType<BlueprintProgression>().Where(f => f.Description == old_description).ToArray();
             foreach (var b in blueprints)

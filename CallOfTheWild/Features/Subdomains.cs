@@ -75,7 +75,8 @@ namespace CallOfTheWild
 
         static public BlueprintProgression curse_domain;
         static public BlueprintProgression curse_domain_secondary;
-
+        static public BlueprintProgression good_archon_domain;
+        static public BlueprintProgression good_archon_domain_secondary;
         public static void load()
         {
             createStormsDomain();
@@ -83,6 +84,61 @@ namespace CallOfTheWild
             createRestorationDomain();
             createRageDomain();
             createCurseSubdomain();
+            createArchonSubdomain();
+        }
+
+
+        static void createArchonSubdomain()
+        {
+            var icon = Helpers.GetIcon("a0bc0525895932b42bfd47f1544e6e35"); //archons aura buff
+
+            var resource = Helpers.CreateAbilityResource("ArchonSubdomainAuraOfMenaceResource", "", "", "", null);
+            resource.SetIncreasedByLevel(0, 1, new BlueprintCharacterClass[] { cleric_class, inquisitor_class });
+
+            var buff = library.Get<BlueprintBuff>("a0bc0525895932b42bfd47f1544e6e35");
+
+            var area_buff = Common.createBuffAreaEffect(buff, 30.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()), "ArchonSubdomainArea");
+            area_buff.SetNameDescriptionIcon("Aura of Menace",
+                                             "At 8th level, you can emit a 30-foot aura of menace as a standard action. Enemies in this aura take a –2 penalty to AC and on attacks and saves as long as they remain inside the aura. You can use this ability for a number of rounds per day equal to your cleric level. These rounds do not need to be consecutive.",
+                                             icon);
+
+            var toggle = Common.buffToToggle(area_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard, false,
+                                             Helpers.CreateActivatableResourceLogic(resource, ActivatableAbilityResourceLogic.ResourceSpendType.NewRound));
+
+            var good_domain = library.Get<BlueprintProgression>("243ab3e7a86d30243bdfe79c83e6adb4");
+            var good_domain_secondary = library.Get<BlueprintProgression>("efc4219c7894afc438180737adc0b7ac");
+
+            var good_domain_greater = library.Get<BlueprintFeature>("c90f8979927db4b4fbf6159297e01af8");
+            var feature = Common.ActivatableAbilityToFeature(toggle, false);
+            feature.AddComponent(resource.CreateAddAbilityResource());
+
+            var spell_list = library.CopyAndAdd<BlueprintSpellList>("dc242eb60eed94a4eb0640d773780090", "ArchonGoodSubdomainSpellList", "");
+            Common.excludeSpellsFromList(spell_list, a => false);
+            good_archon_domain = createSubdomain("ArchonGoodSubdomain", "Archon (Good) Subdomain",
+                                               "You have pledged your life and soul to goodness and purity.\n" +
+                                               "Touch of Good: You can touch a creature as a standard action, granting a sacred bonus on attack rolls, skill checks, ability checks, and saving throws equal to half your level in the class that gave you access to this domain(minimum 1) for 1 round. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\n" +
+                                               $"{toggle.Name}: {toggle.Description}\n" +                                              
+                                               "Domain Spells: Divine Favor, Protection from Evil Communal, Prayer, Forced Repentance, Burst of Glory, Summon Monster VI, Holy Word, Holy Aura, Summon Monster IX.",
+                                               good_domain,
+                                               new BlueprintFeature[] { good_domain_greater },
+                                               new BlueprintFeature[] { feature },
+                                               spell_list
+                                               );
+            var law_domain_allowed = library.Get<BlueprintFeature>("092714336606cfc45a37d2ab39fabfa8");
+            Common.replaceDomainSpell(good_archon_domain, library.Get<BlueprintAbility>("9d5d2d3ffdd73c648af3eb3e585b1113"), 1); //divine favor
+            Common.replaceDomainSpell(good_archon_domain, library.Get<BlueprintAbility>("e740afbab0147944dab35d83faa0ae1c"), 6); //summon monster 6
+            good_archon_domain.AddComponents(Helpers.PrerequisiteNoFeature(good_domain), Helpers.PrerequisiteFeature(law_domain_allowed));
+
+            good_archon_domain_secondary = library.CopyAndAdd(good_archon_domain, "ArchonGoodSubdomainSecondaryProgression", "");
+            good_archon_domain_secondary.RemoveComponents<LearnSpellList>();
+
+            good_archon_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain),
+                                                 Helpers.PrerequisiteNoFeature(good_domain),
+                                                 Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
+            good_archon_domain.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
+
+            cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(good_archon_domain);
+            cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(good_archon_domain_secondary);
         }
 
 
@@ -215,7 +271,7 @@ namespace CallOfTheWild
                                    "You revel in ruin and devastation, and can deliver particularly destructive attacks.\n"
                                    + "Destructive Smite: You gain the the supernatural ability to make a melee attack with a morale bonus on damage rolls equal to 1/2 your level in the class that gave you access to this domain (minimum 1).\n"
                                    + feature.Name + ": " + feature.Description + "\n"
-                                   + "Domain Spells: True Strike, Boneshaker, Rage, Fear, Boneshatter, Harm, Disintegrate, Horrid Wilting, Tsunami.",
+                                   + "Domain Spells: True Strike, Boneshaker, Rage, Fear, Boneshatter, Harm, Disintegrate, Horrid Wilting, Implosion.",
                                    destruction_domain,
                                    new BlueprintFeature[] { destruction_domain_greater },
                                    new BlueprintFeature[] { feature },

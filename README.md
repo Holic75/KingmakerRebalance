@@ -212,7 +212,10 @@ Subdomains:
 - Undead,
 - Lightning,
 - Storms,
-- Restoration.
+- Restoration,
+- Curse,
+- Rage,
+- Archon (Good).
 
 
 New Wild Talents:

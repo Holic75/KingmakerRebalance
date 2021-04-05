@@ -935,7 +935,9 @@ namespace CallOfTheWild
                                                                         Helpers.LevelEntry(18, hunter_teamwork_feat)
                                                                        };
             var diety_selection = library.Get<BlueprintFeatureSelection>("59e7a76987fe3b547b9cce045f4db3e4");
-            var domain_selection = library.Get<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9");
+            var domain_selection = library.CopyAndAdd<BlueprintFeatureSelection>("48525e5da45c9c243a343fc6545dbdb9", "DivineHunterDomainSelection", "9a8c8fc2cf1044789b778b287106f9ef");
+            domain_selection.SetDescription("At 1st level, a divine hunter learns to call upon the power of her deity. The divine hunter must select one domain from those available to her deity. She gains the granted powers of this domain, using her hunter level as her cleric level for determining when the powers are gained and what effects they have. Once she chooses this domain, it cannot be changed.\n"
+                + "In addition, the divine hunter adds the 1st-level to 6-th level domain spells from her domain to her list of spells known.") ;
             //add divine_hunter to all domains
             //this will make hunter receive all domain bonuses starting from level 1 which will be a bit stronger than pnp version, but way simpler to implement
             ClassToProgression.addClassToDomains(hunter_class, new BlueprintArchetype[] { divine_hunter_archetype }, ClassToProgression.DomainSpellsType.NormalList, domain_selection, cleric);
