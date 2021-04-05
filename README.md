@@ -94,7 +94,7 @@ New feats:
 - Swarm Scatter,
 - Bonded Mind and Share Spell,
 - Extended Bane,
-- Broken Wing Gambit,
+- Broken Wing Gambit and Wounded Paw Gambit,
 - Hurtful,
 - Dazing Assault,
 - Stunning Assault,
@@ -212,7 +212,10 @@ Subdomains:
 - Undead,
 - Lightning,
 - Storms,
-- Restoration.
+- Restoration,
+- Curse,
+- Rage,
+- Archon (Good).
 
 
 New Wild Talents:
@@ -230,7 +233,7 @@ New Wild Talents:
 - Windsight,
 - Smoke Storm,
 - Energize weapon,
-- Kinetic Fist
+- Kinetic Fist.
 
 
 New Alchemist Discoveries:
@@ -471,7 +474,8 @@ New spells:
 - Suffocate Mass,
 - Time Stop,
 - Winds of Vengeance,
-- Shades.
+- Shades,
+- Implosion.
 
 New Ki Powers:
 - Burst of Adrenaline,
@@ -621,7 +625,7 @@ Notable differences from pnp:
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
-- Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist arcanist spells
+- Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist spells
 - Two-Weapon fighting automatically give iterative off-hand attacks once your BAB reaches 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
 - Vital Strike multiplier automatically scales to 3 when your BAB reaches 11 and to 4 when your BAB reaches 16, Improved Vital Strike and Greater Vital Strike are removed from the game
 - Cleave and Greater Cleave are merged into one feat
@@ -630,8 +634,9 @@ Optional balance fixes:
 - Fey/Infernal bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
 - Potent Magic arcane exploit is removed from the game
 - Precise Shot no longer requires Point-Blank Shot
-- Damage of basic domain/school powers scales a bit better
-- Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6).
+- Damage of basic domain/school/bloodline powers scales a bit better
+- Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),
+- Arcanist receives arcane exploits only at lvls 1, 3, 6, 9, 12, 15 and 18; exploiter wizard - at lvls 1, 6, 12 and 18.
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

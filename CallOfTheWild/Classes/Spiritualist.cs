@@ -1376,7 +1376,8 @@ namespace CallOfTheWild
                                                               "",
                                                               NewSpells.fleshworm_infestation.Icon,
                                                               null,
-                                                              Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.SpellCastingIsDifficult)
+                                                              Helpers.Create<AddCondition>(a => a.Condition = UnitCondition.SpellCastingIsDifficult),
+                                                              Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                                               );
 
             var spell_scourge_aura_buff = Helpers.CreateBuff("SpellScourgeAuraEffectBuff",

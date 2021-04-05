@@ -291,20 +291,18 @@ namespace CallOfTheWild
         static public BlueprintAbility weapon_of_awe;
         static public BlueprintAbility allied_cloak;
 
-        static public BlueprintAbility miracle;
+        static public BlueprintAbility implosion;
 
+        static public BlueprintAbility miracle;
 
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
         //condensed ether ?
-
-        //allied cloak
-        //implosion
+     
         //blood rage
         //etheric shards
         //tactical acumen
-        //weapon of awe
         //flaming sphere (greater)
 
         static public void load()
@@ -499,9 +497,111 @@ namespace CallOfTheWild
             createWeaponOfAwe();
             createAlliedCloak();
 
-
-
+            createImplosion();
             //createMiracle();
+        }
+
+        static void createImplosion()
+        {
+            var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Implosion.png");
+            var cooldown_buff = Helpers.CreateBuff("ImplosionCooldownBuff",
+                                                   "Implosion: Cooldown",
+                                                   "",
+                                                   "",
+                                                   null,
+                                                   null,
+                                                   Helpers.Create<BuffMechanics.StoreBuff>()
+                                                   );
+            var apply_cooldown = Common.createContextActionApplyBuff(cooldown_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
+            cooldown_buff.Stacking = StackingType.Stack;
+
+
+            var watcher_buff = Helpers.CreateBuff("ImplosionWatcherBuff",
+                                       "",
+                                       "",
+                                       "",
+                                       null,
+                                       null,
+                                       Helpers.Create<BuffMechanics.StoreBuff>()
+                                       );
+            watcher_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            watcher_buff.Stacking = StackingType.Summ;
+            var pronlong_watcher_buff = Common.createContextActionApplyBuffToCaster(watcher_buff, Helpers.CreateContextDuration(), duration_seconds: 6, dispellable: false);
+
+            var dmg = Helpers.CreateActionDealDirectDamage(Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.DamageBonus)));
+            var implosion_ability = Helpers.CreateAbility("ImplosionAbility",
+                                                          "Implosion",
+                                                          "This spell causes a destructive resonance in a corporeal creature’s body. Each round you concentrate (including the first), you can cause one creature to collapse in on itself, inflicting 10 points of damage per caster level. If you break concentration, the spell immediately ends, though any implosions that have already happened remain in effect. You can target a particular creature only once with each casting of the spell. Implosion has no effect on creatures in gaseous form or on incorporeal creatures.",
+                                                          "",
+                                                          icon,
+                                                          AbilityType.Spell,
+                                                          UnitCommand.CommandType.Standard,
+                                                          AbilityRange.Close,
+                                                          "",
+                                                          Helpers.fortNegates,
+                                                          Helpers.CreateRunActions(apply_cooldown,
+                                                                                   Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, dmg))
+                                                                                   ),
+                                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, type: AbilityRankType.DamageBonus,
+                                                                                          progression: ContextRankProgression.MultiplyByModifier, stepLevel: 10),
+                                                          Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                          Common.createAbilityTargetHasFact(inverted: true, cooldown_buff),
+                                                          Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal),
+                                                          Common.createAbilityTargetHasFact(inverted: true, library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775")),//subtype air
+                                                          Common.createAbilityDeliverProjectile(AbilityProjectileType.Simple, library.Get<BlueprintProjectile>("e093b08cd4cafe946962b339faf2310a"), 
+                                                                                               0.Feet(), 5.Feet()),
+                                                          Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(pronlong_watcher_buff))
+                                                          );
+            implosion_ability.AvailableMetamagic = Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            implosion_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            implosion_ability.SpellResistance = true;
+
+            var buff = Helpers.CreateBuff("ImplosionBuff",
+                                           "",
+                                           "",
+                                           "",
+                                           null,
+                                           null,
+                                           Helpers.CreateAddFactContextActions(activated: Common.createContextActionApplyBuffToCaster(watcher_buff, Helpers.CreateContextDuration(), duration_seconds: 6, dispellable: false, is_child: true),
+                                                                               deactivated: Helpers.Create<BuffMechanics.RemoveStoredBuffs>(r => r.buff = cooldown_buff)),
+                                           Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = implosion_ability),
+                                           Helpers.CreateAddFact(implosion_ability)
+                                           );
+            watcher_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Common.createContextActionRemoveBuff(buff)));
+
+            implosion = Helpers.CreateAbility("ImplosionSpellAbility",
+                                                  "Implosion",
+                                                  "This spell causes a destructive resonance in a corporeal creature’s body. Each round you concentrate (including the first), you can cause one creature to collapse in on itself, inflicting 10 points of damage per caster level. If you break concentration, the spell immediately ends, though any implosions that have already happened remain in effect. You can target a particular creature only once with each casting of the spell. Implosion has no effect on creatures in gaseous form or on incorporeal creatures.",
+                                                  "",
+                                                  icon,
+                                                  AbilityType.Spell,
+                                                  UnitCommand.CommandType.Standard,
+                                                  AbilityRange.Close,
+                                                  "Concentration (up to 1 round per 2 levels)",
+                                                  Helpers.fortNegates,
+                                                  Helpers.CreateRunActions(Helpers.Create<ContextActionCastSpell>(c => c.Spell = implosion_ability)
+                                                                           ),
+                                                  Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, type: AbilityRankType.DamageBonus),
+                                                  Helpers.CreateContextRankConfig(progression: ContextRankProgression.Div2),
+                                                  Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                  Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal),
+                                                  Common.createAbilityTargetHasFact(inverted: true, library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775")),//subtype air                                                 
+                                                  Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(watcher_buff),
+                                                                                                                                                             Common.createContextActionApplyBuffToCaster(buff, 
+                                                                                                                                                                                                         Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
+                                                                                                                                                                                                         is_from_spell: true)
+                                                                                                                                                             )
+                                                                                                                  )
+                                                                                          )
+                                                 );
+            implosion.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+            implosion.SpellResistance = true;
+            implosion.AvailableMetamagic = implosion_ability.AvailableMetamagic | Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.RollSpellResistanceTwice;
+
+            implosion.AddToSpellList(Helpers.clericSpellList, 9);
+
+            implosion.AddSpellAndScroll("570883a3ac4f25c43adf6574f0990005"); //destruction
+            Common.replaceDomainSpell(library.Get<BlueprintProgression>("269ff0bf4596f5248864bc2653a2f0e0"), implosion, 9); //instead of tsunami for destruction domain
         }
 
 

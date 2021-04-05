@@ -984,8 +984,7 @@ namespace CallOfTheWild
                                            null,
                                            Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.NaturalArmor),
                                            Common.createEmptyHandWeaponOverride(claw1d6),
-                                           Common.createAddAdditionalLimb(bite1d6)
-                                           
+                                           Common.createAddAdditionalLimb(bite1d6)                                        
                                            );
 
             var ability0 = replaceForm(wildshape_wolf, buff0, buff0.name + "Ability", buff0.Name, buff0.Description);

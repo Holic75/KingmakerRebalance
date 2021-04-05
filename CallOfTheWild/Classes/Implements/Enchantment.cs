@@ -104,7 +104,7 @@ namespace CallOfTheWild
 
             ability.SetNameDescription("Obey",
                                        "As a standard action, you can issue a command to one living creature by expending 1 point of mental focus.\n"
-                                       + "This functions as command.The target must be within 30 feet and capable of understanding your order.The target can attempt a Will save to negate this effect.If the creature is the same creature type as you, it takes a –2 penalty on this saving throw."
+                                       + "This functions as command.The target must be within 30 feet and capable of understanding your order. The target can attempt a Will save to negate this effect. If the creature is the same creature type as you, it takes a –2 penalty on this saving throw."
                                        );
 
             string[] names = { "Halt", "Fall", "Run" };

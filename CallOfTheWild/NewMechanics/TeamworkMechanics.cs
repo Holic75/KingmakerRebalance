@@ -6,6 +6,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
 using Kingmaker.PubSubSystem;
+using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
 using Kingmaker.UnitLogic;
@@ -233,7 +234,25 @@ namespace CallOfTheWild.TeamworkMechanics
     }
 
 
+    public class ContextConditionCasterHasSoloTactics : ContextCondition
+    {
+        protected override string GetConditionCaption()
+        {
+            return string.Empty;
+        }
 
+        protected override bool CheckCondition()
+        {
+            var unit = this.Context?.MaybeCaster;
+            if (unit == null)
+            {
+                return false;
+            }
+
+            //Main.logger.Log($"{(bool)unit.Descriptor.State.Features.SoloTactics} " + unit.CharacterName);
+            return (bool)unit.Descriptor.State.Features.SoloTactics;
+        }
+    }
 
 
     public class ContextConditionHasSoloTactics : ContextCondition
@@ -309,7 +328,7 @@ namespace CallOfTheWild.TeamworkMechanics
     public class ProvokeAttackFromFactOwners : ContextAction
     {
         public BlueprintUnitFact fact;
-
+        public bool except_caster;
 
         public override string GetCaption()
         {
@@ -320,9 +339,53 @@ namespace CallOfTheWild.TeamworkMechanics
         {
             foreach (UnitEntityData attacker in this.Target.Unit.CombatState.EngagedBy)
             {
-                if (attacker.Descriptor.HasFact(this.fact) && attacker != this.Context.MaybeCaster)
+                if (attacker.Descriptor.HasFact(this.fact) && (attacker != this.Context.MaybeCaster || !except_caster))
                 {
                     Kingmaker.Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(attacker, this.Target.Unit);
+                }
+            }
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class ProvokeRangedAttackFromFactOwners : ContextAction
+    {
+        public BlueprintUnitFact fact;
+        public BlueprintUnitFact no_fact;
+        public Feet distance;
+        public bool require_swift_action;
+        public bool allow_engaged;
+        public bool except_caster;
+
+
+        public override string GetCaption()
+        {
+            return string.Empty;
+        }
+
+        public override void RunAction()
+        {
+            foreach (UnitEntityData attacker in GameHelper.GetTargetsAround(this.Target.Unit.Position, distance.Meters, false, false))
+            {
+                if (attacker.Descriptor.HasFact(this.fact) 
+                    && attacker.Descriptor.State.CanAct
+                    && (no_fact == null || !attacker.Descriptor.HasFact(no_fact))
+                    && (!attacker.CombatState.IsEngage(attacker) || allow_engaged) && attacker.CombatState.CanAttackOfOpportunity
+                    && attacker.CanAttack(this.Target.Unit) && (attacker?.Body.PrimaryHand?.MaybeWeapon?.Blueprint?.IsRanged).GetValueOrDefault()
+                    && (attacker.CombatState.Cooldown.SwiftAction == 0.0f || !require_swift_action)
+                    && (attacker != Context?.MaybeCaster || !except_caster) 
+                    )
+                {
+                    if (require_swift_action)
+                    {
+                        attacker.CombatState.Cooldown.SwiftAction += 6.0f;
+                    }
+                    RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(attacker, this.Target.Unit, attacker?.Body.PrimaryHand?.MaybeWeapon, 0);
+                    attackWithWeapon.Reason = (RuleReason)this.Context;
+                    RuleAttackWithWeapon rule = attackWithWeapon;
+                    this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
                 }
             }
         }

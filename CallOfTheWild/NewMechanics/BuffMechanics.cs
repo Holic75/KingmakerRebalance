@@ -24,7 +24,7 @@ namespace CallOfTheWild.BuffMechanics
             buffs.RemoveAll(b => b.Blueprint == buff);
             foreach (var b in found_buffs)
             {
-                b.Remove();
+                b?.Remove();
             }
             
         }
