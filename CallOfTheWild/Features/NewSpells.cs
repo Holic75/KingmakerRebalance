@@ -548,7 +548,8 @@ namespace CallOfTheWild
                                                           Common.createAbilityTargetHasFact(inverted: true, cooldown_buff),
                                                           Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal),
                                                           Common.createAbilityTargetHasFact(inverted: true, library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775")),//subtype air
-                                                          library.Get<BlueprintAbility>("3b646e1db3403b940bf620e01d2ce0c7").GetComponent<AbilitySpawnFx>(),
+                                                          Common.createAbilityDeliverProjectile(AbilityProjectileType.Simple, library.Get<BlueprintProjectile>("e093b08cd4cafe946962b339faf2310a"), 
+                                                                                               0.Feet(), 5.Feet()),
                                                           Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(pronlong_watcher_buff))
                                                           );
             implosion_ability.AvailableMetamagic = Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
@@ -584,9 +585,7 @@ namespace CallOfTheWild
                                                   Helpers.CreateContextRankConfig(progression: ContextRankProgression.Div2),
                                                   Helpers.CreateSpellComponent(SpellSchool.Evocation),
                                                   Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal),
-                                                  Common.createAbilityTargetHasFact(inverted: true, library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775")),//subtype air
-                                                  Common.createAbilityDeliverProjectile(AbilityProjectileType.Simple, library.Get<BlueprintProjectile>("e093b08cd4cafe946962b339faf2310a"),
-                                                                                        0.Feet(), 5.Feet()),
+                                                  Common.createAbilityTargetHasFact(inverted: true, library.Get<BlueprintFeature>("dd3d0c7f4f57f304cbdbb68170b1b775")),//subtype air                                                 
                                                   Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(watcher_buff),
                                                                                                                                                              Common.createContextActionApplyBuffToCaster(buff, 
                                                                                                                                                                                                          Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)),
