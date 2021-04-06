@@ -75,7 +75,7 @@ namespace CallOfTheWild
                                                                   a.Actions = Helpers.CreateActionList(dmg);
                                                               }),
                                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Charisma),
-                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Death)
+                                                              Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Death | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Pain)
                                                               );
 
             var toggle = Common.createToggleAreaEffect(hateful_aura_effect_buff, 20.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()),

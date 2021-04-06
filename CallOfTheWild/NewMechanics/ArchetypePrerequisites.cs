@@ -96,7 +96,7 @@ namespace CallOfTheWild.ArchetypePrerequisites
         }
     }
 
-    [Harmony12.HarmonyPatch(typeof(CharacterBuildController), "SetRace", typeof(BlueprintRace))]
+    /*[Harmony12.HarmonyPatch(typeof(CharacterBuildController), "SetRace", typeof(BlueprintRace))]
     static class CharacterBuildController_SetRace_Patch
     {
         static bool Prefix(CharacterBuildController __instance, BlueprintRace race)
@@ -120,7 +120,7 @@ namespace CallOfTheWild.ArchetypePrerequisites
             }
             return true;
         }
-    }
+    }*/
 
 
     [Harmony12.HarmonyPatch(typeof(AddArchetype), "Apply", typeof(LevelUpState), typeof(UnitDescriptor))]

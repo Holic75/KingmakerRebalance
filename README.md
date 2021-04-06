@@ -636,7 +636,7 @@ Optional balance fixes:
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),
-- Arcanist receives arcane exploits only at lvls 1, 3, 6, 9, 12, 15 and 18; exploiter wizard - at lvls 1, 6, 12 and 18.
+- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19.
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

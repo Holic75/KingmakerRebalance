@@ -222,7 +222,7 @@ namespace CallOfTheWild
             }
             else
             {
-                spell_specialist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(6, arcane_exploits), Helpers.LevelEntry(12, arcane_exploits), Helpers.LevelEntry(18, arcane_exploits) };
+                spell_specialist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits), Helpers.LevelEntry(13, arcane_exploits), Helpers.LevelEntry(19, arcane_exploits) };
             }
             
 
@@ -358,7 +358,7 @@ namespace CallOfTheWild
             }
             else
             {
-                collegiate_arcanist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(18, arcane_exploits) };
+                collegiate_arcanist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(10, arcane_exploits), Helpers.LevelEntry(19, arcane_exploits) };
             }
 
             collegiate_arcanist.AddFeatures = new LevelEntry[20];
@@ -371,22 +371,21 @@ namespace CallOfTheWild
             }
             collegiate_arcanist.AddFeatures[0].Features.Add(collegiate_initiate_alignment);
             //collegiate_arcanist.AddFeatures[4].Features.Add(collegiate_initiate_bonus_feat);
-
+            collegiate_arcanist.AddComponent(Common.createPrerequisiteAlignment(AlignmentMaskType.Good));
             arcanist_class.Progression.UIDeterminatorsGroup = arcanist_class.Progression.UIDeterminatorsGroup.AddToArray(collegiate_initiate_alignment);
         }
 
 
         static void createCollegiateInititateAlignment()
         {
-            var feature = Helpers.CreateFeature("CollegiateInitiateAlignmentFeature",
+            collegiate_initiate_alignment = Helpers.CreateFeature("CollegiateInitiateAlignmentFeature",
                                                 "Good Alignment",
                                                 "A Collegiate initiate must be of a good alignment.",
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.SpendResourceOnExtraArcanistSpellCast >(s => { s.half_level = true; s.resource = arcane_reservoir_resource; }),
-                                                Common.createPrerequisiteAlignment(AlignmentMaskType.Good));
-            collegiate_initiate_alignment = Common.featureToSelection(feature, false);
+                                                Helpers.Create<SpellManipulationMechanics.SpendResourceOnExtraArcanistSpellCast >(s => { s.half_level = true; s.resource = arcane_reservoir_resource; }));
+            var collegiate_initiate_alignment_selection = Common.featureToSelection(collegiate_initiate_alignment, false);
         }
 
 
@@ -501,9 +500,9 @@ namespace CallOfTheWild
             else
             {
                 exploiter_wizard_archetype.AddFeatures = exploiter_wizard_archetype.AddFeatures.AddToArray(
-                                                                           Helpers.LevelEntry(6, arcane_exploits_wizard),
-                                                                           Helpers.LevelEntry(12, arcane_exploits_wizard),
-                                                                           Helpers.LevelEntry(18, arcane_exploits_wizard)
+                                                                           Helpers.LevelEntry(7, arcane_exploits_wizard),
+                                                                           Helpers.LevelEntry(13, arcane_exploits_wizard),
+                                                                           Helpers.LevelEntry(19, arcane_exploits_wizard)
                                                                            );
             }
 
@@ -584,7 +583,7 @@ namespace CallOfTheWild
             }
             else
             {
-                occultist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(6, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
+                occultist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
             }
             occultist.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, occultist_summon_monster[0]),
                                                         Helpers.LevelEntry(3, occultist_summon_monster[1]),
@@ -706,7 +705,7 @@ namespace CallOfTheWild
             }
             else
             {
-                school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits) };
+                school_savant_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(4, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits) };
             }
             school_savant_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, school_focus) };
 
@@ -763,7 +762,7 @@ namespace CallOfTheWild
             }
             else
             {
-                blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(3, arcane_exploits), Helpers.LevelEntry(6, arcane_exploits), Helpers.LevelEntry(9, arcane_exploits), Helpers.LevelEntry(15, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
+                blood_arcanist_archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(4, arcane_exploits), Helpers.LevelEntry(7, arcane_exploits), Helpers.LevelEntry(10, arcane_exploits), Helpers.LevelEntry(16, arcane_exploits), Helpers.LevelEntry(20, magical_supremacy) };
             }
             blood_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, bloodline_selection) };
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(bloodline_selection);
@@ -1097,23 +1096,23 @@ namespace CallOfTheWild
             {
                 arcanist_progression.LevelEntries = arcanist_progression.LevelEntries.AddToArray(
                                                                     Helpers.LevelEntry(2),
-                                                                    Helpers.LevelEntry(3, arcane_exploits),
-                                                                    Helpers.LevelEntry(4),
+                                                                    Helpers.LevelEntry(3),
+                                                                    Helpers.LevelEntry(4, arcane_exploits),
                                                                     Helpers.LevelEntry(5),
-                                                                    Helpers.LevelEntry(6, arcane_exploits),
-                                                                    Helpers.LevelEntry(7),
+                                                                    Helpers.LevelEntry(6),
+                                                                    Helpers.LevelEntry(7, arcane_exploits),
                                                                     Helpers.LevelEntry(8),
-                                                                    Helpers.LevelEntry(9, arcane_exploits),
-                                                                    Helpers.LevelEntry(10),
+                                                                    Helpers.LevelEntry(9),
+                                                                    Helpers.LevelEntry(10, arcane_exploits),
                                                                     Helpers.LevelEntry(11),
-                                                                    Helpers.LevelEntry(12, greater_arcane_exploits, arcane_exploits),
-                                                                    Helpers.LevelEntry(13),
+                                                                    Helpers.LevelEntry(12),
+                                                                    Helpers.LevelEntry(13, greater_arcane_exploits, arcane_exploits),
                                                                     Helpers.LevelEntry(14),
-                                                                    Helpers.LevelEntry(15, arcane_exploits),
-                                                                    Helpers.LevelEntry(16),
+                                                                    Helpers.LevelEntry(15),
+                                                                    Helpers.LevelEntry(16, arcane_exploits),
                                                                     Helpers.LevelEntry(17),
-                                                                    Helpers.LevelEntry(18, arcane_exploits),
-                                                                    Helpers.LevelEntry(19),
+                                                                    Helpers.LevelEntry(18),
+                                                                    Helpers.LevelEntry(19, arcane_exploits),
                                                                     Helpers.LevelEntry(20, magical_supremacy)
                                                                     );
             }
@@ -1183,7 +1182,7 @@ namespace CallOfTheWild
                                                              FeatureGroup.None);
             greater_arcane_exploits = Helpers.CreateFeature("GreateArcaneExploitsFeature",
                                                              "Greater Exploits",
-                                                             $"At {(Main.settings.balance_fixes ? "12th level and every 3" : "11th level and every 2")} levels thereafter, an arcanist can choose one of the greater exploits in place of an arcanist exploit.",
+                                                             $"At {(Main.settings.balance_fixes ? "13th level and every 3" : "11th level and every 2")} levels thereafter, an arcanist can choose one of the greater exploits in place of an arcanist exploit.",
                                                              "",
                                                              greater_icon,
                                                              FeatureGroup.None);
