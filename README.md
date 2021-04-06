@@ -360,6 +360,7 @@ New spells:
 - Force Sword,
 - Ghost Touch,
 - Ghostbane Dirge and Ghostbane Dirge, Mass,
+- Haunting Mists,
 - Ice Slick,
 - Inflict Pain and Inflict Pain Mass,
 - Mental Barrier I, II, III, IV, V,

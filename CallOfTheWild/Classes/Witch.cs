@@ -1557,6 +1557,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.flurry_of_snowballs.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
+                new Common.SpellId( NewSpells.haunting_mists.AssetGuid, 2),
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.ice_slick.AssetGuid, 2),

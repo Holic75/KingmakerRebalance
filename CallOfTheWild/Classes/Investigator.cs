@@ -771,6 +771,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "ae4d3ad6a8fda1542acf2e9bbc13d113", 2), //fox cunning
+                new Common.SpellId( NewSpells.haunting_mists.AssetGuid, 2),
                 new Common.SpellId( "fd4d9fd7f87575d47aafe2a64a6e2d8d", 2), //hideous laughter
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "41bab342089c0254ca222eb918e98cd4", 2), //hold animal

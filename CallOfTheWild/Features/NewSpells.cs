@@ -292,6 +292,7 @@ namespace CallOfTheWild
         static public BlueprintAbility allied_cloak;
 
         static public BlueprintAbility implosion;
+        static public BlueprintAbility haunting_mists;
 
         static public BlueprintAbility miracle;
 
@@ -498,8 +499,47 @@ namespace CallOfTheWild
             createAlliedCloak();
 
             createImplosion();
+            createHauntingMists();
             //createMiracle();
         }
+
+
+        static void createHauntingMists()
+        {
+            var shaken_haunting_mist = library.CopyAndAdd<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220", "ShakenHauntingMistsBuff", "");
+            var area = library.CopyAndAdd(obscuring_mist_area, "HauntingMistsArea", "");
+
+            var effect = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                         Helpers.CreateConditionalSaved(new GameAction[0],
+                                                                                        new GameAction[] {Helpers.CreateActionDealDamage(StatType.Wisdom, Helpers.CreateContextDiceValue(DiceType.D2, 1, 0)),
+                                                                                                          Common.createContextActionApplyBuff(shaken_haunting_mist, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                         }
+                                                                                        )
+                                                        );
+
+            area.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: effect, unitExit: Common.createContextActionRemoveBuffFromCaster(shaken_haunting_mist)));
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken));
+
+            haunting_mists = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "HauntingMistsAbility", "");
+            haunting_mists.SpellResistance = false;
+            haunting_mists.RemoveComponents<SpellListComponent>();
+            haunting_mists.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = area.GetComponent<SpellDescriptorComponent>().Descriptor);
+            haunting_mists.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            haunting_mists.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
+            haunting_mists.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Illusion);
+            haunting_mists.SetNameDescriptionIcon("Haunting Mists",
+                                                  "An illusion of misty vapor inhabited by shadowy shapes arises around you. It is stationary. The illusory mist obscures all sight, including darkvision, beyond 5 feet. A creature 5 feet away has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker cannot use sight to locate the target). All creatures within the mist must save or take 1d2 points of Wisdom damage and gain the shaken condition. The shaken condition lasts as long as the creature remains in the mist.",
+                                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/HauntingMist.png")
+                                                  );
+            haunting_mists.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            haunting_mists.LocalizedDuration = Helpers.minutesPerLevelDuration;
+            haunting_mists.AddToSpellList(Helpers.wizardSpellList, 2);
+            haunting_mists.AddToSpellList(Helpers.bardSpellList, 2);
+            haunting_mists.LocalizedSavingThrow = Helpers.CreateString("HauntingMists.SavingThrow", "Will partial");
+
+            haunting_mists.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+        }
+
 
         static void createImplosion()
         {
