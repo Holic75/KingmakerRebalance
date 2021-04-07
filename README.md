@@ -10,7 +10,7 @@ This is Pathfinder: Kingmaker mod.
 - Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
 - Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
 
-Mod is only expected to work with  2.08 English version of Enhanced Edition of the game.
+Mod is only expected to work with 2.08 English version of Enhanced Edition of the game.
 
 Known Issues:
 - Sometimes when playing Hunter/Summoner, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.

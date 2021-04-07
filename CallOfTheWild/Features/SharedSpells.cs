@@ -169,7 +169,9 @@ namespace CallOfTheWild
             library.Get<BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67").AddComponent(Helpers.Create<SharedSpells.CannotBeShared>()); //acid maw
             library.Get<BlueprintAbility>("90e59f4a4ada87243b7b3535a06d0638").AddComponent(Helpers.Create<SharedSpells.CannotBeShared>()); //bless
             var spells_ids_to_allow_working_on_pets = new string[] { "c60969e7f264e6d4b84a1499fdcf9039", //enlarge
-                                                                     "4e0e9aba6447d514f88eff1464cc4763" }; //reduce 
+                                                                     "4e0e9aba6447d514f88eff1464cc4763", //reduce
+                                                                     "56923211d2ac95e43b8ac5031bab74d8",
+                                                                     "da1b292d91ba37948893cdbe9ea89e28"}; //legendary proprotions;
 
             foreach (var s in spells_ids_to_allow_working_on_pets)
             {

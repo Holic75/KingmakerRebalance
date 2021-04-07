@@ -537,7 +537,7 @@ namespace CallOfTheWild
             haunting_mists.AddToSpellList(Helpers.bardSpellList, 2);
             haunting_mists.LocalizedSavingThrow = Helpers.CreateString("HauntingMists.SavingThrow", "Will partial");
 
-            haunting_mists.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            haunting_mists.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
 
@@ -7681,7 +7681,7 @@ namespace CallOfTheWild
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), obscuring_mist, 1);//darkness
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("c18a821ee662db0439fb873165da25be"), obscuring_mist, 1);//weather
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), obscuring_mist, 1);//water
-            obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
 
@@ -8608,7 +8608,7 @@ namespace CallOfTheWild
             blood_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
             blood_mist.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
             blood_mist.AddToSpellList(Helpers.druidSpellList, 8);
-            blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
         static void createSavageMaw()
