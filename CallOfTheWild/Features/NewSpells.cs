@@ -293,6 +293,8 @@ namespace CallOfTheWild
 
         static public BlueprintAbility implosion;
         static public BlueprintAbility haunting_mists;
+        static public BlueprintAbility eruptive_postules;
+        static public BlueprintAbility scourge_of_horsemen;
 
         static public BlueprintAbility miracle;
 
@@ -500,7 +502,105 @@ namespace CallOfTheWild
 
             createImplosion();
             createHauntingMists();
+            createEruptivePostules();
+            createScourgeOfHorsemen();
             //createMiracle();
+        }
+
+
+        static void createScourgeOfHorsemen()
+        {
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0), true, true);
+            var energy_drains = new ActionList[4];
+
+            for (int i = 0; i < energy_drains.Length; i++)
+            {
+                var action = Helpers.CreateConditionalSaved(Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, (i + 1) / 2), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true),
+                                                                    Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, i + 1), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true)
+                                                                    );
+                energy_drains[i] = Helpers.CreateActionList(action);         
+            }
+
+            scourge_of_horsemen = Helpers.CreateAbility("ScourgeOfHorsemenAbility",
+                                                          "Scourge of the Horsemen",
+                                                          $"This spell blasts the area with a horrific combination of soul-rending energy and physical corrosion. Creatures in the area of effect gain 1d4 negative levels, and take 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage per caster level (maximum 20d{BalanceFixes.getDamageDieString(DiceType.D6)}).",
+                                                          "",
+                                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/ExplosionOfRot.png"),
+                                                          AbilityType.Spell,
+                                                          UnitCommand.CommandType.Standard,
+                                                          AbilityRange.Medium,
+                                                          "",
+                                                          "Fortitude half",
+                                                          Helpers.CreateRunActions(SavingThrowType.Fortitude, dmg, Common.createContextActionRandomize(energy_drains)),
+                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Acid | SpellDescriptor.Evil),
+                                                          Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                          Helpers.CreateContextRankConfig(max: 20, feature: MetamagicFeats.intensified_metamagic),
+                                                          Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any, spreadSpeed: 14.Feet()),
+                                                          Common.createAbilitySpawnFxDestroyOnCast("c483c82262bbae74a8a89d8e9fc97d81",
+                                                                                        orientation_anchor: AbilitySpawnFxAnchor.None,
+                                                                                        position_anchor: AbilitySpawnFxAnchor.None,
+                                                                                        anchor: AbilitySpawnFxAnchor.SelectedTarget
+                                                                                        )
+                                                          );
+            scourge_of_horsemen.SpellResistance = true;
+            scourge_of_horsemen.setMiscAbilityParametersRangedDirectional();
+            scourge_of_horsemen.AvailableMetamagic = Metamagic.Empower | Metamagic.Reach | Metamagic.Extend | Metamagic.Maximize | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Selective | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral;
+
+            scourge_of_horsemen.AddToSpellList(Helpers.clericSpellList, 9);
+            scourge_of_horsemen.AddToSpellList(Helpers.wizardSpellList, 9);
+            Helpers.AddSpellAndScroll(scourge_of_horsemen, "ecd7efc465dbbac44a07c7e9bbd06be2");
+        }
+
+
+        static void createEruptivePostules()
+        {
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6));
+            var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(), false, false, false, false, 6);
+            var apply_nauseted = Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(), false, false, false, false, 6);
+
+            var on_hit = Helpers.CreateActionList(dmg,
+                                                  Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_sickened)));
+            var on_crit = Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_nauseted));
+
+            var buff = Helpers.CreateBuff("EruptivePostulesBuff",
+                                          "Eruptive Postules",
+                                          "Your skin erupts in swollen, pus-filled bumps that burst open if you are struck. Any creature that strikes you with its body or a handheld weapon deals normal damage, but at the same time the attacker takes 1d6 points of acid damage and must save or be sickened for 1 round. If the attack against you is a critical hit, the attacker must save or be nauseated instead of sickened.",
+                                          "",
+                                          Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), //sickened
+                                          Common.createPrefabLink("4debc3ac7f4781042935ca6c61b1b0e9"), //acid theme
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                          Common.createAddTargetAttackWithWeaponTrigger(null,
+                                                                                        on_hit,
+                                                                                        wait_for_attack_to_resolve: true),
+                                          Common.createAddTargetAttackWithWeaponTrigger(null,
+                                                                                        on_crit,
+                                                                                        only_critical_hit: true,
+                                                                                        wait_for_attack_to_resolve: true)
+                                         );
+
+            eruptive_postules = Helpers.CreateAbility("EruptivePostulesAbility",
+                                                      buff.Name,
+                                                      buff.Description,
+                                                      "",
+                                                      buff.Icon,
+                                                      AbilityType.Spell,
+                                                      UnitCommand.CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      Helpers.minutesPerLevelDuration,
+                                                      "Fortitude partial",
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true)),
+                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                      Helpers.CreateContextRankConfig()
+                                                      );
+            eruptive_postules.setMiscAbilityParametersSelfOnly();
+            eruptive_postules.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing;
+
+            eruptive_postules.AddToSpellList(Helpers.alchemistSpellList, 3);
+            eruptive_postules.AddToSpellList(Helpers.wizardSpellList, 3);
+            Helpers.AddSpellAndScroll(eruptive_postules, "c92308c160d6d424fb64f1fd708aa6cd");
         }
 
 

@@ -784,6 +784,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.cloak_of_winds.AssetGuid, 3),
                 new Common.SpellId( NewSpells.countless_eyes.AssetGuid, 3),
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.eruptive_postules.AssetGuid, 3),
                 new Common.SpellId( "2d81362af43aeac4387a3d4fced489c3", 3), //fireball
                 new Common.SpellId( NewSpells.flame_arrow.AssetGuid, 3),
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),

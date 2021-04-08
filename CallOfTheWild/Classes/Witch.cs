@@ -1343,7 +1343,7 @@ namespace CallOfTheWild
                                          ),
                 createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b", false,
                                          "91da41b9793a4624797921f221db653c", //color spray
-                                         "ce7dad2b25acf85429b6c9550787b2d9", //glitterdust
+                                         NewSpells.burst_of_radiance.AssetGuid,
                                          "c927a8b0cd3f5174f8c0b67cdbfde539", //remove blindness
                                          "4b8265132f9c8174f87ce7fa6d0fe47b", //rainbow pattern
                                          "ebade19998e1f8542a1b55bd4da766b3", //fire snake
@@ -1586,6 +1586,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.eruptive_postules.AssetGuid, 3),
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
