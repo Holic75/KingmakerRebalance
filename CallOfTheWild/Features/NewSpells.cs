@@ -292,6 +292,9 @@ namespace CallOfTheWild
         static public BlueprintAbility allied_cloak;
 
         static public BlueprintAbility implosion;
+        static public BlueprintAbility haunting_mists;
+        static public BlueprintAbility eruptive_postules;
+        static public BlueprintAbility scourge_of_horsemen;
 
         static public BlueprintAbility miracle;
 
@@ -498,8 +501,145 @@ namespace CallOfTheWild
             createAlliedCloak();
 
             createImplosion();
+            createHauntingMists();
+            createEruptivePostules();
+            createScourgeOfHorsemen();
             //createMiracle();
         }
+
+
+        static void createScourgeOfHorsemen()
+        {
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.Default), 0), true, true);
+            var energy_drains = new ActionList[4];
+
+            for (int i = 0; i < energy_drains.Length; i++)
+            {
+                var action = Helpers.CreateConditionalSaved( i == 0 ? null : Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, (i + 1) / 2), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true),
+                                                                    Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, i + 1), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true)
+                                                                    );
+                energy_drains[i] = Helpers.CreateActionList(action);         
+            }
+
+            scourge_of_horsemen = Helpers.CreateAbility("ScourgeOfHorsemenAbility",
+                                                          "Scourge of the Horsemen",
+                                                          $"This spell blasts the area with a horrific combination of soul-rending energy and physical corrosion. Creatures in the area of effect gain 1d4 negative levels, and take 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage per caster level (maximum 20d{BalanceFixes.getDamageDieString(DiceType.D6)}).",
+                                                          "",
+                                                          LoadIcons.Image2Sprite.Create(@"AbilityIcons/ExplosionOfRot.png"),
+                                                          AbilityType.Spell,
+                                                          UnitCommand.CommandType.Standard,
+                                                          AbilityRange.Medium,
+                                                          "",
+                                                          "Fortitude half",
+                                                          Helpers.CreateRunActions(SavingThrowType.Fortitude, dmg, Common.createContextActionRandomize(energy_drains)),
+                                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Acid | SpellDescriptor.Evil),
+                                                          Helpers.CreateSpellComponent(SpellSchool.Necromancy),
+                                                          Helpers.CreateContextRankConfig(max: 20, feature: MetamagicFeats.intensified_metamagic),
+                                                          Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Any, spreadSpeed: 14.Feet()),
+                                                          Common.createAbilitySpawnFxDestroyOnCast("c483c82262bbae74a8a89d8e9fc97d81",
+                                                                                        orientation_anchor: AbilitySpawnFxAnchor.None,
+                                                                                        position_anchor: AbilitySpawnFxAnchor.None,
+                                                                                        anchor: AbilitySpawnFxAnchor.SelectedTarget
+                                                                                        )
+                                                          );
+            scourge_of_horsemen.SpellResistance = true;
+            scourge_of_horsemen.setMiscAbilityParametersRangedDirectional();
+            scourge_of_horsemen.AvailableMetamagic = Metamagic.Empower | Metamagic.Reach | Metamagic.Extend | Metamagic.Maximize | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Selective | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing | (Metamagic)MetamagicFeats.MetamagicExtender.IntensifiedGeneral;
+
+            scourge_of_horsemen.AddToSpellList(Helpers.clericSpellList, 9);
+            scourge_of_horsemen.AddToSpellList(Helpers.wizardSpellList, 9);
+            Helpers.AddSpellAndScroll(scourge_of_horsemen, "ecd7efc465dbbac44a07c7e9bbd06be2");
+        }
+
+
+        static void createEruptivePostules()
+        {
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, 1, 0));
+            var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(), false, false, false, false, 6);
+            var apply_nauseted = Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(), false, false, false, false, 6);
+
+            var on_hit = Helpers.CreateActionList(dmg,
+                                                  Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_sickened)));
+            var on_crit = Helpers.CreateActionList(dmg, Helpers.CreateConditionalSaved(null, apply_nauseted));
+
+            var buff = Helpers.CreateBuff("EruptivePostulesBuff",
+                                          "Eruptive Postules",
+                                          "Your skin erupts in swollen, pus-filled bumps that burst open if you are struck. Any creature that strikes you with its body or a handheld weapon deals normal damage, but at the same time the attacker takes 1d6 points of acid damage and must save or be sickened for 1 round. If the attack against you is a critical hit, the attacker must save or be nauseated instead of sickened.",
+                                          "",
+                                          Helpers.GetIcon("4e42460798665fd4cb9173ffa7ada323"), //sickened
+                                          Common.createPrefabLink("4debc3ac7f4781042935ca6c61b1b0e9"), //acid theme
+                                          Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                          Common.createAddTargetAttackWithWeaponTrigger(null,
+                                                                                        on_hit,
+                                                                                        wait_for_attack_to_resolve: true),
+                                          Common.createAddTargetAttackWithWeaponTrigger(null,
+                                                                                        on_crit,
+                                                                                        only_critical_hit: true,
+                                                                                        wait_for_attack_to_resolve: true)
+                                         );
+
+            eruptive_postules = Helpers.CreateAbility("EruptivePostulesAbility",
+                                                      buff.Name,
+                                                      buff.Description,
+                                                      "",
+                                                      buff.Icon,
+                                                      AbilityType.Spell,
+                                                      UnitCommand.CommandType.Standard,
+                                                      AbilityRange.Personal,
+                                                      Helpers.minutesPerLevelDuration,
+                                                      "Fortitude partial",
+                                                      Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true)),
+                                                      Helpers.CreateSpellDescriptor(SpellDescriptor.Acid),
+                                                      Helpers.CreateSpellComponent(SpellSchool.Transmutation),
+                                                      Helpers.CreateContextRankConfig()
+                                                      );
+            eruptive_postules.setMiscAbilityParametersSelfOnly();
+            eruptive_postules.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Maximize | Metamagic.Heighten | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.ImprovedSpellSharing;
+
+            eruptive_postules.AddToSpellList(Helpers.alchemistSpellList, 3);
+            eruptive_postules.AddToSpellList(Helpers.wizardSpellList, 3);
+            Helpers.AddSpellAndScroll(eruptive_postules, "c92308c160d6d424fb64f1fd708aa6cd");
+        }
+
+
+        static void createHauntingMists()
+        {
+            var shaken_haunting_mist = library.CopyAndAdd<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220", "ShakenHauntingMistsBuff", "");
+            var area = library.CopyAndAdd(obscuring_mist_area, "HauntingMistsArea", "");
+
+            var effect = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                         Helpers.CreateConditionalSaved(new GameAction[0],
+                                                                                        new GameAction[] {Helpers.CreateActionDealDamage(StatType.Wisdom, Helpers.CreateContextDiceValue(DiceType.D2, 1, 0)),
+                                                                                                          Common.createContextActionApplyBuff(shaken_haunting_mist, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)
+                                                                                                         }
+                                                                                        )
+                                                        );
+
+            area.AddComponent(Helpers.CreateAreaEffectRunAction(unitEnter: effect, unitExit: Common.createContextActionRemoveBuffFromCaster(shaken_haunting_mist)));
+            area.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken));
+
+            haunting_mists = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "HauntingMistsAbility", "");
+            haunting_mists.SpellResistance = false;
+            haunting_mists.RemoveComponents<SpellListComponent>();
+            haunting_mists.ReplaceComponent<SpellDescriptorComponent>(s => s.Descriptor = area.GetComponent<SpellDescriptorComponent>().Descriptor);
+            haunting_mists.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            haunting_mists.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
+            haunting_mists.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Illusion);
+            haunting_mists.SetNameDescriptionIcon("Haunting Mists",
+                                                  "An illusion of misty vapor inhabited by shadowy shapes arises around you. It is stationary. The illusory mist obscures all sight, including darkvision, beyond 5 feet. A creature 5 feet away has concealment (attacks have a 20% miss chance). Creatures farther away have total concealment (50% miss chance, and the attacker cannot use sight to locate the target). All creatures within the mist must save or take 1d2 points of Wisdom damage and gain the shaken condition. The shaken condition lasts as long as the creature remains in the mist.",
+                                                  LoadIcons.Image2Sprite.Create(@"AbilityIcons/HauntingMist.png")
+                                                  );
+            haunting_mists.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
+            haunting_mists.LocalizedDuration = Helpers.minutesPerLevelDuration;
+            haunting_mists.AddToSpellList(Helpers.wizardSpellList, 2);
+            haunting_mists.AddToSpellList(Helpers.bardSpellList, 2);
+            haunting_mists.LocalizedSavingThrow = Helpers.CreateString("HauntingMists.SavingThrow", "Will partial");
+
+            haunting_mists.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
+        }
+
 
         static void createImplosion()
         {
@@ -7641,7 +7781,7 @@ namespace CallOfTheWild
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("1e1b4128290b11a41ba55280ede90d7d"), obscuring_mist, 1);//darkness
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("c18a821ee662db0439fb873165da25be"), obscuring_mist, 1);//weather
             Common.replaceDomainSpell(library.Get<BlueprintProgression>("e63d9133cebf2cf4788e61432a939084"), obscuring_mist, 1);//water
-            obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            obscuring_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
 
@@ -8568,7 +8708,7 @@ namespace CallOfTheWild
             blood_mist.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
             blood_mist.AvailableMetamagic = Metamagic.Heighten | Metamagic.Extend | Metamagic.Reach | Metamagic.Quicken | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent;
             blood_mist.AddToSpellList(Helpers.druidSpellList, 8);
-            blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            blood_mist.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
         static void createSavageMaw()

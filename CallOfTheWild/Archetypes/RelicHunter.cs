@@ -146,6 +146,7 @@ namespace CallOfTheWild.Archetypes
 
             addToPrestigeClasses();
             Occultist.occultist_class.AddComponent(Common.prerequisiteNoArchetype(inquisitor_class, archetype));
+            archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = Occultist.occultist_class));
         }
 
 

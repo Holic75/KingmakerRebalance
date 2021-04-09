@@ -357,7 +357,7 @@ namespace CallOfTheWild.Archetypes
                 }
             }
 
-            confident_defense.AddComponents(Helpers.Create<MonkNoArmorAndMonkWeaponFeatureUnlock>(c => c.NewFact = scaled_fist_ac));
+            //confident_defense.AddComponents(Helpers.Create<MonkNoArmorAndMonkWeaponFeatureUnlock>(c => c.NewFact = scaled_fist_ac));
             confident_defense.AddComponents(Helpers.Create<WeaponTrainingMechanics.AddFeatureOnArmor>(a => 
             {
                 a.feature = scaled_fist_ac;

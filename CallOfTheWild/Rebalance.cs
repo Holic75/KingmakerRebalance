@@ -61,6 +61,8 @@ namespace CallOfTheWild
         static public BlueprintAbility aid_self_free;
         static public BlueprintBuff quarry_cooldown_buff;
 
+        static public BlueprintFeature flawless_mind;
+
         static internal void createAidAnother()
         {
             var remove_fear = library.Get<BlueprintAbility>("55a037e514c0ee14a8e3ed14b47061de");
@@ -180,6 +182,28 @@ namespace CallOfTheWild
         }
 
 
+        static internal void addMonkFlawlessMind()
+        {
+            flawless_mind = Helpers.CreateFeature("MonkFlawlessMindFeature",
+                                                  "Flawless Mind",
+                                                  "At 19th level, a monk gains total control over his mental faculties. Whenever he attempts a Will save, he can roll twice and take the better result.",
+                                                  "",
+                                                  Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<NewMechanics.ModifyD20WithActions>(m =>
+                                                  {
+                                                      m.actions = null;
+                                                      m.Rule = NewMechanics.ModifyD20WithActions.RuleType.SavingThrow;
+                                                      m.TakeBest = true;
+                                                      m.m_SavingThrowType = NewMechanics.ModifyD20WithActions.InnerSavingThrowType.Will;
+
+                                                  }
+                                                  )
+                                                  );
+            var monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            monk.Progression.LevelEntries.FirstOrDefault(l => l.Level == 19).Features.Add(flawless_mind);
+        }
+
         static internal void fixRangerQuarryCooldown()
         {
             var cooldown_buff = Helpers.CreateBuff("RapidQuarryCooldownBuff",
@@ -208,11 +232,22 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixDarkElementalistAlignment()
+        internal static void fixArchetypePrerequisites()
         {
             var dark_elementalist = library.Get<BlueprintArchetype>("f12f18ae8842425489d29f302e69134c");
             dark_elementalist.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil));
+
+
+            var dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+
+            var empyreal_sorcerer = library.Get<BlueprintArchetype>("aa00d945f7cf6c34c909a29a25f2df38");
+            var sylvan_sorcerer = library.Get<BlueprintArchetype>("711d5024ecc75f346b9cda609c3a1f83");
+            var sage_sorcerer = library.Get<BlueprintArchetype>("00b990c8be2117e45ae6514ee4ef561c");
+            empyreal_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
+            sylvan_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
+            sage_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
         }
+
 
         internal static void addFatigueBuffRestrictionsToRage()
         {

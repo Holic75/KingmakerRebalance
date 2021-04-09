@@ -10,7 +10,7 @@ This is Pathfinder: Kingmaker mod.
 - Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
 - Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
 
-Mod is only expected to work with  2.08 English version of Enhanced Edition of the game.
+Mod is only expected to work with 2.08 English version of Enhanced Edition of the game.
 
 Known Issues:
 - Sometimes when playing Hunter/Summoner, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.
@@ -360,6 +360,7 @@ New spells:
 - Force Sword,
 - Ghost Touch,
 - Ghostbane Dirge and Ghostbane Dirge, Mass,
+- Haunting Mists,
 - Ice Slick,
 - Inflict Pain and Inflict Pain Mass,
 - Mental Barrier I, II, III, IV, V,
@@ -388,19 +389,18 @@ New spells:
 - Deadly Juggernaut,
 - Earth Tremor,
 - Flame Arrow,
+- Eruptive postules,
 - Flashfire,
+- Fly and Fly, Mass,
+- Font of Spirit Magic,
 - Halt Undead,
+- Howling Agony,
+- Keen Edge,
 - Locate Weakness,
+- Resinous Skin,
 - Sands of Time,
 - Screech,
 - Shadow Enchantment,
-- Threefold Aspect,
-- Wall of Nausea,
-- Fly and Fly, Mass,
-- Font of Spirit Magic,
-- Howling Agony,
-- Keen Edge,
-- Resinous Skin,
 - Second Wind,
 - Sheet Lightning,
 - Sleet Storm,
@@ -408,8 +408,10 @@ New spells:
 - Stunning Barrier, Greater,
 - Synaptic Pulse and Synaptic Pulse, Greater,
 - Synesthesia and Synesthesia, Mass,
+- Threefold Aspect,
 - Twilight Knife,
 - Undead Anatomy I, II, III,
+- Wall of Nausea,
 - Air Walk and Air Walk, Communal,
 - Archon's Trumpet,
 - Aura of Doom,
@@ -470,12 +472,13 @@ New spells:
 - Hold Monster, Mass,
 - Akashic Form,
 - Divide Mind,
+- Implosion,
+- Scourge of Horsemen,
+- Shades,
 - Shapechange,
 - Suffocate Mass,
 - Time Stop,
-- Winds of Vengeance,
-- Shades,
-- Implosion.
+- Winds of Vengeance.
 
 New Ki Powers:
 - Burst of Adrenaline,
@@ -636,7 +639,7 @@ Optional balance fixes:
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),
-- Arcanist receives arcane exploits only at lvls 1, 3, 6, 9, 12, 15 and 18; exploiter wizard - at lvls 1, 6, 12 and 18.
+- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19.
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

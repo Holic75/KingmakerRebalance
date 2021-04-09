@@ -650,7 +650,7 @@ namespace CallOfTheWild
 
             var blindsense = Helpers.CreateFeature("BlindsenseDrakeFeature",
                                                      "Blindsense",
-                                                     "The drake gains blindsense out to a range of 10 feet. ",
+                                                     "The drake gains blindsense out to a range of 10 feet.",
                                                      "",
                                                      Helpers.GetIcon("6e668702fdc53c343a0363813683346e"),
                                                      FeatureGroup.None,

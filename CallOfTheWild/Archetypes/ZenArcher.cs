@@ -321,7 +321,7 @@ namespace CallOfTheWild.Archetypes
                                                 "Bonus Feat",
                                                 "A zen archer’s bonus feats must be taken from the following list: Combat Reflexes, Deflect Arrows, Dodge, Point-Blank Shot, Precise Shot, and Rapid Shot.\n"
                                                 + "At 6th level, the following feats are added to the list: Improved Precise Shot, Manyshot and Mobility.\n"
-                                                + "At 10th level, the following feats are added to the list: Improved Critical.\n"
+                                                + "At 10th level, the following feats are added to the list: Improved Critical and Pinpoint Targeting.\n"
                                                 + "A monk need not have any of the prerequisites normally required for these feats to select them.",
                                                 "",
                                                 null,
@@ -343,7 +343,8 @@ namespace CallOfTheWild.Archetypes
                                                                          library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb")// mobility
                                                                          );
             bonus_feat10 = library.CopyAndAdd(bonus_feat6, "BonusFeat10ZenArcherFeature", "");
-            bonus_feat10.AllFeatures = bonus_feat10.AllFeatures.AddToArray(library.Get<BlueprintFeature>("f4201c85a991369408740c6888362e20") //mproved critical
+            bonus_feat10.AllFeatures = bonus_feat10.AllFeatures.AddToArray(library.Get<BlueprintFeature>("f4201c85a991369408740c6888362e20"), //improved critical
+                                                                           NewFeats.pinpoint_targeting
                                                                           );
         }
 

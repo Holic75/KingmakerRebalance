@@ -1008,12 +1008,15 @@ namespace CallOfTheWild
                                                           featureList: new BlueprintFeature[] { witch_channel_positive,
                                                                                                 improved_channel_hex_positive});*/
 
-            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2, 
-                                                                      classes: new BlueprintCharacterClass[] { null });
+            /*var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, progression: ContextRankProgression.OnePlusDiv2, 
+                                                                      classes: new BlueprintCharacterClass[] { null });*/
 
-            /*var context_rank_config_negative = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
-                                              featureList: new BlueprintFeature[] { witch_channel_negative,
-                                                                                   improved_channel_hex_negative });*/
+            var context_rank_config = Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+                                                                      featureList: new BlueprintFeature[] { witch_channel_negative, witch_channel_positive,
+                                                                                                            improved_channel_hex_negative, improved_channel_hex_positive
+                                                                                                          },
+                                                                      classes: new BlueprintCharacterClass[] { null }
+                                                                      );
 
             var dc_scaling = Common.createContextCalculateAbilityParamsBasedOnClasses(getWitchArray(), StatType.Charisma);
             var positive_heal = ChannelEnergyEngine.createChannelEnergy(ChannelEnergyEngine.ChannelType.PositiveHeal, "WitchPostiveHeal", "", "", "b305df2f8ec34684867db7402677388b",
@@ -1036,8 +1039,8 @@ namespace CallOfTheWild
             ChannelEnergyEngine.storeChannel(negative_harm, witch_channel_negative, ChannelEnergyEngine.ChannelType.NegativeHarm);
 
             witch_channel_positive.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
-            witch_channel_positive.AddComponent(Helpers.CreateAddFacts( positive_heal_base, positive_harm_base));
-            witch_channel_positive.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+            witch_channel_positive.AddComponent(Helpers.CreateAddFacts(positive_heal_base, positive_harm_base));
+            /*witch_channel_positive.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                                 type: AbilityRankType.StatBonus, 
                                                                                 featureList: new BlueprintFeature[] { improved_channel_hex_positive, witch_channel_positive }
                                                                                 )
@@ -1049,10 +1052,10 @@ namespace CallOfTheWild
                                                                                                                             c.correct_dc = true;
                                                                                                                             c.multiplier = 2;
                                                                                                                         })
-                                              );
+                                              );*/
             witch_channel_negative.AddComponent(Helpers.CreateAddAbilityResource(channel_energy_resource));
             witch_channel_negative.AddComponent(Helpers.CreateAddFacts(negative_heal_base, negative_harm_base));
-            witch_channel_negative.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
+            /*witch_channel_negative.AddComponent(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, progression: ContextRankProgression.AsIs,
                                                                     type: AbilityRankType.StatBonus,
                                                                     featureList: new BlueprintFeature[] { improved_channel_hex_negative, witch_channel_negative }
                                                                     )
@@ -1064,13 +1067,13 @@ namespace CallOfTheWild
                                                                                                                                    c.multiplier = 2;
                                                                                                                                  })
                                                );
-            ChannelEnergyEngine.setWitchImprovedChannelHex(witch_channel_positive, witch_channel_negative);
+            ChannelEnergyEngine.setWitchImprovedChannelHex(witch_channel_positive, witch_channel_negative);*/
 
 
             hex_channeler_channel_energy_selection = Helpers.CreateFeatureSelection("WitchChannelEnergySelection",
                                                                                     "Channel Energy",
-                                                                                    "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar.A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric).A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
-                                                                                    + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier(minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability. The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
+                                                                                    "At 2nd level, a hex channeler can call upon her patron to release a wave of energy from herself or her familiar. A good witch channels positive energy(like a good cleric), and an evil witch channels negative energy(like an evil cleric). A witch who is neither good nor evil must choose whether she channels positive or negative energy; once this choice is made, it cannot be reversed.\n"
+                                                                                    + "Channeling energy causes a burst that affects all creatures of one type (either undead or living) in a 30 - foot radius centered on the witch. The witch can channel energy a number of times per day equal to 3 + her Charisma modifier (minimum 1). This otherwise functions as a cleric using channel energy, except the witch does not require a holy symbol to use this ability. The hex channeler uses her witch level as her cleric level for all other effects dependent upon channel energy(except increasing the amount of damage healed or dealt).\n"
                                                                                     + $"This burst heals or deals 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage. Every time the hex channeler is able to learn a new hex (including major or grand hexes, but not hexes gained through the Extra Hex feat), she can instead increase her channel energy amount by 1d{BalanceFixes.getDamageDieString(DiceType.D6)}.",
                                                                                     "d33b4095dbfa47588ed1f07b5af30e2c",
                                                                                     bless_spell.Icon,
@@ -1340,7 +1343,7 @@ namespace CallOfTheWild
                                          ),
                 createWitchPatronFeature("Light", "8676966b3e0f4595be33f9cd2efc061c", "c248bad0e267442890c292c2079bcd2b", false,
                                          "91da41b9793a4624797921f221db653c", //color spray
-                                         "ce7dad2b25acf85429b6c9550787b2d9", //glitterdust
+                                         NewSpells.burst_of_radiance.AssetGuid,
                                          "c927a8b0cd3f5174f8c0b67cdbfde539", //remove blindness
                                          "4b8265132f9c8174f87ce7fa6d0fe47b", //rainbow pattern
                                          "ebade19998e1f8542a1b55bd4da766b3", //fire snake
@@ -1557,6 +1560,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.flurry_of_snowballs.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "ce7dad2b25acf85429b6c9550787b2d9", 2), //glitterdust
+                new Common.SpellId( NewSpells.haunting_mists.AssetGuid, 2),
                 new Common.SpellId( "c7104f7526c4c524f91474614054547e", 2), //hold person
                 new Common.SpellId( "65f0b63c45ea82a4f8b8325768a3832d", 2), //inflict moderate wounds
                 new Common.SpellId( NewSpells.ice_slick.AssetGuid, 2),
@@ -1582,6 +1586,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "04e820e1ce3a66f47a50ad5074d3ae40", 3), //delay posion communal
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( NewSpells.earth_tremor.AssetGuid, 3),
+                new Common.SpellId( NewSpells.eruptive_postules.AssetGuid, 3),
                 new Common.SpellId( NewSpells.fly.AssetGuid, 3),
                 new Common.SpellId( "5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
                 new Common.SpellId( NewSpells.howling_agony.AssetGuid, 3),
