@@ -556,7 +556,7 @@ namespace CallOfTheWild
         {
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
             var nauseted = library.Get<BlueprintBuff>("956331dba5125ef48afe41875a00ca0e");
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6));
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Acid, Helpers.CreateContextDiceValue(DiceType.D6, 1, 0));
             var apply_sickened = Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(), false, false, false, false, 6);
             var apply_nauseted = Common.createContextActionApplyBuff(nauseted, Helpers.CreateContextDuration(), false, false, false, false, 6);
 
