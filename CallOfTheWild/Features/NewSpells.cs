@@ -515,7 +515,7 @@ namespace CallOfTheWild
 
             for (int i = 0; i < energy_drains.Length; i++)
             {
-                var action = Helpers.CreateConditionalSaved(Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, (i + 1) / 2), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true),
+                var action = Helpers.CreateConditionalSaved( i == 0 ? null : Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, (i + 1) / 2), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true),
                                                                     Helpers.CreateActionEnergyDrain(Helpers.CreateContextDiceValue(DiceType.Zero, 0, i + 1), Helpers.CreateContextDuration(1, DurationRate.Days), Kingmaker.RuleSystem.Rules.EnergyDrainType.Temporary, isAoE: true)
                                                                     );
                 energy_drains[i] = Helpers.CreateActionList(action);         

@@ -232,11 +232,22 @@ namespace CallOfTheWild
         }
 
 
-        internal static void fixDarkElementalistAlignment()
+        internal static void fixArchetypePrerequisites()
         {
             var dark_elementalist = library.Get<BlueprintArchetype>("f12f18ae8842425489d29f302e69134c");
             dark_elementalist.AddComponent(Common.createPrerequisiteAlignment(Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil));
+
+
+            var dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+
+            var empyreal_sorcerer = library.Get<BlueprintArchetype>("aa00d945f7cf6c34c909a29a25f2df38");
+            var sylvan_sorcerer = library.Get<BlueprintArchetype>("711d5024ecc75f346b9cda609c3a1f83");
+            var sage_sorcerer = library.Get<BlueprintArchetype>("00b990c8be2117e45ae6514ee4ef561c");
+            empyreal_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
+            sylvan_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
+            sage_sorcerer.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
         }
+
 
         internal static void addFatigueBuffRestrictionsToRage()
         {

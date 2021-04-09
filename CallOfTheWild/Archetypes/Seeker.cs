@@ -104,6 +104,7 @@ namespace CallOfTheWild.Archetypes
         {
             var dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
             dragon_disciple.AddComponent(Common.prerequisiteNoArchetype(archetype.GetParentClass(), archetype));
+            archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
         }
 
 

@@ -200,7 +200,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixStalwartDefender();
                     CallOfTheWild.Rebalance.fixChannelEnergyHeal();
                     CallOfTheWild.Rebalance.condenseMonkUnarmedDamage();
-                    CallOfTheWild.Rebalance.fixDarkElementalistAlignment();
+                    CallOfTheWild.Rebalance.fixArchetypePrerequisites();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");

@@ -79,8 +79,9 @@ namespace CallOfTheWild.Archetypes
             sorcerer.Archetypes = sorcerer.Archetypes.AddToArray(archetype);
 
             //fix dragon disciple
-            var dragon_disicple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
-            dragon_disicple.AddComponent(Common.prerequisiteNoArchetype(sorcerer, archetype));
+            var dragon_disciple = library.Get<BlueprintCharacterClass>("72051275b1dbb2d42ba9118237794f7c");
+            dragon_disciple.AddComponent(Common.prerequisiteNoArchetype(sorcerer, archetype));
+            archetype.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = dragon_disciple));
         }
 
 
