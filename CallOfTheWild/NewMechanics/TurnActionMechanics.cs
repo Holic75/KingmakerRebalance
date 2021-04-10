@@ -104,7 +104,15 @@ namespace CallOfTheWild.TurnActionMechanics
 
             foreach (var b in buffs)
             {
-                bool result = check< FreeActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
+                bool result = check<FreeActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
+                if (!result)
+                {
+                    var sticky_touch = ability?.StickyTouch;
+                    if (sticky_touch != null)
+                    {
+                        result = check<FreeActionAbilityUseBase>(b, c => c.canUseOnAbility(sticky_touch, actual_action_type));
+                    }
+                }
                 if (result)
                 {
                     return true;
@@ -146,6 +154,14 @@ namespace CallOfTheWild.TurnActionMechanics
             foreach (var b in buffs)
             {
                 bool result = check<SwiftActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
+                if (!result)
+                {
+                    var sticky_touch = ability?.StickyTouch;
+                    if (sticky_touch != null)
+                    {
+                        result = check<SwiftActionAbilityUseBase>(b, c => c.canUseOnAbility(sticky_touch, actual_action_type));
+                    }
+                }
                 if (result)
                 {
                     return true;
@@ -169,6 +185,14 @@ namespace CallOfTheWild.TurnActionMechanics
             foreach (var b in buffs)
             {
                 bool result = check<MoveActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
+                if (!result)
+                {
+                    var sticky_touch = ability?.StickyTouch;
+                    if (sticky_touch != null)
+                    {
+                        result = check<MoveActionAbilityUseBase>(b, c => c.canUseOnAbility(sticky_touch, actual_action_type));
+                    }
+                }
                 if (result)
                 {
                     return true;
@@ -192,6 +216,14 @@ namespace CallOfTheWild.TurnActionMechanics
             foreach (var b in buffs)
             {
                 bool result = check<StandardActionAbilityUseBase>(b, c => c.canUseOnAbility(ability, actual_action_type));
+                if (!result)
+                {
+                    var sticky_touch = ability?.StickyTouch;
+                    if (sticky_touch != null)
+                    {
+                        result = check<StandardActionAbilityUseBase>(b, c => c.canUseOnAbility(sticky_touch, actual_action_type));
+                    }
+                }
                 if (result)
                 {
                     return true;
@@ -322,9 +354,7 @@ namespace CallOfTheWild.TurnActionMechanics
         }
 
         public void OnEventDidTrigger(RuleCastSpell evt)
-        {
-            
-           
+        {  
             if (remaining_uses <= 0)
             {
                 return;
