@@ -492,6 +492,7 @@ namespace CallOfTheWild
 
                 // Main.logger.Log("Checking correct spell");
                 var allowed = ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+                allowed = allowed || ability.StickyTouch?.Blueprint == spell;
                 if (!allowed)
                 {
                     return false;
