@@ -380,8 +380,9 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
-
-                return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
+                var sticky_touch = ability.StickyTouch?.Blueprint;
+                return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic)
+                       || (sticky_touch != null && this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(sticky_touch, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic));
             }
         }
 
@@ -448,7 +449,9 @@ namespace CallOfTheWild
                 var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
                 if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
                 {
-                    return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                    var sticky_touch = ability.StickyTouch?.Blueprint;
+                    return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics)
+                           || (sticky_touch != null && this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(sticky_touch, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics));
                 }
                 return false;
             }
