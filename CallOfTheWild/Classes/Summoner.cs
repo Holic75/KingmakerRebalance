@@ -598,7 +598,8 @@ namespace CallOfTheWild
                                                                   Helpers.Create<AddFeatureOnApply>(a => a.Feature = summoner_eidolon_rank_progression),
                                                                   Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d"))
                                                                   );
-            lesser_eidolon_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
+            lesser_eidolon_selection.AllFeatures = new BlueprintFeature[0];
+                                                    //new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
             lesser_eidolon_selection.AllFeatures = lesser_eidolon_selection.AllFeatures.AddToArray(Eidolon.getLesserEidolons());
             lesser_eidolon_selection.AddComponents(eidolon_selection.GetComponents<AddFacts>().ToArray());
 
@@ -1642,7 +1643,8 @@ namespace CallOfTheWild
                                                                   Helpers.Create<AddFeatureOnApply>(a => a.Feature = summoner_eidolon_rank_progression),
                                                                   Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d"))
                                                                   );
-            eidolon_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
+            eidolon_selection.AllFeatures = new BlueprintFeature[0]; //no animal companions are allowed, since only summoners can get eidolons
+                                           //new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
             Eidolon.create();
             for (int lvl = 1; lvl <= 20; lvl++)
             {
