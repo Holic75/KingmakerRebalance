@@ -2001,7 +2001,8 @@ namespace CallOfTheWild
             masters_alignment.HideInUI = true;
 
             Phantom.create();
-            emotional_focus_selection.AllFeatures = new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
+            emotional_focus_selection.AllFeatures = new BlueprintFeature[0]; //no animal companions allowed since only spiritualist can select phantom
+                                                    //   new BlueprintFeature[] { library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a") }; //empty companion
             foreach (var kv in Phantom.phantom_progressions)
             {
                 emotional_focus_selection.AllFeatures = emotional_focus_selection.AllFeatures.AddToArray(kv.Value);

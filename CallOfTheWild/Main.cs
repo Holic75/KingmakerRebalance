@@ -261,6 +261,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixPenetratingStrike();
                     CallOfTheWild.Rebalance.fixRangerQuarryCooldown();
                     CallOfTheWild.Rebalance.addMonkFlawlessMind();
+                    CallOfTheWild.Rebalance.restrictAnimalCompanions();
 
                     if (settings.secondary_rake_attacks)
                     {

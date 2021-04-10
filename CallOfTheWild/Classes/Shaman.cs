@@ -140,6 +140,7 @@ namespace CallOfTheWild
         static public Dictionary<DamageEnergyType, BlueprintFeature> breath_weapons = new Dictionary<DamageEnergyType, BlueprintFeature>();
 
         static public BlueprintFeatureSelection drake_powers;
+        static public BlueprintFeature drake_companion_empty;
 
         public class Spirit
         {
@@ -508,6 +509,13 @@ namespace CallOfTheWild
 
                 drake_companion.AllFeatures = drake_companion.AllFeatures.AddToArray(drake_companion_feature);
             }
+
+            drake_companion_empty = library.CopyAndAdd<BlueprintFeature>("472091361cf118049a2b4339c4ea836a", "DrakeCompanionEmptyFeature", "15b67c62e1964819ad09649eeb47177b");
+            drake_companion.AllFeatures = drake_companion.AllFeatures.AddToArray(drake_companion_empty);
+            drake_companion_empty.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.PrerequisiteFeaturesFromList(drake_companion.AllFeatures)
+            };
         }
 
 

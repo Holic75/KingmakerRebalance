@@ -380,6 +380,7 @@ namespace CallOfTheWild
                 {
                     return false;
                 }
+
                 return this.Owner.Ensure<UnitPartArcanistPreparedMetamagic>().noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic);
             }
         }
@@ -492,6 +493,7 @@ namespace CallOfTheWild
 
                 // Main.logger.Log("Checking correct spell");
                 var allowed = ability.Blueprint.Parent == null ? SpellDuplicates.isDuplicate(ability.Blueprint, spell) : SpellDuplicates.isDuplicate(ability.Blueprint.Parent, spell);
+                allowed = allowed || ability.StickyTouch?.Blueprint == spell;
                 if (!allowed)
                 {
                     return false;
@@ -504,7 +506,9 @@ namespace CallOfTheWild
                     var arcanist_part = this.Owner.Get<UnitPartArcanistPreparedMetamagic>();
                     if (arcanist_part != null && ability.Spellbook.Blueprint == arcanist_part.spellbook)
                     {
-                        return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics);
+                        var sticky_touch = ability.StickyTouch?.Blueprint;
+                        return arcanist_part.noCastingTimeIncreaseForMetamagic(ability.Blueprint, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics)
+                               || (sticky_touch != null && arcanist_part.noCastingTimeIncreaseForMetamagic(sticky_touch, ability.MetamagicData.MetamagicMask & ~(Metamagic)MetamagicFeats.MetamagicExtender.FreeMetamagic, max_metamagics));
                     }
                     return false;
                 }

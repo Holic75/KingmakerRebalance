@@ -148,11 +148,7 @@ namespace CallOfTheWild.Archetypes
 
             drake_companion = library.CopyAndAdd(Shaman.drake_companion, "DraconicDruidDrakeCompanionFeatureSelection", "");
             drake_companion.SetDescription("A draconic druid gains a drake companion instead of an animal companion.");
-            for (int i = 0; i < drake_companion.AllFeatures.Length; i++)
-            {
-                var ff = library.CopyAndAdd<BlueprintFeature>(drake_companion.AllFeatures[i].AssetGuid, "DraconicDruid" + drake_companion.AllFeatures[i].name, "");
-                //ff.SetDescription(drake_companion.Description);
-            }
+
             drake_companion.ComponentsArray = new BlueprintComponent[]
             {
                 Helpers.Create<AddFeatureOnApply>(a => a.Feature = library.Get<BlueprintFeature>("1670990255e4fe948a863bafd5dbda5d")),

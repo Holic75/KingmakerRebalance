@@ -270,7 +270,7 @@ namespace CallOfTheWild
             ability_single.MaterialComponent = library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3").MaterialComponent;
             ability_single.ReplaceComponent<AbilityEffectRunAction>(a =>
             {
-                a.Actions = Helpers.CreateActionList(Common.replaceActions<DeadTargetMechanics.ContextActionAnimateDead>(a.Actions.Actions, r =>
+                var animate_actions = Common.replaceActions<DeadTargetMechanics.ContextActionAnimateDead>(a.Actions.Actions, r =>
                 {
                     var animate_fixed_hd = Helpers.Create<DeadTargetMechanics.ContextActionAnimateDeadFixedHD>();
                     animate_fixed_hd.adapt_size = true;
@@ -284,7 +284,8 @@ namespace CallOfTheWild
                     animate_fixed_hd.max_units = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative);
                     animate_fixed_hd.DurationValue = r.DurationValue;
                     return animate_fixed_hd;
-                }));
+                });
+                a.Actions = Helpers.CreateActionList(Helpers.CreateConditional(Helpers.Create<DeadTargetMechanics.ContextConditionCanBeAnimated>(), animate_actions));
             });
             ability_single.RemoveComponents<ContextRankConfig>();
             ability_single.RemoveComponents<SpellListComponent>();

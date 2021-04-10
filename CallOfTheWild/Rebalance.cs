@@ -2672,6 +2672,19 @@ namespace CallOfTheWild
             tactical_leader_tactician.AddComponent(Helpers.CreateAddFeatureOnClassLevel(extra_tactician, 18, new BlueprintCharacterClass[] { tactical_leader.GetParentClass() }, new BlueprintArchetype[] { tactical_leader }));
             tactical_leader_tactician.SetNameDescription(ability);
         }
+
+
+        static internal void restrictAnimalCompanions()
+        {
+            var empty_companion = library.Get<BlueprintFeature>("472091361cf118049a2b4339c4ea836a");
+            empty_companion.Ranks = 10;
+            var animal_companion_selection = library.Get<BlueprintFeatureSelection>("90406c575576aee40a34917a1b429254");
+            empty_companion.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.PrerequisiteFeaturesFromList(animal_companion_selection.AllFeatures)
+            };
+        }
+
     }
 
 
