@@ -3453,7 +3453,15 @@ namespace CallOfTheWild
             {
                 b.SetDescription(new_description);
             }
-            base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name, new_spell.Name));
+            if (level < 9)
+            {
+                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + "," , new_spell.Name + ","));
+            }
+            else
+            {
+                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + ".", new_spell.Name + "."));
+            }
+           
 
             spells.Clear();
             spells.Add(new_spell);
