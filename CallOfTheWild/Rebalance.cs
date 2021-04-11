@@ -2679,7 +2679,6 @@ namespace CallOfTheWild
                 Helpers.PrerequisiteFeaturesFromList(animal_companion_selection.AllFeatures)
             };
         }
-
     }
 
 

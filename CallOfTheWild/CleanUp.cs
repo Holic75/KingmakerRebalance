@@ -284,6 +284,11 @@ namespace CallOfTheWild
                     p.AddComponent(Common.createSpecificBuffImmunity(szb));
                 }
             }
+
+            foreach (var szb in size_buffs)
+            {
+                Common.addContextActionToBuffOnApply(szb, Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(b => b.Buffs = size_buffs.RemoveFromArray(szb).ToArray()));
+            }
         }
 
 
