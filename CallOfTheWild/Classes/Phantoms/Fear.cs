@@ -30,7 +30,7 @@ namespace CallOfTheWild
         {
             var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
             var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
-
+            var frightened_aura_buff = library.CopyAndAdd<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf", "FrightenedFearPhantomAuraBuff", "f4c61d62e328424697f291b76bc3b9cc");
             var apply_shakened = Common.createContextActionApplyBuff(shaken, Helpers.CreateContextDuration(diceCount: 1, diceType: DiceType.D4), dispellable: false);
             var apply_frighted = Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(diceCount: 1, diceType: DiceType.D4), dispellable: false);
 
@@ -106,24 +106,40 @@ namespace CallOfTheWild
                                                        immunity_to_fear_buff.Icon,
                                                        FeatureGroup.None);
 
+            var save_suceeded_buff = Helpers.CreateBuff("FearPhantomIncreasedFearImmuneBuff",
+                                                        "",
+                                                        "",
+                                                        "f915d82077db4e3b8c00d954a98d2c3a",
+                                                        null,
+                                                        null
+                                                        );
+            save_suceeded_buff.SetBuffFlags(BuffFlags.RemoveOnRest | BuffFlags.HiddenInUi);
 
-            var aura_effect_enemy = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
-                                                                    Helpers.CreateConditionalSaved(null,
-                                                                                                   Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
-                                                                                                  )
-                                                                    );
+            var aura_effect_enemy_save = Helpers.CreateActionSavingThrow(SavingThrowType.Will,
+                                                                        Helpers.CreateConditionalSaved(Common.createContextActionApplyBuff(save_suceeded_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true),
+                                                                                                       Common.createContextActionApplyBuff(frightened_aura_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)
+                                                                                                      )
+                                                                        );
+            var aura_effect_enemy = Helpers.CreateConditional(new Condition[]{Common.createContextConditionHasBuffFromCaster(save_suceeded_buff, not: true),
+                                                                              Common.createContextConditionHasBuffFromCaster(frightened_aura_buff, not: true)},
+                                                                              aura_effect_enemy_save);
             var aura_effect_ally = Common.createContextActionApplyBuff(immunity_to_fear_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
 
-            var aura_effect = Helpers.CreateConditional(new Condition[] { Common.createContextConditionHasFact(shaken), Helpers.Create<ContextConditionIsEnemy>(), Common.createContextConditionHasFact(frightened, false) },
-                                                                         aura_effect_enemy,
-                                                                         Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(shelter_allies), Helpers.Create<ContextConditionIsAlly>() },
-                                                                                                   aura_effect_ally
-                                                                                                   )
+            var aura_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
+                                                        Helpers.CreateConditional(Common.createContextConditionHasFact(shaken),
+                                                                                  aura_effect_enemy,
+                                                                                  Common.createContextActionRemoveBuffFromCaster(frightened_aura_buff)
+                                                                                  ),
+                                                        Helpers.CreateConditional(Common.createContextConditionCasterHasFact(shelter_allies),
+                                                                                 aura_effect_ally)
+                                                       );
+
+            var remove_effect = Helpers.CreateConditional(new Condition[] { Helpers.Create<ContextConditionIsEnemy>() },
+                                                          new GameAction[]{Common.createContextActionRemoveBuffFromCaster(save_suceeded_buff),
+                                                                           Common.createContextActionRemoveBuffFromCaster(frightened_aura_buff),
+                                                                          },
+                                                          new GameAction[] { Common.createContextActionRemoveBuffFromCaster(immunity_to_fear_buff) }
                                                         );
-            var remove_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
-                                                             Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = frightened),
-                                                             Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = immunity_to_fear_buff)
-                                            );
             var aura_component = Helpers.CreateAreaEffectRunAction(unitEnter: aura_effect,
                                               unitExit: remove_effect,
                                               round: aura_effect
@@ -180,7 +196,7 @@ namespace CallOfTheWild
                           {
                               library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), //bane
                               NewSpells.savage_maw,
-                              library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampiryc touch
+                              library.Get<BlueprintAbility>("8a28a811ca5d20d49a863e832c31cce1"), //vampyric touch
                               library.Get<BlueprintAbility>("6717dbaef00c0eb4897a1c908a75dfe5") //phantasmal killer
                           },
                           horryfying_strike_exciter,

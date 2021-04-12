@@ -1191,7 +1191,6 @@ namespace CallOfTheWild
                             b.RemoveAfterDelay(new TimeSpan(0, 0, remove_delay_seconds));
                         else
                             b.Remove();
-                        //this.Target.Unit.Buffs.RemoveFact((BlueprintFact)this.Buff);
                     }
                 }
             }
