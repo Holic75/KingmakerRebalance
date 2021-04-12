@@ -259,6 +259,7 @@ namespace CallOfTheWild
                Main.library.Get<BlueprintBuff>("3fca5d38053677044a7ffd9a872d3a0a"),//animal growth
                Main.library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3"),//legendary proportions
                Main.library.Get<BlueprintBuff>("6ba82f2c8a7146e6b4880cbe7f8534e8"),//enlarged body mutation mind mutation
+               Main.library.Get<BlueprintBuff>("c5d35ba066ae4a079a7d86a316d3ef38"), //ferocious mien buff
             };
 
             var frightful_aspect = ResourcesLibrary.TryGetBlueprint<BlueprintAbility>("e788b02f8d21014488067bdd3ba7b325");
@@ -274,7 +275,7 @@ namespace CallOfTheWild
                                                                             var spell_descriptor = b.GetComponent<SpellDescriptorComponent>();
                                                                             return spell_descriptor != null && ((spell_descriptor.Descriptor.Value & SpellDescriptor.Polymorph) > 0);
                                                                         }
-                                                                        );
+                                                                        ).ToArray();
 
             foreach (var szb in size_buffs)
             {
