@@ -797,7 +797,7 @@ namespace CallOfTheWild
                     statType = !mainStatType.HasValue ? this.StatType : mainStatType.Value;
                 }
 
-                var stat_property_getter = property?.GetComponent<CastingStatPropertyGetter>();
+                var stat_property_getter = property?.GetComponent<StatPropertyValueGetter>();
                 if (stat_property_getter != null)
                 {
                     statType = stat_property_getter.GetStat(maybeCaster);
@@ -9443,7 +9443,21 @@ namespace CallOfTheWild
             }
         }
 
-        class HighestStatPropertyGetter : PropertyValueGetter
+        class StatPropertyValueGetter : PropertyValueGetter
+        {
+            public override int GetInt(UnitEntityData unit)
+            {
+                return 0;
+            }
+
+            public virtual StatType GetStat(UnitEntityData unit)
+            {
+                return StatType.Charisma;
+            }
+        }
+
+
+        class HighestStatPropertyGetter : StatPropertyValueGetter
         {
             public StatType[] stats;
             public static BlueprintUnitProperty createProperty(string name, string guid, params StatType[] stats)
@@ -9468,10 +9482,27 @@ namespace CallOfTheWild
                 }
                 return val;
             }
+
+
+            public override StatType GetStat(UnitEntityData unit)
+            {
+                int val = -100;
+                var stat = StatType.Charisma;
+                foreach (var s in stats)
+                {
+                    int bonus = unit.Stats.GetStat<ModifiableValueAttributeStat>(s).Bonus;
+                    if (bonus > val)
+                    {
+                        val = bonus;
+                        stat = s;
+                    }
+                }
+                return stat;
+            }
         }
 
 
-        class CastingStatPropertyGetter : PropertyValueGetter
+        class CastingStatPropertyGetter : StatPropertyValueGetter
         {
             public StatType default_stat;
             public BlueprintCharacterClass[] classes;
@@ -9491,7 +9522,7 @@ namespace CallOfTheWild
             }
 
 
-            public StatType GetStat(UnitEntityData unit)
+            public override StatType GetStat(UnitEntityData unit)
             {
                 var stat = default_stat;
                 foreach (var c in classes)

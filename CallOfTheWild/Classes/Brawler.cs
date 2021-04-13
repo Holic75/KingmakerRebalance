@@ -52,7 +52,7 @@ using Kingmaker.PubSubSystem;
 
 namespace CallOfTheWild
 {
-    class Brawler
+    public class Brawler
     {
         static internal LibraryScriptableObject library => Main.library;
         static internal bool test_mode = false;
@@ -76,6 +76,7 @@ namespace CallOfTheWild
         static public BlueprintFeature brawlers_strike_adamantine;
         static public BlueprintFeature close_weapon_mastery;
         static public BlueprintFeature awesome_blow;
+        static public BlueprintAbility awesome_blow_ability;
         static public BlueprintFeature awesome_blow_improved;
         static public BlueprintFeature perfect_warrior;
 
@@ -242,9 +243,7 @@ namespace CallOfTheWild
                 a.Actions = Helpers.CreateActionList(Helpers.Create<ContextActionCombatManeuver>(c =>
                 {
                     c.Type = CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType();
-                    c.OnSuccess = Helpers.CreateActionList(Helpers.Create<ContextActionDealWeaponDamage>(),
-                                                           Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(f => f.distance_dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 10))
-                                                           );
+                    c.OnSuccess = Helpers.CreateActionList();
                 })
                 );
             });
@@ -259,12 +258,24 @@ namespace CallOfTheWild
                                   );
 
             awesome_blow = Common.AbilityToFeature(ability, false);
+            awesome_blow.AddComponent(Helpers.Create<ManeuverTrigger>(m =>
+                {
+                        m.ManeuverType = CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType();
+                        m.Action = Helpers.CreateActionList(Helpers.Create<ContextActionDealWeaponDamage>(),
+                                                            Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(f => f.distance_dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 10))
+                                                            );
+                }
+                )
+            );
+
+            awesome_blow_ability = ability;
         }
 
 
         static void createCloseWeaponMastery()
         {
-            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D6),
+            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D4),
+                                                            new DiceFormula(1, DiceType.D6),
                                                             new DiceFormula(1, DiceType.D8),
                                                             new DiceFormula(1, DiceType.D10),
                                                             new DiceFormula(2, DiceType.D6),
@@ -282,7 +293,7 @@ namespace CallOfTheWild
                                                   c.value = Helpers.CreateContextValue(AbilityRankType.Default);
                                                   c.categories = new WeaponCategory[] {WeaponCategory.SpikedHeavyShield, WeaponCategory.SpikedLightShield,
                                                                                        WeaponCategory.WeaponLightShield, WeaponCategory.WeaponHeavyShield,
-                                                                                       WeaponCategory.UnarmedStrike, WeaponCategory.PunchingDagger};
+                                                                                       WeaponCategory.PunchingDagger};
                                               }),
                                               Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
                                                                                 type: AbilityRankType.Default,
@@ -373,7 +384,6 @@ namespace CallOfTheWild
 
             buff.AddComponents(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(effect, Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
                                                                                wait_for_attack_to_resolve: true),
-
                              Common.createContextCalculateAbilityParamsBasedOnClassesWithProperty(getBrawlerArray(), physical_stat_property)
                              );
 
@@ -389,7 +399,8 @@ namespace CallOfTheWild
                                                  "",
                                                  Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false)),
                                                  Common.createAbilityCasterHasNoFacts(buff),
-                                                 knockout_resource.CreateResourceLogic()
+                                                 knockout_resource.CreateResourceLogic(),
+                                                 Common.createContextCalculateAbilityParamsBasedOnClassesWithProperty(getBrawlerArray(), physical_stat_property)
                                                  );
 
             knockout = Common.AbilityToFeature(ability, false);
@@ -481,7 +492,7 @@ namespace CallOfTheWild
                 for (int j = 0; j < maneuvers.Length; j++)
                 {
                     var feat = Helpers.CreateFeature($"ManeuverTraining{i+1}" + maneuvers[j][0].ToString() + "Feature",
-                                                     maneuver_training[i].Name + ": " + names[j] + $" ({lvl})",
+                                                     maneuver_training[i].Name + ": " + names[j] + $" ({lvl}{Common.getNumExtension(lvl)} level)",
                                                      maneuver_training[i].Description,
                                                      "",
                                                      icons[j],
@@ -504,6 +515,10 @@ namespace CallOfTheWild
                                            Helpers.Create<CombatManeuverMechanics.SpecificCombatManeuverBonus>(s => { s.maneuver_type = maneuver; s.Value = Helpers.CreateContextValue(AbilityRankType.StatBonus); }),
                                            Common.createContextManeuverDefenseBonus(maneuver, Helpers.CreateContextValue(AbilityRankType.StatBonus))
                                            );
+                    }
+                    for (int k = 0; k < i; k++)
+                    {
+                        feat.AddComponent(Helpers.PrerequisiteNoFeature(maneuver_training[k].AllFeatures[j]));
                     }
                     maneuver_training[i].AllFeatures = maneuver_training[i].AllFeatures.AddToArray(feat);
                 }
@@ -642,9 +657,7 @@ namespace CallOfTheWild
                     return false;
                 }
 
-                if (!Owner.Body.PrimaryHand.HasWeapon || !Owner.Body.SecondaryHand.HasWeapon
-                    || (Owner.Body.PrimaryHand.Weapon.Blueprint.IsNatural || Owner.Body.SecondaryHand.Weapon.Blueprint.IsNatural)
-                    || (Owner.Body.PrimaryHand.Weapon == Owner.Body.EmptyHandWeapon || Owner.Body.SecondaryHand.Weapon == Owner.Body.EmptyHandWeapon))
+                if (!Owner.Body.PrimaryHand.HasWeapon || !Owner.Body.SecondaryHand.HasWeapon)
                 {
                     return false;
                 }
@@ -677,33 +690,12 @@ namespace CallOfTheWild
                     {
                         ++evt.SecondaryHand.MainAttacks;
                     }
-                    return true;
-                }
-
-                return true;
-            }
-        }
-
-
-        //fix twf to work correctly with and brawlers flurry
-        [Harmony12.HarmonyPriority(Harmony12.Priority.First)]
-        [Harmony12.HarmonyPatch(typeof(TwoWeaponFightingDamagePenalty))]
-        [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
-        [Harmony12.HarmonyPatch(new Type[] { typeof(RuleCalculateWeaponStats) })]
-        class TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch
-        {
-            static bool Prefix(TwoWeaponFightingDamagePenalty __instance, RuleCalculateWeaponStats evt)
-            {
-                var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
-                if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
-                {
                     return false;
                 }
 
                 return true;
             }
         }
-
 
 
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -753,7 +745,7 @@ namespace CallOfTheWild
 
             public override void OnTurnOff()
             {
-                this.Owner.Get<UnitPartBrawler>()?.activate();
+                this.Owner.Get<UnitPartBrawler>()?.deactivate();
             }
         }
     }

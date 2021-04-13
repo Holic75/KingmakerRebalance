@@ -51,7 +51,7 @@ namespace CallOfTheWild
 
     namespace CombatManeuverMechanics
     {
-       /* [Harmony12.HarmonyPatch(typeof(RuleCombatManeuver))]
+        [Harmony12.HarmonyPatch(typeof(RuleCombatManeuver))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
         class RuleCombatManeuver__OnTrigger__Patch
         {
@@ -59,13 +59,17 @@ namespace CallOfTheWild
             {
                 var codes = instructions.ToList();
                 var create_exception_string = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ldstr && x.operand.ToString().Contains("Unsupported"));
+                var ret = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Ret);
 
-                codes[create_exception_string] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
+                codes.InsertRange(create_exception_string + 1, new Harmony12.CodeInstruction[]
+                    {
+                        new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0),
+                        new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call,
                                                                            new Func<RuleCombatManeuver, bool>(RuleCombatManeuver__OnTrigger__Patch.checkExtraManeuvers).Method
-                                                                           );
-                codes.Insert(create_exception_string + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ret)); //return from value
-                codes.Insert(create_exception_string, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0)); //load this
-
+                                                                           ),
+                        new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Brfalse_S, codes[ret].labels[0])
+                    }
+                );
                 return codes.AsEnumerable();
             }
 
@@ -87,7 +91,7 @@ namespace CallOfTheWild
                 }
                 return true;
             }
-        }*/
+        }
 
 
         public class UnitPartFakeSizeBonus : AdditiveUnitPart
@@ -751,6 +755,31 @@ namespace CallOfTheWild
                     //TODO: should probably add checks for validity of other maneuvers but currently it is only used in greater trip, greater bull rush, so it looks sufficient
                     __result = false;
                 }
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(ContextActionCombatManeuver))]
+        [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
+        class ContextActionCombatManeuver__RunAction__Patch
+        {
+            static bool Prefix(ContextActionCombatManeuver __instance)
+            {
+                var tr = Harmony12.Traverse.Create(__instance);
+                var target = tr.Property("Target").GetValue<TargetWrapper>();
+                var unit = target?.Unit;
+                if (unit == null)
+                {
+                    return true;
+                }
+
+                if (__instance.Type == CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType() 
+                    && (unit.Descriptor.State.Prone.Active || unit.View.IsGetUp))
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
     }

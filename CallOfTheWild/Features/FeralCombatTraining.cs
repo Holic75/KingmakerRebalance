@@ -358,12 +358,6 @@ namespace CallOfTheWild
             [JsonProperty]
             private Fact m_AppliedFact;
 
-            public static MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock fromMonkNoArmorAndMonkWeaponFeatureUnlock(MonkNoArmorAndMonkWeaponFeatureUnlock prototype)
-            {
-                var m = Helpers.Create<MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock>();
-                m.NewFact = prototype.NewFact;
-                return m;
-            }
 
             public override void OnFactActivate()
             {
@@ -437,13 +431,6 @@ namespace CallOfTheWild
             public WeaponFighterGroup[] weapon_groups;
             [JsonProperty]
             private Fact m_AppliedFact;
-
-            public static MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock fromMonkNoArmorAndMonkWeaponFeatureUnlock(MonkNoArmorAndMonkWeaponFeatureUnlock prototype)
-            {
-                var m = Helpers.Create<MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock>();
-                m.NewFact = prototype.NewFact;
-                return m;
-            }
 
             public override void OnFactActivate()
             {

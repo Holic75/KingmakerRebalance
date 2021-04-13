@@ -1013,8 +1013,18 @@ namespace CallOfTheWild
                 }
                 ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
                 ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
-                if (evt.Weapon == null || maybeWeapon1 == null || (maybeWeapon2 == null || maybeWeapon1.Blueprint.IsNatural) || (maybeWeapon2.Blueprint.IsNatural || maybeWeapon1 == evt.Initiator.Body.EmptyHandWeapon || maybeWeapon2 == evt.Initiator.Body.EmptyHandWeapon) || maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)
+
+                if (evt.Weapon == null
+                   || maybeWeapon1 == null
+                   || maybeWeapon2 == null
+                   || (maybeWeapon1.Blueprint.IsNatural && !(maybeWeapon1.Blueprint.IsUnarmed && evt.Initiator.Descriptor.State.Features.ImprovedUnarmedStrike))
+                   || maybeWeapon2.Blueprint.IsNatural
+                   || maybeWeapon2.Blueprint.IsUnarmed
+                   || (maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)
+                    )
+                {
                     return false;
+                }
 
                 var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
                 if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
