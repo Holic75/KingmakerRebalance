@@ -1348,7 +1348,8 @@ namespace CallOfTheWild
                 "c5158a6622d0b694a99efb1d0025d2c1", //combat trick
                 Antipaladin.insinuator_bonus_feat?.AssetGuid,
                 Occultist.bonus_feats?.AssetGuid,
-                Archetypes.Swashbuckler.swashbucler_combat_trick?.AssetGuid
+                Archetypes.Swashbuckler.swashbucler_combat_trick?.AssetGuid,
+                Brawler.combat_feat?.AssetGuid
             };
 
             if (RogueTalents.feat != null)

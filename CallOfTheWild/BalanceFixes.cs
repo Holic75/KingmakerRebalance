@@ -1262,11 +1262,22 @@ namespace CallOfTheWild
             if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
                 return;
 
-            var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
-            if (bab > 5)
-                ++evt.SecondaryHand.PenalizedAttacks;
-            if (bab > 10)
-                ++evt.SecondaryHand.PenalizedAttacks;
+            var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
+            if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
+            {
+                for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
+                {
+                    ++evt.SecondaryHand.MainAttacks;
+                }
+            }
+            else
+            {
+                var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
+                if (bab > 5)
+                    ++evt.SecondaryHand.PenalizedAttacks;
+                if (bab > 10)
+                    ++evt.SecondaryHand.PenalizedAttacks;
+            }
         }
 
         public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)

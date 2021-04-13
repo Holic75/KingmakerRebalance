@@ -8,6 +8,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Facts;
+using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
 using Kingmaker.Blueprints.Root;
@@ -119,7 +120,8 @@ namespace CallOfTheWild
                     Helpers.Create<PrerequisiteParametrizedWeaponSubcategory>(p => {p.Feature = NewFeats.deity_favored_weapon; p.SubCategory = WeaponSubCategory.Melee; }),
                     ChannelEnergyEngine.improved_channel.GetComponent<PrerequisiteFeaturesFromList>(), //channel energy prereq
                     Helpers.PrerequisiteFeature( library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true),
-                    Helpers.PrerequisiteFeature( Warpriest.flurry2_unlock, any: true)
+                    Helpers.PrerequisiteFeature( Warpriest.flurry2_unlock, any: true),
+                    Helpers.PrerequisiteFeature( Brawler.brawlers_flurry, any: true)
                 };
             library.AddFeats(crusaders_flurry);
 
@@ -383,6 +385,85 @@ namespace CallOfTheWild
                 if (!HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
                     && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
                     && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
+                    && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null
+                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed
+                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
+                    )
+                {
+                    this.AddFact();
+                }
+                else
+                {
+                    this.RemoveFact();
+                }
+            }
+
+            public void AddFact()
+            {
+                if (this.m_AppliedFact != null)
+                    return;
+                this.m_AppliedFact = this.Owner.AddFact(this.NewFact, (MechanicsContext)null, (FeatureParam)null);
+            }
+
+            public void RemoveFact()
+            {
+                if (this.m_AppliedFact == null)
+                    return;
+                this.Owner.RemoveFact(this.m_AppliedFact);
+                this.m_AppliedFact = (Fact)null;
+            }
+
+            public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+            {
+                if (slot.Owner != this.Owner)
+                    return;
+                this.CheckEligibility();
+            }
+
+            public new void OnTurnOn()
+            {
+                this.CheckEligibility();
+            }
+        }
+
+
+
+        [ComponentName("Add feature if owner has no armor or shield")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        [AllowMultipleComponents]
+        public class SpecificWeaponGroupOrFeralCombatFeatureUnlock : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+        {
+            public BlueprintUnitFact NewFact;
+            public WeaponFighterGroup[] weapon_groups;
+            [JsonProperty]
+            private Fact m_AppliedFact;
+
+            public static MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock fromMonkNoArmorAndMonkWeaponFeatureUnlock(MonkNoArmorAndMonkWeaponFeatureUnlock prototype)
+            {
+                var m = Helpers.Create<MonkNoArmorAndMonkWeaponOrFeralCombatFeatureUnlock>();
+                m.NewFact = prototype.NewFact;
+                return m;
+            }
+
+            public override void OnFactActivate()
+            {
+                this.CheckEligibility();
+            }
+
+            public override void OnFactDeactivate()
+            {
+                this.RemoveFact();
+            }
+
+            public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+            {
+                this.CheckEligibility();
+            }
+
+            public void CheckEligibility()
+            {
+                if ((weapon_groups.Contains(this.Owner.Body.PrimaryHand.Weapon.Blueprint.FighterGroup) 
+                        || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true))
                     && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null
                        || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed
                        || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks

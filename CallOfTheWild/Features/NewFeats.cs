@@ -996,7 +996,7 @@ namespace CallOfTheWild
         }
 
 
-        //fix twf to work correctly with prodigious two weapon fighting
+        //fix twf to work correctly with prodigious two weapon fighting and brawlers flurry
         [Harmony12.HarmonyPriority(Harmony12.Priority.First)]
         [Harmony12.HarmonyPatch(typeof(TwoWeaponFightingAttackPenalty))]
         [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
@@ -1015,6 +1015,13 @@ namespace CallOfTheWild
                 ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
                 if (evt.Weapon == null || maybeWeapon1 == null || (maybeWeapon2 == null || maybeWeapon1.Blueprint.IsNatural) || (maybeWeapon2.Blueprint.IsNatural || maybeWeapon1 == evt.Initiator.Body.EmptyHandWeapon || maybeWeapon2 == evt.Initiator.Body.EmptyHandWeapon) || maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)
                     return false;
+
+                var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
+                if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
+                {
+                    return false;
+                }
+
                 int rank = __instance.Fact.GetRank();
                 int num1 = rank <= 1 ? -4 : -2;
                 int num2 = rank <= 1 ? -8 : -2;

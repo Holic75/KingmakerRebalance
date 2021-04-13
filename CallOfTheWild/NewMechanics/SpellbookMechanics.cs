@@ -31,7 +31,6 @@ namespace CallOfTheWild.SpellbookMechanics
     public class UnitPartDoNotSpendNextSpell : AdditiveUnitPart
     {
         public bool active;
-
     }
 
     [AllowedOn(typeof(BlueprintSpellbook))]

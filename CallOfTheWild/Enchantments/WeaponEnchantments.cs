@@ -178,8 +178,8 @@ namespace CallOfTheWild
 
             var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
             var apply_tmp_hp = Common.createContextActionApplyBuff(temp_hp_buff, Helpers.CreateContextDuration(10, Kingmaker.UnitLogic.Mechanics.DurationRate.Minutes), dispellable: false);
-            var apply_sickened = Helpers.CreateConditionalOr(new Condition[]{Helpers.Create<NewMechanics.ContextConditionHasCondtion>(c => c.condition = UnitCondition.Frightened),
-                                                                             Helpers.Create<NewMechanics.ContextConditionHasCondtion>(c => c.condition = UnitCondition.Shaken)
+            var apply_sickened = Helpers.CreateConditionalOr(new Condition[]{Helpers.Create<NewMechanics.ContextConditionHasCondition>(c => c.condition = UnitCondition.Frightened),
+                                                                             Helpers.Create<NewMechanics.ContextConditionHasCondition>(c => c.condition = UnitCondition.Shaken)
                                                                             },
                                                              Common.createContextActionApplyBuff(sickened, Helpers.CreateContextDuration(1), dispellable: false)
                                                              );

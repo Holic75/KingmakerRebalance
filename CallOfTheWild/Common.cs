@@ -2023,6 +2023,7 @@ namespace CallOfTheWild
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.ArmorProficiencies = armor;
+            a.WeaponProficiencies = new WeaponCategory[0];
             return a;
         }
 
@@ -2030,6 +2031,7 @@ namespace CallOfTheWild
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.WeaponProficiencies = weapons;
+            a.ArmorProficiencies = new ArmorProficiencyGroup[0];
             return a;
         }
 

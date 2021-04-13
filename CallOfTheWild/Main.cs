@@ -301,6 +301,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewFeats.test_mode = true;
                     CallOfTheWild.VindicativeBastard.test_mode = true;
                     CallOfTheWild.Occultist.test_mode = true;
+                    CallOfTheWild.Brawler.test_mode = true;
                     inquisitions_test = true;
                     CallOfTheWild.RogueTalents.test_mode = true;
 #endif
@@ -311,6 +312,8 @@ namespace CallOfTheWild
                     CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Archetypes.IroranPaladin.create();
                     CallOfTheWild.Antipaladin.creatAntipaldinClass();
+                    CallOfTheWild.Brawler.createBrawlerClass();
+
                     if (settings.sacred_huntsmaster_animal_focus)
                     {
                         Main.logger.Log("Replacing Sacred Huntsmaster favored enemy with animal focus.");

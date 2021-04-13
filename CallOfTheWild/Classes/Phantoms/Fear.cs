@@ -126,7 +126,7 @@ namespace CallOfTheWild
             var aura_effect_ally = Common.createContextActionApplyBuff(immunity_to_fear_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
 
             var aura_effect = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(),
-                                                        Helpers.CreateConditional(Common.createContextConditionHasFact(shaken),
+                                                        Helpers.CreateConditional(Helpers.Create<NewMechanics.ContextConditionHasCondition>(c => c.condition = Kingmaker.UnitLogic.UnitCondition.Shaken),
                                                                                   aura_effect_enemy,
                                                                                   Common.createContextActionRemoveBuffFromCaster(frightened_aura_buff)
                                                                                   ),

@@ -2531,6 +2531,7 @@ namespace CallOfTheWild
         public class AbilityCasterMainWeaponGroupCheck : BlueprintComponent, IAbilityCasterChecker
         {
             public WeaponFighterGroup[] groups;
+            public WeaponCategory[] extra_categories = new WeaponCategory[0];
             public bool is_2h = false;
             public bool is_sacred = false;
             static BlueprintParametrizedFeature weapon_focus = Main.library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
@@ -2550,9 +2551,8 @@ namespace CallOfTheWild
                 {
                     return checkFeature(caster.Descriptor, caster.Body.PrimaryHand.Weapon.Blueprint.Category, weapon_focus, NewFeats.deity_favored_weapon);
                 }
-                if (caster.Body.PrimaryHand.HasWeapon)
-                    return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup));
-                return false;
+                return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup) || extra_categories.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Category));
+
             }
 
             public string GetReason()
@@ -3442,7 +3442,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ContextConditionHasCondtion: ContextCondition
+        public class ContextConditionHasCondition: ContextCondition
         {
             public UnitCondition condition;
 
