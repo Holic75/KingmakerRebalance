@@ -80,6 +80,32 @@ namespace CallOfTheWild
         static public BlueprintFeature awesome_blow_improved;
         static public BlueprintFeature perfect_warrior;
 
+        static public BlueprintArchetype exemplar;
+        static public BlueprintFeature call_to_arms;
+        static public BlueprintFeature inspire_courage;
+        static public BlueprintFeature inspire_greatness;
+        static public BlueprintFeature inspire_heroics;
+        static public BlueprintFeature field_instruction;
+        static public BlueprintAbility field_instruction_ability;
+        static public BlueprintFeature performance_resource;
+        static public BlueprintFeature inspiring_prowess;
+
+        static public BlueprintArchetype mutagenic_mauler;
+        static public BlueprintFeature mutagen;
+        static public BlueprintFeature mutagen_damage_bonus;
+        static public BlueprintFeatureSelection discovery;
+        static public BlueprintFeature greater_mutagen;
+        static public BlueprintFeature beastmorph_speed;
+        static public BlueprintFeature beastmorph_blindsense;
+
+        static public BlueprintArchetype snakebite_striker;
+        static public BlueprintArchetype steel_breaker;
+        static public BlueprintArchetype venomfist;
+        static public BlueprintArchetype wild_child;
+
+
+
+
 
         internal static void createBrawlerClass()
         {
@@ -118,6 +144,7 @@ namespace CallOfTheWild
             brawler_class.ComponentsArray = monk_class.ComponentsArray.ToArray().RemoveFromArray(monk_class.GetComponent<PrerequisiteAlignment>());
             brawler_class.StartingItems = new Kingmaker.Blueprints.Items.BlueprintItem[]
             {
+                library.Get<BlueprintItemWeapon>("43ff56218554d8547840e7659816db5e"), //punching dagger
                 library.Get<BlueprintItemShield>("f4cef3ba1a15b0f4fa7fd66b602ff32b"), //heavy shield
                 library.Get<BlueprintItemWeapon>("ada85dae8d12eda4bbe6747bb8b5883c"), //quarterstaff
                 library.Get<BlueprintItemArmor>("afbe88d27a0eb544583e00fa78ffb2c7"), //studded leather
@@ -127,11 +154,392 @@ namespace CallOfTheWild
             createBrawlerProgression();
             brawler_class.Progression = brawler_progression;
 
-            brawler_class.Archetypes = new BlueprintArchetype[] { };
+            createExemplar();
+            createMutagenicMauler();
+            brawler_class.Archetypes = new BlueprintArchetype[] {exemplar, mutagenic_mauler };
             Helpers.RegisterClass(brawler_class);
+        }
 
-            //fix stunning fist and perfect strike to use brawler levels 
-            //fix monk robes
+
+        static void createMutagenicMauler()
+        {
+            mutagenic_mauler = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "MutagenicMauler";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Mutagenic Mauler");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Not content with perfecting her body with natural methods, a mutagenic mauler resorts to alchemy to unlock the primal beast within.");
+            });
+            Helpers.SetField(mutagenic_mauler, "m_ParentClass", brawler_class);
+            library.AddAsset(mutagenic_mauler, "");
+
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+
+            createMutagen();
+            createBeastmorph();
+
+            mutagenic_mauler.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, combat_feat),
+                Helpers.LevelEntry(4, ac_bonus),
+                Helpers.LevelEntry(6, combat_feat),
+                Helpers.LevelEntry(10, combat_feat),
+                Helpers.LevelEntry(12, combat_feat),
+            };
+
+            mutagenic_mauler.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, mutagen),
+                                                     Helpers.LevelEntry(4, beastmorph_speed),
+                                                     Helpers.LevelEntry(6, mutagen_damage_bonus),
+                                                     Helpers.LevelEntry(10, discovery),
+                                                     Helpers.LevelEntry(12, greater_mutagen),
+                                                     Helpers.LevelEntry(13, beastmorph_blindsense),
+                                                    };
+
+            brawler_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { brawler_proficiencies, unarmed_strike, improved_unarmed_strike, martial_training };
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(mutagen, beastmorph_speed, mutagen_damage_bonus, discovery, greater_mutagen, beastmorph_blindsense)
+                                                                                   );
+        }
+
+
+        static void createBeastmorph()
+        {
+            beastmorph_speed = Helpers.CreateFeature("MutagenicMaulerBeastmorphSpeedBonusFeature",
+                                                     "Beastmorph: Speed Bonus",
+                                                     "Starting at 4th level, a mutagenic mauler gains additional abilities when using her mutagen. At 4th level, she gains a +10 enhancement bonus to her base speed. At 13th level, the enhancement bonus to her base speed increases to +15 feet. At 18th level, the enhancement bonus to her base speed increases to +20 feet.",
+                                                     "",
+                                                     Helpers.GetIcon("4f8181e7a7f1d904fbaea64220e83379"), //expeditious retreat
+                                                     FeatureGroup.None
+                                                     );
+
+            var beastmorph_speed_buff = Helpers.CreateBuff("MutagenicMaulerBeastmorphSpeedBonusBuff",
+                                         beastmorph_speed.Name,
+                                         beastmorph_speed.Description,
+                                         "",
+                                         beastmorph_speed.Icon,
+                                         null,
+                                         Helpers.CreateAddContextStatBonus(StatType.Speed, ModifierDescriptor.Enhancement),
+                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom,
+                                                                         classes: getBrawlerArray(),
+                                                                         customProgression: new (int, int)[] { (12, 10), (17, 15), (20, 20) }
+                                                                         )
+                                         );
+
+
+            beastmorph_blindsense = Helpers.CreateFeature("MutagenicMaulerBeastmorphBlindsenseFeature",
+                                         "Beastmorph: Blindsense",
+                                         "At 13th level, a mutagenic mauler gains blindsense ability within 30 feet, when using her mutagen.",
+                                         "",
+                                         Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
+                                         FeatureGroup.None
+                                         );
+
+            var beastmorph_blindsense_buff = Helpers.CreateBuff("MutagenicMaulerBeastmorphBlindsenseBuff",
+                                         beastmorph_blindsense.Name,
+                                         beastmorph_blindsense.Description,
+                                         "",
+                                         beastmorph_blindsense.Icon,
+                                         null,
+                                         Common.createBlindsense(30)
+                                         );
+
+            var mutagens = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("cee8f65448ce71c4b8b8ca13751dd8ea"), //mutagen
+                library.Get<BlueprintFeature>("76c61966afdd82048911f3d63c6fe0bc"), //greater mutagen
+                library.Get<BlueprintFeature>("6f5cb651e26bd97428523061b07ffc85"), //grand mutagen
+
+            };
+
+            foreach (var m in mutagens)
+            {
+                var comp = m.GetComponent<AddFacts>();
+
+                foreach (var f in comp.Facts)
+                {
+                    var buff = Common.extractActions<ContextActionApplyBuff>((f as BlueprintAbility).GetComponent<AbilityEffectRunAction>().Actions.Actions)[0].Buff;
+
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, beastmorph_speed_buff, beastmorph_speed);
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, beastmorph_blindsense_buff, beastmorph_blindsense);
+                }
+            }
+
+        }
+
+
+        static void createMutagen()
+        {
+            var alchemist_mutagen = library.Get<BlueprintFeature>("cee8f65448ce71c4b8b8ca13751dd8ea");
+            mutagen = library.CopyAndAdd(alchemist_mutagen, "MutagenicMaulerMutagen", "");
+            foreach (var c in mutagen.GetComponents<SpellLevelByClassLevel>().ToArray())
+            {
+                mutagen.ReplaceComponent(c, c.CreateCopy(cc => cc.Class = brawler_class));
+            }
+            alchemist_mutagen.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = mutagen));
+            mutagen.SetDescription("At 1st level, a mutagenic mauler discovers how to create a mutagen that she can imbibe in order to heighten her physical prowess, though at the cost of her personality. This functions as an alchemist’s mutagen and uses the brawler’s class level as her alchemist level for this ability (alchemist levels stack with brawler levels for determining the effect of this ability). A mutagenic mauler counts as an alchemist for the purpose of imbibing a mutagen prepared by someone else.");
+            var mutagen_damage_buff = Helpers.CreateBuff("MutagenincMaulerDamageBonusBuff",
+                                                         "Mutagen Damage Bonus",
+                                                         "At 6th level, a mutagenic mauler gains a +2 bonus on damage rolls when she attacks in melee while in her mutagenic form. This bonus increases to +3 at 11th level, and to +4 at 16th level.",
+                                                         "",
+                                                         Helpers.GetIcon("85067a04a97416949b5d1dbf986d93f3"), //stone fist
+                                                         null,
+                                                         Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.Default), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
+                                                                                         progression: ContextRankProgression.StartPlusDivStep,
+                                                                                         startLevel: 1, stepLevel: 5, max: 4)
+                                                       );
+
+            mutagen_damage_bonus = Helpers.CreateFeature("MutagenicMaulerDamageBonusFeature",
+                                                         mutagen_damage_buff.Name,
+                                                         mutagen_damage_buff.Description,
+                                                         "",
+                                                         mutagen_damage_buff.Icon,
+                                                         FeatureGroup.None);
+
+            var mutagens = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("cee8f65448ce71c4b8b8ca13751dd8ea"), //mutagen
+                library.Get<BlueprintFeature>("76c61966afdd82048911f3d63c6fe0bc"), //greater mutagen
+                library.Get<BlueprintFeature>("6f5cb651e26bd97428523061b07ffc85"), //grand mutagen
+
+            };
+
+            foreach (var m in mutagens)
+            {
+                var comp = m.GetComponent<AddFacts>();
+
+                foreach (var f in comp.Facts)
+                {
+                    var buff = Common.extractActions<ContextActionApplyBuff>((f as BlueprintAbility).GetComponent<AbilityEffectRunAction>().Actions.Actions)[0].Buff;
+
+                    Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(buff, mutagen_damage_buff, mutagen_damage_bonus);
+                }
+            }
+
+            discovery = library.CopyAndAdd<BlueprintFeatureSelection>("cd86c437488386f438dcc9ae727ea2a6", "MutagenicMaulerDiscovery", "");
+            discovery.SetDescription("At 10th level, a mutagenic mauler learns one of the following alchemist discoveries: feral mutagen, preserve organs, spontaneous healing.");
+            discovery.AllFeatures = new BlueprintFeature[]
+            {
+                library.Get<BlueprintFeature>("fd5f7b37ab4301c48a88cc196ee5f0ce"), //feral mutagen
+                library.Get<BlueprintFeature>("76b4bb8e54f3f5c418f421684c76ef4e"), //preserve organs
+                library.Get<BlueprintFeature>("2bc1ee626a69667469ab5c1698b99956"), //spontaneous healing
+            };
+
+            var spontaneous_healing_resource = library.Get<BlueprintAbilityResource>("0b417a7292b2e924782ef2aab9451816");
+            ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[] { mutagenic_mauler }, spontaneous_healing_resource, library.Get<BlueprintCharacterClass>("0937bec61c0dabc468428f496580c721"));
+
+            var alchemist_greater_mutagen = library.Get<BlueprintFeature>("76c61966afdd82048911f3d63c6fe0bc");
+            greater_mutagen = library.CopyAndAdd(alchemist_greater_mutagen, "MutagenicMaulerGreaterMutagen", "");
+            greater_mutagen.RemoveComponents<PrerequisiteClassLevel>();
+            greater_mutagen.SetDescription("At 12th level, the mutagenic mauler learns the greater mutagen discovery.");
+        
+            foreach (var c in greater_mutagen.GetComponents<SpellLevelByClassLevel>().ToArray())
+            {
+                greater_mutagen.ReplaceComponent(c, c.CreateCopy(cc => cc.Class = brawler_class));
+            }
+            alchemist_greater_mutagen.AddComponent(Helpers.Create<NewMechanics.FeatureReplacement>(f => f.replacement_feature = greater_mutagen));
+        }
+
+
+        static void createExemplar()
+        {
+            exemplar = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "ExemplarArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Exemplar");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A versatile soldier who inspires her companions with her fighting prowess, an exemplar is at home on the front lines of battles anywhere.");
+            });
+            Helpers.SetField(exemplar, "m_ParentClass", brawler_class);
+            library.AddAsset(exemplar, "");
+
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+
+            createCallToArms();
+            createInspiringProwess();
+            createFieldInstruction();
+
+            exemplar.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, unarmed_strike, improved_unarmed_strike),
+                Helpers.LevelEntry(3, maneuver_training[0]),
+                Helpers.LevelEntry(4, ac_bonus),
+                Helpers.LevelEntry(5, brawlers_strike_magic, close_weapon_mastery),
+                Helpers.LevelEntry(7, maneuver_training[1]),
+                Helpers.LevelEntry(9, brawlers_strike_cold_iron_and_silver),
+                Helpers.LevelEntry(11, maneuver_training[2]),
+                Helpers.LevelEntry(12, brawlers_strike_alignment),
+                Helpers.LevelEntry(15, maneuver_training[3]),
+                Helpers.LevelEntry(17, brawlers_strike_adamantine),
+                Helpers.LevelEntry(19, maneuver_training[4]),
+                Helpers.LevelEntry(20, perfect_warrior),
+            };
+
+            exemplar.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, call_to_arms, performance_resource),
+                                                     Helpers.LevelEntry(3, inspiring_prowess, inspire_courage),
+                                                     Helpers.LevelEntry(5, field_instruction),
+                                                     Helpers.LevelEntry(11, inspire_greatness),
+                                                     Helpers.LevelEntry(15, inspire_heroics)
+                                                    };
+
+            brawler_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { brawler_proficiencies, unarmed_strike, improved_unarmed_strike, martial_training };
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(call_to_arms, inspiring_prowess, field_instruction),
+                                                                                   Helpers.CreateUIGroup(inspire_courage, inspire_greatness, inspire_heroics)
+                                                                                   );
+            exemplar.OverrideAttributeRecommendations = true;
+            exemplar.RecommendedAttributes = brawler_class.RecommendedAttributes.AddToArray(StatType.Charisma);
+        }
+
+
+        static void createInspiringProwess()
+        {
+            var resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
+            ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[] { exemplar }, resource, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
+
+            var fake_bard_class = library.CopyAndAdd<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f", "FakeBardExemplarClas", "");
+
+            var inspire_courage_ability = library.CopyAndAdd<BlueprintActivatableAbility>("70274c5aa9124424c984217b62dabee8", "ExemplarInspireCourageToggleAbility", "");
+            inspire_courage_ability.SetDescription("A 3rd level exemplar can use his inspiring prowess to inspire courage in his allies (including himself), bolstering them against fear and improving their combat abilities. To be affected, an ally must be able to perceive the evangelist's performance. An affected ally receives a +1 morale bonus on saving throws against charm and fear effects and a +1 competence bonus on attack and weapon damage rolls. At 7th level, and every six evangelist levels thereafter, this bonus increases by +1, to a maximum of +4 at 19th level.");
+            ClassToProgression.addClassToBuff(brawler_class, new BlueprintArchetype[] { exemplar }, inspire_courage_ability.Buff, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
+
+            var inspire_greatness_ability = library.CopyAndAdd<BlueprintActivatableAbility>("be36959e44ac33641ba9e0204f3d227b", "ExemplarInspireGreatnessToggleAbility", "");
+            inspire_greatness_ability.SetDescription("An exemplar of 11th level or higher can use his inspiring prowess to inspire greatness in all allies within 30 feet, granting extra fighting capability. A creature inspired with greatness gains 2 bonus Hit Dice (d10s), the commensurate number of temporary hit points (apply the target's Constitution modifier, if any, to these bonus Hit Dice), a +2 competence bonus on attack rolls, and a +1 competence bonus on Fortitude saves.");
+
+            var inspire_heroics_ability = library.CopyAndAdd<BlueprintActivatableAbility>("a4ce06371f09f504fa86fcf6d0e021e4", "ExemplarInspireHeroicsToggleAbility", "");
+            inspire_heroics_ability.SetDescription("An exemplar of 15th level or higher can inspire tremendous heroism in all allies within 30 feet. Inspired creatures gain a +4 morale bonus on saving throws and a +4 dodge bonus to AC. The effect lasts for as long as the targets are able to witness the performance.");
+
+     
+            inspire_courage = Common.ActivatableAbilityToFeature(inspire_courage_ability, false);
+            inspire_heroics = Common.ActivatableAbilityToFeature(inspire_heroics_ability, false);
+            inspire_greatness = Common.ActivatableAbilityToFeature(inspire_greatness_ability, false);
+
+            performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
+            performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => { i.CharacterClass = brawler_class; i.Archetype = exemplar; }));
+
+            inspiring_prowess = Helpers.CreateFeature("ExemplarInspiringProwessFeature",
+                                                      "Inspiring Prowess",
+                                                      "At 3rd level, an exemplar gains the ability to use certain bardic performances. She can use this ability for a number of rounds per day equal to 3 + her Charisma modifier; this increases by 1 round per brawler level thereafter. The exemplar’s effective bard level for this ability is equal to her brawler level – 2. At 3rd level, the exemplar can use inspire courage. At 11th level, the exemplar can use inspire greatness. At 15th level, the exemplar can use inspire heroics. Instead of the Perform skill, she activates this ability with impressive flourishes and displays of martial talent (this uses visual components).",
+                                                      "",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<FakeClassLevelMechanics.AddFakeClassLevel>(a => { a.fake_class = fake_bard_class; a.value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.BonusValue, classes: getBrawlerArray(),
+                                                                                      stepLevel: -2
+                                                                                     )
+                                                     );
+            inspiring_prowess.ReapplyOnLevelUp = true;
+        }
+
+
+        static void createCallToArms()
+        {
+            var resource = Helpers.CreateAbilityResource("ExemplarCallToArmsResource", "", "", "", null);
+            resource.SetIncreasedByLevelStartPlusDivStep(3, 2, 1, 2, 1, 0, 0.0f, getBrawlerArray());
+
+            var buff = Helpers.CreateBuff("CallToArmsBuff",
+                                          "Call to Arms",
+                                          "At 1st level, an exemplar can expend a use of martial flexibility to rouse her allies into action. All allies within 30 feet are no longer flat-footed, even if they are surprised. Using this ability is a move action. At 6th level, the exemplar can use it as a swift action instead. At 10th level, she can use it as a free action.",
+                                          "",
+                                          Helpers.GetIcon("76f8f23f6502def4dbefedffdc4d4c43"),
+                                          null,
+                                          Helpers.Create<FlatFootedIgnore>(f => f.Type = FlatFootedIgnoreType.UncannyDodge)
+                                          );
+
+            var ability = Helpers.CreateAbility("CallToArmsAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Extraordinary,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
+                                                Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", anchor: AbilitySpawnFxAnchor.SelectedTarget, position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None),
+                                                Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally),
+                                                resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            call_to_arms = Common.AbilityToFeature(ability, false);
+            call_to_arms.AddComponent(resource.CreateAddAbilityResource());
+
+            var feature_move = Helpers.CreateFeature("CallToArmsMoveFeature",
+                                                     "",
+                                                     "",
+                                                     "",
+                                                     null,
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { ability })
+                                                     );
+
+            feature_move.HideInCharacterSheetAndLevelUp = true;
+            feature_move.HideInUI = true;
+            var feature_swift = library.CopyAndAdd(feature_move, "CallToArmsSwiftFeature", "");
+            feature_swift.ReplaceComponent<TurnActionMechanics.MoveActionAbilityUse>(Helpers.Create<TurnActionMechanics.UseAbilitiesAsSwiftAction>(m => m.abilities = new BlueprintAbility[] { ability }));
+
+
+            call_to_arms.AddComponents(Helpers.CreateAddFeatureOnClassLevel(feature_move, 6, getBrawlerArray()),
+                                       Helpers.CreateAddFeatureOnClassLevel(feature_move, 12, getBrawlerArray())
+                                       );
+        }
+
+
+        static void createFieldInstruction()
+        {
+            field_instruction_ability = library.CopyAndAdd<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8", "BrawlerFieldInstructionAbility", ""); //vanguard tactician
+            field_instruction_ability.SetName("Field Instruction");
+            field_instruction_ability.SetDescription("At 5th level, as a standard action an exemplar can grant a teamwork feat to all allies within 30 feet who can see and hear her. This teamwork feat must be one the exemplar knows or has gained with the martial flexibility ability. Allies retain the use of this teamwork feat for 3 rounds + 1 round for every 2 brawler levels. If the granted teamwork feat is one gained from martial flexibility, this duration ends immediately if the exemplar loses access to that feat. Allies don’t need to meet the prerequisites of this teamwork feat. The exemplar can use this ability once per day at 5th level, plus one additional time per day at 9th, 12th, and 17th level.");
+
+            var tactician_resource = Helpers.CreateAbilityResource("FieldInstrucitonResource", "", "", "", null);
+            tactician_resource.name = "BrawlerTacticianResource";
+            tactician_resource.SetFixedResource(1);
+
+            field_instruction_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
+
+            var abilities = field_instruction_ability.Variants;
+            var new_abilities = new List<BlueprintAbility>();
+
+            foreach (var a in abilities)
+            {
+                var new_ability = library.CopyAndAdd(a, a.name.Replace("Vanguard", "Exemplar"), "");
+                new_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
+                new_ability.Parent = field_instruction_ability;
+                new_ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                                                    progression: ContextRankProgression.StartPlusDivStep,
+                                                                                                    startLevel: -4,
+                                                                                                    stepLevel: 2,
+                                                                                                    classes: new BlueprintCharacterClass[] { brawler_class }
+                                                                                                    )
+                                                                    );
+
+                var buff = Common.extractActions<ContextActionApplyBuff>(new_ability.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff;
+                var teamwork_feat_name = buff.GetComponent<AddFactsFromCaster>().Facts[0].Name;
+                new_ability.SetName("Field Instruction — " + teamwork_feat_name);
+                new_abilities.Add(new_ability);
+                //change buffs to pick name from parent ability
+                Common.extractActions<ContextActionApplyBuff>(a.GetComponent<AbilityEffectRunAction>().Actions.Actions).FirstOrDefault().Buff.SetName("");
+            }
+
+            field_instruction_ability.ReplaceComponent<AbilityVariants>(a => a.Variants = new_abilities.ToArray());
+
+            field_instruction = Helpers.CreateFeature("FieldInstructionFeature",
+                                                      field_instruction_ability.Name,
+                                                      field_instruction_ability.Description,
+                                                     "",
+                                                     field_instruction_ability.Icon,
+                                                     FeatureGroup.None,
+                                                     Helpers.CreateAddFact(field_instruction_ability),
+                                                     Helpers.CreateAddAbilityResource(tactician_resource),
+                                                     Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(c =>
+                                                     {
+                                                         c.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                         c.Resource = tactician_resource;
+                                                     }),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Custom,
+                                                                                     classes: getBrawlerArray(),
+                                                                                     customProgression: new (int, int)[] { (8, 0), (11, 1), (16, 2), (20, 3) }
+                                                                                     )
+                                                    );
+            field_instruction.ReapplyOnLevelUp = true;
         }
 
 
@@ -155,9 +563,10 @@ namespace CallOfTheWild
                                                          "A brawler is proficient with all simple weapons plus the handaxe, short sword, and weapons from the close fighter weapon group. She is proficient with light armor and shields (except tower shields).",
                                                          null);
 
-            var fist1d6_monk = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");
-            ClassToProgression.addClassToFeat(brawler_class, new BlueprintArchetype[] { }, ClassToProgression.DomainSpellsType.NoSpells, fist1d6_monk, monk_class);
+            var fist1d6_monk = library.Get<BlueprintFeature>("c3fbeb2ffebaaa64aa38ce7a0bb18fb0");         
             unarmed_strike = library.CopyAndAdd(fist1d6_monk, "BrawlerUnarmedStrikeFeature", "");
+            //we add class to progression after to prevent monk from increasing unarmed damage using brawler class levels for brawler archetypes that remove unarmed strike feature
+            ClassToProgression.addClassToFeat(brawler_class, new BlueprintArchetype[] { }, ClassToProgression.DomainSpellsType.NoSpells, unarmed_strike, monk_class);
             unarmed_strike.SetDescription("At 1st level, a brawler gains Improved Unarmed Strike as a bonus feat. The damage dealt by a Medium brawler's unarmed strike increases with level: 1d6 at levels 1–3, 1d8 at levels 4–7, 1d10 at levels 8–11, 2d6 at levels 12–15, 2d8 at levels 16–19, and 2d10 at level 20.\nIf the sacred fist is Small, his unarmed strike damage increases as follows: 1d4 at levels 1–3, 1d6 at levels 4–7, 1d8 at levels 8–11, 1d10 at levels 12–15, 2d6 at levels 16–19, and 2d8 at level 20.\nIf the brawler is Large, his unarmed strike damage increases as follows: 1d8 at levels 1–3, 2d6 at levels 4–7, 2d8 at levels 8–11, 3d6 at levels 12–15, 3d8 at levels 16–19, and 4d8 at level 20.");
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 

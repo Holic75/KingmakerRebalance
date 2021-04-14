@@ -165,13 +165,7 @@ namespace CallOfTheWild.Archetypes
             var cleric = library.Get<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
             var resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
 
-            var amount = Helpers.GetField(resource, "m_MaxAmount");
-            BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(amount, "Class");
-            classes = classes.AddToArray(cleric);
-            Helpers.SetField(amount, "Class", classes);
-            Helpers.SetField(amount, "Archetypes", new BlueprintArchetype[] { archetype });
-            Helpers.SetField(resource, "m_MaxAmount", amount);
-
+            ClassToProgression.addClassToResource(cleric, new BlueprintArchetype[] {archetype }, resource, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
 
             var archatype_list_feature = Helpers.CreateFeature("BardicPerformanceArchetypeExtensionFeature",
                                                                "",
@@ -185,24 +179,12 @@ namespace CallOfTheWild.Archetypes
             var inspire_courage_ability = library.CopyAndAdd<BlueprintActivatableAbility>("70274c5aa9124424c984217b62dabee8", "EvangelistInspireCourageToggleAbility", "");
             inspire_courage_ability.SetDescription("A 1st level evangelist can use his performance to inspire courage in his allies (including himself), bolstering them against fear and improving their combat abilities. To be affected, an ally must be able to perceive the evangelist's performance. An affected ally receives a +1 morale bonus on saving throws against charm and fear effects and a +1 competence bonus on attack and weapon damage rolls. At 5th level, and every six evangelist levels thereafter, this bonus increases by +1, to a maximum of +4 at 17th level.");
             var inspire_courage_buff = library.Get<BlueprintBuff>("6d6d9e06b76f5204a8b7856c78607d5d");
-            inspire_courage_buff.ReplaceComponent<ContextRankConfig>(c =>
-                                                                    {
-                                                                        Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
-                                                                        Helpers.SetField(c, "m_Feature", archatype_list_feature);
-                                                                        Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(cleric));
-                                                                    }
-                                                                    );
+            ClassToProgression.addClassToBuff(cleric, new BlueprintArchetype[] { archetype }, inspire_courage_ability.Buff, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
 
             var inspire_competence_ability = library.CopyAndAdd<BlueprintActivatableAbility>("430ab3bb57f2cfc46b7b3a68afd4f74e", "EvangelistInspireCompetenceToggleAbility", "");
             inspire_competence_ability.SetDescription("An evangelist of 3rd level or higher can use his performance to help allies succeed at a task. They must be within 30 feet and able to see and hear the evangelist. They get a +2 competence bonus on all skill checks as long as they continue to hear the evangelist's performance. This bonus increases by +1 for every four levels the evangelist has attained beyond 3rd (+3 at 7th, +4 at 11th, +5 at 15th, and +6 at 19th).");
-            var inspire_competence_buff = library.Get<BlueprintBuff>("1fa5f733fa1d77743bf54f5f3da5a6b1");
-            inspire_competence_buff.ReplaceComponent<ContextRankConfig>(c =>
-                                                                {
-                                                                    Helpers.SetField(c, "m_BaseValueType", ContextRankBaseValueTypeExtender.MaxClassLevelWithArchetypes.ToContextRankBaseValueType());
-                                                                    Helpers.SetField(c, "m_Feature", archatype_list_feature);
-                                                                    Helpers.SetField(c, "m_Class", Helpers.GetField<BlueprintCharacterClass[]>(c, "m_Class").AddToArray(cleric));
-                                                                }
-                                                                );
+            ClassToProgression.addClassToBuff(cleric, new BlueprintArchetype[] { archetype }, inspire_competence_ability.Buff, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
+
 
             var inspire_greatness_ability = library.CopyAndAdd<BlueprintActivatableAbility>("be36959e44ac33641ba9e0204f3d227b", "EvangelistInspireGreatnessToggleAbility", "");
             inspire_greatness_ability.SetDescription("An evangelist of 9th level or higher can use his performance to inspire greatness in all allies within 30 feet, granting extra fighting capability. A creature inspired with greatness gains 2 bonus Hit Dice (d10s), the commensurate number of temporary hit points (apply the target's Constitution modifier, if any, to these bonus Hit Dice), a +2 competence bonus on attack rolls, and a +1 competence bonus on Fortitude saves.");
@@ -229,6 +211,8 @@ namespace CallOfTheWild.Archetypes
 
             performance_resource = library.CopyAndAdd<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f", "EvangelistPerformanceResource", "");
             performance_resource.ReplaceComponent<IncreaseResourcesByClass>(i => i.CharacterClass = cleric);
+            performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
+            performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => { i.CharacterClass = archetype.GetParentClass(); i.Archetype = archetype; }));
         }
 
 

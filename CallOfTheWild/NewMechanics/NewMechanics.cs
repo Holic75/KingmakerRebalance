@@ -4306,6 +4306,26 @@ namespace CallOfTheWild
         }
 
 
+        public class IncreaseResourcesByClassWithArchetype : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+        {
+            public BlueprintAbilityResource Resource;
+            public BlueprintCharacterClass CharacterClass;
+            public BlueprintArchetype Archetype;
+
+
+            public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+            {
+                if (!this.Fact.Active || !(resource != this.Resource))
+                    return;
+                int classLevel = this.Owner.Progression.GetClassLevel(this.CharacterClass);
+                if (Archetype == null || this.Owner.Progression.IsArchetype(Archetype))
+                {
+                    bonus += classLevel;
+                }
+            }
+        }
+
+
         [AllowMultipleComponents]
         [ComponentName("Saving throw bonus against fact")]
         [AllowedOn(typeof(BlueprintUnitFact))]
