@@ -1259,7 +1259,11 @@ namespace CallOfTheWild
     {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
         {
-            if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
+            if (!evt.Initiator.Body.PrimaryHand.HasWeapon 
+                || !evt.Initiator.Body.SecondaryHand.HasWeapon 
+                || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && !evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
+                || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural
+                )
                 return;
 
             var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
@@ -1270,7 +1274,7 @@ namespace CallOfTheWild
                     ++evt.SecondaryHand.MainAttacks;
                 }
             }
-            else
+            else if (this.Fact.GetRank() > 1)
             {
                 var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
                 if (bab > 5)

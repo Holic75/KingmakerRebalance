@@ -110,7 +110,7 @@ namespace CallOfTheWild
             brawler_class.StartingGold = monk_class.StartingGold;
             brawler_class.PrimaryColor = fighter_class.PrimaryColor;
             brawler_class.SecondaryColor = fighter_class.SecondaryColor;
-            brawler_class.RecommendedAttributes = monk_class.RecommendedAttributes;
+            brawler_class.RecommendedAttributes = new StatType[] {StatType.Strength, StatType.Dexterity, StatType.Constitution };
             brawler_class.NotRecommendedAttributes = monk_class.NotRecommendedAttributes;
             brawler_class.EquipmentEntities = monk_class.EquipmentEntities;
             brawler_class.MaleEquipmentEntities = monk_class.MaleEquipmentEntities;
@@ -224,6 +224,11 @@ namespace CallOfTheWild
 
         static void createAwesomeBlow()
         {
+            var text_entry = new Kingmaker.Blueprints.Root.Strings.CombatManeuverString.MyEntry();
+            text_entry.Value = CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType();
+            text_entry.Text = Helpers.CreateString("AwesomeBlow.String", "Combat Maneuver: Awesome Blow");
+            BlueprintRoot.Instance.LocalizedTexts.CombatManeuver.Entries = BlueprintRoot.Instance.LocalizedTexts.CombatManeuver.Entries.AddToArray(text_entry);
+
             awesome_blow_improved = Helpers.CreateFeature("AwesomeBlowImprovedFeature",
                                                           "Improved Awesome Blow",
                                                           "At 20th level, the brawler can use her awesome blow ability on creatures of any size.",
@@ -260,10 +265,11 @@ namespace CallOfTheWild
             awesome_blow = Common.AbilityToFeature(ability, false);
             awesome_blow.AddComponent(Helpers.Create<ManeuverTrigger>(m =>
                 {
-                        m.ManeuverType = CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType();
-                        m.Action = Helpers.CreateActionList(Helpers.Create<ContextActionDealWeaponDamage>(),
-                                                            Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(f => f.distance_dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 10))
-                                                            );
+                    m.OnlySuccess = true;
+                    m.ManeuverType = CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType();
+                    m.Action = Helpers.CreateActionList(Helpers.Create<ContextActionDealWeaponDamage>(),
+                                                        Helpers.Create<CombatManeuverMechanics.ContextActionForceMove>(f => f.distance_dice = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 10))
+                                                        );
                 }
                 )
             );
@@ -463,10 +469,11 @@ namespace CallOfTheWild
                                                      new CombatManeuver[] {CombatManeuver.Disarm },
                                                      new CombatManeuver[] {CombatManeuver.Trip },
                                                      new CombatManeuver[] {CombatManeuver.SunderArmor },
-                                                     new CombatManeuver[] {CombatManeuver.DirtyTrickBlind, CombatManeuver.DirtyTrickEntangle, CombatManeuver.DirtyTrickSickened }
+                                                     new CombatManeuver[] {CombatManeuver.DirtyTrickBlind, CombatManeuver.DirtyTrickEntangle, CombatManeuver.DirtyTrickSickened },
+                                                      new CombatManeuver[] {CombatManeuverTypeExtender.AwesomeBlow.ToCombatManeuverType() },
                                                    };
 
-            var names = new string[] { "Bull Rush", "Disarm", "Trip", "Sunder", "Dirty Trick" };
+            var names = new string[] { "Bull Rush", "Disarm", "Trip", "Sunder", "Dirty Trick", "Awesome Blow" };
             var icons = new UnityEngine.Sprite[]
             {
                 library.Get<BlueprintFeature>("b3614622866fe7046b787a548bbd7f59").Icon,
@@ -474,11 +481,11 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("0f15c6f70d8fb2b49aa6cc24239cc5fa").Icon,
                 library.Get<BlueprintFeature>("9719015edcbf142409592e2cbaab7fe1").Icon,
                 library.Get<BlueprintFeature>("ed699d64870044b43bb5a7fbe3f29494").Icon,
+                library.Get<BlueprintFeature>("bdf58317985383540920c723db07aa3b").Icon, //pummeling bully
             };
 
             for (int i = 0; i < maneuver_training.Length; i++)
             {
-
                 maneuver_training[i] = Helpers.CreateFeatureSelection($"ManeuverTraining{i + 1}FeatureSelection",
                                                                    "Maneuver Training ",
                                                                    "At 3rd level, a brawler can select one combat maneuver to receive additional training. She gains a +1 bonus on combat maneuver checks when performing that combat maneuver and a +1 bonus to her CMD when defending against that maneuver.\n"
@@ -516,11 +523,18 @@ namespace CallOfTheWild
                                            Common.createContextManeuverDefenseBonus(maneuver, Helpers.CreateContextValue(AbilityRankType.StatBonus))
                                            );
                     }
-                    for (int k = 0; k < i; k++)
+
+                    if (j + 1 != maneuvers.Length)
                     {
-                        feat.AddComponent(Helpers.PrerequisiteNoFeature(maneuver_training[k].AllFeatures[j]));
+                        for (int k = 0; k < i; k++)
+                        {
+                            feat.AddComponent(Helpers.PrerequisiteNoFeature(maneuver_training[k].AllFeatures[j]));
+                        }
                     }
-                    maneuver_training[i].AllFeatures = maneuver_training[i].AllFeatures.AddToArray(feat);
+                    if (j + 1 != maneuvers.Length || i + 1 == maneuver_training.Length)
+                    {
+                        maneuver_training[i].AllFeatures = maneuver_training[i].AllFeatures.AddToArray(feat);
+                    }
                 }
             }
         }
@@ -719,7 +733,6 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class BrawlerTwoWeaponFlurryExtraAttack : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
         {
-
             public override void OnFactActivate()
             {
                 this.Owner.Ensure<UnitPartBrawler>().increseExtraAttacks();
