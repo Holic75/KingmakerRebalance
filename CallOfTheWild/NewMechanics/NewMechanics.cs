@@ -3165,6 +3165,10 @@ namespace CallOfTheWild
             public ModifierDescriptor Descriptor;
             public ContextValue Value;
 
+            public bool reflex = true;
+            public bool fortitude = true;
+            public bool will = true;
+
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 if (evt.Reason.Caster != this.Fact.MaybeContext?.MaybeCaster)
@@ -3172,9 +3176,18 @@ namespace CallOfTheWild
                     return;
                 }
                 int bonus = Value.Calculate(this.Fact.MaybeContext);
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                if (will)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                if (reflex)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                if (fortitude)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
             }
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)

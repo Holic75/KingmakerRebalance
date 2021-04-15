@@ -1479,7 +1479,7 @@ namespace CallOfTheWild
             var animal_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
             trick_resource = Helpers.CreateAbilityResource("TrickResource", "", "", "", null);
             trick_resource.SetIncreasedByLevelStartPlusDivStep(0, 0, 0, 2, 1, 0, 0.0f, new BlueprintCharacterClass[] { animal_class});
-            trick_resource.SetIncreasedByStat(0, StatType.Wisdom);
+
 
             var bewildering_injury = library.Get<BlueprintBuff>("22b1d98502050cb4cbdb3679ac53115e");
             var aiding_attack_target_buff = Helpers.CreateBuff("AidingAttackTargetBuff",
@@ -1511,7 +1511,7 @@ namespace CallOfTheWild
             var disorientating_injury = library.Get<BlueprintBuff>("1f1e42f8c06d7dc4bb70cc12c73dfb38");
             var distracting_attack_buff = Helpers.CreateBuff("DistractingAttackEffectBuff",
                                                              "Distracting Attack",
-                                                             "The character can use this trick as a free action before he makes an attack. If the attack hits, the target takes a –2 penalty on all attack rolls for 1 round.",
+                                                             "The character can use this trick as a free action before he hits with an attack.The target takes a –2 penalty on all attack rolls for 1 round.",
                                                              "",
                                                              disorientating_injury.Icon,
                                                              disorientating_injury.FxOnStart,
@@ -1550,14 +1550,23 @@ namespace CallOfTheWild
             trick_selection = Helpers.CreateFeatureSelection("AnimalCompanionTrickSelection",
                                                              "Animal Companion Trick",
                                                              "At 7th level and every 6 levels thereafter, a hunter’s animal companion learns a trick.\n"
-                                                             + "An animal companion can use these tricks a number of times per day equal to half its Hit Dice plus its Wisdom modifier",
+                                                             + "An animal companion can use these tricks a number of times per day equal to half its Hit Dice plus its Wisdom modifier.",
                                                              "",
                                                              null,
-                                                             FeatureGroup.None
+                                                             FeatureGroup.None,
+                                                             Common.createAddFeatComponentsToAnimalCompanion("AnimalCompanionTrickResource",
+                                                                                                             Helpers.CreateAddAbilityResource(trick_resource),
+                                                                                                             Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(r =>
+                                                                                                             {
+                                                                                                                 r.Resource = trick_resource;
+                                                                                                                 r.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                             }
+                                                                                                             ),
+                                                                                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom),
+                                                                                                             Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Wisdom)
+                                                                                                             )                                                                                                            
                                                              );
             trick_selection.AllFeatures = new BlueprintFeature[] { aiding_attack, distracting_attack, rattling_strike, tangling_attack, upending_strike };
-
-
         }
 
 
@@ -1569,8 +1578,8 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action)),
-                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: false, on_initiator: true)
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(action), wait_for_attack_to_resolve: true),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()), only_hit: true, on_initiator: true, wait_for_attack_to_resolve: true)
                                           );
             var act_ability = Helpers.CreateActivatableAbility(name + "ActivatableAbility",
                                                            display_name,
@@ -1587,7 +1596,7 @@ namespace CallOfTheWild
             act_ability.Group = ActivatableAbilityGroupExtension.HunterTrick.ToActivatableAbilityGroup();
 
             var feature = Common.ActivatableAbilityToFeature(act_ability);
-            feature.AddComponent(Helpers.CreateAddAbilityResource(trick_resource));
+            //feature.AddComponent(Helpers.CreateAddAbilityResource(trick_resource));
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), true, false, true, false);
             var ability = Helpers.CreateAbility(name + "Ability",

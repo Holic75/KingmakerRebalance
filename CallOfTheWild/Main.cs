@@ -312,6 +312,7 @@ namespace CallOfTheWild
                     CallOfTheWild.VindicativeBastard.createClass();
                     CallOfTheWild.Archetypes.IroranPaladin.create();
                     CallOfTheWild.Antipaladin.creatAntipaldinClass();
+                    //brawler should be created after hunter to allow wild child to use hunter trics
                     CallOfTheWild.Brawler.createBrawlerClass();
 
                     if (settings.sacred_huntsmaster_animal_focus)

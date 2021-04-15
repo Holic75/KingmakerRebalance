@@ -1,5 +1,8 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Combat;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
 using Kingmaker.Utility;
 using System;
@@ -12,23 +15,54 @@ namespace CallOfTheWild.FlankingMechanics
 {
     public class UnitPartAlwaysFlanked : AdditiveUnitPart
     {
-        public bool active()
+        public bool active(UnitEntityData attacker)
         {
-            return !this.buffs.Empty();
+            bool res = false;
+            foreach (var b in buffs)
+            {
+                b.CallComponents<IAlwaysFlanked>(a => res = a.worksFor(attacker));
+                if (res)
+                {
+                    break;
+                }
+            }
+            return res;
         }
     }
 
 
-    public class AlwaysFlanked : OwnedGameLogicComponent<UnitDescriptor>
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public abstract class IAlwaysFlanked : OwnedGameLogicComponent<UnitDescriptor>, IUnitSubscriber
     {
-        public override void OnFactActivate()
+        public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartAlwaysFlanked>().addBuff(this.Fact);
         }
 
-        public override void OnFactDeactivate()
+
+        public override void OnTurnOff()
         {
-            this.Owner.Get<UnitPartAlwaysFlanked>()?.removeBuff(this.Fact);
+            this.Owner.Ensure<UnitPartAlwaysFlanked>().removeBuff(this.Fact);
+        }
+
+        public abstract bool worksFor(UnitEntityData attacker);
+    }
+
+
+    public class AlwaysFlanked : IAlwaysFlanked
+    {
+        public override bool worksFor(UnitEntityData attacker)
+        {
+            return true;
+        }
+    }
+
+
+    public class AlwaysFlankedIfEngagedByCaster : IAlwaysFlanked
+    {
+        public override bool worksFor(UnitEntityData attacker)
+        {
+            return (this.Fact.MaybeContext?.MaybeCaster?.CombatState.IsEngage(this.Owner.Unit)).GetValueOrDefault();
         }
     }
 
@@ -39,7 +73,7 @@ namespace CallOfTheWild.FlankingMechanics
     {
         static bool Prefix(UnitCombatState __instance, ref bool __result)
         {
-            if ((__instance.Unit.Get<UnitPartAlwaysFlanked>()?.active()).GetValueOrDefault()
+            if ((__instance.Unit.Get<UnitPartAlwaysFlanked>()?.active(null)).GetValueOrDefault()
                  && !__instance.Unit.Descriptor.State.Features.CannotBeFlanked)
             {
                 __result = true;

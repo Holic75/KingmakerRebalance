@@ -9,6 +9,7 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.Enums;
+using Kingmaker.Items;
 using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
@@ -22,6 +23,7 @@ using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -544,6 +546,49 @@ namespace CallOfTheWild.AooMechanics
             this.Owner.Resources.Spend(required_resource, resource_amount);
             (this.Fact as IFactContextOwner).RunActionInContext(actions, this.Owner.Unit);
             Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Initiator);          
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class OpportunistMultipleAttacks : OwnedGameLogicComponent<UnitDescriptor>, IGlobalRulebookHandler<RuleDealDamage>, IRulebookHandler<RuleDealDamage>, IGlobalRulebookSubscriber
+    {
+        [JsonProperty]
+        private TimeSpan m_LastUseTime;
+        [JsonProperty]
+        private int extra_attacks_used = 0;
+
+        public ContextValue num_extra_attacks;
+
+        public void OnEventAboutToTrigger(RuleDealDamage evt)
+        {
+
+        }
+
+        public void OnEventDidTrigger(RuleDealDamage evt)
+        {
+            int max_extra_attacks = num_extra_attacks.Calculate(this.Fact.MaybeContext);
+            if (this.m_LastUseTime + 1.Rounds().Seconds > Game.Instance.TimeController.GameTime)
+            {
+                if (extra_attacks_used < max_extra_attacks)
+                {
+                    extra_attacks_used++;
+                }
+                else
+                {
+                    return;
+                }   
+            }
+            else
+            {
+                this.m_LastUseTime = Game.Instance.TimeController.GameTime;
+                extra_attacks_used = 0;
+            }
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (evt.Initiator == this.Owner.Unit || weapon == null || (!weapon.Blueprint.IsMelee || !this.Owner.Unit.CombatState.EngagedUnits.Contains<UnitEntityData>(evt.Target)))
+                return;
+            Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Target);           
         }
     }
 

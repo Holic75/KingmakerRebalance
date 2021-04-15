@@ -519,6 +519,9 @@ namespace CallOfTheWild
             library.AddCombatFeats(improved_feint, greater_feint, ranged_feint);
             feint_buff = buff;
             greater_feint_buff = greater_buff;
+
+            Brawler.snake_feint[0].AddComponent(Helpers.CreateAddFact(improved_feint));
+            Brawler.snake_feint[0].SetIcon(improved_feint.Icon);
         }
 
 

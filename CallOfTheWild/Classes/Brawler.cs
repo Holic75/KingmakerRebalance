@@ -98,13 +98,20 @@ namespace CallOfTheWild
         static public BlueprintFeature beastmorph_speed;
         static public BlueprintFeature beastmorph_blindsense;
 
-        static public BlueprintArchetype snakebite_striker;
-        static public BlueprintArchetype steel_breaker;
-        static public BlueprintArchetype venomfist;
         static public BlueprintArchetype wild_child;
+        static public BlueprintFeatureSelection animal_companion;
+        static public BlueprintFeatureSelection hunter_trick_selection;
 
+        static public BlueprintArchetype snakebite_striker;
+        static public BlueprintFeature[] snake_feint = new BlueprintFeature[3];
+        static public BlueprintFeature   opportunist;
 
+        static public BlueprintArchetype steel_breaker;
+        static public BlueprintFeature exploit_weakness;
+        static public BlueprintFeature sunder_training;
+        static public BlueprintFeature disarm_training;
 
+        static public BlueprintArchetype venomfist;
 
 
         internal static void createBrawlerClass()
@@ -156,8 +163,326 @@ namespace CallOfTheWild
 
             createExemplar();
             createMutagenicMauler();
-            brawler_class.Archetypes = new BlueprintArchetype[] {exemplar, mutagenic_mauler };
+            createWildChild();
+            createSnakebiteStriker();
+            createSteelBreaker();
+            brawler_class.Archetypes = new BlueprintArchetype[] {exemplar, mutagenic_mauler, wild_child, snakebite_striker, steel_breaker };
             Helpers.RegisterClass(brawler_class);
+        }
+
+
+        static void createSteelBreaker()
+        {
+            steel_breaker = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SteelBreakerBrawler";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Steel-Breaker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The steel-breaker studies destruction and practices it as an art form. She knows every defense has a breaking point, and can shatter those defenses with carefully planned strikes.");
+            });
+            Helpers.SetField(steel_breaker, "m_ParentClass", brawler_class);
+            library.AddAsset(steel_breaker, "");
+
+            createExploitWeakness();
+            createSunderAndDisarmTraining();
+
+            steel_breaker.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(3, maneuver_training[0]),
+                Helpers.LevelEntry(5, brawlers_strike_magic),
+                Helpers.LevelEntry(7, maneuver_training[1]),
+                Helpers.LevelEntry(9, brawlers_strike_cold_iron_and_silver),
+                Helpers.LevelEntry(11, maneuver_training[2]),
+                Helpers.LevelEntry(12, brawlers_strike_alignment),
+                Helpers.LevelEntry(15, maneuver_training[3]),
+                Helpers.LevelEntry(17, brawlers_strike_adamantine),              
+            };
+
+            steel_breaker.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(3, sunder_training),
+                                                              Helpers.LevelEntry(5, exploit_weakness),
+                                                              Helpers.LevelEntry(7, disarm_training),
+                                                         };
+
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(sunder_training, exploit_weakness, disarm_training));
+        }
+
+
+        static void createExploitWeakness()
+        {
+            var description = "At 5th level, as a swift action a steel-breaker can observe a creature or object to find its weak point by succeeding at a Wisdom check, adding her brawler level against a DC of 10 + target’s HD. If it succeeds, the steel-breaker gains a +2 bonus on attack rolls until the end of her turn, and any attacks she makes until the end of her turn ignore the creature's  DR.\n"
+                               + "A steel-breaker can instead use this ability as a swift action to analyze the movements and expressions of one creature within 30 feet, granting a bonus on Reflex saving throws, as well as a dodge bonus to AC against that opponent equal to 1/2 her brawler level until the start of her next turn.";
+
+            var attack_buff = Helpers.CreateBuff("SteelBreakerExplotWeaknessAttackBuff",
+                                                 "Exploit Weakness: Attack Bonus",
+                                                 description,
+                                                 "",
+                                                 Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
+                                                 null,
+                                                 Helpers.Create<IgnoreTargetDR>(i => i.CheckCaster = true),
+                                                 Helpers.Create<AttackBonusAgainstTarget>(a => { a.CheckCaster = true; a.Value = 2; })
+                                                 );
+
+            var defense_buff = Helpers.CreateBuff("SteelBreakerExplotWeaknessDefenseBuff",
+                                     "Exploit Weakness: Defense Bonus",
+                                     description,
+                                     "",
+                                     Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
+                                     null,
+                                     Helpers.Create<ACBonusAgainstTarget>(i => { i.CheckCaster = true; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); i.Descriptor = ModifierDescriptor.Dodge; }),
+                                     Helpers.Create<NewMechanics.SavingThrowBonusAgainstCaster>(a => 
+                                     {
+                                         a.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                         a.Descriptor = ModifierDescriptor.UntypedStackable;
+                                         a.reflex = true;
+                                         a.fortitude = false;
+                                         a.will = true;
+                                     }),
+                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(), progression: ContextRankProgression.Div2)
+                                     );
+
+            exploit_weakness = Helpers.CreateFeature("SteelBreakerExploitWeaknessFeature",
+                                                     "Exploit Weakness",
+                                                     description,
+                                                     "",
+                                                     attack_buff.Icon,
+                                                     FeatureGroup.None
+                                                     );
+
+            var buffs = new BlueprintBuff[] { attack_buff, defense_buff };
+
+            foreach (var b in buffs)
+            {
+                b.Stacking = StackingType.Stack;
+                var apply_buff = Common.createContextActionApplyBuff(b, Helpers.CreateContextDuration(1), dispellable: false);
+                var check = Helpers.Create<SkillMechanics.ContextActionCasterSkillCheck>(c =>
+                {
+                    c.Stat = StatType.Wisdom;
+                    c.Success = Helpers.CreateActionList(apply_buff);
+                });
+                var ability = Helpers.CreateAbility(b.name + "Ability",
+                                                    b.Name,
+                                                    b.Description,
+                                                    "",
+                                                    b.Icon,
+                                                    AbilityType.Extraordinary,
+                                                    CommandType.Swift,
+                                                    AbilityRange.Close,
+                                                    Helpers.roundsPerLevelDuration,
+                                                    "",
+                                                    Helpers.CreateRunActions(check),
+                                                    Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
+                                                    );
+                ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+                exploit_weakness.AddComponent(Helpers.CreateAddFact(ability));
+            }
+        }
+
+
+        static void createSunderAndDisarmTraining()
+        {
+            sunder_training = library.CopyAndAdd(maneuver_training[0].AllFeatures[3], "SteelBreakerSunderTraining", "");
+            sunder_training.SetNameDescription("Sunder Training",
+                                               "At 3rd level, a steel-breaker receives additional training in sunder combat maneuvers. She gains a +2 bonus when attempting a sunder combat maneuver checks and a +2 bonus to her CMD when defending against this maneuver.\n"
+                                               + "At 7th, 11th, 15th, and 19th levels, these bonuses increase by 1.");
+            sunder_training.ReplaceComponent<ContextRankConfig>(c => Helpers.SetField(c, "m_StartLevel", -1));
+
+
+            disarm_training = library.CopyAndAdd(maneuver_training[0].AllFeatures[1], "SteelBreakerDisarmTraining", "");
+            disarm_training.SetNameDescription("Disarm Training",
+                                               "At 7th level, a steel-breaker receives additional training in disarm combat maneuvers. She gains a +2 bonus when attempting a disarm combat maneuver checks and a +2 bonus to her CMD when defending against this maneuver.\n"
+                                               + "At 11th, 15th, and 19th levels, these bonuses increase by 1.");
+        }
+
+
+        static void createSnakebiteStriker()
+        {
+            snakebite_striker = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SnakebiteStriker";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Snakebite Striker");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "With her lightning quickness and guile, a snakebite striker keeps her foes’ attention focused on her, because any one of her feints might be an actual attack. By giving up some of a brawler’s versatility, she increases her damage potential and exposes opponents to deadly and unexpected strikes.");
+            });
+            Helpers.SetField(snakebite_striker, "m_ParentClass", brawler_class);
+            library.AddAsset(snakebite_striker, "");
+
+            createSnakeFeint();
+            createOpportunist();
+
+            var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
+            snakebite_striker.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, combat_feat),
+                Helpers.LevelEntry(3, maneuver_training[0]),
+                Helpers.LevelEntry(6, combat_feat),
+                Helpers.LevelEntry(7, maneuver_training[1]),
+                Helpers.LevelEntry(10, combat_feat),
+                Helpers.LevelEntry(11, maneuver_training[2]),
+                Helpers.LevelEntry(12, combat_feat),
+                Helpers.LevelEntry(15, maneuver_training[3]),
+                Helpers.LevelEntry(19, maneuver_training[4]),
+            };
+
+            snakebite_striker.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, sneak_attack),
+                                                              Helpers.LevelEntry(3, snake_feint[0]),
+                                                              Helpers.LevelEntry(6, sneak_attack),
+                                                              Helpers.LevelEntry(7, snake_feint[1]),
+                                                              Helpers.LevelEntry(10, sneak_attack),
+                                                              Helpers.LevelEntry(11, opportunist),
+                                                              Helpers.LevelEntry(12, sneak_attack),
+                                                              Helpers.LevelEntry(15, snake_feint[2]),
+                                                              Helpers.LevelEntry(20, sneak_attack),
+                                                             };
+
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(sneak_attack));
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(snake_feint.AddToArray(opportunist)));
+
+            snakebite_striker.ReplaceClassSkills = true;
+            snakebite_striker.ClassSkills = brawler_class.ClassSkills.AddToArray(StatType.SkillStealth);
+        }
+
+
+        static void createSnakeFeint()
+        {
+            snake_feint[0] = Helpers.CreateFeature("SnakeFeint3Feature",
+                                                   "Snake Feint",
+                                                   "At 3rd level, a snakebite striker receives Improved Feint feat, even if he doesn’t meet the prerequisites.",
+                                                   "",
+                                                   null,//NewFeats.improved_feint.Icon,
+                                                   FeatureGroup.None
+                                                   //Helpers.CreateAddFact(NewFeats.improved_feint) will be added in newfeats
+                                                   );
+
+            snake_feint[1] = Helpers.CreateFeature("SnakeFeint11Feature",
+                                                   "Snake Feint",
+                                                   "At 11th level, a snakebite striker always flanks an enemy independently of his position, as long as another ally is threating the same enemy.",
+                                                   "",
+                                                   Helpers.GetIcon("422dab7309e1ad343935f33a4d6e9f11"),
+                                                   FeatureGroup.None
+                                                   );
+            snake_feint[1].HideInCharacterSheetAndLevelUp = true;
+            snake_feint[1].HideInUI = true;
+
+
+            var buff2 = Helpers.CreateBuff("SnakeFeint19Buff",
+                                           "",
+                                           "",
+                                           "",
+                                           null,
+                                           null,
+                                           Helpers.Create<FlankingMechanics.AlwaysFlankedIfEngagedByCaster>()
+                                           );
+            buff2.SetBuffFlags(BuffFlags.HiddenInUi);
+            snake_feint[2] = Helpers.CreateFeature("SnakeFeint19Feature",
+                                                   "Snake Feint",
+                                                   "At 19th level, a snakebite striker always flanks an enemy independently of his position, even if no other allies are threatening the same enemy.",
+                                                   "",
+                                                   Helpers.GetIcon("422dab7309e1ad343935f33a4d6e9f11"),
+                                                   FeatureGroup.None,
+                                                   Common.createAuraEffectFeatureComponentCustom(buff2, 15.Feet(), Helpers.CreateConditionsCheckerAnd(Helpers.Create<ContextConditionIsEnemy>()))
+                                                   );
+        }
+
+
+        static void createOpportunist()
+        {
+            opportunist = library.CopyAndAdd<BlueprintFeature>("5bb6dc5ce00550441880a6ff8ad4c968", "SnakebiteStrikerOpportunist", "");
+            opportunist.SetDescription(" At 11th level, once per round the snakebite striker can make an attack of opportunity against an opponent who has just been struck for damage in melee by another character. This attack counts as an attack of opportunity for that round. She cannot use this ability more than once per round, even if she has the Combat Reflexes feat or a similar ability. At 19th level, she can use this ability twice per round.");
+
+            opportunist.ComponentsArray = new BlueprintComponent[]
+            {
+                Helpers.Create<AooMechanics.OpportunistMultipleAttacks>(o => o.num_extra_attacks = Helpers.CreateContextValue(AbilityRankType.Default)),
+                Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
+                                                progression: ContextRankProgression.DelayedStartPlusDivStep,
+                                                startLevel: 19,
+                                                stepLevel: 100)
+            };
+        }
+
+
+        static void createWildChild()
+        {
+            wild_child = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "WildChild";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Wild Child");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "The wild child works with his sworn animal friend to conquer the challenges that lay before them. This kinship could come from being lost in the wilderness and raised by animals or growing up with an exotic pet.");
+            });
+            Helpers.SetField(wild_child, "m_ParentClass", brawler_class);
+            library.AddAsset(wild_child, "");
+
+            createAnimalCompanion();
+            createHunterTricks();
+
+            wild_child.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, combat_feat),
+                Helpers.LevelEntry(4, combat_feat),
+                Helpers.LevelEntry(6, combat_feat),
+                Helpers.LevelEntry(10, combat_feat),
+                Helpers.LevelEntry(12, combat_feat),
+                Helpers.LevelEntry(16, combat_feat),
+                Helpers.LevelEntry(18, combat_feat),
+            };
+
+            wild_child.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, animal_companion),
+                                                             Helpers.LevelEntry(6, hunter_trick_selection),
+                                                             Helpers.LevelEntry(12, hunter_trick_selection),
+                                                             Helpers.LevelEntry(18, hunter_trick_selection),
+                                                            };
+
+            brawler_progression.UIDeterminatorsGroup = brawler_progression.UIDeterminatorsGroup.AddToArray(animal_companion);
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(hunter_trick_selection));
+            wild_child.ReplaceClassSkills = true;
+            wild_child.ClassSkills = brawler_class.ClassSkills.AddToArray(StatType.SkillLoreNature);
+        }
+
+
+        static void createHunterTricks()
+        {
+            hunter_trick_selection = library.CopyAndAdd(Hunter.trick_selection, "WildChildTrickSelection", "");
+            hunter_trick_selection.SetNameDescription("Wild Tricks",
+                                                      "The wild child has learned a number of tricks to aid his allies and his animal companion, as well as to hinder his opponents.\n"
+                                                      + "At 6th level and every 6 levels thereafter, the wild child and his companion learn one hunter’s trick. Wild child cannot choose any tricks that rely on ranged attacks. They can use these tricks a number of times per day equal to 1/2 their brawler level or animal companion HD + their Constitution modifier. This ability otherwise follows the rules of the hunter’s tricks ability, including all action costs.");
+            ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[] { wild_child }, Hunter.trick_resource, library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920"));
+            hunter_trick_selection.ComponentsArray = new BlueprintComponent[]
+            {
+                Hunter.trick_resource.CreateAddAbilityResource(),
+                Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(r => {r.Resource = Hunter.trick_resource; r.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
+                Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Constitution),
+                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Constitution),
+                Common.createAddFeatComponentsToAnimalCompanion("WildCHildAnimalCompanionTrickResource",
+                                                Helpers.CreateAddAbilityResource(Hunter.trick_resource),
+                                                Helpers.Create<ResourceMechanics.ContextIncreaseResourceAmount>(r =>
+                                                {
+                                                    r.Resource = Hunter.trick_resource;
+                                                    r.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                }
+                                                ),
+                                                Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, stat: StatType.Constitution),
+                                                Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Constitution)
+                                                )
+            };
+            for (int i = 0; i < hunter_trick_selection.AllFeatures.Length; i++)
+            {
+                hunter_trick_selection.AllFeatures[i] = library.CopyAndAdd(hunter_trick_selection.AllFeatures[i], "WildChild" + hunter_trick_selection.AllFeatures[i].name, "");
+                hunter_trick_selection.AllFeatures[i].AddComponents(hunter_trick_selection.AllFeatures[i].GetComponent<AddFeatureToCompanion>().Feature.ComponentsArray);
+            }
+        }
+
+
+        static void createAnimalCompanion()
+        {
+            var animal_companion_progression = library.CopyAndAdd<BlueprintProgression>("924fb4b659dcb4f4f906404ba694b690",
+                                                                                      "WildChildAnimalCompanionProgression",
+                                                                                      "");
+            animal_companion_progression.Classes = new BlueprintCharacterClass[] { brawler_class };
+
+            animal_companion = library.CopyAndAdd<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67",
+                                                                                            "AnimalCompanionSelectionWildCHild",
+                                                                                            "");
+            animal_companion.SetDescription("At 1st level, a wild child forms a bond with a loyal companion that accompanies the wild child on his adventures. A wild child can begin play with any of the animals available to a druid. The wild child uses his brawler level as his effective druid level for determining the abilities of his animal companion.");
+            var add_progression = Helpers.Create<AddFeatureOnApply>();
+            add_progression.Feature = animal_companion_progression;
+            animal_companion.ComponentsArray[0] = add_progression;
         }
 
 
@@ -171,8 +496,6 @@ namespace CallOfTheWild
             });
             Helpers.SetField(mutagenic_mauler, "m_ParentClass", brawler_class);
             library.AddAsset(mutagenic_mauler, "");
-
-            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 
             createMutagen();
             createBeastmorph();
@@ -194,7 +517,6 @@ namespace CallOfTheWild
                                                      Helpers.LevelEntry(13, beastmorph_blindsense),
                                                     };
 
-            brawler_progression.UIDeterminatorsGroup = new BlueprintFeatureBase[] { brawler_proficiencies, unarmed_strike, improved_unarmed_strike, martial_training };
             brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(mutagen, beastmorph_speed, mutagen_damage_bonus, discovery, greater_mutagen, beastmorph_blindsense)
                                                                                    );
         }
