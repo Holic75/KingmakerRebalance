@@ -18,6 +18,7 @@ Known Issues:
 
 
 New classes:  
+- Brawler with following archetypes: Exemplar, Mutagenic Mauler, Wild Child, Snakebite Striker, Steel-Breaker and Venomifist,
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, Feykiller, and Totem-Bonded,  
 - Witch with with following archetypes: Invoker, Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
 - Bloodrager with following archetypes: Metamagic Rager, Spelleater, Steelblood, Urban Bloodrager, Primalist and Blood Conduit,

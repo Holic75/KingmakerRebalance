@@ -112,6 +112,7 @@ namespace CallOfTheWild
         static public BlueprintFeature disarm_training;
 
         static public BlueprintArchetype venomfist;
+        static public BlueprintFeature[] venomous_strike = new BlueprintFeature[5];
 
 
         internal static void createBrawlerClass()
@@ -166,8 +167,283 @@ namespace CallOfTheWild
             createWildChild();
             createSnakebiteStriker();
             createSteelBreaker();
-            brawler_class.Archetypes = new BlueprintArchetype[] {exemplar, mutagenic_mauler, wild_child, snakebite_striker, steel_breaker };
+            createVenomfist();
+            brawler_class.Archetypes = new BlueprintArchetype[] {exemplar, mutagenic_mauler, wild_child, snakebite_striker, steel_breaker, venomfist };
             Helpers.RegisterClass(brawler_class);
+        }
+
+
+        static void createVenomfist()
+        {
+            venomfist = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "VenomfistBrawler";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Venomfist");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Thanks to alchemical experiments and rigorous study of venomous creatures, a venomfist has toxic unarmed strikes.");
+            });
+            Helpers.SetField(venomfist, "m_ParentClass", brawler_class);
+            library.AddAsset(venomfist, "");
+
+            createVenomousStrike();
+
+            venomfist.RemoveFeatures = new LevelEntry[]
+            {
+                Helpers.LevelEntry(1, unarmed_strike),
+                Helpers.LevelEntry(4, knockout),
+                Helpers.LevelEntry(5, close_weapon_mastery),
+            };
+
+            venomfist.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, venomous_strike[0]),
+                                                              Helpers.LevelEntry(4, venomous_strike[1]),
+                                                              Helpers.LevelEntry(5, venomous_strike[2]),
+                                                              Helpers.LevelEntry(10, venomous_strike[3]),
+                                                              Helpers.LevelEntry(16, venomous_strike[4]),
+                                                         };
+
+            brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(venomous_strike));
+        }
+
+
+        static void createVenomousStrike()
+        {
+            var fatigued = library.Get<BlueprintBuff>("e6f2fc5d73d88064583cb828801212f4");
+            var shaken = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+            var sickened = library.Get<BlueprintBuff>("4e42460798665fd4cb9173ffa7ada323");
+            var blinded = library.Get<BlueprintBuff>("0ec36e7596a4928489d2049e1e1c76a7");
+            var exhausted = library.Get<BlueprintBuff>("46d1b9cc3d0fd36469a471b047d773a2");
+            var staggered = library.Get<BlueprintBuff>("df3950af5a783bd4d91ab73eb8fa0fd3");
+            var dazed = Common.dazed_non_mind_affecting;
+            var stunned = library.Get<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3");
+
+            var poison_stats = new StatType[] { StatType.Unknown, StatType.Constitution, StatType.Dexterity, StatType.Strength };
+            
+            List<BlueprintAbility> secondary_effect_toggle = new List<BlueprintAbility>();
+            List<BlueprintAbility> poison_damage_type_toggle = new List<BlueprintAbility>();
+
+            var secondary_effect_buff = Helpers.CreateBuff("VenomfistSecondaryEffectBuff",
+                                                           "",
+                                                           "",
+                                                           "",
+                                                           null,
+                                                           null,
+                                                           Helpers.CreateSpellDescriptor(SpellDescriptor.Poison));
+            secondary_effect_buff.SetBuffFlags(BuffFlags.HiddenInUi | BuffFlags.Harmful);
+
+
+            var immune_to_secondary_condition_buff = Helpers.CreateBuff("ImmuneToSecondaryVenomfistEffect",
+                                                            "Secondary Venom Fist Effect Immunity",
+                                                            "The creature is immune to the secondary effects of the venomfist’s poison for 24 hours.",
+                                                            "",
+                                                            Helpers.GetIcon("b48b4c5ffb4eab0469feba27fc86a023"), //delay poison
+                                                            null
+                                                            );
+            immune_to_secondary_condition_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
+
+            var apply_secondary_effect = Helpers.CreateConditional(Common.createContextConditionHasFact(immune_to_secondary_condition_buff, has: false),
+                                                                   Common.createContextActionApplyChildBuff(secondary_effect_buff)
+                                                                  );
+
+            var apply_immunity_to_secondary_effect = Helpers.CreateConditional(Common.createContextConditionHasFact(immune_to_secondary_condition_buff, has: false),
+                                                                               Common.createContextActionApplyBuff(immune_to_secondary_condition_buff, 
+                                                                                                                    Helpers.CreateContextDuration(1, DurationRate.Days),
+                                                                                                                    dispellable: false)
+                                                                               );
+
+            DiceFormula[] diceFormulas = new DiceFormula[] {new DiceFormula(1, DiceType.D3),
+                                                            new DiceFormula(1, DiceType.D4),
+                                                            new DiceFormula(1, DiceType.D6),
+                                                            new DiceFormula(1, DiceType.D8),
+                                                            new DiceFormula(1, DiceType.D10),
+                                                            new DiceFormula(2, DiceType.D6)};
+
+            venomous_strike[0] = Helpers.CreateFeature("VenomousStrike1Feature",
+                                                       "Venomous Strike",
+                                                       "A venomfist’s unarmed strikes deal damage as a creature two size categories smaller (1d3 at first level for Medium venomfists). If she hits with her first unarmed strike in a round, the target must succeed at a Fortitude saving throw (DC = 10 + half the venomfist’s brawler level + her Constitution modifier) or take an additional amount of damage equal to the venomfist’s Constitution modifier. The venomfist is immune to this toxin.",
+                                                       "",
+                                                       Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"), //physical enchantment strength
+                                                       FeatureGroup.None,
+                                                       unarmed_strike.GetComponent<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>().CreateCopy(c =>
+                                                       {
+                                                           c.dice_formulas = diceFormulas;
+                                                       }
+                                                       )
+                                                       );
+
+            venomous_strike[1] = Helpers.CreateFeature("VenomousStrike4Feature",
+                                                       "Venomous Strike",
+                                                       "At 4th level, a target that fails this save must succeed at a second saving throw 1 round later or take the same amount of damage again. This effect repeats as long as the target continues to fail its saving throws, to a maximum number of rounds equal to 1 plus 1 additional round for every 4 brawler levels the venomfist has. Unlike other poisons, multiple doses of a venomfist’s poison never stack; the more recent poison effect replaces the older one.",
+                                                       "",
+                                                       Helpers.GetIcon("c7773d1b408fea24dbbb0f7bf3eb864e"), //physical enchantment strength
+                                                       FeatureGroup.None
+                                                       );
+
+            venomous_strike[2] = Helpers.CreateFeature("VenomousStrike5Feature",
+                                                       "Venomous Strike",
+                                                       "At 5th level, after the venomfist gets 8 hours of rest, she can choose a secondary effect for her venom to impose. She can choose fatigued, shaken, or sickened. A creature that fails its saving throw against her venom also gains the chosen condition until it succeeds at a save against the venom or until the venom’s duration ends. Once a creature succeeds at its save against the poison, it becomes immune to the secondary condition for 24 hours, but the attack still deals the extra damage.",
+                                                       "",
+                                                       fatigued.Icon,
+                                                       FeatureGroup.None
+                                                       );
+
+            venomous_strike[3] = Helpers.CreateFeature("VenomousStrike10Feature",
+                                                       "Venomous Strike",
+                                                       "At 10th level, when the venomfist chooses the condition her venom imposes, she can also cause her venom to deal ability score damage each round instead of hit point damage. She chooses Strength, Dexterity, or Constitution, and her venom deals 1d3 points of ability score damage each round. In addition, she adds blinded, exhausted, and staggered to the list of secondary effects she can choose for her venom.",
+                                                       "",
+                                                       exhausted.Icon,
+                                                       FeatureGroup.None
+                                                       );
+
+            venomous_strike[4] = Helpers.CreateFeature("VenomousStrike16Feature",
+                                                       "Venomous Strike",
+                                                       "At 16th level, the venomfist’s venom is particularly potent. If it fails the initial save, the target must succeed at two consecutive saves before being cured of the venom, though if the first save is successful, the secondary effect ends and the creature is immune to the secondary effects of the venomfist’s poison for 24 hours. In addition, the venomfist adds dazed and stunned to the list of secondary effects she can choose for her venom.",
+                                                       "",
+                                                       dazed.Icon,
+                                                       FeatureGroup.None
+                                                       );
+
+            var secondary_effect_buffs = new Dictionary<BlueprintBuff, BlueprintFeature>
+            {
+                {fatigued, venomous_strike[2]},
+                {shaken, venomous_strike[2] },
+                {sickened, venomous_strike[2] },
+                {blinded, venomous_strike[3] },
+                {exhausted, venomous_strike[3] },
+                {staggered, venomous_strike[3] },
+                {dazed, venomous_strike[4] },
+                {stunned, venomous_strike[4] }
+            };
+
+            var remove_stat_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
+            var stat_buff_resource = Helpers.CreateAbilityResource("VenomousStrikeStatBuffResource", "", "", "", null);
+            stat_buff_resource.SetFixedResource(1);
+
+            foreach (var s in poison_stats)
+            {
+                string stat_text = s == StatType.Unknown ? "HP" : s.ToString();
+                var buff = Helpers.CreateBuff(stat_text + "VenomousStrikeEffectBuff",
+                                              "Venomous Strike Effect: " + stat_text + " Damage",
+                                              venomous_strike[0].Description,
+                                              "",
+                                              venomous_strike[0].Icon,
+                                              null,
+                                              Helpers.Create<PoisonMechanics.BuffPoisonDamage>(p =>
+                                              {
+                                                  if (s == StatType.Unknown)
+                                                  {
+                                                      p.ContextValue = Helpers.CreateContextDiceValue(DiceType.Zero, 0, Helpers.CreateContextValue(AbilityRankType.DamageBonus));
+                                                  }
+                                                  else
+                                                  {
+                                                      p.ContextValue = Helpers.CreateContextDiceValue(DiceType.D3, 1, 0);
+                                                  }
+                                                  p.Stat = s;
+                                                  p.SaveType = SavingThrowType.Fortitude;
+                                                  p.SuccesfullSaves = Helpers.CreateContextValue(AbilityRankType.StatBonus);
+                                                  p.Ticks = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                  p.on_successful_save_action = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(secondary_effect_buff));
+                                              }),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, type: AbilityRankType.StatBonus,
+                                                                              progression: ContextRankProgression.BonusValue, stepLevel: 1, featureList: new BlueprintFeature[] { venomous_strike[4] }),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, type: AbilityRankType.DamageBonus,
+                                                                              stat: StatType.Constitution, min: 0),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
+                                                                              progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4),
+                                              Helpers.CreateAddFactContextActions(activated: new GameAction[] { apply_secondary_effect, apply_immunity_to_secondary_effect}),
+                                              Helpers.CreateSpellDescriptor(SpellDescriptor.Poison)
+                                              );
+                buff.Stacking = StackingType.Replace;
+
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+                var owner_buff = Helpers.CreateBuff(stat_text + "VenomousStrikeBuff",
+                                                    buff.Name,
+                                                    venomous_strike[0].Description,
+                                                    "",
+                                                    venomous_strike[0].Icon,
+                                                    null,
+                                                    Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_buff),
+                                                                                                                 only_first_hit: true),
+                                                    Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution)
+                                                    );
+                owner_buff.SetBuffFlags(BuffFlags.StayOnDeath);
+                remove_stat_buffs.Buffs = remove_stat_buffs.Buffs.AddToArray(owner_buff);
+
+                var owner_ability = Helpers.CreateAbility(stat_text + "VenomousStrikeAbility",
+                                                          owner_buff.Name,
+                                                          owner_buff.Description,
+                                                          "",
+                                                          owner_buff.Icon,
+                                                          AbilityType.Extraordinary,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Personal,
+                                                          "",
+                                                          "",
+                                                          Helpers.CreateRunActions(remove_stat_buffs,
+                                                                                   Common.createContextActionApplyBuff(owner_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)),
+                                                          stat_buff_resource.CreateResourceLogic(),
+                                                          Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution)
+                                                          );
+                Common.setAsFullRoundAction(owner_ability);
+                owner_ability.setMiscAbilityParametersSelfOnly();
+                poison_damage_type_toggle.Add(owner_ability);
+            }
+
+            var remove_secondary_effect_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
+            var secondary_effect_resource = Helpers.CreateAbilityResource("VenomousStrikeSecondaryEffectResource", "", "", "", null);
+            secondary_effect_resource.SetFixedResource(1);
+
+            foreach (var b in secondary_effect_buffs)
+            {
+                var owner_buff = Helpers.CreateBuff("VenomousStrike" + b.Key.name,
+                                                    "Venomous Strike " + b.Key.Name,
+                                                    venomous_strike[2].Description,
+                                                    "",
+                                                    b.Key.Icon,
+                                                    null
+                                                    );
+                owner_buff.SetBuffFlags(BuffFlags.StayOnDeath);
+                remove_secondary_effect_buffs.Buffs = remove_stat_buffs.Buffs.AddToArray(owner_buff);
+
+                var owner_ability = Helpers.CreateAbility(b.Key.name + "VenomousStrikeAbility",
+                                                          owner_buff.Name,
+                                                          owner_buff.Description,
+                                                          "",
+                                                          owner_buff.Icon,
+                                                          AbilityType.Extraordinary,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Personal,
+                                                          "",
+                                                          "",
+                                                          Helpers.CreateRunActions(remove_secondary_effect_buffs,
+                                                                                   Common.createContextActionApplyBuff(owner_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)),
+                                                          secondary_effect_resource.CreateResourceLogic(),
+                                                          Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution),
+                                                          Common.createAbilityShowIfCasterHasFact(b.Value)
+                                                          );
+                Common.setAsFullRoundAction(owner_ability);
+                owner_ability.setMiscAbilityParametersSelfOnly();
+                secondary_effect_toggle.Add(owner_ability);
+            }
+
+            var secondary_effects_wrapper = Common.createVariantWrapper("VenomousStrikeSecondaryEffectBaseAbility", "", secondary_effect_toggle.ToArray());
+            secondary_effects_wrapper.SetNameDescriptionIcon("Venomous Strike Secondary Effect",
+                                                             venomous_strike[2].Description,
+                                                             Helpers.GetIcon("d797007a142a6c0409a74b064065a15e") //poison
+                                                             );
+
+            venomous_strike[2].AddComponents(Helpers.CreateAddFact(secondary_effects_wrapper),
+                                            secondary_effect_resource.CreateAddAbilityResource()
+                                            );
+
+            venomous_strike[0].AddComponents(Helpers.CreateAddFact(poison_damage_type_toggle[0]),
+                                             stat_buff_resource.CreateAddAbilityResource());
+
+            var stat_damage_wrapper = Common.createVariantWrapper("VenomousStrikeStatDamageBase", "", poison_damage_type_toggle.Skip(1).ToArray());
+            stat_damage_wrapper.SetNameDescriptionIcon("Venomous Strike: Stat Damage",
+                                                       "At 10th level, when the venomfist chooses the condition her venom imposes, she can also cause her venom to deal ability score damage each round instead of hit point damage. She chooses Strength, Dexterity, or Constitution, and her venom deals 1d3 points of ability score damage each round.",
+                                                       Helpers.GetIcon("fd101fbc4aacf5d48b76a65e3aa5db6d")
+                                                       );
+
+            venomous_strike[3].AddComponent(Helpers.CreateAddFact(stat_damage_wrapper));
         }
 
 

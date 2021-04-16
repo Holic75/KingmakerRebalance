@@ -309,6 +309,7 @@
     <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\LocalPoolMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />
+    <Compile Include="NewMechanics\PoisonMechanics.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />
     <Compile Include="NewMechanics\RandomMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />

@@ -107,7 +107,7 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 actual_dc = 0;
-                bool no_save = evt.Spell.EffectOnEnemy != AbilityEffectOnUnit.Harmful; //TODO: properly check for saving throw
+                bool no_save = (evt.Spell.AvailableMetamagic & (Metamagic)MetamagicFeats.MetamagicExtender.Persistent) == 0;
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || no_save)
                 {
                     return;
