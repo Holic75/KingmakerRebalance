@@ -1709,7 +1709,7 @@ namespace CallOfTheWild
                 {
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
-                        ++evt.SecondaryHand.MainAttacks;
+                        ++evt.SecondaryHand.AdditionalAttacks;
                     }
                     return false;
                 }
