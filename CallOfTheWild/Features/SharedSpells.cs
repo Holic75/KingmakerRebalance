@@ -143,7 +143,8 @@ namespace CallOfTheWild
                                                             Spiritualist.emotional_focus_selection,
                                                             Shaman.drake_companion,
                                                             Archetypes.DraconicDruid.drake_companion,
-                                                            Warpriest.animal_companion
+                                                            Warpriest.animal_companion,
+                                                            Brawler.animal_companion
                                                             };
             createClassSharedSpell();
             createSharedSpellFeat();

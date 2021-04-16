@@ -1511,16 +1511,12 @@ namespace CallOfTheWild
         static void createPerfromanceResource()
         {
             performance_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
-            var amount = Helpers.GetField(performance_resource, "m_MaxAmount");
-            BlueprintCharacterClass[] classes = (BlueprintCharacterClass[])Helpers.GetField(amount, "Class");
-            classes = classes.AddToArray(skald_class);
-            Helpers.SetField(amount, "Class", classes);
-            Helpers.SetField(performance_resource, "m_MaxAmount", amount);
+            ClassToProgression.addClassToResource(skald_class, new BlueprintArchetype[0], performance_resource, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
 
             give_performance_resource = library.CopyAndAdd<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f", "SkaldPerformanceResourceFact", "");
             give_performance_resource.ReplaceComponent<IncreaseResourcesByClass>(c => { c.CharacterClass = skald_class;});
-
-            //extra performance feat is fixed automatically
+            give_performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
+            give_performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => i.CharacterClass = skald_class));
         }
 
 

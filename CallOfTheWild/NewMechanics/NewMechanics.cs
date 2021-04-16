@@ -107,7 +107,7 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 actual_dc = 0;
-                bool no_save = evt.Spell.EffectOnEnemy != AbilityEffectOnUnit.Harmful; //TODO: properly check for saving throw
+                bool no_save = (evt.Spell.AvailableMetamagic & (Metamagic)MetamagicFeats.MetamagicExtender.Persistent) == 0;
                 if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell || no_save)
                 {
                     return;
@@ -797,7 +797,7 @@ namespace CallOfTheWild
                     statType = !mainStatType.HasValue ? this.StatType : mainStatType.Value;
                 }
 
-                var stat_property_getter = property?.GetComponent<CastingStatPropertyGetter>();
+                var stat_property_getter = property?.GetComponent<StatPropertyValueGetter>();
                 if (stat_property_getter != null)
                 {
                     statType = stat_property_getter.GetStat(maybeCaster);
@@ -1191,7 +1191,6 @@ namespace CallOfTheWild
                             b.RemoveAfterDelay(new TimeSpan(0, 0, remove_delay_seconds));
                         else
                             b.Remove();
-                        //this.Target.Unit.Buffs.RemoveFact((BlueprintFact)this.Buff);
                     }
                 }
             }
@@ -2580,6 +2579,7 @@ namespace CallOfTheWild
         public class AbilityCasterMainWeaponGroupCheck : BlueprintComponent, IAbilityCasterChecker
         {
             public WeaponFighterGroup[] groups;
+            public WeaponCategory[] extra_categories = new WeaponCategory[0];
             public bool is_2h = false;
             public bool is_sacred = false;
             static BlueprintParametrizedFeature weapon_focus = Main.library.Get<BlueprintParametrizedFeature>("1e1f627d26ad36f43bbd26cc2bf8ac7e");
@@ -2599,9 +2599,8 @@ namespace CallOfTheWild
                 {
                     return checkFeature(caster.Descriptor, caster.Body.PrimaryHand.Weapon.Blueprint.Category, weapon_focus, NewFeats.deity_favored_weapon);
                 }
-                if (caster.Body.PrimaryHand.HasWeapon)
-                    return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup));
-                return false;
+                return (groups.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Type.FighterGroup) || extra_categories.Contains(caster.Body.PrimaryHand.Weapon.Blueprint.Category));
+
             }
 
             public string GetReason()
@@ -3215,6 +3214,10 @@ namespace CallOfTheWild
             public ModifierDescriptor Descriptor;
             public ContextValue Value;
 
+            public bool reflex = true;
+            public bool fortitude = true;
+            public bool will = true;
+
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 if (evt.Reason.Caster != this.Fact.MaybeContext?.MaybeCaster)
@@ -3222,9 +3225,18 @@ namespace CallOfTheWild
                     return;
                 }
                 int bonus = Value.Calculate(this.Fact.MaybeContext);
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                if (will)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                if (reflex)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
+                if (fortitude)
+                {
+                    evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                }
             }
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)
@@ -3492,7 +3504,7 @@ namespace CallOfTheWild
         }
 
 
-        public class ContextConditionHasCondtion: ContextCondition
+        public class ContextConditionHasCondition: ContextCondition
         {
             public UnitCondition condition;
 
@@ -4353,6 +4365,26 @@ namespace CallOfTheWild
             }
 
             public override void OnEventDidTrigger(RuleCalculateDamage evt) { }
+        }
+
+
+        public class IncreaseResourcesByClassWithArchetype : OwnedGameLogicComponent<UnitDescriptor>, IResourceAmountBonusHandler, IUnitSubscriber
+        {
+            public BlueprintAbilityResource Resource;
+            public BlueprintCharacterClass CharacterClass;
+            public BlueprintArchetype Archetype;
+
+
+            public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
+            {
+                if (!this.Fact.Active || !(resource != this.Resource))
+                    return;
+                int classLevel = this.Owner.Progression.GetClassLevel(this.CharacterClass);
+                if (Archetype == null || this.Owner.Progression.IsArchetype(Archetype))
+                {
+                    bonus += classLevel;
+                }
+            }
         }
 
 
@@ -9539,7 +9571,21 @@ namespace CallOfTheWild
             }
         }
 
-        class HighestStatPropertyGetter : PropertyValueGetter
+        class StatPropertyValueGetter : PropertyValueGetter
+        {
+            public override int GetInt(UnitEntityData unit)
+            {
+                return 0;
+            }
+
+            public virtual StatType GetStat(UnitEntityData unit)
+            {
+                return StatType.Charisma;
+            }
+        }
+
+
+        class HighestStatPropertyGetter : StatPropertyValueGetter
         {
             public StatType[] stats;
             public static BlueprintUnitProperty createProperty(string name, string guid, params StatType[] stats)
@@ -9564,10 +9610,27 @@ namespace CallOfTheWild
                 }
                 return val;
             }
+
+
+            public override StatType GetStat(UnitEntityData unit)
+            {
+                int val = -100;
+                var stat = StatType.Charisma;
+                foreach (var s in stats)
+                {
+                    int bonus = unit.Stats.GetStat<ModifiableValueAttributeStat>(s).Bonus;
+                    if (bonus > val)
+                    {
+                        val = bonus;
+                        stat = s;
+                    }
+                }
+                return stat;
+            }
         }
 
 
-        class CastingStatPropertyGetter : PropertyValueGetter
+        class CastingStatPropertyGetter : StatPropertyValueGetter
         {
             public StatType default_stat;
             public BlueprintCharacterClass[] classes;
@@ -9587,7 +9650,7 @@ namespace CallOfTheWild
             }
 
 
-            public StatType GetStat(UnitEntityData unit)
+            public override StatType GetStat(UnitEntityData unit)
             {
                 var stat = default_stat;
                 foreach (var c in classes)

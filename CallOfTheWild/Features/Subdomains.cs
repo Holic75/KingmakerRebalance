@@ -193,13 +193,13 @@ namespace CallOfTheWild
                                                "You are infused with power to curse others, and your mere presence can spread misfortune.\n" +
                                                $"{ability.Name}: {ability.Description}\n" +
                                                "Divine Fortune: At 6th level, as a standard action, you can bless yourself with divine luck. For the next half your level in the class that gave you access to this domain rounds you roll two times on every d20 roll and take the best result. You can use this ability once per day at 6th level, and one additional time per day for every 6 levels in the class that gave you access to this domain beyond 6th.\n"
-                                               + "Domain Spells: True Strike, Aid, Protection From Energy, Protection from Energy, Communal, Break Enchantment, Cat's Grace, Mass, Restoration, Greater, Euphoric Tranquility, Heal, Mass",
+                                               + "Domain Spells: Bane, Aid, Bestow Curse, Protection from Energy, Communal, Break Enchantment, Eyebite, Restoration, Greater, Euphoric Tranquility, Heal, Mass",
                                                luck_domain,
                                                new BlueprintFeature[] { luck_domain_base },
                                                new BlueprintFeature[] { malign_eye },
                                                spell_list
                                                );
-            Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), 1);
+            Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734"), 1); //abne
             Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("989ab5c44240907489aba0a8568d0603"), 3); //bestow curse
             Common.replaceDomainSpell(curse_domain, library.Get<BlueprintAbility>("3167d30dd3c622c46b0c0cb242061642"), 6); //eyebite
             curse_domain.AddComponents(Helpers.PrerequisiteNoFeature(luck_domain), Helpers.PrerequisiteNoFeature(shelyn));
@@ -271,7 +271,7 @@ namespace CallOfTheWild
                                    "You revel in ruin and devastation, and can deliver particularly destructive attacks.\n"
                                    + "Destructive Smite: You gain the the supernatural ability to make a melee attack with a morale bonus on damage rolls equal to 1/2 your level in the class that gave you access to this domain (minimum 1).\n"
                                    + feature.Name + ": " + feature.Description + "\n"
-                                   + "Domain Spells: True Strike, Boneshaker, Rage, Fear, Boneshatter, Harm, Disintegrate, Horrid Wilting, Implosion.",
+                                   + "Domain Spells: True Strike, Bull's Strength, Rage, Fear, Boneshatter, Harm, Disintegrate, Horrid Wilting, Implosion.",
                                    destruction_domain,
                                    new BlueprintFeature[] { destruction_domain_greater },
                                    new BlueprintFeature[] { feature },
@@ -592,7 +592,7 @@ namespace CallOfTheWild
                                                     BlueprintProgression base_progression,
                                                     BlueprintFeature[] old_features,
                                                     BlueprintFeature[] new_features,
-                                                    BlueprintSpellList spell_list = null )
+                                                    BlueprintSpellList spell_list = null)
         {
             bool[] features_replaced = new bool[old_features.Length];
             List<LevelEntry> new_level_entries = new List<LevelEntry>();
@@ -683,6 +683,7 @@ namespace CallOfTheWild
             give_spells.HideInUI = true;
 
             f0.AddComponent(Helpers.CreateAddFeatureOnClassLevel(give_spells, 1, new BlueprintCharacterClass[] { cleric_class }));
+            f0.SetNameDescription(progression);
             progression.LevelEntries[0].Features[0] = f0;
             if (base_progression.UIGroups.Length > 0)
             {

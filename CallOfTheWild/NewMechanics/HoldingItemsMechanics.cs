@@ -15,6 +15,8 @@ using Kingmaker.Items.Slots;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UI.Common;
+using Kingmaker.UI.ServiceWindow.CharacterScreen;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
@@ -790,6 +792,43 @@ namespace CallOfTheWild.HoldingItemsMechanics
         }
     }
 
+
+    //Shield bash activated notification
+    [Harmony12.HarmonyPatch(typeof(AddMechanicsFeature))]
+    [Harmony12.HarmonyPatch("OnTurnOn", Harmony12.MethodType.Normal)]
+    class AddMechanicsFeature__OnTurnOn__Patch
+    {
+        public static bool no_animation_action = false;
+        //signal weapon set change to notify that weapons could have been changed
+        static void Postfix(AddMechanicsFeature __instance)
+        {
+            var feature = CallOfTheWild.Helpers.GetField<AddMechanicsFeature.MechanicsFeatureType>(__instance, "m_Feature");
+            if (feature == AddMechanicsFeature.MechanicsFeatureType.ShieldBash)
+            {
+                no_animation_action = true;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+                no_animation_action = false;
+            }
+        }
+    }
+    [Harmony12.HarmonyPatch(typeof(AddMechanicsFeature))]
+    [Harmony12.HarmonyPatch("OnTurnOff", Harmony12.MethodType.Normal)]
+    class AddMechanicsFeature__OnTurnOff__Patch
+    {
+        public static bool no_animation_action = false;
+        //signal weapon set change to notify that weapons could have been changed
+        static void Postfix(AddMechanicsFeature __instance)
+        {
+            var feature = CallOfTheWild.Helpers.GetField<AddMechanicsFeature.MechanicsFeatureType>(__instance, "m_Feature");
+            if (feature == AddMechanicsFeature.MechanicsFeatureType.ShieldBash)
+            {
+                no_animation_action = true;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(__instance.Owner)));
+                no_animation_action = false;
+            }
+        }
+    }
+
     //make signal from created weapons no longer consume move action
     [Harmony12.HarmonyPatch(typeof(UnitViewHandsEquipment))]
     [Harmony12.HarmonyPatch("HandleEquipmentSetChanged", Harmony12.MethodType.Normal)]
@@ -964,7 +1003,81 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
+    [Harmony12.HarmonyPatch(typeof(CharSAttack))]
+    [Harmony12.HarmonyPatch("SetupMainAttacks", Harmony12.MethodType.Normal)]
+    class CharSAttack__SetupMainAttacks__Patch
+    {
+        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on primary hand
+
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, UnitDescriptor, bool>(considerUnarmedAndIgnore).Method));
+
+            return codes.AsEnumerable();
+        }
 
 
+        private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return weapon.IsUnarmed && !(bool)unit.State.Features.ImprovedUnarmedStrike;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(RuleCalculateAttacksCount))]
+    [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+    class RuleCalculateAttacksCount__OnTrigger__Patch
+    {
+        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            var check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on primary hand
+
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnore).Method));
+
+            return codes.AsEnumerable();
+        }
+
+
+        private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, RuleCalculateAttacksCount evt)
+        {
+            return weapon.IsUnarmed && !(bool)evt.Initiator.Descriptor?.State.Features.ImprovedUnarmedStrike;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(TwoWeaponFightingDamagePenalty))]
+    [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
+    class TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch
+    {
+        static bool Prefix(RuleCalculateWeaponStats __instance, RuleCalculateWeaponStats evt)
+        {
+            ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
+            ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
+
+            var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
+            if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
+            {
+                return false;
+            }
+
+            if (evt.Weapon == null
+               || maybeWeapon1 == null
+               || maybeWeapon2 == null
+               || (maybeWeapon1.Blueprint.IsNatural && !maybeWeapon1.Blueprint.IsUnarmed)
+               || maybeWeapon2.Blueprint.IsNatural
+               || maybeWeapon2 != evt.Weapon
+               || (bool)evt.Initiator.Descriptor.State.Features.DoubleSlice
+               )
+            {
+                return false;
+            }
+            evt.SecondaryWeapon = true;
+            return false;
+        }
+    }
 
 }

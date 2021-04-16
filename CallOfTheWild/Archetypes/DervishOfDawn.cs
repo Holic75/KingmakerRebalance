@@ -162,7 +162,7 @@ namespace CallOfTheWild.Archetypes
                                           Helpers.Create<WeaponParametersAttackBonus>(w => { w.Ranged = true; w.AttackBonus = -2; }),
                                           Helpers.Create<WeaponParametersAttackBonus>(w => { w.Ranged = false; w.AttackBonus = -2; })
                                           );
-
+            BladeTutor.RuleCalculateAttackBonusWithoutTarget_OnTrigger_Patch.facts.Add(buff);
             var toggle = Common.buffToToggle(buff, CommandType.Free, deactivate_immediately: true);
             lightning_strike = Common.ActivatableAbilityToFeature(toggle, false);
         }

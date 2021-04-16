@@ -4243,13 +4243,13 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("SleetStormBuff",
                               "Sleet Storm",
-                              "Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Acrobatics check. Failure means it can’t move in that round.\n"
+                              "Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Acrobatics check. Failure means it can’t move in that round, while failure by 5 or more means it falls.\n"
                               + "Ranged attacks are impossible in the area.",
                               "",
                               icon,
                               null,
                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
-                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
                               Common.createBuffDescriptorImmunity(SpellDescriptor.SightBased),
                               Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
                               Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; })
@@ -4275,11 +4275,17 @@ namespace CallOfTheWild
 
             var apply_can_not_move = Common.createContextActionApplyBuff(can_not_move_buff, Helpers.CreateContextDuration(1), dispellable: false, is_child: true);
 
-            var check_movement = Helpers.CreateConditional(new Condition[]{Helpers.Create<CombatManeuverMechanics.ContextConditionTargetSizeLessOrEqual>(c => c.target_size = Size.Medium),
-                                                                           Helpers.CreateConditionHasFact(immunity_to_wind, not: true)},
-                                                           Common.createContextActionSkillCheck(StatType.SkillMobility,
-                                                                                                failure: Helpers.CreateActionList(apply_can_not_move),
-                                                                                                custom_dc: 10)
+            var check_movement = Helpers.CreateConditional(Helpers.CreateConditionHasFact(immunity_to_wind, not: true),
+                                                           Helpers.Create<SkillMechanics.ContextActionSkillCheckWithFailures>(c =>
+                                                           {
+                                                               c.custom_dc = 10;
+                                                               c.Stat = StatType.SkillMobility;
+                                                               c.Failure = Helpers.CreateActionList(apply_can_not_move);
+                                                               c.Failure5 = Helpers.CreateActionList(apply_can_not_move,
+                                                                                                     Helpers.Create<ContextActionKnockdownTarget>()
+                                                                                                    );
+                                                           }
+                                                           )
                                                            );
 
             var actions = Helpers.CreateActionList(check_movement);
@@ -4815,7 +4821,7 @@ namespace CallOfTheWild
                               icon,
                               null,
                               Common.createSpellImmunityToSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased),
-                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
+                              Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed),
                               Common.createBuffDescriptorImmunity(SpellDescriptor.SightBased),
                               Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; }),
                               Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; })

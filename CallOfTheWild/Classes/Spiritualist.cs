@@ -247,7 +247,7 @@ namespace CallOfTheWild
             {
                 a.name = "PriestOfTheFallenArchetype";
                 a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Priest of the Fallen");
-                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Countless hero-gods have risen and fallen through Iblydos’s long history, leaving behind mighty spirits. Those attuned to these fallen hero-gods can become conduits for their restless souls and agents acting out their divine will. The result is a priest of the fallen, a spiritualist who channels her land’s legends and provides a vessel for mighty heroes to perform heroic acts once more.");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "Countless hero-gods have risen and fallen through Golarion’s long history, leaving behind mighty spirits. Those attuned to these fallen hero-gods can become conduits for their restless souls and agents acting out their divine will. The result is a priest of the fallen, a spiritualist who channels her land’s legends and provides a vessel for mighty heroes to perform heroic acts once more.");
             });
             Helpers.SetField(priest_of_the_fallen, "m_ParentClass", spiritualist_class);
             library.AddAsset(priest_of_the_fallen, "");

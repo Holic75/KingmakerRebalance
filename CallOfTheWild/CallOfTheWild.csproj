@@ -173,6 +173,7 @@
     <Compile Include="Archetypes\ZenArcher.cs" />
     <Compile Include="Classes\AnimalFocus.cs" />
     <Compile Include="Classes\Arcanist.cs" />
+    <Compile Include="Classes\Brawler.cs" />
     <Compile Include="Classes\DawnflowerAnchorite.cs" />
     <Compile Include="Classes\Eidolons\Agathion.cs" />
     <Compile Include="Classes\Eidolons\AirElemental.cs" />
@@ -308,6 +309,7 @@
     <Compile Include="NewMechanics\ItemMechanics.cs" />
     <Compile Include="NewMechanics\LocalPoolMechanics.cs" />
     <Compile Include="NewMechanics\NonOffensiveActions.cs" />
+    <Compile Include="NewMechanics\PoisonMechanics.cs" />
     <Compile Include="NewMechanics\RaceMechanics.cs" />
     <Compile Include="NewMechanics\RandomMechanics.cs" />
     <Compile Include="NewMechanics\ConfusionControl.cs" />

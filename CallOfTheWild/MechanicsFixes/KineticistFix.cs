@@ -1279,7 +1279,7 @@ namespace CallOfTheWild
             var toggle = Common.buffToToggle(kinetic_whip_enabled_buff, UnitCommand.CommandType.Free, true);
 
             //increase cost of kinetic blade if used with whip
-            var maybe_apply_whip = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(blade_enabled_buff), apply_whip);
+            var maybe_apply_whip = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(kinetic_whip_enabled_buff), apply_whip);
             foreach (var kv in blast_kinetic_blades_burn_map)
             {
                 var burn_ability = kv.Value.Item2;

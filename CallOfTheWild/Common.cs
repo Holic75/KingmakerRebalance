@@ -1067,6 +1067,18 @@ namespace CallOfTheWild
         }
 
 
+        static public void addContextActionToBuffOnApply(BlueprintBuff target_buff, GameAction action)
+        {
+            if (target_buff.GetComponent<AddFactContextActions>() == null)
+            {
+                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
+            }
+
+            var activated = target_buff.GetComponent<Kingmaker.UnitLogic.Mechanics.Components.AddFactContextActions>().Activated;
+            activated.Actions = activated.Actions.AddToArray(action);
+        }
+
+
 
         static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                               params BlueprintUnitFact[] facts)
@@ -2014,6 +2026,7 @@ namespace CallOfTheWild
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.ArmorProficiencies = armor;
+            a.WeaponProficiencies = new WeaponCategory[0];
             return a;
         }
 
@@ -2021,6 +2034,7 @@ namespace CallOfTheWild
         {
             var a = Helpers.Create<Kingmaker.UnitLogic.FactLogic.AddProficiencies>();
             a.WeaponProficiencies = weapons;
+            a.ArmorProficiencies = new ArmorProficiencyGroup[0];
             return a;
         }
 
@@ -3476,7 +3490,15 @@ namespace CallOfTheWild
             {
                 b.SetDescription(new_description);
             }
-            base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name, new_spell.Name));
+            if (level < 9)
+            {
+                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + "," , new_spell.Name + ","));
+            }
+            else
+            {
+                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + ".", new_spell.Name + "."));
+            }
+           
 
             spells.Clear();
             spells.Add(new_spell);

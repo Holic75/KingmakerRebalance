@@ -20,6 +20,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics;
@@ -70,6 +71,34 @@ namespace CallOfTheWild
             fixTwf();
             fixVitalStrike();
             fixCleave();
+
+            fixSpells();
+        }
+
+
+        static void fixSpells()
+        {
+            //fix righteous might duration to minutes/level and change enhancement bonus to natural armor to size one
+            // (since all similar spells like legendary prooportions and enlarge reduce have same duration)
+            var righteous_might = library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252");
+
+            righteous_might.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions,
+                                                                                                                                                           c => c.DurationValue.Rate = DurationRate.Minutes)));
+            righteous_might.LocalizedDuration = Helpers.CreateString("RighteousMightMinutes.Duration", Helpers.minutesPerLevelDuration);
+            righteous_might.SetDescription(righteous_might.Description.Replace("+2 enhancement", "+2"));
+            var buffs = new BlueprintBuff[]{Main.library.Get<BlueprintBuff>("c84fbb4414925f344b894e9511626296"),//righteous might evil
+                                            Main.library.Get<BlueprintBuff>("17206974f2a2c164db26d1af7fac57d5"),//righteous might good
+                                           };
+            foreach (var b in buffs)
+            {
+                foreach (var c in b.GetComponents<AddGenericStatBonus>())
+                {
+                    if (c.Descriptor == ModifierDescriptor.NaturalArmorEnhancement)
+                    {
+                        c.Descriptor = ModifierDescriptor.NaturalArmor;
+                    }
+                }
+            }
         }
 
 
@@ -1230,14 +1259,29 @@ namespace CallOfTheWild
     {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
         {
-            if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
+            if (!evt.Initiator.Body.PrimaryHand.HasWeapon 
+                || !evt.Initiator.Body.SecondaryHand.HasWeapon 
+                || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && !evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
+                || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural
+                )
                 return;
 
-            var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
-            if (bab > 5)
-                ++evt.SecondaryHand.PenalizedAttacks;
-            if (bab > 10)
-                ++evt.SecondaryHand.PenalizedAttacks;
+            var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
+            if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
+            {
+                for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
+                {
+                    ++evt.SecondaryHand.MainAttacks;
+                }
+            }
+            else if (this.Fact.GetRank() > 1)
+            {
+                var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
+                if (bab > 5)
+                    ++evt.SecondaryHand.PenalizedAttacks;
+                if (bab > 10)
+                    ++evt.SecondaryHand.PenalizedAttacks;
+            }
         }
 
         public override void OnEventDidTrigger(RuleCalculateAttacksCount evt)
