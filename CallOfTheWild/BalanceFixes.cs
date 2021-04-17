@@ -1259,6 +1259,7 @@ namespace CallOfTheWild
     {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
         {
+            Main.logger.Log("BrawlerTwf Check");
             if (!evt.Initiator.Body.PrimaryHand.HasWeapon 
                 || !evt.Initiator.Body.SecondaryHand.HasWeapon 
                 || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && !evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
@@ -1269,6 +1270,7 @@ namespace CallOfTheWild
             var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
             if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
             {
+                Main.logger.Log("BrawlerTwf: " + brawler_part.getNumExtraAttacks().ToString());
                 for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                 {
                     ++evt.SecondaryHand.MainAttacks;

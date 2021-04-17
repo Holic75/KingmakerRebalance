@@ -1516,7 +1516,7 @@ namespace CallOfTheWild
             give_performance_resource = library.CopyAndAdd<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f", "SkaldPerformanceResourceFact", "");
             give_performance_resource.ReplaceComponent<IncreaseResourcesByClass>(c => { c.CharacterClass = skald_class;});
             give_performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
-            give_performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => i.CharacterClass = skald_class));
+            give_performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => { i.CharacterClass = skald_class; i.Resource = performance_resource; }));
         }
 
 

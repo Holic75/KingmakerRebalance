@@ -87,7 +87,7 @@ namespace CallOfTheWild
         static public BlueprintFeature inspire_heroics;
         static public BlueprintFeature field_instruction;
         static public BlueprintAbility field_instruction_ability;
-        static public BlueprintFeature performance_resource;
+        static public BlueprintFeature performance_resource_feature;
         static public BlueprintFeature inspiring_prowess;
 
         static public BlueprintArchetype mutagenic_mauler;
@@ -340,7 +340,8 @@ namespace CallOfTheWild
                                                   p.SaveType = SavingThrowType.Fortitude;
                                                   p.SuccesfullSaves = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                                                   p.Ticks = Helpers.CreateContextValue(AbilityRankType.Default);
-                                                  p.on_successful_save_action = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(secondary_effect_buff));
+                                                  p.on_successful_save_action = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(secondary_effect_buff),
+                                                                                                         apply_immunity_to_secondary_effect);
                                               }),
                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.FeatureList, type: AbilityRankType.StatBonus,
                                                                               progression: ContextRankProgression.BonusValue, stepLevel: 1, featureList: new BlueprintFeature[] { venomous_strike[4] }),
@@ -348,19 +349,20 @@ namespace CallOfTheWild
                                                                               stat: StatType.Constitution, min: 0),
                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
                                                                               progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4),
-                                              Helpers.CreateAddFactContextActions(activated: new GameAction[] { apply_secondary_effect, apply_immunity_to_secondary_effect}),
+                                              Helpers.CreateAddFactContextActions(activated: new GameAction[] { apply_secondary_effect}),
                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Poison)
                                               );
                 buff.Stacking = StackingType.Replace;
 
                 var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
+                var apply_buff_saved = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff));
                 var owner_buff = Helpers.CreateBuff(stat_text + "VenomousStrikeBuff",
                                                     buff.Name,
                                                     venomous_strike[0].Description,
                                                     "",
                                                     venomous_strike[0].Icon,
                                                     null,
-                                                    Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_buff),
+                                                    Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_buff_saved),
                                                                                                                  only_first_hit: true),
                                                     Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution)
                                                     );
@@ -970,8 +972,8 @@ namespace CallOfTheWild
                 Helpers.LevelEntry(20, perfect_warrior),
             };
 
-            exemplar.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, call_to_arms, performance_resource),
-                                                     Helpers.LevelEntry(3, inspiring_prowess, inspire_courage),
+            exemplar.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, call_to_arms),
+                                                     Helpers.LevelEntry(3, inspiring_prowess, inspire_courage, performance_resource_feature),
                                                      Helpers.LevelEntry(5, field_instruction),
                                                      Helpers.LevelEntry(11, inspire_greatness),
                                                      Helpers.LevelEntry(15, inspire_heroics)
@@ -989,13 +991,13 @@ namespace CallOfTheWild
         static void createInspiringProwess()
         {
             var resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
-            ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[] { exemplar }, resource, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
+            //ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[] { exemplar }, resource, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
 
             var fake_bard_class = library.CopyAndAdd<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f", "FakeBardExemplarClas", "");
 
             var inspire_courage_ability = library.CopyAndAdd<BlueprintActivatableAbility>("70274c5aa9124424c984217b62dabee8", "ExemplarInspireCourageToggleAbility", "");
             inspire_courage_ability.SetDescription("A 3rd level exemplar can use his inspiring prowess to inspire courage in his allies (including himself), bolstering them against fear and improving their combat abilities. To be affected, an ally must be able to perceive the evangelist's performance. An affected ally receives a +1 morale bonus on saving throws against charm and fear effects and a +1 competence bonus on attack and weapon damage rolls. At 7th level, and every six evangelist levels thereafter, this bonus increases by +1, to a maximum of +4 at 19th level.");
-            ClassToProgression.addClassToBuff(brawler_class, new BlueprintArchetype[] { exemplar }, inspire_courage_ability.Buff, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
+            ClassToProgression.addClassToBuff(fake_bard_class, new BlueprintArchetype[] { }, inspire_courage_ability.Buff, library.Get<BlueprintCharacterClass>("772c83a25e2268e448e841dcd548235f"));
 
             var inspire_greatness_ability = library.CopyAndAdd<BlueprintActivatableAbility>("be36959e44ac33641ba9e0204f3d227b", "ExemplarInspireGreatnessToggleAbility", "");
             inspire_greatness_ability.SetDescription("An exemplar of 11th level or higher can use his inspiring prowess to inspire greatness in all allies within 30 feet, granting extra fighting capability. A creature inspired with greatness gains 2 bonus Hit Dice (d10s), the commensurate number of temporary hit points (apply the target's Constitution modifier, if any, to these bonus Hit Dice), a +2 competence bonus on attack rolls, and a +1 competence bonus on Fortitude saves.");
@@ -1008,8 +1010,15 @@ namespace CallOfTheWild
             inspire_heroics = Common.ActivatableAbilityToFeature(inspire_heroics_ability, false);
             inspire_greatness = Common.ActivatableAbilityToFeature(inspire_greatness_ability, false);
 
-            performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
-            performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => { i.CharacterClass = brawler_class; i.Archetype = exemplar; }));
+            var performance_resource = library.Get<BlueprintAbilityResource>("e190ba276831b5c4fa28737e5e49e6a6");
+            performance_resource_feature = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
+            performance_resource_feature.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => 
+                                                        {
+                                                            i.Resource = performance_resource;
+                                                            i.CharacterClass = brawler_class;
+                                                            i.Archetype = exemplar;
+                                                            i.base_value = -2;
+                                                        }));
 
             inspiring_prowess = Helpers.CreateFeature("ExemplarInspiringProwessFeature",
                                                       "Inspiring Prowess",
@@ -1033,7 +1042,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("CallToArmsBuff",
                                           "Call to Arms",
-                                          "At 1st level, an exemplar can expend a use of martial flexibility to rouse her allies into action. All allies within 30 feet are no longer flat-footed, even if they are surprised. Using this ability is a move action. At 6th level, the exemplar can use it as a swift action instead. At 10th level, she can use it as a free action.",
+                                          "At 1st level, an exemplar rouse her allies into action. All allies within 30 feet are no longer flat-footed, even if they are surprised. Using this ability is a move action. This ability can be used 3 times per day + 1 more time per 2 exemplar levels. At 6th level, the exemplar can use it as a swift action instead. At 10th level, she can use it as a free action.",
                                           "",
                                           Helpers.GetIcon("76f8f23f6502def4dbefedffdc4d4c43"),
                                           null,
@@ -1046,7 +1055,7 @@ namespace CallOfTheWild
                                                 "",
                                                 buff.Icon,
                                                 AbilityType.Extraordinary,
-                                                CommandType.Standard,
+                                                CommandType.Move,
                                                 AbilityRange.Personal,
                                                 Helpers.oneRoundDuration,
                                                 "",
@@ -1066,17 +1075,17 @@ namespace CallOfTheWild
                                                      "",
                                                      null,
                                                      FeatureGroup.None,
-                                                     Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { ability })
+                                                     Helpers.Create<TurnActionMechanics.UseAbilitiesAsSwiftAction>(m => m.abilities = new BlueprintAbility[] { ability })
                                                      );
 
             feature_move.HideInCharacterSheetAndLevelUp = true;
             feature_move.HideInUI = true;
             var feature_swift = library.CopyAndAdd(feature_move, "CallToArmsSwiftFeature", "");
-            feature_swift.ReplaceComponent<TurnActionMechanics.MoveActionAbilityUse>(Helpers.Create<TurnActionMechanics.UseAbilitiesAsSwiftAction>(m => m.abilities = new BlueprintAbility[] { ability }));
+            feature_swift.ReplaceComponent<TurnActionMechanics.UseAbilitiesAsSwiftAction>(Helpers.Create<TurnActionMechanics.UseAbilitiesAsFreeAction>(m => m.abilities = new BlueprintAbility[] { ability }));
 
 
             call_to_arms.AddComponents(Helpers.CreateAddFeatureOnClassLevel(feature_move, 6, getBrawlerArray()),
-                                       Helpers.CreateAddFeatureOnClassLevel(feature_move, 12, getBrawlerArray())
+                                       Helpers.CreateAddFeatureOnClassLevel(feature_swift, 10, getBrawlerArray())
                                        );
         }
 
@@ -1102,8 +1111,7 @@ namespace CallOfTheWild
                 new_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
                 new_ability.Parent = field_instruction_ability;
                 new_ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                    progression: ContextRankProgression.StartPlusDivStep,
-                                                                                                    startLevel: -4,
+                                                                                                    progression: ContextRankProgression.DivStep,
                                                                                                     stepLevel: 2,
                                                                                                     classes: new BlueprintCharacterClass[] { brawler_class }
                                                                                                     )
@@ -1588,6 +1596,9 @@ namespace CallOfTheWild
                               Helpers.CreateAddFact(toggle)
                              );
             brawlers_flurry11.AddComponents(Helpers.Create<BrawlerTwoWeaponFlurryExtraAttack>());
+
+            brawlers_flurry.IsClassFeature = true;
+            brawlers_flurry11.IsClassFeature = true;
         }
 
         static void createBrawlersCunning()
@@ -1655,7 +1666,7 @@ namespace CallOfTheWild
                 active = false;
             }
 
-            public void increseExtraAttacks()
+            public void increaseExtraAttacks()
             {
                 extra_attacks++;
             }
@@ -1707,6 +1718,7 @@ namespace CallOfTheWild
                 var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
                 if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
                 {
+                    Main.logger.Log("BrawlerTwf: " + brawler_part.getNumExtraAttacks().ToString());
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
                         ++evt.SecondaryHand.MainAttacks;
@@ -1742,7 +1754,7 @@ namespace CallOfTheWild
         {
             public override void OnFactActivate()
             {
-                this.Owner.Ensure<UnitPartBrawler>().increseExtraAttacks();
+                this.Owner.Ensure<UnitPartBrawler>().increaseExtraAttacks();
             }
 
 

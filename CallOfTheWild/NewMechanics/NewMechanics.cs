@@ -4323,17 +4323,17 @@ namespace CallOfTheWild
         {
             public BlueprintAbilityResource Resource;
             public BlueprintCharacterClass CharacterClass;
-            public BlueprintArchetype Archetype;
-
+            public BlueprintArchetype Archetype = null;
+            public int base_value = 0;
 
             public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
             {
-                if (!this.Fact.Active || !(resource != this.Resource))
+                if (!this.Fact.Active || (resource != this.Resource))
                     return;
                 int classLevel = this.Owner.Progression.GetClassLevel(this.CharacterClass);
                 if (Archetype == null || this.Owner.Progression.IsArchetype(Archetype))
                 {
-                    bonus += classLevel;
+                    bonus += classLevel + base_value;
                 }
             }
         }

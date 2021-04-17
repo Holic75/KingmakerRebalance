@@ -884,8 +884,7 @@ namespace CallOfTheWild
                 new_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(tactician_resource));
                 new_ability.Parent = tactician_ability;
                 new_ability.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                                    progression: ContextRankProgression.StartPlusDivStep,
-                                                                                                    startLevel: -1,
+                                                                                                    progression: ContextRankProgression.DivStep,
                                                                                                     stepLevel: 2,
                                                                                                     classes: new BlueprintCharacterClass[] { hunter_class }
                                                                                                     )

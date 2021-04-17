@@ -212,7 +212,12 @@ namespace CallOfTheWild.Archetypes
             performance_resource = library.CopyAndAdd<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f", "EvangelistPerformanceResource", "");
             performance_resource.ReplaceComponent<IncreaseResourcesByClass>(i => i.CharacterClass = cleric);
             performance_resource = library.Get<BlueprintFeature>("b92bfc201c6a79e49afd0b5cfbfc269f");
-            performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => { i.CharacterClass = archetype.GetParentClass(); i.Archetype = archetype; }));
+            performance_resource.AddComponent(Helpers.Create<NewMechanics.IncreaseResourcesByClassWithArchetype>(i => 
+                                             {
+                                                 i.CharacterClass = archetype.GetParentClass();
+                                                 i.Archetype = archetype;
+                                                 i.Resource = resource;
+                                             }));
         }
 
 
