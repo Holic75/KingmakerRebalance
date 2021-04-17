@@ -472,7 +472,8 @@ namespace CallOfTheWild
                 Helpers.LevelEntry(11, maneuver_training[2]),
                 Helpers.LevelEntry(12, brawlers_strike_alignment),
                 Helpers.LevelEntry(15, maneuver_training[3]),
-                Helpers.LevelEntry(17, brawlers_strike_adamantine),              
+                Helpers.LevelEntry(17, brawlers_strike_adamantine),
+                Helpers.LevelEntry(19, maneuver_training[4]),
             };
 
             steel_breaker.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(3, sunder_training),
@@ -506,14 +507,6 @@ namespace CallOfTheWild
                                      Helpers.GetIcon("9e1ad5d6f87d19e4d8883d63a6e35568"), //mage armor
                                      null,
                                      Helpers.Create<ACBonusAgainstTarget>(i => { i.CheckCaster = true; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); i.Descriptor = ModifierDescriptor.Dodge; }),
-                                     Helpers.Create<NewMechanics.SavingThrowBonusAgainstCaster>(a => 
-                                     {
-                                         a.Value = Helpers.CreateContextValue(AbilityRankType.Default);
-                                         a.Descriptor = ModifierDescriptor.UntypedStackable;
-                                         a.reflex = true;
-                                         a.fortitude = false;
-                                         a.will = true;
-                                     }),
                                      Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(), progression: ContextRankProgression.Div2)
                                      );
 
@@ -522,7 +515,17 @@ namespace CallOfTheWild
                                                      description,
                                                      "",
                                                      attack_buff.Icon,
-                                                     FeatureGroup.None
+                                                     FeatureGroup.None,
+                                                     Helpers.Create<NewMechanics.SavingThrowBonusAgainstFactFromCaster>(a =>
+                                                     {
+                                                         a.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                         a.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                         a.reflex = true;
+                                                         a.fortitude = false;
+                                                         a.will = false;
+                                                         a.CheckedFact = defense_buff;
+                                                     }),
+                                                     Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(), progression: ContextRankProgression.Div2)
                                                      );
 
             var buffs = new BlueprintBuff[] { attack_buff, defense_buff };
@@ -535,6 +538,7 @@ namespace CallOfTheWild
                 {
                     c.Stat = StatType.Wisdom;
                     c.Success = Helpers.CreateActionList(apply_buff);
+                    c.bonus = Helpers.CreateContextValue(AbilityRankType.StatBonus);
                 });
                 var ability = Helpers.CreateAbility(b.name + "Ability",
                                                     b.Name,
@@ -547,6 +551,8 @@ namespace CallOfTheWild
                                                     Helpers.roundsPerLevelDuration,
                                                     "",
                                                     Helpers.CreateRunActions(check),
+                                                    Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
+                                                                                    type: AbilityRankType.StatBonus),
                                                     Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", position_anchor: AbilitySpawnFxAnchor.None, orientation_anchor: AbilitySpawnFxAnchor.None)
                                                     );
                 ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -869,6 +875,7 @@ namespace CallOfTheWild
         {
             var alchemist_mutagen = library.Get<BlueprintFeature>("cee8f65448ce71c4b8b8ca13751dd8ea");
             mutagen = library.CopyAndAdd(alchemist_mutagen, "MutagenicMaulerMutagen", "");
+            mutagen.GetComponent<AddFacts>().DoNotRestoreMissingFacts = true;
             foreach (var c in mutagen.GetComponents<SpellLevelByClassLevel>().ToArray())
             {
                 mutagen.ReplaceComponent(c, c.CreateCopy(cc => cc.Class = brawler_class));
@@ -881,7 +888,14 @@ namespace CallOfTheWild
                                                          "",
                                                          Helpers.GetIcon("85067a04a97416949b5d1dbf986d93f3"), //stone fist
                                                          null,
-                                                         Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.Default), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.UntypedStackable),
+                                                         Helpers.Create<WeaponAttackTypeDamageBonus>(w =>
+                                                         {
+                                                             w.Value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                             w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee;
+                                                             w.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                             w.AttackBonus = 1;
+                                                         }
+                                                         ),
                                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
                                                                                          progression: ContextRankProgression.StartPlusDivStep,
                                                                                          startLevel: 1, stepLevel: 5, max: 4)
@@ -1718,7 +1732,6 @@ namespace CallOfTheWild
                 var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
                 if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
                 {
-                    Main.logger.Log("BrawlerTwf: " + brawler_part.getNumExtraAttacks().ToString());
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
                         ++evt.SecondaryHand.MainAttacks;
@@ -1754,13 +1767,13 @@ namespace CallOfTheWild
         {
             public override void OnFactActivate()
             {
-                this.Owner.Ensure<UnitPartBrawler>().increaseExtraAttacks();
+                this.Owner.Get<UnitPartBrawler>()?.increaseExtraAttacks();
             }
 
 
             public override void OnFactDeactivate()
             {
-                this.Owner.Ensure<UnitPartBrawler>().decreaseExtraAttacks();
+                this.Owner.Get<UnitPartBrawler>()?.decreaseExtraAttacks();
             }
         }
 

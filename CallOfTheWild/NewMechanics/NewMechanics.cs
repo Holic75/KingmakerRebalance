@@ -3204,6 +3204,9 @@ namespace CallOfTheWild
             public BlueprintUnitFact CheckedFact;
             public ModifierDescriptor Descriptor;
             public ContextValue Value;
+            public bool will = true;
+            public bool reflex = true;
+            public bool fortitude = true;
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
@@ -3215,9 +3218,18 @@ namespace CallOfTheWild
                 {
                     if (b.Blueprint == CheckedFact && b.Context.MaybeCaster == evt.Initiator)
                     {
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        if (will)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
+                        if (reflex)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
+                        if (fortitude)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
                         return;
                     }
                 }
