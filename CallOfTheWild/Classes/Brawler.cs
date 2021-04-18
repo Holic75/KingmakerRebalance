@@ -266,7 +266,9 @@ namespace CallOfTheWild
                                                        {
                                                            c.dice_formulas = diceFormulas;
                                                        }
-                                                       )
+                                                       ),
+                                                       unarmed_strike.GetComponent<ContextRankConfig>(),
+                                                       Helpers.CreateSpellDescriptor(SpellDescriptor.Poison)
                                                        );
 
             venomous_strike[1] = Helpers.CreateFeature("VenomousStrike4Feature",
@@ -317,6 +319,15 @@ namespace CallOfTheWild
             var stat_buff_resource = Helpers.CreateAbilityResource("VenomousStrikeStatBuffResource", "", "", "", null);
             stat_buff_resource.SetFixedResource(1);
 
+            venomous_strike[0].AddComponents(Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution),
+                                             Helpers.Create<RecalculateOnStatChange>(r => r.Stat = StatType.Constitution),
+                                             Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
+                                                                             classes: getBrawlerArray(),
+                                                                             progression: ContextRankProgression.OnePlusDivStep,
+                                                                             stepLevel: 4,
+                                                                             type: AbilityRankType.DamageDice
+                                                                             )
+                                             );
             foreach (var s in poison_stats)
             {
                 string stat_text = s == StatType.Unknown ? "HP" : s.ToString();
@@ -339,7 +350,7 @@ namespace CallOfTheWild
                                                   p.Stat = s;
                                                   p.SaveType = SavingThrowType.Fortitude;
                                                   p.SuccesfullSaves = Helpers.CreateContextValue(AbilityRankType.StatBonus);
-                                                  p.Ticks = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                  p.Ticks = Helpers.CreateContextValue(AbilityRankType.DamageDice);
                                                   p.on_successful_save_action = Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(secondary_effect_buff),
                                                                                                          apply_immunity_to_secondary_effect);
                                               }),
@@ -347,25 +358,41 @@ namespace CallOfTheWild
                                                                               progression: ContextRankProgression.BonusValue, stepLevel: 1, featureList: new BlueprintFeature[] { venomous_strike[4] }),
                                               Helpers.CreateContextRankConfig(ContextRankBaseValueType.StatBonus, type: AbilityRankType.DamageBonus,
                                                                               stat: StatType.Constitution, min: 0),
-                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(),
+                                              Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getBrawlerArray(), type: AbilityRankType.DamageDice,
                                                                               progression: ContextRankProgression.OnePlusDivStep, stepLevel: 4),
                                               Helpers.CreateAddFactContextActions(activated: new GameAction[] { apply_secondary_effect}),
                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Poison)
                                               );
                 buff.Stacking = StackingType.Replace;
 
-                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true);
-                var apply_buff_saved = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(null, apply_buff));
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.DamageDice)), dispellable: false);
+                var apply_buff_saved = Helpers.CreateActionSavingThrow(SavingThrowType.Fortitude, Helpers.CreateConditionalSaved(apply_immunity_to_secondary_effect, apply_buff));
                 var owner_buff = Helpers.CreateBuff(stat_text + "VenomousStrikeBuff",
                                                     buff.Name,
                                                     venomous_strike[0].Description,
                                                     "",
                                                     venomous_strike[0].Icon,
-                                                    null,
-                                                    Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(apply_buff_saved),
-                                                                                                                 only_first_hit: true),
-                                                    Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution)
+                                                    null
                                                     );
+
+                
+
+
+                if (s != StatType.Unknown)
+                {
+                    var check_apply_buff_saved = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(owner_buff), apply_buff_saved);
+                    venomous_strike[0].AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(check_apply_buff_saved),
+                                                                                                 only_first_hit: true));
+                }
+                else
+                {
+                    var check_apply_buff_saved = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionCasterHasFact(owner_buff), 
+                                                                                                             Common.createContextConditionCasterHasFact(venomous_strike[3], has: false)
+                                                                                                             ),
+                                                                           apply_buff_saved);
+                    venomous_strike[0].AddComponent(Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(check_apply_buff_saved),
+                                                                                                 only_first_hit: true));
+                }
                 owner_buff.SetBuffFlags(BuffFlags.StayOnDeath);
                 remove_stat_buffs.Buffs = remove_stat_buffs.Buffs.AddToArray(owner_buff);
 
@@ -381,8 +408,7 @@ namespace CallOfTheWild
                                                           "",
                                                           Helpers.CreateRunActions(remove_stat_buffs,
                                                                                    Common.createContextActionApplyBuff(owner_buff, Helpers.CreateContextDuration(), dispellable: false, is_permanent: true)),
-                                                          stat_buff_resource.CreateResourceLogic(),
-                                                          Common.createContextCalculateAbilityParamsBasedOnClass(brawler_class, StatType.Constitution)
+                                                          stat_buff_resource.CreateResourceLogic()
                                                           );
                 Common.setAsFullRoundAction(owner_ability);
                 owner_ability.setMiscAbilityParametersSelfOnly();
@@ -396,14 +422,14 @@ namespace CallOfTheWild
             foreach (var b in secondary_effect_buffs)
             {
                 var owner_buff = Helpers.CreateBuff("VenomousStrike" + b.Key.name,
-                                                    "Venomous Strike " + b.Key.Name,
+                                                    "Venomous Strike: " + b.Key.Name,
                                                     venomous_strike[2].Description,
                                                     "",
                                                     b.Key.Icon,
                                                     null
                                                     );
                 owner_buff.SetBuffFlags(BuffFlags.StayOnDeath);
-                remove_secondary_effect_buffs.Buffs = remove_stat_buffs.Buffs.AddToArray(owner_buff);
+                remove_secondary_effect_buffs.Buffs = remove_secondary_effect_buffs.Buffs.AddToArray(owner_buff);
 
                 var owner_ability = Helpers.CreateAbility(b.Key.name + "VenomousStrikeAbility",
                                                           owner_buff.Name,
@@ -424,6 +450,12 @@ namespace CallOfTheWild
                 Common.setAsFullRoundAction(owner_ability);
                 owner_ability.setMiscAbilityParametersSelfOnly();
                 secondary_effect_toggle.Add(owner_ability);
+
+                Common.addContextActionApplyBuffOnConditionToActivatedAbilityBuffNoRemove(secondary_effect_buff,
+                                                                                          Helpers.CreateConditional(Common.createContextConditionCasterHasFact(owner_buff),
+                                                                                                                    Common.createContextActionApplyChildBuff(b.Key)
+                                                                                                                   )
+                                                                                         );
             }
 
             var secondary_effects_wrapper = Common.createVariantWrapper("VenomousStrikeSecondaryEffectBaseAbility", "", secondary_effect_toggle.ToArray());
@@ -436,16 +468,14 @@ namespace CallOfTheWild
                                             secondary_effect_resource.CreateAddAbilityResource()
                                             );
 
-            venomous_strike[0].AddComponents(Helpers.CreateAddFact(poison_damage_type_toggle[0]),
-                                             stat_buff_resource.CreateAddAbilityResource());
-
-            var stat_damage_wrapper = Common.createVariantWrapper("VenomousStrikeStatDamageBase", "", poison_damage_type_toggle.Skip(1).ToArray());
+            var stat_damage_wrapper = Common.createVariantWrapper("VenomousStrikeStatDamageBase", "", poison_damage_type_toggle.ToArray());
             stat_damage_wrapper.SetNameDescriptionIcon("Venomous Strike: Stat Damage",
                                                        "At 10th level, when the venomfist chooses the condition her venom imposes, she can also cause her venom to deal ability score damage each round instead of hit point damage. She chooses Strength, Dexterity, or Constitution, and her venom deals 1d3 points of ability score damage each round.",
                                                        Helpers.GetIcon("fd101fbc4aacf5d48b76a65e3aa5db6d")
                                                        );
 
-            venomous_strike[3].AddComponent(Helpers.CreateAddFact(stat_damage_wrapper));
+            venomous_strike[3].AddComponents(Helpers.CreateAddFact(stat_damage_wrapper),
+                                            stat_buff_resource.CreateAddAbilityResource());
         }
 
 
@@ -594,26 +624,27 @@ namespace CallOfTheWild
             var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
             snakebite_striker.RemoveFeatures = new LevelEntry[]
             {
-                Helpers.LevelEntry(1, combat_feat),
+                Helpers.LevelEntry(2, combat_feat),
                 Helpers.LevelEntry(3, maneuver_training[0]),
                 Helpers.LevelEntry(6, combat_feat),
                 Helpers.LevelEntry(7, maneuver_training[1]),
                 Helpers.LevelEntry(10, combat_feat),
                 Helpers.LevelEntry(11, maneuver_training[2]),
-                Helpers.LevelEntry(12, combat_feat),
+                Helpers.LevelEntry(14, combat_feat),
                 Helpers.LevelEntry(15, maneuver_training[3]),
+                Helpers.LevelEntry(18, combat_feat),
                 Helpers.LevelEntry(19, maneuver_training[4]),
             };
 
-            snakebite_striker.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, sneak_attack),
+            snakebite_striker.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, sneak_attack),
                                                               Helpers.LevelEntry(3, snake_feint[0]),
                                                               Helpers.LevelEntry(6, sneak_attack),
                                                               Helpers.LevelEntry(7, snake_feint[1]),
                                                               Helpers.LevelEntry(10, sneak_attack),
                                                               Helpers.LevelEntry(11, opportunist),
-                                                              Helpers.LevelEntry(12, sneak_attack),
+                                                              Helpers.LevelEntry(14, sneak_attack),
                                                               Helpers.LevelEntry(15, snake_feint[2]),
-                                                              Helpers.LevelEntry(20, sneak_attack),
+                                                              Helpers.LevelEntry(18, sneak_attack),
                                                              };
 
             brawler_progression.UIGroups = brawler_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(sneak_attack));
@@ -637,7 +668,7 @@ namespace CallOfTheWild
 
             snake_feint[1] = Helpers.CreateFeature("SnakeFeint11Feature",
                                                    "Snake Feint",
-                                                   "At 11th level, a snakebite striker always flanks an enemy independently of his position, as long as another ally is threating the same enemy.",
+                                                   "At 11th level, a snakebite striker always flanks an enemy independently of his position, as long as at least one other ally threatens the same enemy.",
                                                    "",
                                                    Helpers.GetIcon("422dab7309e1ad343935f33a4d6e9f11"),
                                                    FeatureGroup.None
@@ -657,7 +688,7 @@ namespace CallOfTheWild
             buff2.SetBuffFlags(BuffFlags.HiddenInUi);
             snake_feint[2] = Helpers.CreateFeature("SnakeFeint19Feature",
                                                    "Snake Feint",
-                                                   "At 19th level, a snakebite striker always flanks an enemy independently of his position, even if no other allies are threatening the same enemy.",
+                                                   "At 19th level, enemies threatened by snakebite striker are always considered to be flanked.",
                                                    "",
                                                    Helpers.GetIcon("422dab7309e1ad343935f33a4d6e9f11"),
                                                    FeatureGroup.None,
@@ -1358,10 +1389,10 @@ namespace CallOfTheWild
 
             var alignment = new AlignmentMaskType[]
             {
-               AlignmentMaskType.Lawful,
                AlignmentMaskType.Chaotic,
-               AlignmentMaskType.Good,
-               AlignmentMaskType.Evil
+               AlignmentMaskType.Lawful,
+               AlignmentMaskType.Evil,
+               AlignmentMaskType.Good
             };
           
             brawlers_strike_alignment = Helpers.CreateFeatureSelection("BrawlersStrikeAlignmentFeatureSelection",
@@ -1375,7 +1406,7 @@ namespace CallOfTheWild
             for (int i = 0; i < damage_alignments.Length; i++)
             {
                 var strike = library.CopyAndAdd<BlueprintFeature>("34439e527a8f5fb4588024e71960dd42", "BrawlersStrike" + damage_alignments[i].ToString(), "");
-                strike.SetNameDescription($"Braawler's Strike — {damage_alignments[i].ToString()}",
+                strike.SetNameDescription($"Brawler's Strike — {damage_alignments[i].ToString()}",
                                           brawlers_strike_alignment.Description);
                 strike.AddComponent(Common.createPrerequisiteAlignment(~alignment[i]));
 

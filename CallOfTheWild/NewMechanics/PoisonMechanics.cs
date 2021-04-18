@@ -11,6 +11,7 @@ using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -57,7 +58,7 @@ namespace CallOfTheWild.PoisonMechanics
                     }
                     if (evt.IsPassed)
                     {
-                        on_successful_save_action.Run();
+                        (this.Buff as IFactContextOwner).RunActionInContext(on_successful_save_action, this.Owner.Unit);
                         ++this.m_SavesSucceeded;
                         if (this.m_SavesSucceeded >= this.m_SuccesfullSaves)
                         {
