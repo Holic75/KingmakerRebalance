@@ -3,7 +3,9 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
+using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,8 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection scaled_fist_ki_power_selection = library.Get<BlueprintFeatureSelection>("4694f6ac27eaed34abb7d09ab67b4541");
         static public BlueprintCharacterClass monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
 
+        static BlueprintFeature sensei_mystic_powers = library.Get<BlueprintFeature>("045aa840fbf839a42abdf2fec92f8bf3");
+        static BlueprintFeature sensei_mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
 
         public static void load()
         {
@@ -67,6 +71,50 @@ namespace CallOfTheWild
 
             monk_ki_power_selection.AllFeatures = monk_ki_power_selection.AllFeatures.AddToArray(monk_feature);
             scaled_fist_ki_power_selection.AllFeatures = scaled_fist_ki_power_selection.AllFeatures.AddToArray(scaled_fist_feature);
+
+            var mystic_wisdom_ability = library.CopyAndAdd(monk_ability, "SenseiAdvice" + monk_ability.name, "");
+            mystic_wisdom_ability.Range = AbilityRange.Close;
+            mystic_wisdom_ability.setMiscAbilityParametersSingleTargetRangedFriendly();
+            mystic_wisdom_ability.SetName(mystic_wisdom_ability.Name.Replace("Ki Power: ", "Sensei Advice: "));
+            if (mystic_wisdom_ability.HasVariants)
+            {
+                var variants = mystic_wisdom_ability.Variants.ToList().ToArray();
+
+                for (int i = 0; i < variants.Length; i++)
+                {
+                    variants[i] = library.CopyAndAdd(variants[i], "SenseiAdvice" + variants[i].name, "");
+                    variants[i].SetName(variants[i].Name.Replace("Ki Power: ", "Sensei Advice: "));
+                    variants[i].Range = AbilityRange.Close;
+                    variants[i].setMiscAbilityParametersSingleTargetRangedFriendly();
+                    variants[i].Parent = mystic_wisdom_ability;
+                }
+                mystic_wisdom_ability.ReplaceComponent<AbilityVariants>(a => a.Variants = variants);
+            }
+
+            sensei_mystic_powers.AddComponent(Common.createAddFeatureIfHasFact(monk_feature, mystic_wisdom_ability));
+
+
+            var mystic_wisdom_ability_mass = library.CopyAndAdd(monk_ability, "SenseiAdviceMass" + monk_ability.name, "");
+            mystic_wisdom_ability_mass.SetName(mystic_wisdom_ability.Name.Replace("Ki Power: ", "Sensei Advice: Mass "));
+            if (mystic_wisdom_ability_mass.HasVariants)
+            {
+                var variants = mystic_wisdom_ability_mass.Variants.ToList().ToArray();
+
+                for (int i = 0; i < variants.Length; i++)
+                {
+                    variants[i] = library.CopyAndAdd(variants[i], "SenseiAdviceMass" + variants[i].name, "");
+                    variants[i].SetName(variants[i].Name.Replace("Ki Power: ", "Sensei Advice: Mass "));
+                    variants[i].Parent = mystic_wisdom_ability_mass;
+                    variants[i].AddComponent(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally));
+                }
+                mystic_wisdom_ability_mass.ReplaceComponent<AbilityVariants>(a => a.Variants = variants);
+            }
+            else
+            {
+                mystic_wisdom_ability_mass.AddComponent(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally));
+            }
+
+            sensei_mystic_powers_mass.AddComponent(Common.createAddFeatureIfHasFact(monk_feature, mystic_wisdom_ability_mass));
         }
 
 

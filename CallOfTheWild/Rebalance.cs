@@ -1524,6 +1524,18 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixSenseiBuffs()
+        {
+            var diamond_soul_buff = library.Get<BlueprintBuff>("2d4c4d8e1d961c946ae7c0dd11ba0ceb");
+            var diamond_body_buff = library.Get<BlueprintBuff>("33a838d598b6f3d48aa0be1480d0393e");
+            var diamond_body_feature = library.Get<BlueprintFeature>("a8819b70975701b4e874b2f9862aac24");
+            var diamond_soul_feature = library.Get<BlueprintFeature>("01182bcee8cb41640b7fa1b1ad772421");
+
+            diamond_soul_buff.ComponentsArray = diamond_soul_feature.ComponentsArray.Where(c =>!(c is Prerequisite)).ToArray();
+            diamond_body_buff.ComponentsArray = diamond_body_feature.ComponentsArray.Where(c => !(c is Prerequisite)).ToArray();
+        }
+
+
         static internal void fixIncreasedDamageReduction()
         {
             var drs = new BlueprintFeature[] {library.Get<BlueprintFeature>("cffb5cddefab30140ac133699d52a8f8"), //barbarian
