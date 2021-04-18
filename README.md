@@ -625,7 +625,9 @@ Notable differences from pnp:
 - Soulbound Summoner only receives extra evolutions points at levels 3, 7, 11, 15 and 19 (1 point each time) and can not select incompatible evolutions,
 - Divine Hunter can additionally select entropic or resolute template through his otherwordly companion feature,
 - Divine Commander Warpriest receives animal companion instead of mount,
-- Priest of the Fallen receives only one domain at lvl 17.
+- Priest of the Fallen receives only one domain at lvl 17,
+- Brawler receives bonus combat feats at the same rate as fighter instead of his usual rate and martial flexibility,
+- Venomfist unarmed damage die is reduced by 2 steps instead of 1.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

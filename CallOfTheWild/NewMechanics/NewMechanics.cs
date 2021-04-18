@@ -3253,6 +3253,9 @@ namespace CallOfTheWild
             public BlueprintUnitFact CheckedFact;
             public ModifierDescriptor Descriptor;
             public ContextValue Value;
+            public bool will = true;
+            public bool reflex = true;
+            public bool fortitude = true;
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
@@ -3264,9 +3267,18 @@ namespace CallOfTheWild
                 {
                     if (b.Blueprint == CheckedFact && b.Context.MaybeCaster == evt.Initiator)
                     {
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
-                        evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        if (will)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
+                        if (reflex)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
+                        if (fortitude)
+                        {
+                            evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(bonus, (GameLogicComponent)this, this.Descriptor));
+                        }
                         return;
                     }
                 }
@@ -4372,17 +4384,17 @@ namespace CallOfTheWild
         {
             public BlueprintAbilityResource Resource;
             public BlueprintCharacterClass CharacterClass;
-            public BlueprintArchetype Archetype;
-
+            public BlueprintArchetype Archetype = null;
+            public int base_value = 0;
 
             public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
             {
-                if (!this.Fact.Active || !(resource != this.Resource))
+                if (!this.Fact.Active || (resource != this.Resource))
                     return;
                 int classLevel = this.Owner.Progression.GetClassLevel(this.CharacterClass);
                 if (Archetype == null || this.Owner.Progression.IsArchetype(Archetype))
                 {
-                    bonus += classLevel;
+                    bonus += classLevel + base_value;
                 }
             }
         }

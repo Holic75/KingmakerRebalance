@@ -1258,7 +1258,7 @@ namespace CallOfTheWild
     public class IterativeTwoWeaponFightingAttacks : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
     {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
-        {
+        {    
             if (!evt.Initiator.Body.PrimaryHand.HasWeapon 
                 || !evt.Initiator.Body.SecondaryHand.HasWeapon 
                 || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && !evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)

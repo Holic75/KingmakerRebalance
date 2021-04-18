@@ -13,6 +13,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
+using Kingmaker.Items;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
@@ -54,6 +55,8 @@ namespace CallOfTheWild
         public static BlueprintFeature blade_rush_swift;
         public static BlueprintFeature kinetic_whip;
         public static BlueprintBuff kinetic_whip_buff;
+        public static BlueprintBuff kinetic_whip_enabled_buff;
+        public static int kinetic_whip_reach_bonus = 4;
 
         public static BlueprintFeature suffocate;
         public static BlueprintFeature air_leap;
@@ -1231,9 +1234,10 @@ namespace CallOfTheWild
                                                    "",
                                                    icon,
                                                    null,
-                                                   Helpers.CreateAddStatBonus(Kingmaker.EntitySystem.Stats.StatType.Reach, 4, Kingmaker.Enums.ModifierDescriptor.UntypedStackable),
+                                                   Helpers.CreateAddStatBonus(StatType.Reach, kinetic_whip_reach_bonus, ModifierDescriptor.UntypedStackable),
                                                    //Helpers.CreateAddFactContextActions(activated: apply_blade),
-                                                   Helpers.Create<AddConditionImmunity>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity)
+                                                   Helpers.Create<AddConditionImmunity>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.DisableAttacksOfOpportunity),
+                                                   Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(b => b.Buffs = new BlueprintBuff[] { blade_enabled_buff }))
                                                    );
 
             var apply_whip = Common.createContextActionApplyBuff(kinetic_whip_buff, Helpers.CreateContextDuration(1), dispellable: false);
@@ -1264,7 +1268,7 @@ namespace CallOfTheWild
 
             kinetic_whip = Common.AbilityToFeature(kinetic_whip_ability, false);
 
-            var kinetic_whip_enabled_buff = library.CopyAndAdd(kinetic_whip_buff, "KineticWhipEnabledBuff", "");
+            kinetic_whip_enabled_buff = library.CopyAndAdd(kinetic_whip_buff, "KineticWhipEnabledBuff", "");
             kinetic_whip_enabled_buff.ComponentsArray = new BlueprintComponent[]
             {
                 Helpers.Create<AddKineticistBurnModifier>(a =>
@@ -1285,7 +1289,6 @@ namespace CallOfTheWild
                 var burn_ability = kv.Value.Item2;
                 burn_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(maybe_apply_whip)));
             }
-
 
             kinetic_whip.ComponentsArray = new BlueprintComponent[] {Helpers.CreateAddFact(toggle)};
             kinetic_whip.AddComponent(Helpers.PrerequisiteClassLevel(kineticist_class, 6));
@@ -2002,6 +2005,7 @@ namespace CallOfTheWild
             {
                 ExecuteBefore = (UnitCommand)unitUseAbility
             });
+
             return true;
         }
 
@@ -2009,6 +2013,32 @@ namespace CallOfTheWild
         {
             __result = tryRunActivationAbility(kineticist, cmd, ref customHandler);
             return !__result;
+        }
+
+        //account for chaged range if used with kinetic whip
+        static void Postfix(UnitPartKineticist kineticist, UnitCommand cmd, ref UnitCommands.CustomHandlerData? customHandler, ref bool __result)
+        {
+            var unit = kineticist?.Owner;
+            if (unit == null)
+            {
+                return;
+            }
+            var attack = cmd as UnitAttack;
+            if (attack != null)
+            {
+                ItemEntityWeapon maybeWeapon = kineticist.Owner.Body.PrimaryHand.MaybeWeapon;
+                WeaponKineticBlade weaponKineticBlade = maybeWeapon != null ? maybeWeapon.Blueprint.GetComponent<WeaponKineticBlade>() : (WeaponKineticBlade)null;
+
+                if (weaponKineticBlade != null
+                    && unit.HasFact(KineticistFix.kinetic_whip_enabled_buff) &&
+                    !unit.HasFact(KineticistFix.kinetic_whip_buff)
+                    )
+                {
+                    var tr = Harmony12.Traverse.Create(attack);
+                    tr.Property("ApproachRadius").SetValue(tr.Method("GetApproachRadius", attack.Target).GetValue<float>() + KineticistFix.kinetic_whip_reach_bonus.Feet().Meters);
+                }
+            }
+
         }
     }
 

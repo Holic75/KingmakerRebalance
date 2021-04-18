@@ -431,7 +431,7 @@ namespace CallOfTheWild.ImplementMechanics
 
         public void CalculateMaxResourceAmount(BlueprintAbilityResource resource, ref int bonus)
         {
-            if (!this.Fact.Active || !((Object)resource == (Object)this.resource))
+            if (!this.Fact.Active || ((Object)resource != (Object)this.resource))
                 return;
             var unit_part = this.Owner.Get<UnitPartImplements>();
             if (unit_part == null)

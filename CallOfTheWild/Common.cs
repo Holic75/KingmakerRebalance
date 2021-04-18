@@ -2460,27 +2460,31 @@ namespace CallOfTheWild
 
             abilities_to_update.Add("VanguardTactician", library.Get<BlueprintAbility>("00af3b5f43aa7ae4c87bcfe4e129f6e8"));
             abilities_to_update.Add("ForesterTactician", Hunter.tactician_ability);
-            //drill sergeant
+            abilities_to_update.Add("ExemplarTactician", Brawler.field_instruction_ability);
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", "TacticianSingleUse" + feat.name + "Buff", 
+                                                         Helpers.MergeIds("9de63078d422dcc46a86ba0920b4991e", feat.AssetGuid));
+            var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
+            add_fact.Facts = new BlueprintUnitFact[] { feat };
+            buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
+            buff.SetIcon(feat.Icon);
 
             foreach (var a in abilities_to_update)
             {
                 var variants = a.Value.GetComponent<AbilityVariants>();
-
-                var buff = library.CopyAndAdd<BlueprintBuff>("9de63078d422dcc46a86ba0920b4991e", a.Key + feat.name + "Buff", "");
-                var add_fact = buff.GetComponent<AddFactsFromCaster>().CreateCopy();
-                add_fact.Facts = new BlueprintUnitFact[] { feat };
-                buff.ReplaceComponent<AddFactsFromCaster>(add_fact);
-
-
-                var ability = library.CopyAndAdd<BlueprintAbility>(variants.Variants[0], a.Key + feat.name + "Ability", "");
+                var ability_name = a.Key + feat.name + "Ability";
+                var guid = Helpers.GuidStorage.maybeGetGuid(ability_name, Helpers.MergeIds(a.Value.AssetGuid, feat.AssetGuid));
+                var ability = library.CopyAndAdd<BlueprintAbility>(variants.Variants[0], ability_name, guid);
                 ability.ReplaceComponent<AbilityShowIfCasterHasFact>(Common.createAbilityShowIfCasterHasFact(feat));
 
                 var new_actions = Common.changeAction<ContextActionApplyBuff>(ability.GetComponent<AbilityEffectRunAction>().Actions.Actions,
                                                                               c => c.Buff = buff);
+                new_actions = Common.changeAction<Conditional>(new_actions,
+                                                               c => c.ConditionsChecker = Helpers.CreateConditionsCheckerAnd(Common.createContextConditionHasFact(feat, has:false))
+                                                               );
 
                 ability.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(new_actions));
-                ability.SetName(ability.Parent.Name + " — " + feat.Name);
-                ability.SetDescription(feat.Description);
+                ability.SetNameDescriptionIcon(ability.Parent.Name + " — " + feat.Name, feat.Description, feat.Icon);
 
                 if (share)
                 {

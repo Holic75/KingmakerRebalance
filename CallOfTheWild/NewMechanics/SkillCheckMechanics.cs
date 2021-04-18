@@ -290,6 +290,7 @@ namespace CallOfTheWild.SkillMechanics
         public ContextValue CustomDC = 0;
         public ActionList Success = Helpers.CreateActionList();
         public ActionList Failure = Helpers.CreateActionList();
+        public ContextValue bonus = 0;
 
         public override void RunAction()
         {
@@ -299,12 +300,14 @@ namespace CallOfTheWild.SkillMechanics
             }
             else
             {
-                int num = 0;
-
-                if (this.Context.TriggerRule<RuleSkillCheck>(new RuleSkillCheck(this.Context.MaybeCaster, this.Stat, (this.UseCustomDC ? this.CustomDC.Calculate(this.Context) : ((this.Target.Unit?.Descriptor?.Progression.CharacterLevel).GetValueOrDefault() + 10)) + num)
+                int num = bonus.Calculate(this.Context);
+                var rule_skill_check = new RuleSkillCheck(this.Context.MaybeCaster, this.Stat, this.UseCustomDC ? this.CustomDC.Calculate(this.Context) : ((this.Target.Unit?.Descriptor?.Progression.CharacterLevel).GetValueOrDefault() + 10));
+                rule_skill_check.ShowAnyway = true;
+                if (num != 0)
                 {
-                    ShowAnyway = true
-                }).IsPassed)
+                    rule_skill_check.Bonus.AddModifier(num, null, Kingmaker.Enums.ModifierDescriptor.UntypedStackable);
+                }
+                if (this.Context.TriggerRule<RuleSkillCheck>(rule_skill_check).IsPassed)
                     this.Success.Run();
                 else
                     this.Failure.Run();

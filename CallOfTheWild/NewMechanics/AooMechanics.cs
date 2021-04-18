@@ -571,6 +571,9 @@ namespace CallOfTheWild.AooMechanics
 
         public void OnEventDidTrigger(RuleDealDamage evt)
         {
+            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
+            if (evt.Initiator == this.Owner.Unit || weapon == null || (!weapon.Blueprint.IsMelee || !this.Owner.Unit.CombatState.EngagedUnits.Contains<UnitEntityData>(evt.Target)))
+                return;
             int max_extra_attacks = num_extra_attacks.Calculate(this.Fact.MaybeContext);
             if (this.m_LastUseTime + 1.Rounds().Seconds > Game.Instance.TimeController.GameTime)
             {
@@ -588,9 +591,7 @@ namespace CallOfTheWild.AooMechanics
                 this.m_LastUseTime = Game.Instance.TimeController.GameTime;
                 extra_attacks_used = 0;
             }
-            ItemEntityWeapon weapon = evt.DamageBundle.Weapon;
-            if (evt.Initiator == this.Owner.Unit || weapon == null || (!weapon.Blueprint.IsMelee || !this.Owner.Unit.CombatState.EngagedUnits.Contains<UnitEntityData>(evt.Target)))
-                return;
+
             Game.Instance.CombatEngagementController.ForceAttackOfOpportunity(this.Owner.Unit, evt.Target);           
         }
     }
