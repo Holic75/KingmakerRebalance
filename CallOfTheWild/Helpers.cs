@@ -2024,6 +2024,7 @@ namespace CallOfTheWild
             ReplaceComponent(obj, obj.GetComponent<T>(), replacement);
         }
 
+
         public static void ReplaceComponent(this BlueprintScriptableObject obj, BlueprintComponent original, BlueprintComponent replacement)
         {
             // Note: make a copy so we don't mutate the original component

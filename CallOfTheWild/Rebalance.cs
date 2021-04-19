@@ -1526,6 +1526,7 @@ namespace CallOfTheWild
 
         static internal void fixSenseiBuffs()
         {
+            //fix incorrect diamond soul and diamond body
             var diamond_soul_buff = library.Get<BlueprintBuff>("2d4c4d8e1d961c946ae7c0dd11ba0ceb");
             var diamond_body_buff = library.Get<BlueprintBuff>("33a838d598b6f3d48aa0be1480d0393e");
             var diamond_body_feature = library.Get<BlueprintFeature>("a8819b70975701b4e874b2f9862aac24");
@@ -1533,6 +1534,54 @@ namespace CallOfTheWild
 
             diamond_soul_buff.ComponentsArray = diamond_soul_feature.ComponentsArray.Where(c =>!(c is Prerequisite)).ToArray();
             diamond_body_buff.ComponentsArray = diamond_body_feature.ComponentsArray.Where(c => !(c is Prerequisite)).ToArray();
+
+            //remove extra attack from sensei since
+            var ki_pool = library.Get<BlueprintFeature>("e9590244effb4be4f830b1e3fffced13");
+            var scaled_fist_ki_pool = library.Get<BlueprintFeature>("ae98ab7bda409ef4bb39149a212d6732");
+
+            var flurry_of_blows = library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a");
+            var ki_pools = new BlueprintFeature[] { ki_pool, scaled_fist_ki_pool };
+            foreach (var kp in ki_pools)
+            {
+                var c = kp.GetComponent<AddFacts>();
+                kp.ReplaceComponent(c, Common.createAddFeatureIfHasFact(flurry_of_blows, c.Facts[0]));
+            }
+
+            var mystic_powers = library.Get<BlueprintFeature>("045aa840fbf839a42abdf2fec92f8bf3");
+            var mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
+            mystic_powers.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
+            mystic_powers_mass.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
+        }
+
+
+        static internal void fixMonkStyleStrikes()
+        {
+            //fix missing ability to use second style strike at level 15
+            //remove style wstrieks from sensei since they require flurry of blows
+            var monk_class = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
+            var style_strike = library.Get<BlueprintFeatureSelection>("7bc6a93f6e48eff49be5b0cde83c9450");
+            var extra_style_strike_feature = Helpers.CreateFeature("MonkExtraStyleStrikeFeature15",
+                                                                   "",
+                                                                   "",
+                                                                   "823c059bd3754bfca2d06bd3409827e1",
+                                                                   null,
+                                                                   FeatureGroup.None,
+                                                                   Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroup.StyleStrike)
+                                                                   );
+            extra_style_strike_feature.HideInCharacterSheetAndLevelUp = true;
+            extra_style_strike_feature.HideInUI = true;
+
+            if (style_strike.GetComponent<AddFeatureOnClassLevel>() == null)
+            {
+                style_strike.AddComponent(Helpers.CreateAddFeatureOnClassLevel(extra_style_strike_feature, 15, new BlueprintCharacterClass[] { monk_class }));
+            }
+
+            var sensei = library.Get<BlueprintArchetype>("f8767821ec805bf479706392fcc3394c");
+            sensei.RemoveFeatures.First(le => le.Level == 9).Features.Add(style_strike);
+            sensei.RemoveFeatures = sensei.RemoveFeatures.AddToArray(Helpers.LevelEntry(5, style_strike),
+                                                                     Helpers.LevelEntry(13, style_strike),
+                                                                     Helpers.LevelEntry(17, style_strike));
+            Array.Sort(sensei.RemoveFeatures, (x, y) => x.Level.CompareTo(y.Level));
         }
 
 

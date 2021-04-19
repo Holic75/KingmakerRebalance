@@ -202,6 +202,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.condenseMonkUnarmedDamage();
                     CallOfTheWild.Rebalance.fixArchetypePrerequisites();
                     CallOfTheWild.Rebalance.fixSenseiBuffs();
+                    CallOfTheWild.Rebalance.fixMonkStyleStrikes();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
