@@ -1644,6 +1644,9 @@ namespace CallOfTheWild
 
             brawlers_flurry.IsClassFeature = true;
             brawlers_flurry11.IsClassFeature = true;
+
+            var pummeling_style = library.Get<BlueprintFeature>("c36562b8e7ae12d408487ba8b532d966");
+            pummeling_style.AddComponent(Helpers.PrerequisiteFeature(brawlers_flurry, any: true));
         }
 
         static void createBrawlersCunning()

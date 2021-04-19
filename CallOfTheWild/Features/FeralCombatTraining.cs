@@ -119,9 +119,9 @@ namespace CallOfTheWild
                     Helpers.Create<PrerequisiteMechanics.PrerequisiteMatchingParametrizedFeatures>(p => {p.base_feature = weapon_focus; p.dependent_feature = NewFeats.deity_favored_weapon; }),
                     Helpers.Create<PrerequisiteParametrizedWeaponSubcategory>(p => {p.Feature = NewFeats.deity_favored_weapon; p.SubCategory = WeaponSubCategory.Melee; }),
                     ChannelEnergyEngine.improved_channel.GetComponent<PrerequisiteFeaturesFromList>(), //channel energy prereq
-                    Helpers.PrerequisiteFeature( library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true),
-                    Helpers.PrerequisiteFeature( Warpriest.flurry2_unlock, any: true),
-                    Helpers.PrerequisiteFeature( Brawler.brawlers_flurry, any: true)
+                    Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("fd99770e6bd240a4aab70f7af103e56a"), any: true),
+                    Helpers.PrerequisiteFeature(Warpriest.flurry2_unlock, any: true),
+                    Helpers.PrerequisiteFeature(Brawler.brawlers_flurry, any: true)
                 };
             library.AddFeats(crusaders_flurry);
 
