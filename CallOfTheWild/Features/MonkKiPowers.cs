@@ -1,10 +1,14 @@
 ﻿using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Commands.Base;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.Utility;
 using System;
 using System.Collections.Generic;
@@ -64,7 +68,22 @@ namespace CallOfTheWild
             var monk_ability = Common.convertToSpellLikeVariants(spell, "KiPower", new BlueprintCharacterClass[] { monk }, StatType.Wisdom,
                                                                wis_resource, self_only: self_only, cost: cost);
             monk_ability.SetNameDescription(name, description);
+
             var monk_feature = Common.AbilityToFeature(monk_ability, false);
+            if (monk_ability.HasVariants)
+            {
+                foreach (var v in monk_ability.Variants)
+                {
+                    v.SetName("Ki Power: " + v.Name);
+                }
+            }
+            if (scaled_fist_ability.HasVariants)
+            {
+                foreach (var v in scaled_fist_ability.Variants)
+                {
+                    v.SetName("Ki Power: " + v.Name);
+                }
+            }
 
             monk_feature.AddComponent(Helpers.PrerequisiteClassLevel(monk, required_level));
             scaled_fist_feature.AddComponent(Helpers.PrerequisiteClassLevel(monk, required_level));

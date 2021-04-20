@@ -196,6 +196,31 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
+    public class UnitPartUnarmedTwf : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+    public class UnarmedTwf : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartUnarmedTwf>().addBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartUnarmedTwf>().removeBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
+        }
+    }
+
+
     public class UnitPartCanUseSpellCombat : AdditiveUnitPart
     {
         public bool canBeUsedOn(HandSlot primary_hand, HandSlot secondary_hand, bool use_two_handed)
@@ -235,6 +260,8 @@ namespace CallOfTheWild.HoldingItemsMechanics
             this.Owner.Ensure<UnitPartCanUseSpellCombat>().removeBuff(this.Fact);
         }
     }
+
+
 
 
 
@@ -622,15 +649,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             return false;
         }
-
-        /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
-        {
-            var codes = instructions.ToList();
-            var check_shield = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("HasShield"));
-
-            codes[check_shield] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<HandSlot, bool>(Helpers.hasShield2).Method);
-            return codes.AsEnumerable();
-        }*/
     }
 
 
@@ -943,13 +961,21 @@ namespace CallOfTheWild.HoldingItemsMechanics
             codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1);
             codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, UnitDescriptor, bool>(considerUnarmedAndIgnore).Method));
 
+            check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on secondary hand
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, UnitDescriptor, bool>(considerUnarmedAndIgnoreOffHand).Method));
             return codes.AsEnumerable();
         }
 
 
         private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, UnitDescriptor unit)
         {
-            return weapon.IsUnarmed && !(bool)unit.State.Features.ImprovedUnarmedStrike;
+            return Aux.isMainHandUnarmedAndCanBeIgnored(weapon, unit);
+        }
+
+        private static bool considerUnarmedAndIgnoreOffHand(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return Aux.isOffHandUnarmedAndCanBeIgnored(weapon, unit);
         }
     }
 
@@ -966,13 +992,22 @@ namespace CallOfTheWild.HoldingItemsMechanics
             codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
             codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnore).Method));
 
+            check_is_unarmed = codes.IndexOf(codes.FindAll(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed"))[2]);
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnoreOffHand).Method));
             return codes.AsEnumerable();
         }
 
 
         private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, RuleCalculateAttacksCount evt)
         {
-            return weapon.IsUnarmed && !(bool)evt.Initiator.Descriptor?.State.Features.ImprovedUnarmedStrike;
+            return Aux.isMainHandUnarmedAndCanBeIgnored(weapon, evt.Initiator.Descriptor);
+        }
+
+
+        private static bool considerUnarmedAndIgnoreOffHand(BlueprintItemWeapon weapon, RuleCalculateAttacksCount evt)
+        {
+            return Aux.isOffHandUnarmedAndCanBeIgnored(weapon, evt.Initiator.Descriptor);
         }
     }
 
@@ -981,7 +1016,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
     class TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch
     {
-        static bool Prefix(RuleCalculateWeaponStats __instance, RuleCalculateWeaponStats evt)
+        static bool Prefix(TwoWeaponFightingDamagePenalty __instance, RuleCalculateWeaponStats evt)
         {
             ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
             ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
@@ -995,8 +1030,8 @@ namespace CallOfTheWild.HoldingItemsMechanics
             if (evt.Weapon == null
                || maybeWeapon1 == null
                || maybeWeapon2 == null
-               || (maybeWeapon1.Blueprint.IsNatural && !maybeWeapon1.Blueprint.IsUnarmed)
-               || maybeWeapon2.Blueprint.IsNatural
+               || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+               || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
                || maybeWeapon2 != evt.Weapon
                || (bool)evt.Initiator.Descriptor.State.Features.DoubleSlice
                )
@@ -1007,5 +1042,20 @@ namespace CallOfTheWild.HoldingItemsMechanics
             return false;
         }
     }
+
+    static public class Aux
+    {
+        public static bool isMainHandUnarmedAndCanBeIgnored(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return weapon.IsUnarmed && !(bool)unit.State.Features.ImprovedUnarmedStrike;
+        }
+
+        public static bool isOffHandUnarmedAndCanBeIgnored(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return weapon.IsUnarmed && !((bool)unit.State.Features.ImprovedUnarmedStrike && (unit.Get<UnitPartUnarmedTwf>()?.active()).GetValueOrDefault());
+        }
+    }
+
+
 
 }

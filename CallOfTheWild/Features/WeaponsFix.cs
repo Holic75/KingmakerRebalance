@@ -135,6 +135,25 @@ namespace CallOfTheWild
         {
             fixMartialExoticWeapons();
             addWeaponProperties();
+            allowTwfWithUnarmedStrike();
+        }
+
+        static void allowTwfWithUnarmedStrike()
+        {
+            var buff = Helpers.CreateBuff("UnarmedStrikeTwfBuff",
+                                          "Unarmed Strike Off-Hand Attacks",
+                                          "Enable unarmed strike off-hand attacks.",
+                                          "",
+                                          Helpers.GetIcon("7812ad3672a4b9a4fb894ea402095167"),
+                                          null,
+                                          Helpers.Create<HoldingItemsMechanics.UnarmedTwf>()
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var toggle = Common.buffToToggle(buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, false);
+
+            var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
+            var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
+            twf.AddComponent(Common.createAddFeatureIfHasFact(improved_unarmed_strike, toggle));
         }
 
 

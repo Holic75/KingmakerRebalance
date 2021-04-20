@@ -1679,9 +1679,6 @@ namespace CallOfTheWild
 
             var stunning_fist_resource = library.Get<BlueprintAbilityResource>("d2bae584db4bf4f4f86dd9d15ae56558");
             ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[0], stunning_fist_resource, monk_class);
-            //perfect strike will make a copy of resource, so will be update automatically
-
-            //fix robes ?
         }
 
 
@@ -1707,11 +1704,13 @@ namespace CallOfTheWild
             public void activate()
             {
                 active = true;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
             }
 
             public void deactivate()
             {
                 active = false;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
             }
 
             public void increaseExtraAttacks()

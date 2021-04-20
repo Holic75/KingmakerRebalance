@@ -1524,6 +1524,16 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixSenseiMysticAdvice()
+        {
+            var mystic_powers = library.Get<BlueprintFeature>("d5f7bcde6e7e5ed498f430ebf5c29837");
+            var mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
+
+            var feature = mystic_powers.GetComponent<AddFeatureOnClassLevel>().Feature;
+            mystic_powers.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFactNoRestore(feature) };
+            mystic_powers_mass.AddComponent(Common.createRemoveFeatureOnApply(feature));
+        }
+
         static internal void fixSenseiBuffs()
         {
             //fix incorrect diamond soul and diamond body

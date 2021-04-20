@@ -374,14 +374,16 @@ namespace CallOfTheWild
                 this.CheckEligibility();
             }
 
+
             public void CheckEligibility()
             {
                 if (!HoldingItemsMechanics.Helpers.hasShield2(this.Owner.Body.SecondaryHand)
                     && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
                     && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
                     && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
+                    || (this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural 
+                        && (!this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint, this.Owner)))
+                       )
                     )
                 {
                     this.AddFact();
@@ -452,8 +454,9 @@ namespace CallOfTheWild
                 if ((weapon_groups.Contains(this.Owner.Body.PrimaryHand.Weapon.Blueprint.FighterGroup) 
                         || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true))
                     && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
+                       || (this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural
+                           && (!this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint, this.Owner)))
+                          ) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
                     )
                 {
                     this.AddFact();
@@ -531,8 +534,9 @@ namespace CallOfTheWild
                     && (!this.Owner.Body.Armor.HasArmor || !this.Owner.Body.Armor.Armor.Blueprint.IsArmor)
                     && (this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true))
                     && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null 
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed
-                       || this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
+                       || (this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural
+                           && (!this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint, this.Owner)))
+                          ) //ensure that off-hand is empty since flurry normally does not allow off-hand attacks
                     )
                 {
                     this.AddFact();

@@ -203,6 +203,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixArchetypePrerequisites();
                     CallOfTheWild.Rebalance.fixSenseiBuffs();
                     CallOfTheWild.Rebalance.fixMonkStyleStrikes();
+                    CallOfTheWild.Rebalance.fixSenseiMysticAdvice();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
