@@ -1762,17 +1762,32 @@ namespace CallOfTheWild
         {
             static bool Prefix(TwoWeaponFightingAttacks __instance, RuleCalculateAttacksCount evt)
             {
-                var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
+                var maybeWeapon1 = evt.Initiator.Body.PrimaryHand?.MaybeWeapon;
+                var maybeWeapon2 = evt.Initiator.Body.SecondaryHand?.MaybeWeapon;
+                if (!evt.Initiator.Body.PrimaryHand.HasWeapon
+                    || !evt.Initiator.Body.SecondaryHand.HasWeapon
+                       || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+                       || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
+                    )
+                    return false;
+
+                var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
                 if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
                 {
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
                         ++evt.SecondaryHand.MainAttacks;
                     }
-                    return false;
+                }
+                else if (__instance.Fact.GetRank() > 1)
+                {
+                    for (int i = 2; i < __instance.Fact.GetRank(); i++)
+                    {
+                        ++evt.SecondaryHand.PenalizedAttacks;
+                    }
                 }
 
-                return true;
+                return false;
             }
         }
 
