@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
 using Kingmaker.UnitLogic.Class.LevelUp;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -1011,11 +1012,45 @@ namespace CallOfTheWild.HoldingItemsMechanics
         }
     }
 
+    [Harmony12.HarmonyPatch(typeof(UnitAttack))]
+    [Harmony12.HarmonyPatch("TriggerAttackRule", Harmony12.MethodType.Normal)]
+    class UnitAttack__TriggerAttackRule__Patch
+    {
+        static bool Prefix(UnitAttack __instance, AttackHandInfo attack)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = (attack?.Hand != null && attack?.Hand == __instance.Executor?.Body?.SecondaryHand);
+            return true;
+        }
+
+        static void Postfix(UnitAttack __instance, AttackHandInfo attack)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UIUtilityItem))]
+    [Harmony12.HarmonyPatch("GetAttackParametersEntity", Harmony12.MethodType.Normal)]
+    class UIUtilityItem__GetAttackParametersEntity__Patch
+    {
+        static bool Prefix(ItemEntityWeapon weaponEntity, UnitDescriptor unit, bool primaryHand)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = !primaryHand;
+            return true;
+        }
+
+        static void Postfix(ItemEntityWeapon weaponEntity, UnitDescriptor unit, bool primaryHand)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = false;
+        }
+    }
+
 
     [Harmony12.HarmonyPatch(typeof(TwoWeaponFightingDamagePenalty))]
     [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
     class TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch
     {
+        public static bool is_off_hand = false;
         static bool Prefix(TwoWeaponFightingDamagePenalty __instance, RuleCalculateWeaponStats evt)
         {
             ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
@@ -1024,6 +1059,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
             var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
             if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
             {
+                is_off_hand = false;
                 return false;
             }
 
@@ -1034,11 +1070,14 @@ namespace CallOfTheWild.HoldingItemsMechanics
                || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
                || maybeWeapon2 != evt.Weapon
                || (bool)evt.Initiator.Descriptor.State.Features.DoubleSlice
+               || ((evt.Weapon?.Blueprint.IsUnarmed).GetValueOrDefault() && !is_off_hand)
                )
             {
+                is_off_hand = false;
                 return false;
             }
             evt.SecondaryWeapon = true;
+            is_off_hand = false;
             return false;
         }
     }
