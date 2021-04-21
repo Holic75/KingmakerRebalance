@@ -60,6 +60,7 @@ namespace CallOfTheWild
         static public BlueprintAbility aid_another;
         static public BlueprintAbility aid_self_free;
         static public BlueprintBuff quarry_cooldown_buff;
+        static public BlueprintBuff shatter_defenses_target_buff;
 
         static public BlueprintFeature flawless_mind;
 
@@ -179,6 +180,28 @@ namespace CallOfTheWild
             var scaled_fist_ac = library.Get<BlueprintFeature>("3929bfd1beeeed243970c9fc0cf333f8");
             monk_ac.SetDescription("");
             scaled_fist_ac.SetDescription("");
+        }
+
+
+        static internal void fixShatterDefenses()
+        {
+            //fix shatter defenses to start working only after first successful hit
+            var shatter_defenses = library.Get<BlueprintFeature>("61a17ccbbb3d79445b0926347ec07577");
+            shatter_defenses_target_buff = Helpers.CreateBuff("ShatterDefensesTatgetBuff",
+                                                              shatter_defenses.Name,
+                                                              shatter_defenses.Description,
+                                                              "843741b85d8249b9acdcffb042015f06",
+                                                              shatter_defenses.Icon,
+                                                              null,
+                                                              Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()))
+                                                              );
+            shatter_defenses_target_buff.Stacking = StackingType.Stack;
+            //TODO: make buff invisible
+            var on_hit = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(shatter_defenses_target_buff, not: true),
+                                                   Common.createContextActionApplyBuff(shatter_defenses_target_buff, Helpers.CreateContextDuration(1), dispellable: false)
+                                                   );
+            shatter_defenses.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(on_hit), wait_for_attack_to_resolve: true));
+            //the rest is handeled in RuleCheckTargetFlatFooted__OnTrigger__Patch
         }
 
 
@@ -1526,12 +1549,59 @@ namespace CallOfTheWild
 
         static internal void fixSenseiMysticAdvice()
         {
+            //fix mystic powers feature to properly give corresponding single use and and mass version of abilities
             var mystic_powers = library.Get<BlueprintFeature>("d5f7bcde6e7e5ed498f430ebf5c29837");
             var mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
 
             var feature = mystic_powers.GetComponent<AddFeatureOnClassLevel>().Feature;
-            mystic_powers.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFactNoRestore(feature) };
-            mystic_powers_mass.AddComponent(Common.createRemoveFeatureOnApply(feature));
+            mystic_powers.ComponentsArray = feature.ComponentsArray;
+
+            //fix action type to swift and duration to 1 minute for sensei advice abilities 
+            var mystic_wisdom = library.Get<BlueprintFeature>("4356b5d6d34489747bba68d43924a857");
+            var mystic_wisdom_mass = library.Get<BlueprintFeature>("1c02ec3a153954b459becc0d40d3cf60");
+            var abilities = mystic_wisdom.GetComponent<AddFacts>().Facts.Cast<BlueprintAbility>().ToArray();
+            abilities = abilities.AddToArray(mystic_wisdom_mass.GetComponent<AddFacts>().Facts.Cast<BlueprintAbility>());
+            var shareable_abilities = new BlueprintAbility[]
+            {
+                library.Get<BlueprintAbility>("03e1b646dd9edde4b8d72cea74a7f820"),
+                library.Get<BlueprintAbility>("0c7c566cdaa0468489d0f4d6edd6cde3"),
+                library.Get<BlueprintAbility>("59ff834c7b4452a48ba8853f0e235f2c"),
+                library.Get<BlueprintAbility>("e7e4c7a4368a2ca40b6a89d4c4a1f275")
+            };
+            //add diamond soul and dimond body versions
+            abilities = abilities.AddToArray(shareable_abilities);
+
+            foreach (var ab in abilities)
+            {
+                ab.ActionType = UnitCommand.CommandType.Swift;
+                ab.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions,
+                                                                                                                                 c => c.DurationValue.Rate = DurationRate.Minutes)
+                                                           );
+            }
+
+
+            //fix price of mystic advice;
+            mystic_powers.SetDescription("At 6th level, a sensei may use his advice ability by paying 1 extra ki pool point, when spending points from his ki pool to activate a class ability (using the normal actions required for each) in order to have that ability affect one ally within 30 feet rather than the sensei himself.\nAt 10th level, a sensei may pay 2 extra ki pool points to affect all allies within 30 feet rather than himself (spending points from his ki pool only once, not once for each target).");
+
+            foreach (var c in mystic_powers.GetComponents<AddFeatureIfHasFact>())
+            {
+                var ability = c.Feature as BlueprintAbility;
+                if (ability == null || shareable_abilities.Contains(ability))
+                {
+                    continue;
+                }
+                ability.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 1);
+            }
+
+            foreach (var c in mystic_powers_mass.GetComponents<AddFeatureIfHasFact>())
+            {
+                var ability = c.Feature as BlueprintAbility;
+                if (ability == null || shareable_abilities.Contains(ability))
+                {
+                    continue;
+                }
+                ability.ReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 2);
+            }
         }
 
         static internal void fixSenseiBuffs()

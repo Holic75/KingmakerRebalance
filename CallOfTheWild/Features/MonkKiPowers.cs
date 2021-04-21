@@ -95,6 +95,7 @@ namespace CallOfTheWild
             mystic_wisdom_ability.Range = AbilityRange.Close;
             mystic_wisdom_ability.setMiscAbilityParametersSingleTargetRangedFriendly();
             mystic_wisdom_ability.SetName(mystic_wisdom_ability.Name.Replace("Ki Power: ", "Sensei Advice: "));
+            mystic_wisdom_ability.MaybeReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 1);
             if (mystic_wisdom_ability.HasVariants)
             {
                 var variants = mystic_wisdom_ability.Variants.ToList().ToArray();
@@ -106,6 +107,7 @@ namespace CallOfTheWild
                     variants[i].Range = AbilityRange.Close;
                     variants[i].setMiscAbilityParametersSingleTargetRangedFriendly();
                     variants[i].Parent = mystic_wisdom_ability;
+                    variants[i].ReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 1);
                 }
                 mystic_wisdom_ability.ReplaceComponent<AbilityVariants>(a => a.Variants = variants);
             }
@@ -115,6 +117,7 @@ namespace CallOfTheWild
 
             var mystic_wisdom_ability_mass = library.CopyAndAdd(monk_ability, "SenseiAdviceMass" + monk_ability.name, "");
             mystic_wisdom_ability_mass.SetName(mystic_wisdom_ability.Name.Replace("Ki Power: ", "Sensei Advice: Mass "));
+            mystic_wisdom_ability_mass.MaybeReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 2);
             if (mystic_wisdom_ability_mass.HasVariants)
             {
                 var variants = mystic_wisdom_ability_mass.Variants.ToList().ToArray();
@@ -125,6 +128,7 @@ namespace CallOfTheWild
                     variants[i].SetName(variants[i].Name.Replace("Ki Power: ", "Sensei Advice: Mass "));
                     variants[i].Parent = mystic_wisdom_ability_mass;
                     variants[i].AddComponent(Helpers.CreateAbilityTargetsAround(30.Feet(), TargetType.Ally));
+                    variants[i].ReplaceComponent<AbilityResourceLogic>(a => a.Amount = a.Amount + 2);
                 }
                 mystic_wisdom_ability_mass.ReplaceComponent<AbilityVariants>(a => a.Variants = variants);
             }
