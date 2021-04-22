@@ -1319,7 +1319,8 @@ namespace CallOfTheWild
                                       a.groups = new WeaponFighterGroup[] { WeaponFighterGroup.Close };
                                       a.extra_categories = new WeaponCategory[] { WeaponCategory.UnarmedStrike };
                                   }
-                                  )
+                                  ),
+                                  Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal)
                                   );
 
             awesome_blow = Common.AbilityToFeature(ability, false);
