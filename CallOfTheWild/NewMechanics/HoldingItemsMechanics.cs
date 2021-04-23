@@ -1097,7 +1097,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
             ++__instance.SecondaryHand.AdditionalAttacks;
             if (blueprint1 == null || !considerUnarmedAndIgnore(blueprint1, __instance)
                 && (blueprint1 == null || !blueprint1.IsNatural || !(bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks && !__instance.ForceIterativeNaturealAttacks)
-                && !(blueprint2.IsUnarmed)
+                || (blueprint2.IsUnarmed)
                 )
                 return false;
             __instance.SecondaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
