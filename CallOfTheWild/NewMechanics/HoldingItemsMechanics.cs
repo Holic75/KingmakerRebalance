@@ -985,7 +985,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
     class RuleCalculateAttacksCount__OnTrigger__Patch
     {
-        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
             var check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on primary hand
@@ -997,6 +997,39 @@ namespace CallOfTheWild.HoldingItemsMechanics
             codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
             codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnoreOffHand).Method));
             return codes.AsEnumerable();
+        }*/
+
+        static bool Prefix(RuleCalculateAttacksCount __instance, RulebookEventContext context)
+        {
+            int bab = (int)__instance.Initiator.Stats.BaseAttackBonus;
+            int num_penalized_attacks = Math.Min(Math.Max(0, bab / 5 - (bab % 5 == 0 ? 1 : 0)), 3);
+            HandSlot primary_hand = __instance.Initiator.Body.PrimaryHand;
+            HandSlot secondary_hand = __instance.Initiator.Body.SecondaryHand;
+            BlueprintItemWeapon blueprint1 = primary_hand.MaybeWeapon?.Blueprint;
+            BlueprintItemWeapon blueprint2 = secondary_hand.MaybeShield != null ? ((bool)__instance.Initiator.Descriptor.State.Features.ShieldBash ? secondary_hand.MaybeShield.WeaponComponent?.Blueprint : null) : secondary_hand.MaybeWeapon?.Blueprint;
+            int num = primary_hand.MaybeWeapon == null ? 0 : (primary_hand.MaybeWeapon.HoldInTwoHands ? 1 : 0);
+            if ((secondary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == false 
+                && (blueprint1 != null) 
+                && (!considerUnarmedAndIgnore(blueprint1, __instance) || blueprint2 == null || blueprint2.IsUnarmed)
+                )
+            {
+                ++__instance.PrimaryHand.MainAttacks;
+                if (!blueprint1.IsNatural || (bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks || __instance.ForceIterativeNaturealAttacks || blueprint1.IsUnarmed)
+                    __instance.PrimaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
+            }
+            if ((secondary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == true 
+                || (blueprint2 == null) 
+                || considerUnarmedAndIgnoreOffHand(blueprint2, __instance) && (blueprint1 != null)
+                )
+                return false;
+            ++__instance.SecondaryHand.MainAttacks;
+            if (blueprint1 == null || !considerUnarmedAndIgnore(blueprint1, __instance)
+                && (blueprint1 == null || !blueprint1.IsNatural || !(bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks && !__instance.ForceIterativeNaturealAttacks)
+                && !(blueprint2.IsUnarmed)
+                )
+                return false;
+            __instance.SecondaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
+            return false;
         }
 
 
