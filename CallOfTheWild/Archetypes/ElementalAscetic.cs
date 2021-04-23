@@ -175,6 +175,9 @@ namespace CallOfTheWild.Archetypes
                                                      )
                                                      );
 
+            var pummeling_style = library.Get<BlueprintFeature>("c36562b8e7ae12d408487ba8b532d966");
+            pummeling_style.AddComponent(Helpers.PrerequisiteFeature(elemental_flurry, any: true));
+
             flurry11 = library.CopyAndAdd(elemental_flurry, "ElementalFlurry11Feature", "");
             flurry11.ComponentsArray = new BlueprintComponent[] { Helpers.Create<FeralCombatTraining.MonkNoArmorAndUnarmedFeatureUnlock>(m => m.NewFact = flurry_feature11) };
 

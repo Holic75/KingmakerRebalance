@@ -43,12 +43,22 @@ namespace CallOfTheWild.FlatFootedMechanics
                                           || __instance.Target.Descriptor.State.HasCondition(UnitCondition.LoseDexterityToAC)) 
                                       || ((__instance.Target.Descriptor.State.HasCondition(UnitCondition.Shaken) 
                                           || __instance.Target.Descriptor.State.HasCondition(UnitCondition.Frightened)) 
-                                          && (bool)__instance.Initiator.Descriptor.State.Features.ShatterDefenses);
+                                          && ((bool)__instance.Initiator.Descriptor.State.Features.ShatterDefenses) && hasShatterDefensesBuff(__instance));
 
-            //TODO: fix shatter defenses not to apply on first hit
             var tr = Harmony12.Traverse.Create(__instance);
             tr.Property("IsFlatFooted").SetValue(is_flat_footed);
             return false;
+        }
+
+
+        static bool hasShatterDefensesBuff(RuleCheckTargetFlatFooted evt)
+        {
+            if (evt.Target?.Buffs == null)
+            {
+                return false;
+            }
+
+            return evt.Target.Buffs.Enumerable.Any(b => b.Blueprint == Rebalance.shatter_defenses_target_buff && b.MaybeContext?.MaybeCaster == evt.Initiator);
         }
     }
 

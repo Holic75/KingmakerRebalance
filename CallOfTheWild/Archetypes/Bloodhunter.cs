@@ -137,7 +137,7 @@ namespace CallOfTheWild.Archetypes
             favored_target = Helpers.CreateFeature("FavoredTargetBloodHunterFeature",
                                                     "Favored Target",
                                                     "At 1st level, a blood hunter gains +1 bonus on weapon attack and damage rolls against every creature type from ranger favored enemies list. At 5th, 10th, 15th, and 20th levels, these bonuses increase by 1.\n"
-                                                    + "Favored target is modified by any feat, spell, or effect that specifically works with the favored enemy ranger class feature. Additionally, the favored target ability always grants or uses a minimum of the blood hunter’s full favored target bonus for the purposes of effects that use the value of the ranger’s favored enemy bonus. For example, a blood hunter grants his full favored target bonus to his companion when using the hunter’s bond class feature.",
+                                                    + "Favored target is modified by any feat, spell, or effect that specifically works with the favored enemy ranger class feature. Additionally, the favored target ability always grants or uses a minimum of the blood hunter’s full favored target bonus for the purposes of effects that use the value of the ranger’s favored enemy bonus. For example, a blood hunter grants his full favored target bonus to his animal companion when using the hunter’s bond class feature.",
                                                     "",
                                                     Helpers.GetIcon("2c38da66e5a599347ac95b3294acbe00"), //true strike
                                                     FeatureGroup.None

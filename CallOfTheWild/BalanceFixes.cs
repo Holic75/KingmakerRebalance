@@ -1258,11 +1258,13 @@ namespace CallOfTheWild
     public class IterativeTwoWeaponFightingAttacks : RuleInitiatorLogicComponent<RuleCalculateAttacksCount>
     {        
         public override void OnEventAboutToTrigger(RuleCalculateAttacksCount evt)
-        {    
+        {
+            var maybeWeapon1 = evt.Initiator.Body.PrimaryHand?.MaybeWeapon;
+            var maybeWeapon2 = evt.Initiator.Body.SecondaryHand?.MaybeWeapon;
             if (!evt.Initiator.Body.PrimaryHand.HasWeapon 
-                || !evt.Initiator.Body.SecondaryHand.HasWeapon 
-                || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && !evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed)
-                || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural
+                || !evt.Initiator.Body.SecondaryHand.HasWeapon
+                   || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+                   || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
                 )
                 return;
 

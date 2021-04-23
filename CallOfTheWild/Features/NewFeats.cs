@@ -1021,9 +1021,8 @@ namespace CallOfTheWild
                 if (evt.Weapon == null
                    || maybeWeapon1 == null
                    || maybeWeapon2 == null
-                   || (maybeWeapon1.Blueprint.IsNatural && !(maybeWeapon1.Blueprint.IsUnarmed && evt.Initiator.Descriptor.State.Features.ImprovedUnarmedStrike))
-                   || maybeWeapon2.Blueprint.IsNatural
-                   || maybeWeapon2.Blueprint.IsUnarmed
+                   || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+                   || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
                    || (maybeWeapon1 != evt.Weapon && maybeWeapon2 != evt.Weapon)
                     )
                 {
@@ -2882,10 +2881,11 @@ namespace CallOfTheWild
                                                      "",
                                                      discordant_voice_effect_buff.Icon,
                                                      FeatureGroup.Feat,
-                                                     Helpers.PrerequisiteClassLevel(bard, 8, any: true),
-                                                     Helpers.PrerequisiteClassLevel(Skald.skald_class, 8, any: true),
-                                                     Common.createPrerequisiteArchetypeLevel(monk, sensei, 8, any: true),
-                                                     Common.createPrerequisiteArchetypeLevel(Archetypes.Evangelist.archetype.GetParentClass(), Archetypes.Evangelist.archetype, 8, any: true)
+                                                     Helpers.PrerequisiteClassLevel(bard, 10, any: true),
+                                                     Helpers.PrerequisiteClassLevel(Skald.skald_class, 10, any: true),
+                                                     Common.createPrerequisiteArchetypeLevel(monk, sensei, 10, any: true),
+                                                     Common.createPrerequisiteArchetypeLevel(Archetypes.Evangelist.archetype.GetParentClass(), Archetypes.Evangelist.archetype, 10, any: true),
+                                                     Common.createPrerequisiteArchetypeLevel(Brawler.brawler_class, Brawler.exemplar, 10, any: true)
                                                      );
             library.AddFeats(discordant_voice);
             var performances = library.GetAllBlueprints().OfType<BlueprintActivatableAbility>().Where(a => a.Group == ActivatableAbilityGroup.BardicPerformance);
