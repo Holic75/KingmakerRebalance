@@ -551,8 +551,8 @@ enchanced attacks,
 - Aura of Madness lvl 8 Madness domain ability changed to toggle,
 - Universalist wizard Metamagic Mastery change to work as per pnp,
 - Unarmed Strike can be used as an off-hand weapon if you have both Two Weapon Fighting and Improved Unarmed Strike feats,
-- Full concealment now gives immunity to precision damage.
-
+- Full concealment now gives immunity to precision damage,
+- Increased cost of using senseai ki powers on single ally by 1 and on all allies by 2.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
