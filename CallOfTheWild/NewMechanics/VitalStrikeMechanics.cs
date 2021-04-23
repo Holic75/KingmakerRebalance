@@ -39,6 +39,28 @@ namespace CallOfTheWild.VitalStrikeMechanics
         }
     }
 
+    //unit part used to track that vital strike was already executed in a given context
+    public class UnitPartVitalStrikeTracker : UnitPart
+    {
+        bool enabled = false;
+
+        public void enable()
+        {
+            enabled = true;
+        }
+
+        public void disable()
+        {
+            enabled = false;
+            this.Owner.Remove<UnitPartVitalStrikeTracker>();
+        }
+
+        public bool isEnabled()
+        {
+            return enabled;
+        }
+    }
+
 
     public class UnitPartVitalStrikeCriticalConfirmationBonus : AdditiveUnitPart
     {
@@ -71,7 +93,6 @@ namespace CallOfTheWild.VitalStrikeMechanics
                 return this.Fact.MaybeContext;
             }
         }
-
 
         public override void OnTurnOn()
         {
@@ -136,6 +157,13 @@ namespace CallOfTheWild.VitalStrikeMechanics
     {
         static bool Prefix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
+            if (!(evt.Initiator?.Get<UnitPartVitalStrikeTracker>()?.isEnabled()).GetValueOrDefault())
+            {
+                return false;
+            }
+
+            evt.Initiator?.Get<UnitPartVitalStrikeTracker>()?.disable();
+
             int dmg_mod = ___m_DamageMod;
             if (Main.settings.balance_fixes)
             {
@@ -177,6 +205,10 @@ namespace CallOfTheWild.VitalStrikeMechanics
     {
         static void Postfix(VitalStrike __instance, RuleCalculateWeaponStats evt, ref int ___m_DamageMod)
         {
+            if (!(evt.Initiator?.Get<UnitPartVitalStrikeTracker>()?.isEnabled()).GetValueOrDefault())
+            {
+                return;
+            }
             if (evt.AttackWithWeapon != null)
             {
                 evt.AttackWithWeapon.IsFirstAttack = true;
@@ -226,6 +258,7 @@ namespace CallOfTheWild.VitalStrikeMechanics
 
         static WeaponSlot getWeaponSlot(UnitEntityData attacker, AbilityCustomMeleeAttack custom_ability)
         {
+            attacker?.Ensure<UnitPartVitalStrikeTracker>().enable();
             return !custom_ability.IsVitalStrike ? attacker.GetThreatHand() : attacker.Body.PrimaryHand;
         }
     }
