@@ -1085,7 +1085,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 && (!considerUnarmedAndIgnore(blueprint1, __instance) || blueprint2 == null || blueprint2.IsUnarmed)
                 )
             {
-                ++__instance.PrimaryHand.MainAttacks;
+                ++__instance.PrimaryHand.AdditionalAttacks;
                 if (!blueprint1.IsNatural || (bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks || __instance.ForceIterativeNaturealAttacks || blueprint1.IsUnarmed)
                     __instance.PrimaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
             }
@@ -1094,7 +1094,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
                 || considerUnarmedAndIgnoreOffHand(blueprint2, __instance) && (blueprint1 != null)
                 )
                 return false;
-            ++__instance.SecondaryHand.MainAttacks;
+            ++__instance.SecondaryHand.AdditionalAttacks;
             if (blueprint1 == null || !considerUnarmedAndIgnore(blueprint1, __instance)
                 && (blueprint1 == null || !blueprint1.IsNatural || !(bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks && !__instance.ForceIterativeNaturealAttacks)
                 && !(blueprint2.IsUnarmed)
