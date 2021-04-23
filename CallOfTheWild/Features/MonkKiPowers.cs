@@ -27,7 +27,7 @@ namespace CallOfTheWild
         static public BlueprintFeatureSelection scaled_fist_ki_power_selection = library.Get<BlueprintFeatureSelection>("4694f6ac27eaed34abb7d09ab67b4541");
         static public BlueprintCharacterClass monk = library.Get<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124");
 
-        static BlueprintFeature sensei_mystic_powers = library.Get<BlueprintFeature>("045aa840fbf839a42abdf2fec92f8bf3");
+        static BlueprintFeature sensei_mystic_powers = library.Get<BlueprintFeature>("d5f7bcde6e7e5ed498f430ebf5c29837");
         static BlueprintFeature sensei_mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
 
         public static void load()
