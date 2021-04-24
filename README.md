@@ -489,6 +489,9 @@ New Ki Powers:
 - Akashic Form,
 - Frightful Aspect.
 
+New Style Strikes:
+- Flying Kick.
+
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
 - Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  

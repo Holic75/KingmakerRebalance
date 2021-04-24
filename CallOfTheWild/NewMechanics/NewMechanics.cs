@@ -6520,6 +6520,44 @@ namespace CallOfTheWild
         }
 
 
+        //takes evaluated weapon damage instead of base weapon damage
+        [ComponentName("Roll weapon damage dice twice on attack")]
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class DoubleDamageDiceOnAttack : RuleInitiatorLogicComponent<RuleDealDamage>
+        {
+            public bool OnlyOnFullAttack;
+            [ShowIf("OnlyOnFullAttack")]
+            public bool OnlyOnFirstAttack;
+            public bool CriticalHit;
+            public BlueprintWeaponType WeaponType;
+
+            public override void OnEventAboutToTrigger(RuleDealDamage evt)
+            {
+                RuleAttackWithWeapon rule = evt.Reason.Rule as RuleAttackWithWeapon;
+                if (rule == null || !this.CheckCondition(rule))
+                    return;
+                var weapon_damage = evt.DamageBundle.WeaponDamage;
+                if (weapon_damage == null)
+                {
+                    return;
+                }
+                var extra_dmg = evt.DamageBundle.WeaponDamage.CreateTypeDescription().GetDamageDescriptor(new DiceFormula(weapon_damage.Dice.Rolls, weapon_damage.Dice.Dice), 0).CreateDamage();              
+                evt.DamageBundle.Add(extra_dmg);
+            }
+
+
+            public override void OnEventDidTrigger(RuleDealDamage evt)
+            {
+            }
+
+            private bool CheckCondition(RuleAttackWithWeapon evt)
+            {
+                ItemEntity owner = (this.Fact as ItemEnchantment)?.Owner;
+                return (owner == null || owner == evt.Weapon) && (!(bool)(this.WeaponType) || !(this.WeaponType != evt.Weapon.Blueprint.Type)) && (!this.CriticalHit || evt.AttackRoll.IsCriticalConfirmed && !evt.AttackRoll.FortificationNegatesCriticalHit) && ((!this.OnlyOnFullAttack || evt.IsFullAttack) && (!this.OnlyOnFirstAttack || evt.IsFirstAttack));
+            }
+        }
+
+
 
         [AllowedOn(typeof(BlueprintUnitFact))]
         public class ContextActionOnSingleMeleeAttack : RuleInitiatorLogicComponent<RuleAttackWithWeapon>

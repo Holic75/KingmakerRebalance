@@ -374,7 +374,8 @@ namespace CallOfTheWild
                         CallOfTheWild.AdvancedFighterOptions.prepareLookupData();
                     }
                     CallOfTheWild.MonkKiPowers.load();
-
+                    CallOfTheWild.StyleStrikes.load();
+                    
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    
