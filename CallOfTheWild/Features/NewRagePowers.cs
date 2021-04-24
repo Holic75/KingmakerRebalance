@@ -61,7 +61,6 @@ namespace CallOfTheWild
         static public BlueprintFeature atavism_totem;
         static public BlueprintFeature greater_atavism_totem;
 
-
         static public BlueprintFeature lesser_spirit_totem;
         static BlueprintBuff lesser_spirit_totem_buff;
         static public BlueprintFeature spirit_totem;
@@ -69,8 +68,13 @@ namespace CallOfTheWild
         static public BlueprintItemWeapon lesser_spirit_totem_slam_attack;
         static public BlueprintItemWeapon greater_spirit_totem_slam_attack;
 
-        static public BlueprintFeature unrestrained_rage_feature;
+        static public BlueprintFeature lesser_fiend_totem;
+        static public BlueprintItemWeapon lesser_fiend_totem_gore_attack;
+        static public BlueprintFeature fiend_totem;
+        static public BlueprintBuff fiend_totem_buff;
+        static public BlueprintFeature greater_fiend_totem;
 
+        static public BlueprintFeature unrestrained_rage_feature;
 
         static public BlueprintFeature lesser_celestial_totem;
         static public BlueprintBuff lesser_celestial_totem_buff;
@@ -123,6 +127,10 @@ namespace CallOfTheWild
             createLesserSpiritTotem();
             createSpiritTotem();
             createGreaterSpiritTotem();
+
+            createLesserFiendTotem();
+            createFiendTotem();
+            createGreaterFiendTotem();
 
             createLesserCelestialTotem();
             createCelestialTotem();
@@ -566,6 +574,118 @@ namespace CallOfTheWild
             addToSelection(greater_celestial_totem);
         }
 
+        static internal void createLesserFiendTotem()
+        {
+            var icon = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon; //infernal bloodline for the icon
+            lesser_fiend_totem_gore_attack = library.Get<BlueprintItemWeapon>("76ada2578e9121a44b8ffbb7c1f2b5f0");
+
+            Helpers.SetField(lesser_fiend_totem_gore_attack, "m_DamageDice", new DiceFormula(1, DiceType.D8));
+
+            var buff = Helpers.CreateBuff("LesserFiendTotemBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null,
+                                          Common.createAddSecondaryAttacks(lesser_fiend_totem_gore_attack)
+                                          );
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+
+            lesser_fiend_totem = Helpers.CreateFeature("LesserFiendTotemFeature",
+                                         "Fiend Totem, Lesser",
+                                         "While raging, the barbarian grows a pair of large horns, gaining a gore attack. This attack is a primary attack (unless she is also attacking with weapons, in which case it is a secondary attack) and is made at the barbarian’s full base attack bonus (–5 if it is a secondary attack). The gore attack deals 1d8 points of piercing damage (1d6 if Small) plus the barbarian’s Strength modifier (1/2 if it is a secondary attack).",
+                                         "",
+                                         icon,
+                                         FeatureGroup.RagePower
+                                         );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, lesser_fiend_totem);
+
+            addToSelection(lesser_fiend_totem, is_totem: true);
+        }
+
+        static internal void createFiendTotem()
+        {
+
+            fiend_totem_buff = library.Get<BlueprintBuff>("3749c8ac1a99a5f488f5782f74807eec");  //thorn body
+
+            var components = fiend_totem_buff.GetComponents<AddTargetAttackRollTrigger>();
+            foreach (var c in components)
+            {
+                ContextActionDealDamage cadd = (ContextActionDealDamage)c.ActionsOnAttacker.Actions[0];
+                cadd.Value.BonusValue.ValueType = ContextValueType.Simple;
+            }
+
+            fiend_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            fiend_totem = Helpers.CreateFeature("FiendTotemFeature",
+                                    "Fiend Totem",
+                                    "While raging, the barbarian sprouts dozens of wicked barbs from her body. Anyone striking the barbarian with a melee weapon, an unarmed strike, or a natural weapon takes 1d6 points of piercing damage.",
+                                    "",
+                                    lesser_fiend_totem.Icon,
+                                    FeatureGroup.RagePower,
+                                    Helpers.PrerequisiteClassLevel(barbarian_class, 6),
+                                    Helpers.PrerequisiteFeature(lesser_fiend_totem)
+                                    );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, fiend_totem_buff, fiend_totem);
+
+            addToSelection(fiend_totem);
+        }
+
+        static internal void createGreaterFiendTotem()
+        {
+            var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
+
+            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect.name = "GreaterFiendTotemDamageAura";
+            area_effect.AffectEnemies = true;
+            area_effect.AggroEnemies = true;
+            area_effect.Size = 5.Feet();
+            area_effect.Shape = AreaEffectShape.Cylinder;
+
+            var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(2));
+            var damage_action = Helpers.CreateActionDealPhysicalDamage(PhysicalDamageForm.Slashing, damage, isAoE: true);
+            var conditional_damage = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good), //effects good with damage
+                                                                                Common.createContextConditionIsCaster(not: true) },  //but don't get myself
+                                                                                 damage_action);
+
+            var conditional_shaken_good = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good), //effects good and neutral with shaken
+                                                                                Common.createContextConditionIsCaster(not: true)},  //but don't get myself
+                                                                                Common.createContextActionApplyBuff(shaken_buff,  Helpers.CreateContextDuration(1, DurationRate.Rounds)));
+
+            var conditional_shaken_neutral = Helpers.CreateConditional(new Condition[] {
+                                                                                Helpers.CreateContextConditionAlignment(AlignmentComponent.Neutral), //effects good and neutral with shaken
+                                                                                Common.createContextConditionIsCaster(not: true)},  //but don't get myself
+                                                                                Common.createContextActionApplyBuff(shaken_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds)));
+
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_shaken_good));
+            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_shaken_neutral));
+            area_effect.Fx = new Kingmaker.ResourceLinks.PrefabLink();
+            library.AddAsset(area_effect, "");
+
+            var buff = Helpers.CreateBuff("GreaterFiendTotemBuff",
+                "", "", "", null, null,
+                Common.createAddAreaEffect(area_effect)
+                );
+
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            greater_fiend_totem = Helpers.CreateFeature("GreaterFiendTotemFeature",
+                                    "Fiend Totem, Greater",
+                                    "While raging, the barbarian is surrounded by an aura of menace. Good creatures adjacent to the barbarian are shaken and take 2d6 points of slashing damage at the beginning of the barbarian’s turn as dozens of small cuts open across their flesh. Neutral creatures that are adjacent to the barbarian are shaken, but do not take any damage. Evil creatures are unaffected.",
+                                    "",
+                                    lesser_fiend_totem.Icon,
+                                    FeatureGroup.RagePower,
+                                    Helpers.PrerequisiteClassLevel(barbarian_class, 10),
+                                    Helpers.PrerequisiteFeature(fiend_totem)
+                                    );
+
+            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_fiend_totem);
+            addToSelection(greater_fiend_totem);
+        }
 
         static internal void createLesserSpiritTotem()
         {
@@ -597,14 +717,8 @@ namespace CallOfTheWild
                                           null,
                                           null,
                                           Common.createAddSecondaryAttacks(lesser_spirit_totem_slam_attack)
-                                          /*Helpers.Create<NewMechanics.BuffWeaponStatReplacement>(b =>
-                                                                                                  {
-                                                                                                      b.use_caster_value = true;
-                                                                                                      b.weapon = lesser_spirit_totem_slam_attack;
-                                                                                                      b.Stat = StatType.Charisma;
-                                                                                                  }
-                                                                                                  )*/
                                           );
+
             lesser_spirit_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             lesser_spirit_totem = Helpers.CreateFeature("LesserSpiritTotemFeature",
@@ -675,13 +789,6 @@ namespace CallOfTheWild
                                           null,
                                           null,
                                           Common.createAddSecondaryAttacks(greater_spirit_totem_slam_attack),
-                                          /*Helpers.Create<NewMechanics.BuffWeaponStatReplacement>(b =>
-                                                                                                {
-                                                                                                    b.use_caster_value = true;
-                                                                                                    b.weapon = greater_spirit_totem_slam_attack;
-                                                                                                    b.Stat = StatType.Charisma;
-                                                                                                }
-                                                                                                ),*/
                                           Common.createAddAreaEffect(area_effect)
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
@@ -918,7 +1025,7 @@ namespace CallOfTheWild
             terrifying_howl_ability.Range = AbilityRange.Personal;
             terrifying_howl_ability.AddComponent(Common.createAbilityCasterHasNoFacts(NewSpells.silence_buff));
 
-            var frighteneed_buff = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
+            var frightened_buff = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
             var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
             var cooldown_buff = Helpers.CreateBuff("TerrifyingHowlCooldownBuff",
                                                    "Cooldown: Terrifying Howl",
@@ -927,7 +1034,7 @@ namespace CallOfTheWild
                                                    terrifying_howl_ability.Icon,
                                                    null);
             cooldown_buff.SetBuffFlags(BuffFlags.RemoveOnRest);
-            var on_failed_save = Common.createContextSavedApplyBuff(frighteneed_buff,
+            var on_failed_save = Common.createContextSavedApplyBuff(frightened_buff,
                                                                     Helpers.CreateContextDuration(Common.createSimpleContextValue(1),
                                                                                                   Kingmaker.UnitLogic.Mechanics.DurationRate.Rounds,
                                                                                                   Kingmaker.RuleSystem.DiceType.D4,

@@ -3117,6 +3117,14 @@ namespace CallOfTheWild
             return d;
         }
 
+        static public DamageTypeDescription createPhysicalDamageDescription(PhysicalDamageForm form)
+        {
+            var d = new DamageTypeDescription();
+            d.Type = DamageType.Physical;
+            d.Physical.Form = form;
+            return d;
+        }
+
         static public DamageTypeDescription createForceDamageDescription()
         {
             var d = new DamageTypeDescription();

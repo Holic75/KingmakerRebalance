@@ -2381,6 +2381,24 @@ namespace CallOfTheWild
             return c;
         }
 
+        public static ContextActionDealDamage CreateActionDealPhysicalDamage(PhysicalDamageForm form, ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
+        {
+            var c = Create<ContextActionDealDamage>();
+            c.DamageType = new DamageTypeDescription()
+            {
+                Type = DamageType.Physical,
+                Common = new DamageTypeDescription.CommomData(),
+                Physical = new DamageTypeDescription.PhysicalData()
+            };
+            c.DamageType.Physical.Form = form;
+            c.Duration = Helpers.CreateContextDuration(0);
+            c.Value = damage;
+            c.IsAoE = isAoE;
+            c.HalfIfSaved = halfIfSaved;
+            c.IgnoreCritical = IgnoreCritical;
+
+            return c;
+        }
 
         public static ContextActionDealDamage CreateActionDealDirectDamage(ContextDiceValue damage, bool isAoE = false, bool halfIfSaved = false, bool IgnoreCritical = false)
         {
