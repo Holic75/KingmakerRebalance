@@ -183,6 +183,16 @@ namespace CallOfTheWild
         }
 
 
+        static internal void fixKiExtraAttackAction()
+        {
+            var ki_extra_attack = library.Get<BlueprintAbility>("7f6ea312f5dad364fa4a896d7db39fdd");
+            ki_extra_attack.ActionType = UnitCommand.CommandType.Swift;
+
+            var scaled_fist_ki_extra_attack = library.Get<BlueprintAbility>("ca948bb4ce1a2014fbf4d8d44b553074");
+            scaled_fist_ki_extra_attack.ActionType = UnitCommand.CommandType.Swift;
+        }
+
+
         static internal void fixShatterDefenses()
         {
             //fix shatter defenses to start working only after first successful hit
