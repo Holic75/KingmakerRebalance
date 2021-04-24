@@ -489,6 +489,9 @@ New Ki Powers:
 - Akashic Form,
 - Frightful Aspect.
 
+New Style Strikes:
+- Flying Kick.
+
 Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
 - Beast shape I allows to turn into wolf and leopard,  
 - Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  
@@ -551,8 +554,8 @@ enchanced attacks,
 - Aura of Madness lvl 8 Madness domain ability changed to toggle,
 - Universalist wizard Metamagic Mastery change to work as per pnp,
 - Unarmed Strike can be used as an off-hand weapon if you have both Two Weapon Fighting and Improved Unarmed Strike feats,
-- Full concealment now gives immunity to precision damage.
-
+- Full concealment now gives immunity to precision damage,
+- Increased cost of using senseai ki powers on single ally by 1 and on all allies by 2.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,

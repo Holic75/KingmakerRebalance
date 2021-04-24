@@ -1501,6 +1501,18 @@ namespace CallOfTheWild
             fist1d6.ReapplyOnLevelUp = true;
             var monk_progresssion = library.Get<BlueprintProgression>("8a91753b978e3b34b9425419179aafd6");
             monk_progresssion.LevelEntries = Common.removeEntries(monk_progresssion.LevelEntries, f => fists.Contains(f), keep_empty_entries: true);
+
+
+            var hammerblow = library.Get<BlueprintBuff>("928f89c30f4ad6a48862980e5f6f81cf");
+            var double_damage = hammerblow.GetComponent<DoubleDamageDiceOnAttack>();
+            hammerblow.ReplaceComponent(double_damage, Helpers.Create<NewMechanics.DoubleDamageDiceOnAttack>(d =>
+            {
+                d.CriticalHit = double_damage.CriticalHit;
+                d.OnlyOnFullAttack = double_damage.OnlyOnFullAttack;
+                d.WeaponType = double_damage.WeaponType;
+                d.OnlyOnFirstAttack = double_damage.OnlyOnFirstAttack;
+            })
+            );
         }
 
 

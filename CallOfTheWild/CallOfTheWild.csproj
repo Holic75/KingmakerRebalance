@@ -242,6 +242,7 @@
     <Compile Include="Features\MonkKiPowers.cs" />
     <Compile Include="Features\SkillUnlocks.cs" />
     <Compile Include="Features\SpiritualWeapons.cs" />
+    <Compile Include="Features\StyleStrikes.cs" />
     <Compile Include="Features\WeaponsFix.cs" />
     <Compile Include="Features\Familiars.cs" />
     <Compile Include="Features\MagusArcana.cs" />
