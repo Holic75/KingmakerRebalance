@@ -205,6 +205,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixMonkStyleStrikes();
                     CallOfTheWild.Rebalance.fixSenseiMysticAdvice();
                     CallOfTheWild.Rebalance.fixShatterDefenses();
+                    CallOfTheWild.Rebalance.fixKiExtraAttackAction();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");

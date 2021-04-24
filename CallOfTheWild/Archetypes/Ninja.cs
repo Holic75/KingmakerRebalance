@@ -57,6 +57,7 @@ namespace CallOfTheWild.Archetypes
 
         static public BlueprintFeature ninja_proficiencies;
         static public BlueprintFeature ki_pool;
+        static public BlueprintAbility ninja_ki_extra_attack_ability;
         static public BlueprintAbilityResource ki_resource;
         static public BlueprintFeature no_trace;
         static public BlueprintFeature light_steps;
@@ -82,7 +83,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeature see_the_unseen;//
         static public BlueprintFeature flurry_of_darts;
         //+evasion
-
+        static public BlueprintFeatureSelection style_strikes;
 
 
         static LibraryScriptableObject library => Main.library;
@@ -126,6 +127,7 @@ namespace CallOfTheWild.Archetypes
             createLightSteps();
             createNinjaTrick();
             createDispatchement();
+            createStyleStrikes();
 
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, rogue_proficiencies, trapfinding),
                                                           Helpers.LevelEntry(2, evasion, rogue_talent),
@@ -147,16 +149,17 @@ namespace CallOfTheWild.Archetypes
                                                           Helpers.LevelEntry(2, ki_pool, ninja_trick),
                                                           Helpers.LevelEntry(3, no_trace),
                                                           Helpers.LevelEntry(4, ninja_trick, dispatchment),
+                                                          Helpers.LevelEntry(5, style_strikes),
                                                           Helpers.LevelEntry(6, ninja_trick, no_trace, light_steps),
                                                           Helpers.LevelEntry(8, ninja_trick),
                                                           Helpers.LevelEntry(9, no_trace),
-                                                          Helpers.LevelEntry(10, ninja_trick), //master_trick = advanced talent?
+                                                          Helpers.LevelEntry(10, ninja_trick, style_strikes), //master_trick = advanced talent?
                                                           Helpers.LevelEntry(12, ninja_trick, no_trace),
                                                           Helpers.LevelEntry(14, ninja_trick),
-                                                          Helpers.LevelEntry(15, no_trace),
+                                                          Helpers.LevelEntry(15, no_trace, style_strikes),
                                                           Helpers.LevelEntry(16, ninja_trick),
                                                           Helpers.LevelEntry(18, ninja_trick, no_trace),
-                                                          Helpers.LevelEntry(20, ninja_trick),
+                                                          Helpers.LevelEntry(20, ninja_trick, style_strikes),
                                                        };
 
             rogue_class.Progression.UIDeterminatorsGroup = rogue_class.Progression.UIDeterminatorsGroup.AddToArray(ninja_proficiencies);
@@ -164,6 +167,51 @@ namespace CallOfTheWild.Archetypes
             rogue_class.Progression.UIGroups[2].Features.Add(light_steps);
             rogue_class.Progression.UIGroups[2].Features.Add(dispatchment);
             rogue_class.Archetypes = rogue_class.Archetypes.AddToArray(archetype);
+        }
+
+
+        static void createStyleStrikes()
+        {
+            style_strikes = library.CopyAndAdd<BlueprintFeatureSelection>("7bc6a93f6e48eff49be5b0cde83c9450", "NinjaStyleStrikes", "");
+            style_strikes.Features = new BlueprintFeature[0];
+            style_strikes.SetDescription("At 5th level, a ninja can learn one type of style strike, as the monk class feature. Whenever she spends ki from her ki pool to make an additional attack, she can designate that additional attack as a style strike, regardless of the weapon she uses to make the attack. The attack is resolved as normal, but it has a different effect depending upon the type of strike chosen. At 10th level and every 5 levels thereafter, a ninja learns an additional style strike. She must choose which style strike to apply before the attack roll is made. Unlike a monk, a ninja does not gain the ability to designate more than one attack as a style strike per round.");
+
+            var old_fetures = style_strikes.AllFeatures;
+
+            style_strikes.AllFeatures = new BlueprintFeature[0];
+            var abilities = new List<BlueprintAbility>();
+
+            foreach (var ss in old_fetures)
+            {
+                var toggle = ss.GetComponent<AddFacts>().Facts[0] as BlueprintActivatableAbility;
+                var buff = library.CopyAndAdd(toggle.Buff, "Ninja" + toggle.Buff.name, Helpers.MergeIds(toggle.AssetGuid, "879a3c116afe43c3b25448abbaa9941b"));
+
+                buff.MaybeReplaceComponent<NewMechanics.DoubleDamageDiceOnAttack>(d => d.WeaponType = null);
+                buff.MaybeReplaceComponent<AddInitiatorAttackWithWeaponTrigger>(a => a.WeaponType = null);
+                buff.MaybeReplaceComponent<IgnoreDamageReductionOnAttack>(d => d.WeaponType = null);
+                buff.SetBuffFlags(0);
+                buff.SetNameDescriptionIcon(toggle);
+                var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false);
+                var ability = library.CopyAndAdd(ninja_ki_extra_attack_ability, "Ninja" + toggle.name, Helpers.MergeIds(toggle.AssetGuid, "12469cb6b01548888069e45b6dc5bd37"));
+                ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions.Actions = a.Actions.Actions.AddToArray(apply_buff));
+                abilities.Add(ability);
+
+                var feature = library.CopyAndAdd(ss, "Ninja" + ss.name, Helpers.MergeIds(toggle.AssetGuid, "5497acccb4834d4eb39144a972c9125b"));
+                feature.ComponentsArray = new BlueprintComponent[0];
+                style_strikes.AllFeatures = style_strikes.AllFeatures.AddToArray(feature);
+                ability.AddComponent(Common.createAbilityShowIfCasterHasFact(feature));
+                ability.SetNameDescriptionIcon(ninja_ki_extra_attack_ability.Name + " (" + toggle.Name + ")",
+                                               ability.Description + "\n" + toggle.Name + ": " + toggle.Description,
+                                               toggle.Icon);
+            }
+
+            var wrapper = Common.createVariantWrapper("NinjaStyleStrikesAbilityBase", "", abilities.ToArray());
+            wrapper.SetNameDescriptionIcon(ninja_ki_extra_attack_ability.Name + " (" + style_strikes.Name + ")", 
+                                           ninja_ki_extra_attack_ability.Description + "\n"
+                                           + style_strikes.Name + ": " + style_strikes.Description,
+                                           ninja_ki_extra_attack_ability.Icon);
+
+            style_strikes.ComponentsArray = new BlueprintComponent[] { Helpers.CreateAddFacts(wrapper) };
         }
 
 
@@ -254,6 +302,8 @@ namespace CallOfTheWild.Archetypes
             ki_speed_burst.SetNameDescription("Ki Speed Burst", 
                                               "A ninja with this ki power can spend 1 point from his ki pool as a swift action to grant himself a sudden burst of speed. This increases the ninja's base land speed by 20 feet for 1 round.");
 
+
+            var ki_extra_attack_feature = Common.AbilityToFeature(ki_extra_attack);
             ki_pool = Helpers.CreateFeature("KiPoolNinjaFeature",
                                             "Ki Pool",
                                             "At 2nd level, a ninja gains a pool of ki points, supernatural energy she can use to accomplish amazing feats. The number of points in the ninja’s ki pool is equal to 1/2 her ninja level + her Charisma modifier.\n"
@@ -261,8 +311,11 @@ namespace CallOfTheWild.Archetypes
                                             "",
                                             null,
                                             FeatureGroup.None,
-                                            Helpers.CreateAddFacts(ki_extra_attack, ki_speed_burst),
+                                            Helpers.CreateAddFacts(ki_speed_burst),
+                                            Helpers.CreateAddFeatureOnClassLevel(ki_extra_attack_feature, 5, new BlueprintCharacterClass[] {archetype.GetParentClass()}, before: true),
                                             ki_resource.CreateAddAbilityResource());
+
+            ninja_ki_extra_attack_ability = ki_extra_attack;
         }
 
 
