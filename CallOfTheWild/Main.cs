@@ -205,6 +205,11 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixChannelEnergyHeal();
                     CallOfTheWild.Rebalance.condenseMonkUnarmedDamage();
                     CallOfTheWild.Rebalance.fixArchetypePrerequisites();
+                    CallOfTheWild.Rebalance.fixSenseiBuffs();
+                    CallOfTheWild.Rebalance.fixMonkStyleStrikes();
+                    CallOfTheWild.Rebalance.fixSenseiMysticAdvice();
+                    CallOfTheWild.Rebalance.fixShatterDefenses();
+                    CallOfTheWild.Rebalance.fixKiExtraAttackAction();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
@@ -374,7 +379,8 @@ namespace CallOfTheWild
                         CallOfTheWild.AdvancedFighterOptions.prepareLookupData();
                     }
                     CallOfTheWild.MonkKiPowers.load();
-
+                    CallOfTheWild.StyleStrikes.load();
+                    
                     CallOfTheWild.Archetypes.SpiritWhisperer.create();
                     CallOfTheWild.Archetypes.UntamedRager.create();
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    

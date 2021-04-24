@@ -4382,6 +4382,9 @@ namespace CallOfTheWild
             sacred_fist_archetype.ReplaceStartingEquipment = true;
             sacred_fist_archetype.StartingItems = monk_class.StartingItems;
             sacred_fist_archetype.StartingGold = monk_class.StartingGold;
+
+            var pummeling_style = library.Get<BlueprintFeature>("c36562b8e7ae12d408487ba8b532d966");
+            pummeling_style.AddComponent(Helpers.PrerequisiteFeature(flurry2, any: true));
         }
 
         static void createSacredFistNoMonkCheck()

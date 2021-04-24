@@ -1319,7 +1319,8 @@ namespace CallOfTheWild
                                       a.groups = new WeaponFighterGroup[] { WeaponFighterGroup.Close };
                                       a.extra_categories = new WeaponCategory[] { WeaponCategory.UnarmedStrike };
                                   }
-                                  )
+                                  ),
+                                  Common.createAbilityTargetHasFact(inverted: true, Common.incorporeal)
                                   );
 
             awesome_blow = Common.AbilityToFeature(ability, false);
@@ -1644,6 +1645,9 @@ namespace CallOfTheWild
 
             brawlers_flurry.IsClassFeature = true;
             brawlers_flurry11.IsClassFeature = true;
+
+            var pummeling_style = library.Get<BlueprintFeature>("c36562b8e7ae12d408487ba8b532d966");
+            pummeling_style.AddComponent(Helpers.PrerequisiteFeature(brawlers_flurry, any: true));
         }
 
         static void createBrawlersCunning()
@@ -1676,9 +1680,6 @@ namespace CallOfTheWild
 
             var stunning_fist_resource = library.Get<BlueprintAbilityResource>("d2bae584db4bf4f4f86dd9d15ae56558");
             ClassToProgression.addClassToResource(brawler_class, new BlueprintArchetype[0], stunning_fist_resource, monk_class);
-            //perfect strike will make a copy of resource, so will be update automatically
-
-            //fix robes ?
         }
 
 
@@ -1704,11 +1705,13 @@ namespace CallOfTheWild
             public void activate()
             {
                 active = true;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
             }
 
             public void deactivate()
             {
                 active = false;
+                EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
             }
 
             public void increaseExtraAttacks()
@@ -1760,17 +1763,32 @@ namespace CallOfTheWild
         {
             static bool Prefix(TwoWeaponFightingAttacks __instance, RuleCalculateAttacksCount evt)
             {
-                var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
+                var maybeWeapon1 = evt.Initiator.Body.PrimaryHand?.MaybeWeapon;
+                var maybeWeapon2 = evt.Initiator.Body.SecondaryHand?.MaybeWeapon;
+                if (!evt.Initiator.Body.PrimaryHand.HasWeapon
+                    || !evt.Initiator.Body.SecondaryHand.HasWeapon
+                       || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+                       || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
+                    )
+                    return false;
+
+                var brawler_part = evt.Initiator.Get<Brawler.UnitPartBrawler>();
                 if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
                 {
                     for (int i = 1; i < brawler_part.getNumExtraAttacks(); i++)
                     {
                         ++evt.SecondaryHand.AdditionalAttacks;
                     }
-                    return false;
+                }
+                else if (__instance.Fact.GetRank() > 1)
+                {
+                    for (int i = 2; i < __instance.Fact.GetRank(); i++)
+                    {
+                        ++evt.SecondaryHand.PenalizedAttacks;
+                    }
                 }
 
-                return true;
+                return false;
             }
         }
 

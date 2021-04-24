@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Class.Kineticist.ActivatableAbility;
 using Kingmaker.UnitLogic.Class.LevelUp;
+using Kingmaker.UnitLogic.Commands;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
@@ -199,6 +200,31 @@ namespace CallOfTheWild.HoldingItemsMechanics
     }
 
 
+    public class UnitPartUnarmedTwf : AdditiveUnitPart
+    {
+        public bool active()
+        {
+            return !buffs.Empty();
+        }
+    }
+
+    public class UnarmedTwf : OwnedGameLogicComponent<UnitDescriptor>
+    {
+        public override void OnFactActivate()
+        {
+            this.Owner.Ensure<UnitPartUnarmedTwf>().addBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
+        }
+
+
+        public override void OnFactDeactivate()
+        {
+            this.Owner.Ensure<UnitPartUnarmedTwf>().removeBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitActiveEquipmentSetHandler>((Action<IUnitActiveEquipmentSetHandler>)(h => h.HandleUnitChangeActiveEquipmentSet(this.Owner)));
+        }
+    }
+
+
     public class UnitPartCanUseSpellCombat : AdditiveUnitPart
     {
         public bool canBeUsedOn(HandSlot primary_hand, HandSlot secondary_hand, bool use_two_handed)
@@ -238,6 +264,8 @@ namespace CallOfTheWild.HoldingItemsMechanics
             this.Owner.Ensure<UnitPartCanUseSpellCombat>().removeBuff(this.Fact);
         }
     }
+
+
 
 
 
@@ -626,15 +654,6 @@ namespace CallOfTheWild.HoldingItemsMechanics
 
             return false;
         }
-
-        /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
-        {
-            var codes = instructions.ToList();
-            var check_shield = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("HasShield"));
-
-            codes[check_shield] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<HandSlot, bool>(Helpers.hasShield2).Method);
-            return codes.AsEnumerable();
-        }*/
     }
 
 
@@ -1015,13 +1034,21 @@ namespace CallOfTheWild.HoldingItemsMechanics
             codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1);
             codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, UnitDescriptor, bool>(considerUnarmedAndIgnore).Method));
 
+            check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on secondary hand
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_1);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, UnitDescriptor, bool>(considerUnarmedAndIgnoreOffHand).Method));
             return codes.AsEnumerable();
         }
 
 
         private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, UnitDescriptor unit)
         {
-            return weapon.IsUnarmed && !(bool)unit.State.Features.ImprovedUnarmedStrike;
+            return Aux.isMainHandUnarmedAndCanBeIgnored(weapon, unit);
+        }
+
+        private static bool considerUnarmedAndIgnoreOffHand(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return Aux.isOffHandUnarmedAndCanBeIgnored(weapon, unit);
         }
     }
 
@@ -1030,7 +1057,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
     class RuleCalculateAttacksCount__OnTrigger__Patch
     {
-        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        /*static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
         {
             var codes = instructions.ToList();
             var check_is_unarmed = codes.FindIndex(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed")); //checking is unarmed on weapon on primary hand
@@ -1038,13 +1065,88 @@ namespace CallOfTheWild.HoldingItemsMechanics
             codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
             codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnore).Method));
 
+            check_is_unarmed = codes.IndexOf(codes.FindAll(x => x.opcode == System.Reflection.Emit.OpCodes.Callvirt && x.operand.ToString().Contains("IsUnarmed"))[2]);
+            codes[check_is_unarmed] = new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0);
+            codes.Insert(check_is_unarmed + 1, new Harmony12.CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Func<BlueprintItemWeapon, RuleCalculateAttacksCount, bool>(considerUnarmedAndIgnoreOffHand).Method));
             return codes.AsEnumerable();
+        }*/
+
+        static bool Prefix(RuleCalculateAttacksCount __instance, RulebookEventContext context)
+        {
+            int bab = (int)__instance.Initiator.Stats.BaseAttackBonus;
+            int num_penalized_attacks = Math.Min(Math.Max(0, bab / 5 - (bab % 5 == 0 ? 1 : 0)), 3);
+            HandSlot primary_hand = __instance.Initiator.Body.PrimaryHand;
+            HandSlot secondary_hand = __instance.Initiator.Body.SecondaryHand;
+            BlueprintItemWeapon blueprint1 = primary_hand.MaybeWeapon?.Blueprint;
+            BlueprintItemWeapon blueprint2 = secondary_hand.MaybeShield != null ? ((bool)__instance.Initiator.Descriptor.State.Features.ShieldBash ? secondary_hand.MaybeShield.WeaponComponent?.Blueprint : null) : secondary_hand.MaybeWeapon?.Blueprint;
+            int num = primary_hand.MaybeWeapon == null ? 0 : (primary_hand.MaybeWeapon.HoldInTwoHands ? 1 : 0);
+            if ((secondary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == false 
+                && (blueprint1 != null) 
+                && (!considerUnarmedAndIgnore(blueprint1, __instance) || blueprint2 == null || blueprint2.IsUnarmed)
+                )
+            {
+                ++__instance.PrimaryHand.AdditionalAttacks;
+                if (!blueprint1.IsNatural || (bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks || __instance.ForceIterativeNaturealAttacks || blueprint1.IsUnarmed)
+                    __instance.PrimaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
+            }
+            if ((secondary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == true 
+                || (blueprint2 == null) 
+                || considerUnarmedAndIgnoreOffHand(blueprint2, __instance) && (blueprint1 != null)
+                )
+                return false;
+            ++__instance.SecondaryHand.AdditionalAttacks;
+            if (blueprint1 == null || !considerUnarmedAndIgnore(blueprint1, __instance)
+                && (blueprint1 == null || !blueprint1.IsNatural || !(bool)__instance.Initiator.Descriptor.State.Features.IterativeNaturalAttacks && !__instance.ForceIterativeNaturealAttacks)
+                || (blueprint2.IsUnarmed)
+                )
+                return false;
+            __instance.SecondaryHand.PenalizedAttacks += Math.Max(0, num_penalized_attacks);
+            return false;
         }
 
 
         private static bool considerUnarmedAndIgnore(BlueprintItemWeapon weapon, RuleCalculateAttacksCount evt)
         {
-            return weapon.IsUnarmed && !(bool)evt.Initiator.Descriptor?.State.Features.ImprovedUnarmedStrike;
+            return Aux.isMainHandUnarmedAndCanBeIgnored(weapon, evt.Initiator.Descriptor);
+        }
+
+
+        private static bool considerUnarmedAndIgnoreOffHand(BlueprintItemWeapon weapon, RuleCalculateAttacksCount evt)
+        {
+            return Aux.isOffHandUnarmedAndCanBeIgnored(weapon, evt.Initiator.Descriptor);
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(UnitAttack))]
+    [Harmony12.HarmonyPatch("TriggerAttackRule", Harmony12.MethodType.Normal)]
+    class UnitAttack__TriggerAttackRule__Patch
+    {
+        static bool Prefix(UnitAttack __instance, AttackHandInfo attack)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = (attack?.Hand != null && attack?.Hand == __instance.Executor?.Body?.SecondaryHand);
+            return true;
+        }
+
+        static void Postfix(UnitAttack __instance, AttackHandInfo attack)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UIUtilityItem))]
+    [Harmony12.HarmonyPatch("GetAttackParametersEntity", Harmony12.MethodType.Normal)]
+    class UIUtilityItem__GetAttackParametersEntity__Patch
+    {
+        static bool Prefix(ItemEntityWeapon weaponEntity, UnitDescriptor unit, bool primaryHand)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = !primaryHand;
+            return true;
+        }
+
+        static void Postfix(ItemEntityWeapon weaponEntity, UnitDescriptor unit, bool primaryHand)
+        {
+            TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch.is_off_hand = false;
         }
     }
 
@@ -1053,7 +1155,8 @@ namespace CallOfTheWild.HoldingItemsMechanics
     [Harmony12.HarmonyPatch("OnEventAboutToTrigger", Harmony12.MethodType.Normal)]
     class TwoWeaponFightingDamagePenalty__OnEventAboutToTrigger__Patch
     {
-        static bool Prefix(RuleCalculateWeaponStats __instance, RuleCalculateWeaponStats evt)
+        public static bool is_off_hand = false;
+        static bool Prefix(TwoWeaponFightingDamagePenalty __instance, RuleCalculateWeaponStats evt)
         {
             ItemEntityWeapon maybeWeapon1 = evt.Initiator.Body.PrimaryHand.MaybeWeapon;
             ItemEntityWeapon maybeWeapon2 = evt.Initiator.Body.SecondaryHand.MaybeWeapon;
@@ -1061,23 +1164,42 @@ namespace CallOfTheWild.HoldingItemsMechanics
             var brawler_part = evt.Initiator?.Get<Brawler.UnitPartBrawler>();
             if ((brawler_part?.checkTwoWeapponFlurry()).GetValueOrDefault())
             {
+                is_off_hand = false;
                 return false;
             }
 
             if (evt.Weapon == null
                || maybeWeapon1 == null
                || maybeWeapon2 == null
-               || (maybeWeapon1.Blueprint.IsNatural && !maybeWeapon1.Blueprint.IsUnarmed)
-               || maybeWeapon2.Blueprint.IsNatural
+               || (maybeWeapon1.Blueprint.IsNatural && (!maybeWeapon1.Blueprint.IsUnarmed || Aux.isMainHandUnarmedAndCanBeIgnored(maybeWeapon1.Blueprint, evt.Initiator.Descriptor)))
+               || (maybeWeapon2.Blueprint.IsNatural && (!maybeWeapon2.Blueprint.IsUnarmed || Aux.isOffHandUnarmedAndCanBeIgnored(maybeWeapon2.Blueprint, evt.Initiator.Descriptor)))
                || maybeWeapon2 != evt.Weapon
                || (bool)evt.Initiator.Descriptor.State.Features.DoubleSlice
+               || ((evt.Weapon?.Blueprint.IsUnarmed).GetValueOrDefault() && !is_off_hand)
                )
             {
+                is_off_hand = false;
                 return false;
             }
             evt.SecondaryWeapon = true;
+            is_off_hand = false;
             return false;
         }
     }
+
+    static public class Aux
+    {
+        public static bool isMainHandUnarmedAndCanBeIgnored(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return weapon.IsUnarmed && !(bool)unit.State.Features.ImprovedUnarmedStrike;
+        }
+
+        public static bool isOffHandUnarmedAndCanBeIgnored(BlueprintItemWeapon weapon, UnitDescriptor unit)
+        {
+            return weapon.IsUnarmed && !((bool)unit.State.Features.ImprovedUnarmedStrike && (unit.Get<UnitPartUnarmedTwf>()?.active()).GetValueOrDefault());
+        }
+    }
+
+
 
 }
