@@ -916,7 +916,7 @@ namespace CallOfTheWild
                                                           AbilityActivationType.Immediately,
                                                           Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                           null,
-                                                          Helpers.Create<CompanionMechanics.CompanionWithinRange>(c => c.range = 5.Feet())
+                                                          Helpers.Create<CompanionMechanics.CompanionWithinRange>(c => c.range = 7.Feet())
                                                           );
             toggle.DeactivateImmediately = true;
 
@@ -2289,7 +2289,7 @@ namespace CallOfTheWild
             area.ReplaceComponent<AbilityAreaEffectBuff>(a =>
             {
                 a.Buff = rat_swarm_immunity;
-                a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<TeamworkMechanics.ContextConditionAllyOrCasterWithSoloTacticsSurroundedByAllies>(c => c.radius = 5.Feet().Meters),
+                a.Condition = Helpers.CreateConditionsCheckerAnd(Helpers.Create<TeamworkMechanics.ContextConditionAllyOrCasterWithSoloTacticsSurroundedByAllies>(c => c.radius = 7.Feet().Meters),
                                                                  Helpers.CreateConditionHasFact(swarm_scatter)
                                                                 );
             }

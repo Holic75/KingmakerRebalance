@@ -179,6 +179,9 @@ New rage powers:
 - Daemon Totem, Lesser,
 - Daemon Totem,
 - Daemon Totem, Greater,
+- Fiend Totem, Lesser,
+- Fiend Totem,
+- Fiend Totem, Greater,
 - Ferocious Beast,
 - Ferocious Beast, Greater,
 - Sharpened Accuracy,
@@ -195,7 +198,8 @@ New features:
 - Dismissable area effect spells,
 - When using wall area effect spells you should now see which enemies will be affected,
 - Summoned monsters are now considered as allies,
-- Dwarven war axe and bastard sword can be used as martial weapons if wielded two-handed; dueling sword can be used as martial weapon, in this case it is no longer considered to be finessable,
+- Dwarven war axe and bastard sword can be used as martial weapons if wielded with 2 hands; dueling sword can be used as martial weapon, in this case it is no longer considered as finessable;
+ estoc can be used as martial weapon, if wielded with 2 hands, in this case it is no longer considered as finessable 
 - Disarm, Sunder and Trip weapon properties were added to corresponding weapon types.
 - Lore Religion skill can now be used to treat deadly wounds,
 - Body armor can be used by anyone, even without proficiency, but in this case the wearer applies armor check penalty to his attack rolls.
@@ -661,4 +665,8 @@ Install
 - Build it using Visual Studio 2017 Community Edition or use prebuilt binaries from latest Releases (just drop archive into UMM GUI)
 - Run the game
 
-Big thanks to Nolanoth  for providing new icons for the mod.
+Special Thanks:
+Mnem for implementing fiend totem line rage powers,
+Hsinyu and Spacehamster for their help in resolving numerous problems that I faced while making this mod,
+Elmindra for creating Eldritch Arcana mod, without which Call of the Wild would probably never happen,
+Nolanoth for providing new icons.

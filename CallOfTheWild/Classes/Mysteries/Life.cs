@@ -106,7 +106,7 @@ namespace CallOfTheWild
             var aura_of_healing = library.Get<BlueprintAbilityAreaEffect>("be47154a20220f64f9bea767587e700a");
 
             var area_effect = library.CopyAndAdd(aura_of_healing, $"{name_prefix}Area", "");
-            area_effect.Size = 5.Feet();
+            area_effect.Size = 7.Feet();
             area_effect.SetComponents(createClassScalingConfig(),
                                       Helpers.CreateAreaEffectRunAction(round: heal_living)
                                       );
