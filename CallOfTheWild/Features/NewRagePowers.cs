@@ -507,7 +507,7 @@ namespace CallOfTheWild
             area_effect.name = "CelestialTotemArea";
             area_effect.AffectEnemies = true;
             area_effect.AggroEnemies = true;
-            area_effect.Size = 5.Feet();
+            area_effect.Size = 7.Feet();
             area_effect.Shape = AreaEffectShape.Cylinder;
 
             var remove_invisibility = new GameAction[] { Common.createContextActionRemoveBuff(invisibility), Common.createContextActionRemoveBuff(invisibility_greater) };
@@ -577,7 +577,7 @@ namespace CallOfTheWild
         static internal void createLesserFiendTotem()
         {
             var icon = library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon; //infernal bloodline for the icon
-            lesser_fiend_totem_gore_attack = library.Get<BlueprintItemWeapon>("76ada2578e9121a44b8ffbb7c1f2b5f0");
+            lesser_fiend_totem_gore_attack = library.CopyAndAdd<BlueprintItemWeapon>("76ada2578e9121a44b8ffbb7c1f2b5f0", "LesserFiendTotemGoreAttack", "");
 
             Helpers.SetField(lesser_fiend_totem_gore_attack, "m_DamageDice", new DiceFormula(1, DiceType.D8));
 
@@ -587,7 +587,7 @@ namespace CallOfTheWild
                                           "",
                                           null,
                                           null,
-                                          Common.createAddSecondaryAttacks(lesser_fiend_totem_gore_attack)
+                                          Common.createAddAdditionalLimb(lesser_fiend_totem_gore_attack)
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
@@ -607,9 +607,9 @@ namespace CallOfTheWild
 
         static internal void createFiendTotem()
         {
-
-            fiend_totem_buff = library.Get<BlueprintBuff>("3749c8ac1a99a5f488f5782f74807eec");  //thorn body
-
+            
+            fiend_totem_buff = library.CopyAndAdd<BlueprintBuff>("3749c8ac1a99a5f488f5782f74807eec", "FiendTotemBuff", "");  //thorn body copy
+            //TODO: instead of modifying the ContextActionDealDamage just make my own?
             var components = fiend_totem_buff.GetComponents<AddTargetAttackRollTrigger>();
             foreach (var c in components)
             {
@@ -638,40 +638,37 @@ namespace CallOfTheWild
         {
             var shaken_buff = library.Get<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220");
 
-            var area_effect = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
-            area_effect.name = "GreaterFiendTotemDamageAura";
-            area_effect.AffectEnemies = true;
-            area_effect.AggroEnemies = true;
-            area_effect.Size = 5.Feet();
-            area_effect.Shape = AreaEffectShape.Cylinder;
+            var area_effect_damage = Helpers.Create<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbilityAreaEffect>();
+            area_effect_damage.name = "GreaterFiendTotemDamageAura";
+            area_effect_damage.AffectEnemies = true;
+            area_effect_damage.AggroEnemies = true;
+            area_effect_damage.Size = 7.Feet();
+            area_effect_damage.Shape = AreaEffectShape.Cylinder;
+            area_effect_damage.Fx = new Kingmaker.ResourceLinks.PrefabLink();
 
             var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(2));
             var damage_action = Helpers.CreateActionDealPhysicalDamage(PhysicalDamageForm.Slashing, damage, isAoE: true);
-            var conditional_damage = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good), //effects good with damage
-                                                                                Common.createContextConditionIsCaster(not: true) },  //but don't get myself
-                                                                                 damage_action);
-
-            var conditional_shaken_good = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good), //effects good and neutral with shaken
-                                                                                Common.createContextConditionIsCaster(not: true)},  //but don't get myself
-                                                                                Common.createContextActionApplyBuff(shaken_buff,  Helpers.CreateContextDuration(1, DurationRate.Rounds)));
-
-            var conditional_shaken_neutral = Helpers.CreateConditional(new Condition[] {
-                                                                                Helpers.CreateContextConditionAlignment(AlignmentComponent.Neutral), //effects good and neutral with shaken
-                                                                                Common.createContextConditionIsCaster(not: true)},  //but don't get myself
-                                                                                Common.createContextActionApplyBuff(shaken_buff, Helpers.CreateContextDuration(1, DurationRate.Rounds)));
-
-            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
-            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_shaken_good));
-            area_effect.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_shaken_neutral));
-            area_effect.Fx = new Kingmaker.ResourceLinks.PrefabLink();
-            library.AddAsset(area_effect, "");
 
             var buff = Helpers.CreateBuff("GreaterFiendTotemBuff",
                 "", "", "", null, null,
-                Common.createAddAreaEffect(area_effect)
+                Common.createAddAreaEffect(area_effect_damage)
                 );
 
+            var conditional_damage = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good), //effects good alignment with damage
+                                                                                Common.createContextConditionHasBuffFromCaster(buff, not: true)},  //but don't get myself
+                                                                                 damage_action);
+
+            area_effect_damage.AddComponent(Helpers.CreateAreaEffectRunAction(round: conditional_damage));
+            
+            library.AddAsset(area_effect_damage, "");
+
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            /*var conditional_shaken = Helpers.CreateConditional( new Condition[] { Helpers.CreateContextConditionAlignment(AlignmentComponent.Good | AlignmentComponent.Neutral), //effects good and neutral with shaken
+                                                                                Common.createContextConditionIsCaster(not: true)},  //but don't get myself
+                                                                                Common.createContextActionApplyBuff(shaken_buff,  Helpers.CreateContextDuration(1, DurationRate.Rounds)));*/
+
+
 
             greater_fiend_totem = Helpers.CreateFeature("GreaterFiendTotemFeature",
                                     "Fiend Totem, Greater",
@@ -683,7 +680,13 @@ namespace CallOfTheWild
                                     Helpers.PrerequisiteFeature(fiend_totem)
                                     );
 
+            greater_fiend_totem.AddComponent(Common.createAuraEffectFeatureComponentCustom(shaken_buff, 7.Feet(),
+                Helpers.CreateConditionsCheckerAnd(Helpers.CreateContextConditionAlignment(AlignmentComponent.Good | AlignmentComponent.Neutral),
+                                                    Common.createContextConditionHasBuffFromCaster(buff, not: true))));
+
             Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_fiend_totem);
+
+
             addToSelection(greater_fiend_totem);
         }
 
@@ -770,7 +773,7 @@ namespace CallOfTheWild
             area_effect.name = "GreaterSpiritTotemAura";
             area_effect.AffectEnemies = true;
             area_effect.AggroEnemies = true;
-            area_effect.Size = 5.Feet();
+            area_effect.Size = 7.Feet();
             area_effect.Shape = AreaEffectShape.Cylinder;
             var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D8), Common.createSimpleContextValue(1));
             var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.NegativeEnergy, damage, isAoE: true);

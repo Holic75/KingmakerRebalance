@@ -1085,7 +1085,7 @@ namespace CallOfTheWild
                 area_effect.name = "BloodragerAbyssalBloodlineDemonicAura";
                 area_effect.AffectEnemies = true;
                 area_effect.AggroEnemies = true;
-                area_effect.Size = 5.Feet();
+                area_effect.Size = 7.Feet();
                 area_effect.Shape = AreaEffectShape.Cylinder;
                 var damage = Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Common.createSimpleContextValue(2), Helpers.CreateContextValue(AbilityRankType.DamageBonus));
                 var damage_action = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, damage, isAoE: true);

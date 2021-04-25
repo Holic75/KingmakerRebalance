@@ -2208,7 +2208,7 @@ namespace CallOfTheWild
                                                                                             {
                                                                                                 c.actions = Helpers.CreateActionList(adjacent_action);
                                                                                                 c.ignore_target = true;
-                                                                                                c.Radius = 5.Feet();
+                                                                                                c.Radius = 7.Feet();
                                                                                             }
                                                                                             );
 

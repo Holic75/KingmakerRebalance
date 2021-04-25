@@ -50,7 +50,7 @@ namespace CallOfTheWild
                               icon,
                               null,
                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.DifficultTerrain),
-                              Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; c.CheckDistance = true; c.DistanceGreater = 5.Feet(); }),
+                              Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; c.CheckDistance = true; c.DistanceGreater = 7.Feet(); }),
                               Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Total; c.Descriptor = ConcealmentDescriptor.Fog; c.CheckDistance = true; c.DistanceGreater = 5.Feet(); }),
                               Helpers.Create<ConcealementMechanics.AddOutgoingConcealment>(c => { c.Concealment = Concealment.Partial; c.Descriptor = ConcealmentDescriptor.Fog; }),
                               Helpers.Create<AddConcealment>(c => { c.Concealment = Concealment.Partial; c.Descriptor = ConcealmentDescriptor.Fog; })
