@@ -791,13 +791,6 @@ namespace CallOfTheWild
                                           null,
                                           null,
                                           Common.createAddSecondaryAttacks(greater_spirit_totem_slam_attack),
-                                          /*Helpers.Create<NewMechanics.BuffWeaponStatReplacement>(b =>
-                                                                                                {
-                                                                                                    b.use_caster_value = true;
-                                                                                                    b.weapon = greater_spirit_totem_slam_attack;
-                                                                                                    b.Stat = StatType.Charisma;
-                                                                                                }
-                                                                                                ),*/
                                           Common.createAddAreaEffect(area_effect)
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
@@ -812,8 +805,6 @@ namespace CallOfTheWild
                                                 Helpers.PrerequisiteClassLevel(barbarian_class, 10),
                                                 Helpers.PrerequisiteFeature(spirit_totem)
                                                 );
-
-            Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(rage_buff, buff, greater_spirit_totem);
 
             var conditional_lesser = Helpers.CreateConditional(new Condition[] {Common.createContextConditionHasFact(greater_spirit_totem, false),
                                                                               Common.createContextConditionHasFact(lesser_spirit_totem) },

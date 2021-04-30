@@ -1799,11 +1799,5 @@ namespace CallOfTheWild
                 lvl_entry.Features.Remove(racial_enemy_rankup_feat);
             }
         }
-
-
- 
-
-
-
     }
 }
