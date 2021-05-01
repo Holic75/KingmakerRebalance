@@ -25,8 +25,7 @@ namespace CallOfTheWild.BuffMechanics
             foreach (var b in found_buffs)
             {
                 b?.Remove();
-            }
-            
+            }           
         }
     }
 
@@ -64,7 +63,6 @@ namespace CallOfTheWild.BuffMechanics
             {
                 return;
             }
-
             part_store_buff.removeAllBuffsByBlueprint(buff);
         }
     }
