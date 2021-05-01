@@ -2647,6 +2647,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.wall_of_nausea.AssetGuid, 3),
                 new Common.SpellId( "5d61dde0020bbf54ba1521f7ca0229dc", 3), //summon monster 3
 
+                new Common.SpellId( NewSpells.arcane_eye.AssetGuid, 4),
                 new Common.SpellId( NewSpells.aura_of_doom.AssetGuid, 4),
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion

@@ -39,7 +39,7 @@ namespace CallOfTheWild
         {
             var buff = Helpers.CreateBuff(prefix + "GuardianAuraBuff",
                                                  "Guardian Aura",
-                                                 "As a full-round action, you can expend 3 points of mental focus to emit a 20-foot-radius aura of protection that lasts for 1 minute. You and your allies within the aura gain a sacred bonus to AC equal to 1/4 of your occultist level (minimum +1). Your speed is reduced by half feet while this power is active.",
+                                                 "As a full-round action, you can expend 3 points of mental focus to emit a 20-foot-radius aura of protection that lasts for 1 minute. You and your allies within the aura gain a sacred bonus to AC equal to 1/4 of your occultist level (minimum +1). Your speed is reduced by half while this power is active.",
                                                  "",
                                                  Helpers.GetIcon("183d5bb91dea3a1489a6db6c9cb64445"), //shield of faith
                                                  null,

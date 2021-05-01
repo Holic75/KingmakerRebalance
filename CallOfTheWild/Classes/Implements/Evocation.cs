@@ -21,6 +21,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Abilities.Components.TargetCheckers;
+using Kingmaker.Designers.Mechanics.Facts;
 
 namespace CallOfTheWild
 {
@@ -294,6 +295,67 @@ namespace CallOfTheWild
             ability.setMiscAbilityParametersTouchFriendly();
             addFocusInvestmentCheck(ability, SpellSchool.Evocation);
             return Common.AbilityToFeature(ability, false);
+        }
+
+
+        public BlueprintFeature createLightMatrix()
+        {
+            var icon = Helpers.GetIcon("95f206566c5261c42aa5b3e7e0d1e36c"); //mage ight
+            var buff = library.CopyAndAdd<BlueprintBuff>("571baa4cf65bbcb4996fe429ca77d1a5", prefix + "LightMatrixBuff", "");
+            var blindness = library.Get<BlueprintBuff>("187f88d96a0ef464280706b63635f2af");
+
+            var blindess_spell = library.Get<BlueprintAbility>("46fd02ad56c35224c9c91c88cd457791");
+            var ability = Common.convertToSpellLikeVariants(blindess_spell, prefix, classes, stat, no_resource: true, archetypes: getArchetypeArray(), self_only: false);
+            ability.LocalizedDuration = Helpers.CreateString(ability.name + ".Duration", "1d4 rounds");
+            ability.ActionType = CommandType.Move;
+            ability.ReplaceComponent<AbilityEffectRunAction>(a =>
+            {
+                var new_actions = Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions, c =>
+                {
+                    c.DurationValue = Helpers.CreateContextDuration(0, DurationRate.Rounds, DiceType.D4, 1);
+                    c.Permanent = false;
+                });
+                a.Actions = Helpers.CreateActionList(new_actions);
+            }
+            );
+            ability.AddComponents(Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))));
+            ability.SetNameDescription("Light Matrix: Release",
+                                       "As a standard action, you can expend 1 point of mental focus to create a glowing orb of swirling lights that obeys your commands. This orb illuminates the area like the light spell. The orb can be commanded to hover over your shoulder, moving with you. As a move action, you can direct the light matrix to make a ranged touch attack against one foe within close range. If the attack hits, the target must succeed at a Fortitude save or be blinded for 1d4 rounds by a flash of light. If the attack hits, regardless of whether the target succeeds at the save, the light matrix immediately ends. The light matrix otherwise has a duration of 1 hour per occultist level you possess. You can’t have more than one light matrix in existence at one time. If you use this power again, any previous light matrices immediately end.\n"
+                                       + "You must be at least 5th level to select this focus power.");
+            ability.Range = AbilityRange.Close;
+            ability.AddComponent(library.Get<BlueprintAbility>("4ecdf240d81533f47a5279f5075296b9").GetComponent<AbilityDeliverProjectile>()); //from fire domain base ability
+            ability.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Evocation);
+            ability.RemoveComponents<SpellDescriptorComponent>();
+            ability.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Blindness | SpellDescriptor.SightBased));
+
+            buff.AddComponents(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = ability),
+                               Helpers.CreateAddFact(ability)
+                               );
+            buff.SetNameDescription("Light Matrix", ability.Description);
+                       
+
+            var ability2 = Helpers.CreateAbility(prefix + "LightMatrixAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.SpellLike,
+                                                CommandType.Standard,
+                                                AbilityRange.Personal,
+                                                Helpers.hourPerLevelDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff,
+                                                                                                                  Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Hours))
+                                                                        ),
+                                                Helpers.CreateSpellComponent(SpellSchool.Evocation),
+                                                createClassScalingConfig(),
+                                                resource.CreateResourceLogic()
+                                                );
+            ability2.setMiscAbilityParametersSelfOnly();
+            addFocusInvestmentCheck(ability2, SpellSchool.Evocation);
+            var feature = Common.AbilityToFeature(ability2, false);
+            addMinLevelPrerequisite(feature, 5);
+            return feature;
         }
 
 

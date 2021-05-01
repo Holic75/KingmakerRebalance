@@ -89,6 +89,19 @@ namespace CallOfTheWild
         }
 
 
+        public BlueprintFeature createMindEye()
+        {
+            var ability  = Common.convertToSpellLikeVariants(NewSpells.arcane_eye, prefix, classes, stat, resource, archetypes: getArchetypeArray(), self_only: false);
+            ability.SetNameDescription("Mind Eye",
+                                       "As a standard action, you can expend 1 point of mental focus to create a mind eye—a magical sensor through which you can see and hear. The mind eye is invisible and its size is Fine, giving it an AC of 18. The eye moves with a fly speed of 30 feet.");
+            Common.unsetAsFullRoundAction(ability);
+            addFocusInvestmentCheck(ability, SpellSchool.Divination);
+            var feature = Common.AbilityToFeature(ability, false);
+            addMinLevelPrerequisite(feature, 5);
+            return feature;
+        }
+
+
         public BlueprintFeature createDangerSight()
         {
             var guidance_buff = library.Get<BlueprintBuff>("ec931b882e806ce42906597e5585c13f");
