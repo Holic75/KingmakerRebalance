@@ -621,7 +621,7 @@ namespace CallOfTheWild
                                                              Helpers.Create<FogOfWarMechanics.FogOfWarRevealer>(),
                                                              Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Fine)
                                                              );
-            unit.Faction = library.Get<BlueprintFaction>("72f240260881111468db610b6c37c099"); //player
+            unit.Faction = library.Get<BlueprintFaction>(/*"72f240260881111468db610b6c37c099"*/"1b08d9ed04518ec46a9b3e4e23cb5105"); //player
             unit.Speed = 30.Feet();
             unit.AddFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { invisibility_feature, FixFlying.airborne };
             unit.SetUnitName("Arcane Eye");
@@ -633,9 +633,11 @@ namespace CallOfTheWild
             unit.Intelligence = 10;
             unit.Wisdom = 10;
             unit.Charisma = 10;
-            unit.Visual = unit.Visual.CloneObject();
-            unit.Visual.Barks = null;
-            Helpers.SetField(unit, "m_Portrait", Helpers.createPortrait("ArcaneEyeProtrait", "AirElemental", ""));
+            var dominate_buff = library.CopyAndAdd<BlueprintBuff>("c0f4e1c24c9cd334ca988ed1bd9d201f", "DominateArcaneEyeBuff", "");
+            dominate_buff.RemoveComponents<AddFactContextActions>();
+            dominate_buff.RemoveComponents<SpellDescriptorComponent>();
+            dominate_buff.ReplaceComponent<ChangeFaction>(c => Helpers.SetField(c, "m_AllowDirectControl", true));
+            dominate_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var summon_buff = library.Get<BlueprintBuff>("6fcdf014694b2b542a867763b4369cb3");
             var arcane_eye_pool = library.CopyAndAdd<BlueprintSummonPool>("d94c93e7240f10e41ae41db4c83d1cbe", "ArcaneEyeSummonPool", "");
             var spawn_monster = Helpers.Create<ContextActionSpawnMonster>(c =>
@@ -644,8 +646,10 @@ namespace CallOfTheWild
                 c.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes, DiceType.Zero, 0);
                 c.SummonPool = arcane_eye_pool;
                 c.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1);
-                c.AfterSpawn = Helpers.CreateActionList(Common.createContextActionApplyBuff(summon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
+                c.AfterSpawn = Helpers.CreateActionList(Common.createContextActionApplyBuff(summon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false),
+                                                        Common.createContextActionApplyBuff(dominate_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
                 c.DoNotLinkToCaster = true;
+                //c.IsDirectlyControllable = true;
             });
             arcane_eye = Helpers.CreateAbility("ArcaneEyeAbility",
                                                "Arcane Eye",
