@@ -21,6 +21,7 @@ using Kingmaker.Designers.Mechanics.EquipmentEnchants;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Abilities;
+using Kingmaker.UnitLogic;
 
 namespace CallOfTheWild
 {
@@ -33,6 +34,7 @@ namespace CallOfTheWild
         public static BlueprintArmorEnchantment[] spell_resistance_enchantments;
         public static Dictionary<DamageEnergyType, BlueprintArmorEnchantment[]> energy_resistance_enchantments;
         public static BlueprintArmorEnchantment spell_storing;
+        public static BlueprintFeature spell_storing_feature;
 
 
         static internal void initialize()
@@ -48,14 +50,36 @@ namespace CallOfTheWild
 
         static void createSpellStoring()
         {
+            var store_feature = Helpers.CreateFeature("CharacterArmorSpellStroingFeature",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          Kingmaker.Blueprints.Classes.FeatureGroup.None,
+                                          Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => { f.link_type = SpellManipulationMechanics.FactStoreSpell.LinkType.Armor; f.always_hit = true; })
+                                          );
+            store_feature.HideInCharacterSheetAndLevelUp = true;
+            store_feature.HideInUI = true;
+
+            var basic_feat_progression = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
+            basic_feat_progression.LevelEntries[0].Features.Add(store_feature);
+
+            Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
+            {
+                if (!u.HasFact(store_feature))
+                {
+                    u.AddFact(store_feature);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_action);
+            spell_storing_feature = store_feature;
             var icon = Helpers.GetIcon("76d4885a395976547a13c5d6bf95b482"); //armor focus
             var feature = Helpers.CreateFeature("ArmorSpellStoringFeature",
                                                 "Spell Storing Armor",
                                                 "This armor allows a spellcaster to store a single touch spell of up to 3rd level in it. Anytime a creature hits the wearer with a melee attack or melee touch attack, the armor can cast the spell on that creature as a swift immediate action if the wearer desires. Once the spell has been cast from the armor, a spellcaster can cast any other targeted touch spell of up to 3rd level into it. The armor magically imparts to the wielder the name of the spell currently stored within it.",
                                                 "",
                                                 icon,
-                                                FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(a => a.always_hit = true));
+                                                FeatureGroup.None);
 
             var release_buff = Helpers.CreateBuff("ArmorSpellStoringToggleBuff",
                                                   feature.Name + ": Release",
@@ -63,7 +87,7 @@ namespace CallOfTheWild
                                                   "",
                                                   feature.Icon,
                                                   null,
-                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = feature));
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = store_feature));
 
             var major_activatable_ability = Helpers.CreateActivatableAbility("ArmorSpellStoringToggleAbility",
                                                                              feature.Name + ": Release",
@@ -74,10 +98,10 @@ namespace CallOfTheWild
                                                                              AbilityActivationType.Immediately,
                                                                              CommandType.Free,
                                                                              null,
-                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = feature));
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = store_feature));
             major_activatable_ability.DeactivateImmediately = true;
 
-            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = feature);
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = store_feature);
             var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
             feature.AddComponent(Common.createAddTargetAttackWithWeaponTrigger(action_attacker: Helpers.CreateActionList(release_on_condition), not_reach: false));
             feature.AddComponent(Helpers.CreateAddFact(major_activatable_ability));
@@ -87,7 +111,7 @@ namespace CallOfTheWild
             {
                 return spell.SpellLevel <= 3
                         && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
-                        && spell.Blueprint.Range != AbilityRange.Personal
+                        && spell.Blueprint.Range == AbilityRange.Touch
                         && spell.Blueprint.CanTargetEnemies
                         && !spell.Blueprint.CanTargetPoint
                         && !spell.Blueprint.IsFullRoundAction
@@ -108,7 +132,7 @@ namespace CallOfTheWild
                                                           AbilityRange.Personal,
                                                           "",
                                                           "",
-                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = store_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
                                                           );
                 ability.setMiscAbilityParametersSelfOnly();
                 feature.AddComponent(Helpers.CreateAddFact(ability));

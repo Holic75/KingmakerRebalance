@@ -1936,7 +1936,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "c66e86905f7606c4eaa5c774f0357b2b", 4), //stoneskin
                 new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 4),
 
-
                 new Common.SpellId( NewSpells.air_walk_communal.AssetGuid, 5),
                 new Common.SpellId( "d5a36a7ee8177be4f848b953d1c53c84", 5), //call lightning storm
                 new Common.SpellId( NewSpells.command_greater.AssetGuid, 5),
@@ -1953,6 +1952,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "eabf94e4edc6e714cabd96aa69f8b207", 5), //mind fog
                 new Common.SpellId( NewSpells.overland_flight.AssetGuid, 5),
                 new Common.SpellId( NewSpells.particulate_form.AssetGuid, 5),
+                new Common.SpellId( "12fb4a4c22549c74d949e2916a2f0b6a", 5), //phantasmal web
                 new Common.SpellId( "0a5ddfbcfb3989543ac7c936fc256889", 5), //spell resistance
                 new Common.SpellId( "7c5d556b9a5883048bf030e20daebe31", 5), //stoneskin mass
                 new Common.SpellId( NewSpells.suffocation.AssetGuid, 5),
@@ -1971,6 +1971,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "cc09224ecc9af79449816c45bc5be218", 6), //harm
                 new Common.SpellId( "5da172c4c89f9eb4cbb614f3a67357d3", 6), //heal
                 new Common.SpellId( "03944622fbe04824684ec29ff2cec6a7", 6), //inflict moderate wounds mass
+                new Common.SpellId( "1f2e6019ece86d64baa5effa15e81ecc", 6), //phantasmal putrefaction
                 new Common.SpellId( "0e67fa8f011662c43934d486acc50253", 6), //prediction of failure
                 new Common.SpellId( "093ed1d67a539ad4c939d9d05cfe192c", 6), //sirocco
                 new Common.SpellId( "27203d62eb3d4184c9aced94f22e1806", 6), //transformation

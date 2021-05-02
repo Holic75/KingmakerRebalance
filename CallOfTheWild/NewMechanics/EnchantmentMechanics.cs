@@ -509,6 +509,11 @@ namespace CallOfTheWild.NewMechanics.EnchantmentMechanics
                 bonus = enchantments.Length - 1;
             }
 
+            if (enchantments[bonus] == null)
+            {
+                return;
+            }
+
             if (weapon.Enchantments.HasFact(enchantments[bonus]))
             {
                 return;

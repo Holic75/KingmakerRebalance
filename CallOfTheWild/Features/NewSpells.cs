@@ -299,6 +299,7 @@ namespace CallOfTheWild
         static public BlueprintAbility miracle;
 
         static public BlueprintAbility arcane_eye;
+        static public BlueprintAbility emblem_of_greed;
 
         //binding_earth; ?
         //binding_earth_mass ?
@@ -508,7 +509,91 @@ namespace CallOfTheWild
             createScourgeOfHorsemen();
 
             createArcaneEye();
+            createEmblemOfGreed();
             //createMiracle();
+        }
+
+
+        static void createEmblemOfGreed()
+        {
+            var icon = Helpers.GetIcon("a26c23a887a6f154491dc2cefdad2c35");
+
+            BlueprintWeaponEnchantment[] plus_enchants = new BlueprintWeaponEnchantment[]
+            {
+                WeaponEnchantments.standard_enchants[0],
+                WeaponEnchantments.standard_enchants[1],
+                WeaponEnchantments.standard_enchants[2]
+            };
+
+
+            BlueprintWeaponEnchantment[] extra_enchants = new BlueprintWeaponEnchantment[]
+            {
+                library.Get<BlueprintWeaponEnchantment>("30f90becaaac51f41bf56641966c4121"), //flaming
+                library.Get<BlueprintWeaponEnchantment>("3f032a3cd54e57649a0cdad0434bf221"), //flaming burst
+                WeaponEnchantments.spell_storing
+            };
+
+            var weapon = library.CopyAndAdd<BlueprintItemWeapon>("f83415c0e7ea1994d8a7f3dec8f5a861", "EmblemOfGreedWeaponWeapon", "");//glaive
+            Helpers.SetField(weapon, "m_DisplayNameText", Helpers.CreateString("EmblemOfGreedName", "Emblem of Greed"));
+            Helpers.SetField(weapon, "m_Icon", icon);
+            Common.addEnchantment(weapon, WeaponEnchantments.summoned_weapon_enchant);
+
+            var buff = Helpers.CreateBuff("EmblemOfGreedBuff",
+                                            "Emblem of Greed",
+                                            "You summon a burning glaive similar to the ones wielded by the runelords of old. It has a +1 enhancement bonus and the flaming weapon special ability. When wielding the glaive, you are considered proficient with it and use your caster level as your base attack bonus (which may give you multiple attacks). When you reach caster level 14th, the glaive gains the spell-storing weapon special ability. When you reach caster level 17th, it loses the flaming weapon special ability, and gains the flaming burst weapon special ability. The glaive’s enhancement bonus increases to +2 at caster level 15th, and +3 at caster level 19th."
+                                            + "Target's hands must be free when you cast this spell.",
+                                            "",
+                                            icon,
+                                            null,
+                                            Helpers.Create<RaiseBABForSpecificWeapon>(r =>
+                                            {
+                                                r.weapon = weapon;
+                                                r.target_value = Helpers.CreateContextValue(AbilityRankType.DamageDiceAlternative);
+                                            }
+                                            ),
+                                            Helpers.Create<NewMechanics.EnchantmentMechanics.CreateWeapon>(c => c.weapon = weapon),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageBonus), false, false,
+                                                                                            new BlueprintWeaponType[] { }, plus_enchants),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(1, false, false,
+                                                                                            new BlueprintWeaponType[] { }, new BlueprintWeaponEnchantment[] {extra_enchants[0] }),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.StatBonus), false, false,
+                                                                                            new BlueprintWeaponType[] { }, new BlueprintWeaponEnchantment[] {null, extra_enchants[2] }),
+                                            Common.createBuffContextEnchantPrimaryHandWeapon(Helpers.CreateContextValue(AbilityRankType.DamageDice), false, false,
+                                                                                            new BlueprintWeaponType[] { }, new BlueprintWeaponEnchantment[] { null, null, extra_enchants[1] }),
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                            type: AbilityRankType.DamageBonus, stepLevel: 4, startLevel: 11, max: 3, min: 1),
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                            type: AbilityRankType.StatBonus, stepLevel: 3, startLevel: 11, max: 2, min: 1),
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CasterLevel, progression: ContextRankProgression.StartPlusDivStep,
+                                                                            type: AbilityRankType.DamageDice, stepLevel: 3, startLevel: 11, max: 3, min: 1),
+                                            Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, type: AbilityRankType.DamageDiceAlternative, max: 20)
+                                            );
+            buff.Stacking = Kingmaker.UnitLogic.Buffs.Blueprints.StackingType.Replace;
+
+            emblem_of_greed = library.CopyAndAdd<BlueprintAbility>(shillelagh.AssetGuid, "EmblemOfGreedAbility", "");
+            emblem_of_greed.setMiscAbilityParametersTouchFriendly();
+            emblem_of_greed.Range = AbilityRange.Personal;
+            emblem_of_greed.NeedEquipWeapons = false;
+            emblem_of_greed.SetIcon(icon);
+            emblem_of_greed.SetName(buff.Name);
+            emblem_of_greed.SetDescription(buff.Description);
+            emblem_of_greed.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard;
+
+            emblem_of_greed.ReplaceComponent<NewMechanics.AbilitTargetMainWeaponCheck>(Helpers.Create<NewMechanics.AbilityTargetPrimaryHandFree>(a => a.for_2h_item = true));
+           
+
+            var apply_buff = Common.createContextActionApplyBuff(buff,
+                                                                    Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes),
+                                                                    is_from_spell: true
+                                                                );
+            emblem_of_greed.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
+            emblem_of_greed.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend;
+
+            emblem_of_greed.AddToSpellList(Helpers.magusSpellList, 6);
+            emblem_of_greed.AddToSpellList(Helpers.wizardSpellList, 6);
+            emblem_of_greed.AddToSpellList(Helpers.clericSpellList, 6);
+            emblem_of_greed.AddToSpellList(Helpers.inquisitorSpellList, 6);
+            emblem_of_greed.AddSpellAndScroll("8f01e5cb9e8ff8244b827185bb9c93f9"); //crusaders edge
         }
 
 
@@ -9089,7 +9174,7 @@ namespace CallOfTheWild
                                                     is_from_spell: true
                                                 );
             force_sword.ReplaceComponent<AbilityEffectRunAction>(Helpers.CreateRunActions(apply_buff));
-            force_sword.AvailableMetamagic = Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend;
+            force_sword.AvailableMetamagic = Metamagic.Heighten | Metamagic.Reach | Metamagic.Extend | Metamagic.Quicken;
             force_sword.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Force));
 
             force_sword.AddToSpellList(Helpers.magusSpellList, 2);

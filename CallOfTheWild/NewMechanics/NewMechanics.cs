@@ -8313,6 +8313,59 @@ namespace CallOfTheWild
         }
 
 
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class RaiseBABForSpecificWeapon : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+        {
+            public ContextValue target_value;
+            public BlueprintItemWeapon weapon;
+            private ModifiableValue.Modifier m_Modifier;
+
+            private void remove()
+            {
+                if (this.m_Modifier != null)
+                    this.m_Modifier.Remove();
+                this.m_Modifier = (ModifiableValue.Modifier)null;
+            }
+
+            private void apply()
+            {
+                var current_weapon = this.Owner?.Body?.PrimaryHand?.MaybeWeapon?.Blueprint;
+                if (weapon != current_weapon)
+                {
+                    return;
+                }
+
+                int num = this.target_value.Calculate(this.Fact.MaybeContext) - this.Owner.Stats.BaseAttackBonus.ModifiedValue;
+                if (num <= 0)
+                    return;
+                this.m_Modifier = this.Owner.Stats.BaseAttackBonus.AddModifier(num, (GameLogicComponent)this, ModifierDescriptor.None);
+            }
+
+            public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+            {
+                if (slot.Owner != this.Owner)
+                    return;
+                remove();
+                apply();
+            }
+
+            public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+            {
+                remove();
+                apply();
+            }
+
+            public override void OnTurnOn()
+            {
+                apply();
+            }
+
+            public override void OnTurnOff()
+            {
+                remove();
+            }
+        }
+
 
         public class addSpellChoice : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpCompleteUIHandler
         {
