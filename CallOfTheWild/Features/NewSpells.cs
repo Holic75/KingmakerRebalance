@@ -559,6 +559,7 @@ namespace CallOfTheWild
                 c.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1);
                 c.AfterSpawn = Helpers.CreateActionList(Common.createContextActionApplyBuff(summon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
                 c.DoNotLinkToCaster = true;
+                c.IsDirectlyControllable = true;
             });
             arcane_eye = Helpers.CreateAbility("ArcaneEyeAbility",
                                                "Arcane Eye",
