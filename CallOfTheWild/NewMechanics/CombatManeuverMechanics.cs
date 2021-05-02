@@ -459,14 +459,10 @@ namespace CallOfTheWild
             {
                 if (evt.Type == maneuver_type)
                 {
-                    foreach (var f in facts)
-                    {
-                        if (evt.Initiator.Descriptor.HasFact(f))
-                        {
-                            return;
-                        }
-                    }
-                    evt.AddBonus(this.Value.Calculate(this.Context), this.Fact);
+                    var bab = evt.Initiator.Stats.BaseAttackBonus.ModifiedValue;
+                    var lvl = evt.Initiator.Descriptor.Progression.CharacterLevel;
+                    var bonus = Math.Min(this.Value.Calculate(this.Context), Math.Max(lvl - bab, 0));
+                    evt.AddBonus(bonus, this.Fact);
                 }
             }
 
