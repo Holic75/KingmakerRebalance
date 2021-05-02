@@ -1608,6 +1608,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampyric touch
 
                 new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4),
+                new Common.SpellId( NewSpells.arcane_eye.AssetGuid, 4),
                 new Common.SpellId( NewSpells.daze_mass.AssetGuid, 4),
                 new Common.SpellId( "e418c20c8ce362943a8025d82c865c1c", 4), //cape of vasps
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
@@ -1968,7 +1969,7 @@ namespace CallOfTheWild
         {
             healing = hex_engine.createHealing("WitchHealing", "Healing",
                                         "A witch can soothe the wounds of those she touches.\n"
-                                         + "Effect: This acts as a cure light wounds spell, using the witch’s caster level.Once a creature has benefited from the healing hex, it cannot benefit from it again for 24 hours.At 5th level, this hex acts like cure moderate wounds.",
+                                         + "Effect: This acts as a cure light wounds spell, using the witch’s caster level.Once a creature has benefited from the healing hex, it cannot benefit from it again for 24 hours. At 5th level, this hex acts like cure moderate wounds.",
                                         "a9f6f1aa9d46452aa5720c472b8926e2",
                                         "8ea243ac42aa4959ba131cbd5ff0118b",
                                         "a9d436988d044916b7bf61a58725725b",
@@ -2108,7 +2109,7 @@ namespace CallOfTheWild
         {
             major_healing = hex_engine.createMajorHealing("WitchMajorHealing", "Major Healing",
                                                          "By calling upon eerie powers, the witch’s touch can mend even the most terrible wounds of those she touches.\n"
-                                                                        + "Effect: This hex acts as cure serious wounds, using the witch’s caster level.Once a creature has benefited from the major healing hex, it cannot benefit from it again for 24 hours.At 15th level, this hex acts like cure critical wounds.",
+                                                                        + "Effect: This hex acts as cure serious wounds, using the witch’s caster level. Once a creature has benefited from the major healing hex, it cannot benefit from it again for 24 hours. At 15th level, this hex acts like cure critical wounds.",
                                                          "8edb4d0c196a45c3a19a9b15272690ed",
                                                          "20fd1e6465a74433b9da13ef44a9c1bf",
                                                          "b247577f3d1b4abba1b412c3b694c741",

@@ -298,6 +298,8 @@ namespace CallOfTheWild
 
         static public BlueprintAbility miracle;
 
+        static public BlueprintAbility arcane_eye;
+
         //binding_earth; ?
         //binding_earth_mass ?
         //battle mind link ?
@@ -504,7 +506,80 @@ namespace CallOfTheWild
             createHauntingMists();
             createEruptivePostules();
             createScourgeOfHorsemen();
+
+            createArcaneEye();
             //createMiracle();
+        }
+
+
+        static void createArcaneEye()
+        {
+            var unit = library.CopyAndAdd<BlueprintUnit>("827b90e60645fe641b29098ed1f70219", "ArcaneEyeUnit", "");
+            unit.ComponentsArray = new BlueprintComponent[] { unit.GetComponent<AddClassLevels>().CreateCopy(a => a.Levels = 1), //abberation levels
+
+                                                            };
+
+            var buff = library.CopyAndAdd<BlueprintBuff>("e6b35473a237a6045969253beb09777c", "ArcaneEyeBuff", "4741d7726ebf43d9a2d55130b5d173d3");
+            buff.AddComponent(Helpers.CreateAddStatBonus(StatType.SkillStealth, 100, ModifierDescriptor.UntypedStackable));
+            buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Helpers.Create<ContextActionHideInPlainSight>(), newRound: Helpers.Create<ContextActionHideInPlainSight>()));
+            buff.AddComponents(Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CanNotAttack),
+                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.CantAct),
+                               Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.ImmuneToAttackOfOpportunity),
+                               Helpers.Create<AooMechanics.DoNotProvokeAoo>(),
+                               Helpers.Create<AooMechanics.DoesNotEngage>());
+            var invisibility_feature = Helpers.CreateFeature("ArcaneEyeFeature",
+                                                             "Arcane Eye",
+                                                             "",
+                                                             "",
+                                                             null,
+                                                             FeatureGroup.None,
+                                                             Common.createAuraFeatureComponent(buff),
+                                                             Helpers.Create<FogOfWarMechanics.FogOfWarRevealer>(),
+                                                             Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Fine)
+                                                             );
+            unit.Faction = library.Get<BlueprintFaction>("72f240260881111468db610b6c37c099"); //player
+            unit.Speed = 30.Feet();
+            unit.AddFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { invisibility_feature, FixFlying.airborne };
+            unit.SetUnitName("Arcane Eye");
+            unit.Alignment = Alignment.TrueNeutral;
+            unit.Brain = library.Get<Kingmaker.Controllers.Brain.Blueprints.BlueprintBrain>("cf986dd7ba9d4ec46ad8a3a0406d02ae");
+            unit.Strength = 10;
+            unit.Dexterity = 10;
+            unit.Constitution = 10;
+            unit.Intelligence = 10;
+            unit.Wisdom = 10;
+            unit.Charisma = 10;
+            var summon_buff = library.Get<BlueprintBuff>("6fcdf014694b2b542a867763b4369cb3");
+            var arcane_eye_pool = library.CopyAndAdd<BlueprintSummonPool>("d94c93e7240f10e41ae41db4c83d1cbe", "ArcaneEyeSummonPool", "");
+            var spawn_monster = Helpers.Create<ContextActionSpawnMonster>(c =>
+            {
+                c.Blueprint = unit;
+                c.DurationValue = Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes, DiceType.Zero, 0);
+                c.SummonPool = arcane_eye_pool;
+                c.CountValue = Helpers.CreateContextDiceValue(DiceType.Zero, 0, 1);
+                c.AfterSpawn = Helpers.CreateActionList(Common.createContextActionApplyBuff(summon_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
+                c.DoNotLinkToCaster = true;
+            });
+            arcane_eye = Helpers.CreateAbility("ArcaneEyeAbility",
+                                               "Arcane Eye",
+                                               "You create an invisible magical sensor that sends you visual information. You can create the arcane eye at any point you can see, but it can then travel outside your line of sight without hindrance. An arcane eye travels at 30 feet per round (300 feet per minute) if viewing an area ahead as a human would.",
+                                               "",
+                                               Helpers.GetIcon("41cf93453b027b94886901dbfc680cb9"), //life sight
+                                               AbilityType.Spell,
+                                               UnitCommand.CommandType.Standard,
+                                               AbilityRange.Close,
+                                               Helpers.minutesPerLevelDuration,
+                                               "",
+                                               Helpers.CreateRunActions(spawn_monster),
+                                               Helpers.CreateContextRankConfig(),
+                                               Helpers.CreateSpellComponent(SpellSchool.Divination)
+                                               );
+            arcane_eye.AvailableMetamagic = Metamagic.Extend | Metamagic.Heighten | Metamagic.Quicken;
+            Common.setAsFullRoundAction(arcane_eye);
+            arcane_eye.setMiscAbilityParametersRangedDirectional();
+            arcane_eye.AddToSpellList(Helpers.wizardSpellList, 4);
+            arcane_eye.AddToSpellList(Helpers.alchemistSpellList, 4);
+            arcane_eye.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531"); //true seeing
         }
 
 

@@ -552,6 +552,7 @@ namespace CallOfTheWild.Archetypes
                 },
                 {SpellSchool.Divination, new BlueprintFeature[]{implement_factories[SpellSchool.Divination].createDivinersFortune(),
                                                                 implement_factories[SpellSchool.Divination].createDangerSight(),
+                                                                implement_factories[SpellSchool.Divination].createMindEye(),
                                                                 implement_factories[SpellSchool.Divination].createInAccordanceWithProphecy(),
                                                                 //mind eye
                                                                }
@@ -563,6 +564,7 @@ namespace CallOfTheWild.Archetypes
                 },
                 {SpellSchool.Evocation, new BlueprintFeature[]{implement_factories[SpellSchool.Evocation].createEnergyBlast(),
                                                                 implement_factories[SpellSchool.Evocation].createRadiance(),
+                                                                implement_factories[SpellSchool.Evocation].createLightMatrix(),
                                                                 implement_factories[SpellSchool.Evocation].createWallOfPower(),
                                                                 //light matrix
                                                                 }

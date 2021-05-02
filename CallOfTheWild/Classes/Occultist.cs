@@ -947,7 +947,7 @@ namespace CallOfTheWild
         {
             silksworn_implement = library.CopyAndAdd(implement_selection, "SilkswornImplementFeatureSelection", "");
             silksworn_implement.SetNameDescription("Extra Implement",
-                                                    "At 1st level, the silksworn gains access to three implement schools instead of two.At 2nd level and every 4 occultist levels thereafter, the silksworn gains access to an additional implement school, to a maximum of eight schools at 18th level.");
+                                                    "At 1st level, the silksworn gains access to three implement schools instead of two. At 2nd level and every 4 occultist levels thereafter, the silksworn gains access to an additional implement school, to a maximum of eight schools at 18th level.");
 
         }
 
@@ -1266,8 +1266,8 @@ namespace CallOfTheWild
                 },
                 {SpellSchool.Divination, new BlueprintFeature[]{implement_factories[SpellSchool.Divination].createDivinersFortune(),
                                                                 implement_factories[SpellSchool.Divination].createDangerSight(),
+                                                                implement_factories[SpellSchool.Divination].createMindEye(),
                                                                 implement_factories[SpellSchool.Divination].createInAccordanceWithProphecy(),
-                                                                //mind eye
                                                                }
                 },
                 {SpellSchool.Enchantment, new BlueprintFeature[]{implement_factories[SpellSchool.Enchantment].createBindingPattern(),
@@ -1277,8 +1277,8 @@ namespace CallOfTheWild
                 },
                 {SpellSchool.Evocation, new BlueprintFeature[]{implement_factories[SpellSchool.Evocation].createEnergyBlast(),
                                                                 implement_factories[SpellSchool.Evocation].createRadiance(),
+                                                                implement_factories[SpellSchool.Evocation].createLightMatrix(),
                                                                 implement_factories[SpellSchool.Evocation].createWallOfPower(),
-                                                                //light matrix
                                                                 }
                 },
                 {SpellSchool.Illusion, new BlueprintFeature[]{implement_factories[SpellSchool.Illusion].createBedevelingAura(),
@@ -1908,6 +1908,7 @@ namespace CallOfTheWild
 
                 new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4), //instead of flaming sphere greater
                 new Common.SpellId( NewSpells.air_walk.AssetGuid, 4),
+                new Common.SpellId( NewSpells.arcane_eye.AssetGuid, 4),
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "f72f8f03bf0136c4180cd1d70eb773a5", 4), //controlled blast fireball

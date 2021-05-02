@@ -418,6 +418,7 @@ New spells:
 - Undead Anatomy I, II, III,
 - Wall of Nausea,
 - Air Walk and Air Walk, Communal,
+- Arcane Eye,
 - Archon's Trumpet,
 - Aura of Doom,
 - Debilitating Portent,
