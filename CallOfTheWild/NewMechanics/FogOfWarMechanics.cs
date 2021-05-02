@@ -79,22 +79,4 @@ namespace CallOfTheWild.FogOfWarMechanics
             __result = __result || (__instance?.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault();
         }
     }
-
-
-
-    [Harmony12.HarmonyPatch(typeof(SelectionManager))]
-    [Harmony12.HarmonyPatch("GetNearestSelectedUnit", Harmony12.MethodType.Normal)]
-    public class SelectionManager_GetNearestSelectedUnit_Patch
-    {
-        static bool Prefix(SelectionManager __instance, Vector3 point, ref UnitEntityData __result)
-        {
-            if (__instance.SelectedUnits.Count > 1)
-                __result = __instance.SelectedUnits.Where<UnitEntityData>((Func<UnitEntityData, bool>)(u =>!(u.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault())).OrderBy<UnitEntityData, float>((Func<UnitEntityData, float>)(u => u.DistanceTo(point))).FirstOrDefault<UnitEntityData>();
-            else
-                __result = __instance.SelectedUnits.FirstOrDefault<UnitEntityData>(u => !(u.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault());
-
-            return false;
-        }
-    }
-
 }
