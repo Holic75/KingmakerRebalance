@@ -601,7 +601,7 @@ namespace CallOfTheWild
         {
             var unit = library.CopyAndAdd<BlueprintUnit>("827b90e60645fe641b29098ed1f70219", "ArcaneEyeUnit", "");
             unit.ComponentsArray = new BlueprintComponent[] { unit.GetComponent<AddClassLevels>().CreateCopy(a => a.Levels = 1), //abberation levels
-
+                                                              unit.GetComponent<Experience>().CreateCopy(a => a.CR = 1000) //to prevent identification
                                                             };
 
             var buff = library.CopyAndAdd<BlueprintBuff>("e6b35473a237a6045969253beb09777c", "ArcaneEyeBuff", "4741d7726ebf43d9a2d55130b5d173d3");
