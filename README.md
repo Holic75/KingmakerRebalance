@@ -449,6 +449,7 @@ New spells:
 - Suffocate,
 - Contingency,
 - Curse, Major,
+- Emblem of Greed,
 - Fire Seeds,
 - Fluid Form,
 - Freezing Sphere,

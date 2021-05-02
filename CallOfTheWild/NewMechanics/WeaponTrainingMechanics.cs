@@ -359,6 +359,23 @@ namespace CallOfTheWild.WeaponTrainingMechanics
     }
 
 
+    [AllowMultipleComponents]
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    public class RecalculateOnEquipmentChange : OwnedGameLogicComponent<UnitDescriptor>, IUnitActiveEquipmentSetHandler, IUnitEquipmentHandler, IGlobalSubscriber
+    {
+
+        public void HandleEquipmentSlotUpdated(ItemSlot slot, ItemEntity previousItem)
+        {
+            if (slot.Owner != this.Owner)
+                return;
+            this.Fact.Recalculate();
+        }
+
+        public void HandleUnitChangeActiveEquipmentSet(UnitDescriptor unit)
+        {
+            this.Fact.Recalculate();
+        }
+    }
 
     [AllowMultipleComponents]
     [AllowedOn(typeof(BlueprintUnitFact))]

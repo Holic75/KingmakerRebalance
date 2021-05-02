@@ -619,10 +619,14 @@ namespace CallOfTheWild
 
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
+
             public ActionList actions_on_store = new ActionList();
             public bool ignore_target_checkers = false;
             public bool always_hit = false;
             public bool do_not_clear_spell_after_release;
+            public LinkType link_type = LinkType.None;
+            [JsonProperty]
+            ItemEntity linked_item = null;
             [JsonProperty]
             private AbilityData spell = null;
             [JsonProperty]
@@ -632,7 +636,7 @@ namespace CallOfTheWild
             {
                 var check_spell = base_spell == null ? spell : base_spell;
 
-                if (check_spell != null && (check_spell.CanTarget(target) || ignore_target_checkers))
+                if (check_spell != null && (check_spell.CanTarget(target) || ignore_target_checkers) && checkLinkedItem())
                 {
                     var rule_cast_spell = new RuleCastSpell(spell, target);
                     rule_cast_spell.Context.AttackRoll = Rulebook.CurrentContext.AllEvents.LastOfType<RuleAttackWithWeapon>()?.AttackRoll;
@@ -654,7 +658,9 @@ namespace CallOfTheWild
             {
                 spell = null;
                 base_spell = null;
+                linked_item = null;
             }
+
 
             public void storeSpell(AbilityData new_spell)
             {
@@ -662,6 +668,7 @@ namespace CallOfTheWild
                 base_spell = new_spell;
                 Common.AddBattleLogMessage($"{this.Fact.MaybeContext.MaybeOwner.CharacterName} stored {spell.Blueprint.Name} in {this.Fact.Name}.");
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions_on_store, this.Owner.Unit);
+                linkItem();
             }
 
 
@@ -671,11 +678,17 @@ namespace CallOfTheWild
                 base_spell = cast_spell;
                 Common.AddBattleLogMessage($"{this.Fact.MaybeContext.MaybeOwner.CharacterName} stored {spell.Blueprint.Name} in {this.Fact.Name}.");
                 (this.Fact as IFactContextOwner)?.RunActionInContext(this.actions_on_store, this.Owner.Unit);
+                linkItem();
             }
 
 
             public void getStoredSpell(out AbilityData stored_spell)
             {
+                if (!checkLinkedItem())
+                {
+                    stored_spell = null;
+                    return;
+                }
                 stored_spell = spell;
             }
 
@@ -721,6 +734,50 @@ namespace CallOfTheWild
                         store_buff.CallComponents<FactStoreSpell>(c => c.storeSpell(spell));
                     }
                 }
+            }
+
+
+            private void linkItem()
+            {
+                if (link_type == LinkType.Weapon)
+                {
+                    linked_item = this.Owner?.Body?.PrimaryHand?.MaybeWeapon;
+                }
+                else if (link_type == LinkType.Shield)
+                {
+                    linked_item = this.Owner?.Body?.SecondaryHand?.MaybeShield;
+                }
+                else if (link_type == LinkType.Armor)
+                {
+                    linked_item = this.Owner?.Body?.Armor?.MaybeArmor;
+                }
+            }
+
+
+            private bool checkLinkedItem()
+            {
+                if (link_type == LinkType.Weapon)
+                {
+                    return linked_item != null && linked_item == this.Owner?.Body?.PrimaryHand?.MaybeWeapon;
+                }
+                else if (link_type == LinkType.Shield)
+                {
+                    return linked_item != null && linked_item == this.Owner?.Body?.SecondaryHand?.MaybeShield;
+                }
+                else if (link_type == LinkType.Armor)
+                {
+                    return linked_item != null && linked_item == this.Owner?.Body?.Armor?.MaybeArmor;
+                }
+
+                return true;
+            }
+
+            public enum LinkType
+            {
+                None,
+                Weapon,
+                Armor,
+                Shield
             }
         }
 

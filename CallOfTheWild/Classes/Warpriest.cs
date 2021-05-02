@@ -1616,7 +1616,7 @@ namespace CallOfTheWild
                                                 "",
                                                 spell_combat.Icon,
                                                 FeatureGroup.None,
-                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>());
+                                                Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.link_type = SpellManipulationMechanics.FactStoreSpell.LinkType.Weapon));
 
             var release_buff = Helpers.CreateBuff("WarpriestArtificeBlessingMajorToggleBuff",
                                                   major_feature.Name + ": Release",

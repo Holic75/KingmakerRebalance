@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Ecnchantments;
 using Kingmaker.Blueprints.Items.Weapons;
@@ -8,8 +9,10 @@ using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
 using Kingmaker.Enums.Damage;
 using Kingmaker.UnitLogic;
+using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
+using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
@@ -19,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
 namespace CallOfTheWild
 {
@@ -65,6 +69,9 @@ namespace CallOfTheWild
         static public BlueprintWeaponEnchantment adamantine = library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b");
 
         static public BlueprintWeaponEnchantment dazzling_blade_fx_enchant;
+
+        static public BlueprintWeaponEnchantment spell_storing;
+        static public BlueprintFeature spell_storing_feature;
         static public void initialize()
         {
             createMetamagicEnchantments();
@@ -82,6 +89,112 @@ namespace CallOfTheWild
             dazzling_blade_fx_enchant = Common.createWeaponEnchantment("DazzlingWeaponEnchant", "", "", "", "", "", 0, brilliant_energy.WeaponFxPrefab);
 
             addDamageOverrideToMaterialEnchants();
+
+            createSpellStoring();
+        }
+
+
+        static void createSpellStoring()
+        {
+            var store_feature = Helpers.CreateFeature("CharacterWeaponSpellStroingFeature",
+                                                      "",
+                                                      "",
+                                                      "",
+                                                      null,
+                                                      Kingmaker.Blueprints.Classes.FeatureGroup.None,
+                                                      Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.link_type = SpellManipulationMechanics.FactStoreSpell.LinkType.Weapon)
+                                                      );
+            store_feature.HideInCharacterSheetAndLevelUp = true;
+            store_feature.HideInUI = true;
+
+            var basic_feat_progression = ResourcesLibrary.TryGetBlueprint<BlueprintProgression>("5b72dd2ca2cb73b49903806ee8986325");
+            basic_feat_progression.LevelEntries[0].Features.Add(store_feature);
+
+            Action<UnitDescriptor> save_game_action = delegate (UnitDescriptor u)
+            {
+                if (!u.HasFact(store_feature))
+                {
+                    u.AddFact(store_feature);
+                }
+            };
+            SaveGameFix.save_game_actions.Add(save_game_action);
+            spell_storing_feature = store_feature;
+            var icon = Helpers.GetIcon("a26c23a887a6f154491dc2cefdad2c35"); //crusader's edge
+            var feature = Helpers.CreateFeature("WeaponSpellStoringFeature",
+                                                "Spell Storing Weapon",
+                                                "A spell storing weapon allows a spellcaster to store a single targeted spell of up to 3rd level in the weapon. (The spell must have a casting time of 1 standard action.) Anytime the weapon strikes a creature and the creature takes damage from it, the weapon can immediately cast the spell on that creature as a free action if the wielder desires. (This special ability is an exception to the general rule that casting a spell from an item takes at least as long as casting that spell normally.) Once the spell has been cast from the weapon, a spellcaster can cast any other targeted spell of up to 3rd level into it.",
+                                                "",
+                                                icon,
+                                                Kingmaker.Blueprints.Classes.FeatureGroup.None);
+
+            var release_buff = Helpers.CreateBuff("WeaponSpellStoringToggleBuff",
+                                                  feature.Name + ": Release",
+                                                  feature.Description,
+                                                  "",
+                                                  feature.Icon,
+                                                  null,
+                                                  Helpers.Create<SpellManipulationMechanics.AddStoredSpellToCaption>(a => a.store_fact = store_feature));
+
+            var major_activatable_ability = Helpers.CreateActivatableAbility("WeaponSpellStoringToggleAbility",
+                                                                             feature.Name + ": Release",
+                                                                             feature.Description,
+                                                                             "",
+                                                                             feature.Icon,
+                                                                             release_buff,
+                                                                             AbilityActivationType.Immediately,
+                                                                             CommandType.Free,
+                                                                             null,
+                                                                             Helpers.Create<SpellManipulationMechanics.ActivatableAbilitySpellStoredInFactRestriction>(a => a.fact = store_feature));
+            major_activatable_ability.DeactivateImmediately = true;
+
+            var release_action = Helpers.Create<SpellManipulationMechanics.ReleaseSpellStoredInSpecifiedBuff>(r => r.fact = store_feature);
+            var release_on_condition = Helpers.CreateConditional(Common.createContextConditionCasterHasFact(release_buff), release_action);
+            feature.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(action: Helpers.CreateActionList(release_on_condition), wait_for_attack_to_resolve: true));
+            feature.AddComponent(Helpers.CreateAddFact(major_activatable_ability));
+
+            int max_variants = 10; //due to ui limitation
+            Predicate<AbilityData> check_slot_predicate = delegate (AbilityData spell)
+            {
+                return spell.SpellLevel <= 3
+                        && spell.Blueprint.EffectOnEnemy == AbilityEffectOnUnit.Harmful
+                        && spell.Blueprint.Range != AbilityRange.Personal
+                        && spell.Blueprint.CanTargetEnemies
+                        && !spell.Blueprint.CanTargetPoint
+                        && !spell.Blueprint.IsFullRoundAction
+                        && (!spell.Blueprint.HasVariants || spell.Variants.Count < max_variants)
+                        && !spell.Blueprint.HasAreaEffect()
+                        && (!spell.RequireMaterialComponent || spell.HasEnoughMaterialComponent);
+            };
+
+            for (int i = 0; i < max_variants; i++)
+            {
+                var ability = Helpers.CreateAbility($"WeaponSpellStoring{i + 1}Ability",
+                                                          feature.Name,
+                                                          feature.Description,
+                                                          "",
+                                                          feature.Icon,
+                                                          AbilityType.Supernatural,
+                                                          CommandType.Standard,
+                                                          AbilityRange.Personal,
+                                                          "",
+                                                          "",
+                                                          Helpers.Create<SpellManipulationMechanics.AbilityStoreSpellInFact>(s => { s.fact = store_feature; s.check_slot_predicate = check_slot_predicate; s.variant = i; })
+                                                          );
+                ability.setMiscAbilityParametersSelfOnly();
+                feature.AddComponent(Helpers.CreateAddFact(ability));
+            }
+
+            spell_storing = Common.createWeaponEnchantment("SpellStoringWeaponEnchantment",
+                                                            "Spell Storing",
+                                                            feature.Description,
+                                                            "",
+                                                            "",
+                                                            "",
+                                                            0,
+                                                            1,
+                                                            null,
+                                                            Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = feature)
+                                                            );
         }
 
 

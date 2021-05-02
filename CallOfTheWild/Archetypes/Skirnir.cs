@@ -139,7 +139,7 @@ namespace CallOfTheWild.Archetypes
                                     "",
                                     Helpers.GetIcon("ef768022b0785eb43a18969903c537c4"), //mage shield
                                     FeatureGroup.None,
-                                    Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => f.always_hit = true));
+                                    Helpers.Create<SpellManipulationMechanics.FactStoreSpell>(f => { f.always_hit = true; f.link_type = SpellManipulationMechanics.FactStoreSpell.LinkType.Shield; }));
 
             var release_buff = Helpers.CreateBuff("SpellShieldToggleBuff",
                                                   spell_shield.Name + ": Release",

@@ -1602,6 +1602,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "7f71a70d822af94458dc1a235507e972", 7), //cloak of dreams
                 new Common.SpellId( "b974af13e45639a41a04843ce1c9aa12", 7), //creeping doom
                 new Common.SpellId( "0cea35de4d553cc439ae80b3a8724397", 7), //cure serious wounds mass
+                new Common.SpellId( NewSpells.emblem_of_greed.AssetGuid, 7),
                 new Common.SpellId( "137af566f68fd9b428e2e12da43c1482", 7), //harm
                 new Common.SpellId( "ff8f1534f66559c478448723e16b6624", 7), //heal              
                 new Common.SpellId( NewSpells.ice_body.AssetGuid, 7),
