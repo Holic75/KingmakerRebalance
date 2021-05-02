@@ -601,9 +601,8 @@ namespace CallOfTheWild
         {
             var unit = library.CopyAndAdd<BlueprintUnit>("827b90e60645fe641b29098ed1f70219", "ArcaneEyeUnit", "");
             unit.ComponentsArray = new BlueprintComponent[] { unit.GetComponent<AddClassLevels>().CreateCopy(a => a.Levels = 1), //abberation levels
-                                                              unit.GetComponent<Experience>().CreateCopy(a => a.CR = 1000) //to prevent identification
+                                                             // unit.GetComponent<Experience>().CreateCopy(a => a.CR = 1000) //to prevent identification
                                                             };
-
             var buff = library.CopyAndAdd<BlueprintBuff>("e6b35473a237a6045969253beb09777c", "ArcaneEyeBuff", "4741d7726ebf43d9a2d55130b5d173d3");
             buff.AddComponent(Helpers.CreateAddStatBonus(StatType.SkillStealth, 100, ModifierDescriptor.UntypedStackable));
             buff.AddComponent(Helpers.CreateAddFactContextActions(activated: Helpers.Create<ContextActionHideInPlainSight>(), newRound: Helpers.Create<ContextActionHideInPlainSight>()));
@@ -634,6 +633,9 @@ namespace CallOfTheWild
             unit.Intelligence = 10;
             unit.Wisdom = 10;
             unit.Charisma = 10;
+            unit.Visual = unit.Visual.CloneObject();
+            unit.Visual.Barks = null;
+            Helpers.SetField(unit, "m_Portrait", Helpers.createPortrait("ArcaneEyeProtrait", "AirElemental", ""));
             var summon_buff = library.Get<BlueprintBuff>("6fcdf014694b2b542a867763b4369cb3");
             var arcane_eye_pool = library.CopyAndAdd<BlueprintSummonPool>("d94c93e7240f10e41ae41db4c83d1cbe", "ArcaneEyeSummonPool", "");
             var spawn_monster = Helpers.Create<ContextActionSpawnMonster>(c =>
