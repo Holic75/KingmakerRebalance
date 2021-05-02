@@ -40,7 +40,7 @@ namespace CallOfTheWild.FogOfWarMechanics
 
     [Harmony12.HarmonyPatch(typeof(FogOfWarController))]
     [Harmony12.HarmonyPatch("Tick", Harmony12.MethodType.Normal)]
-    public class MagusController_HandleUnitRunCommand_Patch
+    public class FogOfWarController_Tick_Patch
     {
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -62,6 +62,18 @@ namespace CallOfTheWild.FogOfWarMechanics
             party.AddRange(revealers);
 
             return party;
+        }
+    }
+
+
+
+    [Harmony12.HarmonyPatch(typeof(UnitEntityData))]
+    [Harmony12.HarmonyPatch("IsDirectlyControllable", Harmony12.MethodType.Getter)]
+    public class UnitEntityData_IsDirectlyControllable_Patch
+    {
+        static void Postfix(UnitEntityData __instance, ref bool __result)
+        {
+            __result = __result || (__instance?.Get<UnitPartFogOfWarRevealer>()?.active()).GetValueOrDefault();
         }
     }
 
