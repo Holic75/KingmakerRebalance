@@ -518,7 +518,7 @@ namespace CallOfTheWild
             slam_damage = Helpers.CreateFeature("PhantomSlamDamage",
                                                 "Slam Damage",
                                                 "Phantoms have two slam natural weapon attacks.\n"
-                                                + "The damage dealt by medium phantom with her slam attack is 1d6 at levels 1-3, 1d8 at levels 4-6, 1d10 at levels 7 - 9, 2d6 at levels 10-12 and finally 2d8 at level 15.",
+                                                + "The damage dealt by medium phantom with her slam attack is 1d6 at levels 1-3, 1d8 at levels 4-6, 1d10 at levels 7-9, 2d6 at levels 10-12 and finally 2d8 at level 15.",
                                                 "",
                                                 Helpers.GetIcon("247a4068296e8be42890143f451b4b45"), //basic feat
                                                 FeatureGroup.None,

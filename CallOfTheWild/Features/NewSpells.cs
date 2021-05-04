@@ -305,6 +305,8 @@ namespace CallOfTheWild
         //binding_earth_mass ?
         //battle mind link ?
         //condensed ether ?
+        //beacon of luck
+        //litany of truth
      
         //blood rage
         //etheric shards
@@ -671,6 +673,12 @@ namespace CallOfTheWild
             arcane_eye.AddToSpellList(Helpers.wizardSpellList, 4);
             arcane_eye.AddToSpellList(Helpers.alchemistSpellList, 4);
             arcane_eye.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531"); //true seeing
+
+            var type = library.CopyAndAdd(unit.Type, "ArcaneEyeType", "");
+            type.Name = Helpers.CreateString("ArcaneEyeType.Name", arcane_eye.Name);
+            type.Description = Helpers.CreateString("ArcaneEyeType.Description", arcane_eye.Description);
+            type.KnowledgeStat = StatType.SkillKnowledgeArcana;
+            unit.Type = type;       
         }
 
 
