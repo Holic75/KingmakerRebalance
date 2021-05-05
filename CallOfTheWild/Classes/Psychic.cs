@@ -2705,6 +2705,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
                 new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast ? (probably should be since wail of banshee is also on the list)
+                new Common.SpellId( NewSpells.battlemind_link.AssetGuid, 6),
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
                 new Common.SpellId( "36c8971e91f1745418cc3ffdfac17b74", 6), //blade barrier
                 new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bull strength mass

@@ -550,12 +550,12 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityTargetIsCaster : BlueprintComponent, IAbilityTargetChecker
         {
-
+            public bool not;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 UnitEntityData unit = target.Unit;
 
-                return target == caster;
+                return (target == caster) != not;
             }
         }
 
@@ -6215,6 +6215,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact fact;
             public ContextValue value;
             public ModifierDescriptor descriptor;
+            public bool only_from_caster;
 
             public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
             {
@@ -6240,9 +6241,19 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (!evt.Initiator.Descriptor.HasFact(fact))
+                if (only_from_caster)
                 {
-                    return;
+                    if (!evt.Initiator.Descriptor.Buffs.Enumerable.Any(b => b.Blueprint == fact && b.MaybeContext?.MaybeCaster == this.Fact.MaybeContext?.MaybeCaster))
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!evt.Initiator.Descriptor.HasFact(fact))
+                    {
+                        return;
+                    }
                 }
 
 

@@ -70,7 +70,7 @@ namespace CallOfTheWild.BuffMechanics
     public class SuppressBuffsCorrect : OwnedGameLogicComponent<UnitDescriptor>
     {
         public BlueprintBuff[] Buffs = new BlueprintBuff[0];
-        public SpellSchool[] Schools;
+        public SpellSchool[] Schools = new SpellSchool[0];
         public SpellDescriptorWrapper Descriptor;
 
         public override void OnFactActivate()

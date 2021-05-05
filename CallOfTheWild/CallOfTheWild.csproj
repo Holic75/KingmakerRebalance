@@ -293,7 +293,6 @@
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\ArchetypePrerequisites.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
-    <Compile Include="NewMechanics\BattlemindLink.cs" />
     <Compile Include="NewMechanics\BladeTutor.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
     <Compile Include="NewMechanics\BuffMechanics.cs" />

@@ -2474,7 +2474,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (context.MaybeCaster != this.Fact.MaybeContext.MaybeCaster)
+                if (context.MaybeCaster != this.Owner.Unit)
                 {
                     return;
                 }
