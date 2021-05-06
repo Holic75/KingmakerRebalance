@@ -131,6 +131,7 @@
     <Compile Include="AnimalCompanionLevelUp.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\BeastkinBerserker.cs" />
+    <Compile Include="Archetypes\Beastmorph.cs" />
     <Compile Include="Archetypes\Bloodhunter.cs" />
     <Compile Include="Archetypes\CourtBard.cs" />
     <Compile Include="Archetypes\Crossblooded.cs" />

@@ -610,9 +610,9 @@ namespace CallOfTheWild
 
             for (int i = 0; i < prefixes.Length; i++)
             {
-                var apply_melee = Common.createContextActionApplyBuff(melee_buffs[1 - i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false);
-                var apply_ranged = Common.createContextActionApplyBuff(ranged_buffs[1 - i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false);
-                var apply_spell = Common.createContextActionApplyBuff(spell_buffs[1 - i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false);
+                var apply_melee = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(melee_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
+                var apply_ranged = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(ranged_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
+                var apply_spell = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(spell_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
                 base_buffs[i] = Helpers.CreateBuff(prefixes[i] + "BattlemindLinkBuff",
                                                     "Battlemind Link (" + prefixes[i] + ")",
                                                     description,
