@@ -116,7 +116,7 @@ namespace CallOfTheWild
             Common.excludeSpellsFromList(spell_list, a => false);
             good_archon_domain = createSubdomain("ArchonGoodSubdomain", "Archon (Good) Subdomain",
                                                "You have pledged your life and soul to goodness and purity.\n" +
-                                               "Touch of Good: You can touch a creature as a standard action, granting a sacred bonus on attack rolls, skill checks, ability checks, and saving throws equal to half your level in the class that gave you access to this domain(minimum 1) for 1 round. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\n" +
+                                               "Touch of Good: You can touch a creature as a standard action, granting a sacred bonus on attack rolls, skill checks, ability checks, and saving throws equal to half your level in the class that gave you access to this domain (minimum 1) for 1 round. You can use this ability a number of times per day equal to 3 + your Wisdom modifier.\n" +
                                                $"{toggle.Name}: {toggle.Description}\n" +                                              
                                                "Domain Spells: Divine Favor, Protection from Evil Communal, Prayer, Forced Repentance, Burst of Glory, Summon Monster VI, Holy Word, Holy Aura, Summon Monster IX.",
                                                good_domain,
