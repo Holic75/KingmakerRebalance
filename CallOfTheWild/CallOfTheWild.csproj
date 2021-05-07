@@ -131,6 +131,7 @@
     <Compile Include="AnimalCompanionLevelUp.cs" />
     <Compile Include="Archetypes\ArrowsongMinstrel.cs" />
     <Compile Include="Archetypes\BeastkinBerserker.cs" />
+    <Compile Include="Archetypes\Beastmorph.cs" />
     <Compile Include="Archetypes\Bloodhunter.cs" />
     <Compile Include="Archetypes\CourtBard.cs" />
     <Compile Include="Archetypes\Crossblooded.cs" />
@@ -293,7 +294,6 @@
     <Compile Include="NewMechanics\AooMechanics.cs" />
     <Compile Include="NewMechanics\ArchetypePrerequisites.cs" />
     <Compile Include="NewMechanics\AttackReplacement.cs" />
-    <Compile Include="NewMechanics\BattlemindLink.cs" />
     <Compile Include="NewMechanics\BladeTutor.cs" />
     <Compile Include="NewMechanics\BleedMechanics.cs" />
     <Compile Include="NewMechanics\BuffMechanics.cs" />

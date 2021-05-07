@@ -97,6 +97,7 @@ namespace CallOfTheWild
         static public BlueprintAbility explosion_of_rot;
 
         static public BlueprintAbility aura_of_doom;
+        static public BlueprintBuff aura_of_doom_effect_buff;
         static public BlueprintAbility archons_trumpet;
 
         static public BlueprintAbility burning_entanglement;
@@ -300,11 +301,13 @@ namespace CallOfTheWild
 
         static public BlueprintAbility arcane_eye;
         static public BlueprintAbility emblem_of_greed;
+        static public BlueprintAbility battlemind_link;
+        static public BlueprintAbility litany_of_truth;
 
         //binding_earth; ?
         //binding_earth_mass ?
-        //battle mind link ?
         //condensed ether ?
+        //beacon of luck
      
         //blood rage
         //etheric shards
@@ -510,7 +513,194 @@ namespace CallOfTheWild
 
             createArcaneEye();
             createEmblemOfGreed();
+            createBattlemindLink();
+            createLitanyOfTruth();
             //createMiracle();
+        }
+
+
+        static void createLitanyOfTruth()
+        {
+            var buff = Helpers.CreateBuff("LitanyOfTruthBuff",
+                                          "Litany of Truth",
+                                          "With a tirade against deceit, you strip the target of any illusions cloaking it.Any illusion spells or effects affecting the target are suppressed for the spell’s duration.In addition, the target can’t benefit from concealment.",
+                                          "",
+                                          Helpers.GetIcon("b3da3fbee6a751d4197e446c7e852bcb"), //true seeing
+                                          Common.createPrefabLink("3cf209e5299921349a1c159f35cfa369"),
+                                          Helpers.Create<DoNotBenefitFromConcealment>(),
+                                          Helpers.Create<BuffMechanics.SuppressBuffsCorrect>(s =>
+                                          {
+                                              s.Schools = new SpellSchool[] { SpellSchool.Illusion };
+                                          })
+                                          );
+            var apply_buff = Helpers.CreateConditionalSaved(null, Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1)));
+            litany_of_truth = Helpers.CreateAbility("LitanyOfTruthAbility",
+                                                    buff.Name,
+                                                    buff.Description,
+                                                    "",
+                                                    buff.Icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Swift,
+                                                    AbilityRange.Close,
+                                                    Helpers.oneRoundDuration,
+                                                    Helpers.willNegates,
+                                                    Helpers.CreateRunActions(SavingThrowType.Will, apply_buff),
+                                                    Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent),
+                                                    Helpers.CreateSpellComponent(SpellSchool.Divination)
+                                                    );
+            litany_of_truth.SpellResistance = true;
+            litany_of_truth.setMiscAbilityParametersSingleTargetRangedHarmful(true);
+
+            litany_of_truth.AddToSpellList(Helpers.inquisitorSpellList, 6);
+            litany_of_truth.AddToSpellList(Helpers.paladinSpellList, 4);
+            litany_of_truth.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531"); //true seeing
+
+            litany_of_truth.AvailableMetamagic = Metamagic.Heighten | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+        }
+
+
+        static void createBattlemindLink()
+        {
+            var icon = Helpers.GetIcon("fb96d35da88acb1498dc51a934f6c4d5"); //twins shift
+
+            //the spell will work a bit differently from pnp
+            //it will give + 2 initiative to caster and target
+            //and if either caster or target affected enemy with melee attack, ranged attack or spell
+            //other recepient will get + 2 bonus on melee attack rolls, ranged attack rolls or +2 to spell dcs against the same target
+
+
+            var prefixes = new string[] { "Caster", "Target" };
+
+            var description = "You fuse your thoughts with an ally’s, allowing the two of you to fight in tandem, perfectly coordinated. You and the ally each receive a +2 bonus on your initiative rolls. This has three effects.\n"
+                               + "Melee: If you make a melee attack against the same creature against which your ally attempted a melee attack this turn, you receive a +2 bonus on your attack roll.\n"
+                               + "Ranged: If you make a ranged attack against the same creature against which your ally attempted a ranged attack this turn, you receive a +2 bonus on your attack roll.\n"
+                               + "Spell: If you target with a spell the creatures that were also targeted with your ally's spell this turn, this creatures receive - 2 penalty on their saving throws.";
+            BlueprintBuff[] base_buffs = new BlueprintBuff[2];
+            BlueprintBuff[] melee_buffs = new BlueprintBuff[2];
+            BlueprintBuff[] ranged_buffs = new BlueprintBuff[2];
+            BlueprintBuff[] spell_buffs = new BlueprintBuff[2];
+
+
+            for (int i = 0; i < prefixes.Length; i++)
+            {
+                melee_buffs[i] = Helpers.CreateBuff(prefixes[i] + "BattlemindLinkMeleeAttackTargetBuff",
+                                                    "Battlemind Link: Melee Attack Rolls Bonus (" + prefixes[i] + ")",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    null,
+                                                    Helpers.Create<BuffMechanics.StoreBuff>());
+
+                ranged_buffs[i] = Helpers.CreateBuff(prefixes[i] + "BattlemindLinkRangedAttackTargetBuff",
+                                                    "Battlemind Link: Ranged Attack Rolls Bonus (" + prefixes[i] + ")",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    null,
+                                                    Helpers.Create<BuffMechanics.StoreBuff>());
+
+                spell_buffs[i] = Helpers.CreateBuff(prefixes[i] + "BattlemindLinkSpellTargetBuff",
+                                                    "Battlemind Link: Saving throws penalty (" + prefixes[i] + ")",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    null,
+                                                    Helpers.Create<BuffMechanics.StoreBuff>());
+            }
+
+            for (int i = 0; i < prefixes.Length; i++)
+            {
+                var apply_melee = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(melee_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
+                var apply_ranged = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(ranged_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
+                var apply_spell = Helpers.CreateConditional(Helpers.Create<ContextConditionIsEnemy>(), Common.createContextActionApplyBuff(spell_buffs[i], Helpers.CreateContextDuration(1), is_from_spell: false, dispellable: false));
+                base_buffs[i] = Helpers.CreateBuff(prefixes[i] + "BattlemindLinkBuff",
+                                                    "Battlemind Link (" + prefixes[i] + ")",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    Common.createPrefabLink("c388856d0e8855f429a83ccba67944ba"),
+                                                    Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable),
+                                                    Helpers.Create<NewMechanics.AttackBonusAgainstFactsOwner>(a =>
+                                                    {
+                                                        a.attack_types = new AttackType[] { AttackType.Melee, AttackType.Touch };
+                                                        a.only_from_caster = true;
+                                                        a.check_only_one_fact = true;
+                                                        a.CheckedFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { melee_buffs[1 - i] };
+                                                        a.Bonus = 2;
+                                                        a.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                    }
+                                                    ),
+                                                    Helpers.Create<NewMechanics.AttackBonusAgainstFactsOwner>(a =>
+                                                    {
+                                                        a.attack_types = new AttackType[] { AttackType.Ranged, AttackType.RangedTouch };
+                                                        a.only_from_caster = true;
+                                                        a.check_only_one_fact = true;
+                                                        a.CheckedFacts = new Kingmaker.Blueprints.Facts.BlueprintUnitFact[] { ranged_buffs[1 - i] };
+                                                        a.Bonus = 2;
+                                                        a.Descriptor = ModifierDescriptor.UntypedStackable;
+                                                    }
+                                                    ),
+                                                    Helpers.Create<NewMechanics.SpellsDCBonusAgainstFact>(a =>
+                                                    {
+                                                        a.value = 2;
+                                                        a.fact = spell_buffs[1 - i];
+                                                        a.descriptor = ModifierDescriptor.UntypedStackable;
+                                                        a.only_from_caster = true;
+                                                    }
+                                                    ),
+                                                    Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_melee),
+                                                                                                only_hit: false, check_weapon_range_type: true,
+                                                                                                range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                                    Common.createAddInitiatorAttackRollTrigger2(Helpers.CreateActionList(apply_ranged),
+                                                                                                only_hit: false, check_weapon_range_type: true,
+                                                                                                range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),
+                                                    Helpers.Create<SpellManipulationMechanics.ExtraEffectOnSpellApplyCaster>(e =>
+                                                    {
+                                                        e.actions = Helpers.CreateActionList(apply_spell);
+                                                    }
+                                                    )
+                                                    );
+            }
+
+
+            var actions = new GameAction[]
+            {
+               Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = base_buffs),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = melee_buffs[0]),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = melee_buffs[1]),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = ranged_buffs[0]),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = ranged_buffs[1]),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = spell_buffs[0]),
+               Helpers.Create<BuffMechanics.RemoveStoredBuffs>(c => c.buff = spell_buffs[1]),
+            };
+
+            var caster_actions = actions.AddToArray(Common.createContextActionApplyBuff(base_buffs[0], Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes)));
+            var target_actions = actions.AddToArray(Common.createContextActionApplyBuff(base_buffs[1], Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes)));
+
+            battlemind_link = Helpers.CreateAbility("BattlemindlinkAbility",
+                                                    "Battlemind Link",
+                                                    description,
+                                                    "",
+                                                    icon,
+                                                    AbilityType.Spell,
+                                                    UnitCommand.CommandType.Standard,
+                                                    AbilityRange.Close,
+                                                    Helpers.minutesPerLevelDuration,
+                                                    HarmlessSaves.HarmlessSaves.will_harmless,
+                                                    Helpers.CreateRunActions(new GameAction[]{ Common.createContextActionOnContextCaster(caster_actions)}.AddToArray(target_actions)), 
+                                                    Helpers.CreateSpellComponent(SpellSchool.Divination),
+                                                    Helpers.CreateContextRankConfig(),
+                                                    Common.createAbilitySpawnFx("8de64fbe047abc243a9b4715f643739f", anchor: AbilitySpawnFxAnchor.SelectedTarget),
+                                                    Helpers.Create<HarmlessSaves.HarmlessSpell>(),
+                                                    Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting),
+                                                    Helpers.Create<NewMechanics.AbilityTargetIsCaster>(a => a.not = true)
+                                                    );
+            battlemind_link.setMiscAbilityParametersSingleTargetRangedFriendly();
+            battlemind_link.AddToSpellList(Helpers.inquisitorSpellList, 4);
+            battlemind_link.AddToSpellList(Helpers.wizardSpellList, 6);
+            battlemind_link.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531"); //true seeing
+
+            battlemind_link.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Extend | Metamagic.Reach;
         }
 
 
@@ -671,6 +861,12 @@ namespace CallOfTheWild
             arcane_eye.AddToSpellList(Helpers.wizardSpellList, 4);
             arcane_eye.AddToSpellList(Helpers.alchemistSpellList, 4);
             arcane_eye.AddSpellAndScroll("7a05e6eea60a1864d935abd6c281a531"); //true seeing
+
+            var type = library.CopyAndAdd(unit.Type, "ArcaneEyeType", "");
+            type.Name = Helpers.CreateString("ArcaneEyeType.Name", arcane_eye.Name);
+            type.Description = Helpers.CreateString("ArcaneEyeType.Description", arcane_eye.Description);
+            type.KnowledgeStat = StatType.SkillKnowledgeArcana;
+            unit.Type = type;       
         }
 
 
@@ -8214,9 +8410,9 @@ namespace CallOfTheWild
         {
             var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("a70dc66c3059b7a4cb5b2a2e8ac37762", "AuraOfDoomArea", "");
 
-            var shaken2 = library.CopyAndAdd<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220", "AuraOfDoomShakenBuff", "");
-            shaken2.Stacking = StackingType.Stack;
-            var apply_shaken = Common.createContextActionApplyBuff(shaken2, Helpers.CreateContextDuration(), is_child: false, dispellable: false, is_permanent: true);
+            aura_of_doom_effect_buff = library.CopyAndAdd<BlueprintBuff>("25ec6cb6ab1845c48a95f9c20b034220", "AuraOfDoomShakenBuff", ""); //shaken
+            aura_of_doom_effect_buff.Stacking = StackingType.Stack;
+            var apply_shaken = Common.createContextActionApplyBuff(aura_of_doom_effect_buff, Helpers.CreateContextDuration(), is_child: false, dispellable: false, is_permanent: true);
             var on_save_failed = Helpers.CreateConditionalSaved(null, apply_shaken);
             var effect = Common.createContextActionSavingThrow(SavingThrowType.Will, Helpers.CreateActionList(on_save_failed));
 
@@ -8224,8 +8420,8 @@ namespace CallOfTheWild
             area.ReplaceComponent<AbilityAreaEffectRunAction>(a =>
             {
                 a.UnitEnter = Helpers.CreateActionList(conditional_effect);
-                a.UnitExit = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(shaken2),
-                                                                            Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = shaken2))
+                a.UnitExit = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(aura_of_doom_effect_buff),
+                                                                            Helpers.Create<ContextActionRemoveBuffSingleStack>(c => c.TargetBuff = aura_of_doom_effect_buff))
                                                 );
             }
             );

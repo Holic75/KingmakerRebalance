@@ -29,7 +29,7 @@ New classes:
 - Oracle with following archetypes: Hermit, Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective, Scavenger and Cryptid Schoolar,
 - Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
-- Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder,
+- Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder and Terror Weaver,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind, Priest of the Fallen and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator, Iron Tyrant, Tyrant and Unholy Minion,
 - Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant, Planar Harmonizer and Necroccultist,
@@ -50,7 +50,7 @@ New Archetypes for existing classes:
 - Executioner, Stygian Slayer, and Grave Warden Slayer archetypes,
 - Elemental Ascetic, Kinetic Chirurgeon and Overwhelming Soul Kineticist archetypes,
 - Dawnflower Dervish, Lore Warden and Drill Sergeant Fighter archetype,
-- Preservationist and Toxicant Alchemist archetypes,
+- Beastmorph, Preservationist and Toxicant Alchemist archetypes,
 - Feywarden, Blood Hunter and Divine Tracker Ranger archetypes.
 
 
@@ -421,12 +421,15 @@ New spells:
 - Arcane Eye,
 - Archon's Trumpet,
 - Aura of Doom,
+- Battlemind Link,
 - Debilitating Portent,
 - Explosion of Rot,
 - Fire Shield,
 - Fleshworm Infestation,
 - Forceful Strike,
 - Globe of Invulnerability, Lesser and Globe of Invulnerability,
+- Intellect Fortress,
+- Litany of Truth,
 - Rebuke,
 - Rigor Mortis,
 - River of Wind,
@@ -434,7 +437,6 @@ New spells:
 - Solid Fog,
 - Spiritual Ally,
 - Spite,
-- Intellect Fortress,
 - Thirsting Entanglement,
 - Virtuoso Performance,
 - Wall of Fire,
@@ -558,10 +560,10 @@ enchanced attacks,
 - All Animal Companions/Eidolons receive multiattack at appropriate levels,
 - Grease spell was changed to work more in line with pnp (uses dc 10 mobility check instead of dc, and only if unit moves),
 - Aura of Madness lvl 8 Madness domain ability changed to toggle,
-- Universalist wizard Metamagic Mastery change to work as per pnp,
+- Universalist wizard Metamagic Mastery changed to work as per pnp,
 - Unarmed Strike can be used as an off-hand weapon if you have both Two Weapon Fighting and Improved Unarmed Strike feats,
 - Full concealment now gives immunity to precision damage,
-- Increased cost of using senseai ki powers on single ally by 1 and on all allies by 2.
+- Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -623,7 +625,7 @@ Notable differences from pnp:
 - Monk/Ninja ki pools do not stack,
 - You can not use twf with unhindering shield,
 - Kinetic Chirurgeon looses wild talents instead of infusions/infusion specializations/metakinesis,
-- Multiattack feat can be selected by any character, and it works on them the same way it would work on animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
+- Multiattack feat can be selected by any character, and it works for them the same way it would work for animal companion/eidolon (i.e. either reduces secondary attacks penalty to -2, or gives one iterative attack with primary hand natural weapon if character has less than 3 natural attacks),
 - Dark Elementalist will restore up to 3 burn points when using Soul Power (optional),
 - Psychockineticist receives only -1 to wis skils and will savingthrows (optional),
 - Kinetic knight reduces by 1 cost of all infusions he can use instead of only kinetic blade(optional),
@@ -640,7 +642,10 @@ Notable differences from pnp:
 - Divine Commander Warpriest receives animal companion instead of mount,
 - Priest of the Fallen receives only one domain at lvl 17,
 - Brawler receives bonus combat feats at the same rate as fighter instead of his usual rate and martial flexibility,
-- Venomfist unarmed damage die is reduced by 2 steps instead of 1.
+- Venomfist unarmed damage die is reduced by 2 steps instead of 1,
+- Terror Weaver intimidating aura feature does not change how aura of doom spell works, 
+  instead it gives an ability to frighten all enemies affected by aura of doom for one round as a move action (or swift action at 19th level)
+  for 1 phrenic pool point.
 
 Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level

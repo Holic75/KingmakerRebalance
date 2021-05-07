@@ -94,6 +94,7 @@ namespace CallOfTheWild
         static public BlueprintArchetype mutation_mind;
         static public BlueprintArchetype psychic_maraudeur;
         static public BlueprintArchetype amnesiac;
+        static public BlueprintArchetype terror_weaver;
 
         static public BlueprintFeature phrenic_mastery;
 
@@ -130,6 +131,11 @@ namespace CallOfTheWild
         static public BlueprintFeature skewed_mentality;
         static public BlueprintFeature cracked_perspectives;
         static public BlueprintFeature unreal_understanding;
+
+        static public BlueprintFeature manipulation;
+        static public BlueprintFeature aura_of_intimidation9;
+        static public BlueprintFeature aura_of_intimidation11;
+        static public BlueprintFeature aura_of_intimidation19;
 
 
         static Dictionary<string, BlueprintProgression> psychic_disiciplines_map = new Dictionary<string, BlueprintProgression>();
@@ -186,9 +192,91 @@ namespace CallOfTheWild
             createAmnesiac();
             createMutationMind();
             createPsychicMaraudeur();
-            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker, mutation_mind, psychic_maraudeur };
+            createTerrorWeaver();
+            psychic_class.Archetypes = new BlueprintArchetype[] {amnesiac, magaambyan_telepath, starseeker, mutation_mind, psychic_maraudeur, terror_weaver };
             Helpers.RegisterClass(psychic_class);
             createPsychicFeats();
+        }
+
+
+        static void createTerrorWeaver()
+        {
+            terror_weaver = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "TerrorWeaverArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Terror Weaver");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A number of exceptional tribesmen have developed potent psychic abilities, unlocked by generations of exposure to a specific combination of mind-altering fungi and radiation. Powerful manipulators, they often rule smaller tribes from the shadows, but with only few able to match their mental acuity, their only limit is their own ambition.");
+            });
+            Helpers.SetField(terror_weaver, "m_ParentClass", psychic_class);
+            library.AddAsset(terror_weaver, "");
+
+            createManipulation();
+            createAuraOfIntimidation();
+
+
+            terror_weaver.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, phrenic_amplification),
+                                                                  Helpers.LevelEntry(11, phrenic_amplification),
+                                                                  Helpers.LevelEntry(19, phrenic_amplification)};
+            terror_weaver.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, manipulation),
+                                                              Helpers.LevelEntry(9, aura_of_intimidation9),
+                                                              Helpers.LevelEntry(11, aura_of_intimidation11),
+                                                              Helpers.LevelEntry(19, aura_of_intimidation19),
+                                                             };
+            psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(manipulation, aura_of_intimidation9, aura_of_intimidation11, aura_of_intimidation19));
+        }
+
+
+        static void createManipulation()
+        {
+            manipulation = Helpers.CreateFeature("ManipulationTerrorWeaverFeature",
+                                                 "Manipulation",
+                                                 "At 2nd level, a terror weaver adds command spell to his list of known spells.",
+                                                 "",
+                                                 NewSpells.command.Icon,
+                                                 FeatureGroup.None,
+                                                 Helpers.CreateAddKnownSpell(NewSpells.command, psychic_class, 1)
+                                                 );
+        }
+
+
+        static void createAuraOfIntimidation()
+        {
+            aura_of_intimidation9 = Helpers.CreateFeature("AuraOfIntimidationTerrorWeaverFeature",
+                                                          "Aura of Intimidation ",
+                                                          "At 9th level, a terror weaver adds aura of doom spell to his list of known spells.",
+                                                          "",
+                                                          NewSpells.aura_of_doom.Icon,
+                                                          FeatureGroup.None,
+                                                          Helpers.CreateAddKnownSpell(NewSpells.aura_of_doom, psychic_class, 4)
+                                                         );
+
+            var frightened = library.Get<BlueprintBuff>("f08a7239aa961f34c8301518e71d4cdf");
+            var bane = library.Get<BlueprintAbility>("8bc64d869456b004b9db255cdd1ea734");
+            var ability = Helpers.CreateAbility("AuraOfIntimidationTerrorWeaverAbility",
+                                                "Aura of Intimidation",
+                                                "At 11th level, a terror weaver can spend 1 phrenic pool point, as a move action, to make every enemy affected by his aura of doom spell frightened for one round.\n"
+                                                + "At 19th level, he can do it a swift action instead.",
+                                                "",
+                                                Helpers.GetIcon("e788b02f8d21014488067bdd3ba7b325"), //frightful aspect
+                                                AbilityType.Supernatural,
+                                                CommandType.Move,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                Helpers.savingThrowNone,
+                                                Helpers.CreateRunActions(Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(NewSpells.aura_of_doom_effect_buff),
+                                                                                                   Common.createContextActionApplyBuff(frightened, Helpers.CreateContextDuration(1), dispellable: false))),
+                                                bane.GetComponent<AbilityTargetsAround>(),
+                                                phrenic_pool_resource.CreateResourceLogic()
+                                               );
+            ability.AddComponents(bane.GetComponents<AbilitySpawnFx>());
+            ability.setMiscAbilityParametersSelfOnly();
+
+            var ability_swift = library.CopyAndAdd(ability, "Swift" + ability.name, "");
+            ability_swift.SetName("Aura of Intimidation (Swift Action)");
+            ability_swift.ActionType = CommandType.Swift;
+
+            aura_of_intimidation11 = Common.AbilityToFeature(ability, false);
+            aura_of_intimidation19 = Common.AbilityToFeature(ability_swift, false);
         }
 
 
@@ -2705,6 +2793,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "8878d0c46dfbd564e9d5756349d5e439", 5), //waves of fatigue
                 
                 new Common.SpellId( "d42c6d3f29e07b6409d670792d72bc82", 6), //banshee blast ? (probably should be since wail of banshee is also on the list)
+                new Common.SpellId( NewSpells.battlemind_link.AssetGuid, 6),
                 new Common.SpellId( "f6bcea6db14f0814d99b54856e918b92", 6), //bears endurance mass
                 new Common.SpellId( "36c8971e91f1745418cc3ffdfac17b74", 6), //blade barrier
                 new Common.SpellId( "6a234c6dcde7ae94e94e9c36fd1163a7", 6), //bull strength mass

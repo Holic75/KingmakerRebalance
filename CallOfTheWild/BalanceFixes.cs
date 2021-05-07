@@ -592,7 +592,7 @@ namespace CallOfTheWild
                                                                                type: base_config.Type,
                                                                                progression: ContextRankProgression.OnePlusDiv2));
 
-                ability.SetDescription($"Starting at 1st level, you can unleash a ray of heavenly fire as a standard action, targeting any foe within 30 feet as a ranged touch attack. Against evil creatures, this ray deals 1d{getDamageDieString(DiceType.D4)} points of damage + 1d{getDamageDieString(DiceType.D4)} for every two sorcerer levels you possess beyond first. This damage is divine and not subject to energy resistance or immunity. This ray heals good creatures of 1d4 points of damage + 1 for every two sorcerer levels you possess. A good creature cannot benefit from your heavenly fire more than once per day. Neutral creatures are neither harmed nor healed by this effect. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
+                ability.SetDescription($"Starting at 1st level, you can unleash a ray of heavenly fire as a standard action, targeting any foe within 30 feet as a ranged touch attack. Against evil creatures, this ray deals 1d{getDamageDieString(DiceType.D4)} points of damage + 1d{getDamageDieString(DiceType.D4)} for every two sorcerer levels you possess beyond first. This damage is divine and not subject to energy resistance or immunity. This ray heals good creatures of 1d{getDamageDieString(DiceType.D4)}  points of damage + 1d{getDamageDieString(DiceType.D4)}  for every two sorcerer levels you possess beyond first. A good creature cannot benefit from your heavenly fire more than once per day. Neutral creatures are neither harmed nor healed by this effect. You can use this ability a number of times per day equal to 3 + your Charisma modifier.");
                 feature.SetDescription(ability.Description);
             }
 
@@ -1161,7 +1161,7 @@ namespace CallOfTheWild
                         continue;
                     }
 
-                    if (v.DiceType > DiceType.D8 || v.DiceType < DiceType.D3)
+                    if (v.DiceType < dices[0] || v.DiceType > dices.Last())
                     {
                         continue;
                     }
@@ -1182,7 +1182,7 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (c.Value.DiceType >= DiceType.D10 || c.Value.DiceType < DiceType.D3)
+                if (c.Value.DiceType < dices[0] || c.Value.DiceType > dices.Last())
                 {
                     return;
                 }

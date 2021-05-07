@@ -1937,6 +1937,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.wall_of_fire.AssetGuid, 4),
 
                 new Common.SpellId( NewSpells.air_walk_communal.AssetGuid, 5),
+                new Common.SpellId( NewSpells.battlemind_link.AssetGuid, 5),
                 new Common.SpellId( "d5a36a7ee8177be4f848b953d1c53c84", 5), //call lightning storm
                 new Common.SpellId( NewSpells.command_greater.AssetGuid, 5),
                 new Common.SpellId( "e7c530f8137630f4d9d7ee1aa7b1edc0", 5), //cone of cold     

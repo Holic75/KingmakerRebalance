@@ -29,9 +29,6 @@ namespace CallOfTheWild.ShadowSpells
         public static BlueprintBuff shadow60_buff;
         public static BlueprintBuff shadow80_buff;
 
-
-
-
         static internal void init()
         {
             var icon = Helpers.GetIcon("14ec7a4e52e90fa47a4c8d63c69fd5c1");
@@ -259,8 +256,6 @@ namespace CallOfTheWild.ShadowSpells
 
     namespace Patches
     {
-
-
         //check damage
         [Harmony12.HarmonyPatch(typeof(RuleDealDamage))]
         [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
@@ -310,19 +305,25 @@ namespace CallOfTheWild.ShadowSpells
                     }
                 }
 
+                int illusion_reality = 0;
                 if (__instance.Target.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])
                 {
                     if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20)
                     {
-                        __instance.ReducedBecauseOfShadowEvocation = true;
+                        illusion_reality = 20; 
                     }
                     else if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60)
                     {
-                        __instance.ReducedBecauseOfShadowEvocationGreater = true;
+                        illusion_reality = 60;
                     }
                     else if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80)
                     {
-                        __instance.Modifier = new float?( (__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) * 0.8f);
+                        illusion_reality = 80;
+                    }
+
+                    if (illusion_reality > 0)
+                    {
+                        __instance.Modifier = new float?((__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) * 0.01f * illusion_reality);
                     }
                 }
                 return true;
@@ -401,32 +402,25 @@ namespace CallOfTheWild.ShadowSpells
 
                 if (__instance.Initiator.Ensure<UnitPartDisbelief>().disbelief_contexts[context2])
                 {
+                    int illusion_reality = 0;
                     if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20)
                     {
-                        if (RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100)) > 20)
-                        {
-                            __instance.CanApply = false;
-                            Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " avoids " + context2.SourceAbility.Name + " effect due to disbelief");
-                            return false;
-                        }
+                        illusion_reality = 20;
                     }
                     else if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60)
                     {
-                        if (RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100)) > 60)
-                        {
-                            __instance.CanApply = false;
-                            Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " avoids " + context2.SourceAbility.Name + " effect due to disbelief");
-                            return false;
-                        }
+                        illusion_reality = 60;
                     }
                     else if ((context2.SpellDescriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) == (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80)
                     {
-                        if (RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100)) > 80)
-                        {
-                            __instance.CanApply = false;
-                            Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " avoids " + context2.SourceAbility.Name + " effect due to disbelief");
-                            return false;
-                        }
+                        illusion_reality = 80;
+                    }
+
+                    if (illusion_reality > 0 && RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100)) > illusion_reality)
+                    {
+                        __instance.CanApply = false;
+                        Common.AddBattleLogMessage(__instance.Initiator.CharacterName + " avoids " + context2.SourceAbility.Name + " effect due to disbelief");
+                        return false;
                     }
                 }
 

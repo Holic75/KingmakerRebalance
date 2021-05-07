@@ -315,6 +315,7 @@ namespace CallOfTheWild
                     CallOfTheWild.RogueTalents.test_mode = true;
 #endif
                     CallOfTheWild.Archetypes.UndeadLord.create();
+                    CallOfTheWild.Archetypes.Beastmorph.create();
                     CallOfTheWild.Summoner.createSummonerClass();
                     CallOfTheWild.Inquisitions.create(inquisitions_test);
                     CallOfTheWild.Hunter.createHunterClass();

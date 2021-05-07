@@ -550,12 +550,12 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintAbility))]
         public class AbilityTargetIsCaster : BlueprintComponent, IAbilityTargetChecker
         {
-
+            public bool not;
             public bool CanTarget(UnitEntityData caster, TargetWrapper target)
             {
                 UnitEntityData unit = target.Unit;
 
-                return target == caster;
+                return (target == caster) != not;
             }
         }
 
@@ -6285,6 +6285,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact fact;
             public ContextValue value;
             public ModifierDescriptor descriptor;
+            public bool only_from_caster;
 
             public void ruleSavingThrowBeforeTrigger(RuleSavingThrow evt)
             {
@@ -6310,9 +6311,19 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (!evt.Initiator.Descriptor.HasFact(fact))
+                if (only_from_caster)
                 {
-                    return;
+                    if (!evt.Initiator.Descriptor.Buffs.Enumerable.Any(b => b.Blueprint == fact && b.MaybeContext?.MaybeCaster == this.Fact.MaybeContext?.MaybeCaster))
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!evt.Initiator.Descriptor.HasFact(fact))
+                    {
+                        return;
+                    }
                 }
 
 
@@ -11367,6 +11378,7 @@ namespace CallOfTheWild
         {
             public DiceFormula RendDamage;
             private bool can_rend;
+            public WeaponCategory[] specific_categories;
 
             public override void OnTurnOn()
             {
@@ -11394,8 +11406,18 @@ namespace CallOfTheWild
                     return;
                 }
 
-                if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural || evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural) || (evt.Initiator.Body.PrimaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon || evt.Initiator.Body.SecondaryHand.Weapon == evt.Initiator.Body.EmptyHandWeapon))
+                if (!evt.Initiator.Body.PrimaryHand.HasWeapon || !evt.Initiator.Body.SecondaryHand.HasWeapon
+                    || (evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsNatural && (!evt.Initiator.Body.PrimaryHand.Weapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isMainHandUnarmedAndCanBeIgnored(evt.Initiator.Body.PrimaryHand.Weapon.Blueprint, evt.Initiator.Descriptor)))
+                    || (evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsNatural && (!evt.Initiator.Body.SecondaryHand.Weapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(evt.Initiator.Body.SecondaryHand.Weapon.Blueprint, evt.Initiator.Descriptor)))
+                    )
                     return;
+
+                if (!specific_categories.Empty()
+                    && !specific_categories.Contains(evt.Initiator.Body.PrimaryHand.MaybeWeapon.Blueprint.Category)
+                    && !specific_categories.Contains(evt.Initiator.Body.SecondaryHand.MaybeWeapon.Blueprint.Category)
+                    )
+                    return;
+
                 if (!evt.IsRend || !evt.AttackRoll.IsHit)
                     return;
                 if (this.Owner.Body.SecondaryHand.MaybeWeapon?.Blueprint == null)
