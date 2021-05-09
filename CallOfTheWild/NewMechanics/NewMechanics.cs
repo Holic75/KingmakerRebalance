@@ -1648,8 +1648,9 @@ namespace CallOfTheWild
                 }
 
                 var wielder_size = evt.Initiator.Descriptor.State.Size;
-                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
-                var base_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.BaseDamage  : WeaponDamageScaleTable.Scale(evt.Weapon.Blueprint.BaseDamage, wielder_size);
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
                 var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
@@ -1700,21 +1701,16 @@ namespace CallOfTheWild
                     dice_id = dice_formulas.Length - 1;
                 }
 
-                double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
-                var old_dice_formula = evt.Weapon.Blueprint.ScaleDamage(Size.Medium);
-                double current_avg_damage = (old_dice_formula.MaxValue(0) + old_dice_formula.MinValue(0)) / 2.0;
+                var wielder_size = evt.Initiator.Descriptor.State.Size;
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
-                var new_dmg_scaled = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], evt.Weapon.Size);
-                var old_dmg_scaled = evt.Weapon.Damage;
+                var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
-                double new_avg_dmg_scaled = (new_dmg_scaled.MinValue(0) + new_dmg_scaled.MaxValue(0)) / 2.0;
-                double current_avg_damage_scaled = (old_dmg_scaled.MaxValue(0) + old_dmg_scaled.MinValue(0)) / 2.0;
-
-                if (new_avg_dmg > current_avg_damage)
-                {
-                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
-                }
-                else if (new_avg_dmg_scaled > current_avg_damage_scaled)
+                var new_dmg_avg = new_dice.MinValue(0) + new_dice.MaxValue(0);
+                int current_dmg_avg = (base_dice.MaxValue(0) + base_dice.MinValue(0));
+                if (new_dmg_avg > current_dmg_avg)
                 {
                     evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
                 }
@@ -1760,8 +1756,9 @@ namespace CallOfTheWild
                 }
 
                 var wielder_size = evt.Initiator.Descriptor.State.Size;
-                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
-                var base_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.BaseDamage : WeaponDamageScaleTable.Scale(evt.Weapon.Blueprint.BaseDamage, wielder_size);
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
                 var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
