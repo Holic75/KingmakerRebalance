@@ -122,8 +122,8 @@ namespace CallOfTheWild
 
             hunter_class.LocalizedName = Helpers.CreateString("Hunter.Name", "Hunter");
             hunter_class.LocalizedDescription = Helpers.CreateString("Hunter.Description",
-                "Hunters are warriors of the wilds that have forged close bonds with trusted animal companions.They focus their tactics on fighting alongside their companion animals as a formidable team of two.Able to cast a wide variety of nature spells and take on the abilities and attributes of beasts, hunters magically improve both themselves and their animal companions.\n"
-                + "Role: Hunters can adapt their tactics to many kinds of opponents, and cherish their highly trained animal companions.As a team, the hunter and her companion can react to danger with incredible speed, making them excellent scouts, explorers, and saboteurs."
+                "Hunters are warriors of the wilds that have forged close bonds with trusted animal companions. They focus their tactics on fighting alongside their companion animals as a formidable team of two. Able to cast a wide variety of nature spells and take on the abilities and attributes of beasts, hunters magically improve both themselves and their animal companions.\n"
+                + "Role: Hunters can adapt their tactics to many kinds of opponents, and cherish their highly trained animal companions. As a team, the hunter and her companion can react to danger with incredible speed, making them excellent scouts, explorers, and saboteurs."
                 );
             hunter_class.m_Icon = ranger_class.Icon;
             hunter_class.SkillPoints = ranger_class.SkillPoints;
@@ -834,9 +834,10 @@ namespace CallOfTheWild
             createForesterTactician();
             createBreathOfLife();
 
-            var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");
-            
+            var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");            
             forester_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The forester can apply additional animal focus to herself.");
+            var forester_animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(forester_animal_focus_additional_use, "ForesterAnimalFocus2Feature", "");
+            var forester_animal_focus_additional_use3 = library.CopyAndAdd<BlueprintFeature>(forester_animal_focus_additional_use, "ForesterAnimalFocus3Feature", "");
             forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, forester_animal_focus_additional_use),
                                                                 Helpers.LevelEntry(2, bonus_feat_selection),
                                                                 Helpers.LevelEntry(3, forester_tactician),
@@ -844,6 +845,7 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(5, forester_favored_terrain_selection),
                                                                 Helpers.LevelEntry(6, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(7, camouflage, bonus_feat_selection),
+                                                                Helpers.LevelEntry(8, forester_animal_focus_additional_use2),
                                                                 Helpers.LevelEntry(9, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(10, forester_favored_enemy_selection, forester_breath_of_life),
                                                                 Helpers.LevelEntry(11, improved_evasion),
@@ -851,14 +853,16 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(14, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(17, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(18, forester_favored_enemy_selection),
-                                                                Helpers.LevelEntry(19, bonus_feat_selection)
+                                                                Helpers.LevelEntry(19, bonus_feat_selection),
+                                                                Helpers.LevelEntry(20, forester_animal_focus_additional_use3)
                                                              };
 
 
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(bonus_feat_selection, bonus_feat_selection, bonus_feat_selection, bonus_feat_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection));
-           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_tactician, forester_breath_of_life, evasion, camouflage, improved_evasion));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_animal_focus_additional_use2, forester_animal_focus_additional_use3));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(forester_tactician, forester_breath_of_life, evasion, camouflage, improved_evasion));
         }
 
 

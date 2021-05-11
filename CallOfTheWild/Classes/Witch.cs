@@ -1299,7 +1299,7 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22", false,
                                          "ab395d2335d3f384e99dddee8562978f", //shocking grasp
-                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
+                                         NewSpells.flaming_sphere.AssetGuid,
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
                                          NewSpells.river_of_wind.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
@@ -1442,9 +1442,9 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4", false,
                                          "b065231094a21d14dbf1c3832f776871", //firebelly
-                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
+                                         NewSpells.flaming_sphere.AssetGuid,
                                          NewSpells.flashfire.AssetGuid,
-                                         "f72f8f03bf0136c4180cd1d70eb773a5", //controlled fireball
+                                         NewSpells.flaming_sphere_greater.AssetGuid,
                                          NewSpells.wall_of_fire.AssetGuid,
                                          "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
                                          "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", //sunbeam

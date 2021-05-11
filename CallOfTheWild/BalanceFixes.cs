@@ -73,6 +73,42 @@ namespace CallOfTheWild
             fixCleave();
 
             fixSpells();
+            fixCallLightningAndLightningStorm();
+        }
+
+
+        static void fixCallLightningAndLightningStorm()
+        {
+            //make call lightning and call lightning storm use move action for subsequent uses
+            var buff_cooldown = Helpers.CreateBuff("CallLightningCooldownBuff",
+                                                   "Call Lightning Cooldown",
+                                                   "",
+                                                   "50fd9ce8b6594ba49248016e27b6f4e2",
+                                                   null,
+                                                   null
+                                                   );
+            buff_cooldown.Stacking = StackingType.Replace;
+            
+            var call_lightning = library.Get<BlueprintAbility>("2a9ef0e0b5822a24d88b16673a267456");
+            var call_lightning_ability = library.Get<BlueprintAbility>("0bd54216d38852947930320f6269a9d7");
+
+            call_lightning_ability.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move;
+            call_lightning.SetDescription("Immediately upon completion of the spell, and once per round thereafter, you may call down a 6 - foot - wide, 30 - foot - long, vertical bolt of lightning that deals 3d6 points of electricity damage. The bolt of lightning flashes down in a vertical stroke at whatever target point you choose within the spell's range (measured from your position at the time). Any creature in the target square or in the path of the bolt is affected. You need not call a bolt of lightning immediately; other actions, even spellcasting, can be performed first. Each round after the first you may use a move action (concentrating on the spell) to call a bolt. Each time you cast a bolt, the spell's duration is reduced by one minute.");
+
+            var call_lightning_storm = library.Get<BlueprintAbility>("d5a36a7ee8177be4f848b953d1c53c84");
+            var call_lightning_storm_ability = library.Get<BlueprintAbility>("cad052ef098f9f247ab73ae4c37ac687");
+
+            call_lightning_storm_ability.ActionType = Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Move;
+            call_lightning_storm.SetDescription("This spell functions like call lightning, except that each bolt deals 5d6 points of electricity damage at long range, and you may call a maximum of 15 bolts.\n"
+                                                + call_lightning.Name + ": " + call_lightning.Description);
+
+            var apply_cooldown = Common.createContextActionApplyBuffToCaster(buff_cooldown, Helpers.CreateContextDuration(), dispellable: false, duration_seconds: 6);
+            var precast = Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_cooldown));
+
+            call_lightning.AddComponent(precast);
+            call_lightning_storm.AddComponent(precast);
+            call_lightning_ability.AddComponents(precast, Common.createAbilityCasterHasNoFacts(buff_cooldown));
+            call_lightning_storm_ability.AddComponents(precast, Common.createAbilityCasterHasNoFacts(buff_cooldown));
         }
 
 

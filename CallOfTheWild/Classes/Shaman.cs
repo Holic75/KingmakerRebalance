@@ -1156,7 +1156,6 @@ namespace CallOfTheWild
 
             var spells = new Common.ExtraSpellList(new Common.SpellId("14c90900b690cac429b229efdf416127", 1), //longstrider
                                                    new Common.SpellId("2c38da66e5a599347ac95b3294acbe00", 1), //true strike
-                                                   //new Common.SpellId(NewSpells.force_sword.AssetGuid, 2), //force sword,
                                                    new Common.SpellId(SpiritualWeapons.spiritual_weapon.AssetGuid, 2),
                                                    new Common.SpellId("464a7193519429f48b4d190acb753cf0", 2), //grace,
                                                    new Common.SpellId("5ab0d42fb68c9e34abae4921822b9d63", 3), //heroism
@@ -1176,7 +1175,7 @@ namespace CallOfTheWild
                                                );
             mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
                                                           "Mysteries of the past",
-                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Longstrider (1st), Force Sword (2nd), Grace (2nd), Heroism (3rd), Sands of Time(3rd), Phantasmal Killer (4th), Threefold Aspect (4th), Hold Monster(5th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Invisibility, Mass (7th), Prediction of Failure (8th), Temporal Stasis (8th), Heroic Invocation (9th), Time Stop (9th).",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Longstrider (1st), Spiritual Weapon (2nd), Grace (2nd), Heroism (3rd), Sands of Time(3rd), Spiritual Ally (4th), Threefold Aspect (4th), Hold Monster(5th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Invisibility, Mass (7th), Prediction of Failure (8th), Temporal Stasis (8th), Heroic Invocation (9th), Time Stop (9th).",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,
@@ -1537,6 +1536,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.stricken_heart.AssetGuid, 3),
                 new Common.SpellId( "fdcf7e57ec44f704591f11b45f4acf61", 3), //summon nature ally III
 
+                new Common.SpellId( NewSpells.ball_lightning.AssetGuid, 4), //ball lightning
                 new Common.SpellId( "41c9016596fe1de4faf67425ed691203", 4), //cure critical wounds
                 new Common.SpellId( "ef16771cb05d1344989519e87f25b3c5", 4), //divine power
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater

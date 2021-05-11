@@ -1853,7 +1853,6 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.warding_weapon.AssetGuid, 1),
                 new Common.SpellId( "2c38da66e5a599347ac95b3294acbe00", 1), //true strike - to compensate for missing spells
 
-                new Common.SpellId( NewSpells.aggressive_thundercloud.AssetGuid, 2), //instead of flaming sphere
                 new Common.SpellId( NewSpells.allied_cloak.AssetGuid, 2),
                 new Common.SpellId( NewSpells.animate_dead_lesser.AssetGuid, 2),
                 new Common.SpellId( "14ec7a4e52e90fa47a4c8d63c69fd5c1", 2), //blur
@@ -1863,6 +1862,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "e1291272c8f48c14ab212a599ad17aac", 2), //effortless armor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( "4709274b2080b6444a3c11c6ebbe2404", 2), //find traps
+                new Common.SpellId( NewSpells.flaming_sphere.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 //frost fall
                 new Common.SpellId( NewSpells.ghostbane_dirge.AssetGuid, 2),
@@ -1906,9 +1906,9 @@ namespace CallOfTheWild
                 new Common.SpellId( "f492622e473d34747806bdb39356eb89", 3), //slow
                 new Common.SpellId( SpiritualWeapons.twilight_knife.AssetGuid, 3),
 
-                new Common.SpellId( NewSpells.aggressive_thundercloud_greater.AssetGuid, 4), //instead of flaming sphere greater
                 new Common.SpellId( NewSpells.air_walk.AssetGuid, 4),
                 new Common.SpellId( NewSpells.arcane_eye.AssetGuid, 4),
+                new Common.SpellId( NewSpells.ball_lightning.AssetGuid, 4),
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "f72f8f03bf0136c4180cd1d70eb773a5", 4), //controlled blast fireball
@@ -1922,6 +1922,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
                 new Common.SpellId( NewSpells.fire_shield.AssetGuid, 4),
+                new Common.SpellId( NewSpells.flaming_sphere_greater.AssetGuid, 4),
                 new Common.SpellId( "0087fc2d64b6095478bc7b8d7d512caf", 4), //freedom of movement
                 new Common.SpellId( NewSpells.globe_of_invulnerability_lesser.AssetGuid, 4),
                 new Common.SpellId( "41e8a952da7a5c247b3ec1c2dbb73018", 4), //hold monster

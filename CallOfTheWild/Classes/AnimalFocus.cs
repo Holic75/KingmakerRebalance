@@ -71,6 +71,8 @@ namespace CallOfTheWild
         BlueprintArchetype allowed_archetype;
         int delay;
         string prefix;
+        BlueprintAbility apply_focus;
+        BlueprintAbilityResource focus_resource;
 
         public void initialize(BlueprintCharacterClass[] character_classes, BlueprintArchetype character_archetype, int lvl_delay, string name_prefix)
         {
@@ -388,7 +390,7 @@ namespace CallOfTheWild
             mouse_focus = createMouseFocus(summon_monster1.Icon, allowed_classes, allowed_archetype, 12 + delay);
             bull_focus = createScaledFocus(prefix + "BullFocus",
                                             "Animal Focus: Bull",
-                                            $"The character gains a +2 enhancement bonus to Strength. This bonus increases to +4 at {8+delay}th level and +6 at {15+delay}th level",
+                                            $"The character gains a +2 enhancement bonus to Strength. This bonus increases to +4 at {8 + delay}th level and +6 at {15 + delay}th level",
                                             "",
                                             "",
                                             bull_strength.Icon,
@@ -513,8 +515,7 @@ namespace CallOfTheWild
         }
 
 
-        Kingmaker.Designers.Mechanics.Facts.AddFeatureOnClassLevel[] createMouseFocus(UnityEngine.Sprite icon, BlueprintCharacterClass[] allowed_classes,
-                                                                                                      BlueprintArchetype archetype, int update_lvl)
+        AddFeatureOnClassLevel[] createMouseFocus(UnityEngine.Sprite icon, BlueprintCharacterClass[] allowed_classes,  BlueprintArchetype archetype, int update_lvl)
         {
             var evasion = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.Evasion>();
             var improved_evasion = Helpers.Create<Kingmaker.Designers.Mechanics.Facts.ImprovedEvasion>();
@@ -565,14 +566,14 @@ namespace CallOfTheWild
         }
 
 
-        Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility createScaledFocus(string name, string display_name, string description,
-                                                                                                      string buff_guid, string ability_guid,
-                                                                                                      UnityEngine.Sprite icon,
-                                                                                                      Kingmaker.Enums.ModifierDescriptor descriptor,
-                                                                                                      Kingmaker.EntitySystem.Stats.StatType stat_type,
-                                                                                                      (int, int)[] progression,
-                                                                                                      BlueprintCharacterClass[] allowed_classes,
-                                                                                                      BlueprintArchetype archetype)
+        BlueprintActivatableAbility createScaledFocus(string name, string display_name, string description,
+                                                      string buff_guid, string ability_guid,
+                                                      UnityEngine.Sprite icon,
+                                                      Kingmaker.Enums.ModifierDescriptor descriptor,
+                                                      Kingmaker.EntitySystem.Stats.StatType stat_type,
+                                                      (int, int)[] progression,
+                                                      BlueprintCharacterClass[] allowed_classes,
+                                                      BlueprintArchetype archetype)
         {
             BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueTypeExtender.MasterMaxClassLevelWithArchetype.ToContextRankBaseValueType(),
                                                                                                                       ContextRankProgression.Custom,
@@ -594,21 +595,18 @@ namespace CallOfTheWild
         }
 
 
-        Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility createScaledFocus(string name, string display_name, string description,
-                                                                                              string buff_guid, string ability_guid,
-                                                                                              UnityEngine.Sprite icon,
-                                                                                              BlueprintComponent comp,
-                                                                                              (int, int)[] progression,
-                                                                                              BlueprintCharacterClass[] allowed_classes,
-                                                                                              BlueprintArchetype archetype)
+        BlueprintActivatableAbility createScaledFocus(string name, string display_name, string description,
+                                                     string buff_guid, string ability_guid, UnityEngine.Sprite icon,
+                                                     BlueprintComponent comp, (int, int)[] progression, BlueprintCharacterClass[] allowed_classes,
+                                                     BlueprintArchetype archetype)
         {
             BlueprintComponent[] components = new BlueprintComponent[2]{ CallOfTheWild.Helpers.CreateContextRankConfig(ContextRankBaseValueType.MaxClassLevelWithArchetype,
-                                                                                                                      ContextRankProgression.Custom,
-                                                                                                                      classes: allowed_classes,
-                                                                                                                      archetype: archetype,
-                                                                                                                      customProgression: progression),
-                                                                                                                      comp
-                                                                     };
+                                                                                                                       ContextRankProgression.Custom,
+                                                                                                                       classes: allowed_classes,
+                                                                                                                       archetype: archetype,
+                                                                                                                       customProgression: progression),
+                                                                                                                       comp
+                                                                       };
             var focus = createToggleFocus(name,
                                           display_name,
                                           description,
@@ -621,9 +619,8 @@ namespace CallOfTheWild
 
 
 
-        Kingmaker.UnitLogic.ActivatableAbilities.BlueprintActivatableAbility createToggleFocus(string name, string display_name, string description,
-                                                                                                      string buff_guid, string ability_guid,
-                                                                                                      UnityEngine.Sprite icon, params BlueprintComponent[] components)
+        BlueprintActivatableAbility createToggleFocus(string name, string display_name, string description,
+                                                      string buff_guid, string ability_guid, UnityEngine.Sprite icon, params BlueprintComponent[] components)
         {
             var buff = CallOfTheWild.Helpers.CreateBuff(name + "Buff",
                                                          display_name,
@@ -633,7 +630,7 @@ namespace CallOfTheWild
                                                          null,
                                                          components);
 
-            var Focus = CallOfTheWild.Helpers.CreateActivatableAbility(name,
+            var focus = CallOfTheWild.Helpers.CreateActivatableAbility(name,
                                                                          display_name,
                                                                          description,
                                                                          ability_guid,
@@ -642,10 +639,10 @@ namespace CallOfTheWild
                                                                          Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.WithUnitCommand,
                                                                          Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
                                                                          null);
-            Focus.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
-            Focus.WeightInGroup = 1;
-            Focus.DeactivateImmediately = true;
-            return Focus;
+            focus.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
+            focus.WeightInGroup = 1;
+            focus.DeactivateImmediately = false;
+            return focus;
         }
     }
 }
