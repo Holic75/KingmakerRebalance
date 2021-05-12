@@ -603,7 +603,6 @@ Mod also changes stats of some npcs (optional)
 
 Notable differences from pnp:
 - witch sleep hex does not work on targets with more hd, than your character level; disturbing slumber and ice tomb do not have this limitation,
-- Hunters animal foci duration is unlimited and animal companion foci can not be reapplied to hunter upon animal companion death,
 - Primal companion hunter primal transformation duration is permanent and these evolutions can not be applied to hunter upon animal companion death,
 - fire focus, from planar focus feat deals 1d3 points of fire damage per 4 hunter levels,
 - cold focus from planar focus feat deals 1d4 points of cold damage per 4 hunter levels,
