@@ -575,6 +575,25 @@ namespace CallOfTheWild.CompanionMechanics
     }
 
 
+    [AllowedOn(typeof(BlueprintAbility))]
+    [AllowMultipleComponents]
+    public class AbilityCasterCompanionDeadOrCasterHasFact : BlueprintComponent, IAbilityCasterChecker
+    {
+        public bool not;
+        public BlueprintUnitFact fact;
+        public bool CorrectCaster(UnitEntityData caster)
+        {
+            var pet = caster?.Descriptor?.Pet;
+            return not != ((pet == null || pet.Descriptor.State.IsDead) || (fact != null && caster.Descriptor.HasFact(fact)));
+        }
+
+        public string GetReason()
+        {
+            return $"Companion is {(not ? "dead" : "alive")}";
+        }
+    }
+
+
 
 
 

@@ -47,6 +47,7 @@ namespace CallOfTheWild
         BlueprintActivatableAbility owl_focus;
         BlueprintActivatableAbility falcon_focus;
         BlueprintActivatableAbility snake_focus;
+        BlueprintActivatableAbility[] mouse_foci = new BlueprintActivatableAbility[0];
 
         BlueprintActivatableAbility crow_focus;
         BlueprintActivatableAbility shark_focus;
@@ -66,13 +67,15 @@ namespace CallOfTheWild
         BlueprintActivatableAbility planar_focus_good;
         BlueprintActivatableAbility planar_focus_evil;
 
-
         BlueprintCharacterClass[] allowed_classes;
         BlueprintArchetype allowed_archetype;
         int delay;
         string prefix;
-        BlueprintAbility apply_focus;
-        BlueprintAbilityResource focus_resource;
+
+        List<BlueprintBuff> apply_focus_buffs = new List<BlueprintBuff>();
+        List<BlueprintBuff> apply_focus_buffs_fixed_duration = new List<BlueprintBuff>();
+
+        Dictionary<BlueprintActivatableAbility, BlueprintBuff> toggle_buff_map = new Dictionary<BlueprintActivatableAbility, BlueprintBuff>();
 
         public void initialize(BlueprintCharacterClass[] character_classes, BlueprintArchetype character_archetype, int lvl_delay, string name_prefix)
         {
@@ -80,6 +83,102 @@ namespace CallOfTheWild
             allowed_archetype = character_archetype;
             delay = lvl_delay;
             prefix = name_prefix;
+        }
+
+
+        void fillDictionary(BlueprintActivatableAbility[] toggles)
+        {
+            foreach (var t in toggles)
+            {
+                if (toggle_buff_map.ContainsKey(t))
+                {
+                    continue;
+                }
+
+                var effect_buff = t.Buff;
+                toggle_buff_map.Add(t, effect_buff);
+
+                var enable_buff = library.CopyAndAdd(t.Buff, "Enable" + t.Buff.name, "");
+                enable_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+                t.Buff = enable_buff;
+
+                foreach (var b in apply_focus_buffs)
+                {
+                    Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(b, effect_buff, enable_buff);
+                }
+                foreach (var b in apply_focus_buffs_fixed_duration)
+                {
+                    Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffFixedDuration(b, effect_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), enable_buff);
+                }
+            }
+        }
+
+
+        public BlueprintAbility createApplyAnimalFocusAbility(string name, string display_name, string description, UnityEngine.Sprite icon,
+                                                              bool only_if_companion_is_dead = false,
+                                                              BlueprintUnitFact companion_dead_fact = null,
+                                                              BlueprintAbilityResource resource = null)
+        {
+            var buff = Helpers.CreateBuff(name + "Buff",
+                                          display_name,
+                                          description,
+                                          "",
+                                          icon,
+                                          null);
+            buff.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            foreach (var kv in toggle_buff_map)
+            {
+                if (resource == null)
+                {
+                    Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(buff, kv.Value, kv.Key.Buff);
+
+                }
+                else
+                {
+                    Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffFixedDuration(buff, kv.Value, Helpers.CreateContextDuration(1, DurationRate.Minutes), kv.Key.Buff);
+                }
+            }
+
+            var apply_buff = Common.createContextActionApplyBuff(buff, resource == null ? Helpers.CreateContextDuration() : Helpers.CreateContextDuration(1, DurationRate.Minutes),
+                                                                 dispellable: false, is_permanent: resource == null);
+            var ability = Helpers.CreateAbility(name + "Ability",
+                                                display_name,
+                                                description,
+                                                "",
+                                                icon,
+                                                AbilityType.Supernatural,
+                                                UnitCommand.CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                resource == null ? "Until rest" : Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(apply_buff)
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            if (resource != null)
+            {
+                ability.AddComponent(resource.CreateResourceLogic());
+                apply_focus_buffs_fixed_duration.Add(buff);
+            }
+            else
+            {
+                apply_focus_buffs.Add(buff);
+            }
+
+            if (only_if_companion_is_dead)
+            {
+                ability.AddComponent(Helpers.Create<CompanionMechanics.AbilityCasterCompanionDeadOrCasterHasFact>(a => a.fact = companion_dead_fact));
+
+                var context_actions = buff.GetComponent<AddFactContextActions>();
+                context_actions.NewRound = Helpers.CreateActionList(Helpers.CreateConditional(Helpers.CreateConditionsCheckerAnd(Helpers.Create<CompanionMechanics.ContextActionPetIsAlive>(),
+                                                                                                                                 Common.createContextConditionCasterHasFact(companion_dead_fact, false)
+                                                                                                                                 ),
+                                                                                             Helpers.Create<ContextActionRemoveSelf>()
+                                                                                             )
+                                                                   );
+            }
+
+            return ability;
         }
 
 
@@ -244,6 +343,7 @@ namespace CallOfTheWild
                                       FeatureGroup.None,
                                       Helpers.CreateAddFacts(foci)
                                       );
+            planar_focus_ac.HideInCharacterSheetAndLevelUp = true;
 
             planar_focus = Helpers.CreateFeature(prefix + "PlanarFocusFeature",
                                                  $"Planar Focus ({ext})",
@@ -255,8 +355,9 @@ namespace CallOfTheWild
                                                   Helpers.PrerequisiteStatValue(StatType.SkillLoreReligion, 5)
                                                   );
             //planar_focus.AddComponent(Common.createAddFeatToAnimalCompanion(planar_focus));
-            planar_focus.AddComponent(Common.createAddFeatureIfHasFact(prerequisite_to_share_with_ac, Common.createAddFeatToAnimalCompanion(planar_focus, "")));
+            planar_focus.AddComponent(Common.createAddFeatureIfHasFact(prerequisite_to_share_with_ac, Common.createAddFeatToAnimalCompanion(planar_focus_ac, "")));
 
+            fillDictionary(foci);
             library.AddFeats(planar_focus);
 
             return planar_focus;
@@ -265,7 +366,7 @@ namespace CallOfTheWild
 
 
 
-        public BlueprintFeature createFeykillerAnimalFocus()
+       public BlueprintFeature createFeykillerAnimalFocus(string description)
        {
             //remove bear, frog, monkey, mouse
             //add crow (+arcana), goat (+saves vs enchantment), shark (+lore nature), turtle (+ natural ac)
@@ -346,32 +447,34 @@ namespace CallOfTheWild
                                                );
 
 
-            BlueprintComponent animal_foci = CallOfTheWild.Helpers.CreateAddFacts(bull_focus,
-                                                                                       tiger_focus,
-                                                                                       falcon_focus,
-                                                                                       owl_focus,
-                                                                                       stag_focus,
-                                                                                       turtle_focus,
-                                                                                       crow_focus,
-                                                                                       shark_focus,
-                                                                                       goat_focus,
-                                                                                       moongoose_focus);
+            var foci = new BlueprintActivatableAbility[]{bull_focus,
+                                                        tiger_focus,
+                                                        falcon_focus,
+                                                        owl_focus,
+                                                        stag_focus,
+                                                        turtle_focus,
+                                                        crow_focus,
+                                                        shark_focus,
+                                                        goat_focus,
+                                                        moongoose_focus
+            };
 
 
 
             var inflict_light_wounds = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("e5cb4c4459e437e49a4cd73fde6b9063");
             var feat = CallOfTheWild.Helpers.CreateFeature(prefix + "FeykillerAnimalFocusFeature",
                                                             "Feykiller Animal Focus",
-                                                            "A feykiller emulates animals that grant her the ability to unmask fey trickery. She adds crow, goat, shark, moongoose and turtle to her animal focus ability instead of the bear, frog, monkey, mouse and snake choices.",
+                                                            description,
                                                             "",
                                                             inflict_light_wounds.Icon,
                                                             FeatureGroup.None,
-                                                            animal_foci);
+                                                            Helpers.CreateAddFacts(foci));
+            fillDictionary(foci);
             return feat;
         }
 
 
-        public BlueprintFeature createAnimalFocus()
+        public BlueprintFeature createAnimalFocus(string description)
         {
             var bull_strength = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("4c3d08935262b6544ae97599b3a9556d");
             var bear_endurance = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("a900628aea19aa74aad0ece0e65d091a");
@@ -493,24 +596,25 @@ namespace CallOfTheWild
                                                                             classes: allowed_classes, archetype: allowed_archetype));
 
 
-            BlueprintComponent animal_foci = CallOfTheWild.Helpers.CreateAddFacts(bull_focus,
-                                                                                       bear_focus,
-                                                                                       tiger_focus,
-                                                                                       falcon_focus,
-                                                                                       monkey_focus,
-                                                                                       owl_focus,
-                                                                                       frog_focus,
-                                                                                       stag_focus,
-                                                                                       snake_focus);
+            var foci = new BlueprintActivatableAbility[] {bull_focus,
+                                                          bear_focus,
+                                                          tiger_focus,
+                                                          falcon_focus,
+                                                          monkey_focus,
+                                                          owl_focus,
+                                                          frog_focus,
+                                                          stag_focus,
+                                                          snake_focus };
 
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
             var feat = CallOfTheWild.Helpers.CreateFeature(prefix + "AnimalFocusFeature",
                                                             "Animal Focus",
-                                                            "Character can take the focus of an animal as a swift action. She must select one type of animal to emulate, gaining a bonus or special ability based on the type of animal emulated and her level.",
+                                                            description,
                                                             "",
                                                             wildshape_wolf.Icon,
                                                             FeatureGroup.None,
-                                                            animal_foci, mouse_focus[0], mouse_focus[1]);
+                                                            Helpers.CreateAddFacts(foci), mouse_focus[0], mouse_focus[1]);
+            fillDictionary(foci.AddToArray(mouse_foci));
             return feat;
         }
 
@@ -562,6 +666,7 @@ namespace CallOfTheWild
                                                 };
             mouse_focus1f.IsClassFeature = true;
             mouse_focus2f.IsClassFeature = true;
+            mouse_foci = new BlueprintActivatableAbility[] { mouse_focus1, mouse_focus2 };
             return mouse_focus;
         }
 
@@ -636,12 +741,12 @@ namespace CallOfTheWild
                                                                          ability_guid,
                                                                          icon,
                                                                          buff,
-                                                                         Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.WithUnitCommand,
-                                                                         Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                                         Kingmaker.UnitLogic.ActivatableAbilities.AbilityActivationType.Immediately,
+                                                                         Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free,
                                                                          null);
             focus.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
             focus.WeightInGroup = 1;
-            focus.DeactivateImmediately = false;
+            focus.DeactivateImmediately = true;
             return focus;
         }
     }

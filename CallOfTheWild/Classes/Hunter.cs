@@ -47,6 +47,7 @@ namespace CallOfTheWild
         static  LibraryScriptableObject library => Main.library;
         static public BlueprintFeature animal_focus;
         static public BlueprintFeature animal_focus_ac;
+        static public BlueprintFeature animal_focus_permanent;
         static public BlueprintFeature animal_focus_additional_use;
         static public BlueprintFeature animal_focus_additional_use_ac;
         static public BlueprintFeature animal_focus_additional_use2;
@@ -71,6 +72,7 @@ namespace CallOfTheWild
         static public BlueprintFeature entropic_template;
         static public BlueprintFeature resolute_template;
 
+        static public BlueprintFeature forester_animal_focus;
         static public BlueprintFeature forester_tactician;
         static public BlueprintAbility tactician_ability;
 
@@ -95,14 +97,19 @@ namespace CallOfTheWild
         static public BlueprintAbilityResource wildshape_resource;
         static public BlueprintFeature extra_wildshape;
         static public BlueprintFeatureSelection precise_nature_ally;
+        static public BlueprintFeature feral_hunter_animal_focus;
 
         static public BlueprintArchetype totem_bonded;
         static public BlueprintFeatureSelection primeval_companion;
+        static public BlueprintBuff shared_strength_buff;
         static public BlueprintFeature shared_strength;
         static public BlueprintFeature shared_strength8;
         static public BlueprintFeature shared_strength20;
 
-
+        static public BlueprintAbility animal_focus_one_minute_ability;
+        static public BlueprintAbility animal_focus_permanent_ability;
+        static public BlueprintAbility animal_focus_companion_dead_ability;
+        static public BlueprintAbilityResource animal_focus_resource;
 
 
         internal static void createHunterClass()
@@ -114,10 +121,6 @@ namespace CallOfTheWild
             hunter_class.name = "HunterClass";
             library.AddAsset(hunter_class, "32486dcfda61462fbfd66b5644786b39");
 
-            var inquistor_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
-            var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
-            animal_focus_engine = new AnimalFocusEngine();
-            animal_focus_engine.initialize(new BlueprintCharacterClass[] { hunter_class, inquistor_class }, sacred_huntsmaster_archetype, 0, "");
             createAnimalFocusFeat();
 
             hunter_class.LocalizedName = Helpers.CreateString("Hunter.Name", "Hunter");
@@ -216,14 +219,17 @@ namespace CallOfTheWild
             var wolf = library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea");
             shared_strength = Helpers.CreateFeature("SharedStrengthTotemBondedFeature",
                                                     "Shared Strength",
-                                                    "At 1st level, the connection the totem-bonded has with her animal companion allows them to draw upon one another’s strength.\n"
-                                                    + "While the shared strength ability is active, the totem - bonded manifests one aspect of her animal companion drawn from the following list: +1 bonus to natural armor, +10 - foot bonus to speed, 2 claws(1d4), bite(1d6), gore(1d6), or slam(1d6); the natural attacks are all primary attacks, and the listed damage is for a Medium creature. The totem - bonded can select only a natural attack that her animal companion also has. At 8th level, the totem - bonded manifests two aspects of her animal companion, and she adds the following to her list of available aspects: +20 - foot bonus to speed, +2 bonus to natural armor, increased size (as enlarge person), and powerful charge. At 15th level, the damage dealt by any natural attacks granted by this ability increases by two die steps.\n"
+                                                    "At 1st level, the connection the totem-bonded has with her animal companion allows them to draw upon one another’s strength. The totem-bonded can activate this ability as a swift action, and she can use it for a number of minutes per day equal to her level. This duration does not need to be consecutive, but it must be spent in 1-minute increments.\n"
+                                                    + "While the shared strength ability is active, the totem - bonded manifests one aspect of her animal companion drawn from the following list: +1 bonus to natural armor, +10 - foot bonus to speed, 2 claws (1d4), bite (1d6), gore (1d6), or slam (1d6); the natural attacks are all primary attacks, and the listed damage is for a Medium creature. The totem - bonded can select only a natural attack that her animal companion also has. At 8th level, the totem - bonded manifests two aspects of her animal companion, and she adds the following to her list of available aspects: +20 - foot bonus to speed, +2 bonus to natural armor, increased size (as enlarge person), and powerful charge. At 15th level, the damage dealt by any natural attacks granted by this ability increases by two die steps.\n"
                                                     +  "A 20th level, the totem-bonded can apply up to three aspects.\n"
-                                                    + "A totem-bonded’s animal companion also benefits from the shared strength ability, and while it is active, the animal companion receives a +1 bonus on saving throws and +2 bonus on athletics, mobility, stealth and perception checks. At 8th level, the animal companion gains another +1 bonus on saving throws and a +2 bonus on skill checks. At 15th level, the animal companion’s bonuses on saving throws and skill checks increase to +3 and +6 respectively.",
+                                                    + "A totem-bonded’s animal companion also benefits from the shared strength ability, its the animal companion receives a +1 bonus on saving throws and +2 bonus on athletics, mobility, stealth and perception checks. At 8th level, the animal companion gains another +1 bonus on saving throws and a +2 bonus on skill checks. At 15th level, the animal companion’s bonuses on saving throws and skill checks increase to +3 and +6 respectively.",
                                                     "",
                                                     Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"), //abyssal strength
                                                     FeatureGroup.None
                                                    );
+
+
+
             //shared_strength.ReapplyOnLevelUp = true;
             shared_strength8 = library.CopyAndAdd(shared_strength, "SharedStrengthTotemBonded8Feature", "");
             shared_strength8.AddComponent(Common.createIncreaseActivatableAbilityGroupSize(ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup()));
@@ -244,6 +250,29 @@ namespace CallOfTheWild
                                                                             )
                                             );
             shared_strength.AddComponent(Helpers.Create<AddFeatureToCompanion>(a => a.Feature = shared_strength_ac));
+
+            shared_strength_buff = Helpers.CreateBuff("SharedStrengthTotemBondedBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null);
+            shared_strength_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var ability = Helpers.CreateAbility("SharedStrengthTotemBondedAbility",
+                                                shared_strength.Name,
+                                                shared_strength.Description,
+                                                "",
+                                                shared_strength.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(shared_strength_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                animal_focus_resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            shared_strength.AddComponents(Helpers.CreateAddFacts(ability), animal_focus_resource.CreateAddAbilityResource());
 
             addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("118fdd03e569a66459ab01a20af6811a"), true, bear, smilodon); //claw 1d4
             addSharedStrengthNaturalAttackToggle(library.Get<BlueprintItemWeapon>("f227a663a97671d4992460cffc6e6401"), false, bear, smilodon); //claw 1d8
@@ -278,11 +307,12 @@ namespace CallOfTheWild
                                     );
 
             var enlarge_buff = library.Get<BlueprintBuff>("4f139d125bb602f48bfaec3d3e1937cb");
-            var enlarge_toggle = Common.buffToToggle(enlarge_buff, CommandType.Swift, false);
+            var enlarge_toggle = Common.buffToToggle(enlarge_buff, CommandType.Free, true);
             enlarge_toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
             enlarge_toggle.SetDescription(shared_strength.Description);
             enlarge_toggle.SetName("Shared Strength: Increase Size");
             shared_strength8.AddComponent(Helpers.CreateAddFact(enlarge_toggle));
+            fixSharedStrengthToggle(enlarge_toggle);
 
             var powerful_charge_buff = Helpers.CreateBuff("PowerfulChargeSharedStrengthBuff",
                                                      "Shared Strength: Powerful Charge",
@@ -292,11 +322,23 @@ namespace CallOfTheWild
                                                      null,
                                                      Helpers.Create<NewMechanics.PowerfulChargeDouble>()
                                                      );
-            var powerful_charge_toggle = Common.buffToToggle(powerful_charge_buff, CommandType.Swift, false);
+            var powerful_charge_toggle = Common.buffToToggle(powerful_charge_buff, CommandType.Free, true);
             powerful_charge_toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
             var powerful_charge_feature = Common.ActivatableAbilityToFeature(powerful_charge_toggle);
             shared_strength8.AddComponent(Common.createAddFeatureIfHasFact(elk, powerful_charge_feature));
+            fixSharedStrengthToggle(powerful_charge_toggle);
+        }
 
+
+        static void fixSharedStrengthToggle(BlueprintActivatableAbility toggle)
+        {
+            var effect_buff = toggle.Buff;
+            var enable_buff = library.CopyAndAdd(toggle.Buff, "Enable" + toggle.Buff.name, "");
+            enable_buff.FxOnStart = new Kingmaker.ResourceLinks.PrefabLink();
+            enable_buff.ComponentsArray = new BlueprintComponent[0];
+            enable_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            toggle.Buff = enable_buff;
+            Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffFixedDuration(shared_strength_buff, effect_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), enable_buff);
         }
 
 
@@ -311,7 +353,7 @@ namespace CallOfTheWild
                                components
                                );
 
-            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+            var toggle = Common.buffToToggle(buff, CommandType.Free, true);
             toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
             if (minor)
             {
@@ -321,6 +363,8 @@ namespace CallOfTheWild
             {
                 shared_strength8.AddComponent(Helpers.CreateAddFact(toggle));
             }
+
+            fixSharedStrengthToggle(toggle);
         }
 
 
@@ -342,7 +386,7 @@ namespace CallOfTheWild
                 buff.AddComponent(Common.createAddAdditionalLimb(weapon));
             }
 
-            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+            var toggle = Common.buffToToggle(buff, CommandType.Free, true);
             toggle.Group = ActivatableAbilityGroupExtension.AnimalFocus.ToActivatableAbilityGroup();
             var feature = Common.ActivatableAbilityToFeature(toggle);
             feature.IsClassFeature = true;
@@ -361,6 +405,8 @@ namespace CallOfTheWild
                 a.required_facts = companion_types;
                 a.Feature = feature;
             }));
+
+            fixSharedStrengthToggle(toggle);
         }
 
 
@@ -376,7 +422,7 @@ namespace CallOfTheWild
             });
             Helpers.SetField(feral_hunter, "m_ParentClass", hunter_class);
             library.AddAsset(feral_hunter, "");
-            feral_hunter.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, hunter_animal_companion, animal_focus_ac),
+            feral_hunter.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, hunter_animal_companion, animal_focus, animal_focus_ac),
                                                                   Helpers.LevelEntry(2, precise_companion),
                                                                   Helpers.LevelEntry(3, hunter_tactics),
                                                                   Helpers.LevelEntry(6, hunter_teamwork_feat),
@@ -394,7 +440,8 @@ namespace CallOfTheWild
             createFeralHunterWildshape();
             createSummonNatureAlly();
             createPreciseNatureAlly();
-            var feral_hunter_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "FeralHunterAnimalFocusFeature", "");
+            feral_hunter_animal_focus = library.CopyAndAdd<BlueprintFeature>(animal_focus_permanent, "FeralHunterAnimalFocusFeature", "");
+            feral_hunter_animal_focus.SetNameDescription("Feral Hunter Animal Focus", "At 1st level, a feral hunter gains a limited ability to change her shape into hybrid animal forms. This functions as the animal focus class feature, except that the hunter always applies the animal aspect to herself, and there is no limit to this ability’s duration.");
 
             var wildshape_progression = Wildshape.addWildshapeProgression("FeralHuntterWildshapeProgression",
                                                               new BlueprintCharacterClass[] { hunter_class },
@@ -413,8 +460,7 @@ namespace CallOfTheWild
                                                               }
                                                               );
 
-            feral_hunter_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The feral hunter can apply additional animal focus to herself.");
-            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, /*feral_hunter_animal_focus_additional_use,*/ summon_nature_ally[0], wildshape_progression),
+            feral_hunter.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, feral_hunter_animal_focus, summon_nature_ally[0], wildshape_progression),
                                                                 Helpers.LevelEntry(2, precise_nature_ally),
                                                                 Helpers.LevelEntry(3, summon_nature_ally[1]),
                                                                 Helpers.LevelEntry(5, summon_nature_ally[2]),
@@ -426,7 +472,7 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(17, summon_nature_ally[8]),
                                                              };
 
-
+            hunter_progression.UIGroups[1].Features.Add(feral_hunter_animal_focus);
             hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(summon_nature_ally));
             hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(wild_shape[0], wild_shape[2], wild_shape[4]));
             hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(wild_shape[1], wild_shape[3], wild_shape[5]));
@@ -766,7 +812,7 @@ namespace CallOfTheWild
 
         static BlueprintFeature createFeykillerAnimalFocus()
         {
-            return animal_focus_engine.createFeykillerAnimalFocus();
+            return animal_focus_engine.createFeykillerAnimalFocus("A feykiller emulates animals that grant her the ability to unmask fey trickery. She adds crow, goat, mangoose, shark and turtle foci to her animal focus ability instead of the bear, frog, monkey, mouse, and snake.");
         }
 
 
@@ -774,14 +820,21 @@ namespace CallOfTheWild
         {
             var animal_growth = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("56923211d2ac95e43b8ac5031bab74d8");
             animal_focus_feykiller = createFeykillerAnimalFocus();
+            var animal_focus_feykiller_permanent = library.CopyAndAdd(animal_focus_feykiller, "AnimalCompanion" + animal_focus_feykiller.name, "");
+            animal_focus_feykiller.AddComponents(Helpers.CreateAddFacts(animal_focus_one_minute_ability, animal_focus_companion_dead_ability),
+                                                 animal_focus_resource.CreateAddAbilityResource());
+            animal_focus_feykiller_permanent.AddComponent(Helpers.CreateAddFacts(animal_focus_permanent_ability));
+
             animal_focus_feykiller_ac = Helpers.CreateFeature("FeykillerAnimalFocusAc",
                                                         "Feykiller Animal Focus (Animal Companion)",
                                                         "The character can apply animal focus to her animal companion.",
                                                         "23accdec89ac4ea8a3547d0ca0b5719a",
                                                         animal_growth.Icon,
                                                         FeatureGroup.None,
-                                                        Common.createAddFeatToAnimalCompanion(animal_focus_feykiller)
+                                                        Common.createAddFeatToAnimalCompanion(animal_focus_feykiller_permanent)
                                                         );
+            animal_focus_feykiller_ac.HideInCharacterSheetAndLevelUp = true;
+            animal_focus_feykiller_ac.HideInUI = true;
         }
 
         static void createForesterArchetype()
@@ -834,18 +887,13 @@ namespace CallOfTheWild
             createForesterTactician();
             createBreathOfLife();
 
-            var forester_animal_focus_additional_use = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use, "ForesterAnimalFocusFeature", "");            
-            forester_animal_focus_additional_use.SetNameDescription("Additional Animal Focus", "The forester can apply additional animal focus to herself.");
-            var forester_animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(forester_animal_focus_additional_use, "ForesterAnimalFocus2Feature", "");
-            var forester_animal_focus_additional_use3 = library.CopyAndAdd<BlueprintFeature>(forester_animal_focus_additional_use, "ForesterAnimalFocus3Feature", "");
-            forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, forester_animal_focus_additional_use),
+            forester_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, forester_animal_focus),
                                                                 Helpers.LevelEntry(2, bonus_feat_selection),
                                                                 Helpers.LevelEntry(3, forester_tactician),
                                                                 Helpers.LevelEntry(4, evasion),
                                                                 Helpers.LevelEntry(5, forester_favored_terrain_selection),
                                                                 Helpers.LevelEntry(6, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(7, camouflage, bonus_feat_selection),
-                                                                Helpers.LevelEntry(8, forester_animal_focus_additional_use2),
                                                                 Helpers.LevelEntry(9, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(10, forester_favored_enemy_selection, forester_breath_of_life),
                                                                 Helpers.LevelEntry(11, improved_evasion),
@@ -853,16 +901,14 @@ namespace CallOfTheWild
                                                                 Helpers.LevelEntry(14, forester_favored_enemy_selection),
                                                                 Helpers.LevelEntry(17, forester_favored_terrain_selection, forester_improved_favored_terrain_selection),
                                                                 Helpers.LevelEntry(18, forester_favored_enemy_selection),
-                                                                Helpers.LevelEntry(19, bonus_feat_selection),
-                                                                Helpers.LevelEntry(20, forester_animal_focus_additional_use3)
+                                                                Helpers.LevelEntry(19, bonus_feat_selection)
                                                              };
 
 
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(bonus_feat_selection, bonus_feat_selection, bonus_feat_selection, bonus_feat_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection, forester_favored_terrain_selection));
            hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection, forester_improved_favored_terrain_selection));
-           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroups(forester_animal_focus_additional_use, forester_animal_focus_additional_use2, forester_animal_focus_additional_use3));
-           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(forester_tactician, forester_breath_of_life, evasion, camouflage, improved_evasion));
+           hunter_progression.UIGroups = hunter_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(forester_animal_focus, forester_tactician, forester_breath_of_life, evasion, camouflage, improved_evasion));
         }
 
 
@@ -1716,6 +1762,13 @@ namespace CallOfTheWild
 
         static void createAnimalFocusFeat()
         {
+            var inquistor_class = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var sacred_huntsmaster_archetype = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintArchetype>("46eb929c8b6d7164188eb4d9bcd0a012");
+            animal_focus_engine = new AnimalFocusEngine();
+            animal_focus_engine.initialize(new BlueprintCharacterClass[] { hunter_class, inquistor_class }, sacred_huntsmaster_archetype, 0, "");
+            animal_focus_resource = Helpers.CreateAbilityResource("AnimalFocusResource", "", "", "", null);
+            animal_focus_resource.SetIncreasedByLevel(0, 1, new BlueprintCharacterClass[] { hunter_class, inquistor_class }, new BlueprintArchetype[] { sacred_huntsmaster_archetype });
+
             var wildshape_wolf = ResourcesLibrary.TryGetBlueprint<Kingmaker.Blueprints.Classes.BlueprintFeature>("19bb148cb92db224abb431642d10efeb");
             var acid_maw = ResourcesLibrary.TryGetBlueprint<Kingmaker.UnitLogic.Abilities.Blueprints.BlueprintAbility>("75de4ded3e731dc4f84d978fe947dc67");
             var animal_focus_additional_use_component = Helpers.Create<Kingmaker.UnitLogic.FactLogic.IncreaseActivatableAbilityGroupSize>();
@@ -1733,16 +1786,42 @@ namespace CallOfTheWild
             animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use.AssetGuid, "AdditionalAnimalFocus2Feature", "74e98c7274754ab98c9dc698e7f37e0e");
             animal_focus_additional_use2.SetName("Third Animal Focus");
 
-            animal_focus = animal_focus_engine.createAnimalFocus();
+            forester_animal_focus = Helpers.CreateFeature("ForesterAnimalFocus",
+                                                         "Forester Animal Focus",
+                                                         "As a forester has no animal companion, the aspects granted by this ability always apply to the forester herself, just as if a normal hunter’s companion were dead.",
+                                                         "",
+                                                         null,
+                                                         FeatureGroup.None
+                                                         );
 
+            animal_focus = animal_focus_engine.createAnimalFocus("At 1st level, a hunter can take on the aspect of an animal as a swift action. She must select one type of animal to emulate, gaining a bonus or special ability based on the type of animal emulated and her hunter level. The hunter can use this ability for a number of minutes per day equal to her level. This duration does not need to be consecutive, but must be spent in 1-minute increments. The hunter can emulate only one animal at a time.\n"
+                                                                 + "The hunter can also apply one of these aspects to her animal companion. Unlike with the hunter herself, there is no duration on the animal aspect applied to her animal companion. An aspect applied in this way does not count against the hunter’s minutes of duration per day—it remains in effect until the hunter changes it.\n"
+                                                                 + "If the hunter’s animal companion is dead, the hunter can apply her companion’s animal focus to herself instead of her animal companion. This is in addition to the normal one she can choose, and (as with a companion’s focus) remains in effect until the hunter changes it instead of counting against her minutes per day."
+                                                                );
+            animal_focus_one_minute_ability = animal_focus_engine.createApplyAnimalFocusAbility(animal_focus.name, animal_focus.Name, animal_focus.Description, animal_focus.Icon,
+                                                                                                resource: animal_focus_resource);
+
+            animal_focus_companion_dead_ability  = animal_focus_engine.createApplyAnimalFocusAbility("CompanionDead" + animal_focus.name, animal_focus.Name + " (Dead Companion)", animal_focus.Description, acid_maw.Icon,
+                                                                                                    only_if_companion_is_dead: true,
+                                                                                                    companion_dead_fact: forester_animal_focus);
+
+            animal_focus_permanent_ability = animal_focus_engine.createApplyAnimalFocusAbility("Permanent" + animal_focus.name, animal_focus.Name + " (Permanent)", animal_focus.Description, acid_maw.Icon);
+
+            animal_focus_permanent = library.CopyAndAdd(animal_focus, "AnimalCompanion" + animal_focus.name, "");
+            animal_focus.AddComponents(Helpers.CreateAddFacts(animal_focus_one_minute_ability, animal_focus_companion_dead_ability),
+                                       animal_focus_resource.CreateAddAbilityResource()
+                                       );
+            animal_focus_permanent.AddComponent(Helpers.CreateAddFacts(animal_focus_permanent_ability));
             animal_focus_ac = Helpers.CreateFeature("AnimalFocusAc",
-                                                        "Animal Focus (Animal Companion)",
-                                                        "The character can apply animal focus to her animal companion.",
-                                                        "5eea1e98d11c4acbafc1f9b4abf6cae6",
-                                                        acid_maw.Icon,
-                                                        FeatureGroup.None,
-                                                        Common.createAddFeatToAnimalCompanion(animal_focus)
-                                                        );
+                                                    "Animal Focus (Animal Companion)",
+                                                    "The character can apply animal focus to her animal companion.",
+                                                    "5eea1e98d11c4acbafc1f9b4abf6cae6",
+                                                    acid_maw.Icon,
+                                                    FeatureGroup.None,
+                                                    Common.createAddFeatToAnimalCompanion(animal_focus_permanent)
+                                                    );
+            animal_focus_ac.HideInCharacterSheetAndLevelUp = true;
+            animal_focus_ac.HideInUI = true;
             animal_focus_additional_use_ac = Helpers.CreateFeature("AdditonalAnimalFocusAc",
                                                         "Second Animal Focus (Animal Companion)",
                                                         "The character can apply one more animal focus to her animal companion.",
@@ -1753,13 +1832,13 @@ namespace CallOfTheWild
                                                         );
 
             animal_focus_additional_use_ac2 = Helpers.CreateFeature("AdditonalAnimalFocusAc2",
-                                            "Third Animal Focus (Animal Companion)",
-                                            "The character can apply one more animal focus to her animal companion.",
-                                            "db9c791a010f4401be344fe627b0a9f5",
-                                            acid_maw.Icon,
-                                            FeatureGroup.None,
-                                            Common.createAddFeatToAnimalCompanion(animal_focus_additional_use2)
-                                            );
+                                                                    "Third Animal Focus (Animal Companion)",
+                                                                    "The character can apply one more animal focus to her animal companion.",
+                                                                    "db9c791a010f4401be344fe627b0a9f5",
+                                                                    acid_maw.Icon,
+                                                                    FeatureGroup.None,
+                                                                    Common.createAddFeatToAnimalCompanion(animal_focus_additional_use2)
+                                                                    );
 
 
         }
