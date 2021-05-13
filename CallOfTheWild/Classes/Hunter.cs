@@ -441,7 +441,9 @@ namespace CallOfTheWild
             createSummonNatureAlly();
             createPreciseNatureAlly();
             feral_hunter_animal_focus = library.CopyAndAdd<BlueprintFeature>(animal_focus_permanent, "FeralHunterAnimalFocusFeature", "");
-            feral_hunter_animal_focus.SetNameDescription("Feral Hunter Animal Focus", "At 1st level, a feral hunter gains a limited ability to change her shape into hybrid animal forms. This functions as the animal focus class feature, except that the hunter always applies the animal aspect to herself, and there is no limit to this ability’s duration.");
+            feral_hunter_animal_focus.SetNameDescriptionIcon("Feral Hunter Animal Focus", 
+                                                             "At 1st level, a feral hunter gains a limited ability to change her shape into hybrid animal forms. This functions as the animal focus class feature, except that the hunter always applies the animal aspect to herself, and there is no limit to this ability’s duration.",
+                                                             animal_focus_ac.Icon);
 
             var wildshape_progression = Wildshape.addWildshapeProgression("FeralHuntterWildshapeProgression",
                                                               new BlueprintCharacterClass[] { hunter_class },

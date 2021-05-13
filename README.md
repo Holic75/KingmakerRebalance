@@ -220,7 +220,8 @@ Subdomains:
 - Restoration,
 - Curse,
 - Rage,
-- Archon (Good).
+- Archon (Good),
+- Demon (Chaos).
 
 
 New Wild Talents:
