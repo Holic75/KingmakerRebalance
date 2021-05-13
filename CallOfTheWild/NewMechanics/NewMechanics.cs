@@ -80,6 +80,38 @@ namespace CallOfTheWild
 {
     namespace NewMechanics
     {
+        public class ContextActionSavingThrowAgainstValue : ContextAction
+        {
+            public SavingThrowType Type;
+            public ActionList Success = new ActionList();
+            public ActionList Failure = new ActionList();
+            public ContextValue DC;
+
+            public override string GetCaption()
+            {
+                return "Saving throw " + (object)this.Type;
+            }
+
+            public override void RunAction()
+            {
+                if (this.Target.Unit == null)
+                {
+                    UberDebug.LogError((UnityEngine.Object)this, (object)"Can't use ContextActionSavingThrowAgainstValue because target is not an unit", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    RuleSavingThrow ruleSavingThrow = this.Context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Target.Unit, this.Type, DC.Calculate(this.Context)));
+                    if (ruleSavingThrow.IsPassed)
+                    {
+                        Success.Run();
+                    }
+                    else
+                    {
+                        Failure.Run();
+                    }
+                }
+            }
+        }
 
         [ComponentName("Increase spell descriptor DC by spell level up to BonusDC and then deals dc_increase d6 damage")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
@@ -453,11 +485,12 @@ namespace CallOfTheWild
         {
             public ModifierDescriptor Descriptor;
             public int Value;
+            public bool only_spells = true;
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 var caster = evt.Reason?.Caster;
-                if (caster == null || caster.IsPlayersEnemy)
+                if (caster == null || caster.IsPlayersEnemy || (only_spells && !(evt.Reason?.Ability?.Blueprint?.IsSpell).GetValueOrDefault()))
                     return;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
@@ -4830,9 +4863,6 @@ namespace CallOfTheWild
                 this.CheckSettings();
             }
         }
-
-
-
 
         [ComponentName("Increase specific spells CL")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -11084,6 +11114,21 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class CritAutoconfirm : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                evt.AutoCriticalConfirmation = true;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
 
         public class ContextActionRemoveBuffs : ContextAction
         {

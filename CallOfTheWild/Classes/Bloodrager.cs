@@ -2288,12 +2288,11 @@ namespace CallOfTheWild
                 var resource = Helpers.CreateAbilityResource(prefix + "DefyDeathResource", "", "", "", raise_dead.Icon);
                 resource.SetFixedResource(1);
 
-                var death_check = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSkillCheck>();
-                death_check.CustomDC = Common.createSimpleContextValue(20);
-                death_check.Stat = StatType.SaveFortitude;
-                death_check.Failure = Helpers.CreateActionList();
+                var death_check = Helpers.Create<NewMechanics.ContextActionSavingThrowAgainstValue>();
+                death_check.DC = 20;
+                death_check.Type = SavingThrowType.Fortitude;
                 death_check.Success = Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>());
-                death_check.UseCustomDC = true;
+
                 var defy_death_buff = Helpers.CreateBuff(prefix + "DefyDeathBuff",
                                    "Defy Death",
                                    "At 12th level, once per day when an attack or spell would result in your death, you can attempt a DC 20 Fortitude save. If you succeed, you are instead revived with 10% of health.",
@@ -2327,7 +2326,7 @@ namespace CallOfTheWild
                                                           shield_of_faith.Icon,
                                                           null,
                                                           Common.createCriticalConfirmationACBonus(100),
-                                                          Common.createCriticalConfirmationBonus(100)
+                                                          Helpers.Create<NewMechanics.CritAutoconfirm>()
                                                           );
                 unstoppable = Helpers.CreateFeature(prefix + "UnstoppableFeature",
                                                                                 unstoppable_buff.Name,

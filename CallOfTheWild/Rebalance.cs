@@ -48,6 +48,7 @@ using Kingmaker.UI.Common;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.Controllers.Brain.Blueprints;
+using System.Reflection;
 
 namespace CallOfTheWild
 {
@@ -2935,6 +2936,46 @@ namespace CallOfTheWild
                 return false;
             Traverse.Create(__instance).Field("m_Modifier").SetValue(__instance.Owner.Stats.BaseAttackBonus.AddModifier(num, (GameLogicComponent)__instance, ModifierDescriptor.None));
             return false;
+        }
+    }
+
+
+    //fix critical confirmation to always work on nat 20 and always fail on nat 1
+    [Harmony12.HarmonyPatch(typeof(RuleAttackRoll), "OnTrigger")]
+    class RuleAttackRoll_OnTrigger
+    {
+        static IEnumerable<Harmony12.CodeInstruction> Transpiler(IEnumerable<Harmony12.CodeInstruction> instructions)
+        {
+            var codes = instructions.ToList();
+            int set_is_critical_confirmed = -1;
+            for (int i = 0; i < codes.Count - 1; i++)
+            {
+                if ((codes[i].opcode == System.Reflection.Emit.OpCodes.Ldc_I4_1) 
+                    && codes[i + 1].opcode == System.Reflection.Emit.OpCodes.Call && codes[i + 1].operand.ToString().Contains("IsCriticalConfirmed"))
+                {
+                    set_is_critical_confirmed = i + 1;
+                    break;
+                }
+            }
+            if (set_is_critical_confirmed == -1)
+            {
+                Main.Error("Failed to set critical hit auto confirmation on natural 20.");
+            }
+
+            codes.Insert(set_is_critical_confirmed + 1, new CodeInstruction(System.Reflection.Emit.OpCodes.Call, new Action<RuleAttackRoll>(setIsCriticalConfirmed).Method));
+            codes.Insert(set_is_critical_confirmed + 1, new CodeInstruction(System.Reflection.Emit.OpCodes.Ldarg_0));
+            return codes.AsEnumerable();
+        }
+
+        static void setIsCriticalConfirmed(RuleAttackRoll rule)
+        {
+            var tr = Harmony12.Traverse.Create(rule);
+            bool result = rule.IsCriticalConfirmed || rule.CriticalConfirmationRoll == 20;
+            if (!rule.AutoCriticalConfirmation && !rule.AutoHit && rule.CriticalConfirmationRoll == 1)
+            {
+                result = false;
+            }
+            tr.Property("IsCriticalConfirmed").SetValue(result);
         }
     }
 }

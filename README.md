@@ -566,7 +566,8 @@ enchanced attacks,
 - Universalist wizard Metamagic Mastery changed to work as per pnp,
 - Unarmed Strike can be used as an off-hand weapon if you have both Two Weapon Fighting and Improved Unarmed Strike feats,
 - Full concealment now gives immunity to precision damage,
-- Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2.
+- Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2,
+- Critical hits are automatically confirmed on nat 20 confirmation roll and automatically failed on nat 1 confirmation rolls.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
