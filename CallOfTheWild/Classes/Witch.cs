@@ -123,6 +123,8 @@ namespace CallOfTheWild
         static public BlueprintAbility screech;
 
         static public BlueprintArchetype invoker;
+        static public BlueprintBuff invoke_patron_buff;
+        static public BlueprintAbilityResource invoke_patron_resource;
         static public BlueprintFeature invoke_patron;
         static public BlueprintFeature second_invocation;
 
@@ -252,6 +254,13 @@ namespace CallOfTheWild
 
         static void createInvokePatron()
         {
+            invoke_patron_buff = Helpers.CreateBuff("InvokePatronBuff",
+                                          "",
+                                          "",
+                                          "",
+                                          null,
+                                          null);
+            invoke_patron_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             var bondage = createPatronAspect("BondagePatronAspect",
                                              "Bondage",
                                              "The invoker gains a +2 enhancement bonus to her Strength. This bonus increases to +4 at 8th level and +6 at 16th level.",
@@ -389,12 +398,15 @@ namespace CallOfTheWild
                 bondage, bridge, crisis, curiosity, decisions, fortune, paradise, reckoning, revelation
             };
 
-            var description = "At 1st level, an invoker can invite spirits associated with her patron’s themes into her body and mind as a swift action. This functions like a hunter’s animal focus, except she emulates facets of her patron, chosen from the list below.";
+            var description = "At 1st level, an invoker can invite spirits associated with her patron’s themes into her body and mind as a swift action. This functions like a hunter’s animal focus, except she emulates facets of her patron, chosen from the list below. The invoker can use this ability for a number of minutes per day equal to her level; this duration need not be consecutive, but it must be spent in 1-minute increments.";
 
             foreach (var t in toggles)
             {
                 description += "\n" + t.Name + ": " + t.Description;
             }
+
+            invoke_patron_resource = Helpers.CreateAbilityResource("InvokePatronResource", "", "", "", null);
+            invoke_patron_resource.SetIncreasedByLevel(0, 1, getWitchArray());
 
             invoke_patron = Helpers.CreateFeature("InvokePatronFeature",
                                                   "Invoke Patron",
@@ -402,9 +414,26 @@ namespace CallOfTheWild
                                                   "",
                                                   Helpers.GetIcon("ef16771cb05d1344989519e87f25b3c5"),
                                                   FeatureGroup.None,
-                                                  Helpers.CreateAddFacts(toggles)
+                                                  Helpers.CreateAddFacts(toggles),
+                                                  invoke_patron_resource.CreateAddAbilityResource()
                                                   );
 
+            var ability = Helpers.CreateAbility("InvokePatronAbility",
+                                                invoke_patron.Name,
+                                                invoke_patron.Description,
+                                                "",
+                                                invoke_patron.Icon,
+                                                AbilityType.Supernatural,
+                                                CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneMinuteDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(invoke_patron_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                invoke_patron_resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+
+            invoke_patron.AddComponent(Helpers.CreateAddFact(ability));
             second_invocation = Helpers.CreateFeature("SecondInvocationInvokerFeature",
                                                       "Second Invocation",
                                                       "At 10th level, whenever an invoker uses her invoke patron ability, she selects two different facets of her patron for herself instead of one.",
@@ -419,7 +448,7 @@ namespace CallOfTheWild
         static BlueprintActivatableAbility createPatronAspect(string prefix, string display_name, string description, 
                                        UnityEngine.Sprite icon, params BlueprintComponent[] components)
         {
-            var buff = Helpers.CreateBuff(prefix + "Buff",
+            var effect_buff = Helpers.CreateBuff(prefix + "Buff",
                                           display_name,
                                           description,
                                           "",
@@ -428,9 +457,18 @@ namespace CallOfTheWild
                                           components
                                           );
 
-            var toggle = Common.buffToToggle(buff, CommandType.Swift, false);
+
+            var enable_buff = Helpers.CreateBuff("Enable" + effect_buff.name,
+                                                 effect_buff.Name,
+                                                 effect_buff.Description,
+                                                 "",
+                                                 effect_buff.Icon,
+                                                 null);
+            enable_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var toggle = Common.buffToToggle(enable_buff, CommandType.Free, true);
             toggle.Group = ActivatableAbilityGroupExtension.InvokePatron.ToActivatableAbilityGroup();
 
+            Common.addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffFixedDuration(invoke_patron_buff, effect_buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), enable_buff);
             return toggle;
         }
 
@@ -1299,7 +1337,7 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Elements", "1c19b61a30e34682b40261d29acd6ac3", "4f51c6e364be432f8e285893b4611b22", false,
                                          "ab395d2335d3f384e99dddee8562978f", //shocking grasp
-                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
+                                         NewSpells.flaming_sphere.AssetGuid,
                                          "2d81362af43aeac4387a3d4fced489c3", //fireball
                                          NewSpells.river_of_wind.AssetGuid,
                                          "f9910c76efc34af41b6e43d5d8752f0f", //flamestrike
@@ -1442,9 +1480,9 @@ namespace CallOfTheWild
                                         ),
                 createWitchPatronFeature("Summer", "abd76216790240a6b3a0ddda236d1f19", "31e196f567fb4426b0199350dcbb2ac4", false,
                                          "b065231094a21d14dbf1c3832f776871", //firebelly
-                                         "eaac3d36e0336cb479209a6f65e25e7c", //burning arc
+                                         NewSpells.flaming_sphere.AssetGuid,
                                          NewSpells.flashfire.AssetGuid,
-                                         "f72f8f03bf0136c4180cd1d70eb773a5", //controlled fireball
+                                         NewSpells.flaming_sphere_greater.AssetGuid,
                                          NewSpells.wall_of_fire.AssetGuid,
                                          "093ed1d67a539ad4c939d9d05cfe192c", //sirocco
                                          "1fca0ba2fdfe2994a8c8bc1f0f2fc5b1", //sunbeam

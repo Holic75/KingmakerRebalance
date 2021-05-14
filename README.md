@@ -220,7 +220,8 @@ Subdomains:
 - Restoration,
 - Curse,
 - Rage,
-- Archon (Good).
+- Archon (Good),
+- Demon (Chaos).
 
 
 New Wild Talents:
@@ -361,6 +362,7 @@ New spells:
 - Fiery Runes,
 - Flame Blade,
 - Flames of the Faithful,
+- Flaming Sphere, and Flaming Sphere, Greater,
 - Flurry of Snowballs,
 - Force Sword,
 - Ghost Touch,
@@ -421,6 +423,7 @@ New spells:
 - Arcane Eye,
 - Archon's Trumpet,
 - Aura of Doom,
+- Ball Lightning,
 - Battlemind Link,
 - Debilitating Portent,
 - Explosion of Rot,
@@ -563,7 +566,8 @@ enchanced attacks,
 - Universalist wizard Metamagic Mastery changed to work as per pnp,
 - Unarmed Strike can be used as an off-hand weapon if you have both Two Weapon Fighting and Improved Unarmed Strike feats,
 - Full concealment now gives immunity to precision damage,
-- Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2.
+- Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2,
+- Critical hits are automatically confirmed on nat 20 confirmation roll and automatically failed on nat 1 confirmation rolls.
 
 Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
@@ -601,7 +605,6 @@ Mod also changes stats of some npcs (optional)
 
 Notable differences from pnp:
 - witch sleep hex does not work on targets with more hd, than your character level; disturbing slumber and ice tomb do not have this limitation,
-- Hunters animal foci duration is unlimited and animal companion foci can not be reapplied to hunter upon animal companion death,
 - Primal companion hunter primal transformation duration is permanent and these evolutions can not be applied to hunter upon animal companion death,
 - fire focus, from planar focus feat deals 1d3 points of fire damage per 4 hunter levels,
 - cold focus from planar focus feat deals 1d4 points of cold damage per 4 hunter levels,

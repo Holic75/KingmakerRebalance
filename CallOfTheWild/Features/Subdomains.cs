@@ -77,6 +77,11 @@ namespace CallOfTheWild
         static public BlueprintProgression curse_domain_secondary;
         static public BlueprintProgression good_archon_domain;
         static public BlueprintProgression good_archon_domain_secondary;
+
+        static public BlueprintProgression chaos_demon_subdomain;
+        static public BlueprintProgression chaos_demon_subdomain_secondary;
+
+        //daemon ?
         public static void load()
         {
             createStormsDomain();
@@ -85,6 +90,82 @@ namespace CallOfTheWild
             createRageDomain();
             createCurseSubdomain();
             createArchonSubdomain();
+            createDemonSubdomain();
+        }
+
+
+        static void createDemonSubdomain()
+        {
+            var icon = Helpers.GetIcon("489c8c4a53a111d4094d239054b26e32"); //abyssal strength
+
+            var resource = Helpers.CreateAbilityResource("DemonSubdomainFuryOfAbyssResource", "", "", "", null);
+            resource.SetIncreasedByStat(3, StatType.Wisdom);
+
+            var buff = Helpers.CreateBuff("FuryOfAbyssBuff",
+                                          "Fury of the Abyss",
+                                          "As a swift action, you can give yourself an enhancement bonus equal to 1/2 your cleric level (minimum +1) on melee attacks, melee damage rolls, and combat maneuver checks. This bonus lasts for 1 round. During this round, you take a –2 penalty to AC. You can use this ability for a number of times per day equal to 3 + your Wisdom modifier.",
+                                          "",
+                                          icon,
+                                          Common.createPrefabLink("53c86872d2be80b48afc218af1b204d7"),
+                                          Common.createAttackTypeAttackBonus(Helpers.CreateContextValue(AbilityRankType.Default), AttackTypeAttackBonus.WeaponRangeType.Melee, ModifierDescriptor.Enhancement),
+                                          Helpers.Create<WeaponAttackTypeDamageBonus>(w => { w.AttackBonus = 1; w.Value = Helpers.CreateContextValue(AbilityRankType.Default); w.Type = AttackTypeAttackBonus.WeaponRangeType.Melee; w.Descriptor = ModifierDescriptor.Enhancement; }),
+                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2, classes: new BlueprintCharacterClass[] { cleric_class, inquisitor_class },
+                                                                          min: 1),
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.UntypedStackable)
+                                          );
+
+            var ability = Helpers.CreateAbility("FuryOfAbyssAbility",
+                                                buff.Name,
+                                                buff.Description,
+                                                "",
+                                                buff.Icon,
+                                                AbilityType.Supernatural,
+                                                Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Swift,
+                                                AbilityRange.Personal,
+                                                Helpers.oneRoundDuration,
+                                                "",
+                                                Helpers.CreateRunActions(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false)),
+                                                resource.CreateResourceLogic()
+                                                );
+            ability.setMiscAbilityParametersSelfOnly();
+            var feature = Common.AbilityToFeature(ability, false);
+            feature.AddComponent(resource.CreateAddAbilityResource());
+
+            var chaos_domain = library.Get<BlueprintProgression>("5a5d19c246961484a97e1e5dded98ab2");
+            var chaos_domain_secondary = library.Get<BlueprintProgression>("85e8db7e938d4f947a084a21d3535adf");
+
+            var chaos_domain_base = library.Get<BlueprintFeature>("0c9d931180a19a646bcf4165f66bd318");
+
+            var spell_list = library.CopyAndAdd<BlueprintSpellList>("2ff9831eb262758449287f820108428d", "DemonChaosSubdomainSpellList", "");
+            Common.excludeSpellsFromList(spell_list, a => false);
+            chaos_demon_subdomain = createSubdomain("DemonChaosSubdomain", "Demon (Chaos) Subdomain",
+                                                   "Your touch infuses life and weapons with chaos, and you revel in all things anarchic.\n" +
+                                                   $"{feature.Name}: {feature.Description}\n" +
+                                                   "Chaos Blade: At 8th level, you can give a weapon you touch the anarchic special weapon quality for a number of rounds equal to 1/2 your level in the class that gave you access to this domain. You can use this ability once per day at 8th level, and an additional time per day for every four levels beyond 8th.\n"
+                                                   + "Domain Spells: Protection from Law, Protection from Law Communal, Dispel Magic, Freedom of Movement, Acidic Spray, Banshee Blast, Word of Chaos, Cloak of Chaos, Summon Monster IX.",                                           
+                                                   chaos_domain,
+                                                   new BlueprintFeature[] { chaos_domain_base },
+                                                   new BlueprintFeature[] { feature },
+                                                   spell_list
+                                                   );
+            var evil_domain_allowed = library.Get<BlueprintFeature>("351235ac5fc2b7e47801f63d117b656c");
+            Common.replaceDomainSpell(chaos_demon_subdomain, library.Get<BlueprintAbility>("fbdd8c455ac4cde4a9a3e18c84af9485"), 1); //doom
+            Common.replaceDomainSpell(chaos_demon_subdomain, library.Get<BlueprintAbility>("97b991256e43bb140b263c326f690ce2"), 3); //rage
+            chaos_demon_subdomain.AddComponents(Helpers.PrerequisiteNoFeature(chaos_domain), Helpers.PrerequisiteFeature(evil_domain_allowed));
+
+            chaos_demon_subdomain_secondary = library.CopyAndAdd(chaos_demon_subdomain, "DemonChaosSubdomainSecondaryProgression", "");
+            chaos_demon_subdomain_secondary.RemoveComponents<LearnSpellList>();
+
+            chaos_demon_subdomain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(chaos_demon_subdomain),
+                                                 Helpers.PrerequisiteNoFeature(chaos_domain),
+                                                 Helpers.PrerequisiteNoFeature(chaos_domain_secondary));
+            chaos_demon_subdomain.AddComponents(Helpers.PrerequisiteNoFeature(chaos_demon_subdomain_secondary));
+
+            chaos_domain.AddComponents(Helpers.PrerequisiteNoFeature(chaos_demon_subdomain), Helpers.PrerequisiteNoFeature(chaos_demon_subdomain_secondary));
+            chaos_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(chaos_demon_subdomain), Helpers.PrerequisiteNoFeature(chaos_demon_subdomain_secondary));
+
+            cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(chaos_demon_subdomain);
+            cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(chaos_demon_subdomain_secondary);
         }
 
 
@@ -134,8 +215,11 @@ namespace CallOfTheWild
 
             good_archon_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain),
                                                  Helpers.PrerequisiteNoFeature(good_domain),
-                                                 Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
+                                                 Helpers.PrerequisiteNoFeature(good_domain_secondary));
             good_archon_domain.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
+
+            good_domain.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain), Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
+            good_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(good_archon_domain), Helpers.PrerequisiteNoFeature(good_archon_domain_secondary));
 
             cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(good_archon_domain);
             cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(good_archon_domain_secondary);
@@ -210,7 +294,8 @@ namespace CallOfTheWild
             curse_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain),
                                                  Helpers.PrerequisiteNoFeature(luck_domain),
                                                  Helpers.PrerequisiteNoFeature(luck_domain_secondary));
-            restoration_domain.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain_secondary));
+            luck_domain.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain_secondary), Helpers.PrerequisiteNoFeature(curse_domain));
+            luck_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(curse_domain_secondary), Helpers.PrerequisiteNoFeature(curse_domain));
 
             cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(curse_domain);
             cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(curse_domain_secondary);
@@ -305,8 +390,8 @@ namespace CallOfTheWild
             destruction_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(rage_domain), Helpers.PrerequisiteNoFeature(rage_domain_secondary));
 
             var destruction_domain_base = rage_domain.LevelEntries[0].Features[0];
-            var destruction_domain_base_ability = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
-            destruction_domain_base.SetNameDescription(destruction_domain_base_ability.Name, destruction_domain_base_ability.Description);
+            //var destruction_domain_base_ability = library.Get<BlueprintActivatableAbility>("e69898f762453514780eb5e467694bdb");
+            //destruction_domain_base.SetNameDescription(destruction_domain_base_ability.Name, destruction_domain_base_ability.Description);
 
             var spells_feature_druid = library.CopyAndAdd<BlueprintFeature>("01c9f3756c9d2e1488b6a2d29dd9d37f", "RageDomainSpellListDruidFeature", "");
             spells_feature_druid.ReplaceComponent<AddSpecialSpellList>(a => a.SpellList = spell_list);
@@ -392,6 +477,8 @@ namespace CallOfTheWild
                                                  Helpers.PrerequisiteNoFeature(healing_domain),
                                                  Helpers.PrerequisiteNoFeature(healing_domain_secondary));
             restoration_domain.AddComponents(Helpers.PrerequisiteNoFeature(restoration_domain_secondary));
+            healing_domain.AddComponents(Helpers.PrerequisiteNoFeature(restoration_domain), Helpers.PrerequisiteNoFeature(restoration_domain_secondary));
+            healing_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(restoration_domain), Helpers.PrerequisiteNoFeature(restoration_domain_secondary));
 
             cleric_domain_selection.AllFeatures = cleric_domain_selection.AllFeatures.AddToArray(restoration_domain);
             cleric_secondary_domain_selection.AllFeatures = cleric_secondary_domain_selection.AllFeatures.AddToArray(restoration_domain_secondary);
@@ -469,8 +556,8 @@ namespace CallOfTheWild
             weather_domain_domain_druid.AddComponent(Helpers.PrerequisiteNoFeature(storm_domain_druid));
             weather_domain.AddComponents(Helpers.PrerequisiteNoFeature(storm_domain), Helpers.PrerequisiteNoFeature(storm_domain_secondary));
             weather_domain_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(storm_domain), Helpers.PrerequisiteNoFeature(storm_domain_secondary));
-            var weather_domain_base = library.Get<BlueprintFeature>("1c37869ee06ca33459f16f23f4969e7d");
-            weather_domain_base.SetNameDescription(library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"));
+            //var weather_domain_base = library.Get<BlueprintFeature>("1c37869ee06ca33459f16f23f4969e7d");
+            //weather_domain_base.SetNameDescription(library.Get<BlueprintAbility>("f166325c271dd29449ba9f98d11542d9"));
 
             var spells_feature_druid = library.CopyAndAdd<BlueprintFeature>("01c9f3756c9d2e1488b6a2d29dd9d37f", "StormsDomainSpellListDruidFeature", "");
             spells_feature_druid.ReplaceComponent<AddSpecialSpellList>(a => a.SpellList = spell_list);
@@ -570,8 +657,8 @@ namespace CallOfTheWild
 
             air_domain.AddComponents(Helpers.PrerequisiteNoFeature(lightning_domain), Helpers.PrerequisiteNoFeature(lightning_domain_secondary));
             air_domain_secondary.AddComponents(Helpers.PrerequisiteNoFeature(lightning_domain), Helpers.PrerequisiteNoFeature(lightning_domain_secondary));
-            var air_domain_base = library.Get<BlueprintFeature>("39b0c7db785560041b436b558c9df2bb");
-            air_domain_base.SetNameDescription(library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f"));
+            //var air_domain_base = library.Get<BlueprintFeature>("39b0c7db785560041b436b558c9df2bb");
+            //air_domain_base.SetNameDescription(library.Get<BlueprintAbility>("b3494639791901e4db3eda6117ad878f"));
 
             var spells_feature_druid = library.CopyAndAdd<BlueprintFeature>("01c9f3756c9d2e1488b6a2d29dd9d37f", "LightningDomainSpellListDruidFeature", "");
             spells_feature_druid.ReplaceComponent<AddSpecialSpellList>(a => a.SpellList = spell_list);

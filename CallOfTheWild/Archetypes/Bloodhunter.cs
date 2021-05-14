@@ -204,17 +204,23 @@ namespace CallOfTheWild.Archetypes
             var animal_focus_engine = new AnimalFocusEngine();
             animal_focus_engine.initialize(new BlueprintCharacterClass[] { archetype.GetParentClass() }, archetype, 0, "BloodHunter");
 
-            var animal_focus = animal_focus_engine.createAnimalFocus();
+            var animal_focus = animal_focus_engine.createAnimalFocus("At 13th level, while in his favored terrain, blood hunter gains the benefits of the hunter’s animal focus class feature, with an effective hunter level equal to his blood hunter level. If blood hunter formed a bond with animal companion, he can also apply animal focus to it.");
             animal_focus.HideInCharacterSheetAndLevelUp = true;
+
+            var apply_focus_ability = animal_focus_engine.createApplyAnimalFocusAbility(animal_focus.name, "Apply Animal Focus (Permanent)", "This abilitiy applies selected animal foci.", animal_focus.Icon);
+            animal_focus.AddComponent(Helpers.CreateAddFact(apply_focus_ability));
+
+
             blessed_hunters_focus = Helpers.CreateFeature("BlessedHunterFocusBloodHunterFeature",
                                                           "Blessed Hunter's Focus",
-                                                          "At 13th level, while in his favored terrain, blood hunter gains the benefits of the hunter’s animal focus class feature, with an effective hunter level equal to his blood hunter level. If blood hunter formed a bond with animal companion, he can also apply animal focus to it.",
+                                                          "At 13th level, while in his favored terrain, blood hunter gains the benefits of the hunter’s animal focus class feature, with an effective hunter level equal to his blood hunter level. The chosen aspect remains active until changed. If blood hunter formed a bond with animal companion, he can also apply animal focus to it. The blood hunter can apply extra animal focus if his animal companion is dead.",
                                                           "",
                                                           animal_focus.Icon,
                                                           FeatureGroup.None,
                                                           Helpers.CreateAddFact(animal_focus),
                                                           Common.createAddFeatToAnimalCompanion(animal_focus)
                                                           );
+
             var ranger_ac_selection = library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7");
             var planar_focus = animal_focus_engine.createPlanarFocus("Blood Hunter", ranger_ac_selection);
             planar_focus.AddComponents(Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, 13));

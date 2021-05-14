@@ -326,7 +326,7 @@ namespace CallOfTheWild.Archetypes
             ability.Range = AbilityRange.Medium;
             Common.setAsFullRoundAction(ability);
             ability.SetNameDescription("Light Steps",
-                                       "At 6th level, a ninja learns to move while barely touching the surface underneath her. As a full-round action, she can move to any location within medium range, ignoring difficult terrain. While moving in this way, any surface will support her, no matter how much she weighs. This allows her to move across water, lava, or even the thinnest tree branches. She must end her move on a surface that can support her normally. She cannot move across air in this way, nor can she walk up walls or other vertical surfaces. When moving in this way, she does not take damage from surfaces or hazards that react to being touched, such as lava or caltrops, nor does she need to make Acrobatics checks to avoid falling on slippery or rough surfaces. Finally, when using light steps, the ninja ignores any mechanical traps that use a location-based trigger.");
+                                       "At 6th level, a ninja learns to move while barely touching the surface underneath her. As a full-round action, she can move to any location within medium range, ignoring difficult terrain. While moving in this way, any surface will support her, no matter how much she weighs. This allows her to move across water, lava, or even the thinnest tree branches. She must end her move on a surface that can support her normally. She cannot move across air in this way, nor can she walk up walls or other vertical surfaces. When moving in this way, she does not take damage from surfaces or hazards that react to being touched, such as lava or caltrops, nor does she need to make Mobility checks to avoid falling on slippery or rough surfaces. Finally, when using light steps, the ninja ignores any mechanical traps that use a location-based trigger.");
             light_steps = Common.AbilityToFeature(ability, false);
         }
 
@@ -665,11 +665,6 @@ namespace CallOfTheWild.Archetypes
            
             var fake_monk_class = library.CopyAndAdd<BlueprintCharacterClass>("e8f21e5b58e0569468e420ebea456124", "FakeNinjjaMonkClassForUnarmedCombatMastery", "");
             ClassToProgression.addClassToFeat(fake_monk_class, new BlueprintArchetype[] {}, ClassToProgression.DomainSpellsType.NoSpells, fist1d6, monk);
-
-            /*var unarmed1d8 = library.Get<BlueprintFeature>("8267a0695a4df3f4ca508499e6164b98");
-            var unarmed1d10 = library.Get<BlueprintFeature>("f790a36b5d6f85a45a41244f50b947ca");
-            var unarmed2d6 = library.Get<BlueprintFeature>("b3889f445dbe42948b8bb1ba02e6d949");
-            var unarmed2d8 = library.Get<BlueprintFeature>("078636a2ce835e44394bb49a930da230");*/
 
             var improved_unarmed_strike = library.Get<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167");
 

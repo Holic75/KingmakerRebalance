@@ -80,6 +80,38 @@ namespace CallOfTheWild
 {
     namespace NewMechanics
     {
+        public class ContextActionSavingThrowAgainstValue : ContextAction
+        {
+            public SavingThrowType Type;
+            public ActionList Success = new ActionList();
+            public ActionList Failure = new ActionList();
+            public ContextValue DC;
+
+            public override string GetCaption()
+            {
+                return "Saving throw " + (object)this.Type;
+            }
+
+            public override void RunAction()
+            {
+                if (this.Target.Unit == null)
+                {
+                    UberDebug.LogError((UnityEngine.Object)this, (object)"Can't use ContextActionSavingThrowAgainstValue because target is not an unit", (object[])Array.Empty<object>());
+                }
+                else
+                {
+                    RuleSavingThrow ruleSavingThrow = this.Context.TriggerRule<RuleSavingThrow>(new RuleSavingThrow(this.Target.Unit, this.Type, DC.Calculate(this.Context)));
+                    if (ruleSavingThrow.IsPassed)
+                    {
+                        Success.Run();
+                    }
+                    else
+                    {
+                        Failure.Run();
+                    }
+                }
+            }
+        }
 
         [ComponentName("Increase spell descriptor DC by spell level up to BonusDC and then deals dc_increase d6 damage")]
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
@@ -453,11 +485,12 @@ namespace CallOfTheWild
         {
             public ModifierDescriptor Descriptor;
             public int Value;
+            public bool only_spells = true;
 
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 var caster = evt.Reason?.Caster;
-                if (caster == null || caster.IsPlayersEnemy)
+                if (caster == null || caster.IsPlayersEnemy || (only_spells && !(evt.Reason?.Ability?.Blueprint?.IsSpell).GetValueOrDefault()))
                     return;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(this.Value * this.Fact.GetRank(), (GameLogicComponent)this, this.Descriptor));
@@ -1648,8 +1681,9 @@ namespace CallOfTheWild
                 }
 
                 var wielder_size = evt.Initiator.Descriptor.State.Size;
-                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
-                var base_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.BaseDamage  : WeaponDamageScaleTable.Scale(evt.Weapon.Blueprint.BaseDamage, wielder_size);
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
                 var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
@@ -1748,21 +1782,16 @@ namespace CallOfTheWild
                     dice_id = dice_formulas.Length - 1;
                 }
 
-                double new_avg_dmg = (dice_formulas[dice_id].MinValue(0) + dice_formulas[dice_id].MaxValue(0)) / 2.0;
-                var old_dice_formula = evt.Weapon.Blueprint.ScaleDamage(Size.Medium);
-                double current_avg_damage = (old_dice_formula.MaxValue(0) + old_dice_formula.MinValue(0)) / 2.0;
+                var wielder_size = evt.Initiator.Descriptor.State.Size;
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
-                var new_dmg_scaled = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], evt.Weapon.Size);
-                var old_dmg_scaled = evt.Weapon.Damage;
+                var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
-                double new_avg_dmg_scaled = (new_dmg_scaled.MinValue(0) + new_dmg_scaled.MaxValue(0)) / 2.0;
-                double current_avg_damage_scaled = (old_dmg_scaled.MaxValue(0) + old_dmg_scaled.MinValue(0)) / 2.0;
-
-                if (new_avg_dmg > current_avg_damage)
-                {
-                    evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
-                }
-                else if (new_avg_dmg_scaled > current_avg_damage_scaled)
+                var new_dmg_avg = new_dice.MinValue(0) + new_dice.MaxValue(0);
+                int current_dmg_avg = (base_dice.MaxValue(0) + base_dice.MinValue(0));
+                if (new_dmg_avg > current_dmg_avg)
                 {
                     evt.WeaponDamageDiceOverride = dice_formulas[dice_id];
                 }
@@ -1808,8 +1837,9 @@ namespace CallOfTheWild
                 }
 
                 var wielder_size = evt.Initiator.Descriptor.State.Size;
-                //scale weapon to the wielder size if need (note polymophs do not change their size, so their weapon dice is not supposed to scale)
-                var base_dice = evt.Initiator.Body.IsPolymorphed ? evt.Weapon.Blueprint.BaseDamage : WeaponDamageScaleTable.Scale(evt.Weapon.Blueprint.BaseDamage, wielder_size);
+                //scale weapon to the wielder size if need (note polymorphs do not change their size, so their weapon dice is not supposed to scale)
+                var base_damage = evt.WeaponDamageDiceOverride.HasValue ? evt.WeaponDamageDiceOverride.Value : evt.Weapon.Blueprint.BaseDamage;
+                var base_dice = evt.Initiator.Body.IsPolymorphed ? base_damage : WeaponDamageScaleTable.Scale(base_damage, wielder_size);
 
                 var new_dice = WeaponDamageScaleTable.Scale(dice_formulas[dice_id], wielder_size);
 
@@ -4882,9 +4912,6 @@ namespace CallOfTheWild
                 this.CheckSettings();
             }
         }
-
-
-
 
         [ComponentName("Increase specific spells CL")]
         [AllowedOn(typeof(BlueprintUnitFact))]
@@ -11182,6 +11209,21 @@ namespace CallOfTheWild
             {
             }
         }
+
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class CritAutoconfirm : RuleInitiatorLogicComponent<RuleAttackRoll>
+        {
+            public override void OnEventAboutToTrigger(RuleAttackRoll evt)
+            {
+                evt.AutoCriticalConfirmation = true;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+            }
+        }
+
 
         public class ContextActionRemoveBuffs : ContextAction
         {

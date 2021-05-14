@@ -660,15 +660,19 @@ namespace CallOfTheWild
             var animal_focus_additional_use2 = library.CopyAndAdd<BlueprintFeature>(animal_focus_additional_use.AssetGuid, "NaturalistAdditionalAnimalFocus2Feature", "");
             animal_focus_additional_use2.SetNameDescription("Third Animal Focus", "At 18th level, whenever a naturalist uses his animal focus ability, he can apply three different animal aspects to his eidolon");
 
-            var animal_focus = animal_focus_engine.createAnimalFocus();
+            var animal_focus = animal_focus_engine.createAnimalFocus("At 4th level, as a swift action a naturalist can enhance his eidolon with the aspect of an animal. Each time he uses this ability, he can select a hunter’s animal aspect and apply it to his eidolon. His hunter level for this ability is equal to his summoner level – 2. He does not gain the ability to add an animal aspect to himself (see Shared Focus, below).");
             var animal_focus_ac = Helpers.CreateFeature("NaturalistAnimalFocusAcFeature",
-                                                        "Animal Focus",
-                                                        "At 4th level, as a swift action a naturalist can enhance his eidolon with the aspect of an animal. Each time he uses this ability, he can select a hunter’s animal aspect and apply it to his eidolon. His hunter level for this ability is equal to his summoner level – 2. He does not gain the ability to add an animal aspect to himself (see Shared Focus, below). This effect lasts until the eidolon is dismissed or sent back to its home plane.",
-                                                        "",
-                                                        acid_maw.Icon,
-                                                        FeatureGroup.None,
-                                                        Common.createAddFeatToAnimalCompanion(animal_focus)
-                                                        );
+                                            "Animal Focus",
+                                            "At 4th level, as a swift action a naturalist can enhance his eidolon with the aspect of an animal. Each time he uses this ability, he can select a hunter’s animal aspect and apply it to his eidolon. His hunter level for this ability is equal to his summoner level – 2. He does not gain the ability to add an animal aspect to himself (see Shared Focus, below).",
+                                            "",
+                                            acid_maw.Icon,
+                                            FeatureGroup.None,
+                                            Common.createAddFeatToAnimalCompanion(animal_focus)
+                                            );
+
+            var apply_focus_ability = animal_focus_engine.createApplyAnimalFocusAbility(animal_focus.name, "Apply Animal Focus (Permanent)", "This abilitiy applies selected animal foci.", animal_focus.Icon);
+            animal_focus.AddComponent(Helpers.CreateAddFact(apply_focus_ability));
+
             var animal_focus_additional_use_ac = Helpers.CreateFeature("NaturalistAdditonalAnimalFocusAcFeature",
                                                                         animal_focus_additional_use.Name,
                                                                         animal_focus_additional_use.Description,
@@ -727,9 +731,9 @@ namespace CallOfTheWild
 
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(animal_focus_ac, animal_focus_additional_use_ac, shared_focus, animal_focus_additional_use_ac2));
 
+
             var planar_focus = animal_focus_engine.createPlanarFocus("Naturalist", animal_focus_ac);
             planar_focus.AddComponents(Common.createPrerequisiteArchetypeLevel(summoner_class, naturalist, 14));
-
         }
 
 

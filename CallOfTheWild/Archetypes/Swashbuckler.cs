@@ -131,7 +131,7 @@ namespace CallOfTheWild.Archetypes
         {
             daring = Helpers.CreateFeature("SwshbucklerRogueDaringFeature",
                                             "Daring",
-                                            "At 3rd level, a swashbuckler gains a +1 morale bonus on Acrobatics checks and saving throws against fear. This bonus increases by +1 for every 3 levels beyond 3rd. ",
+                                            "At 3rd level, a swashbuckler gains a +1 morale bonus on Mobility checks and saving throws against fear. This bonus increases by +1 for every 3 levels beyond 3rd. ",
                                             "",
                                             Helpers.GetIcon("4be5757b85af47545a5789f1d03abda9"), //mobility ability
                                             FeatureGroup.None,

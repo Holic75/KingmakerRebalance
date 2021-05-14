@@ -503,6 +503,17 @@ namespace CallOfTheWild
                     extra_evolution[i].AddComponent(Helpers.PrerequisiteClassLevel(character_class, i == 0 ? 1 : i * 5, any: true));
                 }
             }
+
+
+            //classes that can pick extra evolution should be unable to pick evolved companion
+            if (archetype == null)
+            {
+                evolved_companion.AddComponent(Helpers.Create<PrerequisiteMechanics.PrerequisiteNoClassLevelVisible>(p => p.CharacterClass = character_class));
+            }
+            else
+            {
+                evolved_companion.AddComponent(Common.prerequisiteNoArchetype(archetype));
+            }
         }
 
 

@@ -1083,10 +1083,6 @@ namespace CallOfTheWild
         static public void addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                               params BlueprintUnitFact[] facts)
         {
-            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
-            {
-                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
-            }*/
             var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionHasFact[facts.Length];
             for (int i = 0; i < facts.Length; i++)
             {
@@ -1098,13 +1094,23 @@ namespace CallOfTheWild
         }
 
 
+        static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffFixedDuration(BlueprintBuff target_buff, BlueprintBuff buff_to_add,
+                                                                                                     ContextDurationValue duration, params BlueprintUnitFact[] facts)
+        {
+            var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionCasterHasFact[facts.Length];
+            for (int i = 0; i < facts.Length; i++)
+            {
+                condition[i] = Common.createContextConditionCasterHasFact(facts[i]);
+            }
+            var action = Helpers.CreateConditional(condition, Common.createContextActionApplyBuff(buff_to_add, duration,
+                                                                                     dispellable: false, is_child: true, is_permanent: false));
+            addContextActionApplyBuffOnConditionToActivatedAbilityBuff(target_buff, action);
+        }
+
+
         static public void addContextActionApplyBuffOnCasterFactsToActivatedAbilityBuffNoRemove(BlueprintBuff target_buff, BlueprintBuff buff_to_add, Kingmaker.ElementsSystem.GameAction[] pre_actions,
                                                                       params BlueprintUnitFact[] facts)
         {
-            /*if (target_buff.GetComponent<AddFactContextActions>() == null)
-            {
-                target_buff.AddComponent(Helpers.CreateEmptyAddFactContextActions());
-            }*/
             var condition = new Kingmaker.UnitLogic.Mechanics.Conditions.ContextConditionCasterHasFact[facts.Length];
             for (int i = 0; i < facts.Length; i++)
             {

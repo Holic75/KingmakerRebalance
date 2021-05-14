@@ -13,6 +13,7 @@ using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Enums;
 using Kingmaker.Enums.Damage;
+using Kingmaker.ResourceLinks;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules.Damage;
 using Kingmaker.UnitLogic.Abilities;
@@ -304,6 +305,12 @@ namespace CallOfTheWild
         static public BlueprintAbility battlemind_link;
         static public BlueprintAbility litany_of_truth;
 
+
+        static public BlueprintAbility ball_lightning;
+        static public BlueprintBuff flaming_sphere_fx_buff;
+        static public BlueprintAbility flaming_sphere;
+        static public BlueprintAbility flaming_sphere_greater;
+
         //binding_earth; ?
         //binding_earth_mass ?
         //condensed ether ?
@@ -312,7 +319,6 @@ namespace CallOfTheWild
         //blood rage
         //etheric shards
         //tactical acumen
-        //flaming sphere (greater)
 
         static public void load()
         {
@@ -516,6 +522,107 @@ namespace CallOfTheWild
             createBattlemindLink();
             createLitanyOfTruth();
             //createMiracle();
+            createBallLightning();
+            createFlamingSphere();
+            createFlamingSphereGreater();
+        }
+
+
+        static void createFlamingSphere()
+        {
+            var icon = Helpers.GetIcon("f72f8f03bf0136c4180cd1d70eb773a5"); //controlled fireball
+            flaming_sphere_fx_buff = library.CopyAndAdd<BlueprintBuff>("18fa83a7b9990114792664df8dfc6b92", "FlamingSphereFxBuff", "");//fire theme base buff
+
+            flaming_sphere_fx_buff.ComponentsArray = new BlueprintComponent[0];
+            flaming_sphere_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            var fx = Common.createPrefabLink("af6fac67b4ed1b04dae392e92cb228cd");//red will o wisp fx
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3));
+
+            flaming_sphere = createFlamingSphereLikeSpell("FlamingSphere",
+                                                           "Flaming Sphere",
+                                                           $"A burning globe of fire rolls in whichever direction you point and burns those it strikes. As a move action you can move the sphere to any point within close range. If it enters a space that contains a creature, the sphere stops moving for the round and deals 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage to that creature, though a successful Reflex save negates that damage.\n"
+                                                           + "The sphere moves as long as you actively direct it (a move action for you); otherwise, it merely stays at rest and burns.",
+                                                           icon,
+                                                           fx,
+                                                           "Reflex Negates",
+                                                           flaming_sphere_fx_buff,
+                                                           SpellDescriptor.Fire,
+                                                           SpellSchool.Evocation,
+                                                           new GameAction[] { dmg },
+                                                           new BlueprintComponent[0]
+                                                           );
+
+            flaming_sphere.AddToSpellList(Helpers.magusSpellList, 2);
+            flaming_sphere.AddToSpellList(Helpers.druidSpellList, 2);
+            flaming_sphere.AddToSpellList(Helpers.wizardSpellList, 2);
+            flaming_sphere.AddSpellAndScroll("4b0ff254dca06894cba7eace7eef6bfe"); //controlled fireball
+        }
+
+
+        static void createFlamingSphereGreater()
+        {
+            var icon = Helpers.GetIcon("f72f8f03bf0136c4180cd1d70eb773a5"); //controlled fireball
+
+            var fx = Common.createPrefabLink("af6fac67b4ed1b04dae392e92cb228cd");//red will o wisp fx
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Fire, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 6));
+
+            var burning_buff = library.Get<BlueprintBuff>("e92ecaa76b5db674fa5b0aaff5b21bc9");
+            var apply_burn = Common.createContextActionApplyBuff(burning_buff, Helpers.CreateContextDuration(), is_from_spell: false, is_permanent: true, dispellable: false);
+            flaming_sphere_greater = createFlamingSphereLikeSpell("FlamingSphereGreater",
+                                                                   "Flaming Sphere, Greater",
+                                                                   $"This spell functions as flaming sphere, except that it deals 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage to any creature it strikes. Any creature that fails its save against the sphere catches on fire. If a creature catches on fire, the DC to extinguish the flames is equal to the DC of this spell.\n"
+                                                                   + flaming_sphere.Name + ": " + flaming_sphere.Description,
+                                                                   icon,
+                                                                   fx,
+                                                                   "Reflex Negates",
+                                                                   flaming_sphere_fx_buff,
+                                                                   SpellDescriptor.Fire,
+                                                                   SpellSchool.Evocation,
+                                                                   new GameAction[] { dmg, apply_burn },
+                                                                   new BlueprintComponent[0]
+                                                                   );
+
+            flaming_sphere_greater.AddToSpellList(Helpers.magusSpellList, 4);
+            flaming_sphere_greater.AddToSpellList(Helpers.druidSpellList, 4);
+            flaming_sphere_greater.AddToSpellList(Helpers.wizardSpellList, 4);
+            flaming_sphere_greater.AddSpellAndScroll("4b0ff254dca06894cba7eace7eef6bfe"); //controlled fireball
+        }
+
+
+        static void createBallLightning()
+        {
+            var icon = Helpers.GetIcon("cb2d9e6355dd33940b2bef49e544b0bf"); //extended range
+            var fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1");//will o wisp fx
+         
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+
+            var fx_buff = library.CopyAndAdd<BlueprintBuff>("bedf9d0d6be45bb4eb197b83e2ad38ee", "BallLightningFxBuff", "");
+            fx_buff.ComponentsArray = new BlueprintComponent[0];
+            fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            ball_lightning = createFlamingSphereLikeSpell("BallLightning",
+                                                            "Ball Lightning",
+                                                            "You create a globe of lightning that flies in whichever direction you indicate.\n"
+                                                            + $"If the globe enters a space with a creature, it stops moving for the round and deals 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to that creature, though a successful Reflex save negates the damage. Creatures wearing metal armor take a –4 penalty on this saving throw.\n"
+                                                            + $"For every 4 caster levels above 7th, the damage increase by an additional 3d{BalanceFixes.getDamageDieString(DiceType.D6)} (9d{BalanceFixes.getDamageDieString(DiceType.D6)} at 11th, 12d{BalanceFixes.getDamageDieString(DiceType.D6)} at 15th, to the maximum of 15{BalanceFixes.getDamageDieString(DiceType.D6)} at 19th)\n"
+                                                            + "The globe moves as long as you actively direct it (as a move action) ; otherwise it stays at rest.",
+                                                            icon,
+                                                            Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"),//will o wisp fx
+                                                            "Reflex Negates",
+                                                            fx_buff,
+                                                            SpellDescriptor.Electricity,
+                                                            SpellSchool.Evocation,
+                                                            new GameAction[] { dmg },
+                                                            new BlueprintComponent[] {Helpers.CreateContextRankConfig(ContextRankBaseValueType.CasterLevel, ContextRankProgression.Custom, AbilityRankType.DamageDice,
+                                                                                                                        customProgression: new (int, int)[] {(10, 6), (14, 9), (18, 12), (20, 15) })
+                                                                                    },
+                                                            Helpers.CreateConditionsCheckerOr(Helpers.Create<NewMechanics.ContextConditionTargetHasMetalArmor>()),
+                                                            4
+                                                            );
+
+            ball_lightning.AddToSpellList(Helpers.magusSpellList, 4);
+            ball_lightning.AddToSpellList(Helpers.druidSpellList, 4);
+            ball_lightning.AddToSpellList(Helpers.wizardSpellList, 4);
+            ball_lightning.AddSpellAndScroll("9d6d963e1a2d2474db1a23250abeb170"); //lightning bolt
         }
 
 
@@ -4605,7 +4712,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("SleetStormBuff",
                               "Sleet Storm",
-                              "Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Acrobatics check. Failure means it can’t move in that round, while failure by 5 or more means it falls.\n"
+                              "Driving sleet blocks all sight (even darkvision) within it and causes the ground in the area to be icy. A creature can walk within or through the area of sleet at half normal speed with a DC 10 Mobility check. Failure means it can’t move in that round, while failure by 5 or more means it falls.\n"
                               + "Ranged attacks are impossible in the area.",
                               "",
                               icon,
@@ -4640,6 +4747,7 @@ namespace CallOfTheWild
             var check_movement = Helpers.CreateConditional(Helpers.CreateConditionHasFact(immunity_to_wind, not: true),
                                                            Helpers.Create<SkillMechanics.ContextActionSkillCheckWithFailures>(c =>
                                                            {
+                                                               c.use_custom_dc = true;
                                                                c.custom_dc = 10;
                                                                c.Stat = StatType.SkillMobility;
                                                                c.Failure = Helpers.CreateActionList(apply_can_not_move);
@@ -4920,54 +5028,55 @@ namespace CallOfTheWild
         }
 
 
-        static void createAggressiveThunderCloudGreater()
+        static BlueprintAbility createFlamingSphereLikeSpell(string prefix, string name, string description, UnityEngine.Sprite icon,
+                                                    PrefabLink prefab, string savingthrow_description,
+                                                    BlueprintBuff fx_buff,
+                                                    SpellDescriptor descriptor, SpellSchool school, GameAction[] effects,
+                                                    BlueprintComponent[] extra_area_components,
+                                                    params BlueprintComponent[] caster_buff_components)
         {
-            var icon = library.Get<BlueprintAbility>("fc432e7a63f5a3545a93118af13bcb89").Icon;
+            return createFlamingSphereLikeSpell(prefix, name, description, icon,
+                                                 prefab, savingthrow_description,
+                                                 fx_buff,
+                                                 descriptor, school, effects,
+                                                 extra_area_components,
+                                                 null,
+                                                 0,
+                                                 caster_buff_components);
+        }
 
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudGreaterArea", "");
+        static BlueprintAbility createFlamingSphereLikeSpell(string prefix, string name, string description, UnityEngine.Sprite icon,
+                                                            PrefabLink prefab, string savingthrow_description,
+                                                            BlueprintBuff fx_buff,
+                                                            SpellDescriptor descriptor, SpellSchool school, GameAction[] effects,
+                                                            BlueprintComponent[] extra_area_components,
+                                                            ConditionsChecker extra_dc_increase_condition,
+                                                            int extra_dc_increase,
+                                                            params BlueprintComponent[] caster_buff_components)
+        {
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", prefix + "Area", "");
             area.Size = 2.Feet();
-            area.Fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1");//will o wisp fx
+            area.Fx = prefab;
 
-
-            var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AggressiveThundercloudGreaterStunBuff", "");
-            stunned.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
-            var caster_dmg_done = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterDamageDoneBuff",
-                                                      "Aggressive Thundercloud Greater (Attacked This Turn)",
-                                                      "",
-                                                      "",
-                                                      icon,
-                                                      null
-                                                      );
-
-            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 6));
-
-
-            
-            var apply_stun = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
-
-            var stun_allowed = Helpers.CreateBuff("AggressiveThundercloudGreaterStunAllowedBuff",
-                                                  "",
-                                                  "",
-                                                  "",
-                                                  null,
-                                                  null
-                                                  );
-            stun_allowed.SetBuffFlags(BuffFlags.HiddenInUi);
-
-            var stun_action = Helpers.CreateConditional(new Condition[]{Common.createContextConditionCasterHasFact(stun_allowed) },
-                                                        new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Fortitude,
-                                                                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_stun))
-                                                                                                               ),
-                                                                         Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(stun_allowed))
-                                                                         }
-                                                       );
+            var caster_dmg_done = Helpers.CreateBuff(prefix + "CasterDamageDoneBuff",
+                                                     $"{name} (Attacked This Turn)",
+                                                     "",
+                                                     "",
+                                                     icon,
+                                                     null
+                                                     );
 
             var dmg_save_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
                                                                                             Helpers.CreateActionList(Helpers.CreateConditionalSaved(new GameAction[0],
-                                                                                                                                                    new GameAction[] { dmg, stun_action }
+                                                                                                                                                    effects
                                                                                                                                                    )
                                                                                             )
                                                                          );
+            if (extra_dc_increase_condition != null)
+            {
+                Common.addConditionalDCIncrease(dmg_save_action, extra_dc_increase_condition, extra_dc_increase);
+            }
+
             var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
                                                       new GameAction[0],
                                                       new GameAction[]{dmg_save_action,
@@ -4983,20 +5092,20 @@ namespace CallOfTheWild
                                                                                             a.UnitEnter = dmg_action;
                                                                                             }
                                                                                       ),
-                Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = thunder_cloud_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
+                Helpers.CreateSpellDescriptor(descriptor),
+                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
             };
+            area.AddComponents(extra_area_components);
             area.SpellResistance = true;
 
 
-            var caster_buff = Helpers.CreateBuff("AggressiveThundercloudGreaterCasterBuff",
-                                                  "Aggressive Thundercloud, Greater",
-                                                  $"This spell functions as aggressive thundercloud, except it deals 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
-                                                  + "Aggressive Thundercloud: " + aggressive_thundercloud.Description,
+            var caster_buff = Helpers.CreateBuff(prefix + "CasterBuff",
+                                                  name,
+                                                  description,
                                                   "",
                                                   icon,
                                                   null,
-                                                  Helpers.CreateAddFactContextActions(Common.createContextActionApplyBuff(stun_allowed, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false))
+                                                  caster_buff_components
                                                   );
             caster_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.RemoveUniqueArea>(a => a.feature = caster_buff)));
             area.AddComponent(Helpers.Create<UniqueAreaEffect>(u => u.Feature = caster_buff));
@@ -5004,9 +5113,9 @@ namespace CallOfTheWild
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
 
 
-            var move_ability = Helpers.CreateAbility("AggressiveThundercloudGreaterMoveAbility",
-                                                     "Aggressive Thundercloud, Greater",
-                                                     "Use this ability to move Aggressive Thundercloud, Greater area.",
+            var move_ability = Helpers.CreateAbility(prefix + "MoveAbility",
+                                                     name,
+                                                     $"Use this ability to move {name} area.",
                                                      "",
                                                      icon,
                                                      AbilityType.SpellLike,
@@ -5015,9 +5124,9 @@ namespace CallOfTheWild
                                                      "",
                                                      "",
                                                      Helpers.CreateRunActions(spawn_area),
-                                                     Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
-                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
+                                                     Common.createAbilityAoERadius(area.Size, TargetType.Any),
+                                                     Helpers.CreateSpellComponent(school),
+                                                     Helpers.CreateSpellDescriptor(descriptor),
                                                      Common.createAbilityCasterHasNoFacts(caster_dmg_done)
                                                      );
 
@@ -5029,35 +5138,78 @@ namespace CallOfTheWild
 
 
             var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
-            
 
-            aggressive_thundercloud_greater = Helpers.CreateAbility("AggressiveThundercloudGreaterAbility",
-                                                             caster_buff.Name,
-                                                             caster_buff.Description,
-                                                             "",
-                                                             icon,
-                                                             AbilityType.Spell,
-                                                             UnitCommand.CommandType.Standard,
-                                                             AbilityRange.Medium,
-                                                             Helpers.roundsPerLevelDuration,
-                                                             "Reflex Negates; Fortitude Negates",
-                                                             Helpers.CreateRunActions(spawn_area),
-                                                             Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
-                                                             Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                                                             Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
-                                                           );
 
-            aggressive_thundercloud_greater.setMiscAbilityParametersRangedDirectional();
-            aggressive_thundercloud_greater.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            aggressive_thundercloud_greater.SpellResistance = true;
+            var spell = Helpers.CreateAbility(prefix + "Ability",
+                                              caster_buff.Name,
+                                              caster_buff.Description,
+                                              "",
+                                              icon,
+                                              AbilityType.Spell,
+                                              UnitCommand.CommandType.Standard,
+                                              AbilityRange.Medium,
+                                              Helpers.roundsPerLevelDuration,
+                                              savingthrow_description,
+                                              Helpers.CreateRunActions(spawn_area),
+                                              Common.createAbilityAoERadius(area.Size, TargetType.Any),
+                                              Helpers.CreateSpellComponent(school),
+                                              Helpers.CreateSpellDescriptor(descriptor),
+                                              Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
+                                            );
+
+            spell.setMiscAbilityParametersRangedDirectional();
+            spell.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
+            spell.SpellResistance = true;
+
+            return spell;
+        }
+
+        static void createAggressiveThunderCloudGreater()
+        {
+            var icon = library.Get<BlueprintAbility>("fc432e7a63f5a3545a93118af13bcb89").Icon;
+            var fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1");//will o wisp fx
+            var stunned = library.CopyAndAdd<BlueprintBuff>("09d39b38bb7c6014394b6daced9bacd3", "AggressiveThundercloudGreaterStunBuff", "");
+            stunned.AddComponent(Helpers.CreateSpellDescriptor(SpellDescriptor.Sonic));
+
+            var stun_allowed = Helpers.CreateBuff("AggressiveThundercloudGreaterStunAllowedBuff",
+                                      "",
+                                      "",
+                                      "",
+                                      null,
+                                      null
+                                      );
+            stun_allowed.SetBuffFlags(BuffFlags.HiddenInUi);
+
+            var apply_stun = Common.createContextActionApplyBuff(stunned, Helpers.CreateContextDuration(1));
+            var stun_action = Helpers.CreateConditional(new Condition[] { Common.createContextConditionCasterHasFact(stun_allowed) },
+                                                        new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Fortitude,
+                                                                                                               Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, apply_stun))
+                                                                                                               ),
+                                                                         Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(stun_allowed))
+                                                                         }
+                                                       );
+            var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 6));
+
+            aggressive_thundercloud_greater = createFlamingSphereLikeSpell("AggressiveThundercloudGreater",
+                                                                           "Aggressive Thundercloud, Greater",
+                                                                           $"This spell functions as aggressive thundercloud, except it deals 6d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to any creature it strikes. The first creature damaged by the cloud is also stunned for 1 round (Fort negates); this is a sonic effect.\n"
+                                                                           + "Aggressive Thundercloud: " + aggressive_thundercloud.Description,
+                                                                           icon,
+                                                                           Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"),//will o wisp fx
+                                                                           "Reflex Negates; Fortitude Negates",
+                                                                           thunder_cloud_fx_buff,
+                                                                           SpellDescriptor.Electricity,
+                                                                           SpellSchool.Evocation,
+                                                                           new GameAction[] { dmg, stun_action },
+                                                                           new BlueprintComponent[0],
+                                                                           Helpers.CreateAddFactContextActions(Common.createContextActionApplyChildBuff(stun_allowed))
+                                                                           );
 
             aggressive_thundercloud_greater.AddToSpellList(Helpers.magusSpellList, 4);
             aggressive_thundercloud_greater.AddToSpellList(Helpers.druidSpellList, 4);
             aggressive_thundercloud_greater.AddToSpellList(Helpers.wizardSpellList, 4);
             aggressive_thundercloud_greater.AddSpellAndScroll("e8f59c0e2bbbb514db0dfff42dbdde91"); //jolting portent
         }
-
 
 
         static void createAggressiveThunderCloud()
@@ -5067,100 +5219,22 @@ namespace CallOfTheWild
             thunder_cloud_fx_buff = library.CopyAndAdd<BlueprintBuff>("bedf9d0d6be45bb4eb197b83e2ad38ee", "AggressiveThundercloudFxBuff", "");
             thunder_cloud_fx_buff.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }), };
             thunder_cloud_fx_buff.SetBuffFlags(BuffFlags.HiddenInUi);
-            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("3659ce23ae102ca47a7bf3a30dd98609", "AggressiveThundercloudArea", "");
-            area.Size = 2.Feet();
-            area.Fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"); //will o wisp fx
-
-            var caster_dmg_done = Helpers.CreateBuff("AggressiveThundercloudCasterDamageDoneBuff",
-                                      "Aggressive Thundercloud (Attacked This Turn)",
-                                      "",
-                                      "",
-                                      icon,
-                                      null
-                                      );
-
+            var fx = Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1");//will o wisp fx
             var dmg = Helpers.CreateActionDealDamage(DamageEnergyType.Electricity, Helpers.CreateContextDiceValue(BalanceFixes.getDamageDie(DiceType.D6), 3));
-            var dmg_action = Helpers.CreateActionList(Helpers.CreateConditional(Common.createContextConditionCasterHasFact(caster_dmg_done),
-                                                     new GameAction[0], 
-                                                     new GameAction[]{Common.createContextActionSavingThrow(SavingThrowType.Reflex, Helpers.CreateActionList(Helpers.CreateConditionalSaved(null, dmg))),
-                                                                        Common.createContextActionApplyBuffToCaster(caster_dmg_done, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 6)
-                                                                       }
-                                                                       )
-                                                      );
 
-            area.ComponentsArray = new BlueprintComponent[]
-            {            
-                Helpers.Create<NewMechanics.AbilityAreaEffectRunActionWithFirstRound>(a => {a.FirstRound = dmg_action;
-                                                                                            a.Round = dmg_action;
-                                                                                            a.UnitEnter = dmg_action;
-                                                                                            }
-                                                                                      ),
-                Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                Helpers.Create<AbilityAreaEffectBuff>(a => {a.Buff = thunder_cloud_fx_buff; a.Condition = Helpers.CreateConditionsCheckerOr(); })
-            };
-            area.SpellResistance = true;
-
-            var caster_buff = Helpers.CreateBuff("AggressiveThundercloudCasterBuff",
-                                                  "Aggressive Thundercloud",
-                                                  $"A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
-                                                  + "You can move the sphere as a move action for you; otherwise, it stays at rest and crackles with lightning.",
-                                                  "",
-                                                  icon,
-                                                  null
-                                                  );
-            caster_buff.AddComponent(Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<NewMechanics.RemoveUniqueArea>(a => a.feature = caster_buff)));
-            area.AddComponent(Helpers.Create<UniqueAreaEffect>(u => u.Feature = caster_buff));
-
-            var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(100));
-
-
-            var move_ability = Helpers.CreateAbility("AggressiveThundercloudMoveAbility",
-                                                     "Aggressive Thundercloud",
-                                                     "Use this ability to move Aggressive Thundercloud area.",
-                                                     "",
-                                                     icon,
-                                                     AbilityType.SpellLike,
-                                                     UnitCommand.CommandType.Move,
-                                                     AbilityRange.Medium,
-                                                     "",
-                                                     "",
-                                                     Helpers.CreateRunActions(spawn_area),
-                                                     Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
-                                                     Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                                                     Common.createAbilityCasterHasNoFacts(caster_dmg_done)
-                                                     );
-
-            move_ability.setMiscAbilityParametersRangedDirectional();
-            move_ability.AvailableMetamagic = Metamagic.Empower | Metamagic.Heighten | Metamagic.Maximize | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-
-            caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
-            caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
-
-
-            var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
-
-
-            aggressive_thundercloud = Helpers.CreateAbility("AggressiveThundercloudAbility",
-                                                             caster_buff.Name,
-                                                             caster_buff.Description,
-                                                             "",
-                                                             icon,
-                                                             AbilityType.Spell,
-                                                             UnitCommand.CommandType.Standard,
-                                                             AbilityRange.Medium,
-                                                             Helpers.roundsPerLevelDuration,
-                                                             "Reflex Negates",
-                                                             Helpers.CreateRunActions(spawn_area),
-                                                             Common.createAbilityAoERadius(2.Feet(), TargetType.Any),
-                                                             Helpers.CreateSpellComponent(SpellSchool.Evocation),
-                                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Electricity),
-                                                             Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(apply_caster_buff))
-                                                           );
-
-            aggressive_thundercloud.setMiscAbilityParametersRangedDirectional();
-            aggressive_thundercloud.AvailableMetamagic = Metamagic.Empower | Metamagic.Extend | Metamagic.Heighten | Metamagic.Maximize | Metamagic.Quicken | Metamagic.Reach | (Metamagic)MetamagicFeats.MetamagicExtender.Rime | (Metamagic)MetamagicFeats.MetamagicExtender.Dazing | (Metamagic)MetamagicFeats.MetamagicExtender.Persistent | (Metamagic)MetamagicFeats.MetamagicExtender.Elemental | (Metamagic)MetamagicFeats.MetamagicExtender.Piercing;
-            aggressive_thundercloud.SpellResistance = true;
+            aggressive_thundercloud = createFlamingSphereLikeSpell("AggressiveThundercloud",
+                                                       "Aggressive Thundercloud",
+                                                       $"A crackling, spherical storm cloud appears at the point you designate and deals electricity damage to those inside it. As a move action you can move the cloud to any point within close range. If it enters a space that contains a creature, the storm stops moving for the round and deals 3d{BalanceFixes.getDamageDieString(DiceType.D6)} points of electricity damage to that creature, though a successful Reflex save negates that damage. It provides concealment (20% miss chance) to anything within it.\n"
+                                                       + "The cloud moves as long as you actively direct it (as a move action for you); otherwise, it stays at rest and crackles with lightning.",
+                                                       icon,
+                                                       Common.createPrefabLink("cfacbb7d39eaf624382c58bad8ba2df1"),//will o wisp fx
+                                                       "Reflex Negates",
+                                                       thunder_cloud_fx_buff,
+                                                       SpellDescriptor.Electricity,
+                                                       SpellSchool.Evocation,
+                                                       new GameAction[] { dmg},
+                                                       new BlueprintComponent[0]
+                                                       );
 
             aggressive_thundercloud.AddToSpellList(Helpers.magusSpellList, 2);
             aggressive_thundercloud.AddToSpellList(Helpers.druidSpellList, 2);
@@ -5405,7 +5479,7 @@ namespace CallOfTheWild
             area.SpellResistance = true;
             wall_of_nausea = Helpers.CreateAbility("WallOfNauseaAbility",
                                                   "Wall of Nausea",
-                                                  "You create a transparent, shimmering wall through which creatures and objects appear to be wildly distorted to viewers. Any creature that passes through the wall is immediately assailed by overwhelming vertigo, becoming nauseated for 1 round unless it succeeds at a Fortitude save; if nauseated, the creature must also succeed at a DC 12 Acrobatics check or fall prone.\n"
+                                                  "You create a transparent, shimmering wall through which creatures and objects appear to be wildly distorted to viewers. Any creature that passes through the wall is immediately assailed by overwhelming vertigo, becoming nauseated for 1 round unless it succeeds at a Fortitude save; if nauseated, the creature must also succeed at a DC 12 Mobility check or fall prone.\n"
                                                   + "The wall must be continuous and unbroken when formed. If its surface is broken by any object or creature when it is cast, the spell fails.",
                                                   "",
                                                   icon,

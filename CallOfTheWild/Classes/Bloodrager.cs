@@ -765,6 +765,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "446f7bf201dc1934f96ac0a26e324803", 2), //eagles splendor
                 new Common.SpellId( "7a5b5bf845779a941a67251539545762", 2), //false life
                 new Common.SpellId( NewSpells.fiery_runes.AssetGuid, 2),
+                new Common.SpellId( NewSpells.flaming_sphere.AssetGuid, 2),
                 new Common.SpellId( NewSpells.force_sword.AssetGuid, 2),
                 new Common.SpellId( "b6010dda6333bcf4093ce20f0063cd41", 2), //frigid touch
                 new Common.SpellId( NewSpells.ghoul_touch.AssetGuid, 2),
@@ -807,6 +808,7 @@ namespace CallOfTheWild
                 new Common.SpellId( Wildshape.undead_anatomyI.AssetGuid, 3),
                 new Common.SpellId( "8a28a811ca5d20d49a863e832c31cce1", 3), //vampiric touch
 
+                new Common.SpellId( NewSpells.ball_lightning.AssetGuid, 4),
                 new Common.SpellId( "5d4028eb28a106d4691ed1b92bbb1915", 4), //beast shape 2
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 4), //bestow curse
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
@@ -819,6 +821,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "66dc49bf154863148bd217287079245e", 4), //enlarge person mass
                 new Common.SpellId( "dc6af3b4fd149f841912d8a3ce0983de", 4), //false life, greater
                 new Common.SpellId( "d2aeac47450c76347aebbc02e4f463e0", 4), //fear
+                new Common.SpellId( NewSpells.flaming_sphere_greater.AssetGuid, 4),
                 new Common.SpellId( "fcb028205a71ee64d98175ff39a0abf9", 4), //ice storm
                 new Common.SpellId( "6717dbaef00c0eb4897a1c908a75dfe5", 4), //phantasmal killer
                 new Common.SpellId( "2427f2e3ca22ae54ea7337bbab555b16", 4), //reduce person mass
@@ -2285,12 +2288,11 @@ namespace CallOfTheWild
                 var resource = Helpers.CreateAbilityResource(prefix + "DefyDeathResource", "", "", "", raise_dead.Icon);
                 resource.SetFixedResource(1);
 
-                var death_check = Helpers.Create<Kingmaker.UnitLogic.Mechanics.Actions.ContextActionSkillCheck>();
-                death_check.CustomDC = Common.createSimpleContextValue(20);
-                death_check.Stat = StatType.SaveFortitude;
-                death_check.Failure = Helpers.CreateActionList();
+                var death_check = Helpers.Create<NewMechanics.ContextActionSavingThrowAgainstValue>();
+                death_check.DC = 20;
+                death_check.Type = SavingThrowType.Fortitude;
                 death_check.Success = Helpers.CreateActionList(Helpers.Create<ContextActionResurrect>());
-                death_check.UseCustomDC = true;
+
                 var defy_death_buff = Helpers.CreateBuff(prefix + "DefyDeathBuff",
                                    "Defy Death",
                                    "At 12th level, once per day when an attack or spell would result in your death, you can attempt a DC 20 Fortitude save. If you succeed, you are instead revived with 10% of health.",
@@ -2324,7 +2326,7 @@ namespace CallOfTheWild
                                                           shield_of_faith.Icon,
                                                           null,
                                                           Common.createCriticalConfirmationACBonus(100),
-                                                          Common.createCriticalConfirmationBonus(100)
+                                                          Helpers.Create<NewMechanics.CritAutoconfirm>()
                                                           );
                 unstoppable = Helpers.CreateFeature(prefix + "UnstoppableFeature",
                                                                                 unstoppable_buff.Name,
