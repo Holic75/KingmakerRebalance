@@ -53,7 +53,8 @@ namespace CallOfTheWild.ArmorFix
             }
 
             if (__instance.Owner.Proficiencies.Contains(__instance.Blueprint.ProficiencyGroup) 
-                || !Game.Instance.Player.PartyCharacters.Any(c => c.Value == __instance?.Wielder?.Unit)) //a lot of units in the  game do not have required proficiencies, so we will consider only party members
+                || !Game.Instance.Player.PartyCharacters.Any(c => c.Value == __instance?.Wielder?.Unit || c.Value?.Descriptor?.Pet == __instance?.Wielder?.Unit)) 
+                //a lot of units in the  game do not have required proficiencies, so we will consider only party members and pets
             {
                 return;
             }
