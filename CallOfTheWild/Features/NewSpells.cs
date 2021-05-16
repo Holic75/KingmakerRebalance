@@ -2583,7 +2583,10 @@ namespace CallOfTheWild
             addShadowSpells(shadow_evocation, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
                            new BlueprintSpellList[] { Helpers.wizardSpellList }, 4, SpellSchool.Evocation,
                            base_spells.AddToArray(aggressive_thundercloud,
-                                                  aggressive_thundercloud_greater
+                                                  aggressive_thundercloud_greater,
+                                                  ball_lightning,
+                                                  flaming_sphere,
+                                                  flaming_sphere_greater
                                                  )
                            );
 
@@ -2620,17 +2623,21 @@ namespace CallOfTheWild
             addShadowSpells(shadow_evocation_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
                new BlueprintSpellList[] { Helpers.wizardSpellList }, 7, SpellSchool.Evocation,
                 base_spells.AddToArray(aggressive_thundercloud,
-                                        aggressive_thundercloud_greater,
-                                        contingency
+                                       aggressive_thundercloud_greater,
+                                       ball_lightning,
+                                       flaming_sphere,
+                                       flaming_sphere_greater,
+                                       contingency,
+                                       scouring_winds
                                       )
                );
 
 
             addShadowSpells(shadow_enchantment, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
-                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 2, SpellSchool.Enchantment
+                           new BlueprintSpellList[] { Helpers.wizardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 2, SpellSchool.Enchantment
                           );
             addShadowSpells(shadow_enchantment_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
-                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
+                           new BlueprintSpellList[] { Helpers.wizardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
                           );
 
 
