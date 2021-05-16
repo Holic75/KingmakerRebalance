@@ -1,4 +1,5 @@
 ﻿using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Classes;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UI.GenericSlot;
 using Kingmaker.UI.Group;
@@ -49,7 +50,8 @@ namespace CallOfTheWild
         {
             static EquipSlotBase.SlotType[] allowed_slots_serpentine = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves,
                                                                                                   EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
-            static EquipSlotBase.SlotType[] allowed_slots_animal = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head };
+            static EquipSlotBase.SlotType[] allowed_slots_animal = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head, EquipSlot.SlotType.Armor };
+            static EquipSlotBase.SlotType[] allowed_slots_not_biped_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders, EquipSlotBase.SlotType.Head };
             static EquipSlotBase.SlotType[] allowed_slots_eidolon = new EquipSlotBase.SlotType[] { EquipSlotBase.SlotType.PrimaryHand, EquipSlotBase.SlotType.SecondaryHand,
                                                                                                    EquipSlotBase.SlotType.Head, EquipSlotBase.SlotType.Feet, EquipSlotBase.SlotType.Ring1, EquipSlotBase.SlotType.Ring2, EquipSlotBase.SlotType.Gloves, EquipSlotBase.SlotType.Belt, EquipSlotBase.SlotType.Neck, EquipSlotBase.SlotType.Wrist, EquipSlotBase.SlotType.Shoulders,
                                                                                                    EquipSlotBase.SlotType.QuickSlot1,  EquipSlotBase.SlotType.QuickSlot2, EquipSlotBase.SlotType.QuickSlot3, EquipSlotBase.SlotType.QuickSlot4, EquipSlotBase.SlotType.QuickSlot5};
@@ -68,31 +70,43 @@ namespace CallOfTheWild
 
                 bool is_phantom = player.Descriptor.Progression.GetClassLevel(Phantom.phantom_class) > 0;
                 bool is_eidolon = player.Descriptor.Progression.GetClassLevel(Eidolon.eidolon_class) > 0;
+                bool is_animal = player.Descriptor.Progression.GetClassLevel(Common.animal_class) > 0 || player.Descriptor.Progression.GetClassLevel(Common.dragon_class) > 0;
+                bool is_humanoid = player.Descriptor.Progression.IsArchetype(Archetypes.UndeadLord.corpse_companion_archetype);
+
                 bool is_serpentine = player.Descriptor.Progression.IsArchetype(Eidolon.serpentine_archetype);
                 bool is_biped = (is_eidolon
                                  && !player.Descriptor.Progression.IsArchetype(Eidolon.quadruped_archetype)
                                  && !is_serpentine)
-                                 || is_phantom;
-                is_biped = is_biped || player.Blueprint.GetComponent<Eidolon.CorpseCompanionComponent>() != null;
-                EquipSlotBase.SlotType[] allowed_slots;
-                if (is_serpentine)
+                                 || is_phantom
+                                 || is_humanoid;
+;
+                EquipSlotBase.SlotType[] allowed_slots = new EquipSlotBase.SlotType[0];
+
+                bool no_slot_limitation = false;
+                if (is_humanoid)
                 {
-                    allowed_slots = allowed_slots_serpentine;
+                    no_slot_limitation = true;
                 }
                 else if (is_phantom)
                 {
                     allowed_slots = allowed_slots_phantom;
                 }
-                else if (!is_biped)
+                else if (is_serpentine)
+                {
+                    allowed_slots = allowed_slots_serpentine;
+                }
+                else if (is_animal)
                 {
                     allowed_slots = allowed_slots_animal;
+                }
+                else if (!is_biped)
+                {
+                    allowed_slots = allowed_slots_not_biped_eidolon;
                 }
                 else
                 {
                     allowed_slots = allowed_slots_eidolon;
                 }
-
-                bool no_slot_limitation = player.Descriptor.Progression.IsArchetype(Archetypes.UndeadLord.corpse_companion_archetype);
 
                 foreach (EquipSlotBase slot in tr.Property("SlotList").GetValue<List<EquipSlotBase>>())
                 {
@@ -139,7 +153,6 @@ namespace CallOfTheWild
                         {
                             player.Body.HandsEquipmentSets[i] = player.Body.HandsEquipmentSets[0].CloneObject();
                         }
-
                     }
                 }
 

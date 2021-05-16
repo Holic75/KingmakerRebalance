@@ -499,7 +499,7 @@ namespace CallOfTheWild
         internal static void fixAnimalCompanion()
         {
             //animal companion rebalance
-            //set natural ac as per pnp
+            //set natural ac progression as per pnp
             var natural_armor = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1");
             var natural_armor_value = natural_armor.GetComponent<AddStatBonus>();
             natural_armor_value.Value = 2;
@@ -548,6 +548,90 @@ namespace CallOfTheWild
                     s.Descriptor = ModifierDescriptor.Feat;
                 }
             }
+
+
+            //fix base ac
+            Dictionary<BlueprintFeature, int> animal_armor_map = new Dictionary<BlueprintFeature, int>()
+            {
+                { library.Get<BlueprintFeature>("f6f1cdcc404f10c4493dc1e51208fd6f"), 1 }, //bear
+                { library.Get<BlueprintFeature>("afb817d80b843cc4fa7b12289e6ebe3d"), 6 }, //boar
+                { library.Get<BlueprintFeature>("f9ef7717531f5914a9b6ecacfad63f46"), 3 }, //centiped
+                { library.Get<BlueprintFeature>("f894e003d31461f48a02f5caec4e3359"), 2 }, //dog
+                { library.Get<BlueprintFeature>("e992949eba096644784592dc7f51a5c7"), 2 }, //ekun wolf
+                { library.Get<BlueprintFeature>("aa92fea676be33d4dafd176d699d7996"), 1 }, //elk
+                { library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba"), 1 }, //leopard
+                { library.Get<BlueprintFeature>("6adc3aab7cde56b40aa189a797254271"), 4 }, //mammoth
+                { library.Get<BlueprintFeature>("ece6bde3dfc76ba4791376428e70621a"), 1 }, //monitor
+                { library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895"), 1 }, //smilodon
+                { library.Get<BlueprintFeature>("67a9dc42b15d0954ca4689b13e8dedea"), 2 }, //wolf
+            };
+
+
+            foreach (var kv in animal_armor_map)
+            {
+                var unit = kv.Key.GetComponent<AddPet>().Pet;
+
+                unit.AddFacts = unit.AddFacts.Where(a => !Common.natural_armor.Values.Contains(a)).ToArray();
+                unit.AddFacts = unit.AddFacts.AddToArray(Common.natural_armor[kv.Value]);
+
+                var description = kv.Key.Description;
+                var plus_position = description.IndexOf("+");
+                var char_array = description.ToCharArray();
+                char_array[plus_position + 1] = kv.Value.ToString()[0];
+                description = new string(char_array);
+                kv.Key.SetDescription(description);
+            }
+
+            var small_feature = Helpers.CreateFeature("AnimalCompanionSmallSizeFeature",
+                                                      "",
+                                                      "",
+                                                      "5e1e788df2e54684879b52e840402b0f",
+                                                      null,
+                                                      FeatureGroup.None,
+                                                      Helpers.Create<SizeMechanics.PermanentSizeOverride>(p => p.size = Size.Small)
+                                                      );
+            small_feature.HideInUI = true;
+            small_feature.HideInCharacterSheetAndLevelUp = true;
+            //fix sizes
+            var boar = library.Get<BlueprintFeature>("afb817d80b843cc4fa7b12289e6ebe3d");
+            var boar_unit = boar.GetComponent<AddPet>().Pet;
+            boar_unit.AddFacts = boar_unit.AddFacts.AddToArray(small_feature);
+            boar.GetComponent<AddPet>().UpgradeLevel = 4;
+            boar.SetDescription("Size Small\nSpeed 40 ft.\nAC +6 natural armor\nAttack gore (1d6)\nAbility Scores Str 13, Dex 12, Con 15, Int 2, Wis 13, Cha 4\nAt 4th level size becomes Medium, Str +4, Dex -2, Con +2, gains ferocity.");
+            var gore1d8 = library.Get<BlueprintItemWeapon>("5d7d23f5e35254d4bb087f7476163509");
+            boar_unit.Body.PrimaryHand = gore1d8;
+            var upgrade_feature = boar.GetComponent<AddPet>().UpgradeFeature;
+            upgrade_feature.RemoveComponents<AddFacts>();
+            upgrade_feature.RemoveComponents<AddStatBonus>();
+            upgrade_feature.AddComponents(Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.None)
+                                          );
+
+            var dog = library.Get<BlueprintFeature>("f894e003d31461f48a02f5caec4e3359");
+            var dog_unit = dog.GetComponent<AddPet>().Pet;
+            dog_unit.AddFacts = boar_unit.AddFacts.AddToArray(small_feature);
+            dog.GetComponent<AddPet>().UpgradeLevel = 4;
+            dog.SetDescription("Size Small\nSpeed 40 ft.\nAC +2 natural armor\nAttack bite (1d4 plus trip)\nAbility Scores Str 13, Dex 17, Con 15, Int 2, Wis 12, Cha 6\nAt 4th level size becomes Medium, Str +4, Dex -2, Con +2.");
+            dog_unit.Strength = 13;
+            dog_unit.Dexterity = 17;
+
+            upgrade_feature = dog.GetComponent<AddPet>().UpgradeFeature;
+            upgrade_feature.RemoveComponents<AddFacts>();
+            upgrade_feature.RemoveComponents<AddStatBonus>();
+            upgrade_feature.AddComponents(Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.None)
+                                          );
+
+            var leopard = library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba");
+            upgrade_feature = leopard.GetComponent<AddPet>().UpgradeFeature;
+            upgrade_feature.RemoveComponents<AddStatBonus>();
+            //upgrade_feature.RemoveComponents<ChangeUnitSize>();
+            upgrade_feature.AddComponents(Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.None)
+                                          );
+            leopard.SetDescription("Size Small\nSpeed 50 ft.\nAC +4 natural armor\nAttack bite (1d4 plus trip), 2 claws (1d2)\nAbility Scores Str 12, Dex 21, Con 13, Int 2, Wis 12, Cha 6\nAt 4th level size becomes Medium, Dex +2, Con +2, gains pounce and adds Dexterity instead of Strength modifier to damage rolls with natural attacks.");
         }
 
 
@@ -1449,16 +1533,16 @@ namespace CallOfTheWild
         {
             //to make it compatible with size increasing efects
             string[] large_upgrades = new string[] {"abda5a76b8a5901478495ffdc5450c9e", //bear
-                                                    "59f2a25bc27f1a2408721dc24f0589c5", //boar
                                                     "c938099ca0438b242b3edecfa9083e9f", //centiepede
-                                                    "9763e77bfdcd32541848a9095ac53455", //dog
                                                     "70206f918cecc9440925dad944760928", //elk
                                                     "6a23d16a4476af644af89d91f9f96790", //mammoth
                                                     "f1e949c3d93fc234da255b94629c5b3a", //smilodon
                                                     "fb27e69b4ca4e904bac8e97833c4a12c", //wolf
                                                     };
             string[] medium_upgrades = new string[] {"beb608c45bb2aef42802e2afdf018a32", //monitor
+                                                     "59f2a25bc27f1a2408721dc24f0589c5", //boar
                                                      "b8c98af302ee334499d30a926306327d", //leopard
+                                                     "9763e77bfdcd32541848a9095ac53455", //dog
                                                     };
 
             foreach (var id in large_upgrades)

@@ -55,6 +55,7 @@ namespace CallOfTheWild
         {
             black_list = new HashSet<string>();
             black_list.AddRange(guids_black_list);
+            fixCallLightningAndLightningStorm();
             fixSpellDamageAbilities();
             fixFeatures();
             manualTextFixes();
@@ -72,8 +73,7 @@ namespace CallOfTheWild
             fixVitalStrike();
             fixCleave();
 
-            fixSpells();
-            fixCallLightningAndLightningStorm();
+            fixSpells();           
         }
 
 

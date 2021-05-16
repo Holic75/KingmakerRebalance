@@ -189,6 +189,10 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132"), //light armor proficiency
                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("46f4fb320f35704488ba3d513397789d"), //medium armor proficiency
                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("1b0f68188dcc435429fb87a022239681"), //heavy armor proficiency
+            };
+
+            var forbidden_feats = new BlueprintFeature[]
+            {
                 NewFeats.animal_ally,
                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8fc01f06eab4dd946baa5bc658cac556"), //boon companion
             };
@@ -196,19 +200,29 @@ namespace CallOfTheWild.AnimalCompanionLevelUp
             var animal_restricted_feats = eidolon_restricted_feats.AddToArray(new BlueprintFeature[]
                                                                             {
                                                                                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd"), //simple weapon proficiency
-                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //medium armor proficiency
-                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("9a01b6815d6c3684cb25f30b8bf20932"), //heavy armor proficiency
+                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //martial weapon proficiency
+                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("9a01b6815d6c3684cb25f30b8bf20932"), //exotic weapon proficiency
                                                                                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("7812ad3672a4b9a4fb894ea402095167"), //improved unarmed strike
                                                                                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("cb8686e7357a68c42bdd9d4e65334633"), //shields proficiency
                                                                                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
                                                                                 ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d"), //two weapon fighting
-                                                                                NewFeats.animal_ally,
-                                                                                ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8fc01f06eab4dd946baa5bc658cac556"), //boon companion
                                                                             });
+
+            foreach (var f in forbidden_feats)
+            {
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = dragon_calss));
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = animal_calss));
+                f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.quadruped_archetype));
+                f.AddComponent(Common.prerequisiteNoArchetype(Eidolon.eidolon_class, Eidolon.serpentine_archetype));
+            }
 
             foreach (var f in eidolon_restricted_feats)
             {
                 f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Eidolon.eidolon_class));
+                f.AddComponent(Helpers.Create<PrerequisiteNoClassLevel>(p => p.CharacterClass = Phantom.phantom_class));
+
             }
 
             foreach (var f in animal_restricted_feats)

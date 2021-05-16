@@ -98,6 +98,8 @@ namespace CallOfTheWild
     {
         public static int medium_range_ft = 60;
         public static int long_range_ft = 100;
+        public static BlueprintCharacterClass animal_class = library.Get<BlueprintCharacterClass>("4cd1757a0eea7694ba5c933729a53920");
+        public static BlueprintCharacterClass dragon_class = library.Get<BlueprintCharacterClass>("01a754e7c1b7c5946ba895a5ff0faffc");
         public static BlueprintFeature undead = library.Get<BlueprintFeature>("734a29b693e9ec346ba2951b27987e33");
         public static BlueprintFeature dragon = library.Get<BlueprintFeature>("455ac88e22f55804ab87c2467deff1d6");
         public static BlueprintFeature fey = library.Get<BlueprintFeature>("018af8005220ac94a9a4f47b3e9c2b4e");
@@ -115,6 +117,21 @@ namespace CallOfTheWild
         public static BlueprintFeature no_animate_feature;
         public static BlueprintFeature ignore_spell_combat_penalty;
         public static BlueprintSummonPool animate_dead_summon_pool = library.CopyAndAdd<BlueprintSummonPool>("490248a826bbf904e852f5e3afa6d138", "AnimateDeadSummonPool", "7c60aa48110c4eadbea799516452e816");
+
+        public static Dictionary<int, BlueprintUnitFact> natural_armor = new Dictionary<int, BlueprintUnitFact>
+        {
+            {1,  library.Get<BlueprintUnitFact>("10c7c5e3c5806bc4ca676e22d6fbf17e") },
+            {2,  library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7") },
+            {3,  library.Get<BlueprintUnitFact>("f6e106931f95fec4eb995f0d0629fb84") },
+            {4,  library.Get<BlueprintUnitFact>("16fc201a83edcde4cbd64c291ebe0d07") },
+            {5,  library.Get<BlueprintUnitFact>("7661741dbb9604842a642457456fd0e4") },
+            {6,  library.Get<BlueprintUnitFact>("987ba44303e88054c9504cb3083ba0c9") },
+            {7,  library.Get<BlueprintUnitFact>("e73864391ccf0894997928443a29d755") },
+            {8,  library.Get<BlueprintUnitFact>("b9342e2a6dc5165489ba3412c50ca3d1") },
+            {9,  library.Get<BlueprintUnitFact>("da6417809bdedfa468dd2fd0cc74be92") },
+            {10,  library.Get<BlueprintUnitFact>("4179c5c08d606a6439a62bf178b738e1") },
+        };
+
 
 
         public static Dictionary<Size, BlueprintFeature> size_override_facts = new Dictionary<Size, BlueprintFeature>();
