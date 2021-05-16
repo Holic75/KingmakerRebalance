@@ -627,11 +627,11 @@ namespace CallOfTheWild
             var leopard = library.Get<BlueprintFeature>("2ee2ba60850dd064e8b98bf5c2c946ba");
             upgrade_feature = leopard.GetComponent<AddPet>().UpgradeFeature;
             upgrade_feature.RemoveComponents<AddStatBonus>();
-            upgrade_feature.RemoveComponents<ChangeUnitSize>();
+            //upgrade_feature.RemoveComponents<ChangeUnitSize>();
             upgrade_feature.AddComponents(Helpers.CreateAddStatBonus(StatType.Dexterity, 2, ModifierDescriptor.None),
                                           Helpers.CreateAddStatBonus(StatType.Constitution, 2, ModifierDescriptor.None)
                                           );
-            leopard.SetDescription("Size Small\nSpeed 50 ft.\nAC +4 natural armor\nAttack bite (1d4 plus trip), 2 claws (1d2)\nAbility Scores Str 12, Dex 21, Con 13, Int 2, Wis 12, Cha 6\nAt 4th level receives Dex +2, Con +2, gains pounce and adds Dexterity instead of Strength modifier to damage rolls with natural attacks.");
+            leopard.SetDescription("Size Small\nSpeed 50 ft.\nAC +4 natural armor\nAttack bite (1d4 plus trip), 2 claws (1d2)\nAbility Scores Str 12, Dex 21, Con 13, Int 2, Wis 12, Cha 6\nAt 4th level size becomes Medium, Dex +2, Con +2, gains pounce and adds Dexterity instead of Strength modifier to damage rolls with natural attacks.");
         }
 
 
@@ -1541,7 +1541,7 @@ namespace CallOfTheWild
                                                     };
             string[] medium_upgrades = new string[] {"beb608c45bb2aef42802e2afdf018a32", //monitor
                                                      "59f2a25bc27f1a2408721dc24f0589c5", //boar
-                                                     //"b8c98af302ee334499d30a926306327d", //leopard - keeps its size
+                                                     "b8c98af302ee334499d30a926306327d", //leopard
                                                      "9763e77bfdcd32541848a9095ac53455", //dog
                                                     };
 
