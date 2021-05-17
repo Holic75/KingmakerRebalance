@@ -23,12 +23,7 @@ namespace CallOfTheWild.AdditionalSpellDescriptors
                                     //metal is correct
                                     //thunderstorm only has electricity - probably correct
                                     //plasma only has fire - should be air +fire
-        Shadow1 = 0x0200000000000000,
-        Shadow2 = 0x0400000000000000,
-        Shadow = Shadow1 | Shadow2,
-        Shadow20 = Shadow,
-        Shadow60 = Shadow2,
-        Shadow80 = Shadow1,
+        Shadow = 0x0200000000000000,
 
         Pain                 = 0x1000000000000000,
         LanguageDependent    = 0x2000000000000000,

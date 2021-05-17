@@ -90,7 +90,8 @@ namespace CallOfTheWild
                                                Helpers.roundsPerLevelDuration,
                                                "Will disbelief",
                                                Helpers.CreateSpellComponent(SpellSchool.Illusion),
-                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Summoning | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60)
+                                               Helpers.CreateSpellDescriptor(SpellDescriptor.Summoning | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow),
+                                               Helpers.Create<ShadowSpells.ShadowSpell>(s => s.spell_reality = 60)
                                                );
 
             var spell_guids = new string[]
@@ -123,8 +124,9 @@ namespace CallOfTheWild
                 foreach (var s in spells)
                 {
                     var sp = Common.convertToSpellLike(s, prefix, classes, stat, resource, archetypes: getArchetypeArray());
-                    Common.addSpellDescriptor(sp, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60);
+                    Common.addSpellDescriptor(sp, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow);
                     sp.RemoveComponents<SpellComponent>();
+                    sp.AddComponent(Helpers.Create<ShadowSpells.ShadowSpell>(ss => ss.spell_reality = 60));
                     sp.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
                     sp.AddComponent(Helpers.Create<NewMechanics.AbilityShowIfHasClassLevels>(a => { a.character_classes = classes; a.level = lvl * 2 + 1; }));
                     sp.SetName("Shadow Beasts: " + sp.Name);
