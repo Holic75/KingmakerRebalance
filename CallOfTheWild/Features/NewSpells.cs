@@ -2587,7 +2587,7 @@ namespace CallOfTheWild
 
             addShadowSpells(shadow_evocation, 20,
                            new BlueprintSpellList[] { Helpers.wizardSpellList }, 4, SpellSchool.Evocation,
-                           base_spells
+                           base_spells.AddToArray(SpiritualWeapons.twilight_knife)
                            );
 
             
@@ -2624,7 +2624,8 @@ namespace CallOfTheWild
             addShadowSpells(shadow_evocation_greater, 60,
                new BlueprintSpellList[] { Helpers.wizardSpellList }, 7, SpellSchool.Evocation,
                 base_spells.AddToArray(contingency,
-                                       SpiritualWeapons.mages_sword
+                                       SpiritualWeapons.mages_sword,
+                                       SpiritualWeapons.twilight_knife
                                       )
                );
 

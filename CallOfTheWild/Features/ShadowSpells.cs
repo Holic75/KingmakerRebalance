@@ -76,6 +76,10 @@ namespace CallOfTheWild.ShadowSpells
 
         static public Fact getShadowBuff(UnitDescriptor descriptor)
         {
+            if (descriptor == null)
+            {
+                return null;
+            }
             var shadow20_fact = descriptor.GetFact(shadow20_buff);
             var shadow60_fact = descriptor.GetFact(shadow60_buff);
             var shadow80_fact = descriptor.GetFact(shadow80_buff);
@@ -142,11 +146,17 @@ namespace CallOfTheWild.ShadowSpells
         }
 
 
-        static public MechanicsContext extractMainContext(MechanicsContext context)
+        static public MechanicsContext extractMainContext(MechanicsContext context, UnitEntityData context_caster)
         {
             var main_context = context?.SourceAbilityContext;
 
-            var caster = main_context?.MaybeCaster;
+            var caster = context_caster ?? main_context?.MaybeCaster;
+
+            var summoned_context = ShadowSpells.getShadowBuff(caster?.Descriptor)?.MaybeContext?.SourceAbilityContext;
+            if (summoned_context != null)
+            {
+                return summoned_context;
+            }
             var parent_context = caster?.Get<UnitPartUseShadowContext>()?.maybeGetShadowContext(main_context);
 
             return parent_context ?? main_context;
@@ -212,7 +222,7 @@ namespace CallOfTheWild.ShadowSpells
 
         private MechanicsContext getContext(MechanicsContext context)
         {
-            return ShadowSpells.extractMainContext(context);
+            return ShadowSpells.extractMainContext(context, this.Owner.Unit);
         }
 
         public void HandleUnitJoinCombat(UnitEntityData unit)
@@ -268,9 +278,6 @@ namespace CallOfTheWild.ShadowSpells
     }
 
 
-
-
-
     [AllowedOn(typeof(BlueprintUnitFact))]
     public class SavingthrowBonusAgainstDisbelief : RuleInitiatorLogicComponent<RuleSavingThrow>
     {
@@ -287,15 +294,14 @@ namespace CallOfTheWild.ShadowSpells
                 return;
             }
 
-            context = ShadowSpells.extractMainContext(context);
-
             var caster = context.MaybeCaster;
             if (caster == null)
             {
                 return;
             }
-
-            if (caster != this.Owner.Unit)
+           
+            context = ShadowSpells.extractMainContext(context, caster);
+            if (context == null)
             {
                 return;
             }
@@ -345,7 +351,6 @@ namespace CallOfTheWild.ShadowSpells
             {
                 return;
             }
-            context = ShadowSpells.extractMainContext(context);
 
             var caster = context.MaybeCaster;
             if (caster == null)
@@ -354,6 +359,12 @@ namespace CallOfTheWild.ShadowSpells
             }
 
             if (caster != this.Owner.Unit)
+            {
+                return;
+            }
+
+            context = ShadowSpells.extractMainContext(context, caster);
+            if (context == null)
             {
                 return;
             }
@@ -401,27 +412,12 @@ namespace CallOfTheWild.ShadowSpells
                 {//do not apply shadow twice
                     return true;
                 }
-                context2 = ShadowSpells.extractMainContext(context2);
-                var summoned_context = ShadowSpells.getShadowBuff(__instance.Initiator.Descriptor)?.MaybeContext;
-
-                if (context2 == null && summoned_context == null)
+                context2 = ShadowSpells.extractMainContext(context2, __instance.Initiator);
+                if (context2 == null)
                 {
                     return true;
                 }
-
-                int shadow_reality2 = ShadowSpells.getSpellReality(context2);
-                var shadow_reality_summon = ShadowSpells.getSpellReality(summoned_context);
-
-                if (shadow_reality_summon <= 0  && shadow_reality2 <= 0)
-                {
-                    return true;
-                }
-
-                if (shadow_reality_summon > shadow_reality2)
-                {
-                    context2 = summoned_context;
-                }
-
+ 
                 if (!__instance.Target.Ensure<UnitPartDisbelief>().attemptedDisbelief(context2))
                 {
                     if (__instance.Target.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
@@ -433,7 +429,6 @@ namespace CallOfTheWild.ShadowSpells
                         __instance.Target.Ensure<UnitPartDisbelief>().register(context2, ShadowSpells.makeDisbeliefSave(context2, __instance.Target));
                     }
                 }
-
 
                 if (__instance.Target.Ensure<UnitPartDisbelief>().disbelieved(context2))
                 {
@@ -475,33 +470,18 @@ namespace CallOfTheWild.ShadowSpells
                 {
                     return true;
                 }
-
-                       
+                      
                 if (context2?.AssociatedBlueprint != null && context2.AssociatedBlueprint is BlueprintBuff)
                 {//do not apply shadow twice
                     return true;
                 }
-                var summoned_context = ShadowSpells.getShadowBuff(__instance.Initiator.Descriptor)?.MaybeContext;
 
-                if (context2 == null && summoned_context == null)
+                context2 = ShadowSpells.extractMainContext(context2, context2?.MaybeCaster);
+                if (context2 == null)
                 {
                     return true;
                 }
-                context2 = ShadowSpells.extractMainContext(context2);
-
-                int shadow_reality2 = ShadowSpells.getSpellReality(context2);
-                var shadow_reality_summon = ShadowSpells.getSpellReality(summoned_context);
-
-                if (shadow_reality_summon <= 0 && shadow_reality2 <= 0)
-                {
-                    return true;
-                }
-
-                if (shadow_reality_summon > shadow_reality2)
-                {
-                    context2 = summoned_context;
-                }
-           
+          
                 if (__instance.Initiator == null)
                 {
                     return true;
@@ -545,12 +525,13 @@ namespace CallOfTheWild.ShadowSpells
             static public void Postfix(RuleSummonUnit __instance)
             {
                 var context = __instance.Context;
+
+                context = ShadowSpells.extractMainContext(context, context?.MaybeCaster);
                 if (context == null)
                 {
                     return;
                 }
 
-                context = ShadowSpells.extractMainContext(context);
                 var spell_reality = ShadowSpells.getSpellReality(context);
                 var rounds = __instance.Duration + __instance.BonusDuration;
                 if (spell_reality == 20)
@@ -576,8 +557,13 @@ namespace CallOfTheWild.ShadowSpells
         {
             static public bool Prefix(AreaEffectPit __instance, MechanicsContext context, AreaEffectEntityData areaEffect, UnitEntityData unit)
             {
-                var context2 = context?.SourceAbilityContext;
-          
+                var source_context = context?.SourceAbilityContext;
+                var context2 = ShadowSpells.extractMainContext(source_context, source_context?.MaybeCaster);
+                if (context2 == null)
+                {
+                    return true;
+                }
+
                 if (!unit.Ensure<UnitPartDisbelief>().attemptedDisbelief(context2))
                 {
                     if (unit.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
@@ -622,33 +608,37 @@ namespace CallOfTheWild.ShadowSpells
                 {
                     return true;
                 }
-                var context2 = context?.SourceAbilityContext;
+
 
                 var unit = ElementsContext.GetData<MechanicsContext.Data>()?.CurrentTarget?.Unit;
                 if (unit == null)
                 {
                     return true;
                 }
-
-                if (!unit.Ensure<UnitPartDisbelief>().attemptedDisbelief(context2))
+                context = ShadowSpells.extractMainContext(context, context?.MaybeCaster);
+                if (context == null)
+                {
+                    return true;
+                }
+                if (!unit.Ensure<UnitPartDisbelief>().attemptedDisbelief(context))
                 {
                     if (unit.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
                     {
-                        unit.Ensure<UnitPartDisbelief>().register(context2, true);
+                        unit.Ensure<UnitPartDisbelief>().register(context, true);
                     }
                     else
                     {
-                        unit.Ensure<UnitPartDisbelief>().register(context2, ShadowSpells.makeDisbeliefSave(context2, unit));
+                        unit.Ensure<UnitPartDisbelief>().register(context, ShadowSpells.makeDisbeliefSave(context, unit));
                     }
                 }
 
-                if (unit.Ensure<UnitPartDisbelief>().disbelieved(context2))
+                if (unit.Ensure<UnitPartDisbelief>().disbelieved(context))
                 {
-                    int illusion_reality = ShadowSpells.getSpellReality(context2);
+                    int illusion_reality = ShadowSpells.getSpellReality(context);
                     int result = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D100));
                     if (illusion_reality > 0 && result > illusion_reality)
                     {
-                        Common.AddBattleLogMessage(unit.CharacterName + " avoids " + context2.SourceAbility.Name
+                        Common.AddBattleLogMessage(unit.CharacterName + " avoids " + context.SourceAbility.Name
                                                          + $" effect due to disbelief (rolled {result} vs {illusion_reality}%)");
                         return false;
                     }
