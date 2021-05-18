@@ -433,6 +433,9 @@ namespace CallOfTheWild
             var inspiring_command_buff = library.Get<BlueprintBuff>("a78a13e8b6fbae1459faad20eb3ecc72");
             Common.addSpellDescriptor(inspiring_command, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
             Common.addSpellDescriptor(inspiring_command_buff, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+
+            var umbral_strike = library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716");
+            Common.addSpellDescriptor(umbral_strike, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow, false);
         }
 
         internal static void fixFeyStalkerSummonBuff()
@@ -442,9 +445,6 @@ namespace CallOfTheWild
             var feystalker_buff = library.Get<BlueprintBuff>("5a4b6a4be0c7efc4dbc7159152a21447");
             feystalker_master.ReplaceComponent<OnSpawnBuff>(o => o.buff = feystalker_buff);
         }
-
-
-
 
 
         public static void fixBeltsOfPerfectComponents()

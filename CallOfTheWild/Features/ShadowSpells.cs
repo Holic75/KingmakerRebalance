@@ -126,20 +126,10 @@ namespace CallOfTheWild.ShadowSpells
 
         static public int getSpellReality(MechanicsContext context)
         {
-            var ability = context?.SourceAbility;
-            if (ability == null)
+            var shadow_spell_component = context?.SourceAbility?.GetComponent<ShadowSpell>();
+            if (shadow_spell_component != null)
             {
-                return -1;
-            }
-
-
-            if ((ability.GetComponent<SpellDescriptorComponent>().Descriptor & (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow) != 0)
-            {
-                var shadow_spell_component = ability.GetComponent<ShadowSpell>();
-                if (shadow_spell_component != null)
-                {
-                    return shadow_spell_component.spell_reality;
-                }
+                return shadow_spell_component.spell_reality;
             }
 
             return -1;
@@ -299,11 +289,14 @@ namespace CallOfTheWild.ShadowSpells
             {
                 return;
             }
-           
-            context = ShadowSpells.extractMainContext(context, caster);
-            if (context == null)
+
+            if (context?.SourceAbility.GetComponent<DisbeliefSpell>() == null)
             {
-                return;
+                context = ShadowSpells.extractMainContext(context, caster);
+                if (context == null)
+                {
+                    return;
+                }
             }
 
             if (!ShadowSpells.is_making_disbelief_save)
@@ -313,12 +306,8 @@ namespace CallOfTheWild.ShadowSpells
 
             if (context.SpellSchool == school
                  && (save_type == SavingThrowType.Unknown || evt.Type == save_type)
-                 && (context?.SourceAbility.GetComponent<DisbeliefSpell>() != null
-                     || (ShadowSpells.getSpellReality(context) > 0
-                         && !evt.Initiator.Ensure<UnitPartDisbelief>().attemptedDisbelief(context)
-                         )
-                    )
-                )
+                 && (context?.SourceAbility.GetComponent<DisbeliefSpell>() != null || !evt.Initiator.Ensure<UnitPartDisbelief>().attemptedDisbelief(context))
+               )
             {
                 int bonus = this.value.Calculate(this.Fact.MaybeContext);
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(bonus, (GameLogicComponent)this, descriptor));
@@ -363,10 +352,13 @@ namespace CallOfTheWild.ShadowSpells
                 return;
             }
 
-            context = ShadowSpells.extractMainContext(context, caster);
-            if (context == null)
+            if (context?.SourceAbility.GetComponent<DisbeliefSpell>() == null)
             {
-                return;
+                context = ShadowSpells.extractMainContext(context, caster);
+                if (context == null)
+                {
+                    return;
+                }
             }
 
             if (!ShadowSpells.is_making_disbelief_save)
@@ -376,12 +368,8 @@ namespace CallOfTheWild.ShadowSpells
 
             if (context.SpellSchool == school
                  && (save_type == SavingThrowType.Unknown || evt.Type == save_type)
-                 && (context?.SourceAbility.GetComponent<DisbeliefSpell>() != null
-                     || (context.SpellDescriptor.Intersects((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow)
-                         && !evt.Initiator.Ensure<UnitPartDisbelief>().attemptedDisbelief(context)
-                         )
-                    )
-                )
+                 && (context?.SourceAbility.GetComponent<DisbeliefSpell>() != null || !evt.Initiator.Ensure<UnitPartDisbelief>().attemptedDisbelief(context))
+               )
             {
                 var cl_check = RulebookEvent.Dice.D(new DiceFormula(1, DiceType.D20)) + evt.Reason.Context.Params.CasterLevel;
                 if (cl_check > evt.DifficultyClass)

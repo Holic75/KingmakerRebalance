@@ -1618,7 +1618,8 @@ namespace CallOfTheWild
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
                                           null,
                                           Common.createEmptyHandWeaponOverride(claw1d4),
-                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw)
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw),
+                                          Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow)
                                           );
 
             shadow_claws = Helpers.CreateAbility("ShadowClawsAbility",
@@ -1634,6 +1635,7 @@ namespace CallOfTheWild
                                                  Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
                                                  Helpers.CreateContextRankConfig(),
                                                  Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                 Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow),
                                                  Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                  );
             shadow_claws.setMiscAbilityParametersSelfOnly();
