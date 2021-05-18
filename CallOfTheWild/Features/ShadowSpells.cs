@@ -609,7 +609,6 @@ namespace CallOfTheWild.ShadowSpells
                     return true;
                 }
 
-
                 var unit = ElementsContext.GetData<MechanicsContext.Data>()?.CurrentTarget?.Unit;
                 if (unit == null)
                 {
@@ -647,5 +646,56 @@ namespace CallOfTheWild.ShadowSpells
                 return true;
             }
         }
+
+
+        [Harmony12.HarmonyPatch(typeof(RuleHealDamage))]
+        [Harmony12.HarmonyPatch("OnTrigger", Harmony12.MethodType.Normal)]
+        class Patch_RuleHealDamage_OnTrigger_Prefix
+        {
+            static public bool Prefix(RuleHealDamage __instance, RulebookEventContext context)
+            {
+                if (__instance.Target == null)
+                {
+                    return true;
+                }
+
+                var context2 = __instance.Reason.Context;
+                if (context2?.AssociatedBlueprint != null && context2.AssociatedBlueprint is BlueprintBuff)
+                {//do not apply shadow twice
+                    return true;
+                }
+                context2 = ShadowSpells.extractMainContext(context2, __instance.Initiator);
+                if (context2 == null)
+                {
+                    return true;
+                }
+
+                if (!__instance.Target.Ensure<UnitPartDisbelief>().attemptedDisbelief(context2))
+                {
+                    if (__instance.Target.Descriptor.State.HasCondition(UnitCondition.TrueSeeing))
+                    {
+                        __instance.Target.Ensure<UnitPartDisbelief>().register(context2, true);
+                    }
+                    else
+                    {
+                        __instance.Target.Ensure<UnitPartDisbelief>().register(context2, ShadowSpells.makeDisbeliefSave(context2, __instance.Target));
+                    }
+                }
+
+                if (__instance.Target.Ensure<UnitPartDisbelief>().disbelieved(context2))
+                {
+                    int illusion_reality = ShadowSpells.getSpellReality(context2);
+
+                    if (illusion_reality > 0)
+                    {
+                        __instance.Modifier = new float?((__instance.Modifier.HasValue ? __instance.Modifier.GetValueOrDefault() : 1f) * 0.01f * illusion_reality);
+                        Common.AddBattleLogMessage(__instance.Target.CharacterName + " reduces healing from "
+                                                    + context2.SourceAbility.Name + " to " + illusion_reality.ToString() + "% due to disbelief");
+                    }
+                }
+                return true;
+            }
+        }
+
     }
 }

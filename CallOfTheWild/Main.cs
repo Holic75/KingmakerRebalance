@@ -383,6 +383,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Archetypes.NatureBondedMagus.create();                    
                     CallOfTheWild.Archetypes.ZenArcher.create();
                     CallOfTheWild.Archetypes.SageCounselor.create();
+                    CallOfTheWild.Rebalance.fixKiPoolExtraAttacks(); //should be run after zen archer and counselor to properly account for keeping/removing extra attacks
                     CallOfTheWild.Archetypes.SanctifiedSlayer.create();
                     CallOfTheWild.Archetypes.LoreWarden.create();
                     CallOfTheWild.Archetypes.DervishOfDawn.create();
@@ -399,7 +400,6 @@ namespace CallOfTheWild
                     CallOfTheWild.Hinterlander.createHinterlanderClass();
                     CallOfTheWild.HolyVindicator.createHolyVindicatorClass();
                     CallOfTheWild.DawnflowerAnchorite.createDawnflowerAnchoriteClass();
-
                     
                     CallOfTheWild.Archetypes.Rake.create();
                     CallOfTheWild.Archetypes.OverwhelmingSoul.create();
@@ -426,7 +426,6 @@ namespace CallOfTheWild
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();
 
-
                     if (settings.update_companions)
                     {
                         Main.logger.Log("Updating companion stats.");
@@ -437,10 +436,8 @@ namespace CallOfTheWild
                         CallOfTheWild.Rebalance.fixCompanionsBase();
                     }
 
-                    Main.logger.Log("metamagic_for_spontaneous_spell_conversion:" +settings.metamagic_for_spontaneous_spell_conversion.ToString());
+                    Main.logger.Log("metamagic_for_spontaneous_spell_conversion:" + settings.metamagic_for_spontaneous_spell_conversion.ToString());
                     Main.logger.Log("one_sneak_attack_per_target_per_spell:" + settings.one_sneak_attack_per_target_per_spell.ToString());
-
-
 
 #if DEBUG
                     string guid_file_name = @"C:\Repositories\KingmakerRebalance\CallOfTheWild\blueprints.txt";
