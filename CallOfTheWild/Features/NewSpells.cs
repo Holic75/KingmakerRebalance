@@ -1618,7 +1618,8 @@ namespace CallOfTheWild
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/PhantomLimbs.png"),
                                           null,
                                           Common.createEmptyHandWeaponOverride(claw1d4),
-                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw)
+                                          Common.createAddInitiatorAttackWithWeaponTriggerWithCategory(Helpers.CreateActionList(saved_effect), weapon_category: WeaponCategory.Claw),
+                                          Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow)
                                           );
 
             shadow_claws = Helpers.CreateAbility("ShadowClawsAbility",
@@ -1634,6 +1635,7 @@ namespace CallOfTheWild
                                                  Helpers.CreateRunActions(Common.createContextActionApplySpellBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes))),
                                                  Helpers.CreateContextRankConfig(),
                                                  Helpers.CreateSpellComponent(SpellSchool.Illusion),
+                                                 Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow),
                                                  Common.createAbilitySpawnFx("790eb82d267bf0749943fba92b7953c2", anchor: AbilitySpawnFxAnchor.SelectedTarget)
                                                  );
             shadow_claws.setMiscAbilityParametersSelfOnly();
@@ -2471,10 +2473,12 @@ namespace CallOfTheWild
         }
 
 
-        static public void addShadowSpells(BlueprintAbility base_ability, SpellDescriptor descriptor, params BlueprintAbility[] spells)
+        static public void addShadowSpells(BlueprintAbility base_ability, int reality, params BlueprintAbility[] spells)
         {
-            base_ability.AddComponent(Helpers.CreateSpellDescriptor(descriptor));
+            base_ability.AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow));
 
+            var shadow_spell_component = Helpers.Create<ShadowSpells.ShadowSpell>(s => s.spell_reality = reality);
+            base_ability.AddComponent(shadow_spell_component);
             var ability_variants = base_ability.GetComponent<AbilityVariants>();
             if (ability_variants == null)
             {
@@ -2490,9 +2494,10 @@ namespace CallOfTheWild
                 shadow_s.RemoveComponents<HarmlessSaves.HarmlessSpell>();
                 shadow_s.RemoveComponents<HarmlessSaves.HarmlessHealSpell>();
                 shadow_s.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
-                Common.addSpellDescriptor(shadow_s, descriptor, false);
+                Common.addSpellDescriptor(shadow_s, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow, false);
+                shadow_s.AddComponent(shadow_spell_component);
                 shadow_s.SetNameDescription(base_ability.Name + " (" + s.Name + ")",
-                                           base_ability.Description + "\n" + s.Description);
+                                           s.Description + "\n" + base_ability.Description);
 
                 var shadow_touch = shadow_s.GetComponent<AbilityEffectStickyTouch>();
                 if (shadow_touch != null)
@@ -2504,7 +2509,8 @@ namespace CallOfTheWild
                     shadow_sticky_touch.AddComponent(Helpers.CreateSpellComponent(SpellSchool.Illusion));
                     shadow_sticky_touch.RemoveComponents<HarmlessSaves.HarmlessSpell>();
                     shadow_sticky_touch.RemoveComponents<HarmlessSaves.HarmlessHealSpell>();
-                    Common.addSpellDescriptor(shadow_sticky_touch, descriptor);
+                    shadow_sticky_touch.AddComponent(shadow_spell_component);
+                    Common.addSpellDescriptor(shadow_sticky_touch, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow);
                     shadow_s.ReplaceComponent<AbilityEffectStickyTouch>(a => a.TouchDeliveryAbility = shadow_sticky_touch);
                 }
                 ability_variants.Variants = ability_variants.Variants.AddToArray(shadow_s);
@@ -2517,7 +2523,7 @@ namespace CallOfTheWild
         }
 
 
-        static void addShadowSpells(BlueprintAbility base_ability, SpellDescriptor descriptor,
+        static void addShadowSpells(BlueprintAbility base_ability, int reality,
                                                  BlueprintSpellList[] spell_lists, int max_level, SpellSchool school, params BlueprintAbility[] except_spells)
         {
             var extracted_spells = new BlueprintAbility[0];
@@ -2547,7 +2553,7 @@ namespace CallOfTheWild
                 }
             }
 
-            addShadowSpells(base_ability, descriptor, spells.ToArray());
+            addShadowSpells(base_ability, reality, spells.ToArray());
 
         }
 
@@ -2571,20 +2577,19 @@ namespace CallOfTheWild
                 shadow_evocation.Variants[i].RemoveComponents<SpellListComponent>();
                 if (shadow_evocation.Variants[i].GetComponent<SpellDescriptorComponent>() == null)
                 {
-                    shadow_evocation.Variants[i].AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20));
+                    shadow_evocation.Variants[i].AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow));
                 }
                 else
                 {
-                    shadow_evocation.Variants[i].ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20);
+                    shadow_evocation.Variants[i].ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow);
                 }
+                shadow_evocation.Variants[i].AddComponent(Helpers.Create<ShadowSpells.ShadowSpell>(s => s.spell_reality = 20));
             }
 
 
-            addShadowSpells(shadow_evocation, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
+            addShadowSpells(shadow_evocation, 20,
                            new BlueprintSpellList[] { Helpers.wizardSpellList }, 4, SpellSchool.Evocation,
-                           base_spells.AddToArray(aggressive_thundercloud,
-                                                  aggressive_thundercloud_greater
-                                                 )
+                           base_spells.AddToArray(SpiritualWeapons.twilight_knife)
                            );
 
             
@@ -2609,28 +2614,29 @@ namespace CallOfTheWild
                 shadow_evocation_greater.Variants[i].RemoveComponents<SpellListComponent>();
                 if (shadow_evocation_greater.Variants[i].GetComponent<SpellDescriptorComponent>() == null)
                 {
-                    shadow_evocation_greater.Variants[i].AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60));
+                    shadow_evocation_greater.Variants[i].AddComponent(Helpers.CreateSpellDescriptor((SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow));
                 }
                 else
                 {
-                    shadow_evocation_greater.Variants[i].ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60);
+                    shadow_evocation_greater.Variants[i].ReplaceComponent<SpellDescriptorComponent>(sd => sd.Descriptor = sd.Descriptor | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow);
                 }
+                shadow_evocation_greater.Variants[i].AddComponent(Helpers.Create<ShadowSpells.ShadowSpell>(s => s.spell_reality = 60));
             }
 
-            addShadowSpells(shadow_evocation_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
+            addShadowSpells(shadow_evocation_greater, 60,
                new BlueprintSpellList[] { Helpers.wizardSpellList }, 7, SpellSchool.Evocation,
-                base_spells.AddToArray(aggressive_thundercloud,
-                                        aggressive_thundercloud_greater,
-                                        contingency
+                base_spells.AddToArray(contingency,
+                                       SpiritualWeapons.mages_sword,
+                                       SpiritualWeapons.twilight_knife
                                       )
                );
 
 
-            addShadowSpells(shadow_enchantment, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
-                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 2, SpellSchool.Enchantment
+            addShadowSpells(shadow_enchantment, 20,
+                           new BlueprintSpellList[] { Helpers.wizardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 2, SpellSchool.Enchantment
                           );
-            addShadowSpells(shadow_enchantment_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
-                           new BlueprintSpellList[] { Helpers.wizardSpellList, Helpers.bardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
+            addShadowSpells(shadow_enchantment_greater, 60,
+                           new BlueprintSpellList[] { Helpers.wizardSpellList, Psychic.psychic_class.Spellbook.SpellList }, 5, SpellSchool.Enchantment
                           );
 
 
@@ -2640,16 +2646,15 @@ namespace CallOfTheWild
                 library.Get<BlueprintAbility>("15a04c40f84545949abeedef7279751a"), //joyful rapture
             };
 
-            addShadowSpells(shadow_conjuration, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow20,
+            addShadowSpells(shadow_conjuration, 20,
                            new BlueprintSpellList[] { Helpers.wizardSpellList}, 3, SpellSchool.Conjuration, conjuration_except_spells
                           );
-            addShadowSpells(shadow_conjuration_greater, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow60,
+            addShadowSpells(shadow_conjuration_greater, 60,
                            new BlueprintSpellList[] { Helpers.wizardSpellList}, 6, SpellSchool.Conjuration, conjuration_except_spells
                           );
-            addShadowSpells(shades, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow80,
-                               new BlueprintSpellList[] { Helpers.wizardSpellList }, 8, SpellSchool.Conjuration,
-                               conjuration_except_spells
-                              );
+            addShadowSpells(shades, 80,
+                            new BlueprintSpellList[] { Helpers.wizardSpellList }, 8, SpellSchool.Conjuration, conjuration_except_spells
+                          );
         }
 
         static void createSilence()
@@ -3815,6 +3820,9 @@ namespace CallOfTheWild
             {
                 buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = a));
             }
+            buff.AddComponents(Helpers.Create<ShadowSpells.IgnoreShadowReality>(),
+                               Helpers.Create<ShadowSpells.ReplaceShadowContextForAbilities>(s => s.abilities = abilities.ToArray())
+                               );
 
             var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds), is_from_spell: true);
 
@@ -5063,7 +5071,8 @@ namespace CallOfTheWild
                                                      "",
                                                      "",
                                                      icon,
-                                                     null
+                                                     null,
+                                                     Helpers.Create<ShadowSpells.IgnoreShadowReality>()
                                                      );
 
             var dmg_save_action = Common.createContextActionSavingThrow(SavingThrowType.Reflex,
@@ -5135,6 +5144,8 @@ namespace CallOfTheWild
 
             caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
             caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
+            caster_buff.AddComponents(Helpers.Create<ShadowSpells.IgnoreShadowReality>(),
+                                      Helpers.Create<ShadowSpells.ReplaceShadowContextForAbilities>(a => a.abilities = new BlueprintAbility[] { move_ability }));
 
 
             var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
@@ -5176,7 +5187,8 @@ namespace CallOfTheWild
                                       "",
                                       "",
                                       null,
-                                      null
+                                      null,
+                                      Helpers.Create<ShadowSpells.IgnoreShadowReality>()
                                       );
             stun_allowed.SetBuffFlags(BuffFlags.HiddenInUi);
 
@@ -5345,7 +5357,9 @@ namespace CallOfTheWild
 
             caster_buff.AddComponent(Helpers.CreateAddFact(move_ability));
             caster_buff.AddComponent(Helpers.Create<ReplaceAbilityParamsWithContext>(r => r.Ability = move_ability));
-            
+            caster_buff.AddComponents(Helpers.Create<ShadowSpells.IgnoreShadowReality>(),
+                                      Helpers.Create<ShadowSpells.ReplaceShadowContextForAbilities>(r => r.abilities = new BlueprintAbility[] { move_ability })
+                                      );
 
             var apply_caster_buff = Common.createContextActionApplyBuffToCaster(caster_buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
 
@@ -8723,7 +8737,7 @@ namespace CallOfTheWild
             earth_tremor_burst.Range = AbilityRange.Personal;
             earth_tremor = Common.createVariantWrapper("EarthTremorAbility", "", earth_tremor_cone, earth_tremor_line, earth_tremor_burst);
             earth_tremor.SetName("Earth Tremor");
-            earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
+            earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation));
             earth_tremor.Range = AbilityRange.Unlimited;
             earth_tremor.AddToSpellList(Helpers.druidSpellList, 3);
@@ -11118,7 +11132,7 @@ namespace CallOfTheWild
                 shadow_conjuration,
                 shadow_conjuration_greater,
                 shades
-        };
+            };
 
         }
     }

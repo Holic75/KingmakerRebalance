@@ -433,6 +433,9 @@ namespace CallOfTheWild
             var inspiring_command_buff = library.Get<BlueprintBuff>("a78a13e8b6fbae1459faad20eb3ecc72");
             Common.addSpellDescriptor(inspiring_command, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
             Common.addSpellDescriptor(inspiring_command_buff, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.LanguageDependent);
+
+            var umbral_strike = library.Get<BlueprintAbility>("474ed0aa656cc38499cc9a073d113716");
+            Common.addSpellDescriptor(umbral_strike, (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Shadow, false);
         }
 
         internal static void fixFeyStalkerSummonBuff()
@@ -442,9 +445,6 @@ namespace CallOfTheWild
             var feystalker_buff = library.Get<BlueprintBuff>("5a4b6a4be0c7efc4dbc7159152a21447");
             feystalker_master.ReplaceComponent<OnSpawnBuff>(o => o.buff = feystalker_buff);
         }
-
-
-
 
 
         public static void fixBeltsOfPerfectComponents()
@@ -1722,7 +1722,18 @@ namespace CallOfTheWild
             diamond_soul_buff.ComponentsArray = diamond_soul_feature.ComponentsArray.Where(c =>!(c is Prerequisite)).ToArray();
             diamond_body_buff.ComponentsArray = diamond_body_feature.ComponentsArray.Where(c => !(c is Prerequisite)).ToArray();
 
-            //remove extra attack from sensei since
+
+            var mystic_powers = library.Get<BlueprintFeature>("045aa840fbf839a42abdf2fec92f8bf3");
+            var mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
+            var ki_pool = library.Get<BlueprintFeature>("e9590244effb4be4f830b1e3fffced13");
+            mystic_powers.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
+            mystic_powers_mass.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
+        }
+
+
+        static internal void fixKiPoolExtraAttacks()
+        {
+            //remove extra attack from anyone who does not get flurry of blows
             var ki_pool = library.Get<BlueprintFeature>("e9590244effb4be4f830b1e3fffced13");
             var scaled_fist_ki_pool = library.Get<BlueprintFeature>("ae98ab7bda409ef4bb39149a212d6732");
 
@@ -1731,13 +1742,12 @@ namespace CallOfTheWild
             foreach (var kp in ki_pools)
             {
                 var c = kp.GetComponent<AddFacts>();
+                if (kp == ki_pool)
+                {
+                    ki_pool.AddComponent(Common.createAddFeatureIfHasFact(Archetypes.ZenArcher.flurry1, c.Facts[0]));
+                }
                 kp.ReplaceComponent(c, Common.createAddFeatureIfHasFact(flurry_of_blows, c.Facts[0]));
             }
-
-            var mystic_powers = library.Get<BlueprintFeature>("045aa840fbf839a42abdf2fec92f8bf3");
-            var mystic_powers_mass = library.Get<BlueprintFeature>("a316044187ec61344ba33535f42f6a4d");
-            mystic_powers.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
-            mystic_powers_mass.RemoveComponents<AddFeatureIfHasFact>(a => (a.CheckedFact as BlueprintFeature) == ki_pool);
         }
 
 

@@ -1175,7 +1175,7 @@ namespace CallOfTheWild
                                                );
             mysteries_of_the_past = Helpers.CreateFeature("MysteriesOfThePastSpeakerForThePastFeature",
                                                           "Mysteries of the past",
-                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Longstrider (1st), Spiritual Weapon (2nd), Grace (2nd), Heroism (3rd), Sands of Time(3rd), Spiritual Ally (4th), Threefold Aspect (4th), Hold Monster(5th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Invisibility, Mass (7th), Prediction of Failure (8th), Temporal Stasis (8th), Heroic Invocation (9th), Time Stop (9th).",
+                                                          "A speaker for the past gains Knowledge World, Perception, and Use Magic Device as class skills. She also adds the following spells to her spell list: True Strike (1st), Longstrider (1st), Spiritual Weapon (2nd), Grace (2nd), Heroism (3rd), Sands of Time (3rd), Spiritual Ally (4th), Threefold Aspect (4th), Hold Monster(5th), Righteous Might (5th), Contingency (6th), Greater Heroism (6th), Disintegrate (7th), Invisibility, Mass (7th), Prediction of Failure (8th), Temporal Stasis (8th), Heroic Invocation (9th), Time Stop (9th).",
                                                           "",
                                                           null,
                                                           FeatureGroup.None,

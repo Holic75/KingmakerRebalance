@@ -32,7 +32,7 @@ namespace CallOfTheWild
 
     public class WeaponsFix
     {
-
+        static public List<WeaponCategory> full_proficiency_categories = new List<WeaponCategory>();
         public class UnitPartFullProficiency: AdditiveUnitPart
         {
             public bool hasFullProficiency(WeaponCategory category)
@@ -327,6 +327,7 @@ namespace CallOfTheWild
 
         static void fixFullWeaponCategory(WeaponCategory base_category, WeaponCategory like_category, params BlueprintComponent[] components)
         {
+            full_proficiency_categories.Add(base_category);
             var feats = library.GetAllBlueprints().OfType<BlueprintFeature>();
             foreach (var f in feats)
             {

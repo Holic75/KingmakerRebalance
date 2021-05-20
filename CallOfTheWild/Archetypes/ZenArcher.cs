@@ -113,9 +113,7 @@ namespace CallOfTheWild.Archetypes
             createKiArrows();
             createSnapshot();
             createKiFocusBow();
-
             
-
             archetype.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, monk_proficiencies, monk_flurry1, monk_feat1, stunning_fist),
                                                           Helpers.LevelEntry(2, evasion, monk_feat1),
                                                           Helpers.LevelEntry(4, still_mind, stunning_fist_fatigue),

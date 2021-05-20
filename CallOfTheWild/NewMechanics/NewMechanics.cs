@@ -8215,7 +8215,7 @@ namespace CallOfTheWild
                 
                 this.m_Modifier?.Remove();
                 var current_hp = this.Owner.Stats.HitPoints.ModifiedValue;
-                int remove_hp = hp_percent * current_hp /100;
+                int remove_hp = hp_percent * current_hp / 100;
                 this.m_Modifier = this.Owner.Stats.HitPoints.AddModifier(-remove_hp, (GameLogicComponent)this, ModifierDescriptor.UntypedStackable);
             }
         }
@@ -8241,7 +8241,7 @@ namespace CallOfTheWild
             public bool IsAbilityVisible(AbilityData ability)
             {
                 if (require_full_proficiency 
-                    && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
+                    && WeaponsFix.full_proficiency_categories.Contains(category))
                 {
                     return (ability.Caster.Get<WeaponsFix.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
                 }
