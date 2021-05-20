@@ -8737,7 +8737,7 @@ namespace CallOfTheWild
             earth_tremor_burst.Range = AbilityRange.Personal;
             earth_tremor = Common.createVariantWrapper("EarthTremorAbility", "", earth_tremor_cone, earth_tremor_line, earth_tremor_burst);
             earth_tremor.SetName("Earth Tremor");
-            earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground),
+            earth_tremor.AddComponents(Helpers.CreateSpellDescriptor(SpellDescriptor.Ground | (SpellDescriptor)AdditionalSpellDescriptors.ExtraSpellDescriptor.Earth),
                                        Helpers.CreateSpellComponent(SpellSchool.Transmutation));
             earth_tremor.Range = AbilityRange.Unlimited;
             earth_tremor.AddToSpellList(Helpers.druidSpellList, 3);

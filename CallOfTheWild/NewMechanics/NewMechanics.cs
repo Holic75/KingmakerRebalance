@@ -8146,7 +8146,7 @@ namespace CallOfTheWild
             public bool IsAbilityVisible(AbilityData ability)
             {
                 if (require_full_proficiency 
-                    && (WeaponCategory.BastardSword == category || WeaponCategory.DwarvenWaraxe == category))
+                    && WeaponsFix.full_proficiency_categories.Contains(category))
                 {
                     return (ability.Caster.Get<WeaponsFix.UnitPartFullProficiency>()?.hasFullProficiency(category)).GetValueOrDefault();
                 }
