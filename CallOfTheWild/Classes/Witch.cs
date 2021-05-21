@@ -779,7 +779,7 @@ namespace CallOfTheWild
             {
                 var buff = Helpers.CreateBuff($"SpellBurn{i}Buff",
                                               $"Spellburn ({i/2})",
-                                              "Beginning at 4th level, a havocker can channel stored spell energy into her kinetic blast to increase the blast’s overall utility and power. To use her infusions, the havocker must lose a prepared witch spell to apply the infusion to her kinetic blast. Any spell sacrificed is required to have a spell level equal to at least twice the infusion burn cost. The havocker cannot accept additional burn if the infusion would allow her to do so.",
+                                              "Beginning at 6th level, a havocker can channel stored spell energy into her kinetic blast to increase the blast’s overall utility and power. To use her infusions, the havocker must lose a prepared witch spell to apply the infusion to her kinetic blast. Any spell sacrificed is required to have a spell level equal to at least twice the infusion burn cost. The havocker cannot accept additional burn if the infusion would allow her to do so.",
                                               "",
                                               icon,
                                               null,

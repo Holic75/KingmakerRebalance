@@ -1466,7 +1466,6 @@ namespace CallOfTheWild
 
 
 
-
         [Harmony12.HarmonyPatch(typeof(ActionBarGroupSlot))]
         [Harmony12.HarmonyPatch("SetToggleAdditionalSpells", Harmony12.MethodType.Normal)]
         class ActionBarGroupSlot__SetToggleAdditionalSpells__Patch
@@ -1476,37 +1475,49 @@ namespace CallOfTheWild
                 Spellbook spellBook = spell.Spellbook;
                 if (spellBook == null)
                     return false;
-                ___Conversion = spellBook.GetSpontaneousConversionSpells(spell).EmptyIfNull<BlueprintAbility>().Select<BlueprintAbility, AbilityData>((Func<BlueprintAbility, AbilityData>)(b => new AbilityData(b, spellBook)
+                ___Conversion = getAdditionalToggleSpells(__instance.MechanicSlot, spellBook, spell);
+
+                BlueprintAbility spellBlueprint = spell.Blueprint;
+                if (!___Conversion.Any<AbilityData>((Func<AbilityData, bool>)(s => s.Blueprint != spellBlueprint)) && (spellBlueprint.Variants == null || !(spellBlueprint.Variants).Any<BlueprintAbility>()) || ___ToggleAdditionalSpells == null)
+                    return false;
+                ___ToggleAdditionalSpells.gameObject.SetActive(true);
+                return false;
+            }
+
+
+            static public List<AbilityData> getAdditionalToggleSpells(MechanicActionBarSlot slot, Spellbook spellBook, AbilityData spell)
+            {
+                var Conversion = spellBook.GetSpontaneousConversionSpells(spell).EmptyIfNull<BlueprintAbility>().Select<BlueprintAbility, AbilityData>((Func<BlueprintAbility, AbilityData>)(b => new AbilityData(b, spellBook)
                 {
                     ConvertedFrom = spell
                 })).ToList<AbilityData>();
                 if (Main.settings.metamagic_for_spontaneous_spell_conversion)
                 {
-                    ___Conversion.AddRange(getMetamagicSpontaneousConversionSpells(spell, spellBook));
+                    Conversion.AddRange(getMetamagicSpontaneousConversionSpells(spell, spellBook));
                 }
-                
-                SpellSlot spellSlot = (__instance.MechanicSlot as MechanicActionBarSlotMemorizedSpell)?.SpellSlot;
+
+                SpellSlot spellSlot = (slot as MechanicActionBarSlotMemorizedSpell)?.SpellSlot;
                 if (spellSlot != null)
                 {
                     foreach (Ability ability in spell.Caster.Abilities)
                     {
                         if (ability.Blueprint.GetComponent<AbilityRestoreSpellSlot>() != null)
-                            ___Conversion.Add(new AbilityData(ability)
+                            Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellSlot = spellSlot
                             });
 
                         var store_spell = ability.Blueprint.GetComponent<AbilityConvertSpell>();
-                        if (store_spell!= null && store_spell.canBeUsedOn(spell))
+                        if (store_spell != null && store_spell.canBeUsedOn(spell))
                         {
-                            ___Conversion.Add(new AbilityData(ability)
+                            Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellSlot = spellSlot
                             });
                         }
                     }
                 }
-                AbilityData paramSpell = (__instance.MechanicSlot as MechanicActionBarSlotSpontaneusSpell)?.Spell;
+                AbilityData paramSpell = (slot as MechanicActionBarSlotSpontaneusSpell)?.Spell;
                 if (paramSpell != null)
                 {
                     SpellSlot paramSpellSlot = new SpellSlot(paramSpell.SpellLevel, SpellSlotType.Common, 0); //create fake slot for AbilityConvertSpell
@@ -1514,7 +1525,7 @@ namespace CallOfTheWild
                     foreach (Ability ability in spell.Caster.Abilities)
                     {
                         if (ability.Blueprint.GetComponent<AbilityRestoreSpontaneousSpell>() != null) //try with spontnaeous convert spell
-                            ___Conversion.Add(new AbilityData(ability)
+                            Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellbook = paramSpell.Spellbook,
                                 ParamSpellLevel = new int?(paramSpell.SpellLevel)
@@ -1523,7 +1534,7 @@ namespace CallOfTheWild
                         var store_spell = ability.Blueprint.GetComponent<AbilityConvertSpell>();
                         if (store_spell != null && store_spell.canBeUsedOn(spell))
                         {
-                            ___Conversion.Add(new AbilityData(ability)
+                            Conversion.Add(new AbilityData(ability)
                             {
                                 ParamSpellSlot = paramSpellSlot
                             });
@@ -1531,11 +1542,7 @@ namespace CallOfTheWild
                     }
                 }
 
-                BlueprintAbility spellBlueprint = spell.Blueprint;
-                if (!___Conversion.Any<AbilityData>((Func<AbilityData, bool>)(s => s.Blueprint != spellBlueprint)) && (spellBlueprint.Variants == null || !(spellBlueprint.Variants).Any<BlueprintAbility>()) || ___ToggleAdditionalSpells == null)
-                    return false;
-                ___ToggleAdditionalSpells.gameObject.SetActive(true);
-                return false;
+                return Conversion;
             }
 
 
