@@ -1466,6 +1466,64 @@ namespace CallOfTheWild
         }
 
 
+        [Harmony12.HarmonyPatch(typeof(MechanicActionBarSlotMemorizedSpell))]
+        [Harmony12.HarmonyPatch("GetConvertedAbilityData", Harmony12.MethodType.Normal)]
+        class MechanicActionBarSlotMemorizedSpell__GetConvertedAbilityData__Patch
+        {
+            static bool Prefix(MechanicActionBarSlotMemorizedSpell __instance, ref List<AbilityData> __result)
+            {
+                Main.TraceLog();
+                var spell = __instance.Spell;
+                Spellbook spellBook = spell?.Spellbook;
+                if (spellBook == null)
+                    return true;
+                __result = ActionBarGroupSlot__SetToggleAdditionalSpells__Patch.getAdditionalToggleSpells(__instance, spellBook, spell);
+                BlueprintAbility blueprint = __instance.Spell.Blueprint;
+                if (blueprint.Variants != null)
+                {
+                    foreach (BlueprintAbility variant in blueprint.Variants)
+                    {
+                        AbilityData abilityData = new AbilityData(variant, spellBook)
+                        {
+                            ConvertedFrom = __instance.Spell
+                        };
+                        __result.Add(abilityData);
+                    }
+                }
+                return false;
+            }
+        }
+
+
+        [Harmony12.HarmonyPatch(typeof(MechanicActionBarSlotSpontaneusSpell))]
+        [Harmony12.HarmonyPatch("GetConvertedAbilityData", Harmony12.MethodType.Normal)]
+        class MechanicActionBarSlotSpontaneusSpell__GetConvertedAbilityData__Patch
+        {
+            static bool Prefix(MechanicActionBarSlotMemorizedSpell __instance, ref List<AbilityData> __result)
+            {
+                Main.TraceLog();
+                var spell = __instance.Spell;
+                Spellbook spellBook = spell?.Spellbook;
+                if (spellBook == null)
+                    return true;
+                __result = ActionBarGroupSlot__SetToggleAdditionalSpells__Patch.getAdditionalToggleSpells(__instance, spellBook, spell);
+                BlueprintAbility blueprint = __instance.Spell.Blueprint;
+                if (blueprint.Variants != null)
+                {
+                    foreach (BlueprintAbility variant in blueprint.Variants)
+                    {
+                        AbilityData abilityData = new AbilityData(variant, spellBook)
+                        {
+                            ConvertedFrom = __instance.Spell
+                        };
+                        __result.Add(abilityData);
+                    }
+                }
+                return false;
+            }
+        }
+
+
 
         [Harmony12.HarmonyPatch(typeof(ActionBarGroupSlot))]
         [Harmony12.HarmonyPatch("SetToggleAdditionalSpells", Harmony12.MethodType.Normal)]
@@ -1476,7 +1534,7 @@ namespace CallOfTheWild
                 Main.TraceLog();
                 Spellbook spellBook = spell.Spellbook;
                 if (spellBook == null)
-                    return false;
+                    return true;
                 ___Conversion = getAdditionalToggleSpells(__instance.MechanicSlot, spellBook, spell);
 
                 BlueprintAbility spellBlueprint = spell.Blueprint;
