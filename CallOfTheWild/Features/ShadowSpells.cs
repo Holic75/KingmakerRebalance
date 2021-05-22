@@ -138,6 +138,18 @@ namespace CallOfTheWild.ShadowSpells
 
         static public MechanicsContext extractMainContext(MechanicsContext context, UnitEntityData context_caster)
         {
+            var shadow_context = extractMainContextInternal(context, context_caster);
+            if (shadow_context != null && getSpellReality(shadow_context) <= 0)
+            {
+                return null;
+            }
+
+            return shadow_context;
+        }
+
+
+        static private MechanicsContext extractMainContextInternal(MechanicsContext context, UnitEntityData context_caster)
+        {
             var main_context = context?.SourceAbilityContext;
 
             var caster = context_caster ?? main_context?.MaybeCaster;
@@ -297,12 +309,13 @@ namespace CallOfTheWild.ShadowSpells
                 {
                     return;
                 }
+
+                if (!ShadowSpells.is_making_disbelief_save)
+                {
+                    return;
+                }
             }
 
-            if (!ShadowSpells.is_making_disbelief_save)
-            {
-                return;
-            }
 
             if (context.SpellSchool == school
                  && (save_type == SavingThrowType.Unknown || evt.Type == save_type)
@@ -359,12 +372,13 @@ namespace CallOfTheWild.ShadowSpells
                 {
                     return;
                 }
+
+                if (!ShadowSpells.is_making_disbelief_save)
+                {
+                    return;
+                }
             }
 
-            if (!ShadowSpells.is_making_disbelief_save)
-            {
-                return;
-            }
 
             if (context.SpellSchool == school
                  && (save_type == SavingThrowType.Unknown || evt.Type == save_type)
