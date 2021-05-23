@@ -183,11 +183,9 @@ namespace CallOfTheWild.SpellbookMechanics
                     {
                         added_replacement = true;
 
-                        Main.logger.Log("Checking lvl up ok");
                         var levelUp = Kingmaker.Game.Instance.UI?.CharacterBuildController?.LevelUpController;
                         if (__instance.Owner == levelUp?.Preview || __instance.Owner == levelUp?.Unit)
                         {
-                            Main.logger.Log("Level up ok");
                             var spellSelection = levelUp.State.DemandSpellSelection(__instance.Blueprint, __instance.Blueprint.SpellList);
                             int existingNewSpells = spellSelection.LevelCount[sl]?.SpellSelections.Length ?? 0;
                             spellSelection.SetLevelSpells(sl, 1 + existingNewSpells);
