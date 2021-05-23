@@ -70,7 +70,7 @@ namespace CallOfTheWild
 
             var determination_aura_buff = Helpers.CreateBuff("ZealPhantomDeterminationAuraEffectBuff",
                                                        "Determination Aura",
-                                                       "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-footradius aura that grants its zeal to nearby allies. Allies within the aura gain a +2 competence bonus on attack rolls and saving throws.",
+                                                       "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot radius aura that grants its zeal to nearby allies. Allies within the aura gain a +2 competence bonus on attack rolls and saving throws.",
                                                        "",
                                                        Helpers.GetIcon("87ab2fed7feaaff47b62a3320a57ad8d"), //heroism
                                                        null,

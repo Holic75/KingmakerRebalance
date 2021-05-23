@@ -5408,7 +5408,7 @@ namespace CallOfTheWild
 
             wall_of_fire = library.CopyAndAdd<BlueprintAbility>("77d255c06e4c6a745b807400793cf7b1", "WallOfFireSpellAbility", "");
             wall_of_fire.SetNameDescriptionIcon("Wall of Fire",
-                                                $"An immobile, blazing curtain of shimmering violet fire springs into existence. The wall deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage + 1 point of fire damage per caster level (maximum +20) to any creature that attempts to pass through and to any creature that ends turn in its area. The wall deals double damage to undead creatures.",
+                                                $"An immobile, blazing curtain of shimmering fire springs into existence. The wall deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of fire damage + 1 point of fire damage per caster level (maximum +20) to any creature that attempts to pass through and to any creature that ends turn in its area. The wall deals double damage to undead creatures.",
                                                 icon);
             var spawn_area = Common.createContextActionSpawnAreaEffect(area, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default)));
 
