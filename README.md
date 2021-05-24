@@ -669,11 +669,23 @@ Optional balance fixes:
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,
 in your_game_folder/Mods/CallOfTheWild/settings.json)
 
-Install
+### Install
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
-- Download the mod
-- Build it using Visual Studio 2017 Community Edition or use prebuilt binaries from latest Releases (just drop archive into UMM GUI)
+- Point Unity Mod Manager to kingmaker folder
+- Download mod binaries
+- Drop (just drop mod binary archive into UMM GUI or unzip it directly to your_kingmaker_folder/Mods/)
 - Run the game
+
+
+### Build
+- Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
+- Point Unity Mod Manager to kingmaker folder
+- Download mod source code
+- Open CallOfTheWild/CallOfTheWild.csproj in any text editor
+- Replace the line <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">C:\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker</KingmakerInstallDir>
+with <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">PATH_TO_YOUR_PATHFIDNER_KINGMAKER_FOLDER</KingmakerInstallDir>
+- Open project in visual studio (use at least community eddition 2017)
+- Build selected configuration (*Install configurations - will install the mod directly into your kingmaker folder)
 
 Special Thanks:
 Mnem for implementing fiend totem line rage powers,
