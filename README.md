@@ -690,7 +690,7 @@ with
 ```
 <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">PATH_TO_YOUR_PATHFIDNER_KINGMAKER_FOLDER</KingmakerInstallDir>
 ```
-- Open project in visual studio (use at least community eddition 2017)
+- Open project in visual studio (use at least community edition 2017)
 - Build selected configuration (*Install configurations - will install the mod directly into your kingmaker folder)
 
 Special Thanks:
