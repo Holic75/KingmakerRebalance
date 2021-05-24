@@ -684,7 +684,7 @@ in your_game_folder/Mods/CallOfTheWild/settings.json)
 - Open CallOfTheWild/CallOfTheWild.csproj in any text editor
 - Replace the line
 ```
- <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">C:\GOG Games\PathfinderKingmaker2.0_old\Pathfinder Kingmaker</KingmakerInstallDir>
+ <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">C:\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker</KingmakerInstallDir>
 ```
 with 
 ```
