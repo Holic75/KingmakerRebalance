@@ -10,14 +10,14 @@ This is Pathfinder: Kingmaker mod.
 - Advanced fighter training options from 1.77 are not compatible with Advanced Martial Arts Mod, you can deactivate them if you prefer the latter.
 - Wizard Discoveries from 1.81 might conflict with those from The Lost Grimoire Mod, you can disable them in setting.json.
 
-Mod is only expected to work with 2.08 or 2.15 English versions of the game, only on windows and only with keyboard + mouse UI.
+__Mod is only expected to work with 2.08 or 2.15 English versions of the game, only on windows and only with keyboard + mouse UI.__
 
-Known Issues:
+### Known Issues:
 - Sometimes when playing Hunter/Summoner, companion abilities (animal foci, teamwork feats, fiendish or celestial templates, evolutions) might disappear after level up. It seems that deactivating all companion abilities (like power attack) and saving the game (no need to reload)  brings all missing abilities back. Same issue happens with newly created mercenaries, it resolves itself when you leave the capital/varnhold/trading post or enter the endless dungeon.
 - If you start summoner/primal companion hunter level-up and then abort the process, your eidolon will lose all of its evolutions and will not regain them until you finish level-up.
 
 
-New classes:  
+#### New classes:  
 - Brawler with following archetypes: Exemplar, Mutagenic Mauler, Wild Child, Snakebite Striker, Steel-Breaker and Venomifist,
 - Hunter with following archetypes: Divine Hunter, Forester, Primal Companion Hunter, Feral Hunter, Feykiller, and Totem-Bonded,  
 - Witch with with following archetypes: Invoker, Ley Line Guardian, Hedge Witch, Hex Channeler, Havocker and Winter Witch,   
@@ -35,7 +35,7 @@ New classes:
 - Occultist with following archetypes: Battle Host, Silksworn, Reliquarian, Panoply Savant, Planar Harmonizer and Necroccultist,
 - Dawnflower Anchorite, Hinterlander and Holy Vindicator prestige classes.
 
-New Archetypes for existing classes:
+#### New Archetypes for existing classes:
 - Iroran Paladin, Sacred Servant, and Vindictive Bastard (implemented as a separate class) Paladin archetypes,
 - Arrowsong Minstrel, Court Bard and Dirge Bard Bard archetypes,
 - Exploiter Wizard, Pact Wizard and Spirit Whisperer Wizard archetypes,
@@ -54,10 +54,7 @@ New Archetypes for existing classes:
 - Feywarden, Blood Hunter and Divine Tracker Ranger archetypes.
 
 
-Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
-with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
-
-New feats:
+#### New feats:
 - Extra Hex,
 - Accursed Hex,
 - Amplified Hex,
@@ -158,7 +155,7 @@ New feats:
 - Swordplay Style and Swordplay Upset,
 - Two-Weapon Feint and Improved Two-Weapon Feint.
 
-New rage powers:
+#### New rage powers:
 - Terrifying Howl
 - Taunting Stance,
 - Unrestrained Rage,
@@ -189,7 +186,7 @@ New rage powers:
 - Spellbreaker,
 - Clear Mind.
 
-New features:
+#### New features:
 - Share Spell for animal companions,
 - Wild Armor enchantment on certain unique armors, optionally you can enable wild enchantment on all items,
 - Animal companions can now equip headgear, belts, bracers, capes and amulets,
@@ -204,7 +201,7 @@ New features:
 - Lore Religion skill can now be used to treat deadly wounds,
 - Body armor can be used by anyone, even without proficiency, but in this case the wearer applies armor check penalty to his attack rolls.
 
-The mod also adds following inquisitions that can be selected instead of domains:
+#### The mod also adds following inquisitions that can be selected instead of domains:
 - Anger,
 - Conversion,
 - Heresy,
@@ -213,7 +210,7 @@ The mod also adds following inquisitions that can be selected instead of domains
 - Tactics,
 - Valor.
 
-Subdomains:
+#### Subdomains:
 - Undead,
 - Lightning,
 - Storms,
@@ -224,7 +221,7 @@ Subdomains:
 - Demon (Chaos).
 
 
-New Wild Talents:
+#### New Wild Talents:
 - Blade Rush,
 - Kinetic Whip,
 - Whip Hurricane,
@@ -242,13 +239,13 @@ New Wild Talents:
 - Kinetic Fist.
 
 
-New Alchemist Discoveries:
+#### New Alchemist Discoveries:
 - Sticky Poison (toxicant only),
 - Celestial Poison (toxicant only),
 - Concentrate Poison (toxicant only).
 
 
-New Advanced Weapon Training Options:
+#### New Advanced Weapon Training Options:
 - Dazzling Intimidation,
 - Defensive Weapon Training,
 - Fighter's Finesse,
@@ -258,7 +255,7 @@ New Advanced Weapon Training Options:
 - Versatile Training,
 - Warrior Spirit.
 
-Advanced Armor Training Options:
+#### Advanced Armor Training Options:
 - Adaptable Training,
 - Armor Specialization,
 - Armored Confidence,
@@ -267,7 +264,7 @@ Advanced Armor Training Options:
 - Steel Headbutt.
 
 
-New Rogue Talents:
+#### New Rogue Talents:
 - Minor Magic,
 - Major Magic,
 - Feat,
@@ -275,25 +272,25 @@ New Rogue Talents:
 - Slippery Mind.
 
 
-New Slayer Talents:
+#### New Slayer Talents:
 - Assassinate,
 - Armored Marauder,
 - Armored Swiftness,
 - Reaping Stalker.
 
-New Magus Arcana:
+#### New Magus Arcana:
 - Familiar,
 - Maneuver Mastery,
 - Spell Blending,
 - Reach Spellstrike.
 
-Bloodline Mutations:
+#### Bloodline Mutations:
 - Blood Havoc,
 - Blood Intensity,
 - Blood Piercing,
 - Bloodline Familiar.
 
-Wizard Discoveries:
+#### Wizard Discoveries:
 - Alchemical Affinity,
 - Forest's Blessing,
 - Idealize,
@@ -303,7 +300,7 @@ Wizard Discoveries:
 - Resilent Illusions,
 - Time Stutter.
 
-Arcane Subschools:
+#### Arcane Subschools:
 - Admixture,
 - Arcane Crafter,
 - Enhancement,
@@ -312,7 +309,7 @@ Arcane Subschools:
 - Phantasm,
 - Undead.
 
-Bard Masterpieces:
+#### Bard Masterpieces:
 - Clamor of Heavens,
 - Dance of 23 Steps,
 - Symphony of Elysian Heart,
@@ -321,7 +318,7 @@ Bard Masterpieces:
 - Blazing Rondo.
 
 
-New spells:
+#### New spells:
 - Blade Lash,
 - Blade Tutor,
 - Burst of Adrenaline,
@@ -492,7 +489,7 @@ New spells:
 - Time Stop,
 - Winds of Vengeance.
 
-New Ki Powers:
+#### New Ki Powers:
 - Burst of Adrenaline,
 - Burst of Insight,
 - Cloak of Winds,
@@ -500,19 +497,11 @@ New Ki Powers:
 - Akashic Form,
 - Frightful Aspect.
 
-New Style Strikes:
+#### New Style Strikes:
 - Flying Kick.
 
-Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:
-- Beast shape I allows to turn into wolf and leopard,  
-- Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  
-- Beast shape III allows to turn into large smilodon and huge mastodon (with trample),  
-- Beast shape IV allows to turn into large hodag (with toss) and large winter wolf (with trip and breath weapon)  
 
-The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
-
-
-In addition mod also makes some changes to existing features to make them closer to pnp:
+#### Changes to existing features to make them closer to pnp:
 - nerfs animal compnions to make their stats same as in pnp : reduces physical prowess bonuses by factor of 2, natural ac bonuses by 1.5, and removes
 enchanced attacks,
 - sets base skill points of every classes to 1/2 of pnp value (as per consolidated skill rules), and gives bonus skill points to humans and half-orcs only at even levels, since most skills in the game correspond to 2 skills in pnp (optional),
@@ -569,7 +558,14 @@ enchanced attacks,
 - Increased cost of using sensei ki powers on single ally by 1 and on all allies by 2,
 - Critical hits are automatically confirmed on nat 20 confirmation roll and automatically failed on nat 1 confirmation rolls.
 
-Original game bug fixes:
+Beast shape I - IV spells were also changed to be a bit more fun and more in line with pnp:  
+- Beast shape I allows to turn into wolf and leopard,  
+- Beast shape II allows to turn into large bear (without rend) and large dire wolf (with trip),  
+- Beast shape III allows to turn into large smilodon and huge mastodon (with trample),  
+- Beast shape IV allows to turn into large hodag (with toss) and large winter wolf (with trip and breath weapon)  
+The changes corresponding to these spells as well as Plant Shape I, II and III were also applied to druid wildshape ability.
+
+#### Original game bug fixes:
 - Vital Strike now takes standard action and extra damage dice are no longer multplied on critical hits,
 - Singing Steel works properly,
 - Archaelogist luck works with Lingering Performance and Singing Steel,
@@ -592,7 +588,7 @@ Original game bug fixes:
 - Trip/Bull rush immune tagets no longer provoke attack of opportunity on maneuver attempts with Greater Trip/Bull Rush feats,
 - Shatter defenses was fixed to work as per description.
 
-Mod also changes stats of some npcs (optional)
+#### NPC companion stat changes (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
 - Harrim class was changed to Warpriest and stats to 17/10/14/10/17/8
 - Amiri archetype was changed to Invulnerable Rager and her stats to 19/14/16/10/12/8
@@ -603,7 +599,8 @@ Mod also changes stats of some npcs (optional)
 - Regongar to 19/12/12/10/8/16
 - Nok-Nok to 9/22/14/12/10/8
 
-Notable differences from pnp:
+#### Notable differences from pnp:
+- skald Inspiring Rage effects stack with other rage abilities like barbarian rage or bloodrager bloodrage.
 - witch sleep hex does not work on targets with more hd, than your character level; disturbing slumber and ice tomb do not have this limitation,
 - Primal companion hunter primal transformation duration is permanent and these evolutions can not be applied to hunter upon animal companion death,
 - fire focus, from planar focus feat deals 1d3 points of fire damage per 4 hunter levels,
@@ -650,7 +647,7 @@ Notable differences from pnp:
   instead it gives an ability to frighten all enemies affected by aura of doom for one round as a move action (or swift action at 19th level)
   for 1 phrenic pool point.
 
-Optional balance fixes:
+#### Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
 - Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist spells
 - Two-Weapon fighting automatically give iterative off-hand attacks once your BAB reaches 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
@@ -673,7 +670,7 @@ in your_game_folder/Mods/CallOfTheWild/settings.json)
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
 - Point Unity Mod Manager to kingmaker folder
 - Download mod binaries
-- Drop (just drop mod binary archive into UMM GUI or unzip it directly to your_kingmaker_folder/Mods/)
+- Drop mod binary archive into UMM GUI or unzip it directly to your_kingmaker_folder/Mods/
 - Run the game
 
 
@@ -690,11 +687,11 @@ with
 ```
 <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">PATH_TO_YOUR_PATHFIDNER_KINGMAKER_FOLDER</KingmakerInstallDir>
 ```
-- Open project in visual studio (use at least community eddition 2017)
+- Open project in visual studio (use at least community edition 2017)
 - Build selected configuration (*Install configurations - will install the mod directly into your kingmaker folder)
 
-Special Thanks:
-Mnem for implementing fiend totem line rage powers,
-Hsinyu and Spacehamster for their help in resolving numerous problems that I faced while making this mod,
-Elmindra for creating Eldritch Arcana mod, without which Call of the Wild would probably never happen,
+#### Special Thanks:  
+Mnem for implementing fiend totem line rage powers,  
+Hsinyu and Spacehamster for their help in resolving numerous problems that I faced while making this mod,  
+Elmindra for creating Eldritch Arcana mod, without which Call of the Wild would probably never happen,  
 Nolanoth for providing new icons.
