@@ -682,8 +682,14 @@ in your_game_folder/Mods/CallOfTheWild/settings.json)
 - Point Unity Mod Manager to kingmaker folder
 - Download mod source code
 - Open CallOfTheWild/CallOfTheWild.csproj in any text editor
-- Replace the line <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">C:\GOG Games\PathfinderKingmaker2.0\Pathfinder Kingmaker</KingmakerInstallDir>
-with <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">PATH_TO_YOUR_PATHFIDNER_KINGMAKER_FOLDER</KingmakerInstallDir>
+- Replace the line
+```
+ <KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">C:\GOG Games\PathfinderKingmaker2.0_old\Pathfinder Kingmaker</KingmakerInstallDir>
+```
+with 
+```
+<KingmakerInstallDir Condition=" '$(KingmakerInstallDir)' == '' ">PATH_TO_YOUR_PATHFIDNER_KINGMAKER_FOLDER</KingmakerInstallDir>
+```
 - Open project in visual studio (use at least community eddition 2017)
 - Build selected configuration (*Install configurations - will install the mod directly into your kingmaker folder)
 
