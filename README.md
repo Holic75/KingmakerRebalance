@@ -673,7 +673,7 @@ in your_game_folder/Mods/CallOfTheWild/settings.json)
 - Download and install Unity Mod Manager﻿﻿ 0.13.0 or later
 - Point Unity Mod Manager to kingmaker folder
 - Download mod binaries
-- Drop (just drop mod binary archive into UMM GUI or unzip it directly to your_kingmaker_folder/Mods/)
+- Drop mod binary archive into UMM GUI or unzip it directly to your_kingmaker_folder/Mods/
 - Run the game
 
 
@@ -694,7 +694,7 @@ with
 - Build selected configuration (*Install configurations - will install the mod directly into your kingmaker folder)
 
 Special Thanks:
-Mnem for implementing fiend totem line rage powers,
-Hsinyu and Spacehamster for their help in resolving numerous problems that I faced while making this mod,
-Elmindra for creating Eldritch Arcana mod, without which Call of the Wild would probably never happen,
+Mnem for implementing fiend totem line rage powers,  
+Hsinyu and Spacehamster for their help in resolving numerous problems that I faced while making this mod,  
+Elmindra for creating Eldritch Arcana mod, without which Call of the Wild would probably never happen,  
 Nolanoth for providing new icons.
