@@ -1015,7 +1015,7 @@ namespace CallOfTheWild
         {
 
             mystery_skills = Helpers.CreateFeature("OracleMysterySkills",
-                                                   "Additional Class Skilss",
+                                                   "Additional Class Skills",
                                                    "Oracle gains additional class skills based on his mystery.",
                                                    "",
                                                    null,
@@ -2704,25 +2704,26 @@ namespace CallOfTheWild
             curse_to_hindrance_map.Add(curse, hindrance);
             var curse5 = Helpers.CreateFeature("OracleCurse5Deaf", 
                                                curse.Name,
-                                               "At 5th level, you no longer receive a penalty on Perception checks, and the initiative penalty for being deaf is reduced to –2.",
+                                               "At 5th level, you receive a +3 competence bonus on Perception checks, and the initiative penalty for being deaf is reduced to –2.",
                                                "",
                                                curse.Icon, FeatureGroup.None,
+                                               Helpers.CreateAddStatBonus(StatType.SkillPerception, 3, ModifierDescriptor.Competence),
                                                Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable)
                                                );
 
             var curse10 = Helpers.CreateFeature("OracleCurse10Deaf",
                                                 curse.Name,
-                                                "At 10th level, you receive a +3 competence bonus on Perception checks, and you do not suffer any penalty on initiative checks due to being deaf.",
+                                                "At 10th level, you gain blindsense out to a range of 15 feet, and you do not suffer any penalty on initiative checks due to being deaf.",
                                                 "",
-                                                Helpers.GetIcon("c927a8b0cd3f5174f8c0b67cdbfde539"), // remove blindness
+                                                Helpers.GetIcon("797f25d709f559546b29e7bcb181cc74"), // improved initiative
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddStatBonus(StatType.SkillPerception, 3, ModifierDescriptor.Competence),
-                                                Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable)
+                                                Helpers.CreateAddStatBonus(StatType.Initiative, 2, ModifierDescriptor.UntypedStackable),
+                                                Helpers.Create<Blindsense>(b => b.Range = 15.Feet())
                                                 );
 
             var curse15 = Helpers.CreateFeature("OracleCurse15Deaf",
                                                 "Tremorsense",
-                                                "At 15th level, you gain tremorsense out to a range of 30 feet.",
+                                                "At 15th level, your blindsense range increases to 30 feet.",
                                                 "",
                                                 Helpers.GetIcon("30e5dc243f937fc4b95d2f8f4e1b7ff3"), // see invisible
                                                 FeatureGroup.None,
