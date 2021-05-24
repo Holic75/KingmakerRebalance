@@ -54,9 +54,6 @@ __Mod is only expected to work with 2.08 or 2.15 English versions of the game, o
 - Feywarden, Blood Hunter and Divine Tracker Ranger archetypes.
 
 
-Regarding skald mechanics: it is different from pnp in the fact that it allows other classes to stack their rages (with bonuses and rage powers)
-with skald Inspiring Rage. Also an ability was added to reject rage either from skald Inspired Rage, Inspire Ferocity or Rage Spell; everyone should get it at lvl 1.
-
 #### New feats:
 - Extra Hex,
 - Accursed Hex,
@@ -603,6 +600,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Nok-Nok to 9/22/14/12/10/8
 
 #### Notable differences from pnp:
+- skald Inspiring Rage effects stack with other rage abilities like barbarian rage or bloodrager bloodrage.
 - witch sleep hex does not work on targets with more hd, than your character level; disturbing slumber and ice tomb do not have this limitation,
 - Primal companion hunter primal transformation duration is permanent and these evolutions can not be applied to hunter upon animal companion death,
 - fire focus, from planar focus feat deals 1d3 points of fire damage per 4 hunter levels,
