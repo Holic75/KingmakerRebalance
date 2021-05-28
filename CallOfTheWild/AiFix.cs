@@ -24,11 +24,11 @@ namespace CallOfTheWild
             var arcane_caster_consideration = library.Get<TargetClassConsideration>("a10afa800940a9143bda381d487fcd5c");
             var druid = library.Get<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
 
-            support_caster_consideration.FirstPriorityClasses = support_caster_consideration.FirstPriorityClasses.AddToArray(Skald.skald_class);
-            support_caster_consideration.SecondPriorityClasses = support_caster_consideration.SecondPriorityClasses.AddToArray(Shaman.shaman_class, Witch.witch_class, druid);
+            support_caster_consideration.FirstPriorityClasses = support_caster_consideration.FirstPriorityClasses.AddToArray(Skald.skald_class, Investigator.investigator_class, Occultist.occultist_class);
+            support_caster_consideration.SecondPriorityClasses = support_caster_consideration.SecondPriorityClasses.AddToArray(Shaman.shaman_class, Witch.witch_class, druid, Psychic.psychic_class);
 
-            arcane_caster_consideration.FirstPriorityClasses = support_caster_consideration.FirstPriorityClasses.AddToArray(Shaman.shaman_class, Witch.witch_class, druid);
-            arcane_caster_consideration.SecondPriorityClasses = support_caster_consideration.SecondPriorityClasses.AddToArray(Skald.skald_class);
+            arcane_caster_consideration.FirstPriorityClasses = support_caster_consideration.FirstPriorityClasses.AddToArray(Shaman.shaman_class, Witch.witch_class, druid, Psychic.psychic_class);
+            arcane_caster_consideration.SecondPriorityClasses = support_caster_consideration.SecondPriorityClasses.AddToArray(Skald.skald_class, Investigator.investigator_class, Occultist.occultist_class);
 
 
             //update channel energy (since it has variants now)

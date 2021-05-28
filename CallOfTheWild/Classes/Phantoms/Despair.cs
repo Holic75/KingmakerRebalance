@@ -66,6 +66,21 @@ namespace CallOfTheWild
                                                          Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.MindAffecting | Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Fear)
                                                          );
 
+            var miserable_strike_spiritualist = Helpers.CreateFeature("DespairPhantomMiserableStrikesSpiritualistFeature",
+                                             miserable_strikes_buff.Name,
+                                             miserable_strikes_buff.Description,
+                                             "",
+                                             miserable_strikes_buff.Icon,
+                                             FeatureGroup.None,
+                                             Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_conditional),
+                                                                                              wait_for_attack_to_resolve: true,
+                                                                                              check_weapon_range_type: true,
+                                                                                              range_type: AttackTypeAttackBonus.WeaponRangeType.Melee
+                                                                                              ),
+                                             Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
+                                             Helpers.CreateSpellDescriptor(Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.MindAffecting | Kingmaker.Blueprints.Classes.Spells.SpellDescriptor.Fear)
+                                             );
+
             var aura_of_despair_effect_buff = Helpers.CreateBuff("DespairPhantomAuraOfDespairEffectBuff",
                                                        "Aura of Despair",
                                                        "When the spiritualist reaches 7th level, as a swift action, the phantom can emit a 20-foot aura of despair. Enemies within the aura take a –2 penalty on all saving throws. This is a fear effect. Deactivating the aura is a free action.",
@@ -96,7 +111,7 @@ namespace CallOfTheWild
             despairing_shout.SetNameDescription("Despairing Shout",
                                                 "When the spiritualist reaches 12th level, three times per day as a standard action, the phantom can emit a shout that acts as crushing despair. The phantom uses its Hit Dice as its caster level for the effect, and the DC of the effect equals 10 + 1/2 the phantom’s Hit Dice + the phantom’s Charisma modifier. The phantom can use this ability in either ectoplasmic or incorporeal form.");
 
-            var powerful_from_despair_phantom = Helpers.CreateFeature("DespairPhantomBaseFeature",
+            var power_from_despair_phantom = Helpers.CreateFeature("DespairPhantomBaseFeature",
                                                                  "Power from Despair",
                                                                  "The phantom gains a +2 bonus on attack and damage rolls against creatures that are shaken, frightened, panicked, cowering, or subject to effects such as aura of despair or crushing despair.",
                                                                  "",
@@ -128,14 +143,14 @@ namespace CallOfTheWild
 
 
             var despair_archetype = createPhantomArchetype("DespairPhantomArchetype",
-                                                         "Despair",
-                                                         true,
-                                                         false,
-                                                         true,
-                                                         new StatType[] { StatType.SkillPersuasion, StatType.SkillStealth },
-                                                         new LevelEntry[] { Helpers.LevelEntry(1, powerful_from_despair_phantom)},
-                                                         new LevelEntry[] {Helpers.LevelEntry(1) }
-                                                         );
+                                                             "Despair",
+                                                             true,
+                                                             false,
+                                                             true,
+                                                             new StatType[] { StatType.SkillPersuasion, StatType.SkillStealth },
+                                                             new LevelEntry[] { Helpers.LevelEntry(1, power_from_despair_phantom)},
+                                                             new LevelEntry[] {Helpers.LevelEntry(1) }
+                                                             );
 
             //touch of gracelesness, stricken heart, ray of exhaustion, crushing despair, suffocation, eyebite
             createPhantom("Despair",
@@ -156,7 +171,7 @@ namespace CallOfTheWild
                               library.Get<BlueprintAbility>("f492622e473d34747806bdb39356eb89"), //slow
                               library.Get<BlueprintAbility>("4baf4109145de4345861fe0f2209d903") //crushing despair
                           },
-                          miserable_strike,
+                          miserable_strike_spiritualist,
                           aura_of_despair,
                           emotion_conduit_spells: new BlueprintAbility[]
                           {

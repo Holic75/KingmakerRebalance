@@ -78,8 +78,10 @@ namespace CallOfTheWild
                                                                  shaken.Icon,
                                                                  FeatureGroup.None,
                                                                  Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(apply_effect),
-                                                                                                                              wait_for_attack_to_resolve: true
-                                                                                                                              ),
+                                                                                                                  wait_for_attack_to_resolve: true,
+                                                                                                                  check_weapon_range_type: true,
+                                                                                                                  range_type: AttackTypeAttackBonus.WeaponRangeType.Melee
+                                                                                                                  ),
                                                                  Common.createContextCalculateAbilityParamsBasedOnClasses(getPhantomSpiritualistArray(), StatType.Charisma),
                                                                  Helpers.CreateSpellDescriptor(SpellDescriptor.MindAffecting | SpellDescriptor.Fear | SpellDescriptor.Shaken)
                                                                  );
