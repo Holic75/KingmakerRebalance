@@ -290,7 +290,7 @@ namespace CallOfTheWild
         {
             armored_juggernaut = Helpers.CreateFeature("ArmoredJuggernautAdvancedArmorTrainingFeature",
                                                        "Armored Juggernaut",
-                                                       "When wearing heavy armor, the fighter gains DR 1/—. At 7th level, the fighter gains DR 1/— when wearing medium armor, and DR 2/— when wearing heavy armor. At 11th level, the fighter gains DR 1/— when wearing light armor, DR 2/— when wearing medium armor, and DR 3/— when wearing heavy armor. If the fighter is 19th level and has the armor mastery class feature, these DR values increase by 5. The DR from this ability stacks with that provided by adamantine armor, but not with other forms of damage reduction.",
+                                                       "When wearing heavy armor, the fighter gains DR 1/—. At 7th level, the fighter gains DR 1/— when wearing medium armor, and DR 2/— when wearing heavy armor. At 11th level, the fighter gains DR 1/— when wearing light armor, DR 2/— when wearing medium armor, and DR 3/— when wearing heavy armor. If the fighter is 19th level and has the armor mastery class feature, these DR values increase by 5.",
                                                        "",
                                                        Helpers.GetIcon("479c7f3b0dba69a4bbcb43e101f3f7f9"),
                                                        FeatureGroup.None);

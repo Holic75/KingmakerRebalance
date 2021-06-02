@@ -39,7 +39,7 @@ namespace CallOfTheWild.HarmlessSaves
 
         public override void OnTurnOff()
         {
-            this.Owner.Ensure<UnitPartSaveAgainstHarmlessSpells>().removeBuff(this.Fact);
+            this.Owner.Get<UnitPartSaveAgainstHarmlessSpells>()?.removeBuff(this.Fact);
         }
     }
 
