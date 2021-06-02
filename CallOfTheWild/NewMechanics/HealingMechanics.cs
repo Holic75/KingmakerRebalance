@@ -395,7 +395,7 @@ namespace CallOfTheWild.HealingMechanics
                 }
 
 
-                if (target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>() != null 
+                if ((target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>()?.active()).GetValueOrDefault()
                     && context.SourceAbility?.GetComponent<HarmlessSaves.HarmlessHealSpell>() != null 
                     && context.SourceAbility.IsSpell
                     && target.IsAlly(context.MaybeCaster) 
@@ -451,7 +451,7 @@ namespace CallOfTheWild.HealingMechanics
                 
             }
 
-            if (target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>() != null
+            if ((target.Get<HarmlessSaves.UnitPartSaveAgainstHarmlessSpells>()?.active()).GetValueOrDefault()
                 && context.SourceAbility?.GetComponent<HarmlessSaves.HarmlessHealSpell>() != null
                 && context.SourceAbility.IsSpell
                 && target.IsAlly(context.MaybeCaster)

@@ -438,7 +438,7 @@ namespace CallOfTheWild.ConcealementMechanics
 
         public override void OnTurnOff()
         {
-            this.Owner.Ensure<UnitPartVisibilityLimit>().removeBuff(this.Fact);
+            this.Owner.Get<UnitPartVisibilityLimit>()?.removeBuff(this.Fact);
         }
     }
 
