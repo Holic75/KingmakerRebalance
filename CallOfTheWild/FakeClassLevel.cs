@@ -3,6 +3,7 @@ using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Facts;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
+using Kingmaker.PubSubSystem;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -38,15 +39,18 @@ namespace CallOfTheWild.FakeClassLevelMechanics
     public abstract class FakeClassLevelsBase : OwnedGameLogicComponent<UnitDescriptor>
     {
         public abstract int getFakeClassLevel(BlueprintCharacterClass character_class);
+        public abstract BlueprintCharacterClass getFakeClass();
 
         public override void OnTurnOn()
         {
             this.Owner.Ensure<UnitPartFakeClassLevel>().addBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitGainLevelHandler>((Action<IUnitGainLevelHandler>)(h => h.HandleUnitGainLevel(this.Owner, getFakeClass())));
         }
 
         public override void OnTurnOff()
         {
             this.Owner.Ensure<UnitPartFakeClassLevel>().removeBuff(this.Fact);
+            EventBus.RaiseEvent<IUnitGainLevelHandler>((Action<IUnitGainLevelHandler>)(h => h.HandleUnitGainLevel(this.Owner, getFakeClass())));
         }
     }
 
@@ -55,6 +59,11 @@ namespace CallOfTheWild.FakeClassLevelMechanics
     {
         public BlueprintCharacterClass fake_class;
         public ContextValue value;
+
+        public override BlueprintCharacterClass getFakeClass()
+        {
+            return fake_class;
+        }
 
         public override int getFakeClassLevel(BlueprintCharacterClass character_class)
         {
