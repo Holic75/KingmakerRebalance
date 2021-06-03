@@ -84,7 +84,7 @@ namespace CallOfTheWild
 
             greater_eldritch_heritage = Helpers.CreateFeatureSelection("GreaterEldritchHeritageFeatureSelection",
                                                                        "Greater Eldritch Heritage",
-                                                                       "ou gain an additional power from the bloodline you selected with the Eldritch Heritage feat. You gain a 15th-level sorcerer bloodline power. For purposes of using that power, treat your character level as your sorcerer level for all your sorcerer bloodline powers granted by this feat, Eldritch Heritage, and Improved Eldritch Heritage.",
+                                                                       "You gain an additional power from the bloodline you selected with the Eldritch Heritage feat. You gain a 15th-level sorcerer bloodline power. For purposes of using that power, treat your character level as your sorcerer level for all your sorcerer bloodline powers granted by this feat, Eldritch Heritage, and Improved Eldritch Heritage.",
                                                                        "",
                                                                        null,
                                                                        FeatureGroup.Feat,
