@@ -124,7 +124,7 @@ namespace CallOfTheWild
         static public BlueprintFeature smite_chaos;
         static public BlueprintFeature unholy_champion;
         static public BlueprintFeature enforcers_aura;
-        static public BlueprintFeature enforecers_aura_of_vengeance;
+        static public BlueprintFeature enforcers_aura_of_vengeance;
         static public BlueprintFeature aura_of_obedience;
 
         static public BlueprintArchetype unholy_minion;
@@ -576,12 +576,14 @@ namespace CallOfTheWild
             createTyrantAurasAndUnholyChampion();
             tyrant.AddComponent(Common.createPrerequisiteAlignment(AlignmentMaskType.LawfulEvil));
             tyrant.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_good),
+                                                      Helpers.LevelEntry(11, aura_of_vengeance),
                                                        Helpers.LevelEntry(14, aura_of_sin),
                                                        Helpers.LevelEntry(17, aura_of_deparvity),
                                                        Helpers.LevelEntry(20, tip_of_spear),
                                                       };
 
             tyrant.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(1, smite_chaos),
+                                                   Helpers.LevelEntry(11, enforcers_aura_of_vengeance),
                                                       Helpers.LevelEntry(14, enforcers_aura),
                                                       Helpers.LevelEntry(17, aura_of_obedience),
                                                       Helpers.LevelEntry(20, unholy_champion),
@@ -593,6 +595,7 @@ namespace CallOfTheWild
             antipaladin_progression.UIGroups[2].Features.Add(enforcers_aura);
             antipaladin_progression.UIGroups[2].Features.Add(aura_of_obedience);
             antipaladin_progression.UIGroups[2].Features.Add(unholy_champion);
+            antipaladin_progression.UIGroups[2].Features.Add(enforcers_aura_of_vengeance);
         }
 
 
@@ -685,9 +688,9 @@ namespace CallOfTheWild
             smite_chaos_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
 
 
-            enforecers_aura_of_vengeance = Common.createSmiteForAllies("AntipaladinTyrantAuraOfVengeance",
-                                                                        aura_of_vengeance.Name,
-                                                                        aura_of_vengeance.Description,
+            enforcers_aura_of_vengeance = Common.createSmiteForAllies("AntipaladinTyrantAuraOfVengeance",
+                                                                        "Aura of Punishment",
+                                                                        "At 11th level, a tyrant can expend two uses of his smite chaos ability to grant the ability to smite chaos to all allies within 10 feet, using his bonuses. Allies must use this smite chaos ability by the start of the antipaladin’s next turn and the bonuses last for 1 minute. Using this ability is a free action.",
                                                                         "",
                                                                         "",
                                                                         aura_of_vengeance.Icon,
@@ -695,8 +698,8 @@ namespace CallOfTheWild
                                                                         Helpers.Create<NewMechanics.ContextConditionAlignmentUnlessCasterHasFact>(c => { c.Alignment = AlignmentComponent.Chaotic; c.fact = tip_of_spear; })
                                                                         );
 
-            var aura_of_vengeance_ability = aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
-            aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Evil));
+            var enforcers_aura_of_vengeance_ability = enforcers_aura_of_vengeance.GetComponent<AddFacts>().Facts[0] as BlueprintAbility;
+            enforcers_aura_of_vengeance_ability.AddComponent(Helpers.Create<AbilityCasterAlignment>(a => a.Alignment = AlignmentMaskType.Lawful));
         }
 
 

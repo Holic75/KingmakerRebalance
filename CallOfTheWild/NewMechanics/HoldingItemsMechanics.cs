@@ -1092,6 +1092,7 @@ namespace CallOfTheWild.HoldingItemsMechanics
             if ((secondary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == true 
                 || (blueprint2 == null) 
                 || considerUnarmedAndIgnoreOffHand(blueprint2, __instance) && (blueprint1 != null)
+                || (primary_hand.MaybeWeapon?.HoldInTwoHands).GetValueOrDefault() == true
                 )
                 return false;
             ++__instance.SecondaryHand.AdditionalAttacks;

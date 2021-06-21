@@ -204,13 +204,28 @@ namespace CallOfTheWild
                                                               "843741b85d8249b9acdcffb042015f06",
                                                               shatter_defenses.Icon,
                                                               null,
-                                                              Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()))
+                                                              Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.CreateConditional(Common.createBuffConditionCheckRoundNumber(3), Helpers.Create<ContextActionRemoveSelf>())))
                                                               );
             shatter_defenses_target_buff.Stacking = StackingType.Stack;
-            //TODO: make buff invisible
-            var on_hit = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(shatter_defenses_target_buff, not: true),
-                                                   Common.createContextActionApplyBuff(shatter_defenses_target_buff, Helpers.CreateContextDuration(1), dispellable: false)
-                                                   );
+            var shatter_defenses_target_cooldown_buff = Helpers.CreateBuff("ShatterDefensesTargetCooldownBuff",
+                                                  shatter_defenses.Name,
+                                                  shatter_defenses.Description,
+                                                  "cf3e721e93044a21b87692526b3c45e3",
+                                                  shatter_defenses.Icon,
+                                                  null,
+                                                  Helpers.Create<NewRoundTrigger>(n => n.NewRoundActions = Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()))
+                                                  );
+            shatter_defenses_target_cooldown_buff.SetBuffFlags(BuffFlags.HiddenInUi);
+            shatter_defenses_target_cooldown_buff.Stacking = StackingType.Stack;
+
+            var on_hit = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(shatter_defenses_target_cooldown_buff, not: true),
+                                                  new GameAction[]
+                                                  {
+                                                   Common.createContextActionRemoveBuffFromCaster(shatter_defenses_target_buff),
+                                                   Common.createContextActionApplyBuff(shatter_defenses_target_buff, Helpers.CreateContextDuration(2), dispellable: false),
+                                                   Common.createContextActionApplyBuff(shatter_defenses_target_cooldown_buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                  }
+                                                  );
             shatter_defenses.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(on_hit), wait_for_attack_to_resolve: true));
             //the rest is handeled in RuleCheckTargetFlatFooted__OnTrigger__Patch
         }
