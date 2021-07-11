@@ -95,6 +95,7 @@ namespace CallOfTheWild.Archetypes
                                                     };
 
             archetype.ReplaceSpellbook = spellbook;
+            archetype.AddComponent(Common.createPrerequisiteAlignment((~Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Evil) & Kingmaker.UnitLogic.Alignments.AlignmentMaskType.Any));
 
             inquisitor_class.Progression.UIGroups = inquisitor_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(revelation_selection, demon_hunter, solo_tactics_ravener));
             inquisitor_class.Progression.UIDeterminatorsGroup = inquisitor_class.Progression.UIDeterminatorsGroup.AddToArray(holy_magic, charged_by_nature);
