@@ -126,7 +126,7 @@ namespace CallOfTheWild.Archetypes
             var greater_dirty_trick = library.Get<BlueprintFeature>("52c6b07a68940af41b270b3710682dc7");
             despicable_tactics = Helpers.CreateFeature("DespicableTacticsFeature",
                                                        "Despicable Tactics",
-                                                       "At 2nd level, the untamed rager gains Improved Dirty Trick as a bonus feat.",
+                                                       "At 2nd level, the untamed rager gains Dirty Trick as a bonus feat.",
                                                        "",
                                                        improved_dirty_trick.Icon,
                                                        FeatureGroup.None,

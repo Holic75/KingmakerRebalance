@@ -1416,7 +1416,7 @@ namespace CallOfTheWild
 
             brawlers_strike_adamantine = library.CopyAndAdd<BlueprintFeature>("ddc10a3463bd4d54dbcbe993655cf64e", "BrawlersStrikeAdamantine", "");
             brawlers_strike_adamantine.SetNameDescription("Brawler's Strike — Adamantine",
-                                                          "At 19th level, the brawler's unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.");
+                                                          "At 17th level, the brawler's unarmed attacks are treated as adamantine weapons for the purpose of overcoming damage reduction and bypassing hardness.");
         }
 
 

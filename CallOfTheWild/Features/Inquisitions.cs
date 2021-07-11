@@ -620,7 +620,7 @@ namespace CallOfTheWild
 
             persistance.LevelEntries = new LevelEntry[]{
                                                     Helpers.LevelEntry(1, add_feat, relentless_footing_feature),
-                                                    Helpers.LevelEntry(8, inner_strength_feature)
+                                                    Helpers.LevelEntry(6, inner_strength_feature)
                                                     };
             persistance.UIGroups = Helpers.CreateUIGroups(relentless_footing_feature, inner_strength_feature);
 

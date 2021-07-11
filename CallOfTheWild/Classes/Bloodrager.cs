@@ -134,7 +134,7 @@ namespace CallOfTheWild
 
             bloodrager_class.LocalizedName = Helpers.CreateString("Bloodrager.Name", "Bloodrager");
             bloodrager_class.LocalizedDescription = Helpers.CreateString("Bloodrager.Description",
-                                                                         "While many ferocious combatants can tap into a deep reservoir of buried rage, bloodragers have an intrinsic power that seethes within.Like sorcerers, bloodragers’ veins surge with arcane power. While sorcerers use this power for spellcasting, bloodragers enter an altered state in which their bloodline becomes manifest, where the echoes of their strange ancestry lash out with devastating power. In these states, bloodragers can cast some arcane spells instinctively. The bloodrager’s magic is as fast, violent, and seemingly unstoppable as their physical prowess.\n"
+                                                                         "While many ferocious combatants can tap into a deep reservoir of buried rage, bloodragers have an intrinsic power that seethes within. Like sorcerers, bloodragers’ veins surge with arcane power. While sorcerers use this power for spellcasting, bloodragers enter an altered state in which their bloodline becomes manifest, where the echoes of their strange ancestry lash out with devastating power. In these states, bloodragers can cast some arcane spells instinctively. The bloodrager’s magic is as fast, violent, and seemingly unstoppable as their physical prowess.\n"
                                                                          + "Role: Masters of the battlefield, bloodragers unleash fearful carnage on their enemies using their bloodlines and combat prowess. The bloodrager’s place is on the front lines, right in his enemies’ faces, supplying tremendous martial force bolstered by a trace of arcane magic."
                                                                          );
             bloodrager_class.m_Icon = barbarian_class.Icon;
@@ -1203,7 +1203,7 @@ namespace CallOfTheWild
 
                 progression = createBloodragerBloodline("Aberrant",
                                                               "There is a taint in your blood that is both alien and bizarre. When you bloodrage, this manifests in peculiar and terrifying ways.\n"
-                                                               + "Bonus Feats: Combat Reflexes, Great Fortitude, Improved Disarm, Improved Initiative, Improved Unarmed Strike, Iron Will, Lightning Reflexes.\n"
+                                                               + "Bonus Feats: Combat Reflexes, Great Fortitude, Disarm, Improved Initiative, Improved Unarmed Strike, Iron Will, Lightning Reflexes.\n"
                                                                + "Bonus Spells: Enlarge person (7th), see invisibility (10th), displacement (13th), confusion (16th).",
                                                               library.Get<BlueprintAbility>("14ec7a4e52e90fa47a4c8d63c69fd5c1").Icon, //blur
                                                               new BlueprintAbility[] { enlarge_person, see_invisibility, displacement, confusion },
@@ -1391,7 +1391,7 @@ namespace CallOfTheWild
 
                 progression = createBloodragerBloodline("Celestial",
                                                               "By way of a celestial ancestor or divine intervention, the blood of angels fills your body with a holy potency, granting you a majestic visage and angelic powers when you enter your bloodrage.\n"
-                                                               + "Bonus Feats: Dodge, Mobility, Dazzling Display, Cornugon Smash, Improved Initiative, Iron Will, Weapon Focus.\n"
+                                                               + "Bonus Feats: Dodge, Combat Mobility, Dazzling Display, Cornugon Smash, Improved Initiative, Iron Will, Weapon Focus.\n"
                                                                + "Bonus Spells: Bless (7th), resist energy (10th), heroism (13th), flamestrike (16th).",
                                                               library.Get<BlueprintAbility>("b1c7576bd06812b42bda3f09ab202f14").Icon, //angelic aspect greater
                                                               new BlueprintAbility[] { bless, resist_energy, heroism, flamestrike },
@@ -1563,7 +1563,7 @@ namespace CallOfTheWild
 
                 progression = createBloodragerBloodline("Fey",
                                                               "One of your ancestors was fey, or the fey realm somehow intermixed with your bloodline. It affects your bloodrage in tricky and surprising ways.\n"
-                                                               + "Bonus Feats: Dodge, Mobility, Combat Reflexes, Lightning Reflexes, Improved Initiative, Intimidating Prowess, Hammer the Gap.\n"
+                                                               + "Bonus Feats: Dodge, Combat Mobility, Combat Reflexes, Lightning Reflexes, Improved Initiative, Intimidating Prowess, Hammer the Gap.\n"
                                                                + "Bonus Spells: Entangle (7th), hideous laughter (10th), haste (13th), confusion (16th).",
                                                               library.Get<BlueprintProgression>("e8445256abbdc45488c2d90373f7dae8").Icon, // sorcerer fey bloodline
                                                               new BlueprintAbility[] { entangle, hideous_laughter, haste, confusion },
@@ -1736,7 +1736,7 @@ namespace CallOfTheWild
 
                 progression = createBloodragerBloodline("Infernal",
                                                               "The Pit lives in your blood. Maybe one of your ancestors was seduced by the powers of Hell or made a deal with a devil. Either way, its corruption seethes within your lineage.\n"
-                                                               + "Bonus Feats: Blind - Fight, Combat Reflexes, Deceitful, Improved Disarm, Improved Sunder, Intimidating Prowess, Iron Will.\n"
+                                                               + "Bonus Feats: Blind - Fight, Combat Reflexes, Deceitful, Disarm, Improved Sunder, Intimidating Prowess, Iron Will.\n"
                                                                + "Bonus Spells: Protection from good (7th), scorching ray(10th), hold preson(13th), fire_shield(16th).",
                                                               library.Get<BlueprintProgression>("e76a774cacfb092498177e6ca706064d").Icon, // sorcerer infernal bloodline
                                                               new BlueprintAbility[] { protection_from_good, scorching_ray, hold_person, NewSpells.fire_shield },
@@ -1937,7 +1937,7 @@ namespace CallOfTheWild
 
                 progression = createBloodragerBloodline("Undead",
                                                               "The foul corruption of undeath is a part of you. Somewhere in the past, death became infused with your lineage. Your connection to the attributes of the undead bestows frightening power when your bloodrage.\n"
-                                                               + "Bonus Feats: Diehard, Dodge, Endurance, Intimidating Prowess, Iron Will, Mobility, Toughness.\n"
+                                                               + "Bonus Feats: Diehard, Dodge, Endurance, Intimidating Prowess, Iron Will, Combat Mobility, Toughness.\n"
                                                                + "Bonus Spells: Ray of enfeeblement (7th), false life (10th), vampiric touch (13th), enervation (16th).",
                                                               library.Get<BlueprintProgression>("a1a8bf61cadaa4143b2d4966f2d1142e").Icon, // sorcerer undead bloodline
                                                               new BlueprintAbility[] { ray_of_enfeeblement, false_life, vampiric_touch, enervation },
