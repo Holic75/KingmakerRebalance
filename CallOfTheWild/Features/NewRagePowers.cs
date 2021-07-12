@@ -724,7 +724,7 @@ namespace CallOfTheWild
             lesser_spirit_totem_buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             lesser_spirit_totem = Helpers.CreateFeature("LesserSpiritTotemFeature",
-                                                        "Sprit Totem, Lesser",
+                                                        "Spirit Totem, Lesser",
                                                         "While raging, the barbarian is surrounded by spirit wisps that harass her foes. These spirits allow barbarian to make one additional slam attack each round against a foe that is adjacent to the barbarian. This is a secondary attack that uses the barbarian’s Charisma modifier for attack rolls. The slam deals 1d4 points of negative energy damage, plus the barbarian’s Charisma modifier.\n"
                                                         + "Note: Totem rage powers grant powers related to a theme. A barbarian cannot select from more than one group of totem rage powers; for example, a barbarian who selects a beast totem rage power cannot later choose to gain any of the dragon totem rage powers (any rage power with “dragon totem” in its title).",
                                                         "",
@@ -752,7 +752,7 @@ namespace CallOfTheWild
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             spirit_totem = Helpers.CreateFeature("SpiritTotemFeature",
-                                                "Sprit Totem",
+                                                "Spirit Totem",
                                                 "While raging, the spirits that surround the barbarian make it difficult for her enemies to see her. The spirits grant the barbarian a 20% miss chance against ranged attacks and melee attacks made by creatures that are not adjacent to the barbarian (typically due to reach).",
                                                 "",
                                                 lesser_spirit_totem.Icon,
@@ -797,7 +797,7 @@ namespace CallOfTheWild
 
 
             greater_spirit_totem = Helpers.CreateFeature("GreaterSpiritTotemFeature",
-                                                "Sprit Totem, Greater",
+                                                "Spirit Totem, Greater",
                                                 $"While raging, the spirits that surround the barbarian become dangerous to any enemy adjacent to the barbarian. Living enemies adjacent to the barbarian at the start of her turn take 1d{BalanceFixes.getDamageDieString(DiceType.D8)} points of negative energy damage. In addition slam attack deals 1d6 points of negative energy damage.",
                                                 "",
                                                 lesser_spirit_totem.Icon,
