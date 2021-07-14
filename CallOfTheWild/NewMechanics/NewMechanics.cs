@@ -8600,11 +8600,14 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateDamage evt)
             {
                 MechanicsContext context = evt.Reason.Context;
-                if (context?.SourceAbility == null || !abilities.Contains(context.SourceAbility))
+                if (context?.SourceAbility == null)
                     return;
 
-                var dmg = value.Calculate(this.Fact.MaybeContext);
-                evt.DamageBundle.First?.AddBonus(dmg);
+                if (abilities.Contains(context.SourceAbility) || (context.SourceAbility.Parent != null && abilities.Contains(context.SourceAbility.Parent)))
+                {
+                    var dmg = value.Calculate(this.Fact.MaybeContext);
+                    evt.DamageBundle.First?.AddBonus(dmg);
+                }
             }
 
             public void OnEventDidTrigger(RuleCalculateDamage evt)
