@@ -814,7 +814,7 @@ namespace CallOfTheWild
                                          Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: getSkaldArray(), progression: ContextRankProgression.Div2)
                                          );
 
-            //great orator is only a place holder, it will be filled in verstile performance section
+            //great orator is only a place holder, it will be filled in versatile performance section
             great_orator = Helpers.CreateFeatureSelection("GreatOratorFeatureSelection",
                                                           "Great Orator",
                                                           $"Red tongue must select {LocalizedTexts.Instance.Stats.GetText(StatType.SkillPersuasion)} as his versatile performance choice at 2nd level.",

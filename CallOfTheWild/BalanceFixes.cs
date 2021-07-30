@@ -207,6 +207,30 @@ namespace CallOfTheWild
 
             var twf_basic_mechanics = library.Get<BlueprintFeature>("6948b379c0562714d9f6d58ccbfa8faa");
             twf_basic_mechanics.ReplaceComponent<TwoWeaponFightingAttacks>(Helpers.Create<IterativeTwoWeaponFightingAttacks>());
+
+
+            //fix 
+            var ranger_shield_style10 = library.Get<BlueprintFeatureSelection>("b2e73b554839a314a8c716dbf33fcfc3");
+            var shield_focus_greater = library.Get<BlueprintFeature>("afd05ca5363036c44817c071189b67e1");
+            if (!ranger_shield_style10.AllFeatures.Contains(shield_focus_greater))
+            {
+                ranger_shield_style10.AllFeatures = ranger_shield_style10.AllFeatures.AddToArray(shield_focus_greater);
+                ranger_shield_style10.Features = ranger_shield_style10.Features.AddToArray(shield_focus_greater);
+            }
+
+
+            var shield_styles = new BlueprintFeatureSelection[]
+            {
+                library.Get<BlueprintFeatureSelection>("2d54cc761ab82604f93d82b4b358cf7e"),
+                library.Get<BlueprintFeatureSelection>("10d8245011456224cb6358f640364e26"),
+                ranger_shield_style10
+            };
+
+
+            foreach (var ss in shield_styles)
+            {
+                ss.SetDescription("At 2nd level, the ranger can select from Shield Bash, Shield Focus, and Two-Weapon Fighting.\nAt 6th level, he adds Shield Master to the list.\nAt 10th level, he adds Bashing Finish and Greater Shield Focus to the list.");
+            }
         }
 
         static void fixMonkAc()
