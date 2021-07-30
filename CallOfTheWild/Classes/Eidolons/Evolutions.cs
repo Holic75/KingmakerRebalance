@@ -1058,7 +1058,7 @@ namespace CallOfTheWild
             {
                 improved_natural_armor[i] = Helpers.CreateFeature($"ImprovedNaturalArmor{i + 1}EvolutionFeature",
                                                                   $"Improved Natural Armor" + (i == 0 ? "" : $" {Common.roman_id[i + 1]}"),
-                                                                   "The eidolon’s hide grows thick fur, rigid scales, or bony plates, giving it a +2 bonus to its natural armor. For every 5 levels the summoner possesses, summoner can spend 2 additional evolution points to increase armor bonus by 2.",
+                                                                   "The eidolon’s hide grows thick fur, rigid scales, or bony plates, giving it a +2 bonus to its natural armor. For every 5 levels the summoner possesses, summoner can spend 1 additional evolution point to increase armor bonus by 2.",
                                                                    "",
                                                                    icon,
                                                                    FeatureGroup.None

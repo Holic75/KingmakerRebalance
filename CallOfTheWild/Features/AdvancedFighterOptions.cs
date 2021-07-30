@@ -73,7 +73,7 @@ namespace CallOfTheWild
 
             prepareLookupData();
 
-            createVerstileTrainingAndAdaptableTraining();
+            createVersatileTrainingAndAdaptableTraining();
             createDazzlingIntimidation();
             createDefensiveWeaponTraining();
             createFightersFinesse();
@@ -882,7 +882,7 @@ namespace CallOfTheWild
         }
 
 
-        static void createVerstileTrainingAndAdaptableTraining()
+        static void createVersatileTrainingAndAdaptableTraining()
         {
             //armor skills: mobility, athletics, persuation
 
@@ -951,7 +951,7 @@ namespace CallOfTheWild
             foreach (var s in skill_weapon_group_map)
             {
                 var feature = Helpers.CreateFeature(s.ToString() + "VersatileTrainingFeature",
-                                                    "Verstile Training: " + LocalizedTexts.Instance.Stats.GetText(s.Key),
+                                                    "Versatile Training: " + LocalizedTexts.Instance.Stats.GetText(s.Key),
                                                     versatile_training.Description,
                                                     "",
                                                     skill_foci.FirstOrDefault(sf => sf.GetComponent<AddContextStatBonus>().Stat == s.Key).Icon,
