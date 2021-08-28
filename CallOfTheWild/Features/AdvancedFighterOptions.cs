@@ -195,8 +195,8 @@ namespace CallOfTheWild
             Helpers.SetField(gore1d3, "m_DamageDice", new DiceFormula(1, DiceType.D3));
 
             var gore1d4 = library.CopyAndAdd<BlueprintItemWeapon>("daf4ab765feba8548b244e174e7af5be", "SteelHeadbutt1d4", "");
-            Helpers.SetField(gore1d3, "m_OverrideDamageDice", true);
-            Helpers.SetField(gore1d3, "m_DamageDice", new DiceFormula(1, DiceType.D4));
+            Helpers.SetField(gore1d4, "m_OverrideDamageDice", true);
+            Helpers.SetField(gore1d4, "m_DamageDice", new DiceFormula(1, DiceType.D4));
 
             var mithral = library.Get<BlueprintArmorEnchantment>("7b95a819181574a4799d93939aa99aff");
             var adamantine_heavy = library.Get<BlueprintArmorEnchantment>("933456ff83c454146a8bf434e39b1f93");
