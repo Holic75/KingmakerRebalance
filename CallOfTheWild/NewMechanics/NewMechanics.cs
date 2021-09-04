@@ -8802,7 +8802,7 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RulePrepareDamage evt)
             {
-                if (evt.DamageBundle.Empty())
+                if (evt.DamageBundle.Empty() || evt.DamageBundle.WeaponDamage == null)
                 {
                     return;
                 }
