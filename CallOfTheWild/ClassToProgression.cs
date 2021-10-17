@@ -108,6 +108,10 @@ namespace CallOfTheWild
             {
                 addClassToAbility(class_to_add, archetypes_to_add, (f as BlueprintAbility), class_to_check);
             }
+            if (f is BlueprintBuff)
+            {
+                addClassToBuff(class_to_add, archetypes_to_add, (f as BlueprintBuff), class_to_check);
+            }
             else if (f is BlueprintActivatableAbility)
             {
                 addClassToBuff(class_to_add, archetypes_to_add, (f as BlueprintActivatableAbility).Buff, class_to_check);
