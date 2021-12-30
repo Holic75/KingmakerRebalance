@@ -1378,12 +1378,12 @@ namespace CallOfTheWild
                                                 AbilityType.Supernatural,
                                                 CommandType.Standard,
                                                 AbilityRange.Personal,
-                                                "Charisma modifier minutes (minimum 1)",
+                                                "1 minute / arcanist level",
                                                 "",
                                                 Helpers.CreateRunActions(apply_buff),
                                                 library.Get<BlueprintAbility>("5b77d7cc65b8ab74688e74a37fc2f553").GetComponent<AbilitySpawnFx>(),
                                                 Helpers.CreateResourceLogic(arcane_reservoir_resource),
-                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1)
+                                                Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel, classes: new BlueprintCharacterClass[] {arcanist_class })
                                                 );
             ability.setMiscAbilityParametersSelfOnly();
 
