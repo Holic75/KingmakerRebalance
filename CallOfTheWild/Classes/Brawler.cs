@@ -1479,7 +1479,7 @@ namespace CallOfTheWild
         {
             perfect_warrior = Helpers.CreateFeature("PerfectWarriorBrawlerFeature",
                                                     "Perfect Warrior",
-                                                    "At 20th level, the brawler has reached the highest levels of her art. The brawler’s maneuver training increases by 2 and her dodge bonus to AC improves by 2. This replaces the 20th-level improvement to martial flexibility.",
+                                                    "At 20th level, the brawler has reached the highest levels of her art. The brawler’s maneuver training increases by 2 and her dodge bonus to AC improves by 2.",
                                                     "",
                                                     Helpers.GetIcon("2a6a2f8e492ab174eb3f01acf5b7c90a"), //defensive stance
                                                     FeatureGroup.None

@@ -10378,6 +10378,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact allow_reroll_fact;
             public StatType[] stats;
             private int will_spend = 0;
+            private int added_bonus = 0;
 
             private int getResourceAmount(RuleSkillCheck evt)
             {
@@ -10397,6 +10398,7 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
                 will_spend = 0;
+                added_bonus = 0;
                 if (dices.Empty())
                 {
                     return;
@@ -10426,16 +10428,18 @@ namespace CallOfTheWild
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-
+                added_bonus = result;
                 evt.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
             }
 
             public override void OnEventDidTrigger(RuleSkillCheck evt)
             {
-                if (will_spend > 0)
+                if (will_spend > 0 
+                    && !evt.IsSuccessRoll(-added_bonus)) // do not spend resource if it was not necessary
                 {
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
+                added_bonus = 0;
                 will_spend = 0;
             }
         }
@@ -10557,6 +10561,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact allow_reroll_fact;
             public BlueprintParametrizedFeature parametrized_feature;
             private int will_spend = 0;
+            private int added_bonus = 0;
 
             private int getResourceAmount(RuleAttackRoll evt)
             {
@@ -10582,6 +10587,7 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
                 will_spend = 0;
+                added_bonus = 0;
 
                 if (resource != null)
                 {
@@ -10604,17 +10610,20 @@ namespace CallOfTheWild
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-
+                added_bonus = result;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
 
             public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
-                if (will_spend > 0)
+                if (will_spend > 0
+                    && evt.Roll != 1 && evt.Roll != 20 //do not spend resource on critical failure or critical success
+                    && (evt.Roll + evt.AttackBonus - added_bonus < evt.TargetAC)) //do not spend resource if it was not necessary
                 {
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
+                added_bonus = 0;
             }
         }
 
@@ -10690,6 +10699,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts;
             public BlueprintUnitFact allow_reroll_fact;
             private int will_spend = 0;
+            private int added_result = 0;
 
             private int getResourceAmount(RuleSavingThrow evt)
             {
@@ -10710,6 +10720,7 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 will_spend = 0;
+                added_result = 0;
 
                 if (resource != null)
                 {
@@ -10732,6 +10743,7 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
+                added_result = result;
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
@@ -10740,11 +10752,14 @@ namespace CallOfTheWild
 
             public override void OnEventDidTrigger(RuleSavingThrow evt)
             {
-                if (will_spend > 0)
+                if (will_spend > 0
+                    && evt.RollResult != 1 && evt.RollResult != 20 //do not spend resource on critical failure or success
+                    && !evt.IsSuccessRoll(evt.RollResult, -added_result)) //do not spend resource if it was not necessary
                 {
                     evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
                 }
                 will_spend = 0;
+                added_result = 0;
             }
         }
 
