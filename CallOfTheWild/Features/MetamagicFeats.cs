@@ -796,6 +796,16 @@ namespace CallOfTheWild
         {
             internal static bool Prefix(RuleSavingThrow __instance, RulebookEventContext context)
             {
+                if (!__instance.Initiator.Descriptor.State.IsDead)
+                {//fill in StatValue at the very beginning otherwise rerolls will incorectly determine failure/success
+                    ModifiableValue stat = __instance.Initiator.Stats.GetStat(__instance.StatType);
+                    ModifiableValueAttributeStat valueAttributeStat = stat as ModifiableValueAttributeStat;
+                    int? nullable = stat is ModifiableValueSavingThrow valueSavingThrow ? new int?(valueSavingThrow.ModifiedValueWithDisabledBonuses()) : new int?();
+                    int num = !nullable.HasValue ? stat.ModifiedValue : nullable.Value;
+                    int? bonus = valueAttributeStat?.Bonus;
+                    Harmony12.Traverse.Create(__instance).Property("StatValue").SetValue(!bonus.HasValue ? num : bonus.Value);
+                }
+
                 EventBus.RaiseEvent<IRuleSavingThrowTriggered>((Action<IRuleSavingThrowTriggered>)(h => h.ruleSavingThrowBeforeTrigger(__instance)));
                 return true;
             }

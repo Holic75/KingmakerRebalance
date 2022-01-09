@@ -147,8 +147,8 @@ namespace CallOfTheWild.Archetypes
                                               m.TakeBest = true;
                                               m.Rule = NewMechanics.ModifyD20WithActions.RuleType.SkillCheck;
                                               m.RerollOnlyIfFailed = true;
-                                                              //m.DispellOnRerollFinished = true;
-                                                              m.required_resource = resource;
+                                              //m.DispellOnRerollFinished = true;
+                                              m.required_resource = resource;
                                               m.actions = Helpers.CreateActionList(Common.createContextActionSpendResource(resource, 1));
                                           })
 
