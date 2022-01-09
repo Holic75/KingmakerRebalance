@@ -10455,7 +10455,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
-        public class AddRandomBonusOnAttackRollAndConsumeResource : RuleInitiatorLogicComponent<RuleAttackRoll>
+        public class AddRandomBonusOnAttackRollAndConsumeResource : RuleInitiatorLogicComponent<RuleAttackRoll>, IInitiatorRulebookHandler<RuleRollD20>
         {
             public ContextValue dice_count;
             public ContextValue dice_type;
@@ -10466,7 +10466,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact allow_reroll_fact;
             public BlueprintParametrizedFeature parametrized_feature;
             private int will_spend = 0;
-            private int added_bonus = 0;
+            private RuleAttackRoll current_event = null;
 
             private int getResourceAmount(RuleAttackRoll evt)
             {
@@ -10492,11 +10492,36 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleAttackRoll evt)
             {
                 will_spend = 0;
-                added_bonus = 0;
+                current_event = evt;
+            }
+
+            public override void OnEventDidTrigger(RuleAttackRoll evt)
+            {
+                if (will_spend > 0)
+                {
+                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                }
+                will_spend = 0;
+                current_event = null;
+            }
+
+            public void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleRollD20 evt)
+            {
+                RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
+                if (previousEvent != current_event || current_event.IsCriticalRoll)
+                {
+                    //do not apply to crit confirmation rolls
+                    return;
+                }
 
                 if (resource != null)
                 {
-                    int need_resource = getResourceAmount(evt);
+                    int need_resource = getResourceAmount(current_event);
 
                     if (evt.Initiator.Descriptor.Resources.GetResourceAmount(resource) < need_resource)
                     {
@@ -10511,25 +10536,37 @@ namespace CallOfTheWild
 
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
+                int max_value = dice_formula.MaxValue(0, false);
+
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-                added_bonus = result;
-                evt.AddTemporaryModifier(evt.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-            }
 
-            public override void OnEventDidTrigger(RuleAttackRoll evt)
-            {
-                if (will_spend > 0
-                    && !evt.AutoHit && !evt.AutoMiss
-                    && evt.Roll != 1 && evt.Roll != 20 //do not spend resource on critical failure or critical success
-                    && (evt.Roll + evt.AttackBonus - added_bonus < evt.TargetAC)) //do not spend resource if it was not necessary
+                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoHit || current_event.AutoMiss)
                 {
-                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                    //do not spend resource on critical failure or critical success and auto hit/miss
+                    will_spend = 0;
+                    return;
                 }
-                will_spend = 0;
-                added_bonus = 0;
+
+                if (evt.Result + current_event.AttackBonus >= current_event.TargetAC)
+                {
+                    //will pass anyways
+                    will_spend = 0;
+                    return;
+                }
+
+                if (evt.Result + current_event.AttackBonus + max_value < current_event.TargetAC)
+                {
+                    //will fail anyways
+                    will_spend = 0;
+                    return;
+                }
+
+                Harmony12.Traverse.Create(current_event).Property("AttackBonus").SetValue(current_event.AttackBonus + result);
+                Harmony12.Traverse.Create(current_event.AttackBonusRule).Property("Result").SetValue(current_event.AttackBonus);
+                current_event.AddTemporaryModifier(current_event.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
         }
 
@@ -10659,7 +10696,6 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleSavingThrow evt)
             {
                 if (will_spend > 0
-                    && !evt.AutoPass
                     && evt.RollResult != 1 && evt.RollResult != 20 //do not spend resource on critical failure or success
                     && !evt.IsSuccessRoll(evt.RollResult, -added_result)) //do not spend resource if it was not necessary
                 {
