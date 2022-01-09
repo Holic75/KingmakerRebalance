@@ -10272,7 +10272,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
-        public class AddRandomBonusOnSkillCheckAndConsumeResource : RuleInitiatorLogicComponent<RuleSkillCheck>
+        public class AddRandomBonusOnSkillCheckAndConsumeResource : RuleInitiatorLogicComponent<RuleSkillCheck>, IInitiatorRulebookHandler<RuleRollD20>
         {
             public ContextValue dice_count;
             public ContextValue dice_type;
@@ -10283,7 +10283,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact allow_reroll_fact;
             public StatType[] stats;
             private int will_spend = 0;
-            private int added_bonus = 0;
+            private RuleSkillCheck current_event = null;
 
             private int getResourceAmount(RuleSkillCheck evt)
             {
@@ -10302,8 +10302,10 @@ namespace CallOfTheWild
 
             public override void OnEventAboutToTrigger(RuleSkillCheck evt)
             {
+                //NOTE: skill checks (unlike saving throws and attack rolls can happen without D20 roll (becasuse of take 10), we will ignore this for now, since this is a pretty rare effect
                 will_spend = 0;
-                added_bonus = 0;
+                current_event = null;
+
                 if (dices.Empty())
                 {
                     return;
@@ -10312,9 +10314,36 @@ namespace CallOfTheWild
                 {
                     return;
                 }
+                current_event = evt;
+            }
+
+            public override void OnEventDidTrigger(RuleSkillCheck evt)
+            {
+                if (will_spend > 0)
+                {
+                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                }
+                current_event = null;
+                will_spend = 0;
+            }
+
+
+            public void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleRollD20 evt)
+            {
+                RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
+                if (current_event == null || previousEvent != current_event)
+                {
+                    return;
+                }
+
                 if (resource != null)
                 {
-                    int need_resource = getResourceAmount(evt);
+                    int need_resource = getResourceAmount(current_event);
 
                     if (evt.Initiator.Descriptor.Resources.GetResourceAmount(resource) < need_resource)
                     {
@@ -10329,23 +10358,28 @@ namespace CallOfTheWild
 
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
+                int max_value = dice_formula.MaxValue(0, false);
+
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
-                added_bonus = result;
-                evt.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
-            }
 
-            public override void OnEventDidTrigger(RuleSkillCheck evt)
-            {
-                if (will_spend > 0 
-                    && !evt.IsSuccessRoll(-added_bonus)) // do not spend resource if it was not necessary
+                if (!current_event.IsSuccessRoll(evt.Result, max_value))
                 {
-                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                    //will fail anyways
+                    will_spend = 0;
+                    return;
                 }
-                added_bonus = 0;
-                will_spend = 0;
+
+                if (current_event.IsSuccessRoll(evt.Result, 0))
+                {
+                    //will pass anyways
+                    will_spend = 0;
+                    return;
+                }
+
+                current_event.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
             }
         }
 
@@ -10513,7 +10547,7 @@ namespace CallOfTheWild
             public void OnEventDidTrigger(RuleRollD20 evt)
             {
                 RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
-                if (previousEvent != current_event || current_event.IsCriticalRoll)
+                if (current_event == null || previousEvent != current_event || current_event.IsCriticalRoll)
                 {
                     //do not apply to crit confirmation rolls
                     return;
@@ -10632,7 +10666,7 @@ namespace CallOfTheWild
         [AllowedOn(typeof(BlueprintUnitFact))]
         [AllowedOn(typeof(BlueprintBuff))]
         [AllowMultipleComponents]
-        public class AddRandomBonusOnSavingThrowAndConsumeResource : RuleInitiatorLogicComponent<RuleSavingThrow>
+        public class AddRandomBonusOnSavingThrowAndConsumeResource : RuleInitiatorLogicComponent<RuleSavingThrow>, IInitiatorRulebookHandler<RuleRollD20>
         {
             public ContextValue dice_count;
             public ContextValue dice_type;
@@ -10642,7 +10676,7 @@ namespace CallOfTheWild
             public BlueprintUnitFact[] cost_reducing_facts;
             public BlueprintUnitFact allow_reroll_fact;
             private int will_spend = 0;
-            private int added_result = 0;
+            private RuleSavingThrow current_event = null;
 
             private int getResourceAmount(RuleSavingThrow evt)
             {
@@ -10663,11 +10697,37 @@ namespace CallOfTheWild
             public override void OnEventAboutToTrigger(RuleSavingThrow evt)
             {
                 will_spend = 0;
-                added_result = 0;
+                current_event = evt;
+            }
+
+
+            public override void OnEventDidTrigger(RuleSavingThrow evt)
+            {
+                if (will_spend > 0)
+                {
+                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                }
+                will_spend = 0;
+                current_event = null;
+            }
+
+
+            public void OnEventAboutToTrigger(RuleRollD20 evt)
+            {
+
+            }
+
+            public void OnEventDidTrigger(RuleRollD20 evt)
+            {
+                RulebookEvent previousEvent = Rulebook.CurrentContext.PreviousEvent;
+                if (current_event == null || previousEvent != current_event)
+                {
+                    return;
+                }
 
                 if (resource != null)
                 {
-                    int need_resource = getResourceAmount(evt);
+                    int need_resource = getResourceAmount(current_event);
 
                     if (evt.Initiator.Descriptor.Resources.GetResourceAmount(resource) < need_resource)
                     {
@@ -10679,30 +10739,40 @@ namespace CallOfTheWild
                 var dice_id = dice_type.Calculate(this.Fact.MaybeContext) - 1;
                 dice_id = Math.Max(0, Math.Min(dices.Length - 1, dice_id));
                 DiceFormula dice_formula = new DiceFormula(dice_count.Calculate(this.Fact.MaybeContext), dices[dice_id]);
+
                 RuleRollDice rule = new RuleRollDice(evt.Initiator, dice_formula);
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
+                int max_value = dice_formula.MaxValue(0, false);
+
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                added_result = result;
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-                evt.AddTemporaryModifier(evt.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-            }
-
-
-            public override void OnEventDidTrigger(RuleSavingThrow evt)
-            {
-                if (will_spend > 0
-                    && evt.RollResult != 1 && evt.RollResult != 20 //do not spend resource on critical failure or success
-                    && !evt.IsSuccessRoll(evt.RollResult, -added_result)) //do not spend resource if it was not necessary
+                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoPass)
                 {
-                    evt.Initiator.Descriptor.Resources.Spend(resource, will_spend);
+                    //do not spend resource on critical failure or critical success and auto hit/miss
+                    will_spend = 0;
+                    return;
                 }
-                will_spend = 0;
-                added_result = 0;
+
+                if (!current_event.IsSuccessRoll(evt.Result, max_value) )
+                {
+                    //will fail anyways
+                    will_spend = 0;
+                    return;
+                }
+
+                if (current_event.IsSuccessRoll(evt.Result, 0))
+                {
+                    //will pass anyways
+                    will_spend = 0;
+                    return;
+                }
+
+                current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
             }
         }
 
