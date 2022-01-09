@@ -10522,6 +10522,7 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleAttackRoll evt)
             {
                 if (will_spend > 0
+                    && !evt.AutoHit && !evt.AutoMiss
                     && evt.Roll != 1 && evt.Roll != 20 //do not spend resource on critical failure or critical success
                     && (evt.Roll + evt.AttackBonus - added_bonus < evt.TargetAC)) //do not spend resource if it was not necessary
                 {
@@ -10658,6 +10659,7 @@ namespace CallOfTheWild
             public override void OnEventDidTrigger(RuleSavingThrow evt)
             {
                 if (will_spend > 0
+                    && !evt.AutoPass
                     && evt.RollResult != 1 && evt.RollResult != 20 //do not spend resource on critical failure or success
                     && !evt.IsSuccessRoll(evt.RollResult, -added_result)) //do not spend resource if it was not necessary
                 {
