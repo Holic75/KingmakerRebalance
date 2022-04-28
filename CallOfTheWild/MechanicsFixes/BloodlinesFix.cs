@@ -386,7 +386,7 @@ namespace CallOfTheWild
             ability.DeactivateImmediately = true;
 
             blood_piercing = Helpers.CreateFeature("BloodPiercingFeature",
-                                                "Blood Piericng",
+                                                "Blood Piercing",
                                                 buff.Description,
                                                 "",
                                                 null,

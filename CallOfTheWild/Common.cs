@@ -3505,11 +3505,11 @@ namespace CallOfTheWild
             string new_description = "";
             if (level < 9)
             {
-                new_description = domain_progression.Description.Replace(old_spell.Name + ",", new_spell.Name + ",");
+                new_description = Helpers.replaceFirstOccurance(domain_progression.Description, old_spell.Name + ",", new_spell.Name + ",");
             }
             else
             {
-                new_description = domain_progression.Description.Replace(old_spell.Name, new_spell.Name);
+                new_description = Helpers.replaceFirstOccurance(domain_progression.Description, old_spell.Name + ".", new_spell.Name + ".");
             }
             var old_description = domain_progression.Description;
             var blueprints = library.GetAllBlueprints().OfType<BlueprintProgression>().Where(f => f.Description == old_description).ToArray();
@@ -3519,11 +3519,11 @@ namespace CallOfTheWild
             }
             if (level < 9)
             {
-                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + "," , new_spell.Name + ","));
+                base_feature.SetDescription(Helpers.replaceFirstOccurance(base_feature.Description, old_spell.Name + "," , new_spell.Name + ","));
             }
             else
             {
-                base_feature.SetDescription(base_feature.Description.Replace(old_spell.Name + ".", new_spell.Name + "."));
+                base_feature.SetDescription(Helpers.replaceFirstOccurance(base_feature.Description, old_spell.Name + ".", new_spell.Name + "."));
             }
            
 
