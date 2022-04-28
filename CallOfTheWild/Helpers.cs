@@ -2295,6 +2295,17 @@ namespace CallOfTheWild
         }
 
 
+        static public string replaceFirstOccurance(string str, string token, string new_token)
+        {
+            int idx = str.IndexOf(token);
+            if (idx >= 0)
+            {
+                return str.Remove(idx, token.Length).Insert(idx, new_token);
+            }
+            return str;
+        }
+
+
 
         public static AbilityAreaEffectRunAction CreateAreaEffectRunAction(GameAction[] unitEnter = null, GameAction[] unitExit = null, GameAction[] unitMove = null, GameAction[] round = null)
         {
