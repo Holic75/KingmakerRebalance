@@ -2077,7 +2077,7 @@ namespace CallOfTheWild
 
             split_hex_ability = Helpers.CreateAbility("SplitHexAbility",
                                                        "Split Hex",
-                                                       "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature as a free action.",
+                                                       "When you use one of your hexes (not a major hex or a grand hex) that targets a single creature, you can apply the same hex to another creature within 30 feet of your initial target as a free action.",
                                                        "",
                                                        LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Split.png"),
                                                        AbilityType.Supernatural,
@@ -2151,6 +2151,7 @@ namespace CallOfTheWild
         BlueprintAbility addToSplitHexBase(BlueprintAbility hex, BlueprintFeature parent_feature, bool amplify, bool major)
         {
             BlueprintAbility split_hex = null;
+            BlueprintAbility original_ability = hex;
             if (hex.StickyTouch == null)
             {
                 split_hex = library.CopyAndAdd<BlueprintAbility>(hex.AssetGuid, "SplitHex" + hex.name, "");
@@ -2159,14 +2160,39 @@ namespace CallOfTheWild
             {
                 split_hex = library.CopyAndAdd<BlueprintAbility>(hex.StickyTouch.TouchDeliveryAbility.AssetGuid, "SplitHex" + hex.name, "");
                 split_hex.RemoveComponents<AbilityDeliverTouch>();
-                split_hex.Range = AbilityRange.Close;
+                
                 split_hex.Animation = Kingmaker.Visual.Animation.Kingmaker.Actions.UnitAnimationActionCastSpell.CastAnimationStyle.Point;
+                original_ability = hex.StickyTouch.TouchDeliveryAbility;
             }
+            split_hex.Range = AbilityRange.Unlimited;
             split_hex.SetName("Split Hex : " + hex.Name);
             split_hex.SetIcon(split_hex.Icon);
             split_hex.ActionType = CommandType.Free;
             split_hex.Parent = split_hex_ability;
 
+            var split_hex_buff_target = Helpers.CreateBuff("SplitHex" + hex.name + "TargetBuff",
+                                                            split_hex.Name + " (Possible Target)",
+                                                            split_hex_feat.Description,
+                                                            "",
+                                                            split_hex.Icon,
+                                                            null,
+                                                            Helpers.Create<BuffMechanics.StoreBuff>()
+                                                            );
+            split_hex.AddComponent(Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { split_hex_buff_target }));
+            var aoe_action = Helpers.Create<AoeMechanics.ApplyActionToTargetsInRange>(a =>
+            {
+                a.Radius = 30.Feet().Meters;
+                a.target_checkers = original_ability.GetComponents<IAbilityTargetChecker>().ToArray();
+                var apply_buff = Common.createContextActionApplyBuff(split_hex_buff_target,
+                                                                     Helpers.CreateContextDuration(Common.createSimpleContextValue(1)),
+                                                                     dispellable: false,
+                                                                     duration_seconds: 3);
+                a.actions = Helpers.CreateActionList(apply_buff);
+                a.CanTargetEnemies = hex.CanTargetEnemies;
+                a.CanTargetFriends = hex.CanTargetFriends;
+                a.CanTargetSelf = hex.CanTargetSelf;
+            });
+            original_ability.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(a.Actions.Actions.AddToArray(aoe_action)));
             if (major)
             {
                 split_hex.AddComponent(Common.createAbilityShowIfCasterHasFacts(parent_feature, split_major_hex_feat));
@@ -2182,7 +2208,8 @@ namespace CallOfTheWild
                                                 "",
                                                 split_hex.Icon,
                                                 null,
-                                                Helpers.Create<ReplaceAbilityParamsWithContext>(a => a.Ability = split_hex)
+                                                Helpers.Create<ReplaceAbilityParamsWithContext>(a => a.Ability = split_hex),
+                                                Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveStoredBuffs>(r => r.buff = split_hex_buff_target))
                                                 );
 
             split_hex.AddComponent(Common.createAbilityTargetHasNoFactUnlessBuffsFromCaster(new BlueprintBuff[]{immune_to_split_hex_buff}));
@@ -2219,11 +2246,6 @@ namespace CallOfTheWild
 
             var rod_trigger = rod_of_voracious_hexes.ActivatableAbility.Buff.GetComponent<NewMechanics.SpellCastTrigger>();
             rod_trigger.Spells = rod_trigger.Spells.AddToArray(hex);
-            /*if (amplify)
-            {
-                var c = amplified_hex_buff.GetComponent<NewMechanics.IncreaseSpecifiedSpellsDC>();
-                c.spells = c.spells.AddToArray(split_hex);
-            }*/
 
             return split_hex;
         }

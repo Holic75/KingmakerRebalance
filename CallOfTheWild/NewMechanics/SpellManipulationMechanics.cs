@@ -618,7 +618,6 @@ namespace CallOfTheWild
 
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
-
             public ActionList actions_on_store = new ActionList();
             public bool ignore_target_checkers = false;
             public bool always_hit = false;

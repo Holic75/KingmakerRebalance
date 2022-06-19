@@ -18,6 +18,7 @@ using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.AreaEffects;
+using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
 using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Alignments;
@@ -324,7 +325,7 @@ namespace CallOfTheWild
 
             infectious_charms = Helpers.CreateFeature("InfectiousCharmsArcaneDiscoveryFeature",
                                                       "Infectious Charms",
-                                                      "Anytime you target and successfully affect a single creature with a charm or compulsion spell, as a swift action immediately after affecting a creature with a charm or compulsion spell, you can cause the spell to carry over to another creature within close range. The spell behaves in all ways as though its new target were the original target of the spell.",
+                                                      "Anytime you target and successfully affect a single creature with a charm or compulsion spell and that creature is within 30 feet of another opponent, your spell has a chance of affecting the second creature as well. As a swift action immediately after affecting a creature with a charm or compulsion spell, you can cause the spell to carry over to the nearest creature within 30 feet. The spell behaves in all ways as though its new target were the original target of the spell.",
                                                       "",
                                                       Helpers.GetIcon("d7cbd2004ce66a042aeab2e95a3c5c61"),
                                                       FeatureGroup.Feat,
@@ -336,15 +337,37 @@ namespace CallOfTheWild
 
             foreach (var spell in spells)
             {
+                var buff_target = Helpers.CreateBuff("InfectiousCharms" + spell.name + "TargetBuff",
+                                                      infectious_charms.Name + " (Possible Target)",
+                                                      infectious_charms.Description,
+                                                      Helpers.MergeIds("98bc8374d5de4f5d809e3d83d0197bfa", spell.AssetGuid),
+                                                      null,
+                                                      null,
+                                                      Helpers.Create<BuffMechanics.StoreBuff>());
                 var buff = Helpers.CreateBuff("InfectiousCharms" + spell.name + "Buff",
                                               infectious_charms.Name,
                                               infectious_charms.Description,
                                               Helpers.MergeIds("37244a94e20748f7b52312f5ddbd3ad5", spell.AssetGuid),
                                               null,
-                                              null);
+                                              null,
+                                              Helpers.CreateAddFactContextActions(deactivated: Helpers.Create<BuffMechanics.RemoveStoredBuffs>(r => r.buff = buff_target))
+                                              );
 
-                var apply_buff = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(infectious_charms),
-                                                           Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false)
+                var apply_buff = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionCasterHasFact(infectious_charms) },
+                                                           new GameAction[]{Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                                            Helpers.Create<AoeMechanics.ApplyActionToTargetsInRange>(a =>
+                                                                                {
+                                                                                    a.Radius = 30.Feet().Meters;
+                                                                                    a.target_checkers = spell.GetComponents<IAbilityTargetChecker>().ToArray();
+                                                                                    a.CanTargetEnemies = spell.CanTargetEnemies;
+                                                                                    a.CanTargetSelf = spell.CanTargetSelf;
+                                                                                    a.CanTargetFriends = spell.CanTargetFriends;
+                                                                                    var apply_target_buff = Common.createContextActionApplyBuff(buff_target, Helpers.CreateContextDuration(1), dispellable: false);
+                                                                                    a.actions = Helpers.CreateActionList(apply_target_buff);
+                                                                                    a.max_num_units = 1;
+                                                                                }
+                                                                            )
+                                                                            }
                                                            );
 
                 var swift_ability = library.CopyAndAdd<BlueprintAbility>(spell, "InfectiousCharms" + spell.name, Helpers.MergeIds("ad7a842eeff740f4bad0d794893143d5", spell.AssetGuid));
@@ -352,7 +375,8 @@ namespace CallOfTheWild
                 swift_ability.AddComponent(Common.createAbilityCasterHasFacts(buff));
                 swift_ability.RemoveComponents<AbilityDeliverTouch>();
 
-                swift_ability.Range = AbilityRange.Close;
+                swift_ability.Range = AbilityRange.Unlimited;
+                swift_ability.AddComponent(Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { buff_target }));
 
 
                 var remove_buff = Common.createAbilityExecuteActionOnCast(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Helpers.Create<ContextActionRemoveBuff>(r => r.Buff = buff))));
