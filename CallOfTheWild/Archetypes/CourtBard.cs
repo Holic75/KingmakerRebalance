@@ -298,7 +298,7 @@ namespace CallOfTheWild.Archetypes
         {
             var buff = library.CopyAndAdd<BlueprintBuff>("2e1646c2449c88a4188e58043455a43a", "ScandalEffectBuff", ""); //song of discord buff
             buff.SetNameDescriptionIcon("Scandal",
-                                        "court bard of 14th level or higher can combine salacious gossip and biting calumny to incite a riot. Each enemy within 50 feet is affected as if by a song of discord for as long as it can hear the performance. A successful Will save (DC 10 + 1/2 the bard’s level + the bard’s Cha modifier) negates the effect, and that creature is immune to this ability for 24 hours. Scandal is a language-dependent, mind-affecting ability that uses audible components.",
+                                        "Court bard of 14th level or higher can combine salacious gossip and biting calumny to incite a riot. Each enemy within 50 feet is affected as if by a song of discord for as long as it can hear the performance. A successful Will save (DC 10 + 1/2 the bard’s level + the bard’s Cha modifier) negates the effect, and that creature is immune to this ability for 24 hours. Scandal is a language-dependent, mind-affecting ability that uses audible components.",
                                         buff.Icon);
             buff.SetBuffFlags(BuffFlags.RemoveOnRest);
             buff.RemoveComponents<SpellDescriptorComponent>();

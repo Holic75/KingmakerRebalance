@@ -2178,6 +2178,7 @@ namespace CallOfTheWild
                                                             null,
                                                             Helpers.Create<BuffMechanics.StoreBuff>()
                                                             );
+            split_hex_buff_target.Stacking = StackingType.Stack;
             split_hex.AddComponent(Helpers.Create<NewMechanics.AbilityTargetHasBuffFromCaster>(a => a.Buffs = new BlueprintBuff[] { split_hex_buff_target }));
             var aoe_action = Helpers.Create<AoeMechanics.ApplyActionToTargetsInRange>(a =>
             {

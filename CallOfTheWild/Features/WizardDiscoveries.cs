@@ -344,6 +344,7 @@ namespace CallOfTheWild
                                                       null,
                                                       null,
                                                       Helpers.Create<BuffMechanics.StoreBuff>());
+                buff_target.Stacking = StackingType.Stack;
                 var buff = Helpers.CreateBuff("InfectiousCharms" + spell.name + "Buff",
                                               infectious_charms.Name,
                                               infectious_charms.Description,
@@ -354,7 +355,7 @@ namespace CallOfTheWild
                                               );
 
                 var apply_buff = Helpers.CreateConditional(new Condition[] { Helpers.CreateConditionCasterHasFact(infectious_charms) },
-                                                           new GameAction[]{Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false),
+                                                           new GameAction[]{Common.createContextActionApplyBuffToCaster(buff, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 3),
                                                                             Helpers.Create<AoeMechanics.ApplyActionToTargetsInRange>(a =>
                                                                                 {
                                                                                     a.Radius = 30.Feet().Meters;
@@ -362,7 +363,7 @@ namespace CallOfTheWild
                                                                                     a.CanTargetEnemies = spell.CanTargetEnemies;
                                                                                     a.CanTargetSelf = spell.CanTargetSelf;
                                                                                     a.CanTargetFriends = spell.CanTargetFriends;
-                                                                                    var apply_target_buff = Common.createContextActionApplyBuff(buff_target, Helpers.CreateContextDuration(1), dispellable: false);
+                                                                                    var apply_target_buff = Common.createContextActionApplyBuff(buff_target, Helpers.CreateContextDuration(1), dispellable: false, duration_seconds: 3);
                                                                                     a.actions = Helpers.CreateActionList(apply_target_buff);
                                                                                     a.max_num_units = 1;
                                                                                 }
