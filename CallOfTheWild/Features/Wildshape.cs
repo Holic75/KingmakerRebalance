@@ -961,7 +961,6 @@ namespace CallOfTheWild
                     a.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(druid, StatType.Constitution));
                     abilities.Add(a);
                     druid_wild_shapes = druid_wild_shapes.AddToArray(b);
-
                 }
 
                 var wildshape = Common.createVariantWrapper("Wildshape" + f.name, "", abilities.ToArray());

@@ -246,6 +246,7 @@ namespace CallOfTheWild
 
             summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(pactbound_curse);
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(soulbound_evolution));
+            summoner_progression.UIGroups[0].Features.Add(soulbound_life_link);
         }
 
 
