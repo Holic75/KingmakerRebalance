@@ -7521,7 +7521,7 @@ namespace CallOfTheWild
             var water_subtype = library.Get<BlueprintFeature>("bf7ee56ec9e43c14fa17727997e91993");
             var buff = Helpers.CreateBuff("FluidFormBuff",
                                             "Fluid Form",
-                                            "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10/slashing and your reach increases by 10 feet.",
+                                            "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment. You gain DR 10/slashing and your reach increases by 10 feet.",
                                             "",
                                             icon,
                                             Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
@@ -10495,7 +10495,7 @@ namespace CallOfTheWild
             flame_blade_electric = createFlameBladeVariant("FlameBladeElectric",
                                                   "Flame Blade (Electric)",
                                                   "This spell works like flame blade, but deals electricity damage instead.\n"
-                                                  + "Flame Blade: A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
+                                                  + "Flame Blade: A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand. You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponEvil.png"),
                                                   DamageEnergyType.Electricity,

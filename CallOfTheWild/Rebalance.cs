@@ -2876,7 +2876,7 @@ namespace CallOfTheWild
                                                                                                                                             }
                                                                                                                                         })
                                                                   );
-            blinding_ray.SetDescription("As a standard action, you can fire a shimmering ray at any foe within 30 feet as a ranged touch attack.The ray causes creatures to be blinded for 1 round.Creatures with more Hit Dice than your wizard level are dazzled for 1 round instead.You can use this ability a number of times per day equal to 3 + your Intelligence modifier.");
+            blinding_ray.SetDescription("As a standard action, you can fire a shimmering ray at any foe within 30 feet as a ranged touch attack. The ray causes creatures to be blinded for 1 round. Creatures with more Hit Dice than your wizard level are dazzled for 1 round instead. You can use this ability a number of times per day equal to 3 + your Intelligence modifier.");
         }
 
 
