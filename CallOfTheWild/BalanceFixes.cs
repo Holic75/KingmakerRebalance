@@ -191,23 +191,23 @@ namespace CallOfTheWild
 
         static void fixTwf()
         {
-            //two weapon fighting now allows you to make up to 3 three iterative attacks if your bab allows it
+            //improved two weapon fighting now allows you to make up to 2 iterative attacks if your bab allows it
             var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
-            var itwf = library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8");
             var gtwf = library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629");
 
-            //remove itwf and gtwf from selections
+            //remove gtwf from selections
             var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();
 
             foreach (var s in selections)
             {
-                s.AllFeatures = s.AllFeatures.RemoveFromArray(itwf).RemoveFromArray(gtwf);
-                s.Features = s.Features.RemoveFromArray(itwf).RemoveFromArray(gtwf);
+                s.AllFeatures = s.AllFeatures.RemoveFromArray(gtwf);
+                s.Features = s.Features.RemoveFromArray(gtwf);
             }
 
             var twf_basic_mechanics = library.Get<BlueprintFeature>("6948b379c0562714d9f6d58ccbfa8faa");
             twf_basic_mechanics.ReplaceComponent<TwoWeaponFightingAttacks>(Helpers.Create<IterativeTwoWeaponFightingAttacks>());
-
+            var itwf = library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629");
+            itwf.SetDescription("You get a second attack with your off-hand weapon, albeit at a –5 penalty. When your base attack bonus reaches +11, you can make a third off-hand weapon attack at -10 penalty.");
 
             //fix 
             var ranger_shield_style10 = library.Get<BlueprintFeatureSelection>("b2e73b554839a314a8c716dbf33fcfc3");
@@ -1336,11 +1336,11 @@ namespace CallOfTheWild
                     ++evt.SecondaryHand.MainAttacks;
                 }
             }
-            else if (this.Fact.GetRank() > 1)
+            else if (this.Fact.GetRank() > 2)
             {
                 var bab = this.Owner.Stats.BaseAttackBonus.ModifiedValue;
-                if (bab > 5)
-                    ++evt.SecondaryHand.PenalizedAttacks;
+                //if (bab > 5)
+                ++evt.SecondaryHand.PenalizedAttacks;
                 if (bab > 10)
                     ++evt.SecondaryHand.PenalizedAttacks;
             }

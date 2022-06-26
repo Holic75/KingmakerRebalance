@@ -139,6 +139,7 @@ namespace CallOfTheWild
                                                             Summoner.fey_eidolon_selection,
                                                             Summoner.infernal_eidolon_selection,
                                                             Spiritualist.emotional_focus_selection,
+                                                            Spiritualist.emotional_focus_no_unsummon,
                                                             Shaman.drake_companion,
                                                             Archetypes.DraconicDruid.drake_companion,
                                                             Warpriest.animal_companion,

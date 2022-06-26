@@ -5100,7 +5100,7 @@ namespace CallOfTheWild
             Helpers.SetField(arsenal_chaplain, "m_ParentClass", warpriest_class);
             library.AddAsset(arsenal_chaplain, "");
 
-            arsenal_chaplain.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings, warpriest_sacred_weapon_damage),
+            arsenal_chaplain.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings),
                                                                     Helpers.LevelEntry(4, warpriest_channel_energy, warpriest_sacred_weapon_enhancement),
                                                                     Helpers.LevelEntry(7, warpriest_sacred_armor),
                                                                     Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
@@ -5120,8 +5120,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(13, arsenal_chaplain_weapon_training),
                                                            Helpers.LevelEntry(17, arsenal_chaplain_weapon_training),
                                                           };
-
-
+            warpriest_progression.UIGroups[2].Features.Add(arsenal_chaplain_weapon_training);
             warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(arsenal_chaplain_war_blessing, blessings_map["War"]);
         }
 

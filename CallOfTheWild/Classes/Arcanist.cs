@@ -361,13 +361,13 @@ namespace CallOfTheWild
                 collegiate_arcanist.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, arcane_exploits), Helpers.LevelEntry(10, arcane_exploits), Helpers.LevelEntry(19, arcane_exploits) };
             }
 
-            collegiate_arcanist.AddFeatures = new LevelEntry[20];
+            collegiate_arcanist.AddFeatures = new LevelEntry[11];
             collegiate_initiate_bonus_feat = library.CopyAndAdd<BlueprintFeatureSelection>("d6dd06f454b34014ab0903cb1ed2ade3", "CollegiateInitiateBonusFeatureSelection", "");
             collegiate_initiate_bonus_feat.SetNameDescription("Magaambyan Initiate Bonus Feat",
                                                               "At 5th level, a magaambyan initiate gains a bonus feat. She can choose a metamagic feat, spell focus feat, or any other spellcaster feat. The agaambyan initiate must still meet all prerequisites for a bonus feat, including caster level minimums.");
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 11; i++)
             {
-                collegiate_arcanist.AddFeatures[i] = Helpers.LevelEntry(i + 1, halcyon_spell_lore);
+                collegiate_arcanist.AddFeatures[i] = Helpers.LevelEntry(i == 0 ? 1 : 2 * i, halcyon_spell_lore);
             }
             collegiate_arcanist.AddFeatures[0].Features.Add(collegiate_initiate_alignment);
             //collegiate_arcanist.AddFeatures[4].Features.Add(collegiate_initiate_bonus_feat);
@@ -393,77 +393,74 @@ namespace CallOfTheWild
         {
             var druid_spell_list = library.Get<BlueprintSpellList>("bad8638d40639d04fa2f80a1cac67d6b");
             var cleric_spell_list = library.Get<BlueprintSpellList>("8443ce803d2d31347897a3d85cc32f53");
-
-            halcyon_lore_spell_list = Common.combineSpellLists("HalcyonLoreSpellList",
-                                                               (spell, spell_list, lvl) =>
-                                                               {
-                                                                   if (arcanist_class.Spellbook.SpellList.Contains(spell) 
-                                                                       && arcanist_class.Spellbook.SpellList.GetLevel(spell) != lvl)
-                                                                   {
-                                                                       return false;
-                                                                   }
-                                                                   if (Witch.witch_class.Spellbook.SpellList.Contains(spell)
-                                                                         && Witch.witch_class.Spellbook.SpellList.GetLevel(spell) != lvl)
-                                                                   {//for unlettered arcanist/maagambyan arcanist
-                                                                       return false;
-                                                                   }
-                                                                   if (spell_list == cleric_spell_list && (spell.SpellDescriptor & SpellDescriptor.Good) == 0)
-                                                                   {
-                                                                       return false;
-                                                                   }
-                                                                   return true;
-                                                               },
-                                                               druid_spell_list, cleric_spell_list
-                                                               );
-
-
             var icon = LoadIcons.Image2Sprite.Create(@"AbilityIcons/Wish.png");
             halcyon_spell_lore = Helpers.CreateFeatureSelection("HalcyonSpellLoreFeatureSelection",
                                                                 "Halcyon Spell Lore",
-                                                                "A Magaambyan initiate’s studies of the philanthropic teachings of Old-Mage Jatembe allow her to cast a limited number of spells per day beyond those she could normally prepare ahead of time. At each class level, she chooses one spell from the druid spell list or one spell with the good descriptor from the cleric spell list. The spell must be of a spell level that she can cast. A Magaambyan initiate can cast a spell that she has chosen with this ability as if it were on her spell list and prepared by expending a number of points from her arcane reservoir equal to half the spell’s level (minimum 1) and expending a spell slot of the spell’s level.",
+                                                                "A Magaambyan initiate’s studies of the philanthropic teachings of Old-Mage Jatembe allow her to cast a limited number of spells per day beyond those she could normally prepare ahead of time. At 1st level, then at 2nd and every 2 levels thereafter, she chooses one spell from the druid spell list or one spell with the good descriptor from the cleric spell list. The spell must be of a spell level that she can cast and cannot be a spell that already appears on her arcanist spell list. A Magaambyan initiate can cast a spell that she has chosen with this ability as if it were on her spell list and prepared by expending a number of points from her arcane reservoir equal to half the spell’s level (minimum 1) and expending a spell slot of the spell’s level.",
                                                                 "",
                                                                 icon,
                                                                 FeatureGroup.None);
 
-            var availability_component = Helpers.Create<SpellManipulationMechanics.SpellRequiringResourceIfCastFromSpecificSpellbook>(r =>
-                                                            {
-                                                                r.arcanist_spellbook = true;
-                                                                r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
-                                                                r.half_level = true;
-                                                                r.resource = arcane_reservoir_resource;
-                                                                r.only_from_extra_arcanist_spell_list = true;
-                                                            }
-                                                            );
-            for (int i = 1; i <= 9; i++)
-            {
-                foreach (var s in halcyon_lore_spell_list.GetSpells(i))
-                {
-                    if (s.HasVariants)
-                    {
-                        foreach (var v in s.Variants)
-                        {
-                            v.AddComponent(availability_component);
-                        }                       
-                    }
-                    else
-                    {
-                        s.AddComponent(availability_component);
-                    }
-                }
-                var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"HalcyonSpellLore{i}ParametrizedFeature", "");
-                learn_spell.SpellLevel = i;
-                learn_spell.SpecificSpellLevel = true;
-                learn_spell.SpellLevelPenalty = 0;
-                learn_spell.SpellcasterClass = arcanist_class;
-                learn_spell.SpellList = halcyon_lore_spell_list;
-                learn_spell.ReplaceComponent<LearnSpellParametrized>(Helpers.Create<SpellManipulationMechanics.AddExtraArcanistSpellParametrized>(a => a.spell_list = halcyon_lore_spell_list));
-                learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(arcanist_class, i)
-                                          );
-                learn_spell.SetName(Helpers.CreateString($"HalcyonSpellLore{i}.Name", "Halcyon Spell Lore " + $"(Level {i})"));
-                learn_spell.SetDescription(halcyon_spell_lore.Description);
-                learn_spell.SetIcon(halcyon_spell_lore.Icon);
+            var spelllists = new (BlueprintSpellList, string, Prerequisite[])[] {(arcanist_class.Spellbook.SpellList, "", new Prerequisite[] {Common.prerequisiteNoArchetype(unlettered_arcanist_archetype)}),
+                                                                                 (Witch.witch_class.Spellbook.SpellList, "Unlettered", new Prerequisite[] {Common.createPrerequisiteArchetypeLevel(unlettered_arcanist_archetype, 1)}) };
+            foreach (var sl in spelllists)
+            { 
+                halcyon_lore_spell_list = Common.combineSpellLists("HalcyonLoreSpellList" + sl.Item2,
+                                                                   (spell, spell_list, lvl) =>
+                                                                   {
+                                                                       if (sl.Item1.Contains(spell))
+                                                                       {
+                                                                           return false;
+                                                                       }
+                                                                       if (spell_list == cleric_spell_list && (spell.SpellDescriptor & SpellDescriptor.Good) == 0)
+                                                                       {
+                                                                           return false;
+                                                                       }
+                                                                       return true;
+                                                                   },
+                                                                   druid_spell_list, cleric_spell_list
+                                                                   );
 
-                halcyon_spell_lore.AllFeatures = halcyon_spell_lore.AllFeatures.AddToArray(learn_spell);
+                var availability_component = Helpers.Create<SpellManipulationMechanics.SpellRequiringResourceIfCastFromSpecificSpellbook>(r =>
+                                                                {
+                                                                    r.arcanist_spellbook = true;
+                                                                    r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
+                                                                    r.half_level = true;
+                                                                    r.resource = arcane_reservoir_resource;
+                                                                    r.only_from_extra_arcanist_spell_list = true;
+                                                                }
+                                                                );
+                for (int i = 1; i <= 9; i++)
+                {
+                    foreach (var s in halcyon_lore_spell_list.GetSpells(i))
+                    {
+                        if (s.HasVariants)
+                        {
+                            foreach (var v in s.Variants)
+                            {
+                                v.AddComponent(availability_component);
+                            }
+                        }
+                        else
+                        {
+                            s.AddComponent(availability_component);
+                        }
+                    }
+                    var learn_spell = library.CopyAndAdd<BlueprintParametrizedFeature>("bcd757ac2aeef3c49b77e5af4e510956", $"HalcyonSpellLore{i}{sl.Item2}ParametrizedFeature", "");
+                    learn_spell.SpellLevel = i;
+                    learn_spell.SpecificSpellLevel = true;
+                    learn_spell.SpellLevelPenalty = 0;
+                    learn_spell.SpellcasterClass = arcanist_class;
+                    learn_spell.SpellList = halcyon_lore_spell_list;
+                    learn_spell.ReplaceComponent<LearnSpellParametrized>(Helpers.Create<SpellManipulationMechanics.AddExtraArcanistSpellParametrized>(a => a.spell_list = halcyon_lore_spell_list));
+                    learn_spell.AddComponents(Common.createPrerequisiteClassSpellLevel(arcanist_class, i));
+                    learn_spell.AddComponents(sl.Item3);
+                    learn_spell.SetName(Helpers.CreateString($"HalcyonSpellLore{i}{sl.Item3}.Name", "Halcyon Spell Lore " + $"(Level {i})"));
+                    learn_spell.SetDescription(halcyon_spell_lore.Description);
+                    learn_spell.SetIcon(halcyon_spell_lore.Icon);
+
+                    halcyon_spell_lore.AllFeatures = halcyon_spell_lore.AllFeatures.AddToArray(learn_spell);
+                }
             }
         }
 

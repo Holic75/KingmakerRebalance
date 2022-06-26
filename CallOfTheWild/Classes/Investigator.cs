@@ -39,6 +39,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -142,6 +143,8 @@ namespace CallOfTheWild
         static public BlueprintFeature mechancial_inspiration;
         static public BlueprintFeature construct_mastery;
         static public BlueprintFeatureSelection scavenger_skill_focus;
+        static private BlueprintUnitProperty casting_stat_property;
+   
 
 
         internal static void createInvestigatorClass()
@@ -182,6 +185,8 @@ namespace CallOfTheWild
             investigator_class.FemaleEquipmentEntities = rogue_class.FemaleEquipmentEntities;
             investigator_class.ComponentsArray = rogue_class.ComponentsArray;
             investigator_class.StartingItems = rogue_class.StartingItems;
+            //create casting stat property to avoid specifying intelligence explicitely (for compatibility with jinyiwey)
+            casting_stat_property = NewMechanics.CastingStatPropertyGetter.createProperty("InvestigatorCastingStatProperty", "fd48eb2bb16f4cebab419d7d1de1f87b", StatType.Intelligence, investigator_class);
            
             createInvestigatorProgression();
             investigator_class.Progression = investigator_progression;
@@ -1007,7 +1012,7 @@ namespace CallOfTheWild
         {
             divine_inspiration = library.CopyAndAdd<BlueprintFeature>(inspiration, "DivineInspirationJinyiweiFeature", "");
             divine_inspiration.SetNameDescriptionIcon("Divine Inspiration",
-                                                      "A jinyiwei follows a mandate to combat corruption in the mortal world. A jinyiwei adds her Wisdom modifier to her inspiration pool, rather than her Intelligence modifier. Additionally, rather than dabbling in the arcane arts of alchemy, a jinyiwei is empowered by the forces of celestial bureaucracy. She casts spells as an inquisitor of the same level.",
+                                                      "A jinyiwei follows a mandate to combat corruption in the mortal world. A jinyiwei adds her Wisdom modifier to her inspiration pool, rather than her Intelligence modifier. Additionally, rather than dabbling in the arcane arts of alchemy, a jinyiwei is empowered by the forces of celestial bureaucracy. She casts spells as an inquisitor of the same level. Her studied strike related abilities also depend on Wisdom rather than Intelligence.",
                                                       Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96")//good hope
                                                       );
             divine_inspiration.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount ,baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 1));
@@ -2198,8 +2203,8 @@ namespace CallOfTheWild
                                                          "",
                                                          icon,
                                                          null,
-                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
-                                                                                         stat: StatType.Intelligence),
+                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CustomProperty,
+                                                                                         customProperty: casting_stat_property),
                                                          Helpers.CreateAddFactContextActions(activated: Helpers.CreateConditional(Common.createContextConditionCasterHasFact(studied_defense_toggle_buff),
                                                                                                                                   apply_defense,
                                                                                                                                   apply_attack)
@@ -2220,8 +2225,8 @@ namespace CallOfTheWild
                                                            "",
                                                            Helpers.CreateRunActions(apply_studied, apply_cooldown),
                                                            Common.createAbilityTargetHasFact(true, studied_target_cooldown),
-                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
-                                                                                         stat: StatType.Intelligence)
+                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CustomProperty,
+                                                                                         customProperty: casting_stat_property)
                                                            );
             studied_combat_ability.AvailableMetamagic = Metamagic.Extend;
             studied_combat_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -2351,7 +2356,7 @@ namespace CallOfTheWild
                                           /*(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
                                                                                            check_weapon_range_type: true, wait_for_attack_to_resolve: true, 
                                                                                            range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),*/
-                                          Common.createContextCalculateAbilityParamsBasedOnClass(investigator_class, StatType.Intelligence)
+                                          Common.createContextCalculateAbilityParamsBasedOnClassesWithProperty(new BlueprintCharacterClass[] { investigator_class }, casting_stat_property)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorStudiedStrikeToggleAbility",
                                                           studied_strike_buff.Name,

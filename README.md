@@ -616,6 +616,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Wind Walk increases speed to only 20mph instead of 60,
 - Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed,
 - Sanctified Slayer looses Bane ability,
+- Arsenal Chaplain Warpriest gains weapon damage die increase progression as usual, but does not get ability to enchant his sacred weapon,
 - Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,
 - Lore Warden Hair's Breadth ability grants a permanent bonus to AC against critical hits equal to 1/3 of mobility skill
@@ -650,7 +651,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 #### Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
 - Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist spells
-- Two-Weapon fighting automatically give iterative off-hand attacks once your BAB reaches 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
+- Improved Two-Weapon fighting automatically give one more iterative off-hand attack once your BAB reaches 11, Greater Two-Weapon fighting is removed from the game
 - Vital Strike multiplier automatically scales to 3 when your BAB reaches 11 and to 4 when your BAB reaches 16, Improved Vital Strike and Greater Vital Strike are removed from the game
 - Cleave and Greater Cleave are merged into one feat
 - Improved Cleaving finish and Cleaving finish are merged into one feat

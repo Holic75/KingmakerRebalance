@@ -993,7 +993,7 @@ namespace CallOfTheWild
                 foreach (var rs in ranger_styles)
                 {
                     rs.AllFeatures = rs.AllFeatures.AddToArray(prodigious_two_weapon_fighting);
-                    rs.SetDescription("At 2nd level, the ranger can select Prodigious Two-Weapon Fighting, Shield Bash, and Two-Weapon Fighting.\nAt 6th level, he adds Double Slice to the list.\nAt 10th level, he adds Two-Weapon Rend to the list.");
+                    rs.SetDescription("At 2nd level, the ranger can select Prodigious Two-Weapon Fighting, Shield Bash, and Two-Weapon Fighting.\nAt 6th level, he adds Double Slice and Improved Two-Weapon Fighting to the list.\nAt 10th level, he adds Two-Weapon Rend to the list.");
                 }
             }
         }
