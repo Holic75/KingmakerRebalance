@@ -2362,7 +2362,7 @@ namespace CallOfTheWild
 
             ranged_channel_wrapper = Common.createVariantWrapper("RangedChannelTouchOfCorruptionBase", "", ranged_channels.ToArray());
             ranged_channel_wrapper.SetIcon(LoadIcons.Image2Sprite.Create(@"AbilityIcons/TipOfTheSpear.png"));
-            touch_of_corruption.AddComponent(Helpers.CreateAddFact(channel_wrapper));
+            channel_corruption.AddComponent(Helpers.CreateAddFact(channel_wrapper));
 
 
             ability_focus_touch_of_corruption = Helpers.CreateFeature("TouchOfCorruptionFocusFeature",
