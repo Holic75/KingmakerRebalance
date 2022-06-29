@@ -291,6 +291,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
+                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();
                     CallOfTheWild.Subschools.load();
                     CallOfTheWild.WeaponsFix.load();
                     CallOfTheWild.SharedSpells.preload();

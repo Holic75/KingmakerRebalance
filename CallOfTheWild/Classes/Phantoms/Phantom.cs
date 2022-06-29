@@ -26,6 +26,7 @@ using Kingmaker.UnitLogic.ActivatableAbilities.Restrictions;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.UnitLogic.Interaction;
 using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
@@ -142,15 +143,18 @@ namespace CallOfTheWild
             unit.Body.AdditionalLimbs = new BlueprintItemWeapon[0];
             unit.Body.AdditionalSecondaryLimbs = new BlueprintItemWeapon[0];
             unit.Body.DisableHands = false;
-            unit.ReplaceComponent<AddClassLevels>(a =>
-            {
-                a.DoNotApplyAutomatically = true;
-                a.Levels = 0;
-                a.Archetypes = new BlueprintArchetype[] { archetype };
-                a.CharacterClass = phantom_class;
-                a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillPersuasion, StatType.SkillKnowledgeArcana }.RemoveFromArray(skills[0]).RemoveFromArray(skills[1]);
-                a.Selections = new SelectionEntry[0];
-            });
+            unit.RemoveComponents<AddClassLevels>();
+            unit.AddComponent(Helpers.Create<AddClassLevels>(a =>
+                {
+                    a.DoNotApplyAutomatically = true;
+                    a.Levels = 0;
+                    a.Archetypes = new BlueprintArchetype[] { archetype };
+                    a.CharacterClass = phantom_class;
+                    a.Skills = new StatType[] { StatType.SkillAthletics, StatType.SkillMobility, StatType.SkillStealth, StatType.SkillPersuasion, StatType.SkillKnowledgeArcana }.RemoveFromArray(skills[0]).RemoveFromArray(skills[1]);
+                    a.Selections = new SelectionEntry[0];
+                    a.MemorizeSpells = new BlueprintAbility[0];
+                    a.SelectSpells = new BlueprintAbility[0];
+                }));
             Helpers.SetField(unit, "m_Portrait", phantom_portrait);
             unit.AddComponents(Helpers.Create<Eidolon.EidolonComponent>());
             unit.AddComponents(Helpers.Create<AllowDyingCondition>());
@@ -159,6 +163,7 @@ namespace CallOfTheWild
             unit.LocalizedName.String = Helpers.CreateString(unit.name + ".Name", display_name + " Phantom");
             unit.RemoveComponents<Experience>();
             unit.RemoveComponents<AddTags>();
+            unit.RemoveComponents<DialogOnClick>();
             unit.Brain = library.Get<BlueprintBrain>("cf986dd7ba9d4ec46ad8a3a0406d02ae"); //character brain
             unit.Faction = library.Get<BlueprintFaction>("d8de50cc80eb4dc409a983991e0b77ad"); //neutrals
             unit.Visual = library.Get<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9").Visual.CloneObject();

@@ -765,6 +765,18 @@ namespace CallOfTheWild
             }
         }
 
+
+        internal static void clericAndDruidOfErastilGetShortbowProficiency()
+        {
+            var erastil = library.Get<BlueprintFeature>("afc775188deb7a44aa4cbde03512c671");
+            var shortbow_proficiency = library.Get<BlueprintFeature>("e8096942d950c8843857c2545f8dc18f");
+            var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            erastil.AddComponent(Helpers.CreateAddFeatureOnClassLevel(shortbow_proficiency, 1, new BlueprintCharacterClass[] { druid_class, cleric_class }));
+            erastil.SetDescription(erastil.Description + "\nClerics and druids of Erastil are proficient with the shortbow.");
+        }
+
+
         static internal void fixFlameWardenSpells()
         {
             var flamewarden = library.Get<BlueprintArchetype>("300917c3479d27d47b4b4b52b1762e8d");

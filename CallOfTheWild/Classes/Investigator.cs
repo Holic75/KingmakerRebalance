@@ -1112,7 +1112,7 @@ namespace CallOfTheWild
                                                             + "Like other spellcasters, a questioner can cast only a certain number of spells of each spell level per day. He knows the same number of spells and receives the same number of spell slots per day as a bard of his investigator level, including for cantrips. In addition, he receives bonus spells per day if he has a high Intelligence score.\n"
                                                             + "A questioner need not prepare his spells in advance. He can cast any bard spell he knows at any time, assuming he has not yet used up his allotment of spells per day for the spell’s level.\n"
                                                             + "A questioner can cast bard spells while wearing light armor and using a shield without incurring the normal arcane spell failure chance. Like any other arcane spellcaster, a questioner wearing medium or heavy armor incurs a chance of arcane spell failure. A multiclass questioner still incurs the normal arcane spell failure chance for arcane spells received from other classes.\n"
-                                                            + "A questioner can notselect infusion or mutagen investigator talents.",
+                                                            + "A questioner can not select infusion or mutagen investigator talents.",
                                                             "",
                                                             Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
                                                             FeatureGroup.None,
