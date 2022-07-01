@@ -424,7 +424,16 @@ namespace CallOfTheWild
                 var availability_component = Helpers.Create<SpellManipulationMechanics.SpellRequiringResourceIfCastFromSpecificSpellbook>(r =>
                                                                 {
                                                                     r.arcanist_spellbook = true;
-                                                                    r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
+                                                                    if (Main.settings.balance_fixes)
+                                                                    {
+                                                                        r.cost_increasing_facts = new BlueprintUnitFact[] { metamixing_buff };
+                                                                        r.cost_increasing_facts_x_spell_level = new BlueprintUnitFact[] { cl_buff, dc_buff, magical_supremacy_buff };
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        r.cost_increasing_facts_x_spell_level = new BlueprintUnitFact[] { magical_supremacy_buff };
+                                                                        r.cost_increasing_facts = new BlueprintUnitFact[] { cl_buff, dc_buff, metamixing_buff };
+                                                                    }
                                                                     r.half_level = true;
                                                                     r.resource = arcane_reservoir_resource;
                                                                     r.only_from_extra_arcanist_spell_list = true;
@@ -505,6 +514,35 @@ namespace CallOfTheWild
 
             wizard.Progression.UIDeterminatorsGroup = wizard.Progression.UIDeterminatorsGroup.AddToArray(arcane_reservoir_wizard);
             wizard.Archetypes = wizard.Archetypes.AddToArray(exploiter_wizard_archetype);
+
+            cl_buff.AddComponent(
+                                Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                                {
+                                    m.caster_class = wizard;
+                                    m.archetype = exploiter_wizard_archetype;
+                                    m.resource = arcane_reservoir_resource;
+                                    m.cl_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                    m.dc_bonus = 0;
+                                    m.do_not_spend_spell_slot = false;
+                                    m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                                    m.check_metamixing_for_cost = true;
+                                    m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                                })
+                );
+            dc_buff.AddComponent(
+                                Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                                {
+                                    m.caster_class = wizard;
+                                    m.archetype = exploiter_wizard_archetype;
+                                    m.resource = arcane_reservoir_resource;
+                                    m.cl_bonus = 0;
+                                    m.dc_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                    m.do_not_spend_spell_slot = false;
+                                    m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                                    m.check_metamixing_for_cost = true;
+                                    m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                                })
+                );
         }
 
 
@@ -797,6 +835,45 @@ namespace CallOfTheWild
             unlettered_arcanist_archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, unlettered_arcanist_cantrips, unlettered_arcanist_spell_casting, consume_spells, unlettered_arcanist_familiar) };
             arcanist_progression.UIDeterminatorsGroup = arcanist_progression.UIDeterminatorsGroup.AddToArray(unlettered_arcanist_cantrips, unlettered_arcanist_spell_casting, unlettered_arcanist_familiar);
             unlettered_arcanist_archetype.ReplaceSpellbook = unlettered_arcanist_prepared_spellbook;
+
+            cl_buff.AddComponent(
+                    Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                    {
+                        m.spellbook = unlettered_arcanist_spontaneous_spellbook;
+                        m.resource = arcane_reservoir_resource;
+                        m.cl_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                        m.dc_bonus = 0;
+                        m.do_not_spend_spell_slot = false;
+                        m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                        m.check_metamixing_for_cost = true;
+                        m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                    })
+            );
+            dc_buff.AddComponent(
+                    Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                    {
+                        m.spellbook = unlettered_arcanist_spontaneous_spellbook;
+                        m.resource = arcane_reservoir_resource;
+                        m.cl_bonus = 0;
+                        m.dc_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                        m.do_not_spend_spell_slot = false;
+                        m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                        m.check_metamixing_for_cost = true;
+                        m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                    })
+            );
+            magical_supremacy_buff.AddComponent(Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                                               {
+                                                   m.spellbook = unlettered_arcanist_spontaneous_spellbook;
+                                                   m.resource = arcane_reservoir_resource;
+                                                   m.cl_bonus = 2;
+                                                   m.dc_bonus = 2;
+                                                   m.do_not_spend_spell_slot = true;
+                                                   m.base_cost = 1;
+                                                   m.check_metamixing_for_cost = true;
+                                                   m.add_spell_level_to_cost = true;
+                                               })
+            );
         }
 
 
@@ -813,14 +890,6 @@ namespace CallOfTheWild
 
             unlettered_arcanist_prepared_spellbook.ReplaceComponent<SpellbookMechanics.CompanionSpellbook>(Helpers.Create<SpellbookMechanics.CompanionSpellbook>(c => c.spellbook = unlettered_arcanist_spontaneous_spellbook));
             unlettered_arcanist_spontaneous_spellbook.ReplaceComponent<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(Helpers.Create<SpellbookMechanics.GetKnownSpellsFromMemorizationSpellbook>(c => c.spellbook = unlettered_arcanist_prepared_spellbook));
-
-            dc_buff.AddComponents(Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = unlettered_arcanist_spontaneous_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = unlettered_arcanist_spontaneous_spellbook; s.resource = arcane_reservoir_resource; })
-                                  );
-            cl_buff.AddComponents(Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = unlettered_arcanist_spontaneous_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                  Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = unlettered_arcanist_spontaneous_spellbook; s.resource = arcane_reservoir_resource; })
-                                 );
-
 
             unlettered_arcanist_spell_casting = Helpers.CreateFeature("WitchSpellsSpellCastingFeature",
                                               "Witch Spells",
@@ -940,7 +1009,7 @@ namespace CallOfTheWild
             arcane_reservoir = Helpers.CreateFeature("ArcaneReservoirFeature",
                                                      "Arcane Reservoir",
                                                      "An arcanist has an innate pool of magical energy that she can draw upon to fuel her arcanist exploits and enhance her spells. The arcanist’s arcane reservoir can hold a maximum amount of magical energy equal to 3 + the arcanist’s level. Each day, when preparing spells, the arcanist’s arcane reservoir fills with raw magical energy, gaining a number of points equal to 3 + 1/2 her arcanist level. Any points she had from the previous day are lost. She can also regain these points through the consume spells class feature and some arcanist exploits. The arcane reservoir can never hold more points than the maximum amount noted above; points gained in excess of this total are lost.\n"
-                                                     + "Points from the arcanist reservoir are used to fuel many of the arcanist’s powers. In addition, the arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                                     + $"Points from the arcanist reservoir are used to fuel many of the arcanist’s powers. In addition, the arcanist can expend {(Main.settings.balance_fixes ? "a number of points equal to spell level" : "1 point")} from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1.",
                                                      "",
                                                      icon,
                                                      FeatureGroup.None,
@@ -948,24 +1017,31 @@ namespace CallOfTheWild
                                                      );
             potent_magic = Helpers.CreateFeature("PotentMagicExploitFeature",
                                                  "Potent Magic",
-                                                 "Whenever the arcanist expends 1 point from her arcane reservoir to increase the caster level of a spell, the caster level increases by 2 instead of 1. Whenever she expends 1 point from her arcane reservoir to increase the spell’s DC, it increases by 2 instead of 1.",
+                                                 $"Whenever the arcanist expends {(Main.settings.balance_fixes ? "points" : "1 point")} from her arcane reservoir to increase the caster level of a spell, the caster level increases by 2 instead of 1. Whenever she expends {(Main.settings.balance_fixes ? "points" : "1 point")} from her arcane reservoir to increase the spell’s DC, it increases by 2 instead of 1.",
                                                  "",
                                                  library.Get<BlueprintAbility>("92681f181b507b34ea87018e8f7a528a").Icon, //dispel magic
                                                  FeatureGroup.None
                                                  );
 
             dc_buff = Helpers.CreateBuff("ArcaneReservoirSpellDCBuff",
-                                             "Spell DC Increase",
-                                             "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
-                                             "",
-                                             icon,
-                                             null,
-                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
-                                             Helpers.Create<NewMechanics.IncreaseAllSpellsDCForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                             Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
-                                             Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {potent_magic}, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
-                                             );
+                                         "Spell DC Increase",
+                                        $"The arcanist can expend {(Main.settings.balance_fixes ? "a number of points equal to spell level" : "1 point")} from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1.",
+                                         "",
+                                         icon,
+                                         null,
+                                         Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                                         {
+                                            m.spellbook = arcanist_spellbook;
+                                            m.resource = arcane_reservoir_resource;
+                                            m.cl_bonus = 0;
+                                            m.dc_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                            m.do_not_spend_spell_slot = false;
+                                            m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                                            m.check_metamixing_for_cost = true;
+                                            m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                                         }),
+                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { potent_magic }, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
+                                         );
             arcane_reservoir_spell_dc_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellDCToggleAbility",
                                                                                dc_buff.Name,
                                                                                dc_buff.Description,
@@ -983,15 +1059,22 @@ namespace CallOfTheWild
 
             cl_buff = Helpers.CreateBuff("ArcaneReservoirSpellCLBuff",
                                  "Spell Caster Level Increase",
-                                 "The arcanist can expend 1 point from her arcane reservoir as a free action whenever she casts an arcanist spell. If she does, she can choose to increase the caster level by 1 or increase the spell’s DC by 1. She can expend no more than 1 point from her reservoir on a given spell in this way.",
+                                 dc_buff.Description,
                                  "",
                                  icon,
                                  null,
-                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = arcanist_spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = arcanist_spellbook; s.resource = arcane_reservoir_resource; }),
-                                 Helpers.Create<NewMechanics.IncreaseAllSpellsCLForSpecificSpellbook>(i => { i.spellbook = wizard.Spellbook; i.Value = Helpers.CreateContextValue(AbilityRankType.Default); }),
-                                 Helpers.Create<NewMechanics.SpendResourceOnSpellCast>(s => { s.spellbook = wizard.Spellbook; s.resource = arcane_reservoir_resource; }),
-                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] {potent_magic }, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
+                                 Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m =>
+                                 {
+                                     m.spellbook = arcanist_spellbook;
+                                     m.resource = arcane_reservoir_resource;
+                                     m.cl_bonus = Helpers.CreateContextValue(AbilityRankType.Default);
+                                     m.dc_bonus = 0;
+                                     m.do_not_spend_spell_slot = false;
+                                     m.base_cost = Main.settings.balance_fixes ? 0 : 1;
+                                     m.check_metamixing_for_cost = true;
+                                     m.add_spell_level_to_cost = Main.settings.balance_fixes;
+                                 }),
+                                 Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.FeatureListRanks, featureList: new BlueprintFeature[] { potent_magic }, progression: ContextRankProgression.OnePlusDivStep, stepLevel: 1)
                                  );
 
             arcane_reservoir_caster_level_boost = Helpers.CreateActivatableAbility("ArcaneReservoirSpellCLToggleAbility",
@@ -1130,7 +1213,17 @@ namespace CallOfTheWild
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/MagicalSupremacy.png"),
                                           null,
-                                          Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m => { m.resource = arcane_reservoir_resource; m.bonus = 2; })
+                                          Helpers.Create<SpellManipulationMechanics.MagicalSupremacy>(m => 
+                                          {
+                                              m.spellbook = arcanist_spellbook;
+                                              m.resource = arcane_reservoir_resource;
+                                              m.cl_bonus = 2;
+                                              m.dc_bonus = 2;
+                                              m.do_not_spend_spell_slot = true;
+                                              m.base_cost = 1;
+                                              m.check_metamixing_for_cost = true;
+                                              m.add_spell_level_to_cost = true;
+                                          })
                                           );
             var ability = Helpers.CreateActivatableAbility("MagicalSupremacyActivatableAbility",
                                                            buff.Name,
@@ -1222,13 +1315,6 @@ namespace CallOfTheWild
                 quick_study_wizard, arcane_barrier, arcane_weapon, acid_jet, energy_shield, dimensional_slide, familiar, feral_shifting, shift_caster,
                 flame_arc, force_strike, holy_water_jet, ice_missile, lightning_lance, metamagic_knowledge, sonic_blast, spell_resistance, wooden_flesh, item_bond
             };
-
-
-            if (!Main.settings.balance_fixes)
-            {
-                arcane_exploits_wizard.AllFeatures = arcane_exploits_wizard.AllFeatures.AddToArray(potent_magic);
-                arcane_exploits.AllFeatures = arcane_exploits.AllFeatures.AddToArray(potent_magic);
-            }
         }
 
 

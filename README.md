@@ -657,7 +657,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Improved Cleaving finish and Cleaving finish are merged into one feat
 - Blood havoc affects only bloodline spells
 - Fey/Infernal bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
-- Potent Magic arcane exploit is removed from the game
+- Increasing spell dc/cl with arcane reservoir ability requires spending amount of arcane reservoir points equal to spell level.
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),

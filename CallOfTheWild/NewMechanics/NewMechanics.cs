@@ -331,6 +331,7 @@ namespace CallOfTheWild
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
             public int amount = 1;
+            public bool times_spell_level = false;
             public bool used_for_reducing_metamagic_cast_time = false;
             public bool is_metamixing = false;
             public bool remove_self = false;
@@ -365,13 +366,13 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
+                int factor = times_spell_level ? evt.Spell.SpellLevel : 1;
                 if (used_for_reducing_metamagic_cast_time && is_metamixing)
                 {
                     var arcanist_part = this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
                     if (arcanist_part != null && arcanist_part.isUsedWithMetamixing(evt.Spell.Blueprint, evt.Spell.MetamagicData.MetamagicMask))
                     {
-                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount * factor);
                         return;
                     }
                     else
@@ -382,7 +383,7 @@ namespace CallOfTheWild
                  
                 if (spellbook == null || spellbook_blueprint == spellbook)
                 {
-                    this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                    this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount * factor);
                 }
 
                 if (remove_self)
