@@ -10366,18 +10366,21 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                if (will_spend > 0)
                 {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (current_event.IsSuccessRoll(evt.Result, 0))
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
+                    if (current_event.IsSuccessRoll(evt.Result, 0))
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 current_event.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
@@ -10573,30 +10576,34 @@ namespace CallOfTheWild
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
                 int max_value = dice_formula.MaxValue(0, false);
 
+                
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoHit || current_event.AutoMiss)
+                if (will_spend > 0)
                 {
-                    //do not spend resource on critical failure or critical success and auto hit/miss
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result == 1 || evt.Result == 20 || current_event.AutoHit || current_event.AutoMiss)
+                    {
+                        //do not spend resource on critical failure or critical success and auto hit/miss
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (evt.Result + current_event.AttackBonus >= current_event.TargetAC)
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result + current_event.AttackBonus >= current_event.TargetAC)
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (evt.Result + current_event.AttackBonus + max_value < current_event.TargetAC)
-                {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
+                    if (evt.Result + current_event.AttackBonus + max_value < current_event.TargetAC)
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 Harmony12.Traverse.Create(current_event).Property("AttackBonus").SetValue(current_event.AttackBonus + result);
@@ -10750,25 +10757,28 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoPass)
+                if (will_spend > 0)
                 {
-                    //do not spend resource on critical failure or critical success and auto hit/miss
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result == 1 || evt.Result == 20 || current_event.AutoPass)
+                    {
+                        //do not spend resource on critical failure or critical success and auto hit/miss
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (!current_event.IsSuccessRoll(evt.Result, max_value) )
-                {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (current_event.IsSuccessRoll(evt.Result, 0))
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
+                    if (current_event.IsSuccessRoll(evt.Result, 0))
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));

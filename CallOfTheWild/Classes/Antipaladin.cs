@@ -2290,7 +2290,7 @@ namespace CallOfTheWild
                                                         "Channel Corruption",
                                                         "Before you make a melee attack roll, you can choose to spend two uses of your touch of corruption ability as a swift action. The next enemy struck with this attack will suffer the effects of your touch of corruptuin ability. If your attack misses, the touch of corruption ability is still expended with no effect.",
                                                         "dab6859ebc9248899c3b0287365c942a",
-                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponEvil.png"),
                                                         FeatureGroup.CombatFeat,
                                                         Helpers.PrerequisiteFeature(touch_of_corruption)
                                                         );
