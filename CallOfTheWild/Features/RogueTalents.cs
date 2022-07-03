@@ -409,7 +409,7 @@ namespace CallOfTheWild
 
             bleeding_attack.AddComponent(Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87")));//sneak attack
 
-            addToTalentSelection(bleeding_attack, for_investigator: false);
+            addToTalentSelection(bleeding_attack);
 
             var medical_discoveries = library.Get<BlueprintFeatureSelection>("67f499218a0e22944abab6fe1c9eaeee");
             medical_discoveries.AllFeatures = medical_discoveries.AllFeatures.AddToArray(bleeding_attack);
@@ -428,7 +428,7 @@ namespace CallOfTheWild
         }
 
 
-        public static void addToTalentSelection(BlueprintFeature f, bool advanced = false, bool for_investigator = true)
+        public static void addToTalentSelection(BlueprintFeature f, bool advanced = false, bool for_investigator = false)
         {
             var selections =
                 new BlueprintFeatureSelection[]
@@ -559,7 +559,7 @@ namespace CallOfTheWild
                 feature.Groups = new FeatureGroup[] { FeatureGroup.RogueTalent };
                 minor_magic.AllFeatures = minor_magic.AllFeatures.AddToArray(feature);
             }
-            addToTalentSelection(minor_magic);                                                       
+            addToTalentSelection(minor_magic, for_investigator: true);                                                       
         }
 
 
@@ -639,7 +639,7 @@ namespace CallOfTheWild
                 feature.AddComponent(resource.CreateAddAbilityResource());
                 major_magic.AllFeatures = major_magic.AllFeatures.AddToArray(feature);
             }
-            addToTalentSelection(major_magic);
+            addToTalentSelection(major_magic, for_investigator: true);
         }
 
 

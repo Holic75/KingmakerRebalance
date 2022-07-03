@@ -95,6 +95,7 @@ namespace CallOfTheWild
         static public BlueprintFeature prolonged_study;
         static public BlueprintFeature extend_potion;
         static public BlueprintFeature enhance_potion;
+        static public BlueprintFeature effortless_aid;
 
         static public BlueprintFeature ranged_study;
         static public BlueprintFeature extra_investigator_talent;
@@ -1361,6 +1362,7 @@ namespace CallOfTheWild
             createTopplingStrike();
             createBlindingStrike();
             createConfusingStrike();
+            createEffortlessAid();
 
 
             extend_potion = library.Get<BlueprintFeature>("1db8e126b77e71d4d89dcfa50fe87e93");
@@ -1394,10 +1396,37 @@ namespace CallOfTheWild
                 sickening_offensive,
                 toppling_strike,
                 blinding_strike,
-                confusing_strike
+                confusing_strike,
+                effortless_aid
             };                                                                
         }
 
+
+        static void createEffortlessAid()
+        {
+            effortless_aid = Helpers.CreateFeature("InvestigatorEffortlessAidFeature",
+                                                  "Effortless Aid",
+                                                  "The investigator can use an aid another action as a move action instead of as a standard action. An investigator can expend one use of inspiration to instead perform an aid another action as a swift action.",
+                                                  "",
+                                                  Rebalance.aid_another.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { Rebalance.aid_another })
+                                                  );
+            List<BlueprintAbility> swift_actions = new List<BlueprintAbility>();
+
+            foreach (var a in Rebalance.aid_another.Variants)
+            {
+                var sa = library.CopyAndAdd(a, "InvestigatorEffortlessAid" + a.name, "");
+                sa.ActionType = CommandType.Swift;
+                sa.AddComponent(inspiration_resource.CreateResourceLogic());
+                sa.AddComponent(Common.createAbilityShowIfCasterHasFact(effortless_aid));
+                sa.SetName("Effortless Aid: Swift " + a.Name);
+                sa.SetDescription(sa.Description + "\n" + effortless_aid.Name + ": " + effortless_aid.Description);
+                swift_actions.Add(sa);
+            }
+
+            Rebalance.aid_another.GetComponent<AbilityVariants>().Variants = Rebalance.aid_another.GetComponent<AbilityVariants>().Variants.AddToArray(swift_actions);
+        }
 
         static void createConfusingStrike()
         {
