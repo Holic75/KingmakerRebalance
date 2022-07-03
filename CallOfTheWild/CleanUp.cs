@@ -267,13 +267,11 @@ namespace CallOfTheWild
 
             var polymorphs = Main.library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b =>
                                                                         {
-                                                                            if (b.GetComponent<Polymorph>() != null)
+                                                                            if (b.GetComponent<Polymorph>() != null || b.GetComponent<ChangeUnitSize>() != null)
                                                                             {
                                                                                 return true;
                                                                             }
-
-                                                                            var spell_descriptor = b.GetComponent<SpellDescriptorComponent>();
-                                                                            return spell_descriptor != null && ((spell_descriptor.Descriptor.Value & SpellDescriptor.Polymorph) > 0);
+                                                                            return false;
                                                                         }
                                                                         ).ToArray();
 
