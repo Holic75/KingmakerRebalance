@@ -5169,8 +5169,8 @@ namespace CallOfTheWild
         static public BlueprintFeature buffToFeature(BlueprintBuff buff)
         {
             var feature = Helpers.CreateFeature(buff.name + "Feature",
-                                                "",
-                                                "",
+                                                buff.Name,
+                                                buff.Description,
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
