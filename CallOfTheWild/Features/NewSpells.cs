@@ -6302,7 +6302,7 @@ namespace CallOfTheWild
             var release_ability = Helpers.CreateAbility("DazzlingBladeReleaseAbility",
                                                         "Dazzling Blade: Release",
                                                         "Dazzling blade makes a weapon appear dazzlingly shiny, as if crafted from pure silver and heavily polished. In combat, the flashing movements of a dazzling blade become almost hypnotic. The wielder of a weapon under the effects of dazzling blade gains a + 1 competence bonus on all Bluff checks made to feint in combat. The wielder also gains a + 1 competence bonus on all CMB checks made to disarm a foe, and a +1 competence bonus to his CMD against disarm attempts made against the weapon bearing the dazzling blade effect. This bonus increases by +1 for every 3 caster levels, to a maximum bonus of + 5 at 12th level.\n"
-                                                        + "The wielder of a dazzling blade can discharge the spell into a blinding burst of silvery light as a free action.The wielder selects an adjacent opponent as the focal point of this burst of light—that creature must make a Will save to avoid being blinded for 1 round(with a successful save, the creature is instead dazzled for 1 round).\n"
+                                                        + "The wielder of a dazzling blade can discharge the spell into a blinding burst of silvery light as a free action. The wielder selects an adjacent opponent as the focal point of this burst of light—that creature must make a Will save to avoid being blinded for 1 round (with a successful save, the creature is instead dazzled for 1 round).\n"
                                                         + "Despite its shiny appearance, a dazzling blade grants no extra benefit against creatures that are vulnerable to silver.",
                                                         "",
                                                         icon,
@@ -10507,7 +10507,7 @@ namespace CallOfTheWild
         {
             flame_blade = createFlameBladeVariant("FlameBlade",
                                                   "Flame Blade",
-                                                  "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
+                                                  "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage +1 point per two caster levels (maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameBlade.png"),
                                                   DamageEnergyType.Fire,

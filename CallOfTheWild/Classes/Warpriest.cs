@@ -1187,7 +1187,7 @@ namespace CallOfTheWild
             warpriest_blessings = Helpers.CreateFeatureSelection("WarpriestBlessingsSelection",
                                                                  "Blessing",
                                                                  "A warpriest can select any two blessings granted by his deity. Deities grant blessings of the same name as the domains they grant.\n"
-                                                                 + "Each blessing grants a minor power at 1st level and a major power at 10th level. A warpriest can call upon the power of his blessings a number of times per day (in any combination) equal to 3 + 1/2 his warpriest level (to a maximum of 13 times per day at 20th level). Each time he calls upon any one of his blessings, it counts against his daily limit.The save DC for these blessings is equal to 10 + 1/2 the warpriest’s level + the warpriest’s Wisdom modifier.",
+                                                                 + "Each blessing grants a minor power at 1st level and a major power at 10th level. A warpriest can call upon the power of his blessings a number of times per day (in any combination) equal to 3 + 1/2 his warpriest level (to a maximum of 13 times per day at 20th level). Each time he calls upon any one of his blessings, it counts against his daily limit. The save DC for these blessings is equal to 10 + 1/2 the warpriest’s level + the warpriest’s Wisdom modifier.",
                                                                  "",
                                                                  null,
                                                                  FeatureGroup.None);

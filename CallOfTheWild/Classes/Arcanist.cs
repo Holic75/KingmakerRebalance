@@ -1450,7 +1450,7 @@ namespace CallOfTheWild
 
             var buff = Helpers.CreateBuff("WoodenFleshExploitBuff",
                                           "Wooden Flesh",
-                                          "The arcanist infuses herself with the toughness of the plant life that she studies.The arcanist can spend 1 point from her arcane reservoir to gain a + 2 natural armor bonus and DR / slashing equal to her Charisma modifier(minimum 1) for 1 minute per arcanist level. While this ability is in effect, she counts as both her original creature type and a plant creature for the purpose of abilities and spells.",
+                                          "The arcanist infuses herself with the toughness of the plant life that she studies. The arcanist can spend 1 point from her arcane reservoir to gain a + 2 natural armor bonus and DR / slashing equal to her Charisma modifier (minimum 1) for 1 minute per arcanist level. While this ability is in effect, she counts as both her original creature type and a plant creature for the purpose of abilities and spells.",
                                           "",
                                           icon,
                                           null,

@@ -291,7 +291,7 @@ namespace CallOfTheWild
 
             spell_synthesis = Helpers.CreateFeature("SpellSynthesisFeature",
                                                         "Spell Synthesis",
-                                                        "At 10th level, a mystic theurge can cast two spells, one from each of his spellcasting classes, using one action. Both of the spells must have the same casting time. The mystic theurge can make any decisions concerning the spells independently.Any target affected by both of the spells takes a –2 penalty on saves made against each spell.The mystic theurge receives a + 2 bonus on caster level checks made to overcome spell resistance with these two spells. A mystic theurge may use this ability once per day.",
+                                                        "At 10th level, a mystic theurge can cast two spells, one from each of his spellcasting classes, using one action. Both of the spells must have the same casting time. The mystic theurge can make any decisions concerning the spells independently.Any target affected by both of the spells takes a –2 penalty on saves made against each spell. The mystic theurge receives a + 2 bonus on caster level checks made to overcome spell resistance with these two spells. A mystic theurge may use this ability once per day.",
                                                         "",
                                                         icon,
                                                         FeatureGroup.None);
