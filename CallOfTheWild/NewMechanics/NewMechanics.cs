@@ -6674,6 +6674,7 @@ namespace CallOfTheWild
             public override void RunAction()
             {
                 var origin = use_caster_as_origin ? this.Context.MaybeCaster.Position : this.Target.Point;
+                var orientation = use_caster_as_origin ? this.Context.MaybeCaster.Orientation : this.Target.Orientation;
                 var nx = new Vector2();
                 var ny = new Vector2();
                 if (!ignore_direction)
@@ -6684,7 +6685,7 @@ namespace CallOfTheWild
                 foreach (var p in points_around_target)
                 {
                     var dp = ignore_direction ? p : (nx * p.x + ny * p.y);
-                    var target = new TargetWrapper(origin + dp.To3D());
+                    var target = new TargetWrapper(origin + dp.To3D(), orientation);
                     AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
                     if (this.AbilityContext == null)
                         return;
@@ -6695,6 +6696,24 @@ namespace CallOfTheWild
                         if (!u.Descriptor.State.IsDead && u.IsInGame && (effectEntityData.View.Shape != null && effectEntityData.View.Shape.Contains(u.Position, u.View.Corpulence)) && (effectEntityData.AffectEnemies || !this.AbilityContext.Caster.IsEnemy(u)))
                             EventBus.RaiseEvent<IApplyAbilityEffectHandler>((Action<IApplyAbilityEffectHandler>)(h => h.OnTryToApplyAbilityEffect(this.AbilityContext, (TargetWrapper)u)));
                     }
+                }
+            }
+        }
+
+
+        //force end on all areas with the same context for multiarea spells
+        [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
+        [Harmony12.HarmonyPatch("ForceEnd", Harmony12.MethodType.Normal)]
+        class AreaEffectEntityData__ForceEnd__Patch
+        {
+            static void Postfix(AreaEffectEntityData __instance)
+            {
+                Main.logger.Log("Invoking");
+                var areas = Game.Instance.State.AreaEffects.Where(a => a.Context == __instance.Context || __instance.Context?.ParentContext == a.Context?.ParentContext && a != __instance && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue);
+                foreach (var a in areas)
+                {
+                    Main.logger.Log("Found: " + a.Blueprint.name);
+                    Helpers.SetField(a, "m_ForceEnded", true);
                 }
             }
         }

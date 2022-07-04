@@ -8376,7 +8376,7 @@ namespace CallOfTheWild
             List<Vector2> fog_points = new List<Vector2>();
             for (int i = -1; i <= 1; i++)
             {
-                fog_points.Add(new Vector2(0.0f, (i * 20).Feet().Meters));
+                fog_points.Add(new Vector2((i * 20).Feet().Meters, 0.0f));
             }
 
 
