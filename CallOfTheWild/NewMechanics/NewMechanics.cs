@@ -6708,11 +6708,9 @@ namespace CallOfTheWild
         {
             static void Postfix(AreaEffectEntityData __instance)
             {
-                Main.logger.Log("Invoking");
                 var areas = Game.Instance.State.AreaEffects.Where(a => a.Context == __instance.Context || __instance.Context?.ParentContext == a.Context?.ParentContext && a != __instance && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue);
                 foreach (var a in areas)
                 {
-                    Main.logger.Log("Found: " + a.Blueprint.name);
                     Helpers.SetField(a, "m_ForceEnded", true);
                 }
             }
