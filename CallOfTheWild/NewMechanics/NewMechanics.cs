@@ -10401,7 +10401,7 @@ namespace CallOfTheWild
                 }
 
                 current_event.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
-                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to his roll");
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 
@@ -10467,7 +10467,7 @@ namespace CallOfTheWild
                 }
 
                 evt.AddTemporaryModifier(evt.Initiator.Stats.Initiative.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to his roll");
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
 
             public override void OnEventDidTrigger(RuleInitiativeRoll evt)
@@ -10628,7 +10628,7 @@ namespace CallOfTheWild
                 Harmony12.Traverse.Create(current_event).Property("AttackBonus").SetValue(current_event.AttackBonus + result);
                 Harmony12.Traverse.Create(current_event.AttackBonusRule).Property("Result").SetValue(current_event.AttackBonus);
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to his roll");
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 
@@ -10804,7 +10804,7 @@ namespace CallOfTheWild
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
-                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to his roll");
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 
