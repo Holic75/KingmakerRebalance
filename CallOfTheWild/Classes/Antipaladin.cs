@@ -2332,7 +2332,7 @@ namespace CallOfTheWild
                                                         Helpers.oneRoundDuration,
                                                         "",
                                                         Helpers.CreateRunActions(remove_buffs,
-                                                                                 Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                                                 Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false)),
                                                         touch_of_corruption_resource.CreateResourceLogic(amount: 2),
                                                         touch_ability.GetComponent<ContextCalculateAbilityParamsBasedOnClass>()
                                                         );
