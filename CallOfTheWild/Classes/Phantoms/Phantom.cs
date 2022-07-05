@@ -548,7 +548,7 @@ namespace CallOfTheWild
                                                             new DiceFormula(3, DiceType.D8)};
             slam_damage_large = Helpers.CreateFeature("PhantomSlamDamageLarge",
                                                 "Anger Phantom Slam Damage",
-                                                "Phantoms have two slam natural weapon attacks. \n"
+                                                "Phantoms have two slam natural weapon attacks.\n"
                                                 + "The damage dealt by medium anger phantom with her slam attack is 1d8 at levels 1-3, 2d6 at levels 4-6, 2d8 at levels 7 - 9, 3d6 at levels 10-12 and finally 3d8 at level 15.",
                                                 "",
                                                 Helpers.GetIcon("247a4068296e8be42890143f451b4b45"), //basic feat

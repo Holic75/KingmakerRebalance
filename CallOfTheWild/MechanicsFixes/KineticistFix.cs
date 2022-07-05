@@ -591,7 +591,7 @@ namespace CallOfTheWild
         {
             var buff = Helpers.CreateBuff("ColdSnapBuff",
                                           "Cold Snap Effect",
-                                          "Element: water \nType: utility\nLevel: 3\nBurn: 1\n"
+                                          "Element: water\nType: utility\nLevel: 3\nBurn: 1\n"
                                           + "You chill your shroud of water and send the cold around you, creating an aura of numbing cold around yourself. Until the next time your burn is removed ou can begin or end the cold aura at will as a swift action. When aura is active, all creatures within 5 feet of you take a –4 penalty to Dexterity. You are immune to these effects, as are creatures that are immune to cold or having at least cold resistance 5.",
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/StormOfSouls.png"),

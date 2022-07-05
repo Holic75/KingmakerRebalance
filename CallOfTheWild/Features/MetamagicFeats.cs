@@ -81,6 +81,8 @@ namespace CallOfTheWild
             ThrenodicSpell = 0x00002000,
             VerdantSpell = 0x00001000,
             BloodPiercing = 0x00000800,
+            Logical = 0x00000400,
+            //0x200, 0x80, 0x40
             FreeMetamagic = ForceFocus | RangedAttackRollBonus | BloodIntensity | ExtraRoundDuration | ImprovedSpellSharing | RollSpellResistanceTwice | BloodPiercing,
         }
 
@@ -96,6 +98,7 @@ namespace CallOfTheWild
         static public BlueprintFeature piercing_metamagic;
         static public BlueprintFeature threnodic_metamagic;
         static public BlueprintFeature verdant_spell;
+        static public BlueprintFeature logical_spell;
         static public Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>  elemental_metamagic = new Dictionary<Metamagic, (SpellDescriptor, DamageEnergyType, BlueprintFeature)>();
 
         static readonly int[][] metamagic_rod_costs = new int[][] {
@@ -116,6 +119,7 @@ namespace CallOfTheWild
             createElementalMetamagic();
             createThrenodicSpell();
             createVerdantSpell();
+            createLogical();
             //add metamagic text to spells 
             var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetMetamagicList");
             var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts_GetMetamagicList_Patch), "Postfix");
@@ -196,6 +200,18 @@ namespace CallOfTheWild
                 if (s.Parent != null)
                 {
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.BloodPiercing;
+                }
+            }
+
+
+            var all_spells = library.GetAllBlueprints().OfType<BlueprintAbility>().Where(b => b.IsSpell).ToArray();
+
+            foreach (var s in all_spells)
+            {
+                s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Logical;
+                if (s.Parent != null)
+                {
+                    s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Logical;
                 }
             }
         }
@@ -440,7 +456,7 @@ namespace CallOfTheWild
         {
             dazing_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "DazingSpellFeature", "");
             dazing_metamagic.SetNameDescriptionIcon("Metamagic (Dazing Spell)",
-                                                         "You can modify a spell to daze a creature damaged by the spell. When a creature takes damage from this spell, they become dazed for a number of rounds equal to the original level of the spell. If the spell allows a saving throw, a successful save negates the daze effect. If the spell does not allow a save, the target can make a Will save to negate the daze effect. \n"
+                                                         "You can modify a spell to daze a creature damaged by the spell. When a creature takes damage from this spell, they become dazed for a number of rounds equal to the original level of the spell. If the spell allows a saving throw, a successful save negates the daze effect. If the spell does not allow a save, the target can make a Will save to negate the daze effect.\n"
                                                          + "Level Increase: +3 (a dazing spell uses up a spell slot three levels higher than the spell’s actual level.)\n"
                                                          + "Spells that do not inflict damage do not benefit from this feat.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/DazingSpell.png")
@@ -493,7 +509,7 @@ namespace CallOfTheWild
         {
             toppling_metamagic = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "TopplingSpellFeature", "");
             toppling_metamagic.SetNameDescriptionIcon("Metamagic (Toppling Spell)",
-                                                         "The impact of your force spell is strong enough to knock the target prone. If the target takes damage, fails its saving throw, or is moved by your force spell, make a trip check against the target, using your caster level plus your casting ability score bonus (Wisdom for clerics, Intelligence for wizards, and so on). \n"
+                                                         "The impact of your force spell is strong enough to knock the target prone. If the target takes damage, fails its saving throw, or is moved by your force spell, make a trip check against the target, using your caster level plus your casting ability score bonus (Wisdom for clerics, Intelligence for wizards, and so on).\n"
                                                          + "Level Increase: +1 (a toppling spell uses up a spell slot one level higher than the spell’s actual level.)\n"
                                                          + "A toppling spell only affects spells with the force descriptor.",
                                                          LoadIcons.Image2Sprite.Create(@"FeatIcons/TopplingSpell.png")
@@ -516,6 +532,21 @@ namespace CallOfTheWild
                     s.AvailableMetamagic = s.AvailableMetamagic | (Metamagic)MetamagicExtender.Toppling;
                 }
             }
+        }
+
+
+        static void createLogical()
+        {
+            logical_spell = library.CopyAndAdd<BlueprintFeature>("a1de1e4f92195b442adb946f0e2b9d4e", "LogicalSpellFeature", "");
+            logical_spell.SetNameDescriptionIcon("Metamagic (Logical Spell)",
+                                                " A logical spell can be cast without emotion components (i.e. even if under fear or negative emotion effect).\n"
+                                                + "Level Increase: +1 (a logical spell uses up a spell slot one level higher than the spell’s actual level.)\n"
+                                                + "A logical spell only affects psychic spells.",
+                                                LoadIcons.Image2Sprite.Create(@"FeatIcons/LogicalSpell.png")
+                                            );
+
+            logical_spell.ReplaceComponent<AddMetamagicFeat>(a => a.Metamagic = (Metamagic)MetamagicExtender.Logical);
+            AddMetamagicToFeatSelection(logical_spell);
         }
 
 
@@ -701,6 +732,7 @@ namespace CallOfTheWild
                 case MetamagicExtender.ElementalAcid:
                 case MetamagicExtender.Selective:
                 case MetamagicExtender.Piercing:
+                case MetamagicExtender.Logical:
                     return 1;
             }
             return 0;
@@ -762,6 +794,7 @@ namespace CallOfTheWild
                     case MetamagicExtender.ElementalCold:
                     case MetamagicExtender.ElementalFire:
                     case MetamagicExtender.ElementalElectricity:
+                    case MetamagicExtender.Logical:
                         __result = UIRoot.Instance.SpellBookColors.MetamagicHeighten;
                         return false;
                     case MetamagicExtender.Persistent:
@@ -1102,6 +1135,10 @@ namespace CallOfTheWild
                 if ((mask & (Metamagic)MetamagicExtender.ElementalFire) != 0)
                 {
                     extra_metamagic += "Elemental Fire, ";
+                }
+                if ((mask & (Metamagic)MetamagicExtender.Logical) != 0)
+                {
+                    extra_metamagic += "Logical, ";
                 }
 
                 if (extra_metamagic.Length > 2)

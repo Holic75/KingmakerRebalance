@@ -153,7 +153,9 @@ __Mod is only expected to work with 2.08 or 2.15 English versions of the game, o
 - Greater Feint
 - Ranged Feint
 - Swordplay Style and Swordplay Upset,
-- Two-Weapon Feint and Improved Two-Weapon Feint.
+- Two-Weapon Feint and Improved Two-Weapon Feint,
+- Logical Spell,
+- Channel Corruption.
 
 #### New rage powers:
 - Terrifying Howl
@@ -615,7 +617,7 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
 - Wind Walk increases speed to only 20mph instead of 60,
 - Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed,
-- Sanctified Slayer looses Bane ability,
+- Sanctified Slayer receives slayer talents at levels 8, 12, 16 and 20 (instead of 8, 16, 17 and 20) andlooses Bane ability, but receives quarry and improved quarry as slayer class.
 - Arsenal Chaplain Warpriest gains weapon damage die increase progression as usual, but does not get ability to enchant his sacred weapon,
 - Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,

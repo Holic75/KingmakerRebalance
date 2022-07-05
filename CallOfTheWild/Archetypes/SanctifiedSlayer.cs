@@ -94,7 +94,7 @@ namespace CallOfTheWild.Archetypes
 
             var sneak_attack = library.Get<BlueprintFeature>("9b9eac6709e1c084cb18c3a366e0ec87");
             var studied_target = library.Get<BlueprintFeature>("09bdd9445ac38044389476689ae8d5a1");
-            studied_target.SetDescription("You can study an opponent you can see as a move action. You then gain a +1 bonus on weapon attack and damage rolls against it. \nIf you deal sneak attack damage to a target, you study that target, allowing you to apply your studied target bonuses against that target (including to the normal weapon damage roll).\nAt 5th, 10th, 15th, and 20th levels, the bonuses on weapon attack rolls and damage rolls increase by 1.");
+            studied_target.SetDescription("You can study an opponent you can see as a move action. You then gain a +1 bonus on weapon attack and damage rolls against it.\nIf you deal sneak attack damage to a target, you study that target, allowing you to apply your studied target bonuses against that target (including to the normal weapon damage roll).\nAt 5th, 10th, 15th, and 20th levels, the bonuses on weapon attack rolls and damage rolls increase by 1.");
 
             var studied_ability = library.Get<BlueprintAbility>("b96d810ceb1708b4e895b695ddbb1813");
             var studied_buff = library.Get<BlueprintBuff>("45548967b714e254aa83f23354f174b0");
@@ -105,7 +105,10 @@ namespace CallOfTheWild.Archetypes
             swift_study.SetDescription("A character can study opponent as a move or swift action.");
 
             talented_slayer = library.CopyAndAdd<BlueprintFeatureSelection>("913b9cf25c9536949b43a2651b7ffb66", "TalentedSlayerFeature", ""); //slayer 10
-            talented_slayer.SetNameDescription("Talented Slayer", "At 8th, 16th, 17th, and 20th levels, a sanctified slayer can gain a single slayer talent, including those from the list of rogue talents that a slayer can take, but not an advanced slayer talent.");
+            talented_slayer.SetNameDescription("Talented Slayer", "At 8th, 12th, 16th, and 20th levels, a sanctified slayer can gain a single slayer talent, including those from the list of rogue talents that a slayer can take, but not an advanced slayer talent.");
+
+            var quarry = library.Get<BlueprintFeature>("385260ca07d5f1b4e907ba22a02944fc");
+            var improved_quarry = library.Get<BlueprintFeature>("25e009b7e53f86141adee3a1213af5af");
 
             archetype.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, studied_target),
                                                        Helpers.LevelEntry(4, sneak_attack),
@@ -113,16 +116,18 @@ namespace CallOfTheWild.Archetypes
                                                        Helpers.LevelEntry(7, swift_study, sneak_attack),
                                                        Helpers.LevelEntry(8, talented_slayer),
                                                        Helpers.LevelEntry(10, studied_target, sneak_attack),
+                                                       Helpers.LevelEntry(12, talented_slayer),
                                                        Helpers.LevelEntry(13, sneak_attack),
+                                                       Helpers.LevelEntry(14, quarry),
                                                        Helpers.LevelEntry(15, studied_target),
                                                        Helpers.LevelEntry(16, sneak_attack, talented_slayer),
-                                                       Helpers.LevelEntry(17, talented_slayer),
-                                                       Helpers.LevelEntry(19, sneak_attack),
+                                                       Helpers.LevelEntry(19, sneak_attack, improved_quarry),
                                                        Helpers.LevelEntry(20, studied_target, talented_slayer),
                                                     };
 
             inquisitor_class.Progression.UIGroups = inquisitor_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(studied_target, swift_study));
             inquisitor_class.Progression.UIGroups[0].Features.Add(sneak_attack);
+            inquisitor_class.Progression.UIGroups = inquisitor_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(quarry, improved_quarry));
             inquisitor_class.Archetypes = inquisitor_class.Archetypes.AddToArray(archetype);
 
         }
