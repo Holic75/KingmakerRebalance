@@ -94,7 +94,7 @@ namespace CallOfTheWild
                                                          library.Get<BlueprintAbility>("9047cb1797639924487ec0ad566a3fea").Icon, //resounding blow
                                                          null,
                                                          Common.createAddTargetAttackWithWeaponTrigger(Helpers.CreateActionList(Common.createContextActionSpendResource(hateful_retort_resource ,1)),
-                                                                                                       Helpers.CreateActionList(Common.createContextActionAttack()),
+                                                                                                       Helpers.CreateActionList(Common.createContextActionAttackWithAnimation()),
                                                                                                        only_melee: true,
                                                                                                        wait_for_attack_to_resolve: true)
                                                          );

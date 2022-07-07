@@ -6761,9 +6761,9 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
                                                                          Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door_free),
-                                                                         Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
-                                                                                                          Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
-                                                                                                         )
+                                                                         Common.createContextActionAttackWithAnimation(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
+                                                                                                                      Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
+                                                                                                                     )
                                                                          ),
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                 Helpers.Create<AbilityCasterMainWeaponIsMelee>()
@@ -8308,7 +8308,7 @@ namespace CallOfTheWild
                                                          "",
                                                          "",
                                                          Common.createAbilityCasterMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow),
-                                                         Helpers.CreateRunActions((Common.createContextActionAttack()))
+                                                         Helpers.CreateRunActions((Common.createContextActionAttackWithAnimation()))
                                                         );
             bow_spirit_swift.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
 
@@ -10638,7 +10638,7 @@ namespace CallOfTheWild
                                                   AbilityRange.Medium,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",
-                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateRunActions(Common.createContextActionAttackWithAnimation()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),

@@ -280,10 +280,8 @@ namespace CallOfTheWild
                                                    Helpers.PrerequisiteFeature(combat_expertise)
                                                    );
 
-            if (!Main.settings.balance_fixes)
-            {
-                improved_two_weapon_feint.AddComponent(Helpers.PrerequisiteFeature(improved_two_weapon_fighting));
-            }
+
+            improved_two_weapon_feint.AddComponent(Helpers.PrerequisiteFeature(improved_two_weapon_fighting));
             improved_two_weapon_feint.Groups = improved_two_weapon_feint.Groups.AddToArray(FeatureGroup.CombatFeat);
 
             var twf_action = Helpers.CreateConditional(Helpers.CreateConditionsCheckerOr(Common.createContextConditionCasterHasFact(CallOfTheWild.NewFeats.greater_feint), Common.createContextConditionCasterHasFact(improved_two_weapon_feint)),
@@ -2052,7 +2050,7 @@ namespace CallOfTheWild
             var ranged_toggle = Common.buffToToggle(ranged_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
 
             var on_attack_for_ranged = Helpers.CreateConditional(Common.createContextConditionHasBuffFromCaster(broken_wing_gambit_effect_buff),
-                              Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p => { p.fact = ranged_buff; p.distance = 30.Feet(); p.except_caster = true; })
+                              Helpers.Create<TeamworkMechanics.ProvokeRangedAttackFromFactOwners>(p => { p.fact = ranged_buff; p.distance = 30.Feet(); p.except_caster = true; p.play_attack_animation = true; })
                               );
 
             wounded_paw_gambit.AddComponents(Helpers.CreateAddFact(ranged_toggle),
@@ -2118,7 +2116,7 @@ namespace CallOfTheWild
 
             var toggle = Common.buffToToggle(hurtful_buff, Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Free, true);
 
-            var attack = Common.createContextActionAttack(Helpers.CreateActionList(),
+            var attack = Common.createContextActionAttackWithAnimation(Helpers.CreateActionList(),
                                  Helpers.CreateActionList(Common.createContextActionRemoveBuffFromCaster(shaken),
                                                           Common.createContextActionRemoveBuffFromCaster(frightened)
                                                           )
@@ -2355,6 +2353,7 @@ namespace CallOfTheWild
                 p.require_swift_action = true;
                 p.allow_engaged = true;
                 p.distance = 30.Feet();
+                p.play_attack_animation = true;
             });
 
             var attacker_buff = Helpers.CreateBuff("TargetOfOpportunityAttackerBuff",

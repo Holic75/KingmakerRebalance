@@ -1501,7 +1501,7 @@ namespace CallOfTheWild
                                                             "",
                                                             Helpers.CreateRunActions(Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(blade_rush_buff, Helpers.CreateContextDuration(1), dispellable: false)),
                                                                                      Helpers.Create<ContextActionCastSpell>(c => c.Spell = NewSpells.dimension_door_free),
-                                                                                     Common.createContextActionAttack()
+                                                                                     Common.createContextActionAttackWithAnimation()
                                                                                      ),
                                                             blade_whirlwind.GetComponent<AbilityCasterHasFacts>(),
                                                             Helpers.Create<AbilityKineticist>(a =>

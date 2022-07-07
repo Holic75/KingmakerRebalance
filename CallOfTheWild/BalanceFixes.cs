@@ -193,7 +193,7 @@ namespace CallOfTheWild
         {
             //improved two weapon fighting now allows you to make up to 2 iterative attacks if your bab allows it
             var twf = library.Get<BlueprintFeature>("ac8aaf29054f5b74eb18f2af950e752d");
-            var gtwf = library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629");
+            var gtwf = library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8");
 
             //remove gtwf from selections
             var selections = library.GetAllBlueprints().OfType<BlueprintFeatureSelection>();

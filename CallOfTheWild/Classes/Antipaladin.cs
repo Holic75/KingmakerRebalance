@@ -1116,11 +1116,12 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("0b442a7b4aa598d4e912a4ecee0500ff"), //bashing finish
                 library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907"), //shield wall
                 library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
+                library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), //itwf
             };
             //add  gtwf only if blance fixes are not enabled
             if (!Main.settings.balance_fixes)
             {
-                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"));
+                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"));
             }
             //other feats will be added upon creation
         }

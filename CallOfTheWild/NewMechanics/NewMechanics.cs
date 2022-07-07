@@ -4627,6 +4627,7 @@ namespace CallOfTheWild
             public ActionList action_on_success = null;
             public ActionList action_on_miss = null;
             public ActionList action_on_before_attack = null;
+            public bool play_fast_animation = false;
 
             public BlueprintItemWeapon specific_weapon = null;
 
@@ -4663,6 +4664,10 @@ namespace CallOfTheWild
                     attackWithWeapon.Reason = (RuleReason)this.Context;
                     RuleAttackWithWeapon rule = attackWithWeapon;
                     rule.Reason = this.Context;
+                    if (play_fast_animation)
+                    {
+                        Common.executeSpedUpMainhandAttackAnimation(maybeCaster, target.Unit);
+                    }
                     this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
                     if (rule.AttackRoll.IsHit)
                     {
