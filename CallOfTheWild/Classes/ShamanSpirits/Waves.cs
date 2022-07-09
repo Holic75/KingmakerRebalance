@@ -133,6 +133,44 @@ namespace CallOfTheWild
             }
 
 
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    NewSpells.frost_bite,
+                    library.Get<BlueprintAbility>("b6010dda6333bcf4093ce20f0063cd41"), //frigid touch
+                    NewSpells.sleet_storm,
+                    library.Get<BlueprintAbility>("fcb028205a71ee64d98175ff39a0abf9"), //ice storm
+                    library.Get<BlueprintAbility>("65e8d23aef5e7784dbeb27b1fca40931"), //icy prison
+                    NewSpells.fluid_form,
+                };
+
+
+                return new Summoner.Spirit("Waves",
+                                          "Waves",
+                                          "A shaman who selects the waves spirit has a fluid grace that exhibits itself whenever she moves. When she calls upon one of this spirit’s abilities, floating orbs dance about her, sublimating between icy crystals, misty vapors, and globules of water.",
+                                          library.Get<BlueprintAbility>("40681ea748d98f54ba7f5dc704507f39").Icon,//charged blast
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          true_spirit_ability,
+                                          spells,
+                                          hexes);
+            }
+
+
             public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

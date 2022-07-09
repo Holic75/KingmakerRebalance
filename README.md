@@ -28,7 +28,7 @@ __Mod is only expected to work with 2.08 or 2.15 English versions of the game, o
 - Arcanist with following archetypes: School Savant, Spell Specialist, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
 - Oracle with following archetypes: Hermit, Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective, Scavenger and Cryptid Schoolar,
-- Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
+- Summoner with following archetypes: Devil Binder, Soulbound Summoner, Spirit Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder and Terror Weaver,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind, Priest of the Fallen and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator, Iron Tyrant, Tyrant and Unholy Minion,

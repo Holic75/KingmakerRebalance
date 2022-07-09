@@ -154,7 +154,7 @@ namespace CallOfTheWild
                                                                FeatureGroup.None);
                 hex_selection.AllFeatures = hexes;
 
-                string spells_description = display_name + "bonded spirit grants spirit guide the following spells: ";
+                string spells_description = display_name + " bonded spirit grants spirit guide the following spells: ";
              
                 for (int i = 0; i < spells.Length; i++)
                 {

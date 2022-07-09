@@ -127,6 +127,42 @@ namespace CallOfTheWild
                                                               hexes);
             }
 
+
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    library.Get<BlueprintAbility>("91da41b9793a4624797921f221db653c"), //color sparay
+                    NewSpells.hypnotic_pattern,
+                    library.Get<BlueprintAbility>("33112160d31f449eabedc663972bb1dd"), //glitterdust duplicate
+                    library.Get<BlueprintAbility>("4b8265132f9c8174f87ce7fa6d0fe47b"), //rainbow pattern
+                    NewSpells.overland_flight,
+                    library.Get<BlueprintAbility>("645558d63604747428d55f0dd3a4cb58") //chain lightning
+                };
+
+                return new Summoner.Spirit("Heavens",
+                                          "Heavens",
+                                          "A shaman who selects the heavens spirit has eyes that sparkle like starlight, exuding an aura of otherworldliness to those she is around. When she calls upon one of this spirit’s abilities, her eyes turn pitch black and the colors around her drain for a brief moment.",
+                                          library.Get<BlueprintAbility>("ce7dad2b25acf85429b6c9550787b2d9").Icon,//glitterdust
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          true_spirit_ability,
+                                          spells,
+                                          hexes);
+            }
+
             public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

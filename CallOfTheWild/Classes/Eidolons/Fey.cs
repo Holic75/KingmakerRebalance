@@ -104,6 +104,7 @@ namespace CallOfTheWild
             fey_eidolon.ReplaceComponent<AddPet>(a => a.Pet = fey_unit);
             fey_eidolon.IsClassFeature = true;
             fey_eidolon.ReapplyOnLevelUp = true;
+            addLesserEidolon(fey_eidolon);
             //Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fey_eidolon);
         }
 
@@ -224,7 +225,9 @@ namespace CallOfTheWild
                                                            };
             fey_eidolon.UIGroups = new UIGroup[]{ Helpers.CreateUIGroup(feature1, feature4, feature8, feature12, feature16, feature20),
                                                   Helpers.CreateUIGroup(feature82, feature220)
-                                                }; 
+                                                };
+            Summoner.eidolon_selection.AllFeatures = Summoner.eidolon_selection.AllFeatures.AddToArray(fey_eidolon);
+            setLesserEidolonProgression(fey_eidolon);
         }
 
 

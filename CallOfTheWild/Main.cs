@@ -341,6 +341,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Summoner.createSpiritSummoner();
                     CallOfTheWild.Archetypes.DraconicDruid.create();
                     CallOfTheWild.Psychic.createPsychicClass();
                     CallOfTheWild.Occultist.createOccultistClass();

@@ -128,6 +128,42 @@ namespace CallOfTheWild
             }
 
 
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+
+                createHexes();
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    library.Get<BlueprintAbility>("ab395d2335d3f384e99dddee8562978f"), //shocking grasp
+                    library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                    library.Get<BlueprintAbility>("d2cff9243a7ee804cb6d5be47af30c73"), //lightning bolt
+                    NewSpells.river_of_wind,
+                    library.Get<BlueprintAbility>("16fff43f034133a4a86e914a523e021f"), //summon elemental large air
+                    library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c") //sirocco
+                };
+
+                return new Summoner.Spirit("Wind",
+                                          "Wind",
+                                          "A shaman who selects the wind spirit appears windswept, and her movements seem lithe and carefree.",
+                                          library.Get<BlueprintAbility>("093ed1d67a539ad4c939d9d05cfe192c").Icon,//sirocco
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          true_spirit_ability,
+                                          spells,
+                                          hexes);
+            }
+
+
             public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {
                 test_mode = test;

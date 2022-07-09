@@ -10,6 +10,7 @@ using Kingmaker.EntitySystem.Stats;
 using Kingmaker.PubSubSystem;
 using Kingmaker.RuleSystem.Rules;
 using Kingmaker.RuleSystem.Rules.Abilities;
+using Kingmaker.UI.Common;
 using Kingmaker.UI.ServiceWindow;
 using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
@@ -278,6 +279,53 @@ namespace CallOfTheWild.SpellbookMechanics
                 __result = count.Value;
             }
             return false;
+        }
+    }
+
+
+    [Harmony12.HarmonyPatch(typeof(UIUtilityUnit))]
+    [Harmony12.HarmonyPatch("GetCasterType", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintCharacterClass) })]
+    class UIUtilityUnit__GetCasterTypeFromClass__Patch
+    {
+        static bool Prefix(BlueprintCharacterClass dataClass, ref string __result)
+        {
+            if (dataClass?.Spellbook?.GetComponent<PsychicSpellbook>() != null)
+            {
+                __result = "Psychic Caster";
+                return false;
+            }
+            else if (dataClass.Spellbook != null && dataClass.Spellbook.IsAlchemist)
+            {
+                __result = "Alchemy User";
+                return false;
+            }
+            return true;
+        }
+    }
+
+    [Harmony12.HarmonyPatch(typeof(UIUtilityUnit))]
+    [Harmony12.HarmonyPatch("GetCasterType", Harmony12.MethodType.Normal)]
+    [Harmony12.HarmonyPatch(new Type[] { typeof(BlueprintArchetype) })]
+    class UIUtilityUnit__GetCasterTypeFromArchetype__Patch
+    {
+        static bool Prefix(BlueprintArchetype archetype, ref string __result)
+        {
+            if (!archetype.ChangeCasterType)
+            {
+                return true;
+            }
+            if (archetype.ReplaceSpellbook?.GetComponent<PsychicSpellbook>() != null)
+            {
+                __result = "Psychic Caster";
+                return false;
+            }
+            else if (archetype.ReplaceSpellbook != null && archetype.ReplaceSpellbook.IsAlchemist)
+            {
+                __result = "Alchemy User";
+                return false;
+            }
+            return true;
         }
     }
 

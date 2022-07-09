@@ -190,8 +190,6 @@ namespace CallOfTheWild
                 }
 
             }
-            //manually add hex_vilneraility to all necessary spellbooks
-            //and create scroll once
         }
 
 

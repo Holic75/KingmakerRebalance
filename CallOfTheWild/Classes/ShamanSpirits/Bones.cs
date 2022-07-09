@@ -132,6 +132,45 @@ namespace CallOfTheWild
             }
 
 
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, string touch_of_the_grave_asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                touch_of_the_grave_prefix = touch_of_the_grave_asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    library.Get<BlueprintAbility>("bd81a3931aa285a4f9844585b5d97e51"), //cause fear
+                    library.Get<BlueprintAbility>("7a5b5bf845779a941a67251539545762"), //false life
+                    library.Get<BlueprintAbility>("4b76d32feb089ad4499c3a1ce8e1ac27"), //animate dead
+                    library.Get<BlueprintAbility>("d2aeac47450c76347aebbc02e4f463e0"), //fear
+                    library.Get<BlueprintAbility>("4fbd47525382517419c66fb548fe9a67"), //slay living
+                    library.Get<BlueprintAbility>("a89dcbbab8f40e44e920cc60636097cf") //circle of death
+                };
+
+
+                return new Summoner.Spirit("Bones",
+                                          "Bones",
+                                          "A shaman who selects the bones spirit is cadaverously thin, with sunken eye sockets and dead eyes that stare off into the distance. Her body has a faint smell of the grave. When she calls upon one of this spirit’s abilities, a ghostly wind whips her hair and clothes about, and the unpleasant stench becomes more prominent.",
+                                          Helpers.GetIcon("4b76d32feb089ad4499c3a1ce8e1ac27"), //animate dead,
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          true_spirit_ability,
+                                          spells,
+                                          hexes);
+            }
+
+
             public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, string touch_of_the_grave_asset_prefix, bool test = false)
             {
                 test_mode = test;

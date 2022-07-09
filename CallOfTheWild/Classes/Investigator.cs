@@ -613,7 +613,7 @@ namespace CallOfTheWild
             psychic_detective.ClassSkills = new StatType[] {StatType.SkillStealth, StatType.SkillThievery,
                                                       StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion,
                                                       StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice};
-
+            psychic_detective.ChangeCasterType = true;
             infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
             mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
             enhance_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));

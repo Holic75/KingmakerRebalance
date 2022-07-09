@@ -128,6 +128,46 @@ namespace CallOfTheWild
             }
 
 
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_secondary_stat;
+
+                createHexes();
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    library.Get<BlueprintAbility>("4783c3709a74a794dbe7c8e7e0b1b038"), //burning hands
+                    library.Get<BlueprintAbility>("21ffef7791ce73f468b6fca4d9371e8b"), //resist energy
+                    library.Get<BlueprintAbility>("2d81362af43aeac4387a3d4fced489c3"), //fireball
+                    NewSpells.wall_of_fire_fire_domain,
+                    library.Get<BlueprintAbility>("b3a203742191449458d2544b3f442194"), //summon elemental large fire
+                    NewSpells.fire_seeds
+                };
+
+
+
+
+                return new Summoner.Spirit("Flame",
+                                          "Flame",
+                                          "A shaman who selects the flame spirit has a radiant light behind her eyes and the faint smell of smoke about her. When she calls upon one of this spirit’s abilities, a hungry spectral flame dances around her body.",
+                                          library.Get<BlueprintAbility>("19309b5551a28d74288f4b6f7d8d838d").Icon, //wall of fire
+                                          "",
+                                          spirit_ability,
+                                          greater_spirit_ability,
+                                          true_spirit_ability,
+                                          spells,
+                                          hexes);
+            }
+
+
 
             public Shaman.Spirit createShamanSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
             {

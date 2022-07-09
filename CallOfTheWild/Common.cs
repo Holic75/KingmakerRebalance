@@ -5273,7 +5273,7 @@ namespace CallOfTheWild
             attackHandInfo.CreateAnimationHandleForAttack();
             if (attackHandInfo.AnimationHandle == null)
                 return;
-            attackHandInfo.AnimationHandle.SpeedScale = 3f;
+            attackHandInfo.AnimationHandle.SpeedScale = 5f;
             attacker.LookAt(target.Position);
             attacker.View.AnimationManager.Execute(attackHandInfo.AnimationHandle);
         }
