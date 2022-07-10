@@ -102,7 +102,7 @@ namespace CallOfTheWild
                                                         "Elemental Eidolon (Earth, Quadruped)",
                                                         "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
                                                         "",
-                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        Helpers.GetIcon("376db0590f3ca4945a8b6dc16ed14975"), //elemental body
                                                         FeatureGroup.AnimalCompanion,
                                                         library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
                                                         );
@@ -176,7 +176,7 @@ namespace CallOfTheWild
                                                         "Elemental Eidolon (Earth)",
                                                         "Pulled in from one of the four elemental planes, these eidolons are linked to one of the four elements: air, earth, fire, or water. Generally, an elemental eidolon appears as a creature made entirely of one element, but there is some variation. Elemental eidolons are decidedly moderate in their views and actions. They tend to avoid the conflicts of others when they can and seek to maintain balance. The only exception is when facing off against emissaries of their opposing elements, which they hate utterly.",
                                                         "",
-                                                        Helpers.GetIcon("650f8c91aaa5b114db83f541addd66d6"), //summon elemental
+                                                        Helpers.GetIcon("376db0590f3ca4945a8b6dc16ed14975"), //elemental body
                                                         FeatureGroup.AnimalCompanion,
                                                         library.Get<BlueprintFeature>("126712ef923ab204983d6f107629c895").ComponentsArray
                                                         );
