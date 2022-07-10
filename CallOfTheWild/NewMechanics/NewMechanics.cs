@@ -331,6 +331,7 @@ namespace CallOfTheWild
             public BlueprintAbilityResource resource;
             public BlueprintSpellbook spellbook;
             public int amount = 1;
+            public bool times_spell_level = false;
             public bool used_for_reducing_metamagic_cast_time = false;
             public bool is_metamixing = false;
             public bool remove_self = false;
@@ -365,13 +366,13 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
+                int factor = times_spell_level ? evt.Spell.SpellLevel : 1;
                 if (used_for_reducing_metamagic_cast_time && is_metamixing)
                 {
                     var arcanist_part = this.Owner.Get<SpellManipulationMechanics.UnitPartArcanistPreparedMetamagic>();
                     if (arcanist_part != null && arcanist_part.isUsedWithMetamixing(evt.Spell.Blueprint, evt.Spell.MetamagicData.MetamagicMask))
                     {
-                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                        this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount * factor);
                         return;
                     }
                     else
@@ -382,7 +383,7 @@ namespace CallOfTheWild
                  
                 if (spellbook == null || spellbook_blueprint == spellbook)
                 {
-                    this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount);
+                    this.Owner.Resources.Spend((BlueprintScriptableObject)this.resource, amount * factor);
                 }
 
                 if (remove_self)
@@ -4675,6 +4676,7 @@ namespace CallOfTheWild
             public ActionList action_on_success = null;
             public ActionList action_on_miss = null;
             public ActionList action_on_before_attack = null;
+            public bool play_fast_animation = false;
 
             public BlueprintItemWeapon specific_weapon = null;
 
@@ -4711,6 +4713,10 @@ namespace CallOfTheWild
                     attackWithWeapon.Reason = (RuleReason)this.Context;
                     RuleAttackWithWeapon rule = attackWithWeapon;
                     rule.Reason = this.Context;
+                    if (play_fast_animation)
+                    {
+                        Common.executeSpedUpMainhandAttackAnimation(maybeCaster, target.Unit);
+                    }
                     this.Context.TriggerRule<RuleAttackWithWeapon>(rule);
                     if (rule.AttackRoll.IsHit)
                     {
@@ -6743,6 +6749,7 @@ namespace CallOfTheWild
             public override void RunAction()
             {
                 var origin = use_caster_as_origin ? this.Context.MaybeCaster.Position : this.Target.Point;
+                var orientation = use_caster_as_origin ? this.Context.MaybeCaster.Orientation : this.Target.Orientation;
                 var nx = new Vector2();
                 var ny = new Vector2();
                 if (!ignore_direction)
@@ -6753,7 +6760,7 @@ namespace CallOfTheWild
                 foreach (var p in points_around_target)
                 {
                     var dp = ignore_direction ? p : (nx * p.x + ny * p.y);
-                    var target = new TargetWrapper(origin + dp.To3D());
+                    var target = new TargetWrapper(origin + dp.To3D(), orientation);
                     AreaEffectEntityData effectEntityData = AreaEffectsController.Spawn(this.Context, this.AreaEffect, target, new TimeSpan?(this.DurationValue.Calculate(this.Context).Seconds));
                     if (this.AbilityContext == null)
                         return;
@@ -6764,6 +6771,22 @@ namespace CallOfTheWild
                         if (!u.Descriptor.State.IsDead && u.IsInGame && (effectEntityData.View.Shape != null && effectEntityData.View.Shape.Contains(u.Position, u.View.Corpulence)) && (effectEntityData.AffectEnemies || !this.AbilityContext.Caster.IsEnemy(u)))
                             EventBus.RaiseEvent<IApplyAbilityEffectHandler>((Action<IApplyAbilityEffectHandler>)(h => h.OnTryToApplyAbilityEffect(this.AbilityContext, (TargetWrapper)u)));
                     }
+                }
+            }
+        }
+
+
+        //force end on all areas with the same context for multiarea spells
+        [Harmony12.HarmonyPatch(typeof(AreaEffectEntityData))]
+        [Harmony12.HarmonyPatch("ForceEnd", Harmony12.MethodType.Normal)]
+        class AreaEffectEntityData__ForceEnd__Patch
+        {
+            static void Postfix(AreaEffectEntityData __instance)
+            {
+                var areas = Game.Instance.State.AreaEffects.Where(a => a.Context == __instance.Context || __instance.Context?.ParentContext == a.Context?.ParentContext && a != __instance && Helpers.GetField<TimeSpan?>(a, "m_Duration").HasValue);
+                foreach (var a in areas)
+                {
+                    Helpers.SetField(a, "m_ForceEnded", true);
                 }
             }
         }
@@ -10460,21 +10483,25 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                if (will_spend > 0)
                 {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (current_event.IsSuccessRoll(evt.Result, 0))
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
+                    if (current_event.IsSuccessRoll(evt.Result, 0))
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 current_event.Bonus.AddModifier(result, null, ModifierDescriptor.UntypedStackable);
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 
@@ -10540,6 +10567,7 @@ namespace CallOfTheWild
                 }
 
                 evt.AddTemporaryModifier(evt.Initiator.Stats.Initiative.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
 
             public override void OnEventDidTrigger(RuleInitiativeRoll evt)
@@ -10667,35 +10695,40 @@ namespace CallOfTheWild
                 int result = this.Fact.MaybeContext.TriggerRule<RuleRollDice>(rule).Result;
                 int max_value = dice_formula.MaxValue(0, false);
 
+                
                 if (allow_reroll_fact != null && evt.Initiator.Descriptor.HasFact(allow_reroll_fact))
                 {
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoHit || current_event.AutoMiss)
+                if (will_spend > 0)
                 {
-                    //do not spend resource on critical failure or critical success and auto hit/miss
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result == 1 || evt.Result == 20 || current_event.AutoHit || current_event.AutoMiss)
+                    {
+                        //do not spend resource on critical failure or critical success and auto hit/miss
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (evt.Result + current_event.AttackBonus >= current_event.TargetAC)
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result + current_event.AttackBonus >= current_event.TargetAC)
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (evt.Result + current_event.AttackBonus + max_value < current_event.TargetAC)
-                {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
+                    if (evt.Result + current_event.AttackBonus + max_value < current_event.TargetAC)
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 Harmony12.Traverse.Create(current_event).Property("AttackBonus").SetValue(current_event.AttackBonus + result);
                 Harmony12.Traverse.Create(current_event.AttackBonusRule).Property("Result").SetValue(current_event.AttackBonus);
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.AdditionalAttackBonus.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 
@@ -10844,30 +10877,34 @@ namespace CallOfTheWild
                     result = Math.Max(result, this.Fact.MaybeContext.TriggerRule<RuleRollDice>(new RuleRollDice(evt.Initiator, dice_formula)).Result);
                 }
 
-                if (evt.Result == 1 || evt.Result == 20 || current_event.AutoPass)
+                if (will_spend > 0)
                 {
-                    //do not spend resource on critical failure or critical success and auto hit/miss
-                    will_spend = 0;
-                    return;
-                }
+                    if (evt.Result == 1 || evt.Result == 20 || current_event.AutoPass)
+                    {
+                        //do not spend resource on critical failure or critical success and auto hit/miss
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (!current_event.IsSuccessRoll(evt.Result, max_value) )
-                {
-                    //will fail anyways
-                    will_spend = 0;
-                    return;
-                }
+                    if (!current_event.IsSuccessRoll(evt.Result, max_value))
+                    {
+                        //will fail anyways
+                        will_spend = 0;
+                        return;
+                    }
 
-                if (current_event.IsSuccessRoll(evt.Result, 0))
-                {
-                    //will pass anyways
-                    will_spend = 0;
-                    return;
+                    if (current_event.IsSuccessRoll(evt.Result, 0))
+                    {
+                        //will pass anyways
+                        will_spend = 0;
+                        return;
+                    }
                 }
 
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveWill.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveFortitude.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
                 current_event.AddTemporaryModifier(current_event.Initiator.Stats.SaveReflex.AddModifier(result, this, ModifierDescriptor.UntypedStackable));
+                Common.AddBattleLogMessage(evt.Initiator.CharacterName + $" uses {this.Fact.Name} and adds {result} to the roll");
             }
         }
 

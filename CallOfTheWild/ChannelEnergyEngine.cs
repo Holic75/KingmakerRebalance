@@ -1440,7 +1440,7 @@ namespace CallOfTheWild
                                           Helpers.MergeIds(c.ability.AssetGuid, "0d406cf592524c85b796216ed4ee3ab3"),
                                           resounding_blow.Icon,
                                           null,
-                                          Common.createAddInitiatorAttackWithWeaponTrigger( Helpers.CreateActionList(new_actions),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(new_actions),
                                                                                            check_weapon_range_type: true),
                                           Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(Helpers.Create<ContextActionRemoveSelf>()),
                                                                                            check_weapon_range_type: true,

@@ -62,6 +62,8 @@ using Kingmaker.UI._ConsoleUI.Context.InGame;
 using Kingmaker.UI._ConsoleUI.CombatLog;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.UnitLogic.Mechanics.Properties;
+using Kingmaker.EntitySystem.Entities;
+using Kingmaker.UnitLogic.Commands;
 
 namespace CallOfTheWild
 {
@@ -3886,12 +3888,21 @@ namespace CallOfTheWild
             addSpellbooksToSpellSelection2(name, spell_level, spellbook_selection, divine, arcane, alchemist, false);
         }
 
-
-        static public NewMechanics.ContextActionAttack createContextActionAttack(ActionList action_on_hit = null, ActionList action_on_miss = null)
+        static public NewMechanics.ContextActionAttack createContextActionAttackWithAnimation(ActionList action_on_hit = null, ActionList action_on_miss = null)
         {
             var c = Helpers.Create<NewMechanics.ContextActionAttack>();
             c.action_on_success = action_on_hit;
             c.action_on_miss = action_on_miss;
+            c.play_fast_animation = true;
+            return c;
+        }
+
+            static public NewMechanics.ContextActionAttack createContextActionAttack(ActionList action_on_hit = null, ActionList action_on_miss = null)
+        {
+            var c = Helpers.Create<NewMechanics.ContextActionAttack>();
+            c.action_on_success = action_on_hit;
+            c.action_on_miss = action_on_miss;
+            c.play_fast_animation = false;
             return c;
         }
 
@@ -5192,8 +5203,8 @@ namespace CallOfTheWild
         static public BlueprintFeature buffToFeature(BlueprintBuff buff)
         {
             var feature = Helpers.CreateFeature(buff.name + "Feature",
-                                                "",
-                                                "",
+                                                buff.Name,
+                                                buff.Description,
                                                 "",
                                                 null,
                                                 FeatureGroup.None,
@@ -5274,6 +5285,20 @@ namespace CallOfTheWild
             spell_specialization.ParamObject = param_object;
 
             acl.Selections = acl.Selections.AddToArray(spell_specialization);
+        }
+
+
+        static public void executeSpedUpMainhandAttackAnimation(UnitEntityData attacker, UnitEntityData target)
+        {
+            if (attacker.View.AnimationManager == null)
+                return;
+            AttackHandInfo attackHandInfo = new AttackHandInfo(attacker.Body.PrimaryHand, 0, 0);
+            attackHandInfo.CreateAnimationHandleForAttack();
+            if (attackHandInfo.AnimationHandle == null)
+                return;
+            attackHandInfo.AnimationHandle.SpeedScale = 5f;
+            attacker.LookAt(target.Position);
+            attacker.View.AnimationManager.Execute(attackHandInfo.AnimationHandle);
         }
 
 

@@ -125,27 +125,28 @@ namespace CallOfTheWild
         {
            ac_selections = new BlueprintFeatureSelection[]{Hunter.hunter_animal_companion,
                                                            Hunter.primeval_companion,
-                                                            library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"), //domain
-                                                            library.Get<BlueprintFeatureSelection>("90406c575576aee40a34917a1b429254"), //base
-                                                            library.Get<BlueprintFeatureSelection>("571f8434d98560c43935e132df65fe76"), //druid
-                                                            library.Get<BlueprintFeatureSelection>("738b59d0b58187f4d846b0caaf0f80d7"), //maddog
-                                                            library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7"), //ranger
-                                                            library.Get<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67"), //sacred huntsmaster
-                                                            library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c"), //sylvan sorcerer
-                                                            Shaman.nature_spirit.true_spirit_ability as BlueprintFeatureSelection,
-                                                            Shaman.nature_spirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
-                                                            Oracle.animal_companion,
-                                                            Summoner.eidolon_selection,
-                                                            Summoner.lesser_eidolon_selection,
-                                                            Summoner.twinned_eidolon_selection,
-                                                            Summoner.fey_eidolon_selection,
-                                                            Summoner.infernal_eidolon_selection,
-                                                            Spiritualist.emotional_focus_selection,
-                                                            Shaman.drake_companion,
-                                                            Archetypes.DraconicDruid.drake_companion,
-                                                            Warpriest.animal_companion,
-                                                            Brawler.animal_companion
-                                                            };
+                                                           library.Get<BlueprintFeatureSelection>("2ecd6c64683b59944a7fe544033bb533"), //domain
+                                                           library.Get<BlueprintFeatureSelection>("90406c575576aee40a34917a1b429254"), //base
+                                                           library.Get<BlueprintFeatureSelection>("571f8434d98560c43935e132df65fe76"), //druid
+                                                           library.Get<BlueprintFeatureSelection>("738b59d0b58187f4d846b0caaf0f80d7"), //maddog
+                                                           library.Get<BlueprintFeatureSelection>("ee63330662126374e8785cc901941ac7"), //ranger
+                                                           library.Get<BlueprintFeatureSelection>("2995b36659b9ad3408fd26f137ee2c67"), //sacred huntsmaster
+                                                           library.Get<BlueprintFeatureSelection>("a540d7dfe1e2a174a94198aba037274c"), //sylvan sorcerer
+                                                           Shaman.nature_spirit.true_spirit_ability as BlueprintFeatureSelection,
+                                                           Shaman.nature_spirit.true_spirit_ability_wandering as BlueprintFeatureSelection,
+                                                           Oracle.animal_companion,
+                                                           Summoner.eidolon_selection,
+                                                           Summoner.lesser_eidolon_selection,
+                                                           Summoner.twinned_eidolon_selection,
+                                                           Summoner.fey_eidolon_selection,
+                                                           Summoner.infernal_eidolon_selection,
+                                                           Spiritualist.emotional_focus_selection,
+                                                           Spiritualist.emotional_focus_no_unsummon,
+                                                           Shaman.drake_companion,
+                                                           Archetypes.DraconicDruid.drake_companion,
+                                                           Warpriest.animal_companion,
+                                                           Brawler.animal_companion
+                                                           };
             createClassSharedSpell();
             createSharedSpellFeat();
             fixAcSpellTargetting();
@@ -223,7 +224,7 @@ namespace CallOfTheWild
 
             familiar_share_spell = Helpers.CreateFeature("ShareSpellFamiliar",
                                          "Share Spells (Familiar)",
-                                         "You may cast a spell with a range of Personal on your familiar (as a touch spell) instead of on himself.",
+                                         "You may cast a spell with a range of Personal on your familiar (as a touch spell) instead of on yourself.",
                                          "",
                                          magic_fang.Icon,
                                          FeatureGroup.None);

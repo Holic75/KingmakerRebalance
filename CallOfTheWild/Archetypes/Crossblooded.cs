@@ -137,7 +137,8 @@ namespace CallOfTheWild.Archetypes
             bloodline_selection1.SetNameDescription("Crossblooded bloodline",
                                                     "A crossblooded sorcerer selects two different bloodlines. The sorcerer may gain access to the skills, feats, and some of the powers of both bloodlines she is descended from, but at the cost of reduced mental clarity and choice (see Drawbacks).\n"
                                                     + "At 1st, 3rd, 9th, 15th, and 20th levels, a crossblooded sorcerer gains one of the two new bloodline powers available to her at that level.\n"
-                                                    + "A crossblooded sorcerer may select her bonus spells from either of her bloodlines");
+                                                    + "A crossblooded sorcerer may select her bonus spells from either of her bloodlines.\n"
+                                                    + "A crossblooded sorcerer combines the bonus feat lists from both of her bloodlines and may select her bloodline bonus feats from this combined list.");
             bloodline_selection2 = library.CopyAndAdd(bloodline_selection1, "CrossbloodedBloodlinesSelection2", "");
         }
 
@@ -185,7 +186,6 @@ namespace CallOfTheWild.Archetypes
         {
             var sorcerer_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("b3a505fb61437dc4097f43c3f8f9a4cf");
 
-            //add check against arrowsong minstrel archetype for exisitng bard spellbooks
             var selections_to_fix = new BlueprintFeatureSelection[] {Common.EldritchKnightSpellbookSelection,
                                                                      Common.ArcaneTricksterSelection,
                                                                      Common.MysticTheurgeArcaneSpellbookSelection,

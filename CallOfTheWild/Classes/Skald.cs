@@ -948,6 +948,10 @@ namespace CallOfTheWild
                                              Helpers.CreateAddStatBonus(StatType.SkillAthletics, -20, ModifierDescriptor.UntypedStackable),
                                              Common.createAbilityScoreCheckBonus(-20, ModifierDescriptor.UntypedStackable, StatType.Constitution)
                                              );
+            if (Main.settings.insightful_contemplation_forbids_attack)
+            {
+                insightful_contemplation_debuff.AddComponent(Helpers.Create<AddCondition>(a => a.Condition = Kingmaker.UnitLogic.UnitCondition.CanNotAttack));
+            }
             insightful_contemplation_debuff.SetBuffFlags(BuffFlags.HiddenInUi);
 
             insightful_contemplation_buff = createRagingSongEffectBuffForbidSpellCasting("SkaldCourtPoetInsigtfulContemplationBuff", false, insightful_contemplation_debuff,
@@ -959,7 +963,7 @@ namespace CallOfTheWild
 
             insightful_contemplation = Helpers.CreateFeature("SkalCourtPoetInsightfulContemplationFeature",
                                               "Insightful Contemplation",
-                                              "At 1st level, affected allies gain a + 2 morale bonus to Intelligence and Charisma and a + 1 morale bonus on Will saving throws, but they also take a –1 penalty to AC. While under the effects of insightful contemplation, allies other than the court poet can’t use any Strength - based skills or make any physical effort that requires a Constitution check. At 4th level and every 4 skald levels thereafter, the song’s bonus on Will saves increases by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Intelligence and Charisma increase by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)",
+                                              $"At 1st level, affected allies gain a + 2 morale bonus to Intelligence and Charisma and a + 1 morale bonus on Will saving throws, but they also take a –1 penalty to AC. While under the effects of insightful contemplation, allies other than the court poet can’t use{(Main.settings.insightful_contemplation_forbids_attack ? " attack action or " : "")} any Strength - based skills or make any physical effort that requires a Constitution check. At 4th level and every 4 skald levels thereafter, the song’s bonus on Will saves increases by 1; the penalty to AC doesn’t change. At 8th and 16th levels, the song’s bonuses to Intelligence and Charisma increase by 2. (Unlike the barbarian’s rage ability, those affected are not fatigued after the song ends.)",
                                               "",
                                               Helpers.GetIcon("6d3fcfab6d935754c918eb0e004b5ef7"), //inspire competence
                                               FeatureGroup.None

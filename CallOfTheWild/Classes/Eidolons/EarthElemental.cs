@@ -136,6 +136,8 @@ namespace CallOfTheWild
             var natural_armor2 = library.Get<BlueprintUnitFact>("45a52ce762f637f4c80cc741c91f58b7");
             var earth_elemental = library.Get<BlueprintUnit>("11d8e4b048acc0e4c8e42e76b8ab869d");
             var earth_elemental_unit = library.CopyAndAdd<BlueprintUnit>("8a6986e17799d7d4b90f0c158b31c5b9", "EarthElementalEidolonUnit", "");
+            var visual = library.Get<BlueprintBuff>("40aaecaebce743e48a1d35957583fcc6");
+            visual.SetBuffFlags(visual.GetBuffFlags() | BuffFlags.HiddenInUi);
             earth_elemental_unit.Color = earth_elemental.Color;
 
             earth_elemental_unit.Visual = earth_elemental.Visual;
@@ -149,7 +151,7 @@ namespace CallOfTheWild
             earth_elemental_unit.Wisdom = 10;
             earth_elemental_unit.Charisma = 11;
             earth_elemental_unit.Speed = 30.Feet();
-            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature }; // { natural_armor2, fx_feature };
+            earth_elemental_unit.AddFacts = new BlueprintUnitFact[] { natural_armor2, fx_feature, visual }; // { natural_armor2, fx_feature };
             earth_elemental_unit.Body = earth_elemental_unit.Body.CloneObject();
             earth_elemental_unit.Body.EmptyHandWeapon = library.Get<BlueprintItemWeapon>("20375b5a0c9243d45966bd72c690ab74");
             earth_elemental_unit.Body.PrimaryHand = null;

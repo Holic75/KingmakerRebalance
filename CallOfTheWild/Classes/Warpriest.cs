@@ -1187,7 +1187,7 @@ namespace CallOfTheWild
             warpriest_blessings = Helpers.CreateFeatureSelection("WarpriestBlessingsSelection",
                                                                  "Blessing",
                                                                  "A warpriest can select any two blessings granted by his deity. Deities grant blessings of the same name as the domains they grant.\n"
-                                                                 + "Each blessing grants a minor power at 1st level and a major power at 10th level. A warpriest can call upon the power of his blessings a number of times per day (in any combination) equal to 3 + 1/2 his warpriest level (to a maximum of 13 times per day at 20th level). Each time he calls upon any one of his blessings, it counts against his daily limit.The save DC for these blessings is equal to 10 + 1/2 the warpriest’s level + the warpriest’s Wisdom modifier.",
+                                                                 + "Each blessing grants a minor power at 1st level and a major power at 10th level. A warpriest can call upon the power of his blessings a number of times per day (in any combination) equal to 3 + 1/2 his warpriest level (to a maximum of 13 times per day at 20th level). Each time he calls upon any one of his blessings, it counts against his daily limit. The save DC for these blessings is equal to 10 + 1/2 the warpriest’s level + the warpriest’s Wisdom modifier.",
                                                                  "",
                                                                  null,
                                                                  FeatureGroup.None);
@@ -5100,7 +5100,7 @@ namespace CallOfTheWild
             Helpers.SetField(arsenal_chaplain, "m_ParentClass", warpriest_class);
             library.AddAsset(arsenal_chaplain, "");
 
-            arsenal_chaplain.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings, warpriest_sacred_weapon_damage),
+            arsenal_chaplain.RemoveFeatures = new LevelEntry[] {Helpers.LevelEntry(1, warpriest_blessings, warpriest_blessings),
                                                                     Helpers.LevelEntry(4, warpriest_channel_energy, warpriest_sacred_weapon_enhancement),
                                                                     Helpers.LevelEntry(7, warpriest_sacred_armor),
                                                                     Helpers.LevelEntry(8, warpriest_sacred_weapon_enhancement2),
@@ -5120,8 +5120,7 @@ namespace CallOfTheWild
                                                            Helpers.LevelEntry(13, arsenal_chaplain_weapon_training),
                                                            Helpers.LevelEntry(17, arsenal_chaplain_weapon_training),
                                                           };
-
-
+            warpriest_progression.UIGroups[2].Features.Add(arsenal_chaplain_weapon_training);
             warpriest_progression.UIDeterminatorsGroup = warpriest_progression.UIDeterminatorsGroup.AddToArray(arsenal_chaplain_war_blessing, blessings_map["War"]);
         }
 

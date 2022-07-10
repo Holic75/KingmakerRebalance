@@ -358,6 +358,7 @@ namespace CallOfTheWild.TeamworkMechanics
         public bool require_swift_action;
         public bool allow_engaged;
         public bool except_caster;
+        public bool play_attack_animation = false;
 
 
         public override string GetCaption()
@@ -381,6 +382,10 @@ namespace CallOfTheWild.TeamworkMechanics
                     if (require_swift_action)
                     {
                         attacker.CombatState.Cooldown.SwiftAction += 6.0f;
+                    }
+                    if (play_attack_animation)
+                    {
+                        Common.executeSpedUpMainhandAttackAnimation(attacker, this.Target.Unit);
                     }
                     RuleAttackWithWeapon attackWithWeapon = new RuleAttackWithWeapon(attacker, this.Target.Unit, attacker?.Body.PrimaryHand?.MaybeWeapon, 0);
                     attackWithWeapon.Reason = (RuleReason)this.Context;

@@ -227,12 +227,15 @@ namespace CallOfTheWild.SpellFailureMechanics
 
             if (is_psychic)
             {
-                foreach (var b in __instance.Caster.Buffs)
+                if (!__instance.HasMetamagic((Metamagic)MetamagicFeats.MetamagicExtender.Logical))
                 {
-                    if (!b.IsSuppressed && (b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
+                    foreach (var b in __instance.Caster.Buffs)
                     {
-                        __result = false;
-                        return;
+                        if (!b.IsSuppressed && (b.Context.SpellDescriptor & (SpellDescriptor.NegativeEmotion | SpellDescriptor.Fear | SpellDescriptor.Shaken)) != 0)
+                        {
+                            __result = false;
+                            return;
+                        }
                     }
                 }
             }

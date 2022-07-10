@@ -39,6 +39,7 @@ namespace CallOfTheWild
             public bool update_kineticist_archetypes { get; }
             public bool balance_fixes { get; }
             public bool balance_fixes_monk_ac { get; }
+            public bool insightful_contemplation_forbids_attack { get; }
             internal Settings()
             {
 
@@ -63,6 +64,7 @@ namespace CallOfTheWild
                     update_kineticist_archetypes = (bool)jo["update_kineticist_archetypes"];
                     balance_fixes = (bool)jo["balance_fixes"];
                     balance_fixes_monk_ac = (bool)jo["balance_fixes_monk_ac"];
+                    insightful_contemplation_forbids_attack = (bool)jo["insightful_contemplation_forbids_attack"];
                 }
             }
         }
@@ -293,6 +295,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
+                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();
                     CallOfTheWild.Subschools.load();
                     CallOfTheWild.WeaponsFix.load();
                     CallOfTheWild.SharedSpells.preload();
@@ -342,6 +345,7 @@ namespace CallOfTheWild
 
                     CallOfTheWild.Archetypes.StormDruid.create();
                     CallOfTheWild.Shaman.createShamanClass();
+                    CallOfTheWild.Summoner.createSpiritSummoner();
                     CallOfTheWild.Archetypes.DraconicDruid.create();
                     CallOfTheWild.Psychic.createPsychicClass();
                     CallOfTheWild.Occultist.createOccultistClass();

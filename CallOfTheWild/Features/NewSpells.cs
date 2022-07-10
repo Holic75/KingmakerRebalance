@@ -6302,7 +6302,7 @@ namespace CallOfTheWild
             var release_ability = Helpers.CreateAbility("DazzlingBladeReleaseAbility",
                                                         "Dazzling Blade: Release",
                                                         "Dazzling blade makes a weapon appear dazzlingly shiny, as if crafted from pure silver and heavily polished. In combat, the flashing movements of a dazzling blade become almost hypnotic. The wielder of a weapon under the effects of dazzling blade gains a + 1 competence bonus on all Bluff checks made to feint in combat. The wielder also gains a + 1 competence bonus on all CMB checks made to disarm a foe, and a +1 competence bonus to his CMD against disarm attempts made against the weapon bearing the dazzling blade effect. This bonus increases by +1 for every 3 caster levels, to a maximum bonus of + 5 at 12th level.\n"
-                                                        + "The wielder of a dazzling blade can discharge the spell into a blinding burst of silvery light as a free action.The wielder selects an adjacent opponent as the focal point of this burst of light—that creature must make a Will save to avoid being blinded for 1 round(with a successful save, the creature is instead dazzled for 1 round).\n"
+                                                        + "The wielder of a dazzling blade can discharge the spell into a blinding burst of silvery light as a free action. The wielder selects an adjacent opponent as the focal point of this burst of light—that creature must make a Will save to avoid being blinded for 1 round (with a successful save, the creature is instead dazzled for 1 round).\n"
                                                         + "Despite its shiny appearance, a dazzling blade grants no extra benefit against creatures that are vulnerable to silver.",
                                                         "",
                                                         icon,
@@ -6761,9 +6761,9 @@ namespace CallOfTheWild
                                                 "",
                                                 Helpers.CreateRunActions(Common.createContextActionOnContextCaster(Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1), dispellable: false)),
                                                                          Helpers.Create<ContextActionCastSpell>(c => c.Spell = dimension_door_free),
-                                                                         Common.createContextActionAttack(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
-                                                                                                          Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
-                                                                                                         )
+                                                                         Common.createContextActionAttackWithAnimation(Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff))),
+                                                                                                                      Helpers.CreateActionList(Common.createContextActionOnContextCaster(Common.createContextActionRemoveBuff(buff)))
+                                                                                                                     )
                                                                          ),
                                                 Helpers.CreateSpellComponent(SpellSchool.Transmutation),
                                                 Helpers.Create<AbilityCasterMainWeaponIsMelee>()
@@ -7521,7 +7521,7 @@ namespace CallOfTheWild
             var water_subtype = library.Get<BlueprintFeature>("bf7ee56ec9e43c14fa17727997e91993");
             var buff = Helpers.CreateBuff("FluidFormBuff",
                                             "Fluid Form",
-                                            "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment.You gain DR 10/slashing and your reach increases by 10 feet.",
+                                            "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment. You gain DR 10/slashing and your reach increases by 10 feet.",
                                             "",
                                             icon,
                                             Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
@@ -8308,7 +8308,7 @@ namespace CallOfTheWild
                                                          "",
                                                          "",
                                                          Common.createAbilityCasterMainWeaponCheck(WeaponCategory.Longbow, WeaponCategory.Shortbow),
-                                                         Helpers.CreateRunActions((Common.createContextActionAttack()))
+                                                         Helpers.CreateRunActions((Common.createContextActionAttackWithAnimation()))
                                                         );
             bow_spirit_swift.setMiscAbilityParametersSingleTargetRangedHarmful(works_on_allies: true);
 
@@ -8376,7 +8376,7 @@ namespace CallOfTheWild
             List<Vector2> fog_points = new List<Vector2>();
             for (int i = -1; i <= 1; i++)
             {
-                fog_points.Add(new Vector2(0.0f, (i * 20).Feet().Meters));
+                fog_points.Add(new Vector2((i * 20).Feet().Meters, 0.0f));
             }
 
 
@@ -10495,7 +10495,7 @@ namespace CallOfTheWild
             flame_blade_electric = createFlameBladeVariant("FlameBladeElectric",
                                                   "Flame Blade (Electric)",
                                                   "This spell works like flame blade, but deals electricity damage instead.\n"
-                                                  + "Flame Blade: A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
+                                                  + "Flame Blade: A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand. You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage. A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponEvil.png"),
                                                   DamageEnergyType.Electricity,
@@ -10507,7 +10507,7 @@ namespace CallOfTheWild
         {
             flame_blade = createFlameBladeVariant("FlameBlade",
                                                   "Flame Blade",
-                                                  "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks.The blade deals 1d8 points of fire damage +1 point per two caster levels(maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
+                                                  "A 3 - foot - long, blazing beam of red - hot fire springs forth from your hand.You wield this blade - like beam as if it were a scimitar. Attacks with the flame blade are melee touch attacks. The blade deals 1d8 points of fire damage +1 point per two caster levels (maximum + 10). Since the blade is immaterial, your Strength modifier does not apply to the damage.A flame blade can ignite combustible materials such as parchment, straw, dry sticks, and cloth.\n"
                                                    + "Your hand must be free when you cast this spell.",
                                                   LoadIcons.Image2Sprite.Create(@"AbilityIcons/FlameBlade.png"),
                                                   DamageEnergyType.Fire,
@@ -10638,7 +10638,7 @@ namespace CallOfTheWild
                                                   AbilityRange.Medium,
                                                   Helpers.minutesPerLevelDuration,
                                                   "",
-                                                  Helpers.CreateRunActions(Common.createContextActionAttack()),
+                                                  Helpers.CreateRunActions(Common.createContextActionAttackWithAnimation()),
                                                   Helpers.CreateSpellComponent(Kingmaker.Blueprints.Classes.Spells.SpellSchool.Evocation),
                                                   Helpers.Create<NewMechanics.AbilityCasterPrimaryHandFree>(),
                                                   Helpers.CreateSpellDescriptor(SpellDescriptor.Fire),

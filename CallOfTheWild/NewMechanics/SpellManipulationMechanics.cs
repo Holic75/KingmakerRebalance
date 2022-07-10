@@ -619,7 +619,6 @@ namespace CallOfTheWild
 
         public class FactStoreSpell : OwnedGameLogicComponent<UnitDescriptor>
         {
-
             public ActionList actions_on_store = new ActionList();
             public bool ignore_target_checkers = false;
             public bool always_hit = false;
@@ -1405,12 +1404,21 @@ namespace CallOfTheWild
         [AllowedOn(typeof(Kingmaker.Blueprints.Facts.BlueprintUnitFact))]
         public class MagicalSupremacy : RuleInitiatorLogicComponent<RuleCastSpell>, IInitiatorRulebookHandler<RuleCalculateAbilityParams>, IRulebookHandler<RuleCalculateAbilityParams>
         {
-            public int bonus;
+            public ContextValue cl_bonus;
+            public ContextValue dc_bonus;
             public BlueprintAbilityResource resource;
             private BlueprintAbility current_spell = null;
             private int spell_level = -1;
+            public BlueprintCharacterClass caster_class = null;
+            public BlueprintArchetype archetype = null;
+            public BlueprintSpellbook spellbook = null;
+            public ContextValue base_cost = 0;
+            public bool add_spell_level_to_cost = false;
+            public bool do_not_spend_spell_slot = false;
+            public bool check_metamixing_for_cost = false;
+            private int cost = 0;
 
-            
+
             public override void OnEventAboutToTrigger(RuleCastSpell evt)
             {
                 if (evt.Spell.SourceItem != null || evt.Spell.Blueprint != current_spell)
@@ -1424,17 +1432,24 @@ namespace CallOfTheWild
             public void OnEventAboutToTrigger(RuleCalculateAbilityParams evt)
             {
                 spell_level = -1;
-                int cost = 1 + evt.SpellLevel;
-                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost)
+                cost = base_cost.Calculate(this.Fact.MaybeContext) + (add_spell_level_to_cost ?  evt.SpellLevel : 0);              
+                int cost_to_check = cost + ((check_metamixing_for_cost && (evt.Spellbook?.Owner?.Get<UnitPartArcanistPreparedMetamagic>()?.metamixingEnabled()).GetValueOrDefault()) ? 1 : 0);
+                if (this.resource == null || this.Owner.Resources.GetResourceAmount((BlueprintScriptableObject)this.resource) < cost_to_check)
                 {
                     return;
                 }
-                if (evt.Spell == null || evt.Spellbook == null || evt.Spell.Type != AbilityType.Spell)
+                if (evt.Spell == null 
+                    || evt.Spellbook == null 
+                    || evt.Spell.Type != AbilityType.Spell 
+                    || (caster_class != null && evt.Spellbook != evt.Spellbook.Owner.GetSpellbook(caster_class))
+                    || (spellbook != null && evt.Spellbook?.Blueprint != spellbook)
+                    || (archetype != null && !evt.Spellbook.Owner.Progression.IsArchetype(archetype))
+                    )
                 {
                     return;
                 }
-                evt.AddBonusCasterLevel(bonus);
-                evt.AddBonusDC(bonus);
+                evt.AddBonusCasterLevel(cl_bonus.Calculate(this.Fact.MaybeContext));
+                evt.AddBonusDC(dc_bonus.Calculate(this.Fact.MaybeContext));
                 current_spell = evt.Spell;
                 spell_level = evt.SpellLevel;
             }
@@ -1454,12 +1469,11 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-                this.Owner.Resources.Spend(this.resource, spell_level + 1);
-                /*if (evt.Spell.Spellbook.Blueprint.Spontaneous)
+                this.Owner.Resources.Spend(this.resource, cost);
+                if (do_not_spend_spell_slot)
                 {
-                    evt.Spell.Spellbook.RestoreSpontaneousSlots(spell_level, 1);
-                }*/
-                evt.Spell.Caster.Ensure<SpellbookMechanics.UnitPartDoNotSpendNextSpell>().active = true;
+                    evt.Spell.Caster.Ensure<SpellbookMechanics.UnitPartDoNotSpendNextSpell>().active = true;
+                }
                 current_spell = null;
                 spell_level = -1;
             }
@@ -2024,8 +2038,10 @@ namespace CallOfTheWild
             public BlueprintAbilityResource resource;
             public int amount = 1;
             public bool half_level;
-            public BlueprintUnitFact[] cost_increasing_facts;
             public bool only_from_extra_arcanist_spell_list;
+            public BlueprintUnitFact[] cost_increasing_facts = new BlueprintUnitFact[0];
+            public BlueprintUnitFact[] cost_increasing_facts_x_spell_level = new BlueprintUnitFact[0];
+
 
             public string GetReason()
             {
@@ -2051,8 +2067,6 @@ namespace CallOfTheWild
                     return true;
                 }
 
-
-
                 int required_amount = calcualteCost(ability);
 
                 return ability.Caster.Resources.GetResourceAmount(resource) >= required_amount;
@@ -2062,7 +2076,6 @@ namespace CallOfTheWild
             private int calcualteCost(AbilityData ability)
             {
                 int cost = half_level ? Math.Max(1, ability.SpellLevel / 2) : amount;
-
                 foreach (var f in cost_increasing_facts)
                 {
                     if (f is BlueprintBuff)
@@ -2080,10 +2093,25 @@ namespace CallOfTheWild
                     }
                 }
 
-                if (arcanist_spellbook && ability.Caster.HasFact(Arcanist.magical_supremacy_buff))
+                int x_spell_level = 0;
+                foreach (var f in cost_increasing_facts_x_spell_level)
                 {
-                    cost += ability.SpellLevel + 1;
+                    if (f is BlueprintBuff)
+                    {
+                        x_spell_level += ability.Caster.Buffs.RawFacts.Count(b => b.Blueprint == f);
+                    }
+                    if (f is BlueprintFeature)
+                    {
+                        var feature = ability.Caster.GetFeature(f as BlueprintFeature);
+
+                        if (feature != null)
+                        {
+                            x_spell_level += feature.GetRank();
+                        }
+                    }
                 }
+
+                cost += x_spell_level * ability.SpellLevel;
 
                 return cost < 0 ? 0 : cost;
             }

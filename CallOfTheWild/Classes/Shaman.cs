@@ -1889,7 +1889,7 @@ namespace CallOfTheWild
 
             wandering_hex_selection = Helpers.CreateFeatureSelection("WanderingHexSelection",
                                                            "Wandering Hex",
-                                                           "At 6th level, a shaman can gain the use of one of the hexes possessed by either one of her spirits. \n"
+                                                           "At 6th level, a shaman can gain the use of one of the hexes possessed by either one of her spirits.\n"
                                                            + "At 14th level, a shaman can select another wandering hex. This ability otherwise functions as the hex class feature.",
                                                            "",
                                                            null,

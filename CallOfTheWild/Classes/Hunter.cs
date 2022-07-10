@@ -1562,7 +1562,7 @@ namespace CallOfTheWild
             var disorientating_injury = library.Get<BlueprintBuff>("1f1e42f8c06d7dc4bb70cc12c73dfb38");
             var distracting_attack_buff = Helpers.CreateBuff("DistractingAttackEffectBuff",
                                                              "Distracting Attack",
-                                                             "The character can use this trick as a free action before he hits with an attack.The target takes a –2 penalty on all attack rolls for 1 round.",
+                                                             "The character can use this trick as a free action before he hits with an attack. The target takes a –2 penalty on all attack rolls for 1 round.",
                                                              "",
                                                              disorientating_injury.Icon,
                                                              disorientating_injury.FxOnStart,

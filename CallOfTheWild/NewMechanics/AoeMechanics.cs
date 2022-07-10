@@ -1,7 +1,10 @@
 ﻿using Harmony12;
 using Kingmaker;
 using Kingmaker.Blueprints;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Controllers.Clicks;
+using Kingmaker.Designers;
+using Kingmaker.ElementsSystem;
 using Kingmaker.EntitySystem.Entities;
 using Kingmaker.PubSubSystem;
 using Kingmaker.UI.AbilityTarget;
@@ -87,6 +90,7 @@ namespace CallOfTheWild.AoeMechanics
             }
         }
     }
+
     public class AbilityWallRange : Kingmaker.UI.AbilityTarget.AbilityRange
     {
         bool Initalized;
@@ -103,9 +107,15 @@ namespace CallOfTheWild.AoeMechanics
         {
             if (!Initalized)
             {
-                var abilityTargetSelect = Game.Instance.IsControllerMouse ?
-                    Game.Instance.UI.Common?.transform.Find("CombatCursorPC")?.gameObject :
-                    Game.Instance.UI.Common?.transform.Find("Console_TargetSelect")?.gameObject;
+                Main.logger.Log("Logging Components:");
+                int count = (Game.Instance.UI.Common?.transform.childCount).GetValueOrDefault();
+                List<Transform> childs3 = Game.Instance.UI.Common?.transform.Cast<Transform>().ToList();
+
+                foreach (var c in childs3)
+                {
+                    Main.logger.Log(c.name);
+                }
+                var abilityTargetSelect = Game.Instance.UI.AbilityTargetSelection;
                 var abilityLineRange = abilityTargetSelect?.GetComponent<AbilityLineRange>()?.Range;
                 if (abilityLineRange == null) throw new System.Exception("Could not find AbilityLineRange");
                 var lineRangeVisual = abilityLineRange.transform.Find("Pivot/Line")?.gameObject;
@@ -161,6 +171,75 @@ namespace CallOfTheWild.AoeMechanics
             var wallRangeContainer = new GameObject("WallRangeHolder");
             GameObject.DontDestroyOnLoad(wallRangeContainer);
             wallRangeContainer.AddComponent<AbilityWallRange>();
+        }
+    }
+
+
+    [AllowedOn(typeof(BlueprintUnitFact))]
+    [AllowMultipleComponents]
+    public class ApplyActionToTargetsInRange : ContextAction
+    {
+        public ActionList actions = new ActionList();
+        public float Radius; //in meters
+        public int max_num_units = 0; //unlimited if 0
+        public IAbilityTargetChecker[] target_checkers = new IAbilityTargetChecker[0];
+        public bool CanTargetSelf;
+        public bool CanTargetFriends;
+        public bool CanTargetEnemies;
+
+        public override string GetCaption()
+        {
+            return "Action on targets within range";
+        }
+
+        public override void RunAction()
+        {
+            var unit = this.Target.Unit;
+            var caster = this.Context.MaybeCaster;
+            SortedDictionary<float, UnitEntityData> valid_units = new SortedDictionary<float, UnitEntityData>();
+            foreach (UnitEntityData unitEntityData in GameHelper.GetTargetsAround(unit.Position, this.Radius, false, false))
+            {
+                if (unitEntityData == unit)
+                {
+                    continue;
+                }
+                foreach (var t in target_checkers)
+                {
+                    if (!t.CanTarget(this.Context?.MaybeCaster, new TargetWrapper(unitEntityData)))
+                    {
+                        continue;
+                    }
+                }
+                if (!CanTargetSelf && unitEntityData == caster)
+                {
+                    continue;
+                }
+                if (!CanTargetFriends && caster.IsAlly(unitEntityData))
+                {
+                    continue;
+                }
+                if (!CanTargetEnemies && !caster.IsAlly(unitEntityData))
+                {
+                    continue;
+                }
+                float d = unit.DistanceTo(unitEntityData);
+                valid_units.Add(d, unitEntityData);
+            }
+
+            int units_to_affect = max_num_units == 0 ? valid_units.Count : max_num_units;
+
+            foreach (var u in valid_units)
+            {
+                using (this.Context.GetDataScope((TargetWrapper)u.Value))
+                {
+                    this.actions.Run();
+                }
+                units_to_affect--;
+                if (units_to_affect <= 0)
+                {
+                    break;
+                }
+            }
         }
     }
 

@@ -961,7 +961,6 @@ namespace CallOfTheWild
                     a.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClass(druid, StatType.Constitution));
                     abilities.Add(a);
                     druid_wild_shapes = druid_wild_shapes.AddToArray(b);
-
                 }
 
                 var wildshape = Common.createVariantWrapper("Wildshape" + f.name, "", abilities.ToArray());
@@ -1403,7 +1402,7 @@ namespace CallOfTheWild
             var legendary_proportions_buff = library.Get<BlueprintBuff>("4ce640f9800d444418779a214598d0a3");
             legendary_proportions_buff.GetComponent<ChangeUnitSize>().SizeDelta = 1;
             var legendary_proportions_spell = library.Get<BlueprintAbility>("da1b292d91ba37948893cdbe9ea89e28");
-            legendary_proportions_spell.SetDescription("You call upon the primordial power of ancient megafauna to boost the size of your target. Because of its connection to living creatures of the distant past, the spell does not function on outsiders, undead, and summoned creatures. Your target grows to legendary proportions, increasing in size by one category.The creature's height doubles and its weight increases by a factor of 8. The target gains a +6 size bonus to its Strength score and a +4 size bonus to its Constitution score. It gains a +6 bonus to its natural armor, and DR 10/adamantine. Melee and ranged weapons used by this creature deal more damage.");
+            legendary_proportions_spell.SetDescription("You call upon the primordial power of ancient megafauna to boost the size of your target. Because of its connection to living creatures of the distant past, the spell does not function on outsiders, undead, and summoned creatures. Your target grows to legendary proportions, increasing in size by one category. The creature's height doubles and its weight increases by a factor of 8. The target gains a +6 size bonus to its Strength score and a +4 size bonus to its Constitution score. It gains a +6 bonus to its natural armor, and DR 10/adamantine. Melee and ranged weapons used by this creature deal more damage.");
         }
 
 

@@ -28,7 +28,7 @@ __Mod is only expected to work with 2.08 or 2.15 English versions of the game, o
 - Arcanist with following archetypes: School Savant, Spell Specialist, Blood Arcanist, Unlettered Arcanist, Magaambyan Initiate and Occultist,
 - Oracle with following archetypes: Hermit, Seeker, Spirit Guide, Warsighted, Divine Herbalist and Dual-Cursed,
 - Investigator with following archetypes: Empiricist, Jinyiwey, Questioner, Psychic Detective, Scavenger and Cryptid Schoolar,
-- Summoner with following archetypes: Devil Binder, Soulbound Summoner, Fey Caller, Naturalist, Master Summoner and Twinned Summoner,
+- Summoner with following archetypes: Devil Binder, Soulbound Summoner, Spirit Caller, Naturalist, Master Summoner and Twinned Summoner,
 - Psychic with following archetypes: Magaambyan Telepath, Amnesiac, Esoteric Starseeker, Mutation Mind, Psychic Marauder and Terror Weaver,
 - Spiritualist with following archetypes: Hag-Haunted, Onmyoji, Scourge, Fractured Mind, Priest of the Fallen and Exciter,
 - Antipaladin with following archetypes: Blighted Myrmidon, Dread Vanguard, Insinuator, Iron Tyrant, Tyrant and Unholy Minion,
@@ -153,7 +153,9 @@ __Mod is only expected to work with 2.08 or 2.15 English versions of the game, o
 - Greater Feint
 - Ranged Feint
 - Swordplay Style and Swordplay Upset,
-- Two-Weapon Feint and Improved Two-Weapon Feint.
+- Two-Weapon Feint and Improved Two-Weapon Feint,
+- Logical Spell,
+- Channel Corruption.
 
 #### New rage powers:
 - Terrifying Howl
@@ -615,7 +617,8 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Sprit Totem spirit slam attack works as a secondary slam attack, that uses charisma modifier for attack/damage,
 - Wind Walk increases speed to only 20mph instead of 60,
 - Assassinate slayer talent does not require target to be unaware of Slayer, only flat-footed,
-- Sanctified Slayer looses Bane ability,
+- Sanctified Slayer receives slayer talents at levels 8, 12, 16 and 20 (instead of 8, 16, 17 and 20) andlooses Bane ability, but receives quarry and improved quarry as slayer class.
+- Arsenal Chaplain Warpriest gains weapon damage die increase progression as usual, but does not get ability to enchant his sacred weapon,
 - Cult Leader Warpriest gains weapon focus at level 1 instead of bonus combat feat at level 18 and one rouge talent at level 6 instead of combat feat,
 - Overwhelming soul can use Mental Prowess a number of times per day qual to 2 + its kineticist level,
 - Lore Warden Hair's Breadth ability grants a permanent bonus to AC against critical hits equal to 1/3 of mobility skill
@@ -650,13 +653,13 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 #### Optional balance fixes:
 - Monk/Sacred Fist max AC bonus from Wisdom and Pladin/Antipaladin saves bonus from Charisma is limited by corresponding class level
 - Bloodline arcanas work only on sorcerer/eldritch scion/blood arcanist spells
-- Two-Weapon fighting automatically give iterative off-hand attacks once your BAB reaches 6 and 11, Improved (Greater) Two-Weapon fighting are removed from the game
+- Improved Two-Weapon fighting automatically give one more iterative off-hand attack once your BAB reaches 11, Greater Two-Weapon fighting is removed from the game
 - Vital Strike multiplier automatically scales to 3 when your BAB reaches 11 and to 4 when your BAB reaches 16, Improved Vital Strike and Greater Vital Strike are removed from the game
 - Cleave and Greater Cleave are merged into one feat
 - Improved Cleaving finish and Cleaving finish are merged into one feat
 - Blood havoc affects only bloodline spells
 - Fey/Infernal bloodline arcanas, Arcane Bloodline School Power and Power from Pageantry give only +1 bonus to corresponding spell DC/CL
-- Potent Magic arcane exploit is removed from the game
+- Increasing spell dc/cl with arcane reservoir ability requires spending amount of arcane reservoir points equal to spell level.
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),

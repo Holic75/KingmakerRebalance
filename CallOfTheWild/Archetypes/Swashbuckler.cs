@@ -123,7 +123,7 @@ namespace CallOfTheWild.Archetypes
             swashbucler_combat_trick.ReplaceComponent<PrerequisiteNoFeature>(p => p.Feature = swashbucler_combat_trick);
             swashbucler_combat_trick.AddComponents(Helpers.PrerequisiteFeature(martial_training));
             swashbucler_combat_trick.AddComponents(Helpers.PrerequisiteFeature(combat_trick));
-            RogueTalents.addToTalentSelection(swashbucler_combat_trick, false, false);
+            RogueTalents.addToTalentSelection(swashbucler_combat_trick, false);
         }
 
 

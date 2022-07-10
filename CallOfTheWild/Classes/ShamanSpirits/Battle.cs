@@ -101,6 +101,43 @@ namespace CallOfTheWild
             }
 
 
+            public Summoner.Spirit createSummonerSpirit(HexEngine associated_hex_engine, string asset_prefix, bool test = false)
+            {
+                test_mode = test;
+                hex_engine = associated_hex_engine;
+                prefix = asset_prefix;
+                primary_stat = hex_engine.hex_stat;
+                secondary_stat = hex_engine.hex_stat;
+
+                createSpiritAbility();
+                createGreaterSpiritAbility();
+                createTrueSpiritAbility();
+
+                spells = new BlueprintAbility[6]
+                {
+                    library.Get<BlueprintAbility>("c60969e7f264e6d4b84a1499fdcf9039"), //enlarge person
+                    library.Get<BlueprintAbility>("c28de1f98a3f432448e52e5d47c73208"), //protection from arrows
+                    library.Get<BlueprintAbility>("2d4263d80f5136b4296d6eb43a221d7d"), //magical vestment,
+                    NewSpells.wall_of_fire,
+                    library.Get<BlueprintAbility>("90810e5cf53bf854293cbd5ea1066252"), //righteous might
+                    library.Get<BlueprintAbility>("6a234c6dcde7ae94e94e9c36fd1163a7"), //bulls strength mass
+                };
+
+                createHexes();
+
+                return new Summoner.Spirit("Battle",
+                                  "Battle",
+                                  "A shaman who selects the battle spirit gains scars from every wound she takes, and the grit of battle always seems to cling on her body. When she calls upon one of this spirit’s abilities, she grows in stature—becoming taller and more muscular, with a grimace of rage stretching across her face.",
+                                  library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038").Icon,
+                                  "",
+                                  spirit_ability,
+                                  greater_spirit_ability,
+                                  true_spirit_ability,
+                                  spells,
+                                  hexes);
+            }
+
+
             public Archetypes.SpiritWhisperer.Spirit createSpiritWhispererSpirit(HexEngine associated_hex_engine, string asset_prefix, string manifestation_asset_prefix, bool test = false)
             {
                 test_mode = test;

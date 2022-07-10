@@ -39,6 +39,7 @@ using Kingmaker.UnitLogic.Mechanics;
 using Kingmaker.UnitLogic.Mechanics.Actions;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
+using Kingmaker.UnitLogic.Mechanics.Properties;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
@@ -94,6 +95,7 @@ namespace CallOfTheWild
         static public BlueprintFeature prolonged_study;
         static public BlueprintFeature extend_potion;
         static public BlueprintFeature enhance_potion;
+        static public BlueprintFeature effortless_aid;
 
         static public BlueprintFeature ranged_study;
         static public BlueprintFeature extra_investigator_talent;
@@ -142,6 +144,8 @@ namespace CallOfTheWild
         static public BlueprintFeature mechancial_inspiration;
         static public BlueprintFeature construct_mastery;
         static public BlueprintFeatureSelection scavenger_skill_focus;
+        static private BlueprintUnitProperty casting_stat_property;
+   
 
 
         internal static void createInvestigatorClass()
@@ -182,6 +186,8 @@ namespace CallOfTheWild
             investigator_class.FemaleEquipmentEntities = rogue_class.FemaleEquipmentEntities;
             investigator_class.ComponentsArray = rogue_class.ComponentsArray;
             investigator_class.StartingItems = rogue_class.StartingItems;
+            //create casting stat property to avoid specifying intelligence explicitely (for compatibility with jinyiwey)
+            casting_stat_property = NewMechanics.CastingStatPropertyGetter.createProperty("InvestigatorCastingStatProperty", "fd48eb2bb16f4cebab419d7d1de1f87b", StatType.Intelligence, investigator_class);
            
             createInvestigatorProgression();
             investigator_class.Progression = investigator_progression;
@@ -607,7 +613,7 @@ namespace CallOfTheWild
             psychic_detective.ClassSkills = new StatType[] {StatType.SkillStealth, StatType.SkillThievery,
                                                       StatType.SkillKnowledgeArcana, StatType.SkillKnowledgeWorld, StatType.SkillLoreNature, StatType.SkillLoreReligion,
                                                       StatType.SkillPerception, StatType.SkillPersuasion, StatType.SkillUseMagicDevice};
-
+            psychic_detective.ChangeCasterType = true;
             infusion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
             mutagen.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
             enhance_potion.AddComponent(Common.prerequisiteNoArchetype(investigator_class, psychic_detective));
@@ -1007,7 +1013,7 @@ namespace CallOfTheWild
         {
             divine_inspiration = library.CopyAndAdd<BlueprintFeature>(inspiration, "DivineInspirationJinyiweiFeature", "");
             divine_inspiration.SetNameDescriptionIcon("Divine Inspiration",
-                                                      "A jinyiwei follows a mandate to combat corruption in the mortal world. A jinyiwei adds her Wisdom modifier to her inspiration pool, rather than her Intelligence modifier. Additionally, rather than dabbling in the arcane arts of alchemy, a jinyiwei is empowered by the forces of celestial bureaucracy. She casts spells as an inquisitor of the same level.",
+                                                      "A jinyiwei follows a mandate to combat corruption in the mortal world. A jinyiwei adds her Wisdom modifier to her inspiration pool, rather than her Intelligence modifier. Additionally, rather than dabbling in the arcane arts of alchemy, a jinyiwei is empowered by the forces of celestial bureaucracy. She casts spells as an inquisitor of the same level. Her studied strike related abilities also depend on Wisdom rather than Intelligence.",
                                                       Helpers.GetIcon("a5e23522eda32dc45801e32c05dc9f96")//good hope
                                                       );
             divine_inspiration.ReplaceComponent<ContextRankConfig>(Helpers.CreateContextRankConfig(type: AbilityRankType.ProjectilesCount ,baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Wisdom, min: 1));
@@ -1107,7 +1113,7 @@ namespace CallOfTheWild
                                                             + "Like other spellcasters, a questioner can cast only a certain number of spells of each spell level per day. He knows the same number of spells and receives the same number of spell slots per day as a bard of his investigator level, including for cantrips. In addition, he receives bonus spells per day if he has a high Intelligence score.\n"
                                                             + "A questioner need not prepare his spells in advance. He can cast any bard spell he knows at any time, assuming he has not yet used up his allotment of spells per day for the spell’s level.\n"
                                                             + "A questioner can cast bard spells while wearing light armor and using a shield without incurring the normal arcane spell failure chance. Like any other arcane spellcaster, a questioner wearing medium or heavy armor incurs a chance of arcane spell failure. A multiclass questioner still incurs the normal arcane spell failure chance for arcane spells received from other classes.\n"
-                                                            + "A questioner can notselect infusion or mutagen investigator talents.",
+                                                            + "A questioner can not select infusion or mutagen investigator talents.",
                                                             "",
                                                             Helpers.GetIcon("55edf82380a1c8540af6c6037d34f322"),
                                                             FeatureGroup.None,
@@ -1356,6 +1362,7 @@ namespace CallOfTheWild
             createTopplingStrike();
             createBlindingStrike();
             createConfusingStrike();
+            createEffortlessAid();
 
 
             extend_potion = library.Get<BlueprintFeature>("1db8e126b77e71d4d89dcfa50fe87e93");
@@ -1389,10 +1396,37 @@ namespace CallOfTheWild
                 sickening_offensive,
                 toppling_strike,
                 blinding_strike,
-                confusing_strike
+                confusing_strike,
+                effortless_aid
             };                                                                
         }
 
+
+        static void createEffortlessAid()
+        {
+            effortless_aid = Helpers.CreateFeature("InvestigatorEffortlessAidFeature",
+                                                  "Effortless Aid",
+                                                  "The investigator can use an aid another action as a move action instead of as a standard action. An investigator can expend one use of inspiration to instead perform an aid another action as a swift action.",
+                                                  "",
+                                                  Rebalance.aid_another.Icon,
+                                                  FeatureGroup.None,
+                                                  Helpers.Create<TurnActionMechanics.MoveActionAbilityUse>(m => m.abilities = new BlueprintAbility[] { Rebalance.aid_another })
+                                                  );
+            List<BlueprintAbility> swift_actions = new List<BlueprintAbility>();
+
+            foreach (var a in Rebalance.aid_another.Variants)
+            {
+                var sa = library.CopyAndAdd(a, "InvestigatorEffortlessAid" + a.name, "");
+                sa.ActionType = CommandType.Swift;
+                sa.AddComponent(inspiration_resource.CreateResourceLogic());
+                sa.AddComponent(Common.createAbilityShowIfCasterHasFact(effortless_aid));
+                sa.SetName("Effortless Aid: Swift " + a.Name);
+                sa.SetDescription(sa.Description + "\n" + effortless_aid.Name + ": " + effortless_aid.Description);
+                swift_actions.Add(sa);
+            }
+
+            Rebalance.aid_another.GetComponent<AbilityVariants>().Variants = Rebalance.aid_another.GetComponent<AbilityVariants>().Variants.AddToArray(swift_actions);
+        }
 
         static void createConfusingStrike()
         {
@@ -2198,8 +2232,8 @@ namespace CallOfTheWild
                                                          "",
                                                          icon,
                                                          null,
-                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
-                                                                                         stat: StatType.Intelligence),
+                                                         Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CustomProperty,
+                                                                                         customProperty: casting_stat_property),
                                                          Helpers.CreateAddFactContextActions(activated: Helpers.CreateConditional(Common.createContextConditionCasterHasFact(studied_defense_toggle_buff),
                                                                                                                                   apply_defense,
                                                                                                                                   apply_attack)
@@ -2220,8 +2254,8 @@ namespace CallOfTheWild
                                                            "",
                                                            Helpers.CreateRunActions(apply_studied, apply_cooldown),
                                                            Common.createAbilityTargetHasFact(true, studied_target_cooldown),
-                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus,
-                                                                                         stat: StatType.Intelligence)
+                                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.CustomProperty,
+                                                                                         customProperty: casting_stat_property)
                                                            );
             studied_combat_ability.AvailableMetamagic = Metamagic.Extend;
             studied_combat_ability.setMiscAbilityParametersSingleTargetRangedHarmful(true);
@@ -2351,7 +2385,7 @@ namespace CallOfTheWild
                                           /*(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(remove_studied_strike_ranged),
                                                                                            check_weapon_range_type: true, wait_for_attack_to_resolve: true, 
                                                                                            range_type: AttackTypeAttackBonus.WeaponRangeType.Ranged),*/
-                                          Common.createContextCalculateAbilityParamsBasedOnClass(investigator_class, StatType.Intelligence)
+                                          Common.createContextCalculateAbilityParamsBasedOnClassesWithProperty(new BlueprintCharacterClass[] { investigator_class }, casting_stat_property)
                                           );
             var toggle = Helpers.CreateActivatableAbility("InvestigatorStudiedStrikeToggleAbility",
                                                           studied_strike_buff.Name,

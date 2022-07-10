@@ -118,7 +118,186 @@ namespace CallOfTheWild
         static public BlueprintAbility summon_companion_ability;
         static public BlueprintAbility summon_call_ability;
 
+        static public BlueprintArchetype spirit_summoner;
+        static public HexEngine hex_engine;
+        static public BlueprintFeatureSelection hex_selection;
+        static public BlueprintFeatureSelection extra_hex;
+        static public BlueprintFeatureSelection spirit_selection;
 
+        public class Spirit
+        {
+            public BlueprintProgression progression;
+            public BlueprintFeatureSelection hex_selection;
+
+            public Spirit(string name, string display_name, string description, UnityEngine.Sprite icon, string guid,
+                           BlueprintFeature spirit_ability, BlueprintFeature greater_spirit_ability, BlueprintFeature true_spirit_ability, BlueprintAbility[] spells, BlueprintFeature[] hexes)
+            {
+                hex_selection = Helpers.CreateFeatureSelection(name + "SpiritSummonerHexFeatureSelection",
+                                                               display_name + " Spirit Hex",
+                                                               $"You can select one of the hexes granted by {display_name} spirit.",
+                                                               "",
+                                                               null,
+                                                               FeatureGroup.None);
+                hex_selection.AllFeatures = hexes;
+
+                string spells_description = display_name + " spirit grants spirit summoner the following spells: ";
+
+                for (int i = 0; i < spells.Length; i++)
+                {
+                    spells_description += spells[i].Name + ((i == (spells.Length - 1)) ? "" : ", ");
+                }
+                spells_description += ".";
+
+                var learn_spells = Helpers.CreateFeature(name + "SpiritSummonerSpellsFeature",
+                                                         "Spirit Spells",
+                                                         spells_description,
+                                                         "",
+                                                         Helpers.GetIcon("a8e7e315b5a241b47ad526771eee19b7"), //destruction judgement
+                                                         FeatureGroup.None,
+                                                         (new Common.ExtraSpellList(spells)).createLearnSpellList(name + "SpirirSummonerSpellList", "", summoner_class)
+                                                         );
+
+
+
+                var entries = new LevelEntry[] { 
+                                                 Helpers.LevelEntry(1, spirit_ability, learn_spells),
+                                                 Helpers.LevelEntry(9, greater_spirit_ability),
+                                                 Helpers.LevelEntry(17, true_spirit_ability)
+                                               };
+
+
+                progression = Helpers.CreateProgression(name + "SpiritSummonerProgression",
+                                                        display_name + " Spirit",
+                                                        description,
+                                                        "",
+                                                        icon,
+                                                        FeatureGroup.None
+                                                        );
+                progression.LevelEntries = entries.ToArray();
+                progression.UIDeterminatorsGroup.AddToArray(learn_spells);
+                progression.UIGroups = Helpers.CreateUIGroups(spirit_ability, greater_spirit_ability, true_spirit_ability);
+                progression.Classes = getSummonerArray();
+                hex_selection.AddComponent(Helpers.PrerequisiteFeature(progression));
+            }
+        }
+
+        static void createHexes()
+        {
+            var healing = hex_engine.createHealing("SummonerHealing", Shaman.healing.Name,
+                                                   Shaman.healing.Description,
+                                                   "", "", "", "", "", "");
+            var misfortune_hex = hex_engine.createMisfortune("SummonerMisfortune",
+                                                         Shaman.misfortune_hex.Name,
+                                                         Shaman.misfortune_hex.Description,
+                                                         "", "", "", "");
+            var fortune_hex = hex_engine.createFortuneHex("SummonerFortune",
+                                                      Shaman.fortune_hex.Name,
+                                                     Shaman.misfortune_hex.Description,
+                                                      "", "", "", "");
+            var evil_eye = hex_engine.createEvilEye("SummonerEvilEye",
+                                                    Shaman.evil_eye.Name,
+                                                    Shaman.evil_eye.Description,
+                                                    "", "", "", "", "", "", "", "");
+            var ward = hex_engine.createWardHex("SummonerWard",
+                                                Shaman.ward.Name,
+                                                Shaman.ward.Description);
+            var shapeshift = hex_engine.createShapeshiftHex("SummonerShapeshift",
+                                                            Shaman.shapeshift.Name,
+                                                            Shaman.shapeshift.Description);
+            var wings_attack_hex = hex_engine.CreateWingsAttackHex("SummonerWingsAttack",
+                                                               Shaman.wings_attack_hex.Name,
+                                                               Shaman.wings_attack_hex.Description
+                                                              );
+            var wings_hex = hex_engine.CreateWingsHex("SummonerWings",
+                                                      Shaman.wings_hex.Name,
+                                                      wings_attack_hex.Description);
+            wings_hex.AddComponents(Helpers.PrerequisiteClassLevel(summoner_class, 8),
+                                    Helpers.PrerequisiteFeature(wings_attack_hex));
+
+            var draconic_resilence = hex_engine.createDraconicResilence("SummonerDraconicResilence",
+                                                                        Shaman.draconic_resilence.Name,
+                                                                        Shaman.draconic_resilence.Description);
+            var fury = hex_engine.createFury("SummonerFury",
+                                             Shaman.fury.Name,
+                                             Shaman.fury.Description);
+            var secret = hex_engine.createSecret("SummonerSecret",
+                                                Shaman.secret.Name,
+                                                Shaman.secret.Description);
+            var intimidating_display = hex_engine.createIntimidatingDisplay("SummonerIntimidatingDisplay",
+                                                                            Shaman.intimidating_display.Name,
+                                                                            Shaman.intimidating_display.Description);
+            var chant = hex_engine.createCackle("SummonerChant",
+                                                Shaman.chant.Name,
+                                                Shaman.chant.Description,
+                                                "", "", "", "", "SummonerChantToggleAbility");
+
+
+            //additional witch hexes
+            var beast_of_ill_omen = hex_engine.createBeastOfIllOmen("SummonerBeastOfIllOmen",
+                                                                Witch.beast_of_ill_omen.Name,
+                                                                Witch.beast_of_ill_omen.Description,
+                                                                "", "", "");
+            var slumber_hex = hex_engine.createSlumber("SummonerSlumber",
+                                                   Witch.slumber_hex.Name,
+                                                   Witch.slumber_hex.Description,
+                                                   "", "", "");
+            var iceplant_hex = hex_engine.createIceplantHex("SummonerIcePlant",
+                                                        Witch.iceplant_hex.Name,
+                                                        Witch.iceplant_hex.Description,
+                                                        "");
+
+            var murksight_hex = hex_engine.createMurksightHex("SummonerMurkSight",
+                                                          Witch.murksight_hex.Name,
+                                                          Witch.murksight_hex.Description,
+                                                          "");
+            var ameliorating = hex_engine.createAmeliorating("SummonerAmeliorating",
+                                                         Witch.ameliorating.Name,
+                                                         Witch.ameliorating.Description,
+                                                         "", "", "", "", "", "");
+            var summer_heat = hex_engine.createSummerHeat("SummonerSummerHeat",
+                                                      Witch.summer_heat.Name,
+                                                      Witch.summer_heat.Description,
+                                                      "", "", "", "", "");
+
+            var flight = hex_engine.CreateFlightHex("SummonerFlight",
+                                          Witch.flight_hex.Name,
+                                          Witch.flight_hex.Description);
+            flight.AddComponent(Helpers.PrerequisiteClassLevel(summoner_class, 5));
+
+            var swamps_grasp = hex_engine.createSwampsGrasp("SummonerSwampsGrasp", Witch.swamps_grasp.Name, Witch.swamps_grasp.Description);
+
+            var witch_hex_selection = Helpers.CreateFeatureSelection("SummonerWitchHexSelection",
+                                                                     "Witch Hex",
+                                                                     "The shaman selects any one hex normally available through the witch’s hex class feature. She treats her shaman level as her witch level when determining the powers and abilities of the hex. She uses her Wisdom modifier in place of her Intelligence modifier for the hex. She cannot select major hexes or grand hexes using this ability. The shaman cannot select a witch hex that has the same name as a shaman hex.",
+                                                                     "",
+                                                                     null,
+                                                                     FeatureGroup.None);
+            witch_hex_selection.AddComponent(Helpers.PrerequisiteNoFeature(witch_hex_selection));
+            witch_hex_selection.HideInCharacterSheetAndLevelUp = true;
+
+            witch_hex_selection.AllFeatures = new BlueprintFeature[] { beast_of_ill_omen, slumber_hex, iceplant_hex, murksight_hex, ameliorating, summer_heat, swamps_grasp, flight };
+
+            hex_selection = Helpers.CreateFeatureSelection("SummonerHexSelection",
+                                                           "Hex",
+                                                           "At 6th level, a spirit summoner can select a shaman hex that is appropriate to his spirit, chosen from the general list of shaman hexes or the specific hexes allowed by his spirit. This otherwise functions as a shaman’s hex, and uses his summoner level as his shaman level. Like a shaman, a spirit summoner uses his Wisdom modifier to determine hex DCs.\n"
+                                                           + "At 10th, 14th, and 18th levels, the summoner can select another hex.",
+                                                           "",
+                                                           null,
+                                                           FeatureGroup.None);
+            hex_selection.AllFeatures = new BlueprintFeature[] {healing, misfortune_hex, fortune_hex, evil_eye, ward, shapeshift, wings_attack_hex, wings_hex,
+                                                                draconic_resilence, fury, secret, intimidating_display, chant, witch_hex_selection};
+        }
+
+        static void createExtraHexFeat()
+        {
+            extra_hex = library.CopyAndAdd <BlueprintFeatureSelection>(hex_selection.AssetGuid, "SpiritSummonerExtraHexFeat", "");
+            extra_hex.SetNameDescriptionIcon("Extra Spirit Summoner Hex",
+                                             "You gain one additional hex. It must be a general hex or a hex granted by your spirit.",
+                                             Witch.extra_hex_feat.Icon);
+            extra_hex.AddComponent(Common.createPrerequisiteArchetypeLevel(spirit_summoner, 6));
+            extra_hex.Groups = new FeatureGroup[] { FeatureGroup.Feat };
+            library.AddFeats(extra_hex);
+        }
 
         internal static void createSummonerClass()
         {
@@ -172,15 +351,105 @@ namespace CallOfTheWild
             createNaturalist();
             createMasterSummoner();
             createTwinnedSummoner();
+            //createSpiritSummoner(); - will be done after shaman
             //createConstructCaller();
             createSoulboundSummoner();
-            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, fey_caller, naturalist, master_summoner, twinned_summoner, soulbound_summoner /*, construct_caller*/ };
+            summoner_class.Archetypes = new BlueprintArchetype[] {devil_binder, /*fey_caller,*/ naturalist, master_summoner, twinned_summoner, soulbound_summoner /*, construct_caller*/ };
             Helpers.RegisterClass(summoner_class);
 
             Evolutions.addClassToExtraEvalution(summoner_class);
 
             createSummonerSpells();
             addToPrestigeClasses();
+        }
+
+
+        static void createSpirit()
+        {
+            bool test_mode = false;
+            var spirits_engine = new SpiritsEngine(hex_engine);
+
+            var battle_spirit = (new SpiritsEngine.BattleSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var bones_spirit = (new SpiritsEngine.BonesSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", "SpiritSummoner", test_mode);
+            var flame_spirit = (new SpiritsEngine.FlameSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var heavens_spirit = (new SpiritsEngine.HeavensSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var life_spirit = (new SpiritsEngine.LifeSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", "SpiritSummoner", "Extra Channel (Spirit Summoner Life Spirit)", test_mode);
+            var stone_spirit = (new SpiritsEngine.StoneSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var waves_spirit = (new SpiritsEngine.WavesSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var wind_spirit = (new SpiritsEngine.WindSpirit()).createSummonerSpirit(hex_engine, "SpiritSummonere", test_mode);
+
+            List<Spirit> spirits = new List<Spirit>();
+
+            spirits.Add(battle_spirit);
+            spirits.Add(bones_spirit);
+            spirits.Add(flame_spirit);
+            spirits.Add(stone_spirit);
+            spirits.Add(waves_spirit);
+            spirits.Add(wind_spirit);
+            spirits.Add(heavens_spirit);
+            spirits.Add(life_spirit);
+
+            spirit_selection = Helpers.CreateFeatureSelection("SpiritSummonerdSpiritSelection",
+                                               "Spirit",
+                                               "A spirit summoner forms a mystical bond with one of the spirits associated with his eidolon, which works as shaman spirit class feature. Spirit summoner gains the spirit ability of that spirit and uses his summoner level as his shaman level for determining its effects. He also automatically adds all corresponding spirit magic spells of levels 1 to 6 to his list of spells known.\n"
+                                               + "At 9th level, the summoner gains the abilities listed in the greater version of his selected spirit.\n"
+                                               + "At 17th level, the summoner gains the abilities listed for the true version of his selected spirit.",
+                                               "",
+                                               LoadIcons.Image2Sprite.Create(@"AbilityIcons/SpiritCall.png"),
+                                               FeatureGroup.None);
+
+            foreach (var s in spirits)
+            {
+                spirit_selection.AllFeatures = spirit_selection.AllFeatures.AddToArray(s.progression);
+                hex_selection.AllFeatures = hex_selection.AllFeatures.AddToArray(s.hex_selection);
+            }
+        }
+
+
+        internal static void createSpiritSummoner()
+        {
+            spirit_summoner = Helpers.Create<BlueprintArchetype>(a =>
+            {
+                a.name = "SpiritSummonerArchetype";
+                a.LocalizedName = Helpers.CreateString($"{a.name}.Name", "Spirit Summoner");
+                a.LocalizedDescription = Helpers.CreateString($"{a.name}.Description", "A spirit summoner is an arcane spellcaster whose eidolon is a manifestation of a shamanic spirit. The bond connecting the summoner and this spirit might be friendly, as a member of a tribe giving flesh to his protector spirit, or hostile, as an outlander or rival compelling service from an unwilling spirit. The summoner can draw upon the divine power of this spirit, but is not constrained by the spirit’s morals or ethics.");
+            });
+            Helpers.SetField(spirit_summoner, "m_ParentClass", summoner_class);
+            library.AddAsset(spirit_summoner, "");
+            hex_engine = new HexEngine(getSummonerArray(), StatType.Wisdom, archetype: spirit_summoner);
+            createHexes();
+            createSpirit();
+            
+            spirit_summoner.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, summon_monster[0]),
+                                                             Helpers.LevelEntry(3, summon_monster[1]),
+                                                             Helpers.LevelEntry(6, makers_call),
+                                                             Helpers.LevelEntry(5, summon_monster[2]),
+                                                             Helpers.LevelEntry(7, summon_monster[3]),
+                                                             Helpers.LevelEntry(8, transposition),
+                                                             Helpers.LevelEntry(9, summon_monster[4]),
+                                                             Helpers.LevelEntry(10, aspect_extra[0]),
+                                                             Helpers.LevelEntry(11, summon_monster[5], aspect_extra[1]),
+                                                             Helpers.LevelEntry(12, aspect_extra[2]),
+                                                             Helpers.LevelEntry(13, summon_monster[6], aspect_extra[3]),
+                                                             Helpers.LevelEntry(14, aspect_extra[4]),
+                                                             Helpers.LevelEntry(15, summon_monster[7], aspect_extra[5]),
+                                                             Helpers.LevelEntry(16, aspect_extra[6]),
+                                                             Helpers.LevelEntry(17, summon_monster[8], aspect_extra[7]),
+                                                             Helpers.LevelEntry(18, greater_aspect_extra[0]),
+                                                             Helpers.LevelEntry(19, greater_aspect_extra[1]),
+                                                             Helpers.LevelEntry(20, greater_aspect_extra[2])
+                                                           };
+            spirit_summoner.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(1, spirit_selection),
+                                                             Helpers.LevelEntry(6, hex_selection),
+                                                             Helpers.LevelEntry(10, hex_selection),
+                                                             Helpers.LevelEntry(14, hex_selection),
+                                                             Helpers.LevelEntry(18, hex_selection)
+                                                        };
+
+            summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(spirit_selection);
+            summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(hex_selection));
+            createExtraHexFeat();
+            summoner_class.Archetypes = summoner_class.Archetypes.AddToArray(spirit_summoner);
         }
 
 
@@ -246,6 +515,7 @@ namespace CallOfTheWild
 
             summoner_class.Progression.UIDeterminatorsGroup = summoner_class.Progression.UIDeterminatorsGroup.AddToArray(pactbound_curse);
             summoner_class.Progression.UIGroups = summoner_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(soulbound_evolution));
+            summoner_progression.UIGroups[0].Features.Add(soulbound_life_link);
         }
 
 

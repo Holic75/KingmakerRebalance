@@ -134,6 +134,7 @@ namespace CallOfTheWild
         static public BlueprintAbility minion_bond_ability;
         static public BlueprintBuff minion_bond_buff;
         static public BlueprintFeature call_fiendish_ally;
+        static public BlueprintFeature channel_corruption;
 
 
         internal class CrueltyEntry
@@ -1115,11 +1116,12 @@ namespace CallOfTheWild
                 library.Get<BlueprintFeature>("0b442a7b4aa598d4e912a4ecee0500ff"), //bashing finish
                 library.Get<BlueprintFeature>("8976de442862f82488a4b138a0a89907"), //shield wall
                 library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield proficiency
+                library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), //itwf
             };
-            //add itwf and gtwf only if blance fixes are not enabled
+            //add  gtwf only if blance fixes are not enabled
             if (!Main.settings.balance_fixes)
             {
-                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("9af88f3ed8a017b45a6837eab7437629"), library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"));
+                iron_tyrant_bonus_feat.AllFeatures = iron_tyrant_bonus_feat.AllFeatures.AddToArray(library.Get<BlueprintFeature>("c126adbdf6ddd8245bda33694cd774e8"));
             }
             //other feats will be added upon creation
         }
@@ -2238,7 +2240,6 @@ namespace CallOfTheWild
             var ability = Helpers.CreateAbility("TouchOfCorruptionAbility",
                                                 "Touch of Corruption",
                                                 $"Beginning at 2nd level, an antipaladin surrounds his hand with a fiendish flame, causing terrible wounds to open on those he touches. Each day he can use this ability a number of times equal to 1/2 his antipaladin level + his Charisma modifier. As a touch attack, an antipaladin can cause 1d{BalanceFixes.getDamageDieString(DiceType.D6)} points of damage for every two antipaladin levels he possesses. Using this ability is a standard action that does not provoke attacks of opportunity.\n"
-                                                + "An antipaladin can also chose to channel corruption into a melee weapon by spending 2 uses of this ability as a swift action. The next enemy struck with this weapon will suffer the effects of this ability.\n"
                                                 + $"Alternatively, an antipaladin can use this power to heal undead creatures, restoring 1d{BalanceFixes.getDamageDieString(DiceType.D6)} hit points for every two levels the antipaladin possesses. This ability is modified by any feat, spell, or effect that specifically works with the lay on hands paladin class feature. For example, the Extra Lay On Hands feat grants an antipaladin 2 additional uses of the touch of corruption class feature.",
                                                 "",
                                                 Helpers.GetIcon("989ab5c44240907489aba0a8568d0603"), //bestow curse
@@ -2285,7 +2286,16 @@ namespace CallOfTheWild
             var channels = new List<BlueprintAbility>();
             var ranged_channels = new List<BlueprintAbility>();
             var remove_buffs = Helpers.Create<NewMechanics.ContextActionRemoveBuffs>(c => c.Buffs = new BlueprintBuff[0]);
-            
+
+            channel_corruption = Helpers.CreateFeature("ChannelCorruptionFeature",
+                                                        "Channel Corruption",
+                                                        "Before you make a melee attack roll, you can choose to spend two uses of your touch of corruption ability as a swift action. The next enemy struck with this attack will suffer the effects of your touch of corruptuin ability. If your attack misses, the touch of corruption ability is still expended with no effect.",
+                                                        "dab6859ebc9248899c3b0287365c942a",
+                                                        LoadIcons.Image2Sprite.Create(@"AbilityIcons/WeaponEvil.png"),
+                                                        FeatureGroup.CombatFeat,
+                                                        Helpers.PrerequisiteFeature(touch_of_corruption)
+                                                        );
+            library.AddCombatFeats(channel_corruption);
             foreach (var a in wrapper.Variants)
             {
                 for (int i = 0; i < 2; i++)
@@ -2297,12 +2307,12 @@ namespace CallOfTheWild
                                                   touch_ability.Description,
                                                   "",
                                                   touch_ability.Icon,
-                                                  null,
-                                                  Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(actions), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee)
+                                                  null
                                                   );
                     if (i == 0)
                     {
-                        buff.AddComponent(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(actions), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee));
+                        buff.AddComponents(Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(actions[0]), check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee),
+                                          Common.createAddInitiatorAttackWithWeaponTrigger(Helpers.CreateActionList(actions[1]), only_hit: false, check_weapon_range_type: true, range_type: AttackTypeAttackBonus.WeaponRangeType.Melee));
                     }
                     else
                     {
@@ -2320,10 +2330,10 @@ namespace CallOfTheWild
                                                         AbilityType.Supernatural,
                                                         CommandType.Swift,
                                                         AbilityRange.Personal,
-                                                        Helpers.oneMinuteDuration,
+                                                        Helpers.oneRoundDuration,
                                                         "",
                                                         Helpers.CreateRunActions(remove_buffs,
-                                                                                 Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Minutes), dispellable: false)),
+                                                                                 Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(1, DurationRate.Rounds), dispellable: false)),
                                                         touch_of_corruption_resource.CreateResourceLogic(amount: 2),
                                                         touch_ability.GetComponent<ContextCalculateAbilityParamsBasedOnClass>()
                                                         );
@@ -2333,6 +2343,7 @@ namespace CallOfTheWild
                     {
                         channel.AddComponent(requirement);
                     }
+                    channel.AddComponent(Common.createAbilityShowIfCasterHasFact(channel_corruption));
                     channel.setMiscAbilityParametersSelfOnly();
                     if (i == 0)
                     {
@@ -2342,7 +2353,7 @@ namespace CallOfTheWild
                     else
                     {
                         channel.AddComponent(Helpers.Create<NewMechanics.AbilityCasterMainWeaponIsRanged>());
-                        ranged_channels.Add(channel);
+                        ranged_channels.Add(channel); //for beacon of evil ranged touch of corruption
                     }
                 }
             }
@@ -2352,7 +2363,7 @@ namespace CallOfTheWild
 
             ranged_channel_wrapper = Common.createVariantWrapper("RangedChannelTouchOfCorruptionBase", "", ranged_channels.ToArray());
             ranged_channel_wrapper.SetIcon(LoadIcons.Image2Sprite.Create(@"AbilityIcons/TipOfTheSpear.png"));
-            touch_of_corruption.AddComponent(Helpers.CreateAddFact(channel_wrapper));
+            channel_corruption.AddComponent(Helpers.CreateAddFact(channel_wrapper));
 
 
             ability_focus_touch_of_corruption = Helpers.CreateFeature("TouchOfCorruptionFocusFeature",
