@@ -6238,10 +6238,10 @@ namespace CallOfTheWild
             solid_fog.AddToSpellList(Helpers.magusSpellList, 4);
             solid_fog.AddToSpellList(Helpers.wizardSpellList, 4);
             solid_fog.LocalizedDuration = Helpers.minutesPerLevelDuration;
-            solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
             //fix acid fog 
             var acid_fog = library.Get<BlueprintAbility>("dbf99b00cd35d0a4491c6cc9e771b487");
-            acid_fog.SetDescription("Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d6 points of acid damage to each creature and object within it.\n"
+            acid_fog.SetDescription($"Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d{BalanceFixes.getDamageDie(DiceType.D6)} points of acid damage to each creature and object within it.\n"
                                     + "Solid Fog: " + solid_fog.Description);
 
             var acid_fog_buff = library.Get<BlueprintBuff>("af76754540cacca45bfb1f0074bf3013");
