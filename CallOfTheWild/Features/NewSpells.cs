@@ -3885,7 +3885,7 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("6dc97e33e73b5ec49bd03b90c2345d7f"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged})
                                           );
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), Main.settings.balance_fixes ? DurationRate.Rounds : DurationRate.Minutes), is_from_spell: true);
             fickle_winds = Helpers.CreateAbility("FickleWindsAbility",
                                                        buff.Name,
                                                        buff.Description,
@@ -3894,7 +3894,7 @@ namespace CallOfTheWild
                                                        AbilityType.Spell,
                                                        Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                        AbilityRange.Medium,
-                                                       Helpers.minutesPerLevelDuration,
+                                                       Main.settings.balance_fixes ? Helpers.roundsPerLevelDuration : Helpers.minutesPerLevelDuration,
                                                        "",
                                                        Helpers.CreateRunActions(apply_buff),
                                                        Helpers.CreateContextRankConfig(),
@@ -6241,7 +6241,7 @@ namespace CallOfTheWild
             solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
             //fix acid fog 
             var acid_fog = library.Get<BlueprintAbility>("dbf99b00cd35d0a4491c6cc9e771b487");
-            acid_fog.SetDescription($"Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d{BalanceFixes.getDamageDie(DiceType.D6)} points of acid damage to each creature and object within it.\n"
+            acid_fog.SetDescription($"Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage to each creature and object within it.\n"
                                     + "Solid Fog: " + solid_fog.Description);
 
             var acid_fog_buff = library.Get<BlueprintBuff>("af76754540cacca45bfb1f0074bf3013");
