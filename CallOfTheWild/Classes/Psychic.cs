@@ -2739,6 +2739,7 @@ namespace CallOfTheWild
                 new Common.SpellId( NewSpells.aura_of_doom.AssetGuid, 4),
                 new Common.SpellId( "7792da00c85b9e042a0fdfc2b66ec9a8", 4), //break enchantment
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
+                new Common.SpellId( NewSpells.condensed_ether.AssetGuid, 4),
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
                 new Common.SpellId( NewSpells.debilitating_portent.AssetGuid, 4),
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimensions door

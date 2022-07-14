@@ -311,9 +311,10 @@ namespace CallOfTheWild
         static public BlueprintAbility flaming_sphere;
         static public BlueprintAbility flaming_sphere_greater;
 
+        static public BlueprintAbility condensed_ether;
+
         //binding_earth; ?
         //binding_earth_mass ?
-        //condensed ether ?
         //beacon of luck
      
         //blood rage
@@ -525,6 +526,53 @@ namespace CallOfTheWild
             createBallLightning();
             createFlamingSphere();
             createFlamingSphereGreater();
+            createCondensedEther();
+        }
+
+
+        static void createCondensedEther()
+        {
+            var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "CondensedEtherArea", ""); //mind fog
+            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Size = 20.Feet();
+            area.SpellResistance = false;
+
+            var buff = Helpers.CreateBuff("CondensedEtherBuff",
+                                          "Condensed Ether",
+                                          "You condense the substance of the Ethereal Plane as it interpenetrates the Material Plane. This thickened planar conjunction slows movement through the area to a crawl. Creatures moving through condensed ether (even incorporeal creatures), move at only half their normal speed and can’t take 5-foot steps. This slowing of movement doesn’t stack with solid fog or similar effects. Creatures within condensed ether take a –2 penalty to Armor Class and on Reflex saves, and condensed ether prevents effective ranged weapon attacks.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; }),
+                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.None),
+                                          Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                                          Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed)
+                                          );
+
+            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            {
+                buff.AddComponent(Common.createOutgoingConcelement(c));
+            }
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
+
+            condensed_ether = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "CondensedEthereAbility", "");
+            condensed_ether.SpellResistance = false;
+            condensed_ether.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Transmutation);
+            condensed_ether.RemoveComponents<SpellListComponent>();
+            condensed_ether.RemoveComponents<SpellDescriptorComponent>();
+            condensed_ether.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            condensed_ether.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
+            condensed_ether.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            condensed_ether.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            condensed_ether.AddToSpellList(Helpers.wizardSpellList, 5);
+            condensed_ether.LocalizedDuration = Helpers.minutesPerLevelDuration;
+            condensed_ether.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
 
