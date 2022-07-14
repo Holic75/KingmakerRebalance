@@ -685,7 +685,7 @@ namespace CallOfTheWild
             for (int i = 0; i < shared_slots.Length; i++)
             {
                 evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
-                                                         new BlueprintFeature[0], new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
+                                                         new BlueprintFeature[0], Main.settings.balance_fixes ? new BlueprintFeature[0] : new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
                                                          evolution_group: "Shared Slot")
                                                          );
             }
