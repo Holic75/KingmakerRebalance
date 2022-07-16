@@ -376,9 +376,10 @@ namespace CallOfTheWild
             var life_spirit = (new SpiritsEngine.LifeSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", "SpiritSummoner", "Extra Channel (Spirit Summoner Life Spirit)", test_mode);
             var stone_spirit = (new SpiritsEngine.StoneSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
             var waves_spirit = (new SpiritsEngine.WavesSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
-            var wind_spirit = (new SpiritsEngine.WindSpirit()).createSummonerSpirit(hex_engine, "SpiritSummonere", test_mode);
+            var wind_spirit = (new SpiritsEngine.WindSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", test_mode);
+            var lore_spirit = (new SpiritsEngine.LoreSpirit()).createSummonerSpirit(hex_engine, "SpiritSummoner", "SpiritSummoner", test_mode);
 
-            List<Spirit> spirits = new List<Spirit>();
+            List <Spirit> spirits = new List<Spirit>();
 
             spirits.Add(battle_spirit);
             spirits.Add(bones_spirit);
@@ -388,6 +389,7 @@ namespace CallOfTheWild
             spirits.Add(wind_spirit);
             spirits.Add(heavens_spirit);
             spirits.Add(life_spirit);
+            spirits.Add(lore_spirit);
 
             spirit_selection = Helpers.CreateFeatureSelection("SpiritSummonerdSpiritSelection",
                                                "Spirit",

@@ -2437,6 +2437,7 @@ namespace CallOfTheWild
                 new Common.SpellId( "989ab5c44240907489aba0a8568d0603", 3), //bestow curse
                 new Common.SpellId( "46fd02ad56c35224c9c91c88cd457791", 3), //blindness
                 new Common.SpellId( NewSpells.cloak_of_winds.AssetGuid, 3),
+                new Common.SpellId( NewSpells.condensed_ether.AssetGuid, 3),
                 new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 3), //cure serious wounds
                 new Common.SpellId( "92681f181b507b34ea87018e8f7a528a", 3), //dispel magic
                 new Common.SpellId( "903092f6488f9ce45a80943923576ab3", 3), //displacement

@@ -311,9 +311,10 @@ namespace CallOfTheWild
         static public BlueprintAbility flaming_sphere;
         static public BlueprintAbility flaming_sphere_greater;
 
+        static public BlueprintAbility condensed_ether;
+
         //binding_earth; ?
         //binding_earth_mass ?
-        //condensed ether ?
         //beacon of luck
      
         //blood rage
@@ -525,6 +526,53 @@ namespace CallOfTheWild
             createBallLightning();
             createFlamingSphere();
             createFlamingSphereGreater();
+            createCondensedEther();
+        }
+
+
+        static void createCondensedEther()
+        {
+            var icon = Helpers.GetIcon("3c53ee4965a13d74e81b37ae34f0861b");
+
+            var area = library.CopyAndAdd<BlueprintAbilityAreaEffect>("fe5102d734382b74586f56980086e5e8", "CondensedEtherArea", ""); //mind fog
+            area.Fx = Common.createPrefabLink("597682efc0419a142a3174fd6bb408f7"); //mind fog
+            area.Size = 20.Feet();
+            area.SpellResistance = false;
+
+            var buff = Helpers.CreateBuff("CondensedEtherBuff",
+                                          "Condensed Ether",
+                                          "You condense the substance of the Ethereal Plane as it interpenetrates the Material Plane. This thickened planar conjunction slows movement through the area to a crawl. Creatures moving through condensed ether (even incorporeal creatures), move at only half their normal speed and can’t take 5-foot steps. This slowing of movement doesn’t stack with solid fog or similar effects. Creatures within condensed ether take a –2 penalty to Armor Class and on Reflex saves, and condensed ether prevents effective ranged weapon attacks.",
+                                          "",
+                                          icon,
+                                          null,
+                                          Helpers.Create<AddConcealment>(a => { a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Partial; a.CheckDistance = false; }),
+                                          Helpers.Create<AddConcealment>(a => { a.CheckDistance = true; a.DistanceGreater = 5.Feet(); a.Descriptor = ConcealmentDescriptor.Fog; a.Concealment = Concealment.Total; }),
+                                          Helpers.CreateAddStatBonus(StatType.SaveReflex, -2, ModifierDescriptor.None),
+                                          Helpers.CreateAddStatBonus(StatType.AC, -2, ModifierDescriptor.None),
+                                          Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                                          Helpers.Create<NewMechanics.OutgoingWeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged }),
+                                          Common.createAddCondition(Kingmaker.UnitLogic.UnitCondition.Slowed)
+                                          );
+
+            foreach (var c in buff.GetComponents<AddConcealment>().ToArray())
+            {
+                buff.AddComponent(Common.createOutgoingConcelement(c));
+            }
+
+            area.ComponentsArray = new BlueprintComponent[] { Helpers.Create<AbilityAreaEffectBuff>(a => { a.Buff = buff; a.Condition = Helpers.CreateConditionsCheckerAnd(); }) };
+
+            condensed_ether = library.CopyAndAdd<BlueprintAbility>("68a9e6d7256f1354289a39003a46d826", "CondensedEthereAbility", "");
+            condensed_ether.SpellResistance = false;
+            condensed_ether.ReplaceComponent<SpellComponent>(s => s.School = SpellSchool.Transmutation);
+            condensed_ether.RemoveComponents<SpellListComponent>();
+            condensed_ether.RemoveComponents<SpellDescriptorComponent>();
+            condensed_ether.ReplaceComponent<AbilityAoERadius>(a => Helpers.SetField(a, "m_Radius", 20.Feet()));
+            condensed_ether.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionSpawnAreaEffect>(a.Actions.Actions, s => { s.AreaEffect = area; s.DurationValue = Helpers.CreateContextDuration(s.DurationValue.BonusValue, DurationRate.Minutes); })));
+            condensed_ether.SetNameDescriptionIcon(buff.Name, buff.Description, buff.Icon);
+            condensed_ether.AvailableMetamagic = Metamagic.Heighten | Metamagic.Quicken | Metamagic.Reach | Metamagic.Extend;
+            condensed_ether.AddToSpellList(Helpers.wizardSpellList, 5);
+            condensed_ether.LocalizedDuration = Helpers.minutesPerLevelDuration;
+            condensed_ether.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
         }
 
 
@@ -3885,7 +3933,7 @@ namespace CallOfTheWild
                                           Common.createPrefabLink("6dc97e33e73b5ec49bd03b90c2345d7f"),//"ea8ddc3e798aa25458e2c8a15e484c68"),
                                           Helpers.Create<NewMechanics.WeaponAttackAutoMiss>(w => w.attack_types = new AttackType[] { AttackType.Ranged})
                                           );
-            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Minutes), is_from_spell: true);
+            var apply_buff = Common.createContextActionApplyBuff(buff, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), Main.settings.balance_fixes ? DurationRate.Rounds : DurationRate.Minutes), is_from_spell: true);
             fickle_winds = Helpers.CreateAbility("FickleWindsAbility",
                                                        buff.Name,
                                                        buff.Description,
@@ -3894,7 +3942,7 @@ namespace CallOfTheWild
                                                        AbilityType.Spell,
                                                        Kingmaker.UnitLogic.Commands.Base.UnitCommand.CommandType.Standard,
                                                        AbilityRange.Medium,
-                                                       Helpers.minutesPerLevelDuration,
+                                                       Main.settings.balance_fixes ? Helpers.roundsPerLevelDuration : Helpers.minutesPerLevelDuration,
                                                        "",
                                                        Helpers.CreateRunActions(apply_buff),
                                                        Helpers.CreateContextRankConfig(),
@@ -6238,10 +6286,10 @@ namespace CallOfTheWild
             solid_fog.AddToSpellList(Helpers.magusSpellList, 4);
             solid_fog.AddToSpellList(Helpers.wizardSpellList, 4);
             solid_fog.LocalizedDuration = Helpers.minutesPerLevelDuration;
-            solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stiking cloud
+            solid_fog.AddSpellAndScroll("c92308c160d6d424fb64f1fd708aa6cd");//stinking cloud
             //fix acid fog 
             var acid_fog = library.Get<BlueprintAbility>("dbf99b00cd35d0a4491c6cc9e771b487");
-            acid_fog.SetDescription("Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d6 points of acid damage to each creature and object within it.\n"
+            acid_fog.SetDescription($"Acid fog creates a billowing mass of misty vapors like the solid fog spell. In addition to slowing down creatures and obscuring sight, this spell’s vapors are highly acidic. Each round on your turn, starting when you cast the spell, the fog deals 2d{BalanceFixes.getDamageDieString(DiceType.D6)} points of acid damage to each creature and object within it.\n"
                                     + "Solid Fog: " + solid_fog.Description);
 
             var acid_fog_buff = library.Get<BlueprintBuff>("af76754540cacca45bfb1f0074bf3013");

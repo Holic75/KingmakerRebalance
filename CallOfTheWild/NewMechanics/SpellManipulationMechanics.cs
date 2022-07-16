@@ -2575,8 +2575,10 @@ namespace CallOfTheWild
                 {
                     return;
                 }
-
-                (this.Fact as IFactContextOwner).RunActionInContext(actions, target.Unit);
+                if ((context?.Ability?.Blueprint?.IsSpell).GetValueOrDefault())
+                {
+                    (this.Fact as IFactContextOwner).RunActionInContext(actions, target.Unit);
+                }
             }
 
             public void OnTryToApplyAbilityEffect(AbilityExecutionContext context, TargetWrapper target)
