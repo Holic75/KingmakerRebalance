@@ -3397,7 +3397,7 @@ namespace CallOfTheWild
             spell_eating.RemoveComponents<Prerequisite>();
             spell_eating.SetName("Spell Eating");
             spell_eating.SetIcon(renewed_vigor.Icon);
-            spell_eating.SetDescription("At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d8 damage for each level of the spell slot consumed.");
+            spell_eating.SetDescription($"At 5th level, a spelleater can consume spell slots for an extra dose of healing. As a swift action, the spelleater can consume one unused bloodrager spell slot to heal 1d{BalanceFixes.getDamageDieString(DiceType.D8)} damage for each level of the spell slot consumed.");
             spell_eating.ReplaceComponent<Kingmaker.UnitLogic.FactLogic.SpontaneousSpellConversion>(Common.createSpontaneousSpellConversion(bloodrager_class,
                                                                                                                                                         null,
                                                                                                                                                         spell_eating_spells[0],
