@@ -249,29 +249,31 @@ namespace CallOfTheWild
 
                 foreach (var category in Enum.GetValues(typeof(WeaponCategory)).Cast<WeaponCategory>())
                 {
-
-                    var ws_feature = Helpers.CreateFeature(prefix + "BattleMasterHex" + category.ToString() + "WeaponSpecializationFeature",
+                    string ws_feature_name = prefix + "BattleMasterHex" + category.ToString() + "WeaponSpecializationFeature";
+                    var ws_feature = Helpers.CreateFeature(ws_feature_name,
                                                            "",
                                                            "",
-                                                           "",
+                                                           Helpers.GuidStorage.maybeGetGuid(ws_feature_name),
                                                            null,
                                                            FeatureGroup.None,
                                                            Common.createAddParametrizedFeatures(library.Get<BlueprintParametrizedFeature>("31470b17e8446ae4ea0dacd6c5817d86"), category)
                                                            );
                     ws_feature.HideInCharacterSheetAndLevelUp = true;
-                    var gws_feature = Helpers.CreateFeature(prefix + "BattleMasterHex" + category.ToString() + "GreaterWeaponFocusFeature",
+                    string gws_feature_name = prefix + "BattleMasterHex" + category.ToString() + "GreaterWeaponFocusFeature";
+                    var gws_feature = Helpers.CreateFeature(gws_feature_name,
                                                                "",
                                                                "",
-                                                               "",
+                                                               Helpers.GuidStorage.maybeGetGuid(gws_feature_name),
                                                                null,
                                                                FeatureGroup.None,
                                                                Common.createAddParametrizedFeatures(library.Get<BlueprintParametrizedFeature>("09c9e82965fb4334b984a1e9df3bd088"), category)
                                                                );
                     gws_feature.HideInCharacterSheetAndLevelUp = true;
-                    var feature = Helpers.CreateFeature(prefix + "BattleMasterHex" + category.ToString() + "Feature",
+                    string feature_name = prefix + "BattleMasterHex" + category.ToString() + "Feature";
+                    var feature = Helpers.CreateFeature(feature_name,
                                                         battle_master_hex.Name + $" ({LocalizedTexts.Instance.Stats.GetText(category)})",
                                                         battle_master_hex.Description,
-                                                        "",
+                                                        Helpers.GuidStorage.maybeGetGuid(gws_feature_name),
                                                         battle_master_hex.Icon,
                                                         FeatureGroup.None,
                                                         Helpers.CreateAddStatBonus(StatType.AttackOfOpportunityCount, 1, ModifierDescriptor.UntypedStackable),
@@ -353,7 +355,7 @@ namespace CallOfTheWild
             }
 
 
-             void createTrueSpiritAbility()
+            void createTrueSpiritAbility()
             {
                 var resource = Helpers.CreateAbilityResource(prefix + "ParagonOfBattleResource", "", "", "", null);
                 resource.SetIncreasedByStat(3, secondary_stat);
@@ -384,7 +386,7 @@ namespace CallOfTheWild
             }
 
 
-             void createManifestation()
+            void createManifestation()
             {
                 var icon = library.Get<BlueprintAbility>("c78506dd0e14f7c45a599990e4e65038").Icon;
                 manifestation = Helpers.CreateFeature(manifestation_prefix + "BattleSpiritManifestationFeature",

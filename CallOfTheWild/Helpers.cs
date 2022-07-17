@@ -949,6 +949,31 @@ namespace CallOfTheWild
                 }
             }
 
+
+            static public string maybeGetGuid(string name)
+            {
+                string original_guid;
+                if (guids_in_use.TryGetValue(name, out original_guid))
+                {
+                    return original_guid;
+                }
+                else
+                {
+                    return getGuidFromString(name);
+                }
+            }
+
+
+            static public string getGuidFromString(string str)
+            {
+                using (MD5 md5 = MD5.Create())
+                {
+                    byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(str));
+                    Guid new_guid = new Guid(hash);
+                    return new_guid.ToString();
+                }
+            }
+
         }
         public static BlueprintFeatureSelection skillFocusFeat;
 
