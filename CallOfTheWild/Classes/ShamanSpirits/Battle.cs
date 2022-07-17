@@ -273,7 +273,7 @@ namespace CallOfTheWild
                     var feature = Helpers.CreateFeature(feature_name,
                                                         battle_master_hex.Name + $" ({LocalizedTexts.Instance.Stats.GetText(category)})",
                                                         battle_master_hex.Description,
-                                                        Helpers.GuidStorage.maybeGetGuid(gws_feature_name),
+                                                        Helpers.GuidStorage.maybeGetGuid(feature_name),
                                                         battle_master_hex.Icon,
                                                         FeatureGroup.None,
                                                         Helpers.CreateAddStatBonus(StatType.AttackOfOpportunityCount, 1, ModifierDescriptor.UntypedStackable),
