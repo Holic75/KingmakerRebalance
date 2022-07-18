@@ -2167,11 +2167,11 @@ namespace CallOfTheWild
             split_hex.SetIcon(split_hex.Icon);
             split_hex.ActionType = CommandType.Free;
             split_hex.Parent = split_hex_ability;
-
+            string target_buff_name = "SplitHex" + hex.name + "TargetBuff";
             var split_hex_buff_target = Helpers.CreateBuff("SplitHex" + hex.name + "TargetBuff",
                                                             split_hex.Name + " (Possible Target)",
                                                             split_hex_feat.Description,
-                                                            "",
+                                                            Helpers.GuidStorage.maybeGetGuid("SplitHex" + hex.name + "TargetBuff", Helpers.MergeIds(hex.AssetGuid, "c17bac23cde540cfa61b8d3c9684b296")),
                                                             split_hex.Icon,
                                                             null,
                                                             Helpers.Create<BuffMechanics.StoreBuff>()

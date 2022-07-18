@@ -2380,6 +2380,7 @@ namespace CallOfTheWild
                                                 Helpers.PrerequisiteFeature(library.Get<BlueprintFeature>("0da0c194d6e1d43419eb8d990b28e0ab"))
                                                );
 
+            var target_of_opportunity_attack_dummy = SaveGameFix.createDummyAbility("TargetOfOpportunityAttackAbilityForArmsAndArmor", "d623647d785a4e72ad1d313c3c704e8f");
             library.AddCombatFeats(target_of_opportunity);
             Common.addTemworkFeats(target_of_opportunity);
         }
