@@ -358,7 +358,7 @@ namespace CallOfTheWild.Archetypes
             var ghost_blade = library.CopyAndAdd<BlueprintFeature>("8896f327c59569c4eaf129bf35b96c1f", "MindBladeGhostBladeFeature", "");
             ghost_blade.ComponentsArray = new BlueprintComponent[]
             {
-                Helpers.CreateAddFacts(ghost_blade, brilliant_energy),
+                Helpers.CreateAddFacts(ghost_touch, brilliant_energy),
                 Common.createPrerequisiteArchetypeLevel(archetype.GetParentClass(), archetype, 9)
             };
 
