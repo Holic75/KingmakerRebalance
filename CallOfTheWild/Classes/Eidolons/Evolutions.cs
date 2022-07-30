@@ -681,13 +681,72 @@ namespace CallOfTheWild
                                                          );
             }
 
-
-            for (int i = 0; i < shared_slots.Length; i++)
+            if (!Main.settings.balance_fixes)
             {
-                evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
-                                                         new BlueprintFeature[0], Main.settings.balance_fixes ? new BlueprintFeature[0] : new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
-                                                         evolution_group: "Shared Slot")
-                                                         );
+                for (int i = 0; i < shared_slots.Length; i++)
+                {
+                    evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
+                                                             new BlueprintFeature[0], new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
+                                                             evolution_group: "Shared Slot")
+                                                             );
+                }
+            }
+            else
+            {
+                shared_slots[0] = createShareSlot<BlueprintItemEquipmentHead>("Head", Helpers.GetIcon("3d33605336c62274483f382f58908f5b")); //headband of wisdom
+                shared_slots[1] = createShareSlot<BlueprintItemEquipmentNeck>("Neck", Helpers.GetIcon("11f435140501db84e8e787bf8792fac2")); //amulet of nat armor + 5
+                shared_slots[2] = createShareSlot<BlueprintItemEquipmentShoulders>("Shoulders", Helpers.GetIcon("a34cd0f80d04ec647af741d924a3e2a3")); //cloak of resistance
+                shared_slots[3] = createShareSlot<BlueprintItemEquipmentWrist>("Wrist", Helpers.GetIcon("bade8137f5101834c849c277ba0301a1")); //bracers of armor
+                shared_slots[4] = createShareSlot<BlueprintItemEquipmentGloves>("Gloves", Helpers.GetIcon("6555965e6540c3b48b9a352214ecba41"));//glvoes of manticore
+                shared_slots[5] = createShareSlot<BlueprintItemEquipmentFeet>("Feet", Helpers.GetIcon("815cc85ce13ab64428253aea3b6708a8"));//boots of the light step
+                shared_slots[6] = createShareSlot<BlueprintItemEquipmentRing>("Ring I", Helpers.GetIcon("31315100c28e6a2418396fb152466fcd"), 1);//ring of protection +3
+                shared_slots[7] = createShareSlot<BlueprintItemEquipmentRing>("Ring II", Helpers.GetIcon("2d576daea5f62ae489028bce40469285"), 2);//ring of protection +5
+                shared_slots[8] = createShareSlot<BlueprintItemEquipmentBelt>("Belt", Helpers.GetIcon("d8062d43606e89e4bb3f0483ed3aba5d"));//belt of strength +6
+                //head
+                evolution_entries.Add(new EvolutionEntry(shared_slots[0], 2, 0, new BlueprintFeature[0],
+                                                            new BlueprintFeature[0], eidolons,
+                                                            evolution_group: "Shared Slot")
+                                                            );
+                //neck
+                evolution_entries.Add(new EvolutionEntry(shared_slots[1], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //shoulders
+                evolution_entries.Add(new EvolutionEntry(shared_slots[2], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //wrists
+                evolution_entries.Add(new EvolutionEntry(shared_slots[3], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //gloves
+                evolution_entries.Add(new EvolutionEntry(shared_slots[4], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //feet
+                evolution_entries.Add(new EvolutionEntry(shared_slots[5], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], biped_eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //ring1
+                evolution_entries.Add(new EvolutionEntry(shared_slots[6], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //ring2
+                evolution_entries.Add(new EvolutionEntry(shared_slots[7], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //belt
+                evolution_entries.Add(new EvolutionEntry(shared_slots[8], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
             }
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
