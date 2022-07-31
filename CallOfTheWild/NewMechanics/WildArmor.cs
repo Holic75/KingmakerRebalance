@@ -88,12 +88,10 @@ namespace CallOfTheWild.WildArmorMechanics
     }
 
 
-
     public interface IPolymorphOnHandler : IGlobalSubscriber
     {
         void polymorphOn(UnitDescriptor unit);
     }
-
 
     [Harmony12.HarmonyPatch(typeof(UnitBody))]
     [Harmony12.HarmonyPatch("CancelPolymorphEffect", Harmony12.MethodType.Normal)]

@@ -423,6 +423,7 @@ namespace CallOfTheWild
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
                     CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.Archetypes.PactWizard.create();
+                    CallOfTheWild.Wildshape.createWildshapeRelatedFeaturesAndWildArmor();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();

@@ -663,7 +663,8 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),
-- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19.
+- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19,
+- Wild Armor armor feature, Weapon Shift feat line and Mutated Shape feat can be used with any polymorph effect (instead of only with wildshape).
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

@@ -216,14 +216,31 @@ namespace CallOfTheWild
 
             fixDruid();
             createDragonWildshapes();
-            createWildArmor();
+            
             fixTransmuter();
 
+            
+        }
+
+
+        static internal void createWildshapeRelatedFeaturesAndWildArmor()
+        {
+            createWildArmor();
             createWeaponShift();
             createMutatedShape();
-
-
             createFavoredClassNaturalAcBonus();
+        }
+
+
+        static BlueprintBuff[] getWildshapes()
+        {
+            return druid_wild_shapes;
+        }
+
+
+        static BlueprintBuff[] getAllPolymorphBuffs()
+        {
+            return library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b => b.GetComponent<Polymorph>() != null).ToArray();
         }
 
 
@@ -248,16 +265,25 @@ namespace CallOfTheWild
 
         static void createMutatedShape()
         {
+            var wildshape_buffs = getWildshapes();
             mutated_shape = Helpers.CreateFeature("MutatedShapeFeature",
                                                   "Mutated Shape",
-                                                  "When you use wild shape, you grow an additional appendage that allows you to make one more attack per round.",
+                                                  $"When you use wild shape{(Main.settings.balance_fixes ? " or a polymorph spell": "" )}, you grow an additional appendage that allows you to make one more attack per round.",
                                                   "",
                                                   null,
                                                   FeatureGroup.Feat,
-                                                  Helpers.PrerequisiteFeature(first_wildshape_form),
                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
                                                   Helpers.PrerequisiteStatValue(StatType.Wisdom, 19)
                                                  );
+
+            if (!Main.settings.balance_fixes)
+            {
+                mutated_shape.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+            }
+            else
+            {
+                wildshape_buffs = getAllPolymorphBuffs();
+            }
 
             var buff = Helpers.CreateBuff("MutatedShapeBuff",
                                           "",
@@ -269,7 +295,7 @@ namespace CallOfTheWild
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            foreach (var shape in druid_wild_shapes)
+            foreach (var shape in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff, mutated_shape);
             }
@@ -285,15 +311,17 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8"), //cold iron 
                 library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875"), //mithral
                 library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b"), //adamantine
+                WeaponEnchantments.disarm_enchant,
+                WeaponEnchantments.trip_enchant,
+                WeaponEnchantments.sunder_enchant
             };
 
             weapon_shift = Helpers.CreateFeature("WeaponShiftFeature",
                                                  "Weapon Shift",
-                                                 "When you use your wild shape ability, any melee weapons you are wielding and proficient with meld into your new form. While in your new form, your natural attacks gain all your primary weapon's material properties.",
+                                                 $"When you use your wild shape ability{(Main.settings.balance_fixes ? " or a polymorph spell" : "")}, any melee weapons you are wielding and proficient with meld into your new form. While in your new form, your natural attacks gain all your primary weapon's material properties, as well as disarm, trip and sunder properties.",
                                                  "",
                                                  null,
-                                                 FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form) 
+                                                 FeatureGroup.Feat
                                                 );
 
             var buff1 = Helpers.CreateBuff("WeaponShiftBuff",
@@ -382,7 +410,6 @@ namespace CallOfTheWild
                                                  "",
                                                  null,
                                                  FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
                                                  Helpers.PrerequisiteFeature(weapon_shift),
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
                                                 );
@@ -404,22 +431,12 @@ namespace CallOfTheWild
                                           );
             buff2.SetBuffFlags(BuffFlags.HiddenInUi);
 
-
-            BlueprintWeaponEnchantment[] enchants3 = new BlueprintWeaponEnchantment[]
-            {
-                library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
-                library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
-                WeaponEnchantments.summoned_weapon_enchant,
-                WeaponEnchantments.master_work
-            };
-
             greater_weapon_shift = Helpers.CreateFeature("GreaterWeaponShiftFeature",
                                                  "Greater Weapon Shift",
                                                  "When you apply a melee weapon’s damage type and properties to your natural attacks using the Weapon Shift feat, your natural attacks also gain an enhancement bonus on attack and damage rolls equal to the enhancement bonus (if any) of the weapon.",
                                                  "",
                                                  null,
                                                  FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
                                                  Helpers.PrerequisiteFeature(weapon_shift),
                                                  Helpers.PrerequisiteFeature(improved_weapon_shift),
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 8)
@@ -444,8 +461,20 @@ namespace CallOfTheWild
                                           );
             buff3.SetBuffFlags(BuffFlags.HiddenInUi);
 
+            var wildshape_buffs = getWildshapes();
+            if (!Main.settings.balance_fixes)
+            {
+                weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+                improved_weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+                greater_weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+            }
+            else
+            {
+                wildshape_buffs = getAllPolymorphBuffs();
+            }
 
-            foreach (var shape in druid_wild_shapes)
+
+            foreach (var shape in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff1, weapon_shift);
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff2, improved_weapon_shift);
@@ -504,13 +533,14 @@ namespace CallOfTheWild
             allow_wild_armor_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             wild_armor_feature = Helpers.CreateFeature("WildArmorFeature",
                                                         "Wild Armor",
-                                                        "Armor with this special ability usually appears to be made from magically hardened animal pelt. The wearer of a suit of armor or a shield with this ability preserves his armor bonus (and any enhancement bonus) while in a wild shape. Armor and shields with this ability usually appear to be covered in leaf patterns. While the wearer is in a wild shape, the armor cannot be seen.",
+                                                        $"Armor with this special ability usually appears to be made from magically hardened animal pelt. The wearer of a suit of armor or a shield with this ability preserves his armor bonus (and any enhancement bonus) while in a wild shape{(Main.settings.balance_fixes ? " or under effect of a polymorph spell" : "")}. Armor and shields with this ability usually appear to be covered in leaf patterns. While the wearer is in a wild shape, the armor cannot be seen.",
                                                         "",
                                                         null,
                                                         FeatureGroup.None);
             wild_armor_feature.HideInUI = true;
 
-            foreach (var wb in druid_wild_shapes)
+            var wildshape_buffs = Main.settings.balance_fixes ? getAllPolymorphBuffs() : getWildshapes();
+            foreach (var wb in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff/*, wild_armor_feature*/);
             }

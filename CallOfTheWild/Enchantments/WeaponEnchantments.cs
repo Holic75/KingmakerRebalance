@@ -72,8 +72,14 @@ namespace CallOfTheWild
 
         static public BlueprintWeaponEnchantment spell_storing;
         static public BlueprintFeature spell_storing_feature;
+
+        static public BlueprintWeaponEnchantment disarm_enchant;
+        static public BlueprintWeaponEnchantment sunder_enchant;
+        static public BlueprintWeaponEnchantment trip_enchant;
+
         static public void initialize()
         {
+            createManeuverEnchantments();
             createMetamagicEnchantments();
             createSummonedWeaponEnchantment();
             createStaticEnchants();
@@ -91,6 +97,47 @@ namespace CallOfTheWild
             addDamageOverrideToMaterialEnchants();
 
             createSpellStoring();
+        }
+
+
+        static void createManeuverEnchantments()
+        {
+            var sunder = Helpers.CreateFeature("SunderWeaponPropertyFeature",
+                                   "Sunder",
+                                   "When you use a sunder weapon, you get a +2 bonus on Combat Maneuver Checks to sunder attempts.",
+                                   "",
+                                   null,
+                                   FeatureGroup.None,
+                                   Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.SunderArmor, 2)
+                                   );
+            sunder.HideInCharacterSheetAndLevelUp = true;
+            sunder_enchant = Common.createWeaponEnchantment("SunderEnchantment", sunder.Name, sunder.Description, "", "", "", 0, null,
+                                           Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = sunder));
+
+            var trip = Helpers.CreateFeature("TripWeaponPropertyFeature",
+                                   "Trip",
+                                   "When you use a trip weapon, you get a +2 bonus on Combat Maneuver Checks to trip attempts.",
+                                   "",
+                                   null,
+                                   FeatureGroup.None,
+                                   Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 2)
+                                   );
+            trip.HideInCharacterSheetAndLevelUp = true;
+            trip_enchant = Common.createWeaponEnchantment("TripEnchantment", trip.Name, trip.Description, "", "", "", 0, null,
+                               Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = trip));
+
+            var disarm = Helpers.CreateFeature("DisarmWeaponPropertyFeature",
+                                               "Disarm",
+                                               "When you use a disarm weapon, you get a +2 bonus on Combat Maneuver Checks to disarm attempts.",
+                                               "",
+                                               null,
+                                               FeatureGroup.None,
+                                               Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, 2)
+                                               );
+            disarm.HideInCharacterSheetAndLevelUp = true;
+
+            disarm_enchant = Common.createWeaponEnchantment("DisarmEnchantment", disarm.Name, disarm.Description, "", "", "", 0, null,
+                   Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = disarm));
         }
 
 
