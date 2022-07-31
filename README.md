@@ -588,7 +588,8 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Blindsight now allows to ignore mirror images,
 - Elemental Arcana should now correctly account for resitance/immunity/vulnerability,
 - Trip/Bull rush immune tagets no longer provoke attack of opportunity on maneuver attempts with Greater Trip/Bull Rush feats,
-- Shatter defenses was fixed to work as per description.
+- Shatter defenses was fixed to work as per description,
+- Darkness domain moonfire ability deals correct damage to lycantropes.
 
 #### NPC companion stat changes (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15

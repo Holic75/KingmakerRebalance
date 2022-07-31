@@ -461,6 +461,30 @@ namespace CallOfTheWild
             feystalker_master.ReplaceComponent<OnSpawnBuff>(o => o.buff = feystalker_buff);
         }
 
+        internal static void fixDarknessMoonfire()
+        {
+            //fix moonfire ability darkness domain ability
+            var cleric_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("67819271767a9dd4fbfd4ae700befea0");
+            var inquisitor_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("f1a70d9e1b0b41e49874e1fa9052a1ce");
+            var druid_class = ResourcesLibrary.TryGetBlueprint<BlueprintCharacterClass>("610d836f3a3a9ed42a4349b62f002e96");
+            var domain_classes_and_druid = new BlueprintCharacterClass[] { cleric_class, inquisitor_class, druid_class };
+
+            var moonfire = library.Get<BlueprintAbility>("31acd268039966940872c916782ae018");
+            var lycantrope = library.Get<BlueprintFeature>("9a122a03b2548d94ba90546083d999c0");
+            var dmg_normal = Helpers.CreateActionDealDamage(Kingmaker.Enums.Damage.DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D8, Helpers.CreateContextValue(AbilityRankType.DamageDice)));
+            var dmg_lycantrope = Helpers.CreateActionDealDamage(Kingmaker.Enums.Damage.DamageEnergyType.Divine, Helpers.CreateContextDiceValue(DiceType.D10, Helpers.CreateContextValue(AbilityRankType.Default)));
+            var dazzled = library.Get<BlueprintBuff>("df6d1025da07524429afbae248845ecc");
+            moonfire.GetComponent<AbilityEffectRunAction>().Actions.Actions = new GameAction[]
+                {
+                    Helpers.CreateConditional(Helpers.CreateConditionHasFact(lycantrope), dmg_lycantrope, dmg_normal),
+                    Common.createContextActionApplySpellBuff(dazzled, Helpers.CreateContextDuration(Helpers.CreateContextValue(AbilityRankType.Default), DurationRate.Rounds))
+                };
+
+            moonfire.RemoveComponents<ContextRankConfig>();
+            moonfire.AddComponents(Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, classes: domain_classes_and_druid),
+                                   Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel, ContextRankProgression.Div2, AbilityRankType.DamageDice, classes: domain_classes_and_druid)
+                                   );
+        }
 
         public static void fixBeltsOfPerfectComponents()
         {

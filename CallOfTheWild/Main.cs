@@ -208,6 +208,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSenseiMysticAdvice();
                     CallOfTheWild.Rebalance.fixShatterDefenses();
                     CallOfTheWild.Rebalance.fixKiExtraAttackAction();
+                    CallOfTheWild.Rebalance.fixDarknessMoonfire();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
@@ -291,7 +292,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
-                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();
+                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();                    
                     CallOfTheWild.Subschools.load();
                     CallOfTheWild.WeaponsFix.load();
                     CallOfTheWild.SharedSpells.preload();
