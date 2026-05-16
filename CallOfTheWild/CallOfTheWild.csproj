@@ -286,6 +286,7 @@
     <Compile Include="Features\Inquisitions.cs" />
     <Compile Include="MechanicsFixes\KineticistFix.cs" />
     <Compile Include="MechanicsFixes\MysticTheurgeFix.cs" />
+    <Compile Include="MechanicsFixes\NaturalArmorFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditionalSpellDescriptors.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />
@@ -377,7 +378,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rebalance.cs" />
-    <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SaveGameFix.cs" />
     <Compile Include="Features\SharedSpells.cs" />
     <Compile Include="ShowRerolls.cs" />

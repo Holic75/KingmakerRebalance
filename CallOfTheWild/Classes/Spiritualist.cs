@@ -508,7 +508,7 @@ namespace CallOfTheWild
 
             return createMythmakerBuffs("MythmakerGuardian",
                                         "Guardian",
-                                        "The phantom gains a +2 natural armor bonus. At 12th level, the phantom increases its maximum hit points by twice its number of Hit Dice.",
+                                        "The phantom gains a +2 natural armor. At 12th level, the phantom increases its maximum hit points by twice its number of Hit Dice.",
                                         Helpers.GetIcon("62888999171921e4dafb46de83f4d67d"),
                                         feature1,
                                         feature12

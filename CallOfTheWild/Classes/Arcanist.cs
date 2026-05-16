@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CallOfTheWild.MechanicsFixes;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -1454,7 +1455,7 @@ namespace CallOfTheWild
                                           "",
                                           icon,
                                           null,
-                                          Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor),
+                                          Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                           Common.createContextFormDR(Helpers.CreateContextValue(AbilityRankType.Default), PhysicalDamageForm.Slashing),
                                           Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.StatBonus, stat: StatType.Charisma, min: 1),
                                           Helpers.CreateAddFact(Common.plant)

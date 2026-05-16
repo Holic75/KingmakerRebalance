@@ -275,8 +275,7 @@ namespace CallOfTheWild.Archetypes
                                                         "A mindblade can add the ghost touch property to her psychic weapon, but this consumes 1 point of enhancement bonus granted to this weapon.\nA ghost touch weapon deals damage normally against incorporeal creatures, regardless of its bonus. An incorporeal creature's 50% reduction in damage from corporeal sources does not apply to attacks made against it with ghost touch weapons.",
                                                         library.Get<BlueprintActivatableAbility>("688d42200cbb2334c8e27191c123d18f").Icon,
                                                         library.Get<BlueprintWeaponEnchantment>("47857e1a5a3ec1a46adf6491b1423b4f"),
-                                                        1, ActivatableAbilityGroup.ArcaneWeaponProperty,
-                                                        AlignmentMaskType.TrueNeutral);
+                                                        1, ActivatableAbilityGroup.ArcaneWeaponProperty);
 
             var keen = createEnchantmentAbility("MindBladeWeaponEnchancementKeen",
                                                 "Psychic Weapon - Keen",
@@ -290,39 +289,34 @@ namespace CallOfTheWild.Archetypes
                                                 "A mindblade can add the holy property to her psychic weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nA holy weapon is imbued with holy power. This power makes the weapon good-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of evil alignment.",
                                                 library.Get<BlueprintActivatableAbility>("ce0ece459ebed9941bb096f559f36fa8").Icon,
                                                 library.Get<BlueprintWeaponEnchantment>("28a9964d81fedae44bae3ca45710c140"),
-                                                2, ActivatableAbilityGroup.ArcaneWeaponProperty,
-                                                AlignmentMaskType.Good);
+                                                2, ActivatableAbilityGroup.ArcaneWeaponProperty);
 
             var unholy = createEnchantmentAbility("MindBladeWeaponEnchancementUnholy",
                                                     "Psychic Weapon - Unholy",
                                                     "A mindblade can add the unholy property to her psychic weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn unholy weapon is imbued with unholy power. This power makes the weapon evil-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of good alignment.",
                                                     library.Get<BlueprintActivatableAbility>("561803a819460f34ea1fe079edabecce").Icon,
                                                     library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"),
-                                                    2, ActivatableAbilityGroup.ArcaneWeaponProperty,
-                                                    AlignmentMaskType.Evil);
+                                                    2, ActivatableAbilityGroup.ArcaneWeaponProperty);
 
             var axiomatic = createEnchantmentAbility("MindBladeWeaponEnchancementAxiomatic",
                                                     "Psychic Weapon - Axiomatic",
                                                     "A mindblade can add the axiomatic property to her psychic weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn axiomatic weapon is infused with lawful power. It makes the weapon lawful-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against chaotic creatures.",
                                                     library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,
                                                     library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4"),
-                                                    2, ActivatableAbilityGroup.ArcaneWeaponProperty,
-                                                    AlignmentMaskType.Lawful);
+                                                    2, ActivatableAbilityGroup.ArcaneWeaponProperty);
 
             var anarchic = createEnchantmentAbility("MindBladeWeaponEnchancementAnarchic",
                                                 "Psychic Weapon - Anarchic",
                                                 "A mindblade can add the anarchic property to her psychic weapon, but this consumes 2 points of enhancement bonus granted to this weapon.\nAn anarchic weapon is infused with the power of chaos. It makes the weapon chaotic-aligned and thus overcomes the corresponding damage reduction. It deals an extra 2d6 points of damage against all creatures of lawful alignment.",
                                                 library.Get<BlueprintActivatableAbility>("8ed07b0cc56223c46953348f849f3309").Icon,
                                                 library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
-                                                2, ActivatableAbilityGroup.ArcaneWeaponProperty,
-                                                AlignmentMaskType.Chaotic);
+                                                2, ActivatableAbilityGroup.ArcaneWeaponProperty);
             var bane = createEnchantmentAbility("MindBladeWeaponEnchancementBane",
                                                 "Psychic Weapon - Bane",
                                                 "A mindblade can add the bane property to her psychic weapon(s), but she needs to pay 1 extra point from her psychic pool per manifested weapon (double weapons count as two weapons). These extra points are not recovered upon dismissing manifested weapons.\nA bane weapon excels against certain foes. Against a designated foe, the weapon's enhancement bonus is +2 better than its actual bonus. It also deals an extra 2d6 points of damage against such foes.",
                                                 library.Get<BlueprintActivatableAbility>("3a909d1effa3bbc4084f2b5ac95f5306").Icon,
                                                 library.Get<BlueprintWeaponEnchantment>("1a93ab9c46e48f3488178733be29342a"), //bane everything
-                                                1, ActivatableAbilityGroup.None,
-                                                AlignmentMaskType.Chaotic);
+                                                1, ActivatableAbilityGroup.None);
 
             for (int i = 0; i < 6; i++)
             {

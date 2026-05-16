@@ -202,25 +202,25 @@ namespace CallOfTheWild.Archetypes
 
 
             var buff = Helpers.CreateBuff("ZenArcherKiArrowsBuff",
-                                                       "Ki Arrows",
-                                                       "At 5th level, a zen archer may spend 1 point from his ki pool as a swift action to change the damage dice of arrows he shoots to that of his unarmed strikes. This lasts until the start of his next turn. For example, a Medium zen archer’s shortbow normally deals 1d6 damage; using this ability, his arrows deal 1d8 damage until the start of his next turn.",
-                                                        "",
-                                                       NewSpells.flame_arrow.Icon,
-                                                       null,
-                                                       Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>(c =>
-                                                                                                                                       {
-                                                                                                                                           c.value = Helpers.CreateContextValue(AbilityRankType.Default);
-                                                                                                                                           c.dice_formulas = dice_formulas;
-                                                                                                                                           c.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
-                                                                                                                                       }
-                                                                                                                                     ),
-                                                       Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
-                                                                                       classes: getMonkArray(),
-                                                                                       type: AbilityRankType.Default,
-                                                                                       progression: ContextRankProgression.DivStep,
-                                                                                       stepLevel: 4
-                                                                                       )
-                                                      );
+                                            "Ki Arrows",
+                                            "At 5th level, a zen archer may spend 1 point from his ki pool as a swift action to change the damage dice of arrows he shoots to that of his unarmed strikes. This lasts until the start of his next turn. For example, a Medium zen archer’s shortbow normally deals 1d6 damage; using this ability, his arrows deal 1d8 damage until the start of his next turn.",
+                                            "",
+                                            NewSpells.flame_arrow.Icon,
+                                            null,
+                                            Helpers.Create<NewMechanics.ContextWeaponDamageDiceReplacementWeaponCategory>(c =>
+                                                                                                                            {
+                                                                                                                                c.value = Helpers.CreateContextValue(AbilityRankType.Default);
+                                                                                                                                c.dice_formulas = dice_formulas;
+                                                                                                                                c.categories = new WeaponCategory[] { WeaponCategory.Longbow, WeaponCategory.Shortbow };
+                                                                                                                            }
+                                                                                                                            ),
+                                            Helpers.CreateContextRankConfig(baseValueType: ContextRankBaseValueType.ClassLevel,
+                                                                            classes: getMonkArray(),
+                                                                            type: AbilityRankType.Default,
+                                                                            progression: ContextRankProgression.DivStep,
+                                                                            stepLevel: 4
+                                                                            )
+                                            );
 
             var ability = Helpers.CreateAbility("ZenArcherKiArrowsAbility",
                                                buff.Name,
@@ -336,9 +336,9 @@ namespace CallOfTheWild.Archetypes
             };
 
             bonus_feat6 = library.CopyAndAdd(bonus_feat1, "BonusFeat6ZenArcherFeature", "");
-            bonus_feat6.AllFeatures = bonus_feat6.AllFeatures.AddToArray(library.Get<BlueprintFeature>("46f970a6b9b5d2346b10892673fe6e74"), //improved precis shot
+            bonus_feat6.AllFeatures = bonus_feat6.AllFeatures.AddToArray(library.Get<BlueprintFeature>("46f970a6b9b5d2346b10892673fe6e74"), //improved precise shot
                                                                          library.Get<BlueprintFeature>("adf54af2a681792489826f7fd1b62889"), //many shot
-                                                                         library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb")// mobility
+                                                                         library.Get<BlueprintFeature>("2a6091b97ad940943b46262600eaeaeb") //mobility
                                                                          );
             bonus_feat10 = library.CopyAndAdd(bonus_feat6, "BonusFeat10ZenArcherFeature", "");
             bonus_feat10.AllFeatures = bonus_feat10.AllFeatures.AddToArray(library.Get<BlueprintFeature>("f4201c85a991369408740c6888362e20"), //improved critical

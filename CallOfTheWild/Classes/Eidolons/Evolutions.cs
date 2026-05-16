@@ -1172,7 +1172,7 @@ namespace CallOfTheWild
             {
                 immunity[i] = Helpers.CreateFeature(energies[i].ToString() + "ImmunityEvolutionFeature",
                                                       "Immunity: " + energies[i].ToString(),
-                                                      "he eidolon’s body becomes extremely resilient to one energy type. Select one energy type: acid, cold, electricity or fire. The eidolon gains immunity to that energy type. This evolution can be selected more than once. Its effects do not stack. Each time it applies to a different energy type. ",
+                                                      "The eidolon’s body becomes extremely resilient to one energy type. Select one energy type: acid, cold, electricity or fire. The eidolon gains immunity to that energy type. This evolution can be selected more than once. Its effects do not stack. Each time it applies to a different energy type. ",
                                                       "",
                                                       Helpers.GetIcon(icon_ids[i]),
                                                       FeatureGroup.None,

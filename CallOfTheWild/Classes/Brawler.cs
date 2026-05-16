@@ -1618,6 +1618,7 @@ namespace CallOfTheWild
                                                     Helpers.Create<FeralCombatTraining.SpecificWeaponGroupOrFeralCombatFeatureUnlock>(s =>
                                                     {
                                                         s.NewFact = flurry1_monk;
+                                                        s.allow_monk_weapons = true;
                                                         s.weapon_groups = new WeaponFighterGroup[] { WeaponFighterGroup.Monk, WeaponFighterGroup.Close };
                                                     })
                                                     );

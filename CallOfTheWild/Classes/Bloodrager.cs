@@ -41,6 +41,7 @@ using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.ElementsSystem;
+using CallOfTheWild.MechanicsFixes;
 
 namespace CallOfTheWild
 {
@@ -860,7 +861,7 @@ namespace CallOfTheWild
                                                                      "Bloodline",
                                                                      "Each bloodrager has a source of magic somewhere in his heritage that empowers his bloodrages, bonus feats, and bonu spells. Sometimes this source reflects a distant blood relationship to a powerful being, or is due to an extreme event involving such a creature somewhere in his family’s past. Regardless of the source, this influence manifests in a number of ways. A bloodrager must pick one bloodline upon taking his first level of bloodrager. Once made, this choice cannot be changed.\n"
                                                                      + "When choosing a bloodline, the bloodrager’s alignment doesn’t restrict his choices.A good bloodrager could come from an abyssal bloodline, a celestial bloodline could beget an evil bloodrager generations later, a bloodrager from an infernal bloodline could be chaotic, and so on. Though his bloodline empowers him, it doesn’t dictate or limit his thoughts and behavior.\n"
-                                                                     + "The bloodrager gains bloodline powers at 1st level, 4th level, and every 4 levels thereafter. The bloodline powers a bloodrager gains are described in his chosen bloodline.For all spell - like bloodline powers, treat the character’s bloodrager level as the caster level.\n"
+                                                                     + "The bloodrager gains bloodline powers at 1st level, 4th level, and every 4 levels thereafter. The bloodline powers a bloodrager gains are described in his chosen bloodline. For all spell - like bloodline powers, treat the character’s bloodrager level as the caster level.\n"
                                                                      + "At 6th level and every 3 levels thereafter, a bloodrager receives one bonus feat chosen from a list specific to each bloodline. The bloodrager must meet the prerequisites for these bonus feats. At 7th, 10th, 13th, and 16th levels, a bloodrager learns an additional spell derived from his bloodline.\n"
                                                                      + "When a bloodrager enters a bloodrage, he often takes on a physical transformation influenced by his bloodline and powered by the magic that roils within him. Unless otherwise specified, he gains the effects of his bloodline powers only while in a bloodrage; once the bloodrage ends, all powers from his bloodline immediately cease, and any physical changes the bloodrager underwent revert, restoring him to normal.",
                                                                      "6eed80b1bfa9425e90c5981fb87dedf2",
@@ -2670,7 +2671,7 @@ namespace CallOfTheWild
                                                                                                 (7, 5),
                                                                                                 (20, 10)
                                                                                          }),
-                                                        Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor, rankType: AbilityRankType.DamageBonus),
+                                                        Helpers.CreateAddContextStatBonus(StatType.AC, NaturalArmorFix.NATURAL_ARMOR_BONUS, rankType: AbilityRankType.DamageBonus),
                                                         Helpers.CreateContextRankConfig(ContextRankBaseValueType.ClassLevel,
                                                                                         ContextRankProgression.Custom, AbilityRankType.DamageBonus,
                                                                                         classes: getDraconicArray(),

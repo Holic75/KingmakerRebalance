@@ -431,6 +431,7 @@ namespace CallOfTheWild
         {
             public BlueprintUnitFact NewFact;
             public WeaponFighterGroup[] weapon_groups;
+            public bool allow_monk_weapons = false;
             [JsonProperty]
             private Fact m_AppliedFact;
 
@@ -452,7 +453,8 @@ namespace CallOfTheWild
             public void CheckEligibility()
             {
                 if ((weapon_groups.Contains(this.Owner.Body.PrimaryHand.Weapon.Blueprint.FighterGroup) 
-                        || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true))
+                        || checkHasFeralCombat(this.Owner.Unit, this.Owner.Body.PrimaryHand.Weapon, allow_crusaders_flurry: true)
+                        || (allow_monk_weapons && this.Owner.Body.PrimaryHand.Weapon.Blueprint.IsMonk) )
                     && (this.Owner.Body?.SecondaryHand?.MaybeWeapon == null
                        || (this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsNatural
                            && (!this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint.IsUnarmed || HoldingItemsMechanics.Aux.isOffHandUnarmedAndCanBeIgnored(this.Owner.Body.SecondaryHand.MaybeWeapon.Blueprint, this.Owner)))

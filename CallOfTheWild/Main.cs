@@ -48,7 +48,6 @@ namespace CallOfTheWild
                 {
                     JObject jo = (JObject)JToken.ReadFrom(reader);
                     update_companions = (bool)jo["update_companions"];
-                    //nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
@@ -171,6 +170,7 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Common.initialize();
+                    CallOfTheWild.MechanicsFixes.NaturalArmorFix.run();
                     CallOfTheWild.Rebalance.removeDescriptionsFromMonkACFeatures();
                     CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
                     CallOfTheWild.Rebalance.fixWidomCognatogen();

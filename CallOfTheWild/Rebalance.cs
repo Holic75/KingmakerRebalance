@@ -49,6 +49,7 @@ using Kingmaker.Blueprints.Root;
 using Kingmaker.UnitLogic.Class.Kineticist;
 using Kingmaker.Controllers.Brain.Blueprints;
 using System.Reflection;
+using CallOfTheWild.MechanicsFixes;
 
 namespace CallOfTheWild
 {
@@ -688,7 +689,7 @@ namespace CallOfTheWild
                 {
                     if (bonus.Stat == Kingmaker.EntitySystem.Stats.StatType.AC)
                     {
-                        bonus.Descriptor = Kingmaker.Enums.ModifierDescriptor.NaturalArmor;
+                        bonus.Descriptor = NaturalArmorFix.NATURAL_ARMOR_BONUS;
                     }
                 }
             }
@@ -766,11 +767,11 @@ namespace CallOfTheWild
 
             var skilled_human = library.Get<BlueprintFeature>("3adf9274a210b164cb68f472dc1e4544");
             var skilled_half_orc = library.Get<BlueprintFeature>("4e8fe10f42f314e4fa7c7918bcfadbd5");
-            skilled_human.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnEvenLevels>());
-            skilled_human.SetDescription("Humans gain an additional skill rank at every even level.");
+            skilled_human.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnOddLevels>());
+            skilled_human.SetDescription("Humans gain an additional skill rank at every odd level.");
 
-            skilled_half_orc.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnEvenLevels>());
-            skilled_half_orc.SetDescription("Half-orcs gain an additional skill rank at every even level.");
+            skilled_half_orc.ReplaceComponent<AddSkillPoint>(Helpers.Create<NewMechanics.AddSkillPointOnOddLevels>());
+            skilled_half_orc.SetDescription("Half-orcs gain an additional skill rank at every odd level.");
         }
 
 
@@ -1521,14 +1522,6 @@ namespace CallOfTheWild
                 }
             }
 
-        }
-
-
-        static internal void fixNaturalACStacking()
-        {
-            ModifiableValue.DefaultStackingDescriptors.Remove(ModifierDescriptor.NaturalArmor);
-            //replace natural armor on dd to racial to allow it to stack
-            ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("aa4f9fd22a07ddb49982500deaed88f9").GetComponent<AddStatBonus>().Descriptor = ModifierDescriptor.Racial;
         }
 
 

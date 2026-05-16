@@ -1652,7 +1652,6 @@ namespace CallOfTheWild
                 new Common.SpellId( "cf6c901fb7acc904e85c63b342e9c949", 4), //confusion
                 new Common.SpellId( "4baf4109145de4345861fe0f2209d903", 4), //crushing despair
                 new Common.SpellId( "3361c5df793b4c8448756146a88026ad", 4), //cure serious wounds
-                new Common.SpellId( NewSpells.daze_mass.AssetGuid, 4),
                 new Common.SpellId( "0413915f355a38146bc6ad40cdf27b3f", 4), //death ward
                 new Common.SpellId( NewSpells.debilitating_portent.AssetGuid, 4),
                 new Common.SpellId( "4a648b57935a59547b7a2ee86fb4f26a", 4), //dimension door 

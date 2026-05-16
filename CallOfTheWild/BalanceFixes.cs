@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.MechanicsFixes;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
 using Kingmaker.Blueprints.Classes.Selection;
@@ -121,7 +122,7 @@ namespace CallOfTheWild
             righteous_might.ReplaceComponent<AbilityEffectRunAction>(a => a.Actions = Helpers.CreateActionList(Common.changeAction<ContextActionApplyBuff>(a.Actions.Actions,
                                                                                                                                                            c => c.DurationValue.Rate = DurationRate.Minutes)));
             righteous_might.LocalizedDuration = Helpers.CreateString("RighteousMightMinutes.Duration", Helpers.minutesPerLevelDuration);
-            righteous_might.SetDescription(righteous_might.Description.Replace("+2 enhancement", "+2"));
+            righteous_might.SetDescription(righteous_might.Description.Replace("+2 enhancement bonus to your natural armor", "+2 natural armor bonus"));
             var buffs = new BlueprintBuff[]{Main.library.Get<BlueprintBuff>("c84fbb4414925f344b894e9511626296"),//righteous might evil
                                             Main.library.Get<BlueprintBuff>("17206974f2a2c164db26d1af7fac57d5"),//righteous might good
                                            };
@@ -131,7 +132,7 @@ namespace CallOfTheWild
                 {
                     if (c.Descriptor == ModifierDescriptor.NaturalArmorEnhancement)
                     {
-                        c.Descriptor = ModifierDescriptor.NaturalArmor;
+                        c.Descriptor = NaturalArmorFix.NATURAL_ARMOR_BONUS;
                     }
                 }
             }

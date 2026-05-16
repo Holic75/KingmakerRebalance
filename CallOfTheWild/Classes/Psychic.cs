@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CallOfTheWild.MechanicsFixes;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -671,7 +672,7 @@ namespace CallOfTheWild
                                                  Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                  null,
                                                  false,
-                                                 Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                 Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS)
                                                  );
 
             rubbery = createBodilyMutation("Rubbery",

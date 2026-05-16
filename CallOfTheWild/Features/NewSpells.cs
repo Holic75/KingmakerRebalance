@@ -1,4 +1,5 @@
-﻿using CallOfTheWild.NewMechanics;
+﻿using CallOfTheWild.MechanicsFixes;
+using CallOfTheWild.NewMechanics;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Experience;
@@ -8605,7 +8606,7 @@ namespace CallOfTheWild
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/BoneFists.png"),
                                           null,
-                                          Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.NaturalArmor),
+                                          Helpers.CreateAddStatBonus(StatType.AC, 1, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                           Helpers.Create<NewMechanics.ContextWeaponCategoryDamageBonus>(c => { c.Value = 2; c.categories = allowed_categories; })
                                           );
 

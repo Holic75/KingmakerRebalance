@@ -75,6 +75,7 @@ using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.AreaLogic.SummonPool;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UI.LevelUp;
+using CallOfTheWild.MechanicsFixes;
 
 namespace CallOfTheWild
 {
@@ -4610,6 +4611,7 @@ namespace CallOfTheWild
                 foreach (ModifiableValue.Modifier modifier in evt.Target.Stats.AC.Modifiers)
                 {
                     natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmor ? modifier.ModValue : 0;
+                    natural_ac_bonus += modifier.ModDescriptor == NaturalArmorFix.NATURAL_ARMOR_BONUS ? modifier.ModValue : 0;
                     natural_ac_bonus += modifier.ModDescriptor == ModifierDescriptor.NaturalArmorEnhancement ? modifier.ModValue : 0;
                 }
                 evt.AddBonus(-natural_ac_bonus, this.Fact);
@@ -7219,6 +7221,21 @@ namespace CallOfTheWild
                     return;
 
                 if ((state.NextLevel % 2) == 0)
+                {
+                    ++state.ExtraSkillPoints;
+                }
+            }
+        }
+
+        [AllowedOn(typeof(BlueprintUnitFact))]
+        public class AddSkillPointOnOddLevels : OwnedGameLogicComponent<UnitDescriptor>, ILevelUpSelectClassHandler, IGlobalSubscriber
+        {
+            public void HandleSelectClass(UnitDescriptor unit, LevelUpState state)
+            {
+                if (this.Owner != unit)
+                    return;
+
+                if ((state.NextLevel % 2) != 0)
                 {
                     ++state.ExtraSkillPoints;
                 }
