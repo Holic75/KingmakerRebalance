@@ -7573,7 +7573,7 @@ namespace CallOfTheWild
                                             "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment. You gain DR 10/slashing and your reach increases by 10 feet.",
                                             "",
                                             icon,
-                                            Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
+                                            Common.createPrefabLink("191b45b04a55aef4fa8b0d63992dbb16"),
                                             Common.createContextFormDR(10, PhysicalDamageForm.Slashing),
                                             Helpers.CreateAddStatBonus(StatType.Reach, 8, ModifierDescriptor.Enhancement),
                                             Helpers.CreateAddFact(water_subtype)
