@@ -11,6 +11,7 @@ using Kingmaker.UnitLogic;
 using Kingmaker.UnitLogic.Abilities;
 using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Parts;
@@ -41,9 +42,9 @@ namespace CallOfTheWild.MechanicsFixes
             // fix bloodlines
             var nat_ac_bonuses = Main.library.GetAllBlueprints().Where
                 (b => 
-                    (b is BlueprintFeature) 
-                    && b.GetComponents<AddStatBonus>().Any(c => c.Descriptor == ModifierDescriptor.NaturalArmor || c.Descriptor == ModifierDescriptor.NaturalArmorEnhancement)
+                    (b is BlueprintFeature)
                     && b.name.StartsWith("Bloodline")
+                    && b.GetComponents<AddStatBonus>().Any(c => c.Descriptor == ModifierDescriptor.NaturalArmor || c.Descriptor == ModifierDescriptor.NaturalArmorEnhancement)
                 ).Cast<BlueprintFeature>().ToArray();
 
             foreach (var nat_ac_bonus in nat_ac_bonuses)
@@ -53,6 +54,28 @@ namespace CallOfTheWild.MechanicsFixes
                 }
                 // Main.logger.Log($"Fixed natural armor bonus descriptor for  {nat_ac_bonus.name}");
             }
+
+            // fix frightful aspect
+            var frightful_aspect_buff = Main.library.Get<BlueprintBuff>("906262fda0fbda442b27f9b0a04e5aa0");
+            frightful_aspect_buff.GetComponents<AddStatBonus>().Where(c => c.Descriptor == ModifierDescriptor.NaturalArmor).First().Descriptor = NATURAL_ARMOR_BONUS;
+
+            //fix mutagens
+            var mutagens = Main.library.GetAllBlueprints().Where
+            (b =>
+                (b is BlueprintBuff)
+                && (b.name.Contains("Mutagen") || b.name.Contains("Cognatogen"))
+                && b.GetComponents<AddStatBonus>().Any(c => c.Descriptor == ModifierDescriptor.NaturalArmor)
+            ).Cast<BlueprintBuff>().ToArray();
+
+            foreach (var mutagen in mutagens)
+            {
+                foreach (var c in mutagen.GetComponents<AddStatBonus>().Where(c => c.Descriptor == ModifierDescriptor.NaturalArmor || c.Descriptor == ModifierDescriptor.NaturalArmorEnhancement))
+                {
+                    c.Descriptor = NATURAL_ARMOR_BONUS;
+                }
+                // Main.logger.Log($"Fixed natural armor bonus descriptor for  {mutagen.name}");
+            }
+
         }
 
         static void fixDescriptorComparer()

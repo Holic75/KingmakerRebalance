@@ -267,7 +267,24 @@ namespace CallOfTheWild
 
         public static void SetComponents(this BlueprintScriptableObject obj, params BlueprintComponent[] components)
         {
-
+            // Fix names of components. Generally this doesn't matter, but if they have serialization state,
+            // then their name needs to be unique.
+            var names = new HashSet<string>();
+            foreach (var c in components)
+            {
+                if (string.IsNullOrEmpty(c.name))
+                {
+                    c.name = $"${c.GetType().Name}";
+                }
+                if (!names.Add(c.name))
+                {
+                    SaveCompatibility.CheckComponent(obj, c);
+                    String name;
+                    for (int i = 0; !names.Add(name = $"{c.name}${i}"); i++) ;
+                    c.name = name;
+                }
+                Log.Validate(c, obj);
+            }
             obj.ComponentsArray = components;
         }
 

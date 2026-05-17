@@ -378,6 +378,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rebalance.cs" />
+    <Compile Include="SaveCompatibility.cs" />
     <Compile Include="SaveGameFix.cs" />
     <Compile Include="Features\SharedSpells.cs" />
     <Compile Include="ShowRerolls.cs" />

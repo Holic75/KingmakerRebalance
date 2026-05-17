@@ -46,6 +46,7 @@ using static CallOfTheWild.NewMechanics.EnchantmentMechanics.TransferPrimaryHand
 using static Kingmaker.Blueprints.BlueprintUnit;
 using Kingmaker.Items.Slots;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using CallOfTheWild.MechanicsFixes;
 
 namespace CallOfTheWild
 {
@@ -1186,14 +1187,14 @@ namespace CallOfTheWild
             var bite1d6 = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286");
             var undead_form1 = Helpers.CreateBuff("UndeadAnatomyIFormBuff",
                                             "Undead Anatomy I",
-                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
+                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
                                             + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).",
                                             "",
                                             icon,
                                             null,
                                             Common.createChangeUnitSize(Size.Medium),
                                             Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Size),
-                                            Helpers.CreateAddStatBonus(StatType.AC, 2,  ModifierDescriptor.NaturalArmor),
+                                            Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                             Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                             Common.createEmptyHandWeaponOverride(slam1d6),//claws
@@ -1203,7 +1204,7 @@ namespace CallOfTheWild
 
             var undead_form2 = Helpers.CreateBuff("UndeadAnatomyIIFormBuff",
                                 "Undead Anatomy II",
-                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                 + "In this form, you gain a +4 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning.",
                                 "",
@@ -1212,7 +1213,7 @@ namespace CallOfTheWild
                                 Common.createChangeUnitSize(Size.Large),
                                 Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
                                 Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Penalty),
-                                Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.NaturalArmor),
+                                Helpers.CreateAddStatBonus(StatType.AC, 4, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                 Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, saves_descriptor),
                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
@@ -1224,7 +1225,7 @@ namespace CallOfTheWild
 
             var undead_form3 = Helpers.CreateBuff("UndeadAnatomyIIIFormBuff",
                                                 "Undead Anatomy III",
-                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/-, a +6 size bonus to your Strength, a -4 penalty to your Dexterity and a +6 natural armor bonus.\n"
+                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain DR 5/-, a +6 size bonus to your Strength, a -4 penalty to your Dexterity and a +6 natural armor bonus.\n"
                                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                                 + "In this form, you gain a +8 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning. If the form has a vulnerability to an attack (such as sunlight), you gain that vulnerability.",
                                                 "",
@@ -1233,7 +1234,7 @@ namespace CallOfTheWild
                                                 Common.createChangeUnitSize(Size.Huge),
                                                 Helpers.CreateAddStatBonus(StatType.Strength, 6, ModifierDescriptor.Size),
                                                 Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Penalty),
-                                                Helpers.CreateAddStatBonus(StatType.AC, 6, ModifierDescriptor.NaturalArmor),
+                                                Helpers.CreateAddStatBonus(StatType.AC, 6, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                                 Common.createSavingThrowBonusAgainstDescriptor(8, ModifierDescriptor.UntypedStackable, saves_descriptor),
                                                 Common.createPhysicalDR(5),
                                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
@@ -1293,7 +1294,7 @@ namespace CallOfTheWild
                                 Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
                                 Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
                                 Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Common.createAddGenericStatBonus(6, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                 Common.createEnergyDR(20, DamageEnergyType.Electricity),
                                 Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
@@ -1316,7 +1317,7 @@ namespace CallOfTheWild
                     Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
                     Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
                     Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                    Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Common.createAddGenericStatBonus(6, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                     Common.createEmptyHandWeaponOverride(athach_slam),
                     Common.createAddAdditionalLimb(athach_bite),
@@ -1354,7 +1355,7 @@ namespace CallOfTheWild
                                             Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                                             Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                                             Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                            Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                            Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                             Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("de21b6c00e6adaa409a6e7c2ae9f87f4")),//claws
                                             Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("1f8a2e1e5e078014baebc90c2c46796f")), //bite
@@ -1378,7 +1379,7 @@ namespace CallOfTheWild
                                 Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                                 Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                                 Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                 Common.createAddEnergyVulnerability(DamageEnergyType.Cold),
                                 Common.createEnergyDR(20, DamageEnergyType.Fire),
@@ -1401,7 +1402,7 @@ namespace CallOfTheWild
                     Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                     Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                     Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                    Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                     Common.createAddEnergyVulnerability(DamageEnergyType.Fire),
                     Common.createEnergyDR(20, DamageEnergyType.Cold),

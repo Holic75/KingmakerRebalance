@@ -2706,7 +2706,7 @@ namespace CallOfTheWild
                     var rank_config = breath_ability.GetComponent<ContextRankConfig>();
                     var classes = Helpers.GetField<BlueprintCharacterClass[]>(rank_config, "m_Class"); 
                     classes = classes.AddToArray(bloodrager_class);
-                    Helpers.SetField(rank_config, "m_Class", classes); // will propagate to prototype to bloodrager o be combined with sorc or dd
+                    Helpers.SetField(rank_config, "m_Class", classes); // will propagate to prototype to bloodrager or be combined with sorc or dd
                     breath_ability.AddComponent(Common.createContextCalculateAbilityParamsBasedOnClasses(getDraconicArray(), StatType.Constitution));
                     breath_ability.ReplaceComponent<AbilityResourceLogic>(Helpers.CreateResourceLogic(resource));
                     addBloodrageRestriction(breath_ability);
