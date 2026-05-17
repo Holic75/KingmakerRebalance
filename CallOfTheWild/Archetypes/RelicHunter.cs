@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Harmony12;
+﻿using Harmony12;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -49,6 +44,12 @@ using Kingmaker.UnitLogic.Mechanics.Components;
 using Kingmaker.UnitLogic.Mechanics.Conditions;
 using Kingmaker.UnitLogic.Parts;
 using Kingmaker.Utility;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static CallOfTheWild.Occultist;
 using static Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbilityResourceLogic;
 using static Kingmaker.UnitLogic.Commands.Base.UnitCommand;
 
@@ -70,6 +71,7 @@ namespace CallOfTheWild.Archetypes
         static public BlueprintFeatureSelection implement_selection;
         static public BlueprintFeature deific_focus;
         static public BlueprintBuff locked_focus_buff;
+        static public BlueprintBuff martial_skill_buff;
 
         static LibraryScriptableObject library => Main.library;
 
@@ -322,6 +324,7 @@ namespace CallOfTheWild.Archetypes
                 }
             }
 
+            martial_skill_buff = implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createMartialSkill();
             Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data
                 = new Dictionary<SpellSchool, (string, BlueprintFeature, BlueprintBuff[])>
             {
@@ -368,7 +371,7 @@ namespace CallOfTheWild.Archetypes
                 {(SpellSchool)Occultist.Panoply.TrappingOfTheWarrior,("This panoply is associated with brave and stalwart warriors, martial skill, and the defense of one’s allies.\n"
                                                             +"Associated implement schools: Abjuration, Transmuation.",
                                            implement_factories[(SpellSchool)Occultist.Panoply.TrappingOfTheWarrior].createCounterStrike(),
-                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Occultist.Panoply.TrappingOfTheWarrior].createMartialSkill()}
+                                           new BlueprintBuff[]{ martial_skill_buff }
                                            )
                 },
                 {(SpellSchool)Occultist.Panoply.MagesParaphernalia, ("This panoply is associated with the arcane arts and the masters of manipulating magic.\n"
@@ -576,7 +579,7 @@ namespace CallOfTheWild.Archetypes
                                                                 }
                 },
                 {SpellSchool.Necromancy, new BlueprintFeature[]{implement_factories[SpellSchool.Necromancy].createFleshRot(),
-                                                                implement_factories[SpellSchool.Necromancy].createNecromanticServant(),
+                                                                implement_factories[SpellSchool.Necromancy].createNecromanticServant(martial_skill_buff),
                                                                 implement_factories[SpellSchool.Necromancy].createPainWave(),
                                                                 implement_factories[SpellSchool.Necromancy].createSoulboundPuppet(),
                                                                 implement_factories[SpellSchool.Necromancy].createSpiritShroud(),
