@@ -167,7 +167,7 @@ namespace CallOfTheWild.Archetypes
             psychic_spellcasting = Helpers.CreateFeature("MindBladePsychicSpellCasting",
                                                          "Psychic Spell Casting",
                                                          "A mindblade casts psychic spells from magus spell list as psychic spells. To learn or cast a spell, a mindblade must have an Intelligence score equal to at least 10 + the spell’s level. The saving throw DC against a mindblade’s spell is 10 + the spell’s level + the mindblade’s Intelligence modifier.\n"
-                                                         + "A mindblade need not prepare her spells in advance.\nShe can cast any magus spell she knows at any time, assuming she has not yet used up her allotment of spells per day for the spell’s level."
+                                                         + "A mindblade need not prepare her spells in advance.\nShe can cast any magus spell she knows at any time, assuming she has not yet used up her allotment of spells per day for the spell’s level.\n"
                                                          + "Mindblade spells are not subject to arcane spell failure due to armor, but they require a more significant effort, compared to classic magic and thus the DC of all concentration checks required as a part of casting a psychic spell is increased by 10, additionaly psychic magic can not be used at all if caster is under the influence of fear or negative emotion effects.",
                                                          "",
                                                          Helpers.GetIcon("eabf94e4edc6e714cabd96aa69f8b207"),//mind fog
