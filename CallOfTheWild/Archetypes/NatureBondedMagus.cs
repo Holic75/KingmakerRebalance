@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CallOfTheWild.MechanicsFixes;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -161,7 +162,7 @@ namespace CallOfTheWild.Archetypes
                                                 "",
                                                 Helpers.GetIcon("5b77d7cc65b8ab74688e74a37fc2f553"), //barkskin
                                                 FeatureGroup.None,
-                                                Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor)
+                                                Helpers.CreateAddContextStatBonus(StatType.AC, NaturalArmorFix.NATURAL_ARMOR_BONUS)
                                                 );
             symbiosis.Ranks = 5;
             symbiosis.ReapplyOnLevelUp = true;

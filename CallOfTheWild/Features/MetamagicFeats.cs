@@ -771,6 +771,7 @@ namespace CallOfTheWild
                     case MetamagicExtender.ElementalAcid:
                     case MetamagicExtender.Selective:
                     case MetamagicExtender.Piercing:
+                    case MetamagicExtender.Logical:
                         __result = 1;
                         return false;
                 }

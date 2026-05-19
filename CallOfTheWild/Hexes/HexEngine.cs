@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CallOfTheWild.MechanicsFixes;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
@@ -564,7 +565,7 @@ namespace CallOfTheWild
                                                   feature_guid,
                                                   frigid_touch.Icon,
                                                   FeatureGroup.None,
-                                                  Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                  Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS)
                                                   );
             iceplant_hex.Ranks = 1;
             return iceplant_hex;
@@ -1809,7 +1810,7 @@ namespace CallOfTheWild
 
             hex_vulnerability_buff = Helpers.CreateBuff("HexVulnerabilityBuff",
                                                    "Hex Vulnerability",
-                                                   "The targeted creature becomes susceptible to a repeat use of your harmful hexes, even if you could not otherwise target that creature with a particular hex for a certain time period.For example, normally after you target a creature with a charm hex, you cannot target it again for 1 day.But after casting this spell on a creature, you could try the charm hex repeatedly as long as the spell persists. The end of this spell has no effect on any active or ongoing hex on a creature.For example, if the creature failed its save against a second use of your charm hex, it remains charmed for the normal duration, even if the spell expires before the hex does.\n"
+                                                   "The targeted creature becomes susceptible to a repeat use of your harmful hexes, even if you could not otherwise target that creature with a particular hex for a certain time period. For example, normally after you target a creature with a charm hex, you cannot target it again for 1 day. But after casting this spell on a creature, you could try the charm hex repeatedly as long as the spell persists. The end of this spell has no effect on any active or ongoing hex on a creature. For example, if the creature failed its save against a second use of your charm hex, it remains charmed for the normal duration, even if the spell expires before the hex does.\n"
                                                    + "Each subsequent casting of this spell on a target within a 24 - hour period gives the target a + 4 bonus on its save against the spell.",
                                                    "",
                                                    hold_person_buff.Icon,
@@ -1876,7 +1877,7 @@ namespace CallOfTheWild
             accursed_hex_buff = library.CopyAndAdd<BlueprintBuff>(hex_vulnerability_buff.AssetGuid, "AccursedHexBuff", "");
             accursed_hex_buff.SetName("Accursed Hex");
             accursed_hex_buff.SetDescription("You can make a second attempt at failed hexes.\n"
-                                             + "Benefit: When you target a creature with a hex that cannot target the same creature more than once per day, and that creature succeeds at its saving throw against the hex’s effect, you can target the creature with the same hex a second time before the end of your next turn.If the second attempt fails, you can make no further attempts to target that creature with the same hex for 1 day.\n"
+                                             + "Benefit: When you target a creature with a hex that cannot target the same creature more than once per day, and that creature succeeds at its saving throw against the hex’s effect, you can target the creature with the same hex a second time before the end of your next turn. If the second attempt fails, you can make no further attempts to target that creature with the same hex for 1 day.\n"
                                              + "Normal: You can only target a creature with these hexes once per day.");
             accursed_hex_buff.SetIcon(LoadIcons.Image2Sprite.Create(@"FeatIcons/Icon_Hex_Accursed.png"));
             accursed_hex_buff.Stacking = StackingType.Ignore;

@@ -48,7 +48,6 @@ namespace CallOfTheWild
                 {
                     JObject jo = (JObject)JToken.ReadFrom(reader);
                     update_companions = (bool)jo["update_companions"];
-                    //nerf_animal_companion = (bool)jo["nerf_animal_companion"];
                     reduce_skill_points = (bool)jo["reduce_skill_points"];
                     sacred_huntsmaster_animal_focus = (bool)jo["sacred_huntsmaster_animal_focus"];
                     swap_weapon_sets_as_move_action = (bool)jo["swap_weapon_sets_as_move_action"];
@@ -174,6 +173,7 @@ namespace CallOfTheWild
                     }
 
                     CallOfTheWild.Common.initialize();
+                    CallOfTheWild.MechanicsFixes.NaturalArmorFix.run();
                     CallOfTheWild.Rebalance.removeDescriptionsFromMonkACFeatures();
                     CallOfTheWild.Rebalance.refixBardicPerformanceOverlap();
                     CallOfTheWild.Rebalance.removePowerOfWyrmsBuffImmunity();
@@ -212,6 +212,7 @@ namespace CallOfTheWild
                     CallOfTheWild.Rebalance.fixSenseiMysticAdvice();
                     CallOfTheWild.Rebalance.fixShatterDefenses();
                     CallOfTheWild.Rebalance.fixKiExtraAttackAction();
+                    CallOfTheWild.Rebalance.fixDarknessMoonfire();
                     if (settings.balance_fixes)
                     {
                         Main.logger.Log("Applying balance changes");
@@ -295,7 +296,7 @@ namespace CallOfTheWild
                     CallOfTheWild.NewRagePowers.load();   
                     CallOfTheWild.Subdomains.load();
                     CallOfTheWild.NewFeats.createDeityFavoredWeapon();
-                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();
+                    CallOfTheWild.Rebalance.clericAndDruidOfErastilGetShortbowProficiency();                    
                     CallOfTheWild.Subschools.load();
                     CallOfTheWild.WeaponsFix.load();
                     CallOfTheWild.SharedSpells.preload();
@@ -427,6 +428,7 @@ namespace CallOfTheWild
                     CallOfTheWild.MetamagicFeats.setMetamagicFlags();
                     CallOfTheWild.NewSpells.fixShadowSpells();
                     CallOfTheWild.Archetypes.PactWizard.create();
+                    CallOfTheWild.Wildshape.createWildshapeRelatedFeaturesAndWildArmor();
                     CallOfTheWild.CleanUp.run();
                     CallOfTheWild.DismissSpells.Dismiss.create();
                     CallOfTheWild.Rebalance.fixTristianAngelBuff();

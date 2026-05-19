@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.MechanicsFixes;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Area;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -743,10 +744,12 @@ namespace CallOfTheWild
                                                           "",
                                                           Helpers.GetIcon("7bc8e27cba24f0e43ae64ed201ad5785"),
                                                           null,
-                                                          Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
+                                                          Helpers.CreateAddContextStatBonus(StatType.AC, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                                           Helpers.CreateContextRankConfig(progression: ContextRankProgression.OnePlusDivStep, stepLevel: 10, max: 2),
                                                           Helpers.Create<OnCastMechanics.IgnoreActionOnApplyBuff>()
                                                           );
+            scales_and_skin_buff.Stacking = StackingType.Stack;
+            scales_and_skin_buff.SetBuffFlags(BuffFlags.HiddenInUi | scales_and_skin_buff.GetBuffFlags());
 
             var apply_buff = Common.createContextActionApplyBuff(scales_and_skin_buff, Helpers.CreateContextDuration(), is_child: true, is_permanent: true, dispellable: false);
             scales_and_skin = Helpers.CreateFeature("ScalesAndSkinFeature",
@@ -1555,6 +1558,7 @@ namespace CallOfTheWild
             };
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("fe67bc3b04f1cd542b4df6e28b6e0ff5").AllFeatures); //other spell specializations
             spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("bb24cc01319528849b09a3ae8eec0b31").AllFeatures); //elemental foci
+            spell_parameters_feats = spell_parameters_feats.AddToArray(library.Get<BlueprintFeatureSelection>("1c17446a3eb744f438488711b792ca4d").AllFeatures); //greater elemental foci
 
             BlueprintUnitFact[] weapon_focus_feats = new BlueprintUnitFact[]
             {

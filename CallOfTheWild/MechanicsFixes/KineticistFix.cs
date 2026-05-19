@@ -1749,7 +1749,7 @@ namespace CallOfTheWild
     }
 
 
-    //fix addAreaDamageTrigger to account for descriptors of ability that provoked it (for (greater) elemental fcous feat)
+    //fix addAreaDamageTrigger to account for descriptors of ability that provoked it (for (greater) elemental focus feat)
     [Harmony12.HarmonyPatch(typeof(AddAreaDamageTrigger))]
     [Harmony12.HarmonyPatch("RunAction", Harmony12.MethodType.Normal)]
     class AddAreaDamageTrigger__RunAction__Patch

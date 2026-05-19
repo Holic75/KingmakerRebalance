@@ -285,7 +285,6 @@ namespace CallOfTheWild
                 }
                 Log.Validate(c, obj);
             }
-
             obj.ComponentsArray = components;
         }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CallOfTheWild.MechanicsFixes;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Prerequisites;
@@ -214,14 +215,14 @@ namespace CallOfTheWild
             createAuraOfIntimidation();
 
 
-            terror_weaver.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, phrenic_amplification),
-                                                                  Helpers.LevelEntry(11, phrenic_amplification),
-                                                                  Helpers.LevelEntry(19, phrenic_amplification)};
-            terror_weaver.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, manipulation),
+            terror_weaver.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(11, phrenic_amplification),
+                                                              Helpers.LevelEntry(19, phrenic_amplification)
+            };
+            terror_weaver.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, manipulation),
                                                               Helpers.LevelEntry(9, aura_of_intimidation9),
                                                               Helpers.LevelEntry(11, aura_of_intimidation11),
                                                               Helpers.LevelEntry(19, aura_of_intimidation19),
-                                                             };
+            };
             psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(manipulation, aura_of_intimidation9, aura_of_intimidation11, aura_of_intimidation19));
         }
 
@@ -671,7 +672,7 @@ namespace CallOfTheWild
                                                  Helpers.GetIcon("c60969e7f264e6d4b84a1499fdcf9039"),
                                                  null,
                                                  false,
-                                                 Helpers.CreateAddStatBonus(StatType.AC, 2, ModifierDescriptor.NaturalArmor)
+                                                 Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS)
                                                  );
 
             rubbery = createBodilyMutation("Rubbery",
@@ -1472,6 +1473,8 @@ namespace CallOfTheWild
             createPainDiscipline();
             createPageantryDiscipline();
             createFerocityDiscipline();
+            // createSelfPerfectionDiscipline();
+            // createSorrowDiscipline();
         }
 
 

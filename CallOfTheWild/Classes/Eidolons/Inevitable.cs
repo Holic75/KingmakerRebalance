@@ -144,7 +144,7 @@ namespace CallOfTheWild
                                                                                 Common.createContextSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.Size, SpellDescriptor.Poison | SpellDescriptor.Death 
                                                                                                                                                                     | SpellDescriptor.Disease | SpellDescriptor.Paralysis
                                                                                                                                                                     | SpellDescriptor.Sleep | SpellDescriptor.Stun)
-                                                                                ),
+                                                                              ),
                                                   Helpers.Create<EvolutionMechanics.AddPermanentEvolution>(a => a.Feature = Evolutions.slam_biped)
                                                   );
 
@@ -235,7 +235,13 @@ namespace CallOfTheWild
                                                                                 Common.createBuffDescriptorImmunity(SpellDescriptor.Paralysis | SpellDescriptor.Stun),
                                                                                 Common.createAddConditionImmunity(UnitCondition.Paralyzed),
                                                                                 Common.createAddConditionImmunity(UnitCondition.Stunned),
-                                                                                Helpers.CreateAddStatBonus(StatType.SaveFortitude, 100, ModifierDescriptor.UntypedStackable),
+                                                                                Helpers.Create<ModifyD20>(m =>
+                                                                                {
+                                                                                      m.Rule = RuleType.SavingThrow;
+                                                                                      m.Replace = true;
+                                                                                      m.Roll = 20;
+                                                                                      Helpers.SetField(m, "m_SavingThrowType", 1);
+                                                                                }),
                                                                                 Helpers.Create<Evasion>(e => e.SavingThrow = SavingThrowType.Fortitude)
                                                                                 )
                                                   );

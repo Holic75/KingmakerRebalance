@@ -1,4 +1,5 @@
-﻿using CallOfTheWild.NewMechanics;
+﻿using CallOfTheWild.MechanicsFixes;
+using CallOfTheWild.NewMechanics;
 using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Experience;
@@ -7572,7 +7573,7 @@ namespace CallOfTheWild
                                             "When you cast this spell, your body takes on a slick, oily appearance. For the duration of this spell, your form can stretch and shift with ease and becomes slightly transparent, as if you were composed of liquid. This transparency is not enough to grant concealment. You gain DR 10/slashing and your reach increases by 10 feet.",
                                             "",
                                             icon,
-                                            Common.createPrefabLink("9e2750fa744d28d4c95b9c72cc94868d"),
+                                            Common.createPrefabLink("191b45b04a55aef4fa8b0d63992dbb16"),
                                             Common.createContextFormDR(10, PhysicalDamageForm.Slashing),
                                             Helpers.CreateAddStatBonus(StatType.Reach, 8, ModifierDescriptor.Enhancement),
                                             Helpers.CreateAddFact(water_subtype)
@@ -7680,7 +7681,7 @@ namespace CallOfTheWild
                                                 UnitCommand.CommandType.Standard,
                                                 AbilityRange.Close,
                                                 "3 rounds",
-                                                Helpers.fortNegates,
+                                                "Fortitude partial",
                                                 Helpers.CreateRunActions(SavingThrowType.Fortitude, effect),
                                                 Common.createAbilityTargetHasFact(true, undead),
                                                 Common.createAbilityTargetHasFact(true, construct),
@@ -7705,7 +7706,7 @@ namespace CallOfTheWild
                                     UnitCommand.CommandType.Standard,
                                     AbilityRange.Close,
                                     Helpers.roundsPerLevelDuration,
-                                    Helpers.fortNegates,
+                                    "Fortitude partial",
                                     Helpers.CreateRunActions(SavingThrowType.Fortitude, effect_mass),
                                     Helpers.CreateSpellDescriptor(SpellDescriptor.Death),
                                     Helpers.CreateSpellComponent(SpellSchool.Necromancy),
@@ -8605,7 +8606,7 @@ namespace CallOfTheWild
                                           "",
                                           LoadIcons.Image2Sprite.Create(@"AbilityIcons/BoneFists.png"),
                                           null,
-                                          Helpers.CreateAddStatBonus(StatType.AC, 1, ModifierDescriptor.NaturalArmor),
+                                          Helpers.CreateAddStatBonus(StatType.AC, 1, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                           Helpers.Create<NewMechanics.ContextWeaponCategoryDamageBonus>(c => { c.Value = 2; c.categories = allowed_categories; })
                                           );
 

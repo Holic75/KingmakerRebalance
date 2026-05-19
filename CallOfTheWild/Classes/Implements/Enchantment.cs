@@ -41,7 +41,7 @@ namespace CallOfTheWild
 
             var ability = Helpers.CreateAbility(prefix + "CloudMindAbility",
                                                 "Cloud Mind",
-                                                "As a standard action, you can expend 1 point of mental focus to cloud the mind of one foe within 30 feet. That foe is dazed for 1 round if the number of Hit Dice it possesses is less than or equal to or your occultist level. If it has more Hit Dice than your occultist level, it is staggered for 1 round instead. The foe can attempt a Will saving throw to negate the effect.",
+                                                "As a standard action, you can expend 1 point of mental focus to cloud the mind of one foe within 30 feet. That foe is dazed for 1 round if the number of Hit Dice it possesses is less than or equal to your occultist level. If it has more Hit Dice than your occultist level, it is staggered for 1 round instead. The foe can attempt a Will saving throw to negate the effect.",
                                                 "",
                                                 daze_buff.Icon,
                                                 AbilityType.Supernatural,

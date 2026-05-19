@@ -2,6 +2,7 @@
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
+using Kingmaker.Blueprints.Facts;
 using Kingmaker.Designers.Mechanics.Buffs;
 using Kingmaker.Designers.Mechanics.Facts;
 using Kingmaker.ElementsSystem;
@@ -14,6 +15,7 @@ using Kingmaker.UnitLogic.Abilities.Blueprints;
 using Kingmaker.UnitLogic.Abilities.Components;
 using Kingmaker.UnitLogic.Abilities.Components.Base;
 using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs;
 using Kingmaker.UnitLogic.Buffs.Blueprints;
 using Kingmaker.UnitLogic.Buffs.Components;
 using Kingmaker.UnitLogic.Commands.Base;
@@ -225,7 +227,7 @@ namespace CallOfTheWild
         }
 
 
-        public BlueprintFeature createNecromanticServant()
+        public BlueprintFeature createNecromanticServant(BlueprintBuff martial_skill_buff)
         {
             var dispaly_name = "Necromantic Servant";
             var description = "As a standard action, you can expend 1 point of mental focus to raise a single dead creature as a skeleton to serve you for 10 minutes per occultist level you possess or until it is destroyed, whichever comes first. This servant has a number of HD equal to your occultist level. It also gains a bonus on damage rolls equal to 1/2 your occultist level. At 9th level, you can give the servant the bloody simple template. At 13th level, you can use this ability to animate all the dead bodies in a 10-foot burst. You can have a maximum number of servants in existence equal to 1/2 your occultist level. At 17th level, the servants gain all your teamwork feats.\n"
@@ -253,6 +255,7 @@ namespace CallOfTheWild
                                                        Helpers.CreateAddContextStatBonus(StatType.AdditionalDamage, ModifierDescriptor.UntypedStackable),
                                                        createClassScalingConfig(ContextRankProgression.Div2)
                                                        );
+            var apply_bab_bonus = Helpers.CreateConditional(Helpers.CreateConditionCasterHasFact(martial_skill_buff), Common.createContextActionApplyBuff(martial_skill_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false));
 
             var apply_teamwork_feats = Common.createContextActionApplyBuff(tactical_leader_feat_share_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
             var apply_bloody_template = Common.createContextActionApplyBuff(bloody_template_buff, Helpers.CreateContextDuration(), is_permanent: true, dispellable: false);
@@ -274,7 +277,7 @@ namespace CallOfTheWild
                 {
                     var animate_fixed_hd = Helpers.Create<DeadTargetMechanics.ContextActionAnimateDeadFixedHD>();
                     animate_fixed_hd.adapt_size = true;
-                    animate_fixed_hd.AfterSpawn = Helpers.CreateActionList(r.AfterSpawn.Actions.AddToArray(apply_damage_bonus, extra_actions));
+                    animate_fixed_hd.AfterSpawn = Helpers.CreateActionList(r.AfterSpawn.Actions.AddToArray(apply_bab_bonus, apply_damage_bonus, extra_actions));
                     animate_fixed_hd.Blueprint = r.Blueprint;
                     animate_fixed_hd.dex_bonus = r.dex_bonus;
                     animate_fixed_hd.SummonPool = summon_pool;

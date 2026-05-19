@@ -859,7 +859,7 @@ namespace CallOfTheWild
                                                         Helpers.LevelEntry(12, rogue_talents),
                                                         Helpers.LevelEntry(13, seed_of_discord[4]),
                                                         Helpers.LevelEntry(16, seed_of_discord[5]),
-                                                        Helpers.LevelEntry(19, rogue_talents)
+                                                        Helpers.LevelEntry(17, rogue_talents)
                                                         };
 
             skald_progression.UIGroups = skald_progression.UIGroups.AddToArray(Helpers.CreateUIGroup(rile, great_orator, rogue_talents, rogue_talents, rogue_talents));

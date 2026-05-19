@@ -681,13 +681,63 @@ namespace CallOfTheWild
                                                          );
             }
 
-
-            for (int i = 0; i < shared_slots.Length; i++)
+            if (!Main.settings.balance_fixes)
             {
-                evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
-                                                         new BlueprintFeature[0], Main.settings.balance_fixes ? new BlueprintFeature[0] : new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
-                                                         evolution_group: "Shared Slot")
-                                                         );
+                for (int i = 0; i < shared_slots.Length; i++)
+                {
+                    evolution_entries.Add(new EvolutionEntry(shared_slots[i], 2, 0, new BlueprintFeature[0],
+                                                             new BlueprintFeature[0], new BlueprintFeature[] { Eidolon.twinned_eidolon, Eidolon.twinned_eidolon_small },
+                                                             evolution_group: "Shared Slot")
+                                                             );
+                }
+            }
+            else
+            {
+                //head
+                evolution_entries.Add(new EvolutionEntry(shared_slots[0], 2, 0, new BlueprintFeature[0],
+                                                            new BlueprintFeature[0], eidolons,
+                                                            evolution_group: "Shared Slot")
+                                                            );
+                //neck
+                evolution_entries.Add(new EvolutionEntry(shared_slots[1], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //shoulders
+                evolution_entries.Add(new EvolutionEntry(shared_slots[2], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //wrists
+                evolution_entries.Add(new EvolutionEntry(shared_slots[3], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //gloves
+                evolution_entries.Add(new EvolutionEntry(shared_slots[4], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //feet
+                evolution_entries.Add(new EvolutionEntry(shared_slots[5], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], biped_eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //ring1
+                evolution_entries.Add(new EvolutionEntry(shared_slots[6], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //ring2
+                evolution_entries.Add(new EvolutionEntry(shared_slots[7], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons_with_hands,
+                                            evolution_group: "Shared Slot")
+                                            );
+                //belt
+                evolution_entries.Add(new EvolutionEntry(shared_slots[8], 2, 0, new BlueprintFeature[0],
+                                            new BlueprintFeature[0], eidolons,
+                                            evolution_group: "Shared Slot")
+                                            );
             }
 
             evolution_entries.Add(new EvolutionEntry(flight, 2, 5, new BlueprintFeature[0], new BlueprintFeature[0], new BlueprintFeature[0]));
@@ -1122,7 +1172,7 @@ namespace CallOfTheWild
             {
                 immunity[i] = Helpers.CreateFeature(energies[i].ToString() + "ImmunityEvolutionFeature",
                                                       "Immunity: " + energies[i].ToString(),
-                                                      "he eidolon’s body becomes extremely resilient to one energy type. Select one energy type: acid, cold, electricity or fire. The eidolon gains immunity to that energy type. This evolution can be selected more than once. Its effects do not stack. Each time it applies to a different energy type. ",
+                                                      "The eidolon’s body becomes extremely resilient to one energy type. Select one energy type: acid, cold, electricity or fire. The eidolon gains immunity to that energy type. This evolution can be selected more than once. Its effects do not stack. Each time it applies to a different energy type. ",
                                                       "",
                                                       Helpers.GetIcon(icon_ids[i]),
                                                       FeatureGroup.None,

@@ -99,6 +99,7 @@ namespace CallOfTheWild
                 toggle_buff_map.Add(t, effect_buff);
 
                 var enable_buff = library.CopyAndAdd(t.Buff, "Enable" + t.Buff.name, "");
+                enable_buff.ComponentsArray = new BlueprintComponent[0];
                 enable_buff.SetBuffFlags(BuffFlags.HiddenInUi);
                 t.Buff = enable_buff;
 

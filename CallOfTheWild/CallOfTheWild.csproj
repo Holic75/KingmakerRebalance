@@ -286,6 +286,7 @@
     <Compile Include="Features\Inquisitions.cs" />
     <Compile Include="MechanicsFixes\KineticistFix.cs" />
     <Compile Include="MechanicsFixes\MysticTheurgeFix.cs" />
+    <Compile Include="MechanicsFixes\NaturalArmorFix.cs" />
     <Compile Include="NewMechanics\ActivatableAbilityActionTypeModier.cs" />
     <Compile Include="NewMechanics\AdditionalSpellDescriptors.cs" />
     <Compile Include="NewMechanics\AdditiveUnitPart.cs" />

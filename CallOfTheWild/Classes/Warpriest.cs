@@ -4967,7 +4967,7 @@ namespace CallOfTheWild
                                             Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("289c13ba102d0df43862a488dad8a5d5"))//claws 1d4
                                             );
             var toggle = Helpers.CreateActivatableAbility("SacredClawsFeralChampionToggle",
-                                                          sacred_claws.name,
+                                                          sacred_claws.Name,
                                                           sacred_claws.Description,
                                                           "",
                                                           sacred_claws.Icon,

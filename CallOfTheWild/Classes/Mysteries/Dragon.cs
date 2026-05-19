@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.MechanicsFixes;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
@@ -101,7 +102,7 @@ namespace CallOfTheWild
                                                                                     (14, 10),
                                                                                     (20, 20)
                                                                                 }),
-                                                Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
+                                                Helpers.CreateAddContextStatBonus(StatType.AC, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                                 Helpers.Create<AddDamageResistanceEnergy>(a =>
                                                 {
                                                     a.Type = energy;

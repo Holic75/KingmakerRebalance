@@ -1,4 +1,5 @@
-﻿using Kingmaker.Blueprints;
+﻿using CallOfTheWild.MechanicsFixes;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
 using Kingmaker.Blueprints.Classes.Selection;
 using Kingmaker.Blueprints.Classes.Spells;
@@ -413,7 +414,7 @@ namespace CallOfTheWild
                                               "",
                                               augment_feature.Icon,
                                               Common.createPrefabLink("d6a7e564d0ee8b640b40c221d116e7ed"), //tocuh of good
-                                              Helpers.CreateAddContextStatBonus(StatType.AC, ModifierDescriptor.NaturalArmor),
+                                              Helpers.CreateAddContextStatBonus(StatType.AC, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                               Helpers.CreateContextRankConfig(Kingmaker.UnitLogic.Mechanics.Components.ContextRankBaseValueType.ClassLevel,
                                                                              classes: getWizardArray(), progression: ContextRankProgression.OnePlusDivStep,
                                                                              stepLevel: 5)

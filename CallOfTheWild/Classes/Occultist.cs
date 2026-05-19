@@ -135,7 +135,7 @@ namespace CallOfTheWild
         static public BlueprintFeature planar_schoolar;
 
 
-
+        static public BlueprintBuff martial_skill_buff;
         public enum Panoply
         {
             TrappingOfTheWarrior = 101,
@@ -1288,7 +1288,7 @@ namespace CallOfTheWild
                                                                 }
                 },
                 {SpellSchool.Necromancy, new BlueprintFeature[]{implement_factories[SpellSchool.Necromancy].createFleshRot(),
-                                                                implement_factories[SpellSchool.Necromancy].createNecromanticServant(),
+                                                                implement_factories[SpellSchool.Necromancy].createNecromanticServant(martial_skill_buff),
                                                                 implement_factories[SpellSchool.Necromancy].createPainWave(),
                                                                 implement_factories[SpellSchool.Necromancy].createSoulboundPuppet(),
                                                                 implement_factories[SpellSchool.Necromancy].createSpiritShroud(),
@@ -1387,7 +1387,7 @@ namespace CallOfTheWild
                                                                   StatType.Intelligence);
                 }
             }
-
+            martial_skill_buff = implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createMartialSkill();
             Dictionary<SpellSchool, (string flavor, BlueprintFeature base_power, BlueprintBuff[] resonant_power_buffs)> implement_data
                 = new Dictionary<SpellSchool, (string, BlueprintFeature, BlueprintBuff[])>
             {
@@ -1434,7 +1434,7 @@ namespace CallOfTheWild
                 {(SpellSchool)Panoply.TrappingOfTheWarrior,("This panoply is associated with brave and stalwart warriors, martial skill, and the defense of one’s allies.\n"
                                                             +"Associated implement schools: Abjuration, Transmuation.",
                                            implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createCounterStrike(),
-                                           new BlueprintBuff[]{ implement_factories[(SpellSchool)Panoply.TrappingOfTheWarrior].createMartialSkill()}
+                                           new BlueprintBuff[]{ martial_skill_buff}
                                            )
                 },
                 {(SpellSchool)Panoply.MagesParaphernalia, ("This panoply is associated with the arcane arts and the masters of manipulating magic.\n"

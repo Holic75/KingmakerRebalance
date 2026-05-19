@@ -46,6 +46,7 @@ using static CallOfTheWild.NewMechanics.EnchantmentMechanics.TransferPrimaryHand
 using static Kingmaker.Blueprints.BlueprintUnit;
 using Kingmaker.Items.Slots;
 using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using CallOfTheWild.MechanicsFixes;
 
 namespace CallOfTheWild
 {
@@ -216,14 +217,31 @@ namespace CallOfTheWild
 
             fixDruid();
             createDragonWildshapes();
-            createWildArmor();
+            
             fixTransmuter();
 
+            
+        }
+
+
+        static internal void createWildshapeRelatedFeaturesAndWildArmor()
+        {
+            createWildArmor();
             createWeaponShift();
             createMutatedShape();
-
-
             createFavoredClassNaturalAcBonus();
+        }
+
+
+        static BlueprintBuff[] getWildshapes()
+        {
+            return druid_wild_shapes;
+        }
+
+
+        static BlueprintBuff[] getAllPolymorphBuffs()
+        {
+            return library.GetAllBlueprints().OfType<BlueprintBuff>().Where(b => b.GetComponent<Polymorph>() != null).ToArray();
         }
 
 
@@ -248,16 +266,25 @@ namespace CallOfTheWild
 
         static void createMutatedShape()
         {
+            var wildshape_buffs = getWildshapes();
             mutated_shape = Helpers.CreateFeature("MutatedShapeFeature",
                                                   "Mutated Shape",
-                                                  "When you use wild shape, you grow an additional appendage that allows you to make one more attack per round.",
+                                                  $"When you use wild shape{(Main.settings.balance_fixes ? " or a polymorph spell": "" )}, you grow an additional appendage that allows you to make one more attack per round.",
                                                   "",
                                                   null,
                                                   FeatureGroup.Feat,
-                                                  Helpers.PrerequisiteFeature(first_wildshape_form),
                                                   Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6),
                                                   Helpers.PrerequisiteStatValue(StatType.Wisdom, 19)
                                                  );
+
+            if (!Main.settings.balance_fixes)
+            {
+                mutated_shape.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+            }
+            else
+            {
+                wildshape_buffs = getAllPolymorphBuffs();
+            }
 
             var buff = Helpers.CreateBuff("MutatedShapeBuff",
                                           "",
@@ -269,7 +296,7 @@ namespace CallOfTheWild
                                           );
             buff.SetBuffFlags(BuffFlags.HiddenInUi);
 
-            foreach (var shape in druid_wild_shapes)
+            foreach (var shape in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff, mutated_shape);
             }
@@ -285,15 +312,17 @@ namespace CallOfTheWild
                 library.Get<BlueprintWeaponEnchantment>("e5990dc76d2a613409916071c898eee8"), //cold iron 
                 library.Get<BlueprintWeaponEnchantment>("0ae8fc9f2e255584faf4d14835224875"), //mithral
                 library.Get<BlueprintWeaponEnchantment>("ab39e7d59dd12f4429ffef5dca88dc7b"), //adamantine
+                WeaponEnchantments.disarm_enchant,
+                WeaponEnchantments.trip_enchant,
+                WeaponEnchantments.sunder_enchant
             };
 
             weapon_shift = Helpers.CreateFeature("WeaponShiftFeature",
                                                  "Weapon Shift",
-                                                 "When you use your wild shape ability, any melee weapons you are wielding and proficient with meld into your new form. While in your new form, your natural attacks gain all your primary weapon's material properties.",
+                                                 $"When you use your wild shape ability{(Main.settings.balance_fixes ? " or a polymorph spell" : "")}, any melee weapons you are wielding and proficient with meld into your new form. While in your new form, your natural attacks gain all your primary weapon's material properties, as well as disarm, trip and sunder properties.",
                                                  "",
                                                  null,
-                                                 FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form) 
+                                                 FeatureGroup.Feat
                                                 );
 
             var buff1 = Helpers.CreateBuff("WeaponShiftBuff",
@@ -382,7 +411,6 @@ namespace CallOfTheWild
                                                  "",
                                                  null,
                                                  FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
                                                  Helpers.PrerequisiteFeature(weapon_shift),
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 6)
                                                 );
@@ -404,22 +432,12 @@ namespace CallOfTheWild
                                           );
             buff2.SetBuffFlags(BuffFlags.HiddenInUi);
 
-
-            BlueprintWeaponEnchantment[] enchants3 = new BlueprintWeaponEnchantment[]
-            {
-                library.Get<BlueprintWeaponEnchantment>("c3209eb058d471548928a200d70765e0"), //composite
-                library.Get<BlueprintWeaponEnchantment>("c4d213911e9616949937e1520c80aaf3"), //strength thrown
-                WeaponEnchantments.summoned_weapon_enchant,
-                WeaponEnchantments.master_work
-            };
-
             greater_weapon_shift = Helpers.CreateFeature("GreaterWeaponShiftFeature",
                                                  "Greater Weapon Shift",
                                                  "When you apply a melee weapon’s damage type and properties to your natural attacks using the Weapon Shift feat, your natural attacks also gain an enhancement bonus on attack and damage rolls equal to the enhancement bonus (if any) of the weapon.",
                                                  "",
                                                  null,
                                                  FeatureGroup.Feat,
-                                                 Helpers.PrerequisiteFeature(first_wildshape_form),
                                                  Helpers.PrerequisiteFeature(weapon_shift),
                                                  Helpers.PrerequisiteFeature(improved_weapon_shift),
                                                  Helpers.PrerequisiteStatValue(StatType.BaseAttackBonus, 8)
@@ -444,8 +462,20 @@ namespace CallOfTheWild
                                           );
             buff3.SetBuffFlags(BuffFlags.HiddenInUi);
 
+            var wildshape_buffs = getWildshapes();
+            if (!Main.settings.balance_fixes)
+            {
+                weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+                improved_weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+                greater_weapon_shift.AddComponent(Helpers.PrerequisiteFeature(first_wildshape_form));
+            }
+            else
+            {
+                wildshape_buffs = getAllPolymorphBuffs();
+            }
 
-            foreach (var shape in druid_wild_shapes)
+
+            foreach (var shape in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff1, weapon_shift);
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(shape, buff2, improved_weapon_shift);
@@ -504,13 +534,14 @@ namespace CallOfTheWild
             allow_wild_armor_buff.SetBuffFlags(BuffFlags.HiddenInUi);
             wild_armor_feature = Helpers.CreateFeature("WildArmorFeature",
                                                         "Wild Armor",
-                                                        "Armor with this special ability usually appears to be made from magically hardened animal pelt. The wearer of a suit of armor or a shield with this ability preserves his armor bonus (and any enhancement bonus) while in a wild shape. Armor and shields with this ability usually appear to be covered in leaf patterns. While the wearer is in a wild shape, the armor cannot be seen.",
+                                                        $"Armor with this special ability usually appears to be made from magically hardened animal pelt. The wearer of a suit of armor or a shield with this ability preserves his armor bonus (and any enhancement bonus) while in a wild shape{(Main.settings.balance_fixes ? " or under effect of a polymorph spell" : "")}. Armor and shields with this ability usually appear to be covered in leaf patterns. While the wearer is in a wild shape, the armor cannot be seen.",
                                                         "",
                                                         null,
                                                         FeatureGroup.None);
             wild_armor_feature.HideInUI = true;
 
-            foreach (var wb in druid_wild_shapes)
+            var wildshape_buffs = Main.settings.balance_fixes ? getAllPolymorphBuffs() : getWildshapes();
+            foreach (var wb in wildshape_buffs)
             {
                 Common.addContextActionApplyBuffOnFactsToActivatedAbilityBuffNoRemove(wb, allow_wild_armor_buff/*, wild_armor_feature*/);
             }
@@ -1156,14 +1187,14 @@ namespace CallOfTheWild
             var bite1d6 = library.Get<BlueprintItemWeapon>("a000716f88c969c499a535dadcf09286");
             var undead_form1 = Helpers.CreateBuff("UndeadAnatomyIFormBuff",
                                             "Undead Anatomy I",
-                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
+                                            "When you cast this spell, you can assume the form of a Medium corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain a +2 size bonus to your Strength and a +2 natural armor bonus.\n"
                                             + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).",
                                             "",
                                             icon,
-                                            null,
+                                            Common.createPrefabLink("d3c03d0642effaf4c8f4deb356926870"),
                                             Common.createChangeUnitSize(Size.Medium),
                                             Helpers.CreateAddStatBonus(StatType.Strength, 2, ModifierDescriptor.Size),
-                                            Helpers.CreateAddStatBonus(StatType.AC, 2,  ModifierDescriptor.NaturalArmor),
+                                            Helpers.CreateAddStatBonus(StatType.AC, 2, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                             Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                             Common.createEmptyHandWeaponOverride(slam1d6),//claws
@@ -1173,16 +1204,16 @@ namespace CallOfTheWild
 
             var undead_form2 = Helpers.CreateBuff("UndeadAnatomyIIFormBuff",
                                 "Undead Anatomy II",
-                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
+                                "When you cast this spell, you can assume the form of a Large corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain DR 5/bludgeoning, a +4 size bonus to your Strength, a -2 penalty to your Dexterity and a +4 natural armor bonus.\n"
                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                 + "In this form, you gain a +4 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning.",
                                 "",
                                 icon,
-                                null,
+                                Common.createPrefabLink("d3c03d0642effaf4c8f4deb356926870"),
                                 Common.createChangeUnitSize(Size.Large),
                                 Helpers.CreateAddStatBonus(StatType.Strength, 4, ModifierDescriptor.Size),
                                 Helpers.CreateAddStatBonus(StatType.Dexterity, -2, ModifierDescriptor.Penalty),
-                                Helpers.CreateAddStatBonus(StatType.AC, 4, ModifierDescriptor.NaturalArmor),
+                                Helpers.CreateAddStatBonus(StatType.AC, 4, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                 Common.createSavingThrowBonusAgainstDescriptor(4, ModifierDescriptor.UntypedStackable, saves_descriptor),
                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
@@ -1194,16 +1225,16 @@ namespace CallOfTheWild
 
             var undead_form3 = Helpers.CreateBuff("UndeadAnatomyIIIFormBuff",
                                                 "Undead Anatomy III",
-                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack (1d6 for Medium forms, 1d4 for Small forms) and two slam attacks (1d6 for Medium forms, 1d4 for Small forms). You also gain DR 5/-, a +6 size bonus to your Strength, a -4 penalty to your Dexterity and a +6 natural armor bonus.\n"
+                                                "When you cast this spell, you can assume the form of a Huge corporeal creature of the undead type, which must be vaguely humanoid-shaped (like a ghoul or zombie). You gain a bite attack and two slam attacks. You also gain DR 5/-, a +6 size bonus to your Strength, a -4 penalty to your Dexterity and a +6 natural armor bonus.\n"
                                                 + "In this form, you detect as an undead creature (such as with detect undead, but not with magic that reveals your true form, such as true seeing) and are treated as undead for the purposes of channeled energy, cure spells, and inflict spells, but not for other effects that specifically target or react differently to undead (such as searing light).\n"
                                                 + "In this form, you gain a +8 bonus on saves against mind-affecting effects, disease, poison, sleep, and stunning. If the form has a vulnerability to an attack (such as sunlight), you gain that vulnerability.",
                                                 "",
                                                 icon,
-                                                null,
+                                                Common.createPrefabLink("d3c03d0642effaf4c8f4deb356926870"),
                                                 Common.createChangeUnitSize(Size.Huge),
                                                 Helpers.CreateAddStatBonus(StatType.Strength, 6, ModifierDescriptor.Size),
                                                 Helpers.CreateAddStatBonus(StatType.Dexterity, -4, ModifierDescriptor.Penalty),
-                                                Helpers.CreateAddStatBonus(StatType.AC, 6, ModifierDescriptor.NaturalArmor),
+                                                Helpers.CreateAddStatBonus(StatType.AC, 6, NaturalArmorFix.NATURAL_ARMOR_BONUS),
                                                 Common.createSavingThrowBonusAgainstDescriptor(8, ModifierDescriptor.UntypedStackable, saves_descriptor),
                                                 Common.createPhysicalDR(5),
                                                 Helpers.Create<UndeadMechanics.ConsiderUndeadForHealing>(),
@@ -1257,13 +1288,13 @@ namespace CallOfTheWild
                                 "You are in storm giant form now. You have a + 8 size bonus to your Strength, +6 size bonus to your Constitution, -2 penalty to Dexterity and a + 6 natural armor bonus. Your movement speed is increased by 10 feet. You also have two 2d6 slam attacks and electricity resistance 20.",
                                 "",
                                 defensive_stance.Icon,
-                                null,
+                                Common.createPrefabLink("6035a889bae45f242908569a7bc25c93"),
                                 Common.createChangeUnitSize(Size.Huge),
                                 Common.createAddGenericStatBonus(8, ModifierDescriptor.Size, StatType.Strength),
                                 Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
                                 Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
                                 Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Common.createAddGenericStatBonus(6, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                 Common.createEnergyDR(20, DamageEnergyType.Electricity),
                                 Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("767e6932882a99c4b8ca95c88d823137")),//slam
@@ -1286,7 +1317,7 @@ namespace CallOfTheWild
                     Common.createAddGenericStatBonus(10, ModifierDescriptor.Enhancement, StatType.Speed),
                     Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Constitution),
                     Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                    Common.createAddGenericStatBonus(6, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Common.createAddGenericStatBonus(6, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                     Common.createEmptyHandWeaponOverride(athach_slam),
                     Common.createAddAdditionalLimb(athach_bite),
@@ -1324,7 +1355,7 @@ namespace CallOfTheWild
                                             Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                                             Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                                             Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                            Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                            Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                             Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                             Common.createEmptyHandWeaponOverride(library.Get<BlueprintItemWeapon>("de21b6c00e6adaa409a6e7c2ae9f87f4")),//claws
                                             Common.createAddAdditionalLimb(library.Get<BlueprintItemWeapon>("1f8a2e1e5e078014baebc90c2c46796f")), //bite
@@ -1343,12 +1374,12 @@ namespace CallOfTheWild
                                 "You are in fire giant form now. You have a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also have two 1d8 slam attacks, fire resistance 20 and cold vulnerability.",
                                 "",
                                 defensive_stance.Icon,
-                                null,
+                                Common.createPrefabLink("f5eaec10b715dbb46a78890db41fa6a0"),
                                 Common.createChangeUnitSize(Size.Large),
                                 Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                                 Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                                 Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                                Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                                Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                                 Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                                 Common.createAddEnergyVulnerability(DamageEnergyType.Cold),
                                 Common.createEnergyDR(20, DamageEnergyType.Fire),
@@ -1366,12 +1397,12 @@ namespace CallOfTheWild
                     "You are in frost giant form now. You have a + 6 size bonus to your Strength, +4 size bonus to your Constitution, -2 penalty to Dexterity and a + 4 natural armor bonus. You also have two 1d8 slam attacks, cold resistance 20 and fire vulnerability.",
                     "",
                     defensive_stance.Icon,
-                    null,
+                    Common.createPrefabLink("d7f055790fceee34e87c4902877c894f"),
                     Common.createChangeUnitSize(Size.Large),
                     Common.createAddGenericStatBonus(6, ModifierDescriptor.Size, StatType.Strength),
                     Common.createAddGenericStatBonus(4, ModifierDescriptor.Size, StatType.Constitution),
                     Common.createAddGenericStatBonus(-2, ModifierDescriptor.Size, StatType.Dexterity),
-                    Common.createAddGenericStatBonus(4, ModifierDescriptor.NaturalArmor, StatType.AC),
+                    Common.createAddGenericStatBonus(4, NaturalArmorFix.NATURAL_ARMOR_BONUS, StatType.AC),
                     Helpers.CreateSpellDescriptor(SpellDescriptor.Polymorph),
                     Common.createAddEnergyVulnerability(DamageEnergyType.Fire),
                     Common.createEnergyDR(20, DamageEnergyType.Cold),

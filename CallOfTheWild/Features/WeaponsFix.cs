@@ -159,43 +159,6 @@ namespace CallOfTheWild
 
         static void addWeaponProperties()
         {
-            var sunder = Helpers.CreateFeature("SunderWeaponPropertyFeature",
-                                               "Sunder",
-                                               "When you use a sunder weapon, you get a +2 bonus on Combat Maneuver Checks to sunder attempts.",
-                                               "",
-                                               null,
-                                               FeatureGroup.None,
-                                               Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.SunderArmor, 2)
-                                               );
-            sunder.HideInCharacterSheetAndLevelUp = true;
-            var sunder_enchant = Common.createWeaponEnchantment("SunderEnchantment", sunder.Name, sunder.Description, "", "", "", 0, null,
-                                           Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = sunder));
-
-            var trip = Helpers.CreateFeature("TripWeaponPropertyFeature",
-                                   "Trip",
-                                   "When you use a trip weapon, you get a +2 bonus on Combat Maneuver Checks to trip attempts.",
-                                   "",
-                                   null,
-                                   FeatureGroup.None,
-                                   Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Trip, 2)
-                                   );
-            trip.HideInCharacterSheetAndLevelUp = true;
-            var trip_enchant = Common.createWeaponEnchantment("TripEnchantment", trip.Name, trip.Description, "", "", "", 0, null,
-                               Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = trip));
-
-            var disarm = Helpers.CreateFeature("DisarmWeaponPropertyFeature",
-                                               "Disarm",
-                                               "When you use a disarm weapon, you get a +2 bonus on Combat Maneuver Checks to disarm attempts.",
-                                               "",
-                                               null,
-                                               FeatureGroup.None,
-                                               Common.createManeuverBonus(Kingmaker.RuleSystem.Rules.CombatManeuver.Disarm, 2)
-                                               );
-            disarm.HideInCharacterSheetAndLevelUp = true;
-
-            var disarm_enchant = Common.createWeaponEnchantment("DisarmEnchantment", disarm.Name, disarm.Description, "", "", "", 0, null,
-                   Helpers.Create<AddUnitFeatureEquipment>(a => a.Feature = disarm));
-
             WeaponCategory[] disarm_weapons = new WeaponCategory[]
             {
                 WeaponCategory.Flail,
@@ -222,15 +185,15 @@ namespace CallOfTheWild
             {
                 if (disarm_weapons.Contains(wt.Category))
                 {
-                    Common.addEnchantment(wt, disarm_enchant);
+                    Common.addEnchantment(wt, WeaponEnchantments.disarm_enchant);
                 }
                 if (sunder_weapons.Contains(wt.Category))
                 {
-                    Common.addEnchantment(wt, sunder_enchant);
+                    Common.addEnchantment(wt, WeaponEnchantments.sunder_enchant);
                 }
                 if (trip_weapons.Contains(wt.Category))
                 {
-                    Common.addEnchantment(wt, trip_enchant);
+                    Common.addEnchantment(wt, WeaponEnchantments.trip_enchant);
                 }
             }
         }

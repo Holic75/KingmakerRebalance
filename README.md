@@ -588,7 +588,8 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Blindsight now allows to ignore mirror images,
 - Elemental Arcana should now correctly account for resitance/immunity/vulnerability,
 - Trip/Bull rush immune tagets no longer provoke attack of opportunity on maneuver attempts with Greater Trip/Bull Rush feats,
-- Shatter defenses was fixed to work as per description.
+- Shatter defenses was fixed to work as per description,
+- Darkness domain moonfire ability deals correct damage to lycantropes.
 
 #### NPC companion stat changes (optional)
 - Valerie class was changed to Vindictive Bastard and stats to 18/10/14/13/10/15
@@ -663,7 +664,8 @@ The changes corresponding to these spells as well as Plant Shape I, II and III w
 - Precise Shot no longer requires Point-Blank Shot
 - Damage of basic domain/school/bloodline powers scales a bit better
 - Damage/Healing die of spells and abilities is increased by one step (by 2 steps if it was greater than d6),
-- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19.
+- Arcanist receives arcane exploits only at lvls 1, 4, 7, 10, 13, 16 and 19; exploiter wizard - at lvls 1, 7, 13 and 19,
+- Wild Armor armor feature, Weapon Shift feat line and Mutated Shape feat can be used with any polymorph effect (instead of only with wildshape).
 
 
 NOTE: Changes to  npc companions, and class skill points and some others are optional and can be disabled (set corresponding values to false,

@@ -29,8 +29,8 @@ namespace CallOfTheWild
             foreach (var f in familiars)
             {
                 f.AddComponent(Common.createAuraFeatureComponent(buff));
-                f.SetDescription(f.Description + "\nOnce per round instead of using an activatable item, like wand, scroll or potion, you can make your familiar activate this item, instead of spending an action yourself."
-                    + "If activating an item requires to make a skill check or an attack roll, you make the corresponding check in place of your familiar.\nNote: Your familiar does not have a spellbook, so a UMD check is always required if it uses a scroll or a wand.");
+                f.SetDescription(f.Description + "\nOnce per round instead of using an activatable item, like wand, scroll or potion, you can make your familiar activate this item, instead of spending an action yourself.\n"
+                    + " If activating an item requires to make a skill check or an attack roll, you make the corresponding check in place of your familiar.\nNote: Your familiar does not have a spellbook, so a UMD check is always required if it uses a scroll or a wand.");
                 var toggle = f.GetComponent<AddFacts>().Facts[0] as BlueprintActivatableAbility;
                 toggle.AddComponent(Helpers.Create<TurnActionMechanics.RestrictionCanUseFamiliarFreeCast>());
                 toggle.Buff.AddComponent(Helpers.Create<TurnActionMechanics.ActivateFamiliarFreeCast>());

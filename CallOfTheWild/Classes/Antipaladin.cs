@@ -2077,8 +2077,7 @@ namespace CallOfTheWild
                                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWUnholy.png"),
                                                             fiendish_boon_enhancement_buff,
                                                             library.Get<BlueprintWeaponEnchantment>("d05753b8df780fc4bb55b318f06af453"),
-                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
-                                                            AlignmentMaskType.Evil);
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty);
 
             var axiomatic = Common.createEnchantmentAbility("FiendishBoonEnchancementAxiomatic",
                                                             "Fiendish Boon - Axiomatic",
@@ -2086,8 +2085,7 @@ namespace CallOfTheWild
                                                             library.Get<BlueprintActivatableAbility>("d76e8a80ab14ac942b6a9b8aaa5860b1").Icon,
                                                             fiendish_boon_enhancement_buff,
                                                             library.Get<BlueprintWeaponEnchantment>("0ca43051edefcad4b9b2240aa36dc8d4"),
-                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
-                                                            AlignmentMaskType.Lawful);
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty);
 
             var anarchic = Common.createEnchantmentAbility("FiendishBoonEnchancementAnarchic",
                                                             "Fiendish Boon - Anarchic",
@@ -2095,8 +2093,7 @@ namespace CallOfTheWild
                                                             LoadIcons.Image2Sprite.Create(@"AbilityIcons/HWAnarchic.png"),
                                                             fiendish_boon_enhancement_buff,
                                                             library.Get<BlueprintWeaponEnchantment>("57315bc1e1f62a741be0efde688087e9"),
-                                                            2, ActivatableAbilityGroup.DivineWeaponProperty,
-                                                            AlignmentMaskType.Chaotic);
+                                                            2, ActivatableAbilityGroup.DivineWeaponProperty);
 
            
             var ability = Helpers.CreateAbility("FiendishBoonSwitchAbility",

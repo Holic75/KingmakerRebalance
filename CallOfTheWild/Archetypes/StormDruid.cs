@@ -216,7 +216,7 @@ namespace CallOfTheWild.Archetypes
 
             spontaneous_casting = Helpers.CreateFeature("SpontaneousCastingStormLord",
                                                         "Spontaneous Domain Casting",
-                                                        "A storm druid can channel stored spell energy into domain spells that she has not prepared ahead of time. She can “lose” a prepared spell in order to cast any domain spell of the same level or lower.",
+                                                        "A storm druid can channel stored spell energy into domain spells that she has not prepared ahead of time. She can “lose” a prepared spell in order to cast any domain spell of the same level.",
                                                         "",
                                                         library.Get<BlueprintAbility>("0bd54216d38852947930320f6269a9d7").Icon,
                                                         FeatureGroup.None
