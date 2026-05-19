@@ -76,6 +76,10 @@ namespace CallOfTheWild.MechanicsFixes
                 // Main.logger.Log($"Fixed natural armor bonus descriptor for  {mutagen.name}");
             }
 
+            // fix animal companion natural armor
+            var animal_companion_improved_ac = Main.library.Get<BlueprintFeature>("0d20d88abb7c33a47902bd99019f2ed1");
+            animal_companion_improved_ac.GetComponent<AddStatBonus>().Descriptor = NATURAL_ARMOR_BONUS;
+
         }
 
         static void fixDescriptorComparer()

@@ -215,14 +215,14 @@ namespace CallOfTheWild
             createAuraOfIntimidation();
 
 
-            terror_weaver.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(1, phrenic_amplification),
-                                                                  Helpers.LevelEntry(11, phrenic_amplification),
-                                                                  Helpers.LevelEntry(19, phrenic_amplification)};
-            terror_weaver.AddFeatures = new LevelEntry[] {Helpers.LevelEntry(2, manipulation),
+            terror_weaver.RemoveFeatures = new LevelEntry[] { Helpers.LevelEntry(11, phrenic_amplification),
+                                                              Helpers.LevelEntry(19, phrenic_amplification)
+            };
+            terror_weaver.AddFeatures = new LevelEntry[] { Helpers.LevelEntry(2, manipulation),
                                                               Helpers.LevelEntry(9, aura_of_intimidation9),
                                                               Helpers.LevelEntry(11, aura_of_intimidation11),
                                                               Helpers.LevelEntry(19, aura_of_intimidation19),
-                                                             };
+            };
             psychic_class.Progression.UIGroups = psychic_class.Progression.UIGroups.AddToArray(Helpers.CreateUIGroup(manipulation, aura_of_intimidation9, aura_of_intimidation11, aura_of_intimidation19));
         }
 
@@ -1473,6 +1473,8 @@ namespace CallOfTheWild
             createPainDiscipline();
             createPageantryDiscipline();
             createFerocityDiscipline();
+            // createSelfPerfectionDiscipline();
+            // createSorrowDiscipline();
         }
 
 
