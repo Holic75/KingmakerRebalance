@@ -4162,12 +4162,13 @@ namespace CallOfTheWild
             skeleton.RemoveComponents<AddTags>();
             skeleton.Visual = library.Get<BlueprintUnit>("4050be4512d245f40bf9461074b672f4").Visual; //from summoned skeleton
             skeleton.StartingInventory = new Kingmaker.Blueprints.Items.BlueprintItem[0];
-            skeleton.AddFacts = skeleton.AddFacts.AddToArray(library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //martial weapons
+            skeleton.AddFacts = skeleton.AddFacts.AddToArray(library.Get<BlueprintFeature>("e70ecf1ed95ca2f40b754f1adb22bbdd"), //simple weapons
+                                                             library.Get<BlueprintFeature>("203992ef5b35c864390b4e4a1e200629"), //martial weapons
                                                              library.Get<BlueprintFeature>("cb8686e7357a68c42bdd9d4e65334633"), //shield prof
                                                              library.Get<BlueprintFeature>("6105f450bb2acbd458d277e71e19d835"), //tower shield prof
                                                              library.Get<BlueprintFeature>("6d3728d4e9c9898458fe5e9532951132"), //ligth armor prof
                                                              library.Get<BlueprintFeature>("46f4fb320f35704488ba3d513397789d"), //medium armor prof
-                                                             library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681")); //shield prof
+                                                             library.Get<BlueprintFeature>("1b0f68188dcc435429fb87a022239681")); //heavy armor prof
 
             var exotic_weapon_prof = library.Get<BlueprintFeatureSelection>("9a01b6815d6c3684cb25f30b8bf20932");
             foreach (var wp in exotic_weapon_prof.AllFeatures)

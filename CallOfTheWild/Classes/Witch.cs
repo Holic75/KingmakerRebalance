@@ -512,7 +512,7 @@ namespace CallOfTheWild
                                                           );
             winter_witch_patron_selection =  Helpers.CreateFeatureSelection("WinterWitchPatronSelection",
                                                            "Winter Patron",
-                                                           "A winter witch must choose her patron from one of the following patron themes: ancestors, enchantment, endurance, transformation, or winter. ",
+                                                           "A winter witch must choose her patron from one of the following patron themes: ancestors, enchantment, endurance, transformation, or winter.",
                                                            "",
                                                            Helpers.GetIcon("e377feb2ecec95e478e0565da621ea55"),
                                                            FeatureGroup.None);
