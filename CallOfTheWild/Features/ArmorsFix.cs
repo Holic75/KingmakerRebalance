@@ -1,16 +1,26 @@
-﻿using Kingmaker;
+﻿using Harmony12;
+using Kingmaker;
 using Kingmaker.Blueprints.Items.Armors;
 using Kingmaker.Blueprints.Items.Equipment;
+using Kingmaker.Blueprints.Root;
+using Kingmaker.EntitySystem.Entities;
 using Kingmaker.EntitySystem.Stats;
 using Kingmaker.Items;
+using Kingmaker.Localization;
 using Kingmaker.RuleSystem;
 using Kingmaker.RuleSystem.Rules;
+using Kingmaker.UI.Common;
+using Kingmaker.UI.ServiceWindow;
+using Kingmaker.UI.Tooltip;
 using Kingmaker.UnitLogic;
+using Kingmaker.Visual.CharacterSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace CallOfTheWild.ArmorFix
 {
@@ -37,6 +47,71 @@ namespace CallOfTheWild.ArmorFix
                 return true;
             __result =  blueprint.CanBeEquippedBy(owner);
             return false;
+        }
+    }
+
+    // highlight in grey armors that can be equipped but the character does not have proficiency with
+    [Harmony12.HarmonyPatch(typeof(ItemSlot))]
+    [Harmony12.HarmonyPatch("SetupEquipPossibility")]
+    class ItemSlot__SetupEquipPossibility__Patch
+    {
+        static void Postfix(ItemSlot __instance)
+        {
+            var can_equip = CallOfTheWild.Helpers.GetField<Transform>(__instance, "m_CanEquip");
+            if (can_equip == null)
+            {
+                return;
+            }
+            can_equip.GetComponent<UnityEngine.UI.Image>().color = new Color(0.9f, 0.3f, 0.1f, 0.4f);
+            if (!__instance.HasItem)
+            {
+                can_equip.gameObject.SetActive(false);
+                return;
+            }
+            var character = UIUtility.GetCurrentCharacter()?.Descriptor;
+            if (character == null)
+            {
+                can_equip.gameObject.SetActive(false);
+                return;
+            }
+            var item = __instance.Item as ItemEntityArmor;
+            if (item == null || item.Blueprint == null || !Helpers.isBodyArmor(item.Blueprint)) return;
+            if (item.CanBeEquippedBy(character) && !character.Proficiencies.Contains(item.Blueprint.ProficiencyGroup))
+            {
+                can_equip.GetComponent<UnityEngine.UI.Image>().color = new Color(0.2f, 0.2f, 0.2f, 0.4f);
+                can_equip.gameObject.SetActive(true);
+            }
+        }
+    }
+
+    // update 'Can be equipped' text in the armor tooltip, in case of missing proficiency
+    class UIUtilityTexts__GetCanDoText__Patch
+    {
+        internal static void Run()
+        {
+            var original = Harmony12.AccessTools.Method(typeof(UIUtilityTexts), "GetCanDoText");
+            var patch = Harmony12.AccessTools.Method(typeof(UIUtilityTexts__GetCanDoText__Patch), "Postfix");
+            Main.harmony.Patch(original, postfix: new Harmony12.HarmonyMethod(patch));
+        }
+
+        static void Postfix(TooltipData data, ref string __result)
+        {
+            var item = data.Item as ItemEntityArmor;
+            var character = UIUtility.GetCurrentCharacter();
+            if (item == null || character == null)
+            {
+                return;
+            }
+            if (item.Owner != null)
+            {
+                return;
+            }
+            if (item.Blueprint == null || !Helpers.isBodyArmor(item.Blueprint)) return;
+
+            if (item.CanBeEquippedBy(character.Descriptor) && !character.Descriptor.Proficiencies.Contains(item.Blueprint.ProficiencyGroup))
+            {
+                __result = Harmony12.Traverse.Create(typeof(UIUtilityTexts)).Method("GetEquipPosibilityString", "Can be equipped, but armor check penalty will be applied to attack rolls", BlueprintRoot.Instance.UIRoot.TooltipColors.Default).GetValue<string>();
+            }
         }
     }
 
