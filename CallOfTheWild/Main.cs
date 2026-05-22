@@ -1,20 +1,21 @@
-﻿using UnityModManagerNet;
-using System;
-using System.Reflection;
-using System.Linq;
-using Kingmaker.Blueprints;
+﻿using CallOfTheWild.ArmorFix;
 using Kingmaker;
+using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Classes;
+using Kingmaker.Blueprints.Items;
+using Kingmaker.Designers.Mechanics.Buffs;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Class.LevelUp;
 using Kingmaker.UnitLogic.FactLogic;
 using Kingmaker.UnitLogic.Mechanics.Components;
-using Kingmaker.UnitLogic.Buffs.Blueprints;
-using Kingmaker.Designers.Mechanics.Buffs;
-using System.Collections.Generic;
-using Kingmaker.Blueprints.Items;
 using Newtonsoft.Json;
-using System.IO;
 using Newtonsoft.Json.Linq;
-using Kingmaker.UnitLogic.Class.LevelUp;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityModManagerNet;
 
 namespace CallOfTheWild
 {
@@ -431,6 +432,7 @@ namespace CallOfTheWild
                     
                     CallOfTheWild.SaveGameFix.FixMissingAssets();
                     CallOfTheWild.AiFix.load();
+                    UIUtilityTexts__GetCanDoText__Patch.Run();
 
                     if (settings.update_companions)
                     {
